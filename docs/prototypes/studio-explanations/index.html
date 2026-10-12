@@ -30,7 +30,10 @@
         <button type="button" role="tab" data-perspective="comparison" aria-controls="explanation-main" aria-selected="false"><span class="tab-index">02</span> Convention &amp; invention</button>
         <button type="button" role="tab" data-perspective="mechanism" aria-controls="explanation-main" aria-selected="false"><span class="tab-index">03</span> Mechanism map</button>
       </nav>
-      <div class="workbench-actions"><div class="return-controls"><button id="back-overview" type="button" hidden>← Return to Overview</button><button id="back-selection" type="button" hidden>← Previous element</button></div><div class="view-context"><span class="context-dot"></span><span id="view-description">A spatial index of proposed architecture elements.</span></div></div>
+      <div class="workbench-actions"><div class="return-controls"><button id="back-overview" type="button" hidden>← Return to Overview</button><button id="semantic-return" type="button" hidden>← Previous context</button></div><div class="view-context"><span class="context-dot"></span><span id="view-description">A spatial index of proposed architecture elements.</span></div></div>
+      <nav id="semantic-trail" class="semantic-trail" hidden aria-label="Exploration trail"></nav>
+      <div id="arrival-context" class="arrival-context" hidden aria-label="Why you arrived here"></div>
+      <p id="navigation-unavailable" class="navigation-unavailable" role="status" hidden></p>
       <section id="explanation-main" class="hero-stage" role="tabpanel" tabindex="0" aria-live="polite" aria-label="Explanatory visualization">
         <p>Loading the illustrative design fixture…</p>
       </section>

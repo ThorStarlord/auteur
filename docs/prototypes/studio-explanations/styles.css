@@ -23,3 +23,23 @@
 .mechanism-row:only-child{max-width:760px}
 
 .return-controls{display:flex;gap:10px;flex-wrap:wrap}.workbench-actions .return-controls button{white-space:nowrap}.view-context{margin-left:auto}
+/* Reversible meaning-led links and a minimal, contextual navigation trail. */
+.semantic-link{display:inline-flex;align-items:center;margin:5px 8px 5px 0;border:1px solid #d8c6e8;background:#fff;border-radius:8px;padding:9px 11px;color:#563e79;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;font-size:.83rem;line-height:1.45;overflow-wrap:anywhere;max-width:100%}
+.semantic-link:hover{background:#f4edf9;border-color:#9e81be}
+.semantic-link:focus-visible,.crumb:focus-visible,.inspect-link-source:focus-visible{outline:3px solid #285f55;outline-offset:3px}
+.semantic-trail{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid var(--edge);background:#fbfafc;padding:10px 22px;font-size:.81rem}
+.semantic-trail[hidden],.arrival-context[hidden],.navigation-unavailable[hidden]{display:none}
+.crumb{border:1px solid #ddd6e6;background:#fff;padding:6px 9px;border-radius:7px;color:#584978;font-size:.79rem}
+.crumb-current{font-weight:750;color:#314358;overflow-wrap:anywhere}
+.earlier-hops{position:relative}.earlier-hops summary{cursor:pointer;color:#604d80;font-weight:650}.earlier-hops .crumb{display:block;margin:6px 0}
+.arrival-context{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;padding:10px 22px;border-left:3px solid var(--violet);background:#f7f3fa;overflow-wrap:anywhere}
+.arrival-context p{margin:0;color:#413857;font-size:.85rem;font-weight:650}
+.arrival-context .source-note{margin:0}
+.inspect-link-source{font-size:.81rem;padding:7px 10px;border:1px solid #a993c0;color:#5d417d;border-radius:8px;background:white;cursor:pointer}
+.navigation-unavailable{padding:12px 22px;background:#fff1df;border-top:1px solid #e8cead;color:#7a5029;font-size:.84rem}
+.overview-related{margin-top:22px;padding:15px;border:1px solid var(--edge);border-radius:12px}
+.overview-related h3{font:600 1.13rem Georgia,serif;margin:0 0 10px}
+.mechanism-node.semantic-link{display:flex;justify-content:center;text-align:center;min-height:72px;text-decoration:underline}
+.selected-mechanism-node{display:flex;align-items:center;justify-content:center}
+@media(max-width:650px){.semantic-trail{padding:10px 13px}.arrival-context{padding:11px 13px;display:block}.arrival-context>*{display:block;margin:4px 0!important}.semantic-link{width:100%;margin:5px 0}.crumb{max-width:100%;white-space:normal}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}

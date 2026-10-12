@@ -50,7 +50,7 @@ def test_genre_anatomy_explains_promise_engine_conflict_payoff_with_coverage():
     assert 'source_ref' in anatomy and 'coverage_note' in anatomy
     assert 'inference_only' in anatomy and 'legacy_contract' in anatomy
     assert 'genre.engine_steps' in anatomy
-    assert 'onSelect' in anatomy
+    assert 'onNavigate' in anatomy and 'onInspect' in anatomy
 
 
 def test_comparison_keeps_convention_and_story_treatment_distinct():
@@ -61,7 +61,7 @@ def test_comparison_keeps_convention_and_story_treatment_distinct():
     assert 'genre_links' in js and 'story_treatment' in js
     assert 'coverage' in js and 'rule_strength' in js
     assert 'original in literature' in js
-    assert 'onSelect' in js
+    assert 'onNavigate' in js and 'onInspect' in js
 
 
 def test_mechanism_map_only_uses_declared_edges_and_shows_uncertainty():
@@ -72,26 +72,64 @@ def test_mechanism_map_only_uses_declared_edges_and_shows_uncertainty():
         assert label in js
     assert 'document.createElement(\'ol\')' in js
     assert 'source_ref' in js and 'support_status' in js
-    assert 'onSelect' in js
+    assert 'onNavigate' in js and 'onInspect' in js
     assert 'model.items.find' in js
 
 
 def test_switching_explanation_item_does_not_automatically_open_inspector():
     app = source('app.mjs')
-    assert 'function focusItem(id)' in app
-    assert "view.renderComparison(root,state.model,state.selected,(id)=>selectItem(id),(id)=>focusItem(id));" in app
-    assert "view.renderMechanism(root,state.model,state.selected,(id)=>selectItem(id),(id)=>focusItem(id));" in app
+    assert 'function setFocus(ref)' in app
+    focus = app.split('function setFocus(ref)', 1)[1].split('function inspect(id)', 1)[0]
+    assert "$('detail-panel').hidden=true" in focus
+    assert 'inspect(' not in focus
+    assert 'function inspect(id)' in app
     for view in ('comparison', 'mechanism'):
         text = source(f'views/{view}.mjs')
         assert 'onFocus' in text
-        assert 'onFocus(item.id)' in text or 'onFocus(trope.id)' in text
+        assert 'onFocus({kind:' in text
 
 
-def test_exploratory_selection_history_can_return_without_losing_view():
+def test_exploratory_semantic_history_can_return_without_losing_view():
     page = source('index.html')
     app = source('app.mjs')
-    assert 'id="back-selection"' in page
-    assert 'selectionHistory: []' in app
-    assert 'state.selectionHistory.push(state.selected)' in app
-    assert "$('back-selection').addEventListener('click'" in app
-    assert 'state.selectionHistory.pop()' in app
+    assert 'id="semantic-return"' in page
+    assert 'returnRoute(current())' in app
+    assert "window.history.back()" in app
+    assert "$('semantic-return').addEventListener('click'" in app
+    assert 'visitRoute(' in app
+
+
+def test_semantic_navigation_uses_one_route_owner_and_provenance_context():
+    page = source('index.html')
+    app = source('app.mjs')
+    assert 'id="arrival-context"' in page
+    assert 'id="semantic-trail"' in page
+    assert 'id="semantic-return"' in page
+    assert 'id="navigation-unavailable"' in page
+    assert "from './semantic-links.mjs'" in app
+    assert "from './navigation-state.mjs'" in app
+    assert 'function navigateByLink(' in app
+    assert 'window.addEventListener(\'popstate\'' in app
+    assert 'window.history.pushState(' in app
+    assert 'window.history.replaceState(' in app
+    assert 'state.selectionHistory' not in app
+    assert 'state.history.push(' not in app
+
+
+def test_contextual_nav_affordances_are_visible_without_inspector():
+    html = source('index.html')
+    css = source('styles.css')
+    assert 'id="arrival-context"' in html and 'hidden' in html.split('id="arrival-context"', 1)[1].split('>', 1)[0]
+    assert '.semantic-link:focus-visible' in css
+    assert '@media(max-width:650px)' in css
+    assert 'prefers-reduced-motion' in css
+    assert 'dataset.linkId' in source('app.mjs')
+
+
+def test_cross_view_links_use_semantic_targets_not_generic_inspector():
+    for name in ('anatomy', 'comparison', 'mechanism'):
+        js = source(f'views/{name}.mjs')
+        assert 'onNavigate(' in js
+        assert 'href' in js
+        assert 'sourceRef' in js or 'source_ref' in js
+    assert 'preferredPerspective' in source('app.mjs')
