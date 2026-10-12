@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Understanding the story · Auteur concept lab</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">A</span><div><strong>Auteur</strong><small>Design explorations</small></div></div>
+    <span class="prototype-status">Independent concept study · Not the live Studio</span>
+  </header>
+  <main class="app-shell">
+    <section class="page-heading">
+      <div class="eyebrow"><span class="eyebrow-line"></span> NARRATIVE ARCHITECTURE LAB / 01</div>
+      <h1>Understand the story <em>behind the structure.</em></h1>
+      <p>Three ways to explain narrative design—what genres tend to promise, how this story uses them, and why its mechanisms might work.</p>
+    </section>
+    <section class="workbench" aria-label="Explanatory prototype comparison">
+      <div class="workbench-top">
+        <div class="fixture-control"><label for="story-select">Explore a story</label><select id="story-select"><option value="paladin">The generous paladin</option><option value="hybrid">Wonder under investigation</option></select></div>
+        <div id="provenance-summary" class="truth-strip" role="status">Loading source status…</div>
+      </div>
+      <nav id="view-tabs" class="view-tabs" role="tablist" aria-label="Explanation perspective">
+        <button type="button" role="tab" data-perspective="overview" aria-controls="explanation-main" aria-selected="true"><span class="tab-index">00</span> Story map</button>
+        <button type="button" role="tab" data-perspective="anatomy" aria-controls="explanation-main" aria-selected="false"><span class="tab-index">01</span> Genre anatomy</button>
+        <button type="button" role="tab" data-perspective="comparison" aria-controls="explanation-main" aria-selected="false"><span class="tab-index">02</span> Convention &amp; invention</button>
+        <button type="button" role="tab" data-perspective="mechanism" aria-controls="explanation-main" aria-selected="false"><span class="tab-index">03</span> Mechanism map</button>
+      </nav>
+      <div class="workbench-actions"><div class="return-controls"><button id="back-overview" type="button" hidden>← Return to Overview</button><button id="back-selection" type="button" hidden>← Previous element</button></div><div class="view-context"><span class="context-dot"></span><span id="view-description">A spatial index of proposed architecture elements.</span></div></div>
+      <section id="explanation-main" class="hero-stage" role="tabpanel" tabindex="0" aria-live="polite" aria-label="Explanatory visualization">
+        <p>Loading the illustrative design fixture…</p>
+      </section>
+      <aside id="detail-panel" class="detail-panel" hidden aria-label="Selected component details">
+        <button id="close-details" class="detail-close" type="button" aria-label="Close details">×</button>
+        <div class="detail-eyebrow">COMPONENT CONTEXT</div><h3 id="detail-title"></h3><p id="detail-description"></p>
+        <p id="detail-source" class="source-note"></p>
+        <div id="detail-relations"></div>
+      </aside>
+      <footer class="stage-footer"><span id="fixture-note"></span><strong>Exploration ≠ acceptance</strong></footer>
+    </section>
+    <p class="afterword">Every connection is a question you can inspect, not an instruction you must obey. <span>Prototype · 2026</span></p>
+  </main>
+</body>
+</html>
