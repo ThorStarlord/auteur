@@ -1,13 +1,13 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "create", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "architecture", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureRequestSha = null; state.architectureReview = null;
-  state.workspace = "realization"; state.lastRealizationView = "create";
+  state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
   state.realizationStale = false;
   state.realizationReview = null; state.realizationPositions = {}; state.selectedRealization = null;
@@ -400,7 +400,7 @@
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
     state.realizationPositions = {}; state.selectedRealization = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
-    state.view = "create"; state.focusGroup = "";
+    state.view = "architecture"; state.workspace = "architecture"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
     state.panX = doc.viewport.pan_x; state.panY = doc.viewport.pan_y; state.zoom = doc.viewport.zoom;
     $("zoom").value = String(Math.round(state.zoom * 100));
@@ -408,6 +408,8 @@
     state.deleted = doc.deleted || {}; showRecoveryAction();
     remote.savedSnapshot = JSON.stringify(snapshot());
     var focus = restoreFocus();
+    if (!focus) $("layer-view").value = state.view;
+    if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
     render();
     if (focus && focus.editorOpen && selected() && selected().kind === "scene") {
       displayScene(focus.caret, focus.expanded);
@@ -695,6 +697,10 @@
     var item = visionItem();
     if (document.activeElement !== $("vision-text")) $("vision-text").value = item ? item.content : "";
     $("vision-status").textContent = item ? "Working vision saved with canvas" : "Start with any creative intent. A premise is optional.";
+    var preview = item && item.content.trim() ? item.content.trim().replace(/\s+/g, " ") :
+      "Optional: emotional promises, genres, tropes or a premise";
+    $("vision-preview").textContent = "· " + preview;
+    $("vision-preview").title = preview;
   }
   function updateVision() {
     if (!remote.ready || remote.failed) { status("Vision cannot be saved while the canvas is unavailable."); return; }
@@ -1245,6 +1251,15 @@
   }
   function render() {
     var designing = state.workspace === "architecture";
+    $("architecture-context").hidden = !designing;
+    var context = state.architecture && state.architecture.summary ? state.architecture.summary :
+      "Explore the provisional architecture; select a node to inspect its connections.";
+    $("architecture-context-summary").textContent = context;
+    $("architecture-context-summary").title = context;
+    $("working-group-control").hidden = designing;
+    $("inspector").setAttribute("aria-label", designing ? "Architecture component inspector" : "Story item inspector");
+    $("viewport").setAttribute("aria-label", designing ? "Interactive proposed narrative architecture graph" :
+      "Story canvas. Use Add controls to create notes; arrow keys move focused nodes.");
     ["add-note", "add-character", "add-scene", "connect-shortcut", "write-shortcut"].forEach(function (id) {
       $(id).hidden = designing;
     });
@@ -1277,8 +1292,16 @@
       : state.view === "create" ? "Working ideas and connections are not accepted story facts."
       : "Source-backed elements are read-only; canvas layout never changes story authority.";
     var host = $("nodes"); host.replaceChildren();
-    $("empty-state").hidden = state.items.length > 0 ||
-      (state.view === "realization_candidates" && !!state.realization);
+    var awaitingArchitecture = state.view === "architecture" &&
+      (!state.architecture || !state.architecture.nodes.length);
+    $("empty-state").hidden = state.view === "architecture" ? !awaitingArchitecture :
+      state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization);
+    $("empty-state").querySelector("h1").textContent = designing
+      ? "Explore your narrative architecture" : "What story do you want to tell?";
+    $("empty-state").querySelector("p").textContent = designing
+      ? "Describe an optional Story Vision above, then ask the coding agent to develop a provisional architecture graph."
+      : "Start anywhere. Create an idea, character or scene. Nothing becomes accepted story material here.";
+    $("start").textContent = designing ? "Develop architecture" : "Add your first idea";
     state.items.forEach(function (item) {
       if (!visibleWorking(item)) return;
       var pos = state.positions[item.id];
@@ -1588,11 +1611,16 @@
   $("add-note").addEventListener("click", function () { newItem("note"); });
   $("add-character").addEventListener("click", function () { newItem("character"); });
   $("add-scene").addEventListener("click", function () { newItem("scene"); });
-  $("start").addEventListener("click", function () { newItem("note"); });
+  $("start").addEventListener("click", function () {
+    if (state.workspace === "architecture") requestArchitecture("");
+    else newItem("note");
+  });
   $("vision-text").addEventListener("input", updateVision);
   $("vision-save").addEventListener("click", function () {
     updateVision();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+    showVision();
+    if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
   });
   $("vision-write").addEventListener("click", function () {
     switchWorkspace("realization"); $("write-shortcut").click();
@@ -1719,6 +1747,7 @@
     function finish() { $("viewport").removeEventListener("pointermove", move); $("viewport").removeEventListener("pointerup", finish); $("viewport").removeEventListener("pointercancel", finish); scheduleSave(); }
     this.addEventListener("pointermove", move); this.addEventListener("pointerup", finish); this.addEventListener("pointercancel", finish);
   });
+  $("layer-view").value = state.view;
   render();
   $("evidence-workspace").value = new URLSearchParams(window.location.search).get("workspace") || "";
   openRemote();
