@@ -6,8 +6,8 @@ const controller=readFileSync(new URL('../src/auteur/beginner/browser/studio_unf
 class El{
  constructor(id=''){this.id=id;this.children=[];this.hidden=true;this.value='';this.textContent='';this.events={};this.style={};this.attributes={};this.disabled=false;this.dataset={};}
  replaceChildren(...arr){this.children=[...arr]}appendChild(x){this.children.push(x);return x}append(...xs){this.children.push(...xs)}
- setAttribute(k,v){this.attributes[k]=v}addEventListener(k,v){this.events[k]=v}
- focus(){}
+ setAttribute(k,v){this.attributes[k]=v}getAttribute(k){return this.attributes[k]}addEventListener(k,v){this.events[k]=v}
+ focus(){this.didFocus=true}
 }
 function fixture(){
  const ids=['unfolding-start','unfolding-local','unfolding-ghosts','unfolding-explanation','unfolding-evidence-status',
@@ -135,4 +135,14 @@ test('desktop suggestion panel follows the focused graph node instead of being g
  f.win.innerWidth=390;f.ctrl.render();
  assert.equal(local.style.left,'');
  assert.equal(local.style.top,'');
+});
+
+
+test('keyboard focus stays on the same suggestion after opening its explanation',()=>{
+ const f=fixture();f.ctrl.render();
+ const old=f.els.get('unfolding-ghosts').children[0];old.events.click();
+ const next=f.els.get('unfolding-ghosts').children[0];
+ assert.notEqual(next,old);
+ assert.equal(next.getAttribute('aria-pressed'),'true');
+ assert.equal(next.didFocus,true);
 });
