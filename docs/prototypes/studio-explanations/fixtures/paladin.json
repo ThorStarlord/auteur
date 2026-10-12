@@ -1,0 +1,46 @@
+{
+  "story_id": "paladin", "title": "The Paladin Who Makes Others Stronger",
+  "scenario": "Screenshot-grounded paladin progression fantasy",
+  "authority_status": "DERIVED / NOT CANON", "illustrative": true,
+  "fixture_note": "Names were transcribed or conservatively paraphrased from the six owner screenshots (2026-10-12); explanatory genre loops and proposed links are explicitly synthetic hypotheses, not recovered source IDs.",
+  "vision": "A progression fantasy about a generous, heroic paladin and good against evil.",
+  "genres": [
+    {"id":"progression_fantasy", "label":"Progression Fantasy", "role":"governing", "promise":"Anticipation and satisfaction from earned advancement", "engine_steps":["Encounter an obstacle", "Learn or struggle", "Gain meaningful capability"], "conflict":"Each increase in power creates a harder problem", "payoff":"A breakthrough earned through sustained effort", "basis":"Working genre hypothesis, not a curated pack rule"},
+    {"id":"heroic_fantasy", "label":"Heroic Fantasy", "role":"supporting", "promise":"Meaningful heroism under moral pressure", "engine_steps":["Encounter injustice", "Make a costly choice", "Protect or restore others"], "conflict":"Duty competes with personal advantage", "payoff":"Choices reveal and sustain character", "basis":"Working genre hypothesis, not a curated pack rule"},
+    {"id":"epic_fantasy", "label":"Epic Fantasy", "role":"supporting", "promise":"Awe, scope and world-changing heroism", "engine_steps":["Threat beyond the personal", "Build alliances", "Consequential resolution"], "conflict":"Personal cost against large-scale stakes", "payoff":"A wider world remains worth protecting", "basis":"Legacy epic_fantasy contract (audience_product, default_engine_biases); not a versioned Genre Pack"}
+  ],
+  "nodes": [
+    {"id":"earn", "label":"Earned breakthrough", "type":"trope", "description":"Advancement follows meaningful effort rather than arriving without cost.", "story_treatment":"proposed_adoption", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:trope-panel"},
+    {"id":"growth", "label":"Challenge, learning, transformation", "type":"engine", "description":"A repeatable advancement cycle with changing challenges.", "story_treatment":"proposed_adaptation", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:structure-panel"},
+    {"id":"generosity", "label":"Generosity that creates capacity", "type":"trope", "description":"The hero helps others acquire independent capability; not a claim of unprecedented originality.", "story_treatment":"proposed_story_specific", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:trope-panel"},
+    {"id":"commitment", "label":"The paladin's ethical commitment", "type":"trope", "description":"A governing choice to defend others despite consequences.", "story_treatment":"proposed_story_specific", "derivation":"premise_explicit", "certainty":"clear", "source_ref":"screenshot-2026-10-12:trope-panel"},
+    {"id":"consequence", "label":"Heroism with visible consequence", "type":"trope", "description":"Heroic actions alter material relationships and responsibilities.", "story_treatment":"proposed_adaptation", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:trope-panel"},
+    {"id":"responsibility", "label":"Resolution with continuing responsibility", "type":"structure", "description":"Victory does not erase obligations to other people.", "story_treatment":"proposed_story_specific", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:structure-panel"},
+    {"id":"joy", "label":"Joy in earned heroism", "type":"emotion", "description":"Intended reader experience; not a guaranteed emotional response.", "story_treatment":"proposed_adoption", "derivation":"model_inference", "certainty":"likely", "source_ref":"screenshot-2026-10-12:emotions-panel"},
+    {"id":"world", "label":"Mythic scale, human consequence", "type":"framing", "description":"Epic scope stays connected to ordinary lives.", "story_treatment":"proposed_adaptation", "derivation":"model_inference", "certainty":"uncertain", "source_ref":"screenshot-2026-10-12:overview-graph"}
+  ],
+  "genre_links": [
+    {"node_id":"earn","genre_id":"progression_fantasy","relation":"uses","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:progression-cycle"},
+    {"node_id":"earn","genre_id":"heroic_fantasy","relation":"supports","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:heroic-cost"},
+    {"node_id":"growth","genre_id":"progression_fantasy","relation":"uses","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:progression-structure"},
+    {"node_id":"generosity","genre_id":"progression_fantasy","relation":"adapts","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:shared-growth"},
+    {"node_id":"generosity","genre_id":"heroic_fantasy","relation":"supports","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:heroic-generosity"},
+    {"node_id":"commitment","genre_id":"heroic_fantasy","relation":"uses","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:ethical-commitment"},
+    {"node_id":"consequence","genre_id":"epic_fantasy","relation":"supports","rule_strength":null,"source_kind":"legacy_contract","source_ref":"src/auteur/genres/data/epic_fantasy.yaml:audience_product"},
+    {"node_id":"responsibility","genre_id":"heroic_fantasy","relation":"adapts","rule_strength":null,"source_kind":"model_inference","source_ref":"illustrative:continuing-responsibility"}
+  ],
+  "proposal_edges": [
+    {"source":"earn","target":"growth","verb":"illustrates","support_status":"hypothesis","source_ref":"illustrative:link-earned-cycle","explanation":"Hypothesis: breakthroughs demonstrate changes in capability."},
+    {"source":"growth","target":"joy","verb":"aims to evoke","support_status":"hypothesis","source_ref":"illustrative:intended-joy","explanation":"The proposal intends earned advancement to invite joy; no reader effect is guaranteed."},
+    {"source":"generosity","target":"responsibility","verb":"creates obligations for","support_status":"hypothesis","source_ref":"illustrative:capacity-responsibility","explanation":"Giving others power may expand obligations rather than cancel them."},
+    {"source":"commitment","target":"consequence","verb":"motivates","support_status":"hypothesis","source_ref":"illustrative:duty-to-consequence","explanation":"The paladin's commitments motivate costly heroic decisions."},
+    {"source":"consequence","target":"responsibility","verb":"persists as","support_status":"hypothesis","source_ref":"illustrative:aftermath","explanation":"Consequences continue after heroic action."}
+  ],
+  "phases": [
+    {"id":"anticipation","label":"Anticipation and growth","order":1,"genres":["progression_fantasy","heroic_fantasy"],"function":"Establish an earned-growth promise"},
+    {"id":"trials","label":"Widening trials and responsibility","order":2,"genres":["progression_fantasy","heroic_fantasy"],"function":"Turn advancement into greater obligation"},
+    {"id":"pressure","label":"Pressure, injustice, and tension","order":3,"genres":["heroic_fantasy","progression_fantasy"],"function":"Test limits of power and ethics"},
+    {"id":"convergence","label":"Collective convergence","order":4,"genres":["epic_fantasy","heroic_fantasy"],"function":"Connect generosity with wider-scale consequence"},
+    {"id":"aftermath","label":"Earned satisfaction and aftermath","order":5,"genres":["heroic_fantasy","progression_fantasy"],"function":"Resolve major tensions while preserving responsibility"}
+  ]
+}
