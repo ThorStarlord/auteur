@@ -1,4 +1,4 @@
-/* Generated from tested Full Architecture ESM sources. SHA256 69f18984422cbe6545b30531c68142dea21e77c0fda74d893bd40ae0df4070ef
+/* Generated from tested Full Architecture ESM sources. SHA256 ad43016ee0df3ae2d0d6619673999afcbba3453186c076541336bdac6ead9111
    Regenerate: node scripts/build_full_architecture_bundle.mjs */
 (function(global){
 'use strict';
@@ -249,7 +249,10 @@ function renderFullArchitecture(root,projection,{expandedGenre,onToggleGenre,onF
   if(!projection.genreViews.length)empty(genres,'Genre morphology not established. No source-backed genre has been selected.');
   for(const genre of projection.genreViews){
     const wrap=faEl('div','genre-record');
-    const toggle=faEl('button','genre-toggle',`${genre.title} · ${genre.role} · ${genre.packCoverage.status==='verified_pack'?'Verified Pack':'Genre morphology not established'}`);
+    const legacy=genre.morphology.filter(m=>m.sourceKind==='legacy_contract');
+    const coverage=genre.packCoverage.status==='verified_pack'?'Verified Pack':
+      legacy.length?'Legacy genre reference available':'Genre morphology not established';
+    const toggle=faEl('button','genre-toggle',`${genre.title} · ${genre.role} · ${coverage}`);
     toggle.type='button';toggle.setAttribute('aria-expanded',String(expandedGenre===genre.genreId));
     toggle.addEventListener('click',()=>onToggleGenre(expandedGenre===genre.genreId?null:genre.genreId));
     wrap.appendChild(toggle);
@@ -257,12 +260,13 @@ function renderFullArchitecture(root,projection,{expandedGenre,onToggleGenre,onF
       const detail=faEl('div','genre-details');
       if(genre.packCoverage.status==='verified_pack'){
         detail.appendChild(faEl('p','source-note',`Verified Pack: ${genre.packCoverage.packId} v${genre.packCoverage.version} · ${genre.packCoverage.contentHash}`));
-        for(const evidence of genre.morphology){
+        for(const evidence of genre.morphology.filter(m=>m.sourceKind==='versioned_pack')){
           const item=faEl('p','genre-evidence',`${evidence.kind}: ${evidence.title} · ${evidence.ruleStrength||'no rule strength'} · ${evidence.sourceKind}`);
           detail.appendChild(item);
         }
-      } else detail.appendChild(faEl('p','source-empty','Genre morphology not established by an attached, applicable, versioned Genre Pack.'));
-      const legacy=genre.morphology.filter(m=>m.sourceKind==='legacy_contract');
+      } else detail.appendChild(faEl('p','source-empty',legacy.length?
+        'No verified versioned Pack attached. Authored legacy genre reference below.':
+        'Genre morphology not established by an attached, applicable, versioned Genre Pack.'));
       for(const item of legacy)detail.appendChild(faEl('p','genre-evidence',`${item.kind}: ${item.title} · Legacy contract · ${item.sourceRef}`));
       detail.appendChild(faEl('h4','','Candidate interpretation · not verified morphology'));
       for(const item of genre.candidateInterpretations)
