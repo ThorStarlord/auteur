@@ -1,4 +1,4 @@
-/* Generated from tested Full Architecture ESM sources. SHA256 4dd151034879399048fd01baa7a6a085963abce9716ca7c1f58c2df47d0f05b4
+/* Generated from tested Full Architecture ESM sources. SHA256 69f18984422cbe6545b30531c68142dea21e77c0fda74d893bd40ae0df4070ef
    Regenerate: node scripts/build_full_architecture_bundle.mjs */
 (function(global){
 'use strict';
@@ -61,6 +61,8 @@ function fromLegacy(e) {
   asArray(c.required_tropes).forEach((v,i)=>add('required_tropes','trope',typeof v==='string'?v:v.description,i));
   asArray(c.optional_tropes).forEach((v,i)=>add('optional_tropes','trope',typeof v==='string'?v:v.description,i));
   asArray(c.default_engine_biases).forEach((v,i)=>add('default_engine_biases','engine',typeof v==='string'?v:v.description,i));
+  asArray(c.primary_excitement_beats).forEach((v,i)=>add('primary_excitement_beats','structure',typeof v==='string'?v:v.description,i));
+  asArray(c.setup_contract?.minimum_setup_beats).forEach((v,i)=>add('setup_contract/minimum_setup_beats','structure',typeof v==='string'?v:v.description,i));
   return morphology;
 }
 

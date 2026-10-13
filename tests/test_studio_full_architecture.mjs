@@ -63,3 +63,33 @@ test('Review from Studio remains a read-only derivation with missing pack explic
  assert.ok(r.items.some(x=>x.kind==='source_coverage'&&x.state==='not_established'));
  assert.ok(!('accepted' in r));
 });
+
+
+test('controller only attaches legacy evidence from matching canvas and source request',()=>{
+ const calls=[];
+ const sandbox={window:{AuteurStudioFullArchitecture:{
+   project(payload){calls.push(payload);return projectFullArchitecture(payload)},
+   review(){return {items:[]}},renderFull(){},renderReview(){}
+ }}};
+ runInNewContext(file('studio_full_architecture_controller.js'),sandbox);
+ const make=sandbox.window.AuteurStudioFullArchitectureController.create;
+ let canvasId='author-canvas';
+ const state={workspace:'architecture',view:'architecture',architectureFacet:'overview',
+   architecture:sample.candidate,architectureRequestSha:'a'.repeat(64),
+   items:sample.workingItems,connections:[],fullArchitectureDisplay:'full',
+   fullArchitectureEvidence:{canvasId,requestSha:'a'.repeat(64),
+      legacyEvidence:[{genreId:'epic',sourceRef:'genres/data/epic_fantasy.yaml',
+        contract:{genre_id:'epic_fantasy',audience_product:'Awe'}}]}};
+ const node=()=>({hidden:true,setAttribute(){}});
+ const controller=make({getState:()=>state,getRemote:()=>({canvasId,revision:1}),
+   nav:node(),root:node(),reviewRoot:node(),focusButton:node(),fullButton:node(),
+   onFocus(){},onMode(){}});
+ controller.render();
+ assert.equal(calls.at(-1).legacyEvidence.length,1);
+ state.architectureRequestSha='b'.repeat(64);
+ controller.render();
+ assert.equal(calls.at(-1).legacyEvidence.length,0);
+ state.architectureRequestSha='a'.repeat(64);canvasId='new-canvas';
+ controller.render();
+ assert.equal(calls.at(-1).legacyEvidence.length,0);
+});
