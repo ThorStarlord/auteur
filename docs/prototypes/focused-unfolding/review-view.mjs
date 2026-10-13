@@ -1,6 +1,6 @@
 /** Derived decision review; no acceptance, persistence or provider actions. */
 const rvEl=(tag,cls,value)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=value;return e;};
-function renderReviewArchitecture(root,report,{onFocusRef,onReturn}){
+export function renderReviewArchitecture(root,report,{onFocusRef,onReturn}){
   root.replaceChildren();
   root.append(rvEl('p','eyebrow','REVIEW THE WHOLE STORY'),rvEl('h2','','Review Full Architecture'),
     rvEl('p','review-status',report.status==='ready_for_author_review'?'Ready for author review — not accepted canon':'Working design — open decisions remain'),
