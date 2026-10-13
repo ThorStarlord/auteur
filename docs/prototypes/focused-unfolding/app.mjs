@@ -1,8 +1,49 @@
+import {projectFullArchitecture} from '../full-architecture/projection.mjs';
+import {reviewFullArchitecture} from '../full-architecture/review.mjs';
+import {renderFullArchitecture} from './full-view.mjs';
+import {renderReviewArchitecture} from './review-view.mjs';
+import paladinFixture from '../full-architecture/fixtures/paladin.json' with { type: 'json' };
 import {createDemoState,createAnchor,selectFocus,suggestForFocus,inspectGhost,adoptGhost,dismissGhost,
         replaceSourceRevision,collapseCluster,returnFocus,editWorkingNode} from './model.mjs';
 
 const $=id=>document.getElementById(id);
 let story=createDemoState(),ghostOffset=0,expandedWhy=false,revisionNo=1;
+let architectureMode='focus', expandedGenre=null, modeBeforeReview='full';
+function fullProjection(){
+  const workingItems=story.nodes.map(n=>({id:n.id,title:n.title,content:'',kind:'note',
+    architecture_role:n.role,needsReview:!!n.needsReview,
+    proposal_origin:n.origin?{request_sha:n.origin.requestSha,source_ref:n.origin.sourceRef,
+      source_kind:n.origin.sourceKind,focus_id:n.sourceFocusId}:null}));
+  // This preview's genre contracts and phases are labelled illustrative proposal hypotheses.
+  const source=structuredClone(paladinFixture);
+  return projectFullArchitecture({...source,workingItems,requestSha:paladinFixture.requestSha,
+    canvasRevision:story.nextSerial-1,workingSourceRevision:story.revision,acceptedIdentity:null,acceptedStructure:null});
+}
+function moveMode(next){
+  if(!['focus','full','review'].includes(next))throw Error('Unknown architecture mode');
+  architectureMode=next;render();
+  if(next==='focus')$('mode-focus').focus();else if(next==='full')$('mode-full').focus();
+}
+function focusFromFull(ref){
+  if(!story.nodes.some(n=>n.id===ref)){note('Source-linked author item unavailable; no title-based replacement.');return;}
+  story=selectFocus(story,ref);ghostOffset=0;architectureMode='focus';render();
+  note('Returned to source-linked working idea without changing story canon.');
+}
+function renderFullMode(){
+  const isFocus=architectureMode==='focus',isReview=architectureMode==='review';
+  $('focus-layout').hidden=!isFocus;$('full-architecture').hidden=isFocus||isReview;
+  $('review-full-architecture').hidden=!isReview;$('mode-focus').setAttribute('aria-pressed',String(isFocus));
+  $('mode-full').setAttribute('aria-pressed',String(!isFocus));
+  $('mode-focus').hidden=false;$('mode-full').hidden=false;
+  if(isFocus)return renderGraph();
+  const projection=fullProjection();
+  if(isReview){renderReviewArchitecture($('review-full-architecture'),reviewFullArchitecture(projection),{
+    onFocusRef:focusFromFull,onReturn:()=>moveMode(modeBeforeReview)});return;}
+  renderFullArchitecture($('full-architecture'),projection,{
+    expandedGenre,onToggleGenre:id=>{expandedGenre=id;renderFullMode();},onFocusRef:focusFromFull,
+    onReview:()=>{modeBeforeReview='full';moveMode('review');}});
+}
+
 const narrow=()=>window.innerWidth<=480?2:3;
 const element=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 const activeFocus=()=>story.nodes.find(n=>n.id===story.focusId);
@@ -79,11 +120,13 @@ function renderExplanation(){
   $('explain-details').textContent=ghost.caveat+' This connection is illustrative and has not been validated as a genre convention or reader-response outcome.';
   $('explain-source').textContent=`Illustrative source: ${ghost.sourceRef} · ${ghost.requestSha}. Not accepted story.`;
 }
-function render(){renderGraph();}
+function render(){renderFullMode();}
 function start(role,title){
   try{story=createAnchor(story,role,title);ghostOffset=0;$('alternative-form').hidden=true;$('edit-form').hidden=true;render();note('Created an editable working idea. Explore nearby provisional suggestions.');}
   catch(e){note(e.message);}
 }
+$('mode-focus').addEventListener('click',()=>moveMode('focus'));
+$('mode-full').addEventListener('click',()=>moveMode('full'));
 $('start-emotion').addEventListener('click',()=>start('emotion','Joy through generous heroism'));
 $('start-elsewhere').addEventListener('click',()=>{$('start-prompt').hidden=true;$('alternative-form').hidden=false;$('anchor-title').focus();});
 $('cancel-anchor').addEventListener('click',()=>{$('alternative-form').hidden=true;$('start-prompt').hidden=false;});
