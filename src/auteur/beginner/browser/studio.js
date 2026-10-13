@@ -12,6 +12,7 @@
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
   state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
+  state.fullArchitectureEvidence = null;
   var unfoldingController = null, fullArchitectureController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
@@ -2192,6 +2193,30 @@
       state.architectureFacet="overview";state.view="architecture";
       state.fullArchitectureDisplay="focus";render();rememberFocus();
     }
+  });
+  $("studio-load-genre-evidence").addEventListener("click",function(){
+    // Deliberately explicit, read-only request: no paid model call or story edit.
+    var canvasId=remote.canvasId,sha=state.architectureRequestSha;
+    if (!remote.ready || !canvasId || !sha) {
+      status("Develop an architecture proposal before inspecting available genre knowledge.");return;
+    }
+    var button=$("studio-load-genre-evidence");
+    button.disabled=true;
+    fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) +
+      "/architecture/full-evidence").then(apiJson).then(function(packet){
+      if (canvasId!==remote.canvasId || sha!==state.architectureRequestSha ||
+          packet.canvas_id!==canvasId || packet.candidate_request_sha256!==sha ||
+          packet.source_status!=="ready") {
+        status("Genre source response was stale or unavailable; working canvas unchanged.");return;
+      }
+      state.fullArchitectureEvidence={canvasId:canvasId,requestSha:sha,
+        legacyEvidence:Array.isArray(packet.legacyEvidence)?packet.legacyEvidence:[]};
+      render();
+      status("Read-only genre sources loaded: "+state.fullArchitectureEvidence.legacyEvidence.length+
+        " authored legacy contract(s). Unavailable versioned Genre Packs remain unknown.");
+    }).catch(function(error){
+      status("Could not read genre evidence: "+error.message+". Working canvas unchanged.");
+    }).finally(function(){button.disabled=false;});
   });
   $("studio-mode-focus").addEventListener("click",function(){fullArchitectureController && fullArchitectureController.render();state.fullArchitectureDisplay="focus";render();rememberFocus();});
   $("studio-mode-full").addEventListener("click",function(){
