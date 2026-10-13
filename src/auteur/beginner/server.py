@@ -52,6 +52,7 @@ from .discovery import (
 from .contracts import MutationCommand
 from .persistence import BeginnerConcurrencyError, BeginnerPersistenceError
 from .studio_store import CanvasStore, list_canvas_summaries
+from .studio_full_evidence import project_legacy_genre_evidence
 from .studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
@@ -577,6 +578,26 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     self._send_json(200, project_architecture(CanvasStore(self.project_root, parts[4])))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:] == ["architecture", "full-evidence"]):
+                # Read-only, exact candidate-scoped legacy source provenance. No genre
+                # registry fallback, no automatic pack applicability or story acceptance.
+                try:
+                    projection = project_architecture(CanvasStore(self.project_root, parts[4]))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                candidate = projection.get("candidate")
+                evidence = project_legacy_genre_evidence(candidate)
+                self._send_json(200, {
+                    "canvas_id": parts[4],
+                    "candidate_request_sha256": projection.get("candidate_request_sha256"),
+                    "source_status": projection.get("status"),
+                    "legacyEvidence": evidence,
+                    "genreEvidence": [],
+                    "acceptedIdentity": None,
+                    "acceptedStructure": None,
+                })
                 return
             if parts == ["api", "beginner", "studio", "canvases"]:
                 self._send_json(200, {"canvases": list_canvas_summaries(self.project_root)})
