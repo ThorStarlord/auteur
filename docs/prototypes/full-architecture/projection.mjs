@@ -57,6 +57,8 @@ function fromLegacy(e) {
   asArray(c.required_tropes).forEach((v,i)=>add('required_tropes','trope',typeof v==='string'?v:v.description,i));
   asArray(c.optional_tropes).forEach((v,i)=>add('optional_tropes','trope',typeof v==='string'?v:v.description,i));
   asArray(c.default_engine_biases).forEach((v,i)=>add('default_engine_biases','engine',typeof v==='string'?v:v.description,i));
+  asArray(c.primary_excitement_beats).forEach((v,i)=>add('primary_excitement_beats','structure',typeof v==='string'?v:v.description,i));
+  asArray(c.setup_contract?.minimum_setup_beats).forEach((v,i)=>add('setup_contract/minimum_setup_beats','structure',typeof v==='string'?v:v.description,i));
   return morphology;
 }
 
