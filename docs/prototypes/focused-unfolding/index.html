@@ -17,6 +17,11 @@
       <div><p class="eyebrow">THE LIVING STORY · FOCUSED UNFOLDING</p><h1>Let the story unfold.</h1><p class="lede-text">Start with what matters. Explore local possibilities, understand their meaning, and decide what becomes part of your working story.</p></div>
       <div class="stage-summary"><span class="stage-dot"></span><span>Author-directed exploration</span><small>AI suggestions are provisional</small></div>
     </section>
+    <nav class="architecture-modes" aria-label="Narrative architecture depth">
+      <button type="button" id="mode-focus" aria-pressed="true">Focused Unfolding</button>
+      <button type="button" id="mode-full" aria-pressed="false">Full Architecture</button>
+      <span>One story · two levels of detail</span>
+    </nav>
     <div class="workspace-bar" aria-label="Graph actions">
       <div class="focus-summary"><span class="focus-eye">FOCUS</span><strong id="current-focus">Choose a starting idea</strong></div>
       <div class="workspace-actions">
@@ -26,7 +31,9 @@
         <button type="button" id="revise-source">Simulate source revision</button>
       </div>
     </div>
-    <div class="layout">
+    <section id="full-architecture" aria-label="Full Book narrative architecture" hidden></section>
+    <section id="review-full-architecture" aria-label="Authorial architecture review" hidden></section>
+    <div class="layout" id="focus-layout">
       <section class="graph-surface" aria-label="Working narrative architecture graph">
         <div class="surface-heading"><span><span class="little-star">✦</span> Narrative architecture</span><span class="muted">Your ideas stay. Suggestions come and go.</span></div>
         <div id="graph-stage" class="graph-stage" aria-label="Focused narrative architecture" tabindex="-1">

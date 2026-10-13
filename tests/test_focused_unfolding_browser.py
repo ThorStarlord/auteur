@@ -11,17 +11,9 @@ EXPORTS = ['createDemoState','createAnchor','selectFocus','suggestForFocus','ins
 
 
 def inline_page():
-    html=(ROOT/'index.html').read_text(encoding='utf-8')
-    css=(ROOT/'styles.css').read_text(encoding='utf-8')
-    model=(ROOT/'model.mjs').read_text(encoding='utf-8')
-    app=(ROOT/'app.mjs').read_text(encoding='utf-8')
-    model=re.sub(r'\bexport (function|const)\b',r'\1',model)
-    app=re.sub(r"^import\s+\{[^}]*\}\s+from\s+['\"][^'\"]+['\"];\s*$", '', app, flags=re.MULTILINE)
-    script='const __model=(()=>{'+model+'\nreturn {'+','.join(EXPORTS)+'};})();\n'
-    script+='const {'+','.join(EXPORTS)+'}=__model;\n'+app
-    return html.replace('<link rel="stylesheet" href="./styles.css">',f'<style>{css}</style>')\
-        .replace('<script type="module" src="./app.mjs"></script>','')\
-        .replace('</body>','<script>'+script+'</script></body>')
+    # Use the same exact-source bundle as the Full Architecture regression runner.
+    from tests.test_full_architecture_browser import bundle_page
+    return bundle_page()
 
 
 @pytest.fixture(scope='module')
