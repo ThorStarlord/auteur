@@ -1,0 +1,38 @@
+{
+  "requestSha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "canvasRevision":3,
+  "candidate":{
+    "schema_version":2,
+    "summary":"A generous paladin helps others grow stronger against an approaching threat.",
+    "nodes":[
+      {"id":"genre-progress","title":"Progression Fantasy","category":"genre","summary":"Earned growth","scope":"whole_story"},
+      {"id":"genre-hero","title":"Heroic Fantasy","category":"genre","summary":"Generous heroism","scope":"whole_story"},
+      {"id":"genre-epic","title":"Epic Fantasy","category":"genre","summary":"Wide consequences","scope":"whole_story"},
+      {"id":"trope-breakthrough","title":"Earned breakthrough","category":"trope","summary":"Effort is visible","scope":"whole_story"},
+      {"id":"engine-growth","title":"Challenge → Growth → Responsibility","category":"engine","summary":"Each victory creates another obligation","scope":"whole_story"}
+    ],
+    "links":[
+      {"id":"link-a","source":"genre-progress","target":"trope-breakthrough","function":"uses"},
+      {"id":"link-b","source":"genre-hero","target":"trope-breakthrough","function":"supports"},
+      {"id":"link-c","source":"trope-breakthrough","target":"engine-growth","function":"illustrates"}
+    ],
+    "emotion_targets":[{"id":"joy-goal","emotion":"joy","role":"primary","intended_effect":"Earned satisfaction","eliciting_condition":"Meaningful effort","aesthetic_strategy":"Warmth","provenance":"author_declared"}],
+    "genre_contracts":[
+      {"genre_node_id":"genre-progress","role":"governing","emotion_target_ids":["joy-goal"],"trope_functions":["Earned breakthrough"],"narrative_engine":"Challenge and earned growth","structural_pattern":"Challenge → growth → new challenge","payoff_expectations":["earned progress"],"aesthetic_strategies":["warmth"]},
+      {"genre_node_id":"genre-hero","role":"supporting","emotion_target_ids":["joy-goal"],"trope_functions":["Earned breakthrough"],"narrative_engine":"Heroism with consequence","structural_pattern":"Choice → cost → protection","payoff_expectations":["others protected"],"aesthetic_strategies":["hope"]}
+    ],
+    "genre_interactions":[{"id":"mix","source_genre_id":"genre-progress","target_genre_id":"genre-hero","kind":"reinforces","mechanism":"Growth increases the capacity to help others"}],
+    "phases":[
+      {"id":"beginning","title":"A fragile promise","order":1,"narrative_function":"Introduce the intended reader hope","reader_experience":"warmth","genre_activations":[{"genre_node_id":"genre-progress","basic_emotions":["joy"],"trope_functions":["Earned breakthrough"],"structural_function":"A first earned increase in power"}]},
+      {"id":"continuing","title":"Responsibility deepens","order":2,"narrative_function":"Power changes relationships","reader_experience":"awe","genre_activations":[{"genre_node_id":"genre-hero","basic_emotions":["joy"],"trope_functions":[],"structural_function":"Protect others despite cost"}]}
+    ],
+    "open_questions":["What makes generosity costly?"]
+  },
+  "workingItems":[
+    {"id":"author-emotion","title":"Joy through generosity","kind":"note","architecture_role":"emotion","content":"The author aims for joyful heroism","proposal_origin":null},
+    {"id":"author-trope","title":"Generosity creates capacity","kind":"note","architecture_role":"trope","content":"Proposed story-specific mechanism","proposal_origin":null},
+    {"id":"author-struct","title":"Continuing responsibility","kind":"note","architecture_role":"structure","content":"After each victory","proposal_origin":{"request_sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","source_ref":"links/2","source_kind":"proposal_edge","focus_id":"trope-breakthrough"}}
+  ],
+  "acceptedIdentity":null,"acceptedStructure":null,
+  "genreEvidence":[],"legacyEvidence":[]
+}
