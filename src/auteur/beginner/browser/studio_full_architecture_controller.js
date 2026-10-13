@@ -18,9 +18,13 @@
      // The current Studio candidate is noncanonical, and no verified Pack or accepted
      // Identity/Structure read source is delivered by this browser API.
      // Null deliberately means unavailable source, never "not accepted" or "noncompliant".
+     var evidence=state.fullArchitectureEvidence;
+     var current=!!(evidence && evidence.canvasId===remote.canvasId &&
+       evidence.requestSha && evidence.requestSha===state.architectureRequestSha);
      var projection=api.project({candidate:state.architecture,requestSha:state.architectureRequestSha,
        workingItems:state.items,workingConnections:state.connections||[],canvasRevision:remote.revision,
-       genreEvidence:[],legacyEvidence:[],acceptedIdentity:null,acceptedStructure:null});
+       genreEvidence:[],legacyEvidence:current?evidence.legacyEvidence:[],
+       acceptedIdentity:null,acceptedStructure:null});
      var focus=function(ref){binding.onFocus(ref);};
      if(mode==='review'){
        api.renderReview(binding.reviewRoot,api.review(projection),{
