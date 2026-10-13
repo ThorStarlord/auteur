@@ -410,6 +410,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_explanation_views.js": "studio_explanation_views.js",
         "/studio_unfolding.js": "studio_unfolding.js",
         "/studio_unfolding_controller.js": "studio_unfolding_controller.js",
+        "/studio_full_architecture.js": "studio_full_architecture.js",
+        "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio.css": "studio.css",
     }
 

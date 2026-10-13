@@ -149,6 +149,13 @@
           <button id="architecture-facet-back" type="button" hidden>Back to previous selection</button>
         </aside>
         <div class="architecture-main-surface">
+      <nav id="studio-full-modes" class="studio-full-modes" aria-label="Narrative architecture depth" hidden>
+        <button id="studio-mode-focus" type="button" aria-pressed="true">Focused Unfolding</button>
+        <button id="studio-mode-full" type="button" aria-pressed="false">Full Architecture</button>
+        <span>Same story · Focus or full Book blueprint</span>
+      </nav>
+      <section id="studio-full-architecture" aria-label="Full Book narrative architecture" hidden></section>
+      <section id="studio-review-architecture" aria-label="Review Book narrative architecture" hidden></section>
       <nav id="studio-semantic-trail" class="studio-semantic-trail" aria-label="Exploration trail" hidden></nav>
       <div id="studio-semantic-arrival" class="studio-semantic-arrival" aria-label="Why you arrived here" hidden></div>
       <section id="studio-explanatory-hero" class="studio-explanatory-hero" aria-label="Narrative explanation" hidden></section>
@@ -282,6 +289,8 @@
   <script src="/studio_explanation_views.js" defer></script>
   <script src="/studio_unfolding.js" defer></script>
   <script src="/studio_unfolding_controller.js" defer></script>
+  <script src="/studio_full_architecture.js" defer></script>
+  <script src="/studio_full_architecture_controller.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
 </html>

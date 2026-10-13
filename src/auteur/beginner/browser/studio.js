@@ -11,7 +11,8 @@
   state.explanationArrival = null; state.explanationInspectRequested = false;
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
-  var unfoldingController = null;
+  state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
+  var unfoldingController = null, fullArchitectureController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -72,6 +73,7 @@
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
         unfoldingFocus: state.unfoldingFocus,
+        fullDisplay: state.fullArchitectureDisplay, fullGenre: state.fullArchitectureGenre,
         phase: state.selectedPhase, search: $("find-nodes").value,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
         caret: field.selectionStart || 0
@@ -97,6 +99,8 @@
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
     state.unfoldingFocus = saved.unfoldingFocus && ["working","candidate"].includes(saved.unfoldingFocus.kind) &&
       typeof saved.unfoldingFocus.id === "string" ? saved.unfoldingFocus : null;
+    state.fullArchitectureDisplay = ["focus","full","review"].includes(saved.fullDisplay) ? saved.fullDisplay : "focus";
+    state.fullArchitectureGenre = typeof saved.fullGenre === "string" ? saved.fullGenre : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
     if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
@@ -1722,6 +1726,15 @@
   function renderUnfolding() {
     if (unfoldingController) unfoldingController.render();
   }
+  function renderFullArchitectureStudio() {
+    if (!fullArchitectureController) return;
+    var full = fullArchitectureController.render();
+    if (!full) return;
+    ["viewport","studio-explanatory-hero","studio-semantic-trail","studio-semantic-arrival",
+     "unfolding-start","unfolding-local","inspector","genre-timeline"].forEach(function(id){
+       $(id).hidden = true;
+    });
+  }
   function createUnfoldingAnchor() {
     return unfoldingController && unfoldingController.create();
   }
@@ -1892,6 +1905,7 @@
     }
     drawEdges(); renderStudioExplanation(); renderUnfolding();
     renderInspector(); renderOutline(); showVision(); transform();
+    renderFullArchitectureStudio();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -2148,6 +2162,45 @@
       requestArchitecture(instruction);
     },
     status: status, remember: rememberFocus
+  });
+  fullArchitectureController = window.AuteurStudioFullArchitectureController.create({
+    getState: function(){return state;}, getRemote: function(){return remote;},
+    root: $("studio-full-architecture"), reviewRoot: $("studio-review-architecture"),
+    nav: $("studio-full-modes"), focusButton: $("studio-mode-focus"),
+    fullButton: $("studio-mode-full"),
+    onMode: function(mode){
+      if (!["focus","full","review"].includes(mode)) return;
+      var item = state.unfoldingFocus && state.items.find(function(i){return i.id===state.unfoldingFocus.id;});
+      var edit = $("unfolding-author-edit");
+      if (mode!=="focus" && item && !edit.hidden) {
+        var titleField = $("unfolding-edit-title"), bodyField = $("unfolding-edit-content");
+        if ((titleField && titleField.value!==item.title) ||
+            (bodyField && bodyField.value!==item.content)) {
+          status("Save your unsaved working-idea edits before opening Full Architecture.");
+          return;
+        }
+      }
+      state.fullArchitectureDisplay=mode;render();rememberFocus();
+    },
+    onGenre: function(id){state.fullArchitectureGenre=id;renderFullArchitectureStudio();rememberFocus();},
+    onFocus: function(ref){
+      if (!state.items.some(function(i){return i.id===ref;})) {
+        status("Author focus source is unavailable; no title-based rebinding.");return;
+      }
+      state.unfoldingFocus={kind:"working",id:ref};
+      state.unfoldingInspected=null;state.unfoldingOffset=0;
+      state.architectureFacet="overview";state.view="architecture";
+      state.fullArchitectureDisplay="focus";render();rememberFocus();
+    }
+  });
+  $("studio-mode-focus").addEventListener("click",function(){fullArchitectureController && fullArchitectureController.render();state.fullArchitectureDisplay="focus";render();rememberFocus();});
+  $("studio-mode-full").addEventListener("click",function(){
+    var edit=$("unfolding-author-edit"),item=state.unfoldingFocus&&state.items.find(function(i){return i.id===state.unfoldingFocus.id;});
+    if(item&&!edit.hidden && (($("unfolding-edit-title")&&$("unfolding-edit-title").value!==item.title) ||
+      ($("unfolding-edit-content")&&$("unfolding-edit-content").value!==item.content))) {
+      status("Save working edits before opening Full Architecture.");return;
+    }
+    state.fullArchitectureDisplay="full";render();rememberFocus();
   });
   $("unfolding-create").addEventListener("click",createUnfoldingAnchor);
   $("unfolding-more").addEventListener("click",function(){unfoldingController.more();});
