@@ -2066,6 +2066,10 @@
     if (file.size > 1024 * 1024) { status("Import rejected: file exceeds 1 MB."); return; }
     file.text().then(function (raw) {
       var data = JSON.parse(raw); validCanvas(data);
+      if (state.items.length && !window.confirm("Importing replaces the " + state.items.length +
+          " item(s) on this canvas. Export this canvas first if you need them. Replace them?")) {
+        status("Import cancelled; your current canvas is unchanged."); return;
+      }
       if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
       state.items = data.items; state.connections = data.connections; state.positions = data.positions;
       state.selected = data.items.length ? data.items[0].id : null; state.serial += 1;
