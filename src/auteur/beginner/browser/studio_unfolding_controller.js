@@ -20,12 +20,28 @@
       return helper.projectLocalSuggestions(s.architecture,s.architectureRequestSha,s.unfoldingFocus,
         s.items,dismissed(),global.innerWidth<=480?2:3,s.unfoldingOffset||0);
     }
+    function hasDirtyWorkingEditor(){
+      var s=bridge.state(),focus=s.unfoldingFocus;
+      if(!focus||focus.kind!=='working')return false;
+      var currentItem=s.items.find(x=>x.id===focus.id),editor=$('unfolding-author-edit');
+      if(!currentItem||!editor||editor.hidden)return false;
+      var title=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-title');
+      var body=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-content');
+      return !!((title&&title.value!==currentItem.title)||
+                (body&&body.value!==currentItem.content));
+    }
     function updateWorkingCommand(action,command,{sourceSha=null,focusId=null,expectedCanvasRevision=null}={}){
       var s=bridge.state(),remote=bridge.remote(),canvasId=remote.canvasId;
       if(s.unfoldingSaving||!remote.ready||remote.failed)return Promise.resolve(bridge.status('Canvas unavailable; nothing was adopted.'));
+      if(action!=='update-item'&&hasDirtyWorkingEditor()){
+        bridge.status('Save the unsaved working-idea text before keeping or creating another idea.');
+        return Promise.resolve(false);
+      }
       s.unfoldingSaving=true;
       return Promise.resolve(bridge.flush()).then(function(){
         if(remote.failed||remote.canvasId!==canvasId)throw Error('Working canvas changed or cannot save.');
+        if(action!=='update-item'&&hasDirtyWorkingEditor())
+          throw Error('Unsaved working-idea text must be saved before changing focus.');
         if(expectedCanvasRevision!==null && remote.revision!==expectedCanvasRevision)
           throw Error('Mentor advice is stale relative to the working canvas.');
         if(focusId && (!s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
