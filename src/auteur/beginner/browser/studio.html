@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auteur — Living Story Studio (prototype)</title>
+  <link rel="stylesheet" href="/studio.css">
+</head>
+<body>
+  <header class="topbar">
+    <a id="legacy-home" href="/beginner.html" aria-label="Open previous Auteur Beginner interface">← Previous Beginner UI</a>
+    <strong>Living Story Studio</strong>
+    <span class="prototype">Experimental canvas · saved locally · not accepted story</span>
+  </header>
+  <main class="studio">
+    <section class="workspace" aria-label="Creative story canvas">
+      <nav class="studio-workflows" aria-label="Creative workflow">
+        <button id="workspace-architecture" aria-pressed="true" type="button">Narrative Architecture</button>
+        <button id="workspace-realization" aria-pressed="false" type="button">Story Realization</button>
+      </nav>
+      <section id="architecture-context" class="architecture-context" aria-label="Architecture overview">
+        <strong>Architecture map</strong><span id="architecture-context-summary">Explore the provisional structure and its relationships.</span>
+      </section>
+      <nav class="toolbar" aria-label="Canvas controls">
+        <button type="button" id="add-note">+ Idea</button>
+        <button type="button" id="add-character">+ Character</button>
+        <button type="button" id="add-scene">+ Scene</button>
+        <button type="button" id="connect-shortcut">Connect</button>
+        <button type="button" id="write-shortcut">Write</button>
+        <label for="find-nodes">Find</label><input id="find-nodes" type="search" placeholder="Search story items" aria-label="Find nodes on the canvas">
+        <span id="working-group-control" class="working-group-control" hidden><label for="group-filter">Group</label><select id="group-filter" aria-label="Focus working group"><option value="">All groups</option></select></span>
+        <label for="layer-view">View</label><select id="layer-view" aria-label="Canvas graph view">
+          <option value="create">My ideas</option>
+          <option value="realization_candidates">Agent story proposals</option>
+          <option value="architecture">Story architecture</option>
+          <option value="genre_timeline">Genre timeline</option>
+          <option value="relationships">Relationships</option>
+          <option value="lenses">Story Lenses</option>
+          <option value="all">Everything</option>
+          <option value="impact">Consequences</option>
+          <option value="book">Book overview</option>
+        </select>
+        <button type="button" id="fit">Fit visible</button>
+        <details class="more-tools">
+          <summary>More tools</summary>
+          <div class="more-tools-content">
+            <label for="canvas-picker">Your canvases</label>
+            <select id="canvas-picker" aria-label="Open existing working canvas" disabled></select>
+            <button type="button" id="new-canvas">New canvas</button>
+            <button type="button" id="arrange-group">Arrange visible by group</button>
+            <label for="zoom">Zoom</label><input id="zoom" type="range" min="50" max="150" value="100">
+            <label for="evidence-workspace">Existing workspace (optional)</label>
+            <input id="evidence-workspace" placeholder="Workspace ID" aria-label="Existing Auteur workspace ID" maxlength="80">
+            <button type="button" id="show-evidence">Show story evidence</button>
+            <label for="relationship-chapter">Relationship changes</label>
+            <select id="relationship-chapter" aria-label="Focus relationships changed in a chapter" disabled><option value="">All declared relations</option></select>
+            <button type="button" id="show-book">Book overview</button>
+            <details class="impact-controls"><summary>Advanced: impact preview</summary>
+              <label for="impact-artifact">Registered artifact ID</label>
+              <input id="impact-artifact" placeholder="e.g. story_identity" maxlength="120">
+              <button type="button" id="preview-impact">Preview possible downstream impact</button>
+            </details>
+            <button type="button" id="download">Export JSON</button>
+            <label class="import-label" for="import">Import JSON</label>
+            <input id="import" type="file" accept="application/json,.json" aria-label="Import a Studio canvas">
+          </div>
+        </details>
+        <button type="button" id="retry-save" hidden>Retry saving</button>
+        <button type="button" id="restore-deleted" hidden>Restore removed idea</button>
+      </nav>
+      <p id="canvas-legend" class="canvas-legend">Working ideas and connections are not accepted story facts.</p>
+      <section class="vision-panel" aria-label="Your story vision">
+        <details open id="vision-disclosure">
+          <summary>Story Vision <span id="vision-preview" class="vision-preview">· Optional creative direction</span></summary>
+          <label for="vision-text">Describe the experience, aesthetic, tropes, genres, or structure you want. A premise is optional.</label>
+          <textarea id="vision-text" maxlength="12000" rows="3" placeholder="For example: a long fantasy of awe and vindication, institutional noir, slow-burn romance, mysteries and occasional horror; different genres take the lead in different arcs."></textarea>
+          <div class="vision-actions">
+            <button id="vision-save" type="button">Save vision</button>
+            <button id="vision-write" type="button">Write first</button>
+            <span id="vision-status" role="status" aria-live="polite">Working ideas, not accepted story decisions.</span>
+          </div>
+        </details>
+      </section>
+      <section id="architecture-tools" class="architecture-actions" aria-label="Agent-assisted narrative architecture">
+        <button id="architecture-develop" type="button">Develop architecture with coding agent</button>
+        <button id="architecture-refresh" type="button">Check agent result</button>
+        <label for="architecture-scope">Focus</label>
+        <select id="architecture-scope" aria-label="Focus architecture scope"><option value="">Whole architecture</option></select>
+        <button id="architecture-clear-focus" type="button" hidden>Show whole graph</button>
+        <details class="architecture-revise"><summary>Revise with agent</summary>
+          <label for="architecture-instruction">What should change?</label>
+          <textarea id="architecture-instruction" rows="2" maxlength="4000" placeholder="Make the middle phase more unsettling, while preserving the romance and final payoff."></textarea>
+          <button id="architecture-revise" type="button">Request a revised candidate</button>
+        </details>
+        <span id="architecture-status" role="status" aria-live="polite">No agent architecture requested.</span>
+        <section id="architecture-review" class="architecture-review" hidden aria-label="Review working architecture changes">
+          <strong>Proposed architecture revision — review before applying</strong>
+          <p id="architecture-review-summary"></p>
+          <ul id="architecture-diff"></ul>
+          <p>These differences affect only working architecture. Accepted story artifacts never change here.</p>
+          <button id="architecture-apply" type="button">Apply to working architecture</button>
+        </section>
+        <details id="architecture-handoff" hidden>
+          <summary>Host-agent request / completion (advanced)</summary>
+          <p>Studio creates an exact source-bound request. Your active coding agent can answer it and submit the corresponding host-agent response. The browser does not silently call a provider.</p>
+          <label for="architecture-request">Pending request packet</label>
+          <textarea id="architecture-request" rows="5" readonly></textarea>
+          <label for="architecture-response">HostAgentResponse JSON (manual fallback)</label>
+          <textarea id="architecture-response" rows="4" placeholder="Paste the complete signed-to-request response JSON here."></textarea>
+          <button id="architecture-complete" type="button">Validate and load response</button>
+        </details>
+      </section>
+      <section id="realization-tools" class="architecture-actions" hidden aria-label="Agent-assisted Story Realization">
+        <button id="realization-develop" type="button">Develop concrete story material</button>
+        <button id="realization-refresh" type="button">Check realization result</button>
+        <span id="realization-focus-label">Using the current narrative architecture</span>
+        <details class="architecture-revise"><summary>Revise concrete proposal</summary>
+          <label for="realization-instruction">What should change?</label>
+          <textarea id="realization-instruction" rows="2" maxlength="4000"></textarea>
+          <button id="realization-revise" type="button">Request a revised realization</button>
+        </details>
+        <span id="realization-status" role="status" aria-live="polite">Select an architecture component or develop the whole story.</span>
+        <section id="realization-review" class="architecture-review" hidden>
+          <strong>Review proposed changes to working Story Realization</strong>
+          <ul id="realization-diff"></ul>
+          <button id="realization-apply" type="button">Apply to working realization</button>
+        </section>
+        <details id="realization-handoff" hidden>
+          <summary>Coding-agent request / response (advanced)</summary>
+          <label for="realization-request">Pending request</label>
+          <textarea id="realization-request" rows="5" readonly></textarea>
+          <label for="realization-response">HostAgentResponse JSON (manual fallback)</label>
+          <textarea id="realization-response" rows="4"></textarea>
+          <button id="realization-complete" type="button">Validate and load realization</button>
+        </details>
+      </section>
+      <div id="architecture-work-area" class="architecture-work-area">
+        <aside id="architecture-facet-panel" class="architecture-facet-panel" hidden aria-label="Architecture perspectives">
+          <nav class="architecture-facets" aria-label="Explore narrative architecture">
+            <button type="button" data-architecture-facet="overview" aria-pressed="true">Overview</button>
+            <button type="button" data-architecture-facet="emotions" aria-pressed="false">Emotions</button>
+            <button type="button" data-architecture-facet="genres" aria-pressed="false">Genres</button>
+            <button type="button" data-architecture-facet="tropes" aria-pressed="false">Tropes</button>
+            <button type="button" data-architecture-facet="structure" aria-pressed="false">Structure</button>
+            <button type="button" data-architecture-facet="timeline" aria-pressed="false">Timeline</button>
+          </nav>
+          <p id="architecture-facet-hint" class="muted">Select a perspective to explore its contents and connections.</p>
+          <div id="architecture-facet-list" class="architecture-facet-list" aria-label="Components in the selected perspective"></div>
+          <button id="architecture-facet-back" type="button" hidden>Back to previous selection</button>
+        </aside>
+        <div class="architecture-main-surface">
+      <nav id="studio-full-modes" class="studio-full-modes" aria-label="Narrative architecture depth" hidden>
+        <button id="studio-mode-focus" type="button" aria-pressed="true">Focused Unfolding</button>
+        <button id="studio-mode-full" type="button" aria-pressed="false">Full Architecture</button>
+        <button id="studio-load-genre-evidence" type="button">Load available genre evidence</button>
+        <span>Same story · Focus or full Book blueprint</span>
+      </nav>
+      <section id="studio-full-architecture" aria-label="Full Book narrative architecture" hidden></section>
+      <section id="studio-review-architecture" aria-label="Review Book narrative architecture" hidden></section>
+      <nav id="studio-semantic-trail" class="studio-semantic-trail" aria-label="Exploration trail" hidden></nav>
+      <div id="studio-semantic-arrival" class="studio-semantic-arrival" aria-label="Why you arrived here" hidden></div>
+      <section id="studio-explanatory-hero" class="studio-explanatory-hero" aria-label="Narrative explanation" hidden></section>
+      <div id="genre-timeline" class="genre-timeline" hidden aria-label="Proposed genre and reader-experience timeline">
+        <h2>Genre and emotional composition</h2>
+        <p>Working phases can overlap or change dominant genres. Order does not imply fixed chapter lengths or an accepted story contract.</p>
+        <ol id="timeline-phases" class="timeline-track"></ol>
+      </div>
+      <div id="viewport" tabindex="0" role="region" aria-label="Story canvas. Use Add controls to create notes; arrow keys move focused nodes." aria-describedby="canvas-help">
+        <div id="architecture-legend" class="architecture-legend" hidden aria-label="Architecture node category legend">
+          <span class="legend-emotion">Emotions</span><span class="legend-genre">Genres</span>
+          <span class="legend-trope">Tropes</span><span class="legend-structure">Structure</span>
+          <span class="legend-other">Other</span><span class="legend-status">Dashed = proposed, not accepted</span>
+        </div>
+        <div id="world">
+          <svg id="edges" width="1600" height="1100" aria-hidden="true"></svg>
+          <div id="nodes"></div>
+        </div>
+        <div id="empty-state">
+          <h1>What story do you want to tell?</h1>
+          <p>Start anywhere. Create an idea, character or scene. Nothing becomes accepted story material here.</p>
+          <button id="start" type="button">Add your first idea</button>
+        </div>
+        <section id="unfolding-start" class="unfolding-start" hidden aria-label="Start a working architecture idea">
+          <p class="unfolding-eyebrow">BEGIN YOUR LIVING STORY</p>
+          <h2>What should your reader experience?</h2>
+          <p>Or start anywhere. These are editable working ideas, never accepted story canon.</p>
+          <label for="unfolding-role">Start from</label>
+          <select id="unfolding-role" aria-label="Start from">
+            <option value="emotion">Reader emotion</option><option value="premise">Premise</option>
+            <option value="character">Character</option><option value="genre">Genre</option>
+            <option value="trope">Trope</option><option value="structure">Structure</option>
+            <option value="setting">Setting</option><option value="theme">Theme</option>
+            <option value="conflict">Conflict</option><option value="relationship">Relationship</option>
+            <option value="other">Other idea</option>
+          </select>
+          <label for="unfolding-title">Working intention</label>
+          <input id="unfolding-title" type="text" value="Joy through generous heroism" maxlength="120">
+          <button id="unfolding-create" type="button">Add working intention</button>
+        </section>
+        <section id="unfolding-local" class="unfolding-local" hidden aria-label="Provisional possibilities around selected concept">
+          <div class="unfolding-top"><strong>Unfold this idea</strong><small id="unfolding-evidence-status">Source-scoped suggestions</small></div>
+          <div id="unfolding-author-edit" class="unfolding-author-edit" hidden></div>
+          <section id="unfolding-mentor" class="unfolding-mentor" aria-label="Contextual narrative mentorship" hidden></section>
+          <section id="unfolding-mentor-dialogue" class="unfolding-mentor-dialogue" hidden
+                   aria-label="Optional conversation about this narrative idea">
+            <div class="mentor-dialogue-heading"><strong>Explore this idea together</strong>
+              <button type="button" id="mentor-dismiss">Close</button></div>
+            <label for="mentor-author-reply">Your intention, answer, or correction</label>
+            <textarea id="mentor-author-reply" maxlength="2000" rows="3"
+              placeholder="Explain what you want this story to become"></textarea>
+            <div class="mentor-dialogue-actions">
+              <button type="button" id="mentor-send">Discuss my answer</button>
+              <button type="button" id="mentor-refresh">Check mentor result</button>
+            </div>
+            <p id="mentor-status" role="status" aria-live="polite"></p>
+            <details id="mentor-handoff" hidden>
+              <summary>Host-agent request and response (advanced)</summary>
+              <p>The host coding agent can fulfill this neutral request through the
+                studio_mentor CLI. No provider executes automatically.</p>
+              <pre id="mentor-request" aria-label="Mentor host-agent request"></pre>
+              <label for="mentor-response">Or paste complete HostAgentResponse JSON</label>
+              <textarea id="mentor-response" rows="4" spellcheck="false"></textarea>
+              <button id="mentor-complete" type="button">Validate mentor response</button>
+            </details>
+            <div id="mentor-advice" class="mentor-advice" aria-live="polite"></div>
+            <section id="mentor-working-preview" class="mentor-working-preview" hidden
+                     aria-label="Review before keeping a working architecture idea">
+              <strong>Review as working architecture · Not canon</strong>
+              <label for="mentor-working-title">Working idea title</label>
+              <input id="mentor-working-title" type="text" maxlength="120">
+              <label for="mentor-working-content">Details — editable before saving</label>
+              <textarea id="mentor-working-content" maxlength="20000" rows="6"></textarea>
+              <button id="mentor-keep" type="button">Keep this working idea</button>
+              <p id="mentor-keep-status" role="status" aria-live="polite"></p>
+            </section>
+          </section>
+          <div id="unfolding-ghosts" class="unfolding-ghosts"></div>
+          <div id="unfolding-explanation" class="unfolding-explanation" hidden></div>
+          <button id="unfolding-more" type="button">Develop more possibilities</button>
+        </section>
+      </div>
+        </div>
+      </div>
+      <details id="emotional-design" class="emotional-design" hidden>
+        <summary>Emotional design — six basic emotions and optional compositions</summary>
+        <div id="emotional-targets"></div>
+      </details>
+      <details class="outline"><summary>Accessible outline of visible story items</summary><ul id="outline-list"></ul></details>
+      <p id="canvas-help" class="help">Choose a node to inspect it. Drag to arrange; arrow keys move a focused node. Connect notes in the inspector. Changes save locally. Export JSON for a portable backup.</p>
+    </section>
+    <aside id="inspector" aria-label="Selected story item">
+      <h2>Story details</h2>
+      <p class="muted" id="inspector-empty">Select or create an item to edit it.</p>
+      <section id="book-orientation" hidden aria-label="Read-only Book orientation">
+        <h3 id="book-heading">Your Book</h3>
+        <p id="book-next-action"></p>
+        <h4>Recently established</h4><ul id="book-recent"></ul>
+        <h4>Pending updates</h4><ul id="book-pending"></ul>
+        <h4>Needs attention</h4><ul id="book-attention"></ul>
+      </section>
+      <div id="source-detail" hidden aria-label="Read-only source evidence">
+        <h3 id="source-title"></h3>
+        <p id="source-state"></p>
+        <p id="source-description"></p>
+        <p id="source-ref"></p>
+        <div id="source-links"></div>
+        <div id="genre-contract-detail" hidden aria-label="Proposed genre mechanics, emotions and interactions"></div>
+        <button id="candidate-focus" type="button" hidden>Focus on connected ideas</button>
+        <button id="candidate-copy" type="button" hidden>Copy as editable working idea</button>
+        <button id="realization-inspect" type="button" hidden>Inspect architectural purpose</button>
+        <button id="realization-copy" type="button" hidden>Copy as editable story idea</button>
+        <button id="realization-feedback" type="button" hidden>Propose architecture refinement</button>
+        <p class="muted">Derived evidence is read-only. Use the existing story workspace to change accepted meaning.</p>
+      </div>
+      <div id="inspector-fields" hidden>
+        <label for="title">Title</label><input id="title" type="text" maxlength="120">
+        <label for="group">Working group (optional)</label><input id="group" maxlength="80" placeholder="e.g. Chapter 1, Characters">
+        <label for="kind">Working type</label>
+        <select id="kind">
+          <option value="note">Free-form idea</option>
+          <option value="character">Character</option>
+          <option value="scene">Scene</option>
+          <option value="place">Place</option>
+          <option value="question">Question</option>
+        </select>
+        <label for="content">Notes / scene text</label><textarea id="content" rows="9" maxlength="20000"></textarea>
+        <button type="button" id="save">Save working note</button>
+        <button type="button" id="write">Open scene editor</button>
+        <h3>Connect to another item</h3>
+        <label for="target">Target</label><select id="target"></select>
+        <label for="relation">Why are they connected? (optional)</label><input id="relation" maxlength="120" placeholder="e.g. knows, suspects, occurs at">
+        <button type="button" id="connect">Connect</button>
+        <div id="connections" aria-live="polite"></div>
+        <button type="button" id="remove" class="danger">Remove working item</button>
+      </div>
+      <p class="muted">Working canvas saves on this computer. Use the current Auteur workspace for accepted story decisions.</p>
+    </aside>
+  </main>
+  <section id="scene-panel" class="scene-panel" hidden aria-label="Working scene editor">
+    <div class="scene-inner">
+      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><div class="scene-top-actions"><button id="expand-scene" type="button" aria-pressed="false">Focus writing</button><button id="close-scene" type="button">Return to canvas</button></div></div>
+      <p>Exploratory text only. Nothing here becomes accepted story material automatically.</p>
+      <label for="scene-premise">Working story premise (required only for generation)</label>
+      <textarea id="scene-premise" rows="3" maxlength="4000" placeholder="What is this story about?"></textarea>
+      <label for="scene-intent">What should happen in this scene? (required only for generation)</label>
+      <textarea id="scene-intent" rows="3" maxlength="4000" placeholder="Describe the scene you want, not a canonical fact."></textarea>
+      <button id="use-scene-as-intent" type="button">Use my existing scene notes as intent</button>
+      <button id="generate-scene" type="button">Request Quick Draft using host agent</button>
+      <button id="refresh-draft" type="button" hidden>Check generated scene</button>
+      <p id="generation-status" role="status" aria-live="polite"></p>
+      <div id="generation-result" hidden>
+        <label for="generated-prose">Generated working candidate — never automatically accepted</label>
+        <textarea id="generated-prose" rows="10" readonly></textarea>
+        <button id="use-generated" type="button">Copy candidate into working scene</button>
+        <a id="open-quick-draft" href="/beginner.html" target="_self">Review discoveries in guided Quick Draft</a>
+      </div>
+      <label for="scene-text">Your working prose</label>
+      <textarea id="scene-text" rows="18" aria-label="Working scene prose" maxlength="20000"></textarea>
+      <button type="button" id="save-scene">Save working scene</button>
+    </div>
+  </section>
+  <div class="status" id="status" role="status" aria-live="polite">Opening local working canvas...</div>
+  <script src="/studio_explanations.js" defer></script>
+  <script src="/studio_explanation_views.js" defer></script>
+  <script src="/studio_unfolding.js" defer></script>
+  <script src="/studio_mentor_context.js" defer></script>
+  <script src="/studio_mentorship.js" defer></script>
+  <script src="/studio_mentor_dialogue_controller.js" defer></script>
+  <script src="/studio_unfolding_controller.js" defer></script>
+  <script src="/studio_full_architecture.js" defer></script>
+  <script src="/studio_full_architecture_controller.js" defer></script>
+  <script src="/studio.js" defer></script>
+</body>
+</html>
