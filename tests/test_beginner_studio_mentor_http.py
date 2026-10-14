@@ -72,3 +72,28 @@ def test_live_http_rejects_unknown_focus_and_no_canvas(tmp_path):
         server.stop()
         thread.join(timeout=3)
         assert not thread.is_alive()
+
+def test_live_http_reports_malformed_host_agent_envelope_as_400(tmp_path):
+    store = CanvasStore(tmp_path, "mentor-invalid")
+    store.create()
+    store.apply("create-item", expected_revision=0, command_id="first",
+                payload={"item": {"id": "hero", "kind": "note", "title": "Hero"},
+                         "position": {"x": 10, "y": 20}})
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    root = f"http://127.0.0.1:{server.port}"
+    url = "/api/beginner/studio/canvases/mentor-invalid/mentor"
+    try:
+        code, pending = request(root, "POST", url + "/prepare",
+                                {"focus_id": "hero", "focus_kind": "working"})
+        assert code == 202 and pending["status"] == "awaiting_host_agent"
+        with pytest.raises(HTTPError) as failed:
+            request(root, "POST", url + "/host-agent-response",
+                    {"schema": "auteur_host_agent_response_v1"})
+        assert failed.value.code == 400
+        assert request(root, "GET", url)[1]["status"] == "awaiting_host_agent"
+        assert store.load().revision == 1
+    finally:
+        server.stop()
+        thread.join(timeout=3)
+        assert not thread.is_alive()
