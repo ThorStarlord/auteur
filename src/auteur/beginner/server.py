@@ -413,6 +413,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_unfolding.js": "studio_unfolding.js",
         "/studio_unfolding_controller.js": "studio_unfolding_controller.js",
         "/studio_mentor_context.js": "studio_mentor_context.js",
+        "/studio_mentor_dialogue_controller.js": "studio_mentor_dialogue_controller.js",
         "/studio_mentorship.js": "studio_mentorship.js",
         "/studio_full_architecture.js": "studio_full_architecture.js",
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
