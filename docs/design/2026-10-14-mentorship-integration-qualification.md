@@ -28,11 +28,12 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence at the latest #436 integrated source checkpoint:** 81/81 isolated
-JavaScript simulation checks passed: 15 model/context, 22 Focused Unfolding,
-13 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
-8 Full Architecture and 10 explanation-view checks. HTML script-route, duplicate-ID
-and classic-JavaScript syntax checks also passed. None are real served-browser tests.
+**Actual evidence at the latest #436 integrated source checkpoint:** 94/94 isolated
+JavaScript simulation checks passed: 16 model/context, 24 Focused Unfolding,
+23 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
+8 Full Architecture and 10 explanation-view checks. HTML script-route,
+duplicate-ID and classic-JavaScript syntax checks also passed. These do not
+represent an actual Node process, Python import/test, served browser or human study.
 **NOT established:** exact Node test process; Python/persistence/HTTP suite; complete
 served browser; accessibility with a screen reader; a capable live coding agent fulfilling
 a real mentor request; author creative outcomes or 390px screenshot acceptability.
@@ -93,13 +94,68 @@ JavaScript tests across conversational and Focused Unfolding controls. The
 JavaScript cases were executed in isolation against exact GitHub source bytes;
 the new Python and real HTTP tests are still **NOT RUN**.
 
+### Adversarial author and coding-agent proxy exploration (2026-10-14)
+
+**This is not an independent coding-agent run or real user study.**
+The coding assistant authored four explicit `MentorAdvice` packets in
+`tests/fixtures/studio_mentor_proxy_author_cases.json`; they are scripted
+proxies that deliberately exercise creative interpretation and option comparison.
+A parametrized Python roundtrip suite in
+`tests/test_studio_mentor_proxy_replays.py` will validate those packets through
+the real neutral host-agent/CanvasStore boundary when an executable checkout
+exists. The browser dialogue test already replays all four packets against
+the exact JavaScript controller, with no implicit story change.
+
+| Scenario | Recommended proxy default | What the test can establish |
+| --- | --- | --- |
+| Exceptional generous paladin + independent companions | Reject the false dilemma that competence diminishes the hero; explore institutions, companion judgment, exceptional escalation | Scripted choices retain author intention and express differing structural mechanisms |
+| Deliberately unconventional fantasy structure | Ask how cyclical consequences change over time; do not demand a three-act template | The authored packet avoids asserting genre orthodoxy |
+| Desirable optimistic academy + occasional horror | Preserve ordinary life and make restoration visibly consequential | The authored packet keeps horror from mechanically forcing nihilism |
+| Genre, tone and structure unknown | Ask one useful question and avoid fabrication | The authored packet can elect not to recommend ungrounded directions |
+
+**Proxy findings:** the four manually written responses supply eight provisional
+directions across distinct axes, three different creative contexts plus a
+low-evidence no-option case. The dialogue controller displays tradeoffs, keeps
+author-reply attribution, and requires author review before a CanvasStore-shaped
+working write. Added adversarial JavaScript cases also exercise slow focus
+changes, failed host requests, double save attempts, server errors, unsafe-looking
+strings, repeated render, and lossless rejection of unsaved working-idea text.
+
+**Limits:** a human-authored/sample answer passing its own assertions does
+not demonstrate that a fresh coding-agent response would be as good. Semantic
+paraphrases can also pass the simple duplicate-mechanism validator; real
+generative divergence remains a qualitative open question. Prior user walkthrough
+evidence for the old Beginner UI is not an actual usability test of this new
+graph-first mentorship surface. Do not rerun old tests as ceremony; target the
+changed Focus/mentor/write/return seam and a narrow-screen walkthrough.
+
+**Safe provisional owner decisions:** graph remains the primary UI, mentor
+remains optional and can go quiet, sources are attributed, unknown Genre Pack
+evidence stays unknown, hopeful/unconventional premises are not overridden by
+generic genre prejudice, and author acceptance remains explicit. These are
+already-grounded engineering defaults, not synthetic owner preference updates.
+
+### Additional source-freshness repair
+
+- The browser now tracks the actual architecture response status. A stale,
+  pending or review-ready candidate cannot supply attributed mentor links,
+  candidate questions, or optional graph alternatives as if the source were
+  current.
+- Pure working-idea mentorship remains available when an unrelated candidate
+  architecture is stale, with a **null candidate source SHA** matching the
+  backend's allowed provenance.
+- Four scenario proxy packets and the Python roundtrip test were added.
+  The 94/94 V8 checkpoint includes 11 further adversarial dialogue cases plus
+  source-status and working-focus regressions. **Python proxy tests are
+  committed, not executed.**
+
 ## M1 — real Studio mechanical qualification
 
 Run from the assembled source:
 
 ```sh
 node --test tests/test_studio_mentorship.mjs tests/test_studio_mentor_context.mjs tests/test_studio_unfolding_controller.mjs tests/test_studio_mentor_dialogue.mjs tests/test_studio_mentor_synthetic_journey.mjs
-python -m pytest -q tests/test_studio_mentor_agent.py tests/test_beginner_studio_mentor_http.py
+python -m pytest -q tests/test_studio_mentor_agent.py tests/test_beginner_studio_mentor_http.py tests/test_studio_mentor_proxy_replays.py
 python -m pytest -q tests -k studio
 python scripts/studio_stage_b_check.py
 ```
@@ -175,7 +231,7 @@ permanent chat column, new ontology or speculative personalized agent storage.
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
 | Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 81/81 focused source checks PASS; not browser |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 94/94 exact-source isolated checks PASS; not Node/browser |
 | Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
