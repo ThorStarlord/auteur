@@ -58,3 +58,19 @@ test('context construction is read-only',()=>{
  assert.deepEqual(s,before);
  assert.equal(m.AuteurStudioMentorContext.project(s,null,'candidate'),null);
 });
+
+test('stale and pending architecture cannot supply source-bound mentor evidence',()=>{
+ const m=model(),s=state();
+ for(const status of ['stale','awaiting_host_agent','review_ready']){
+   s.architectureSourceStatus=status;
+   const p=m.AuteurStudioMentorContext.project(s,s.architecture.nodes[0],'candidate');
+   assert.equal(p.sourceSha,null);
+   assert.deepEqual(p.declaredEdges,[]);
+   assert.deepEqual(p.questions,[]);
+   assert.equal(p.selected.sourceRef,null);
+ }
+ s.architectureSourceStatus='ready';
+ const p=m.AuteurStudioMentorContext.project(s,s.architecture.nodes[0],'candidate');
+ assert.equal(p.sourceSha,sha);
+ assert.equal(p.declaredEdges.length,1);
+});
