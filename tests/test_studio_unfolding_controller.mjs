@@ -452,3 +452,20 @@ test('drafts are keyed by canvas and cannot contaminate another canvas',()=>{
  assert.equal(f.els.get('unfolding-author-edit').children
    .find(x=>x.id==='unfolding-edit-content').value,'Unsaved first canvas draft');
 });
+
+test('failed working-editor save retains exact draft and never announces success',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Stored',content:'Old body'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const editor=f.els.get('unfolding-author-edit');
+ editor.children.find(x=>x.id==='unfolding-edit-content').value='Irreplaceable author text';
+ f.bridge.post=async()=>{throw Error('simulated disk failure')};
+ await editor.children.find(x=>x.textContent==='Save working idea').events.click();
+ const after=f.els.get('unfolding-author-edit');
+ assert.equal(after.children.find(x=>x.id==='unfolding-edit-content').value,'Irreplaceable author text');
+ assert.equal(f.state.items[0].content,'Old body');
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),true);
+ assert.equal(f.saved.length,0);
+ assert.ok(f.statuses.some(x=>x.includes('simulated disk failure')));
+});
