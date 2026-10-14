@@ -79,9 +79,11 @@ the same integration PR rather than starting another feature stack:
   included where properly source-bound.
 - Working item IDs are independent from AI candidate node IDs. Equal ID text
   cannot silently transfer candidate links or open questions to working notes.
-- A malformed host-agent response missing required envelope fields is a
-  **400-class client validation error**, not an opaque HTTP 500; the pending
-  mentor request and working canvas remain intact.
+- Malformed host-agent response envelopes (missing required fields, null
+  response text, or invalid elapsed-time types) are **400-class client
+  validation errors**, not opaque HTTP 500s; the pending request and working
+  canvas remain intact. The new Python regression cases are committed but
+  still need actual Python/HTTP execution.
 - Mentor dialogue clears previously visible advice and Keep controls after
   canvas/source changes or a stale server response, not merely at save time.
 - The shared working-command controller refuses to create/keep questions or
