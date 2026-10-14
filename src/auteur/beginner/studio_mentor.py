@@ -5,6 +5,7 @@ this module cannot mutate accepted StoryIdentity, Structure, Realization, or pro
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from pathlib import Path
@@ -13,7 +14,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.host_agent import (
-    build_host_agent_request, build_host_agent_response, load_host_agent_request,
+    HostAgentRequest, build_host_agent_request, build_host_agent_response, load_host_agent_request,
     validate_host_agent_response, write_host_agent_request, write_host_agent_response,
     _atomic_json_write,
 )
@@ -232,3 +233,40 @@ def complete_mentor(store: CanvasStore, payload: dict) -> dict:
         if not written:
             _atomic_json_write(base / "response.json", value)
     return project_mentor(store)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Host coding-agent bridge; no provider configuration or auto execution."""
+    parser = argparse.ArgumentParser(description="Auteur Studio source-scoped mentor handoff")
+    parser.add_argument("--project", type=Path, required=True)
+    parser.add_argument("--canvas", required=True)
+    commands = parser.add_subparsers(dest="action", required=True)
+    commands.add_parser("show")
+    prepare = commands.add_parser("prepare")
+    prepare.add_argument("--focus-id", required=True)
+    prepare.add_argument("--kind", choices=("candidate", "working"), required=True)
+    prepare.add_argument("--purpose", choices=("learn", "explore", "question", "challenge", "followup"),
+                         default="explore")
+    prepare.add_argument("--reply", default="")
+    complete = commands.add_parser("complete-file")
+    complete.add_argument("--advice", type=Path, required=True)
+    args = parser.parse_args(argv)
+    store = CanvasStore(args.project, args.canvas)
+    if args.action == "prepare":
+        result = prepare_mentor(store, args.focus_id, args.kind, args.purpose, args.reply)
+    elif args.action == "complete-file":
+        pending = project_mentor(store)
+        if pending["status"] != "awaiting_host_agent" or not pending["request"]:
+            raise ValueError("no current pending mentor request")
+        request = HostAgentRequest(**pending["request"])
+        text = args.advice.read_text(encoding="utf-8")
+        response = build_host_agent_response(request, text)
+        result = complete_mentor(store, response.model_dump())
+    else:
+        result = project_mentor(store)
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
