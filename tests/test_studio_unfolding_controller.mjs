@@ -365,3 +365,19 @@ test('stale candidate does not expose mentor links or auto-trigger a new request
  f.ctrl.render();
  assert.equal(f.els.get('unfolding-mentor').hidden,false);
 });
+
+test('author working mentor choice is allowed without a current candidate source',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'my-idea',kind:'note',title:'Author idea',content:'My source'}];
+ f.state.unfoldingFocus={kind:'working',id:'my-idea'};
+ f.state.architectureSourceStatus='stale';
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-mentor').hidden,false);
+ const choice={focusId:'my-idea',candidateSha:null,canvasRevision:0,
+   mentorRequestSha:'b'.repeat(64),sourceRef:'interpretation',
+   title:'Author-reviewed meaning',content:'An editable working interpretation'};
+ assert.equal(await f.ctrl.keepMentorIdea(choice),true);
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'create-item');
+ assert.equal(f.posted[0].command.payload.item.proposal_origin.source_ref,'interpretation');
+});
