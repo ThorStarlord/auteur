@@ -88,3 +88,15 @@ test('missing focus fails closed; arbitrary input is rendered as text, not HTML'
   assert.match(p.inStory,/^<script/);
   assert.equal(p.recommended,'learn');
 });
+
+test('question follows a declared graph relation without claiming cause',()=>{
+ const p=mentor().project({focus:{id:'g',title:'Generosity',category:'theme'},
+   focusKind:'candidate',requestSha:sha,
+   candidate:{nodes:[{id:'g',title:'Generosity'},{id:'e',title:'Hope'}],
+     links:[{source:'g',target:'e',function:'supports'}]}});
+ assert.equal(p.questionStatus,'source_bound_prompt');
+ assert.equal(p.questionSourceRef,'links/0');
+ assert.match(p.question,/Generosity/);
+ assert.match(p.question,/Hope/);
+ assert.match(p.question,/current proposal/);
+});
