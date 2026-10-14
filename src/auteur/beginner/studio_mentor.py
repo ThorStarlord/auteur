@@ -128,28 +128,50 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
             raise ValueError("mentor candidate focus is unavailable")
         focus = {"id": chosen["id"], "title": chosen["title"],
                  "details": chosen["summary"][:1000], "authority": "agent_candidate"}
-    vision = next((i.content for i in canvas.items if i.id == "story-vision"), "")
-    related = []
-    allowed_refs = {"canvas/items/" + i.id for i in canvas.items}
-    if architecture['status'] == 'ready' and candidate and request_sha:
-        allowed_refs.update("nodes/" + n["id"] for n in candidate.get("nodes", []))
-        for index, link in enumerate(candidate.get("links", [])):
-            if link["source"] == focus_id or link["target"] == focus_id:
-                related.append({"source_ref": "links/" + str(index),
-                                "function": link["function"],
-                                "source": link["source"], "target": link["target"]})
-                allowed_refs.add("links/" + str(index))
-        allowed_refs.update(
-            "open_questions/" + str(i) for i in range(len(candidate.get("open_questions", [])))
-        )
+    vision_item = next((i for i in canvas.items if i.id == "story-vision"), None)
+    vision = vision_item.content if vision_item else ""
+    selected_working = [i for i in canvas.items if i.id != "story-vision"][:10]
     working = [{"id": i.id, "title": i.title, "content": i.content[:360],
                 "authority": "author_working", "source_ref": "canvas/items/" + i.id}
-               for i in canvas.items if i.id != "story-vision"][:10]
+               for i in selected_working]
+    # Only cite material actually sent to the host: an undisclosed item ID is
+    # not evidence for its content, even when that ID exists elsewhere on canvas.
+    allowed_refs = {"canvas/items/" + i.id for i in selected_working}
+    if vision_item:
+        allowed_refs.add("canvas/items/story-vision")
+    if focus_kind == "working":
+        allowed_refs.add("canvas/items/" + focus_id)
+    related = []
+    questions = []
+    candidate_ready = architecture["status"] == "ready" and bool(candidate) and bool(request_sha)
+    if candidate_ready:
+        questions = candidate.get("open_questions", [])[:8]
+        allowed_refs.update("open_questions/" + str(i) for i in range(len(questions)))
+        if focus_kind == "candidate":
+            allowed_refs.add("nodes/" + focus_id)
+        for index, link in enumerate(candidate.get("links", [])):
+            if link["source"] != focus_id and link["target"] != focus_id:
+                continue
+            if len(related) >= 12:
+                break
+            other_id = link["target"] if link["source"] == focus_id else link["source"]
+            other = next((node for node in candidate.get("nodes", [])
+                          if node["id"] == other_id), None)
+            related.append({"source_ref": "links/" + str(index),
+                            "function": link["function"],
+                            "source": link["source"], "target": link["target"],
+                            "other_title": other["title"] if other else "",
+                            "other_summary": other["summary"][:280] if other else "",
+                            "authority": "agent_candidate"})
+            allowed_refs.add("links/" + str(index))
+            if other is not None:
+                allowed_refs.add("nodes/" + other_id)
     context = {"canvas_id": store.canvas_id, "canvas_revision": canvas.revision,
-               "candidate_request_sha256": request_sha, "focus_kind": focus_kind,
+               "candidate_request_sha256": request_sha if candidate_ready else None,
+               "candidate_status": architecture["status"], "focus_kind": focus_kind,
                "focus": focus, "author_story_vision": vision[:1600],
-               "working_ideas": working, "proposed_relations": related[:12],
-               "proposed_questions": (candidate or {}).get("open_questions", [])[:8],
+               "working_ideas": working, "proposed_relations": related,
+               "proposed_questions": questions,
                "accepted_identity_status": "not_bound",
                "genre_evidence_status": "not_evaluated"}
     return {"context": context, "source_sha256": _digest(context),
@@ -215,7 +237,13 @@ def complete_mentor(store: CanvasStore, payload: dict) -> dict:
         sha = pointer["request_sha256"]
         base = _root(store) / "requests" / sha
         request = load_host_agent_request(base / "request.json")
-        response = validate_host_agent_response(request, payload)
+        if not isinstance(payload, dict):
+            raise ValueError("mentor host-agent response must be an object")
+        try:
+            response = validate_host_agent_response(request, payload)
+        except TypeError as exc:
+            # A missing envelope field is a caller error, not HTTP 500.
+            raise ValueError("malformed mentor host-agent response envelope") from exc
         advice = MentorAdvice.model_validate_json(response.text, strict=True)
         if advice.focus_id != request.settings["focus_id"]:
             raise ValueError("mentor response focus does not match request")
