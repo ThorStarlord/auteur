@@ -223,6 +223,16 @@
               <button id="mentor-complete" type="button">Validate mentor response</button>
             </details>
             <div id="mentor-advice" class="mentor-advice" aria-live="polite"></div>
+            <section id="mentor-working-preview" class="mentor-working-preview" hidden
+                     aria-label="Review before keeping a working architecture idea">
+              <strong>Review as working architecture · Not canon</strong>
+              <label for="mentor-working-title">Working idea title</label>
+              <input id="mentor-working-title" type="text" maxlength="120">
+              <label for="mentor-working-content">Details — editable before saving</label>
+              <textarea id="mentor-working-content" maxlength="20000" rows="6"></textarea>
+              <button id="mentor-keep" type="button">Keep this working idea</button>
+              <p id="mentor-keep-status" role="status" aria-live="polite"></p>
+            </section>
           </section>
           <div id="unfolding-ghosts" class="unfolding-ghosts"></div>
           <div id="unfolding-explanation" class="unfolding-explanation" hidden></div>
