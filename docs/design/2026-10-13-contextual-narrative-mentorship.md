@@ -95,8 +95,8 @@ Committed Node and Python tests cover mentor grounding, distinct mechanisms,
 malformed and stale advice, source references, author replies, author-governed
 working adoption, ordinary Studio focus preservation, and real HTTP contract
 paths. Source-level simulated JavaScript tests have been executed against
-exact committed bytes (20/20 focused controller, 10/10 dialogue, 2/2 combined
-journeys at the last checkpoint). **This is not a Node test-run receipt, a
+exact committed bytes (15/15 model/context, 20/20 focused controller, 10/10 dialogue,
+2/2 combined journeys = 47/47 at the final source checkpoint). **This is not a Node test-run receipt, a
 Python suite PASS, real HTTP/CanvasStore proof or browser UX evidence.**
 
 Run locally on the **fully assembled Studio branch**, not just a standalone prototype:
