@@ -6,7 +6,7 @@ from auteur.host_agent import HostAgentRequest, build_host_agent_response
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.beginner.studio_mentor import (
-    MentorAdvice, complete_mentor, prepare_mentor, project_mentor,
+    MentorAdvice, _context, complete_mentor, prepare_mentor, project_mentor,
 )
 
 
@@ -155,3 +155,86 @@ def test_explore_rejects_relabelled_duplicate_mechanisms():
     example["directions"][1]["distinguishing_factor"] = ""
     with pytest.raises(ValueError, match="differentiator"):
         MentorAdvice.model_validate(example)
+
+
+def test_disclosed_working_sources_are_the_only_citable_canvas_sources(tmp_path):
+    store = working(tmp_path)
+    for i in range(13):
+        current = store.load()
+        store.apply(
+            "create-item", expected_revision=current.revision,
+            command_id=f"extra-{i}",
+            payload={"item": {"id": f"extra-{i}", "kind": "note",
+                              "title": f"Idea {i}", "content": f"Private detail {i}"},
+                     "position": {"x": 20, "y": 40}},
+        )
+    snapshot = _context(store, "hero", "working")
+    seen = snapshot["context"]["working_ideas"]
+    assert len(seen) == 10
+    assert "canvas/items/hero" in snapshot["allowed_refs"]
+    assert "canvas/items/story-vision" in snapshot["allowed_refs"]
+    assert "canvas/items/extra-12" not in snapshot["allowed_refs"]
+    assert len([r for r in snapshot["allowed_refs"] if r.startswith("canvas/items/")]) == 11
+
+
+def test_stale_candidate_never_contributes_proposals_or_refs(tmp_path, monkeypatch):
+    store = working(tmp_path)
+    candidate = {
+        "nodes": [
+            {"id": "n1", "title": "False genre rule", "summary": "Stale proposal"},
+            {"id": "n2", "title": "Another rule", "summary": "Old idea"},
+        ],
+        "links": [{"source": "n1", "target": "n2", "function": "contrasts"}],
+        "open_questions": ["Old question"],
+    }
+    monkeypatch.setattr(
+        "auteur.beginner.studio_mentor.project_architecture",
+        lambda _store: {"status": "stale", "candidate": candidate,
+                        "candidate_request_sha256": "b" * 64},
+    )
+    snapshot = _context(store, "hero", "working")
+    ctx = snapshot["context"]
+    assert ctx["candidate_status"] == "stale"
+    assert ctx["candidate_request_sha256"] is None
+    assert ctx["proposed_relations"] == []
+    assert ctx["proposed_questions"] == []
+    assert "links/0" not in snapshot["allowed_refs"]
+    assert "open_questions/0" not in snapshot["allowed_refs"]
+    assert "nodes/n1" not in snapshot["allowed_refs"]
+
+
+def test_ready_candidate_cites_only_disclosed_neighbor_links_and_questions(tmp_path, monkeypatch):
+    store = working(tmp_path)
+    candidate = {
+        "nodes": [
+            {"id": "focus", "title": "Heroism", "summary": "Generous heroism"},
+            {"id": "agency", "title": "Independence", "summary": "Agency"},
+            {"id": "unrelated", "title": "Unrelated", "summary": "Not shown"},
+        ],
+        "links": [{"source": "focus", "target": "agency", "function": "contrasts"}],
+        "open_questions": [f"Question {i}" for i in range(11)],
+    }
+    monkeypatch.setattr(
+        "auteur.beginner.studio_mentor.project_architecture",
+        lambda _store: {"status": "ready", "candidate": candidate,
+                        "candidate_request_sha256": "c" * 64},
+    )
+    snapshot = _context(store, "focus", "candidate")
+    ctx = snapshot["context"]
+    assert ctx["candidate_request_sha256"] == "c" * 64
+    assert ctx["proposed_relations"][0]["other_title"] == "Independence"
+    assert ctx["proposed_relations"][0]["authority"] == "agent_candidate"
+    assert len(ctx["proposed_questions"]) == 8
+    assert "open_questions/7" in snapshot["allowed_refs"]
+    assert "open_questions/10" not in snapshot["allowed_refs"]
+    assert "links/0" in snapshot["allowed_refs"]
+    assert "nodes/agency" in snapshot["allowed_refs"]
+    assert "nodes/unrelated" not in snapshot["allowed_refs"]
+
+
+def test_missing_response_envelope_fields_are_400_class_errors(tmp_path):
+    store = working(tmp_path)
+    prepare_mentor(store, "hero", "working")
+    with pytest.raises(ValueError, match="malformed mentor host-agent response"):
+        complete_mentor(store, {"schema": "auteur_host_agent_response_v1"})
+    assert project_mentor(store)["status"] == "awaiting_host_agent"
