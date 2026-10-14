@@ -121,6 +121,15 @@
         add('p',projection.definition,body);
         if(projection.inStory)add('p','In this story: '+projection.inStory,body);
         add('small',projection.evidenceNote,body);
+        var perspective={genre:'genres',trope:'tropes',structure:'structure',engine:'structure',
+          emotion:'emotions',reader_experience:'emotions'}[projection.role];
+        if(perspective){
+          var learnMore=add('button','See related architecture perspective',body);
+          learnMore.type='button';learnMore.addEventListener('click',function(){
+            var route=document.querySelector('[data-architecture-facet="'+perspective+'"]');
+            if(route)route.click();
+          });
+        }
       }else if(mode==='explore'){
         add('strong','Different directions',body);
         add('p',projection.options.length?
@@ -139,6 +148,8 @@
         var keep=add('button','Keep question as an editable working idea',body);
         keep.type='button';keep.disabled=s.unfoldingSaving;
         keep.addEventListener('click',function(){return keepMentorQuestion(projection);});
+        var follow=add('button','Develop follow-up with coding agent',body);
+        follow.type='button';follow.addEventListener('click',function(){requestMentor(projection);});
       }else{
         add('strong','An assumption worth examining',body);
         add('p',projection.challenge,body);
