@@ -34,7 +34,7 @@ function fixture(){
   applySaved:doc=>{remote.revision=doc.revision;state.items=doc.items;saved.push(doc)},
   prepare:instr=>hostRequests.push(instr),status:text=>statuses.push(text),remember:()=>{}};
  const ctrl=win.AuteurStudioUnfoldingController.create(bridge);
- return{state,remote,ctrl,win,els,posted,saved,hostRequests,statuses,nodeElements};
+ return{state,remote,ctrl,win,doc,els,posted,saved,hostRequests,statuses,nodeElements};
 }
 
 test('render is read-only and shows declared focus-local ghosts',()=>{
@@ -222,4 +222,25 @@ test('declared source tension prompts a conditional challenge, not a canon verdi
  assert.equal(panel.children[0].children[3].getAttribute('aria-pressed'),'true');
  assert.ok(panel.children[1].children.some(x=>x.textContent.includes('Not an accepted contradiction')));
  assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
+});
+
+test('teaching navigation cannot leave an unsaved working idea behind',()=>{
+ const f=fixture();let navigations=0;
+ f.doc.querySelector=selector=>{
+   assert.match(selector,/data-architecture-facet="genres"/);
+   return {click:()=>{navigations++;}};
+ };
+ f.state.items=[{id:'author-genre',kind:'note',title:'Chosen genre',content:'Author details',
+   architecture_role:'genre',proposal_origin:null}];
+ f.state.unfoldingFocus={kind:'working',id:'author-genre'};
+ f.ctrl.render();
+ const input=f.els.get('unfolding-author-edit').children.find(x=>x.id==='unfolding-edit-content');
+ input.value='Unsaved change';
+ const button=f.els.get('unfolding-mentor').children[1].children.find(x=>
+   x.textContent==='See related architecture perspective');
+ assert.ok(button);button.events.click();
+ assert.equal(navigations,0);
+ assert.match(f.statuses.at(-1),/Save your working-idea edits/);
+ input.value='Author details';button.events.click();
+ assert.equal(navigations,1);
 });
