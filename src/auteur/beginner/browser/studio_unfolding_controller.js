@@ -126,6 +126,14 @@
         if(perspective){
           var learnMore=add('button','See related architecture perspective',body);
           learnMore.type='button';learnMore.addEventListener('click',function(){
+            var focused=s.unfoldingFocus?.kind==='working'?
+              s.items.find(x=>x.id===s.unfoldingFocus.id):null;
+            if(focused){
+              var title=$('unfolding-edit-title'),detail=$('unfolding-edit-content');
+              if((title&&title.value!==focused.title)||(detail&&detail.value!==focused.content)){
+                bridge.status('Save your working-idea edits before opening another perspective.');return;
+              }
+            }
             var route=document.querySelector('[data-architecture-facet="'+perspective+'"]');
             if(route)route.click();
           });
