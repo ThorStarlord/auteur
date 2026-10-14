@@ -499,7 +499,8 @@
   }
   function hasUnsavedChanges() {
     return remote.ready &&
-      (remote.failed || remote.savedSnapshot !== JSON.stringify(snapshot()));
+      (remote.failed || remote.savedSnapshot !== JSON.stringify(snapshot()) ||
+       !!(unfoldingController && unfoldingController.hasUnsavedWorkingDrafts()));
   }
   function leaveForLegacy(href) {
     if (!$("scene-panel").hidden) captureScene();
@@ -2207,13 +2208,7 @@
     status: status, remember: rememberFocus
   });
   function mentorEditorClean(){
-    var focus=state.unfoldingFocus;
-    var item=focus&&state.items.find(function(x){return x.id===focus.id;});
-    var editor=$("unfolding-author-edit");
-    if(!item||editor.hidden)return true;
-    var title=Array.prototype.find.call(editor.children,x=>x.id==="unfolding-edit-title");
-    var content=Array.prototype.find.call(editor.children,x=>x.id==="unfolding-edit-content");
-    return !((title&&title.value!==item.title)||(content&&content.value!==item.content));
+    return !unfoldingController || !unfoldingController.hasUnsavedWorkingDrafts();
   }
   mentorDialogueController = window.AuteurStudioMentorDialogueController.create({
     state:function(){return state;},remote:function(){return remote;},
