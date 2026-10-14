@@ -38,7 +38,7 @@ test('only one same-mechanism option remains when no divergent evidence exists',
   const p=mentor().project({focus:{id:'g',title:'Growth',category:'engine'},requestSha:sha,
     suggestions:[suggestion('A','trope','uses','links/0'),suggestion('B','trope','uses','links/1')]});
   assert.equal(p.options.length,1);
-  assert.equal(p.recommended,'learn');
+  assert.equal(p.recommended,'explore');
 });
 
 test('mismatched, fabricated or unproven suggestions cannot appear as grounded alternatives',()=>{
