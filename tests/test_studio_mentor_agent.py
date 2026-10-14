@@ -263,3 +263,18 @@ def test_working_id_collision_does_not_inherit_candidate_edges(tmp_path, monkeyp
     assert "links/0" not in snapshot["allowed_refs"]
     assert "nodes/other" not in snapshot["allowed_refs"]
     assert "open_questions/0" not in snapshot["allowed_refs"]
+
+@pytest.mark.parametrize("field,bad", [
+    ("text", None),
+    ("elapsed_seconds", "not-a-number"),
+])
+def test_malformed_host_agent_values_do_not_become_server_errors(tmp_path, field, bad):
+    store = working(tmp_path)
+    pending = prepare_mentor(store, "hero", "working")
+    request = HostAgentRequest(**pending["request"])
+    envelope = build_host_agent_response(request, "{}").model_dump()
+    envelope[field] = bad
+    with pytest.raises(ValueError, match="malformed mentor host-agent response"):
+        complete_mentor(store, envelope)
+    assert project_mentor(store)["status"] == "awaiting_host_agent"
+    assert store.load().revision == 2
