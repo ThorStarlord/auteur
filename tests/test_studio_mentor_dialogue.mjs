@@ -198,3 +198,119 @@ test('dirty working editor cannot be discarded by keeping a mentor suggestion',a
    /Save your working-idea edits/);
  assert.equal(f.elements.get('mentor-working-preview').hidden,false);
 });
+
+test('adversarial intentions remain verbatim and never cause passive working writes',async()=>{
+ const cases=[
+   'The paladin must remain an extraordinary, beloved hero while companions gain independent agency.',
+   'This story subverts heroic destiny: the generous protagonist rejects the chosen-one narrative.',
+   'Cozy life and restoration coexist with occasional horror; do not force a grim ending.',
+   'Mix academic science fiction and pastoral fantasy without claiming unverified genre conventions.',
+   'Avoid a three-act obligation. A cyclical, slow-changing emotional arc is intentional.'
+ ];
+ for(const intention of cases){
+   const f=fixture();
+   await f.ctrl.open(p(),'explore');
+   f.elements.get('mentor-author-reply').value=intention;
+   f.elements.get('mentor-author-reply').events.input();
+   await f.elements.get('mentor-send').events.click();
+   assert.equal(JSON.parse(f.requests.at(-1).config.body).author_reply,intention);
+   assert.equal(JSON.parse(f.requests.at(-1).config.body).purpose,'followup');
+   assert.equal(f.saved.length,0);
+ }
+});
+
+test('slow flush with focus switch aborts request before any host-agent POST',async()=>{
+ const f=fixture();
+ f.bridge.flush=async()=>{
+   f.state.unfoldingFocus={kind:'candidate',id:'another'};
+ };
+ await f.ctrl.open(p(),'challenge');
+ assert.equal(f.requests.length,0);
+ assert.equal(f.saved.length,0);
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,true);
+});
+
+test('out-of-order completed response cannot appear in a different focused concept',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.bridge.fetch=async()=>{
+   f.state.unfoldingFocus={kind:'candidate',id:'other'};
+   return {json:async()=>f.ready};
+ };
+ f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,true);
+ assert.equal(f.saved.length,0);
+});
+
+test('rejected server handoff retains exact author reply and reports failure',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'question');
+ const input=f.elements.get('mentor-author-reply');
+ input.value='I reject this premise without rejecting the hopeful genre.';
+ input.events.input();
+ f.bridge.fetch=async()=>{throw Error('conflict from competing editor')};
+ await f.elements.get('mentor-send').events.click();
+ assert.equal(input.value,'I reject this premise without rejecting the hopeful genre.');
+ assert.match(f.elements.get('mentor-status').textContent,/conflict from competing editor/);
+ assert.equal(f.saved.length,0);
+});
+
+test('keeping a reviewed option is single-flight under double click',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ const box=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ box.children.find(y=>y.textContent==='Review as working idea').events.click();
+ let saveCount=0,finishSave;
+ f.bridge.saveWorking=()=>{saveCount++;return new Promise(resolve=>{finishSave=resolve})};
+ const first=f.elements.get('mentor-keep').events.click();
+ const second=f.elements.get('mentor-keep').events.click();
+ assert.equal(saveCount,1);
+ assert.equal(f.elements.get('mentor-keep').disabled,true);
+ finishSave(true);
+ await Promise.all([first,second]);
+ assert.equal(saveCount,1);
+});
+
+test('failed save keeps editable preview and never announces success',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ const box=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ box.children.find(y=>y.textContent==='Review as working idea').events.click();
+ f.elements.get('mentor-working-content').value='My carefully revised answer remains safe.';
+ f.bridge.saveWorking=async()=>{throw Error('disk quota exceeded')};
+ await f.elements.get('mentor-keep').events.click();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+ assert.equal(f.elements.get('mentor-working-content').value,'My carefully revised answer remains safe.');
+ assert.match(f.elements.get('mentor-keep-status').textContent,/disk quota exceeded/);
+ assert.equal(f.saved.length,0);
+});
+
+test('hostile text is shown literally rather than interpreted as markup',async()=>{
+ const f=fixture();
+ f.ready.advice.summary='<img src=x onerror=alert(1)> Not narrative markup';
+ f.ready.advice.directions[0].title='<script>malicious-looking title</script>';
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ const lines=f.elements.get('mentor-advice').children;
+ assert.ok(lines.some(x=>x.textContent.includes('<img src=x onerror=alert(1)>')));
+ const box=lines.find(x=>x.className==='mentor-direction');
+ assert.ok(box.children.some(x=>x.textContent.includes('<script>')));
+ assert.equal(f.saved.length,0);
+});
+
+test('closing while a host-agent request is pending cannot resurrect its UI',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-dismiss').events.click();
+ f.ctrl.render();
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,true);
+ assert.equal(f.saved.length,0);
+});
