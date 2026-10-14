@@ -28,10 +28,10 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence at the latest #436 integrated source checkpoint:** 102/102 isolated
-JavaScript simulation checks passed: 16 model/context, 28 Focused Unfolding,
+**Actual evidence at the latest #436 integrated source checkpoint:** 107/107 isolated
+JavaScript simulation checks passed: 16 model/context, 29 Focused Unfolding,
 27 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
-8 Full Architecture and 10 explanation-view checks. HTML script-route,
+8 Full Architecture, 10 explanation-view and 4 canvas-navigation checks. HTML script-route,
 duplicate-ID and classic-JavaScript syntax checks also passed. These do not
 represent an actual Node process, Python import/test, served browser or human study.
 **NOT established:** exact Node test process; Python/persistence/HTTP suite; complete
@@ -161,8 +161,8 @@ exact committed browser controllers, not inferred from stylistic preference.
    item, including across Focus changes, until explicit author Save. The shared
    command boundary now checks hidden drafts as well as visible edits; browser
    navigation and the legacy-interface handoff treat these drafts as unsaved.
-   Recorded source-level rerender/focus test and 4 new controller regressions
-   pass, for **28/28 Focused controller checks**.
+   Recorded source-level rerender/focus and failed-save regression tests now pass,
+   for **29/29 Focused controller checks**.
 2. **Editable mentor preview could silently disappear.** A fresh follow-up,
    closing the dialogue, replacing a chosen interpretation, or stale source
    projection could conceal a carefully rewritten proposed idea. Repair:
@@ -174,8 +174,12 @@ exact committed browser controllers, not inferred from stylistic preference.
 
 The combined synthetic author journey continues to pass **2/2**.
 The remaining model/context, adoption, Full Architecture and explanation
-suites were rechecked against the connected GitHub source; **102/102 exact
-source-isolated JavaScript checks pass**. The current HTML has no duplicate
+suites were rechecked against the connected GitHub source. A third adjacent
+data-loss path was reproduced: a canvas switch could navigate despite an
+unsaved Focus draft. It now blocks before navigation, restores the picker
+value, and checks queued saves again. Four additional navigation tests pass.
+Across the available suites, **107/107 exact-source isolated JavaScript
+checks pass**. The current HTML has no duplicate
 IDs; 10 script sources resolve to served routes; changed classic-JS sources
 parse successfully.
 
@@ -201,7 +205,7 @@ evidence.
 Run from the assembled source:
 
 ```sh
-node --test tests/test_studio_mentorship.mjs tests/test_studio_mentor_context.mjs tests/test_studio_unfolding_controller.mjs tests/test_studio_mentor_dialogue.mjs tests/test_studio_mentor_synthetic_journey.mjs
+node --test tests/test_studio_mentorship.mjs tests/test_studio_mentor_context.mjs tests/test_studio_unfolding_controller.mjs tests/test_studio_mentor_dialogue.mjs tests/test_studio_mentor_synthetic_journey.mjs tests/test_studio_canvas_navigation.mjs
 python -m pytest -q tests/test_studio_mentor_agent.py tests/test_beginner_studio_mentor_http.py tests/test_studio_mentor_proxy_replays.py
 python -m pytest -q tests -k studio
 python scripts/studio_stage_b_check.py
@@ -278,7 +282,7 @@ permanent chat column, new ontology or speculative personalized agent storage.
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
 | Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 102/102 exact-source isolated checks PASS; not Node/browser |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 107/107 exact-source isolated checks PASS; not Node/browser |
 | Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
