@@ -29,7 +29,8 @@ function fixture(){
    question:'What future should the hero create?',challenge_basis:'conditional_hypothesis',
    directions:[{id:'social',title:'Community restoration',divergence_axis:'social_scale',
      mechanism:'Institutions reproduce help',consequence:'More people can act',
-     tradeoff:'The hero shares agency',source_status:'agent_hypothesis',source_refs:[]}]};
+     tradeoff:'The hero shares agency',distinguishing_factor:'Social systems, not solo power',
+     source_status:'agent_hypothesis',source_refs:[]}]};
  const pending={status:'awaiting_host_agent',request:{schema:'auteur_host_agent_request_v1',
    request_sha256:'b'.repeat(64)},focus_id:'g',focus_kind:'candidate'};
  const ready={status:'ready',advice,focus_id:'g',focus_kind:'candidate',

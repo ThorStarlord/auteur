@@ -36,6 +36,7 @@ def packet(request, *, kind="explore", source_refs=None, directions=None, **over
                 "mechanism": "Help scales through shared institutions.",
                 "consequence": "New people can help others.",
                 "tradeoff": "The hero must share agency.",
+                "distinguishing_factor": "An institutional ripple instead of personal strength.",
                 "divergence_axis": "social_scale",
                 "source_status": "agent_hypothesis", "source_refs": []}],
            "source_refs": source_refs or [], "limitation": "A creative hypothesis only."}
@@ -97,7 +98,9 @@ def test_source_bound_alternative_needs_real_source(tmp_path):
     request = prepare_mentor(store, "hero", "working")["request"]
     direction = {"id": "better", "title": "Independence",
                  "mechanism": "Help develops agency.", "consequence": "New choices.",
-                 "tradeoff": "Less direct control.", "divergence_axis": "character_agency",
+                 "tradeoff": "Less direct control.",
+                 "distinguishing_factor": "Companion agency rather than community scale.",
+                 "divergence_axis": "character_agency",
                  "source_status": "source_bound_proposal", "source_refs": []}
     with pytest.raises(ValueError, match="provenance"):
         complete_mentor(store, packet(request, directions=[direction]))
@@ -133,3 +136,22 @@ def test_unknown_focus_invalid_kind_and_overlong_reply_fail_closed(tmp_path):
         with pytest.raises(ValueError):
             prepare_mentor(store, *args)
     assert project_mentor(store)["status"] == "not_started"
+
+def test_explore_rejects_relabelled_duplicate_mechanisms():
+    example = {"focus_id": "hero", "kind": "explore", "summary": "Two directions",
+               "directions": [
+                   {"id": "one", "title": "Institutional generosity",
+                    "mechanism": "Helpers establish mutual-aid institutions",
+                    "consequence": "Distributed support", "tradeoff": "Less direct power",
+                    "distinguishing_factor": "Social institutions", "divergence_axis": "social_scale"},
+                   {"id": "two", "title": "Community support",
+                    "mechanism": "Helpers establish mutual-aid institutions",
+                    "consequence": "Distributed support", "tradeoff": "Less direct power",
+                    "distinguishing_factor": "Collective agency", "divergence_axis": "social_scale"},
+               ]}
+    with pytest.raises(ValueError, match="same mechanism"):
+        MentorAdvice.model_validate(example)
+    example["directions"][1]["mechanism"] = "Helpers challenge their old leader"
+    example["directions"][1]["distinguishing_factor"] = ""
+    with pytest.raises(ValueError, match="differentiator"):
+        MentorAdvice.model_validate(example)

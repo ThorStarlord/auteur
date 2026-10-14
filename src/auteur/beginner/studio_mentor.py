@@ -34,6 +34,7 @@ class MentorDirection(BaseModel):
     mechanism: str = Field(min_length=1, max_length=900)
     consequence: str = Field(min_length=1, max_length=900)
     tradeoff: str = Field(min_length=1, max_length=700)
+    distinguishing_factor: str = Field(default="", max_length=500)
     divergence_axis: Literal[
         "causal_engine", "character_agency", "reader_emotion",
         "social_scale", "structure", "theme", "genre_relation",
@@ -61,6 +62,12 @@ class MentorAdvice(BaseModel):
     def valid_intervention(self) -> "MentorAdvice":
         if len({d.id for d in self.directions}) != len(self.directions):
             raise ValueError("mentor directions need distinct IDs")
+        if self.kind == "explore":
+            if any(not d.distinguishing_factor.strip() for d in self.directions):
+                raise ValueError("explore directions require their concrete differentiator")
+            normalized = [" ".join(d.mechanism.casefold().split()) for d in self.directions]
+            if len(set(normalized)) != len(normalized):
+                raise ValueError("explore cannot repeat the same mechanism")
         if self.kind == "explore" and not self.directions:
             raise ValueError("explore requires an actual direction; otherwise no_intervention")
         if self.kind == "no_intervention" and (self.directions or self.challenge):
@@ -73,8 +80,9 @@ Return a single JSON object conforming exactly to MentorAdvice schema_version=1:
 {schema_version,focus_id,kind,summary,explanation,question,challenge,
 challenge_basis,author_reply_interpretation,directions,source_refs,limitation}.
 kind: explain/explore/question/challenge/synthesis/no_intervention.
-directions: 0..3 {id,title,mechanism,consequence,tradeoff,divergence_axis,
-source_status,source_refs}. divergence_axis: causal_engine/character_agency/
+directions: 0..3 {id,title,mechanism,consequence,tradeoff,distinguishing_factor,
+divergence_axis,source_status,source_refs}. distinguishing_factor must explain
+how THIS option differs causally from the other options. divergence_axis: causal_engine/character_agency/
 reader_emotion/social_scale/structure/theme/genre_relation.
 challenge_basis: conditional_hypothesis or proposed_tension.
 source_status: agent_hypothesis or source_bound_proposal.
