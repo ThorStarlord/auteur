@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const helper=readFileSync(new URL('../src/auteur/beginner/browser/studio_unfolding.js',import.meta.url),'utf8');
 const controller=readFileSync(new URL('../src/auteur/beginner/browser/studio_unfolding_controller.js',import.meta.url),'utf8');
+const mentorship=readFileSync(new URL('../src/auteur/beginner/browser/studio_mentorship.js',import.meta.url),'utf8');
 class El{
  constructor(id=''){this.id=id;this.children=[];this.hidden=true;this.value='';this.textContent='';this.events={};this.style={};this.attributes={};this.disabled=false;this.dataset={};}
  replaceChildren(...arr){this.children=[...arr]}appendChild(x){this.children.push(x);return x}append(...xs){this.children.push(...xs)}
@@ -11,12 +12,13 @@ class El{
 }
 function fixture(){
  const ids=['unfolding-start','unfolding-local','unfolding-ghosts','unfolding-explanation','unfolding-evidence-status',
- 'unfolding-role','unfolding-title','unfolding-create','unfolding-more','unfolding-author-edit'];
+ 'unfolding-role','unfolding-title','unfolding-create','unfolding-more','unfolding-author-edit','unfolding-mentor'];
  const els=new Map(ids.map(id=>[id,new El(id)]));
  const nodeElements=[];
  const doc={getElementById:id=>els.get(id),createElement:tag=>new El(tag),querySelectorAll:()=>nodeElements};
  const win={innerWidth:1440,localStorage:{getItem(){return null},setItem(){}}};
- new Function('window',helper)(win);new Function('window','document',controller)(win,doc);
+ new Function('window',helper)(win);new Function('window',mentorship)(win);
+ new Function('window','document',controller)(win,doc);
  const sha='a'.repeat(64);
  const state={workspace:'architecture',view:'architecture',architectureFacet:'overview',architectureRequestSha:sha,
   unfoldingFocus:{kind:'candidate',id:'g'},unfoldingOffset:0,unfoldingInspected:null,unfoldingSaving:false,
@@ -145,4 +147,79 @@ test('keyboard focus stays on the same suggestion after opening its explanation'
  assert.notEqual(next,old);
  assert.equal(next.getAttribute('aria-pressed'),'true');
  assert.equal(next.didFocus,true);
+});
+
+test('mentor starts with source-local Explore and never mutates on passive render',()=>{
+ const f=fixture();f.ctrl.render();
+ const panel=f.els.get('unfolding-mentor');
+ assert.equal(panel.hidden,false);
+ assert.equal(panel.children[0].children[1].getAttribute('aria-pressed'),'true');
+ assert.equal(f.els.get('unfolding-ghosts').hidden,false);
+ assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
+});
+
+test('Learn and Challenge change only mentor presentation, not unsaved working edits',()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',title:'Generosity',kind:'note',architecture_role:'theme',content:'Kept',
+  proposal_origin:{request_sha:'a'.repeat(64),source_ref:'links/0',source_kind:'proposal_edge',focus_id:'g'}}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const edit=f.els.get('unfolding-author-edit'),area=edit.children.find(x=>x.id==='unfolding-edit-content');
+ area.value='Unsaved author thought';
+ const buttons=f.els.get('unfolding-mentor').children[0].children;
+ buttons[0].events.click();
+ assert.equal(area.value,'Unsaved author thought');
+ assert.equal(edit.children.find(x=>x.id==='unfolding-edit-content'),area);
+ assert.equal(f.els.get('unfolding-ghosts').hidden,true);
+ f.els.get('unfolding-mentor').children[0].children[3].events.click();
+ assert.equal(area.value,'Unsaved author thought');
+ assert.equal(f.posted.length,0);
+});
+
+test('question becomes an editable working item only after explicit keep',async()=>{
+ const f=fixture();f.ctrl.render();
+ f.els.get('unfolding-mentor').children[0].children[2].events.click();
+ const body=f.els.get('unfolding-mentor').children[1];
+ const keep=body.children.find(x=>x.textContent==='Keep question as an editable working idea');
+ assert.ok(keep);assert.equal(f.posted.length,0);
+ await keep.events.click();
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'create-item');
+ assert.equal(f.posted[0].command.payload.item.kind,'question');
+ assert.equal(f.posted[0].command.payload.item.proposal_origin,null);
+ assert.match(f.posted[0].command.payload.item.content,/genre|expectations/i);
+ assert.equal(f.saved.length,1);
+});
+
+test('stale question refuses persistence and does not claim a save',async()=>{
+ const f=fixture();f.ctrl.render();
+ f.els.get('unfolding-mentor').children[0].children[2].events.click();
+ const keep=f.els.get('unfolding-mentor').children[1].children.find(x=>x.textContent.includes('Keep question'));
+ f.state.architectureRequestSha='b'.repeat(64);
+ await keep.events.click();
+ assert.equal(f.posted.length,0);
+ assert.match(f.statuses.at(-1),/source changed/);
+});
+
+test('fresh divergent reasoning is explicit, source-scoped, and does not call on render',()=>{
+ const f=fixture();f.state.architecture.links=[];
+ f.els.set('vision-text',Object.assign(new El('vision-text'),{value:'A generous hopeful hero'}));
+ f.ctrl.render();assert.equal(f.hostRequests.length,0);
+ f.els.get('unfolding-mentor').children[0].children[1].events.click();
+ const body=f.els.get('unfolding-mentor').children[1];
+ const request=body.children.find(x=>x.textContent.includes('Develop divergent'));
+ assert.ok(request);request.events.click();
+ assert.equal(f.hostRequests.length,1);
+ assert.match(f.hostRequests[0],/genuinely DIFFERENT/);
+ assert.match(f.hostRequests[0],/generous hopeful hero/);
+ assert.equal(f.posted.length,0);
+});
+
+test('declared source tension prompts a conditional challenge, not a canon verdict',()=>{
+ const f=fixture();f.state.architecture.links=[{source:'g',target:'t',function:'contrasts'}];
+ f.ctrl.render();
+ const panel=f.els.get('unfolding-mentor');
+ assert.equal(panel.children[0].children[3].getAttribute('aria-pressed'),'true');
+ assert.ok(panel.children[1].children.some(x=>x.textContent.includes('Not an accepted contradiction')));
+ assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
 });
