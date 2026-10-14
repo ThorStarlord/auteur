@@ -381,3 +381,74 @@ test('author working mentor choice is allowed without a current candidate source
  assert.equal(f.posted[0].action,'create-item');
  assert.equal(f.posted[0].command.payload.item.proposal_origin.source_ref,'interpretation');
 });
+
+test('unrelated rerenders preserve a working idea title and body before explicit save',()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Stored title',content:'Stored body'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const editor=()=>f.els.get('unfolding-author-edit');
+ editor().children.find(x=>x.id==='unfolding-edit-title').value='My unsaved title';
+ editor().children.find(x=>x.id==='unfolding-edit-content').value='My unsaved body';
+ f.ctrl.render();
+ assert.equal(editor().children.find(x=>x.id==='unfolding-edit-title').value,'My unsaved title');
+ assert.equal(editor().children.find(x=>x.id==='unfolding-edit-content').value,'My unsaved body');
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),true);
+ assert.equal(f.posted.length,0);
+});
+
+test('focus switches preserve draft until author returns and explicitly saves',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Stored title',content:'Stored body'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ let edit=f.els.get('unfolding-author-edit');
+ edit.children.find(x=>x.id==='unfolding-edit-content').value='Important unsaved text';
+ f.state.unfoldingFocus={kind:'candidate',id:'g'};f.ctrl.render();
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),true);
+ assert.equal(f.posted.length,0);
+ f.state.unfoldingFocus={kind:'working',id:'working'};f.ctrl.render();
+ edit=f.els.get('unfolding-author-edit');
+ assert.equal(edit.children.find(x=>x.id==='unfolding-edit-content').value,'Important unsaved text');
+ await edit.children.find(x=>x.textContent==='Save working idea').events.click();
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'update-item');
+ assert.equal(f.posted[0].command.payload.item.content,'Important unsaved text');
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),false);
+});
+
+test('hidden dirty drafts prevent adopting alternatives from another focus',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Source',content:'Unedited'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};f.ctrl.render();
+ f.els.get('unfolding-author-edit').children
+   .find(x=>x.id==='unfolding-edit-content').value='Not yet saved';
+ f.state.unfoldingFocus={kind:'candidate',id:'g'};f.ctrl.render();
+ const ghost=f.els.get('unfolding-ghosts').children[0];
+ ghost.events.click();
+ const adopt=f.els.get('unfolding-explanation').children
+   .find(x=>x.textContent==='Adopt into working architecture');
+ await adopt.events.click();
+ assert.equal(f.posted.length,0);
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),true);
+ assert.ok(f.statuses.some(x=>x.includes('unsaved working-idea text')));
+});
+
+test('drafts are keyed by canvas and cannot contaminate another canvas',()=>{
+ const f=fixture();
+ f.state.items=[{id:'shared',kind:'note',title:'First',content:'First canvas'}];
+ f.state.unfoldingFocus={kind:'working',id:'shared'};f.ctrl.render();
+ f.els.get('unfolding-author-edit').children
+   .find(x=>x.id==='unfolding-edit-content').value='Unsaved first canvas draft';
+ f.remote.canvasId='canvas-2';
+ f.state.items=[{id:'shared',kind:'note',title:'Second',content:'Second canvas'}];
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-author-edit').children
+   .find(x=>x.id==='unfolding-edit-content').value,'Second canvas');
+ assert.equal(f.ctrl.hasUnsavedWorkingDrafts(),false);
+ f.remote.canvasId='canvas-1';
+ f.state.items=[{id:'shared',kind:'note',title:'First',content:'First canvas'}];
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-author-edit').children
+   .find(x=>x.id==='unfolding-edit-content').value,'Unsaved first canvas draft');
+});
