@@ -1,8 +1,33 @@
 # Contextual Narrative Mentorship — Focused Studio Interaction Contract
 
 **Date:** 2026-10-13
-**Status:** Active development contract through mentorship PR #434, stacked on Studio #424; not yet served-browser qualified, merged, or released.
+**Status:** Development contract merged through PR #436 (`main@4122321fe09d1959278fdd087fc29f85e2f3a9d2`); mechanical Studio qualification completed at `97354ee6ea293df6c6b15783406e6c1d560403bf`; not released or broadly author-validated.
 **Authority:** Existing `MISSION.md`, `docs/narrative-architecture.md`, Studio candidate/CanvasStore, and host-agent boundaries remain unchanged.
+
+## Post-merge qualification and creative-evidence boundary
+
+The merged PR #436 reports **64/64 real Node checks, 28 focused Python/HTTP
+mentor checks, 163 Studio Python checks, 16/16 Stage-B browser checks, 11 focused
+Unfolding browser checks**, and an exact-head working-editor/reopen journey.
+The full Python suite remains **5,591 passed / 24 baseline-equivalent failed /
+2 skipped**, with no candidate-only failures and no GitHub CI. See the
+post-merge addendum in
+`2026-10-14-mentorship-integration-qualification.md` for provenance.
+
+A separate owner-reported fresh independent coding-agent sample generated
+three distinct acceptable mentorship/audit paths while preserving a temporary
+canvas, privacy, and neighbor agency; it did not accept story canon. It is
+**one exploratory creative sample**, not a general claim that mentoring
+improves writing, reliably produces diverse mechanisms, or feels comfortable
+to authors.
+
+**Remaining product-use questions:** can a model honor deliberate
+genre-subversion; revise an earlier interpretation after an author's
+correction; decline unsupported Pack claims; help the author choose among
+causally different directions; and remain legible in graph-first Focus/Full
+navigation? Answer with bounded real interactions or human observation where
+the claim requires it. Keep the existing noncanonical/author-authority
+contracts unchanged. Do not create another default chat column.
 
 ## Product intent
 
@@ -58,9 +83,11 @@ It must not become a mandatory wizard, a separate chat workspace, or a new story
   answer, preview, explicit working save, Focus/Full/Realization re-entry,
   and stale-refusal through actual JavaScript controllers and mocked server.
 
-**Status boundary:** these PRs are sequential draft additions to an unmerged
-Studio baseline; this document reports implemented source behavior, not
-successful branch integration or release qualification.
+**Historical source-stage boundary:** PRs #427–#434 were sequential
+draft additions at the time of this description; they were subsequently
+reconciled and merged through PR #436. The separate candidate-head
+qualification above supersedes the old unmerged/untested status. Release
+qualification and broader experiential effectiveness remain open.
 
 ## Visibility / authority / evidence
 
@@ -96,8 +123,8 @@ malformed and stale advice, source references, author replies, author-governed
 working adoption, ordinary Studio focus preservation, and real HTTP contract
 paths. Source-level simulated JavaScript tests have been executed against
 exact committed bytes (15/15 model/context, 20/20 focused controller, 10/10 dialogue,
-2/2 combined journeys = 47/47 at the final source checkpoint). **This is not a Node test-run receipt, a
-Python suite PASS, real HTTP/CanvasStore proof or browser UX evidence.**
+2/2 combined journeys = 47/47 at the final source checkpoint). **This was a historical pre-merge source-only
+check**; subsequent real process results are listed above.
 
 Run locally on the **fully assembled Studio branch**, not just a standalone prototype:
 
