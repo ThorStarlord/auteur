@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 const helper=readFileSync(new URL('../src/auteur/beginner/browser/studio_unfolding.js',import.meta.url),'utf8');
 const controller=readFileSync(new URL('../src/auteur/beginner/browser/studio_unfolding_controller.js',import.meta.url),'utf8');
 const mentorship=readFileSync(new URL('../src/auteur/beginner/browser/studio_mentorship.js',import.meta.url),'utf8');
+const mentorContext=readFileSync(new URL('../src/auteur/beginner/browser/studio_mentor_context.js',import.meta.url),'utf8');
 class El{
  constructor(id=''){this.id=id;this.children=[];this.hidden=true;this.value='';this.textContent='';this.events={};this.style={};this.attributes={};this.disabled=false;this.dataset={};}
  replaceChildren(...arr){this.children=[...arr]}appendChild(x){this.children.push(x);return x}append(...xs){this.children.push(...xs)}
@@ -17,7 +18,8 @@ function fixture(){
  const nodeElements=[];
  const doc={getElementById:id=>els.get(id),createElement:tag=>new El(tag),querySelectorAll:()=>nodeElements};
  const win={innerWidth:1440,localStorage:{getItem(){return null},setItem(){}}};
- new Function('window',helper)(win);new Function('window',mentorship)(win);
+ new Function('window',helper)(win);new Function('window',mentorContext)(win);
+ new Function('window',mentorship)(win);
  new Function('window','document',controller)(win,doc);
  const sha='a'.repeat(64);
  const state={workspace:'architecture',view:'architecture',architectureFacet:'overview',architectureRequestSha:sha,
