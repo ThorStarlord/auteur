@@ -34,7 +34,10 @@ function fixture(){
     items:action==='update-item'?state.items.map(i=>i.id===command.payload.item.id?command.payload.item:i):
        [...state.items,command.payload.item],positions:{},connections:[],deleted:{}}},
   applySaved:doc=>{remote.revision=doc.revision;state.items=doc.items;saved.push(doc)},
-  prepare:instr=>hostRequests.push(instr),status:text=>statuses.push(text),remember:()=>{}};
+  prepare:instr=>hostRequests.push(instr),
+  prepareMentor:(projection,purpose)=>hostRequests.push({projection,purpose}),
+  resumeMentor:projection=>hostRequests.push({projection,purpose:'resume'}),
+  status:text=>statuses.push(text),remember:()=>{}};
  const ctrl=win.AuteurStudioUnfoldingController.create(bridge);
  return{state,remote,ctrl,win,doc,els,posted,saved,hostRequests,statuses,nodeElements};
 }
@@ -87,7 +90,8 @@ test('stale source refuses adoption and never posts a mutation',async()=>{
 test('explicit develop alternatives prepares bounded host-agent request without an auto-call',()=>{
  const f=fixture();f.ctrl.render();assert.equal(f.hostRequests.length,0);
  f.ctrl.more();assert.equal(f.hostRequests.length,1);
- assert.match(f.hostRequests[0],/NONCANONICAL/);
+ assert.equal(f.hostRequests[0].purpose,'explore');
+ assert.equal(f.hostRequests[0].projection.focusId,'g');
  assert.equal(f.posted.length,0);
 });
 
@@ -212,8 +216,8 @@ test('fresh divergent reasoning is explicit, source-scoped, and does not call on
  const request=body.children.find(x=>x.textContent.includes('Develop divergent'));
  assert.ok(request);request.events.click();
  assert.equal(f.hostRequests.length,1);
- assert.match(f.hostRequests[0],/genuinely DIFFERENT/);
- assert.match(f.hostRequests[0],/generous hopeful hero/);
+ assert.equal(f.hostRequests[0].purpose,'explore');
+ assert.equal(f.hostRequests[0].projection.sourceSha,'a'.repeat(64));
  assert.equal(f.posted.length,0);
 });
 
