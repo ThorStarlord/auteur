@@ -244,3 +244,14 @@ test('teaching navigation cannot leave an unsaved working idea behind',()=>{
  input.value='Author details';button.events.click();
  assert.equal(navigations,1);
 });
+
+test('mentor mode changes restore keyboard focus to the selected mode',()=>{
+ const f=fixture();f.ctrl.render();
+ const previous=f.els.get('unfolding-mentor').children[0].children[0];
+ previous.events.click();
+ const current=f.els.get('unfolding-mentor').children[0].children[0];
+ assert.notEqual(previous,current);
+ assert.equal(current.getAttribute('aria-pressed'),'true');
+ assert.equal(current.didFocus,true);
+ assert.equal(f.posted.length,0);
+});
