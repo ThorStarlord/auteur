@@ -28,9 +28,9 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence at the latest #436 integrated source checkpoint:** 94/94 isolated
-JavaScript simulation checks passed: 16 model/context, 24 Focused Unfolding,
-23 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
+**Actual evidence at the latest #436 integrated source checkpoint:** 102/102 isolated
+JavaScript simulation checks passed: 16 model/context, 28 Focused Unfolding,
+27 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
 8 Full Architecture and 10 explanation-view checks. HTML script-route,
 duplicate-ID and classic-JavaScript syntax checks also passed. These do not
 represent an actual Node process, Python import/test, served browser or human study.
@@ -145,9 +145,56 @@ already-grounded engineering defaults, not synthetic owner preference updates.
   architecture is stale, with a **null candidate source SHA** matching the
   backend's allowed provenance.
 - Four scenario proxy packets and the Python roundtrip test were added.
-  The 94/94 V8 checkpoint includes ten additional dialogue cases plus
+  The earlier 94/94 V8 checkpoint included ten additional dialogue cases plus
   source-status and working-focus regressions. **Python proxy tests are
   committed, not executed.**
+
+### Author data-loss reproduction and bounded repairs (#436 continuation)
+
+Two previously undetected source-level defects were reproduced against the
+exact committed browser controllers, not inferred from stylistic preference.
+
+1. **Focused working editor lost text on re-render.** The prior implementation
+   cleared and rebuilt `unfolding-author-edit` from the saved CanvasStore item
+   every time `render()` ran; a typed but unsaved body reverted immediately.
+   Repair: preserve dirty working-editor drafts in memory keyed by canvas and
+   item, including across Focus changes, until explicit author Save. The shared
+   command boundary now checks hidden drafts as well as visible edits; browser
+   navigation and the legacy-interface handoff treat these drafts as unsaved.
+   Recorded source-level rerender/focus test and 4 new controller regressions
+   pass, for **28/28 Focused controller checks**.
+2. **Editable mentor preview could silently disappear.** A fresh follow-up,
+   closing the dialogue, replacing a chosen interpretation, or stale source
+   projection could conceal a carefully rewritten proposed idea. Repair:
+   edited preview remains available until the author explicitly keeps or
+   discards it. A local Discard control is visible only with the preview;
+   stale preview remains copyable but is **not** eligible for saving against
+   invalid provenance. Four new dialogue regressions pass, for **27/27
+   conversational controller checks**.
+
+The combined synthetic author journey continues to pass **2/2**.
+The remaining model/context, adoption, Full Architecture and explanation
+suites were rechecked against the connected GitHub source; **102/102 exact
+source-isolated JavaScript checks pass**. The current HTML has no duplicate
+IDs; 10 script sources resolve to served routes; changed classic-JS sources
+parse successfully.
+
+**These are not actual Node, Python, served Chromium or human UX results.**
+The execution container has Node 22, Python 3.13, pytest, Pydantic 2 and
+Playwright available, but cannot resolve `github.com`,
+`api.github.com` or `raw.githubusercontent.com`; no complete Auteur checkout
+is mounted. Connected GitHub returns text files and Git objects but does not
+provide a runnable command executor. GitHub Actions billing remains a prior
+explicit constraint; no paid CI run was initiated. This is an external
+qualification dependency, **not** a pass/fail verdict on the full application.
+
+**First resumed executable action:** check out this PR's exact head; rerun
+`node --test` and focused Python/HTTP tests, then Playwright Stage-B and a
+new browser check that types an unsaved working-editor draft, re-renders/switches
+Focus, verifies draft preservation, explicitly saves, reloads, and verifies
+canonical files remain untouched. Re-run the full suites after bounded fixes.
+Do not reimplement these two repairs without fresh contradictory runtime
+evidence.
 
 ## M1 — real Studio mechanical qualification
 
@@ -231,7 +278,7 @@ permanent chat column, new ontology or speculative personalized agent storage.
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
 | Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 94/94 exact-source isolated checks PASS; not Node/browser |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 102/102 exact-source isolated checks PASS; not Node/browser |
 | Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
