@@ -366,3 +366,79 @@ test('scripted coding-agent story alternatives remain explicit, source-labelled,
    }
  }
 });
+
+test('edited working preview cannot be silently replaced by a fresh agent request',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ const option=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ option.children.find(x=>x.textContent==='Review as working idea').events.click();
+ f.elements.get('mentor-working-content').value='Carefully written author wording';
+ const requests=f.requests.length;
+ await f.ctrl.prepare('followup');
+ assert.equal(f.requests.length,requests);
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+ assert.equal(f.elements.get('mentor-working-content').value,'Carefully written author wording');
+ assert.match(f.elements.get('mentor-status').textContent,/Keep or discard/);
+ assert.equal(f.saved.length,0);
+ f.elements.get('mentor-discard-preview').events.click();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,true);
+ await f.ctrl.prepare('followup');
+ assert.equal(f.requests.length,requests+1);
+});
+
+test('changed working preview survives source staleness but cannot be kept',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ const option=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ option.children.find(x=>x.textContent==='Review as working idea').events.click();
+ f.elements.get('mentor-working-title').value='My unsaved adaptation';
+ f.remote.revision++;
+ f.ctrl.render();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+ assert.equal(f.elements.get('mentor-working-title').value,'My unsaved adaptation');
+ assert.equal(f.elements.get('mentor-keep').disabled,true);
+ assert.equal(f.saved.length,0);
+});
+
+test('switching to another interpretation cannot overwrite an edited author preview',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ const option=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ option.children.find(x=>x.textContent==='Review as working idea').events.click();
+ f.elements.get('mentor-working-content').value='My distinctly revised prose';
+ f.ready.advice.author_reply_interpretation='The model interpretation';
+ const other=f.elements.get('mentor-advice').children.find(x=>x.textContent==='Review interpretation as working idea');
+ // A redraw exposes the second choice while retaining the current preview.
+ f.ctrl.render();
+ const interpret=f.elements.get('mentor-advice').children.find(x=>
+   x.textContent==='Review interpretation as working idea');
+ assert.ok(interpret);
+ interpret.events.click();
+ assert.equal(f.elements.get('mentor-working-content').value,'My distinctly revised prose');
+ assert.match(f.elements.get('mentor-keep-status').textContent,/explicitly discard/);
+ assert.equal(f.saved.length,0);
+});
+
+test('closing an edited mentor preview requires explicit discard',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ const option=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ option.children.find(x=>x.textContent==='Review as working idea').events.click();
+ f.elements.get('mentor-working-content').value='Another unsaved author decision';
+ f.elements.get('mentor-dismiss').events.click();
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,false);
+ assert.match(f.elements.get('mentor-status').textContent,/Keep or discard/);
+ assert.equal(f.elements.get('mentor-working-content').value,'Another unsaved author decision');
+ f.elements.get('mentor-discard-preview').events.click();
+ f.elements.get('mentor-dismiss').events.click();
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,true);
+ assert.equal(f.saved.length,0);
+});
