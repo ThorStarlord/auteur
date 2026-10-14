@@ -145,7 +145,7 @@ already-grounded engineering defaults, not synthetic owner preference updates.
   architecture is stale, with a **null candidate source SHA** matching the
   backend's allowed provenance.
 - Four scenario proxy packets and the Python roundtrip test were added.
-  The 94/94 V8 checkpoint includes 11 further adversarial dialogue cases plus
+  The 94/94 V8 checkpoint includes ten additional dialogue cases plus
   source-status and working-focus regressions. **Python proxy tests are
   committed, not executed.**
 
