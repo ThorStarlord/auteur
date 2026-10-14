@@ -314,3 +314,15 @@ test('closing while a host-agent request is pending cannot resurrect its UI',asy
  assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,true);
  assert.equal(f.saved.length,0);
 });
+
+test('working focus remains mentor-eligible when prior candidate architecture is stale',async()=>{
+ const f=fixture();
+ f.state.architectureSourceStatus='stale';
+ f.state.unfoldingFocus={kind:'working',id:'g'};
+ const workingProjection={focusId:'g',sourceSha:null};
+ await f.ctrl.open(workingProjection,'question');
+ assert.equal(f.requests.length,1);
+ assert.equal(JSON.parse(f.requests[0].config.body).focus_kind,'working');
+ assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,false);
+ assert.equal(f.saved.length,0);
+});
