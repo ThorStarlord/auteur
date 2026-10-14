@@ -201,6 +201,29 @@
           <div class="unfolding-top"><strong>Unfold this idea</strong><small id="unfolding-evidence-status">Source-scoped suggestions</small></div>
           <div id="unfolding-author-edit" class="unfolding-author-edit" hidden></div>
           <section id="unfolding-mentor" class="unfolding-mentor" aria-label="Contextual narrative mentorship" hidden></section>
+          <section id="unfolding-mentor-dialogue" class="unfolding-mentor-dialogue" hidden
+                   aria-label="Optional conversation about this narrative idea">
+            <div class="mentor-dialogue-heading"><strong>Explore this idea together</strong>
+              <button type="button" id="mentor-dismiss">Close</button></div>
+            <label for="mentor-author-reply">Your intention, answer, or correction</label>
+            <textarea id="mentor-author-reply" maxlength="2000" rows="3"
+              placeholder="Explain what you want this story to become"></textarea>
+            <div class="mentor-dialogue-actions">
+              <button type="button" id="mentor-send">Discuss my answer</button>
+              <button type="button" id="mentor-refresh">Check mentor result</button>
+            </div>
+            <p id="mentor-status" role="status" aria-live="polite"></p>
+            <details id="mentor-handoff" hidden>
+              <summary>Host-agent request and response (advanced)</summary>
+              <p>The host coding agent can fulfill this neutral request through the
+                studio_mentor CLI. No provider executes automatically.</p>
+              <pre id="mentor-request" aria-label="Mentor host-agent request"></pre>
+              <label for="mentor-response">Or paste complete HostAgentResponse JSON</label>
+              <textarea id="mentor-response" rows="4" spellcheck="false"></textarea>
+              <button id="mentor-complete" type="button">Validate mentor response</button>
+            </details>
+            <div id="mentor-advice" class="mentor-advice" aria-live="polite"></div>
+          </section>
           <div id="unfolding-ghosts" class="unfolding-ghosts"></div>
           <div id="unfolding-explanation" class="unfolding-explanation" hidden></div>
           <button id="unfolding-more" type="button">Develop more possibilities</button>
@@ -292,6 +315,7 @@
   <script src="/studio_unfolding.js" defer></script>
   <script src="/studio_mentor_context.js" defer></script>
   <script src="/studio_mentorship.js" defer></script>
+  <script src="/studio_mentor_dialogue_controller.js" defer></script>
   <script src="/studio_unfolding_controller.js" defer></script>
   <script src="/studio_full_architecture.js" defer></script>
   <script src="/studio_full_architecture_controller.js" defer></script>
