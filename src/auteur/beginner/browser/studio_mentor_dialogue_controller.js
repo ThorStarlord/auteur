@@ -12,11 +12,15 @@
         state.fullArchitectureDisplay!=='review'&&!!focus;
     }
     function key(info){return info.canvasId+':'+info.kind+':'+info.id+':'+(info.sourceSha||'none');}
+    function sourceShaOf(state){
+      return state.architectureSourceStatus&&state.architectureSourceStatus!=='ready'
+        ?null:(state.architectureRequestSha||null);
+    }
     function stillCurrent(){
       if(!active||!current())return false;
       var state=bridge.state(),remote=bridge.remote(),focus=state.unfoldingFocus;
       return remote.canvasId===active.canvasId&&focus.kind===active.kind&&
-        focus.id===active.id&&(state.architectureRequestSha||null)===active.sourceSha;
+        focus.id===active.id&&sourceShaOf(state)===active.sourceSha;
     }
     function saveDraft(){
       if(active)drafts[key(active)]=$('mentor-author-reply').value;
@@ -146,7 +150,7 @@
         bridge.status('Save the working canvas and select an architecture idea first.');return false;
       }
       var incoming={id:info.focusId,kind:state.unfoldingFocus.kind,
-        sourceSha:state.architectureRequestSha||null,canvasId:remote.canvasId};
+        sourceSha:sourceShaOf(state),canvasId:remote.canvasId};
       if(state.unfoldingFocus.id!==incoming.id||info.sourceSha!==incoming.sourceSha||
           incoming.kind!=='candidate'&&incoming.kind!=='working'){
         bridge.status('Mentor focus has changed. Select the idea again.');return false;
