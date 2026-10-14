@@ -3,7 +3,28 @@
   'use strict';
   function create(bridge){
     var helper=global.AuteurStudioUnfolding;
+    var unsavedWorkingDrafts=Object.create(null);
     function $(id){return document.getElementById(id);}
+    function draftKey(canvasId,itemId){return canvasId+':'+itemId;}
+    function captureWorkingEditorDraft(){
+      var edit=$('unfolding-author-edit'),itemId=edit.dataset?.workingItemId;
+      var canvasId=edit.dataset?.workingCanvasId;
+      if(!itemId||!canvasId||edit.hidden)return;
+      var title=Array.prototype.find.call(edit.children,x=>x.id==='unfolding-edit-title');
+      var content=Array.prototype.find.call(edit.children,x=>x.id==='unfolding-edit-content');
+      if(!title||!content)return;
+      var key=draftKey(canvasId,itemId),item=bridge.state().items.find(x=>x.id===itemId);
+      if(item&&title.value===item.title&&content.value===(item.content||'')){
+        delete unsavedWorkingDrafts[key];
+      }else{
+        unsavedWorkingDrafts[key]={title:title.value,content:content.value};
+      }
+    }
+    function hasUnsavedWorkingDrafts(){
+      captureWorkingEditorDraft();
+      var prefix=bridge.remote().canvasId+':';
+      return Object.keys(unsavedWorkingDrafts).some(key=>key.startsWith(prefix));
+    }
     function dismissKey(){var s=bridge.state(),r=bridge.remote();
       return 'auteur:studio:unfold:dismissed:'+r.canvasId+':'+(s.architectureRequestSha||'none');}
     function dismissed(){
@@ -35,14 +56,14 @@
     function updateWorkingCommand(action,command,{sourceSha=null,focusId=null,expectedCanvasRevision=null}={}){
       var s=bridge.state(),remote=bridge.remote(),canvasId=remote.canvasId;
       if(s.unfoldingSaving||!remote.ready||remote.failed)return Promise.resolve(bridge.status('Canvas unavailable; nothing was adopted.'));
-      if(action!=='update-item'&&hasDirtyWorkingEditor()){
+      if(action!=='update-item'&&hasUnsavedWorkingDrafts()){
         bridge.status('Save the unsaved working-idea text before keeping or creating another idea.');
         return Promise.resolve(false);
       }
       s.unfoldingSaving=true;
       return Promise.resolve(bridge.flush()).then(function(){
         if(remote.failed||remote.canvasId!==canvasId)throw Error('Working canvas changed or cannot save.');
-        if(action!=='update-item'&&hasDirtyWorkingEditor())
+        if(action!=='update-item'&&hasUnsavedWorkingDrafts())
           throw Error('Unsaved working-idea text must be saved before changing focus.');
         if(expectedCanvasRevision!==null && remote.revision!==expectedCanvasRevision)
           throw Error('Mentor advice is stale relative to the working canvas.');
@@ -283,7 +304,9 @@
     function render(){
       var s=bridge.state(),start=$('unfolding-start'),host=$('unfolding-local');
       var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation'),edit=$('unfolding-author-edit');
+      captureWorkingEditorDraft();
       edit.hidden=true;edit.replaceChildren();
+      edit.dataset.workingItemId='';edit.dataset.workingCanvasId='';
       var active=s.workspace==='architecture'&&s.view==='architecture'&&s.architectureFacet==='overview';
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
@@ -297,9 +320,17 @@
         edit.hidden=false;
         var h=document.createElement('strong');h.textContent='Edit your working idea · Not canon';
         var name=document.createElement('input');name.id='unfolding-edit-title';
-        name.setAttribute('aria-label','Working idea title');name.maxLength=120;name.value=target.title;
+        var key=draftKey(bridge.remote().canvasId,target.id),draft=unsavedWorkingDrafts[key];
+        if(draft&&draft.title===target.title&&draft.content===(target.content||'')){
+          delete unsavedWorkingDrafts[key];draft=null;
+        }
+        name.setAttribute('aria-label','Working idea title');name.maxLength=120;
+        name.value=draft?draft.title:target.title;
         var content=document.createElement('textarea');content.id='unfolding-edit-content';
-        content.setAttribute('aria-label','Working idea details');content.maxLength=20000;content.value=target.content||'';
+        content.setAttribute('aria-label','Working idea details');content.maxLength=20000;
+        content.value=draft?draft.content:(target.content||'');
+        edit.dataset.workingItemId=target.id;
+        edit.dataset.workingCanvasId=bridge.remote().canvasId;
         var save=document.createElement('button');save.type='button';save.textContent='Save working idea';
         save.disabled=s.unfoldingSaving;
         save.addEventListener('click',function(){return editWorking(target,name.value,content.value);});
@@ -360,7 +391,8 @@
       var projection=mentorProjection(focus,current());
       if(projection)requestMentor(projection);
     }
-    return {render:render,create:createAnchor,adopt:adopt,more:more,keepMentorIdea:keepMentorIdea};
+    return {render:render,create:createAnchor,adopt:adopt,more:more,
+      keepMentorIdea:keepMentorIdea,hasUnsavedWorkingDrafts:hasUnsavedWorkingDrafts};
   }
   global.AuteurStudioUnfoldingController={create:create};
 })(window,document);
