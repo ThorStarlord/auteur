@@ -129,7 +129,9 @@
             var focused=s.unfoldingFocus?.kind==='working'?
               s.items.find(x=>x.id===s.unfoldingFocus.id):null;
             if(focused){
-              var title=$('unfolding-edit-title'),detail=$('unfolding-edit-content');
+              var editor=$('unfolding-author-edit');
+              var title=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-title');
+              var detail=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-content');
               if((title&&title.value!==focused.title)||(detail&&detail.value!==focused.content)){
                 bridge.status('Save your working-idea edits before opening another perspective.');return;
               }
