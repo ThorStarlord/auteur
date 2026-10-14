@@ -114,6 +114,17 @@
       var host=$('unfolding-mentor-dialogue');if(!host)return;
       host.hidden=!stillCurrent();
       if(host.hidden)return;
+      // Displaying old advice as current is itself a provenance failure, even
+      // if the eventual Keep action would reject it.
+      if(packet && (
+          (Number.isInteger(packet.canvas_revision) &&
+            packet.canvas_revision!==bridge.remote().revision) ||
+          (Object.prototype.hasOwnProperty.call(packet,'candidate_request_sha256') &&
+            (packet.candidate_request_sha256||null)!==active.sourceSha))){
+        chosen=null;
+        packet={status:'stale'};
+        notice='The working canvas or proposal changed. Mentor advice is stale; request fresh guidance.';
+      }
       $('mentor-author-reply').disabled=busy;
       $('mentor-send').disabled=busy;
       $('mentor-complete').disabled=busy||!packet||packet.status!=='awaiting_host_agent';
@@ -196,9 +207,14 @@
       try{
         var response=await bridge.fetch(base()).then(bridge.apiJson);
         if(!stillCurrent())throw Error('Focus changed.');
-        if(response.focus_id===active.id&&response.focus_kind===active.kind&&
-            response.status!=='stale'){packet=response;chosen=null;}
-        notice=packet?.status==='ready'?'Previous mentor advice restored as read-only.':
+        if(response.focus_id===active.id&&response.focus_kind===active.kind){
+          packet=response;chosen=null;
+        }else{
+          packet=null;chosen=null;
+        }
+        notice=packet?.status==='stale'?
+          'The saved mentor response is stale; no advice or working choice is available.':
+          packet?.status==='ready'?'Previous mentor advice restored as read-only.':
           'No current advice for this focus. Choose a question or exploration.';
       }catch(error){notice='Could not read mentor advice: '+error.message;}
       finally{busy=false;render();}
