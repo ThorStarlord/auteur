@@ -570,6 +570,10 @@
     }
     if (!remote.ready) { window.location.assign(canvasUrl(canvasId)); return; }
     if (remote.failed) { status("Unsaved changes remain. Export a backup before switching canvases."); return; }
+    if (!mentorEditorClean()) {
+      $("canvas-picker").value = remote.canvasId;
+      status("Save your edited working idea before switching canvases."); return;
+    }
     // A pending edit must finish before navigation replaces this document.
     if (remote.timer !== null) {
       clearTimeout(remote.timer); remote.timer = null; queueSave();
@@ -577,9 +581,12 @@
     $("canvas-picker").disabled = true;
     Promise.resolve(remote.queue).then(function () {
       if (remote.failed) throw new Error("Working changes were not saved. Export a backup before leaving.");
+      if (hasUnsavedChanges())
+        throw new Error("Working edits or drafts remain unsaved. Save them before switching canvases.");
       window.location.assign(canvasUrl(canvasId));
     }).catch(function (error) {
       $("canvas-picker").disabled = false;
+      $("canvas-picker").value = remote.canvasId;
       status("Cannot switch canvases safely: " + error.message);
     });
   }
