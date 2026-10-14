@@ -77,7 +77,8 @@
       }
       var incoming={id:info.focusId,kind:state.unfoldingFocus.kind,
         sourceSha:state.architectureRequestSha||null,canvasId:remote.canvasId};
-      if(state.unfoldingFocus.id!==incoming.id||incoming.kind!=='candidate'&&incoming.kind!=='working'){
+      if(state.unfoldingFocus.id!==incoming.id||info.sourceSha!==incoming.sourceSha||
+          incoming.kind!=='candidate'&&incoming.kind!=='working'){
         bridge.status('Mentor focus has changed. Select the idea again.');return false;
       }
       if(active)saveDraft();
@@ -90,6 +91,9 @@
       if(!active||!stillCurrent()||busy)return;
       if(!['learn','explore','question','challenge','followup'].includes(purpose))return;
       saveDraft();var selected={...active},reply=$('mentor-author-reply').value;
+      if(!bridge.canNavigate()){
+        notice='Save working-idea edits before requesting mentorship.';render();return;
+      }
       if(reply.length>2000){notice='Reply exceeds 2,000 characters.';render();return;}
       busy=true;notice='Saving author edits before preparing the host-agent request…';render();
       try{
@@ -145,6 +149,9 @@
       finally{busy=false;render();}
     }
     $('mentor-author-reply').addEventListener('input',saveDraft);
+    $('mentor-refresh').addEventListener('click',function(){
+      return active?resume({focusId:active.id,sourceSha:active.sourceSha}):null;
+    });
     $('mentor-send').addEventListener('click',function(){return prepare('followup');});
     $('mentor-complete').addEventListener('click',complete);
     $('mentor-dismiss').addEventListener('click',function(){saveDraft();active=null;packet=null;render();});
