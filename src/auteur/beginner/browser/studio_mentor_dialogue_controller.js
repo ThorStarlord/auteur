@@ -32,16 +32,27 @@
       var element=document.createElement(tag);element.textContent=value;parent.appendChild(element);
       return element;
     }
+    function previewEdited(){
+      return !!chosen&&(
+        $('mentor-working-title').value!==chosen.seedTitle||
+        $('mentor-working-content').value!==chosen.seedContent);
+    }
     function choose(title,content,sourceRef){
       if(!stillCurrent()||!packet||packet.status!=='ready')return;
+      if(previewEdited()){
+        $('mentor-keep-status').textContent=
+          'Keep or explicitly discard your edited working preview before choosing another.';
+        return;
+      }
       var remote=bridge.remote();
       if(packet.canvas_revision!==remote.revision||
           (packet.candidate_request_sha256||null)!==active.sourceSha){
         notice='Mentor advice is stale; no working change can be prepared.';render();return;
       }
-      chosen={sourceRef:sourceRef};
-      $('mentor-working-title').value=title.slice(0,120);
-      $('mentor-working-content').value=content.slice(0,20000);
+      var seedTitle=title.slice(0,120),seedContent=content.slice(0,20000);
+      chosen={sourceRef:sourceRef,seedTitle:seedTitle,seedContent:seedContent};
+      $('mentor-working-title').value=seedTitle;
+      $('mentor-working-content').value=seedContent;
       $('mentor-keep-status').textContent='Review or edit before choosing to save; nothing is accepted automatically.';
       render();
     }
@@ -129,7 +140,7 @@
             packet.canvas_revision!==bridge.remote().revision) ||
           (Object.prototype.hasOwnProperty.call(packet,'candidate_request_sha256') &&
             (packet.candidate_request_sha256||null)!==active.sourceSha))){
-        chosen=null;
+        if(!previewEdited())chosen=null;
         packet={status:'stale'};
         notice='The working canvas or proposal changed. Mentor advice is stale; request fresh guidance.';
       }
@@ -138,8 +149,10 @@
       $('mentor-complete').disabled=busy||!packet||packet.status!=='awaiting_host_agent';
       $('mentor-handoff').hidden=!packet||packet.status!=='awaiting_host_agent';
       $('mentor-status').textContent=notice;
-      $('mentor-working-preview').hidden=!chosen||!packet||packet.status!=='ready';
-      $('mentor-keep').disabled=busy;
+      $('mentor-working-preview').hidden=!chosen||!packet||
+        (packet.status!=='ready'&&!previewEdited());
+      $('mentor-keep').disabled=busy||!packet||packet.status!=='ready';
+      $('mentor-discard-preview').disabled=busy;
       $('mentor-request').textContent=packet&&packet.request?
         JSON.stringify(packet.request,null,2):'';
       drawAdvice(packet);
@@ -155,8 +168,12 @@
           incoming.kind!=='candidate'&&incoming.kind!=='working'){
         bridge.status('Mentor focus has changed. Select the idea again.');return false;
       }
-      if(active)saveDraft();
       var changed=!active||key(active)!==key(incoming);
+      if(changed&&previewEdited()){
+        bridge.status('An edited mentor preview is unsaved. Return to the prior focus to keep or discard it.');
+        return false;
+      }
+      if(active)saveDraft();
       active=incoming;if(changed){packet=null;chosen=null;notice='Working advice only. The author decides what to keep.';}
       $('mentor-author-reply').value=drafts[key(active)]||'';
       render();return true;
@@ -164,6 +181,10 @@
     async function prepare(purpose){
       if(!active||!stillCurrent()||busy)return;
       if(!['learn','explore','question','challenge','followup'].includes(purpose))return;
+      if(previewEdited()){
+        notice='Keep or discard your edited working preview before requesting fresh advice.';
+        render();return;
+      }
       saveDraft();var selected={...active},reply=$('mentor-author-reply').value;
       if(!bridge.canNavigate()){
         notice='Save working-idea edits before requesting mentorship.';render();return;
@@ -211,6 +232,10 @@
     }
     async function resume(projection){
       if(!show(projection))return;
+      if(previewEdited()){
+        notice='Keep or discard your edited working preview before replacing this advice.';
+        render();return;
+      }
       busy=true;render();
       try{
         var response=await bridge.fetch(base()).then(bridge.apiJson);
@@ -234,7 +259,19 @@
     $('mentor-send').addEventListener('click',function(){return prepare('followup');});
     $('mentor-complete').addEventListener('click',complete);
     $('mentor-keep').addEventListener('click',keep);
-    $('mentor-dismiss').addEventListener('click',function(){saveDraft();active=null;packet=null;chosen=null;render();});
+    $('mentor-discard-preview').addEventListener('click',function(){
+      chosen=null;
+      $('mentor-working-title').value='';$('mentor-working-content').value='';
+      $('mentor-keep-status').textContent='The editable preview was discarded without saving.';
+      render();
+    });
+    $('mentor-dismiss').addEventListener('click',function(){
+      if(previewEdited()){
+        notice='Keep or discard your edited working preview before closing.';
+        render();return;
+      }
+      saveDraft();active=null;packet=null;chosen=null;render();
+    });
     return {render,open,resume,prepare,complete};
   }
   global.AuteurStudioMentorDialogueController={create};
