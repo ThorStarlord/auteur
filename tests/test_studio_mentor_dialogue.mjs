@@ -181,3 +181,20 @@ test('refreshing a stale server result cannot resurrect old ready advice',async(
  assert.match(f.elements.get('mentor-status').textContent,/response is stale/);
  assert.equal(f.saved.length,0);
 });
+
+test('dirty working editor cannot be discarded by keeping a mentor suggestion',async()=>{
+ const f=fixture();
+ await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ const box=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ box.children.find(y=>y.textContent==='Review as working idea').events.click();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+ f.setDirty(true);
+ await f.elements.get('mentor-keep').events.click();
+ assert.equal(f.saved.length,0);
+ assert.match(f.elements.get('mentor-keep-status').textContent,
+   /Save your working-idea edits/);
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+});
