@@ -28,36 +28,43 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence:** exact-source JavaScript simulator checks passed (15 model/context,
-20 controller, 10 dialogue, 2 combined journey: 47/47 isolated checks).
+**Actual evidence at the #436 integrated source checkpoint:** 76/76 isolated
+JavaScript simulation checks passed: 15 model/context, 20 Focused Unfolding,
+10 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
+8 Full Architecture and 10 explanation-view checks. HTML script-route, duplicate-ID
+and classic-JavaScript syntax checks also passed. None are real served-browser tests.
 **NOT established:** exact Node test process; Python/persistence/HTTP suite; complete
 served browser; accessibility with a screen reader; a capable live coding agent fulfilling
 a real mentor request; author creative outcomes or 390px screenshot acceptability.
 
-## M0 — integration: first genuine prerequisite
+## M0 — main-preserving source integration assembled (#436)
 
-The current `main` is not identical to #404 or the #424–#434 stack. Do NOT
-fabricate a merge by replacing `main`'s tree with the draft branch.
+**Current candidate:** `integration/studio-mentor-mainline-20261014`, draft PR #436,
+based on `main@88f7219f4d533deaa76ce1b2c14a33cd2988b348`.
+The initial assembly commit `c6d533e` overlays 90 paths, preserving 36
+main-only files that the older Studio tip did not contain.
 
-1. In a runnable checkout, fetch fresh `main` and all relevant PR heads.
-2. Inspect Git ancestry. #404 integrates #346–#403 but may include corrections
-   absent from the later continuation stack; compare them at file/behavior level.
-3. Review #408–#413 focused authoring and #419–#424 Full Architecture integration.
-   #416's Full Architecture projection was merged independently: avoid duplicate
-   implementations.
-4. Construct one reproducible integration branch from current `main`, resolving
-   actual conflicts and preserving Studio development-default/legacy fallback.
-5. Include #425, #427–#434 by bounded cherry-picks or equivalent reviewed patches.
-   Reconcile this doc branch after the final implementation head.
-6. Run source/build checks and record exact branch SHA; do not close ancestor PRs
-   until integrated changes are independently verified and ancestry is clear.
-7. Prefer one bounded integration PR with transparent change/evidence review,
-   not an unreviewable mass merge.
+Further commits `5897940` and `5247aa5` reconciled #404's nine browser-source
+fix hunks and four server default/fallback hunks with later mentor code. The
+base-relative edits were checked for overlap and had **zero overlapping hunks**.
+The assembled branch includes #404's safety Stage-B script, eight #404 regression
+test file versions and the complete mentor source through #435.
 
-**Stop condition:** a reproducible Studio baseline exists without losing current
-`main` fixes, canonical authority, or the previous Beginner fallback. If local
-checkout is unavailable, mark `WORKSPACE_UNAVAILABLE`; independent branch work
-may continue without pretending integration passed.
+**GitHub comparison vs current main at the integration checkpoint:**
+90 files changed, 81 added, 9 modified, zero removed, branch ahead with
+no main commits behind. Large scope is deliberate for an integration roll-up,
+not an excuse to relax qualification.
+
+**M0 is source-integrated, not executable-qualified.** Git object assembly,
+source syntax and simulated interactions do not establish an actual checkout,
+successful Python imports, complete Node test exit status, server startup,
+served Chromium behavior or backend creative quality. Ancestor PRs remain
+available until the integrated source is proven equivalent.
+
+**Next real gate:** fetch/check out the exact #436 head in an environment with
+the repository and Python/Node/Chromium dependencies. Reconfirm latest `main`
+before integration promotion; if it advanced, reconcile real differences rather
+than force-pushing or fabricating a merge.
 
 ## M1 — real Studio mechanical qualification
 
@@ -140,9 +147,9 @@ permanent chat column, new ontology or speculative personalized agent storage.
 
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
-| Source files and regression specifications exist | GitHub commit/ref and diff | Established on draft stack |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | Model/context 15; focused 20; dialogue 10; combined 2 PASS |
-| Runnable repository integration | Current main + assembled branch + build/run | Not established |
+| Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 76/76 focused source checks PASS; not browser |
+| Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
 | Authentic model creative quality | Actual neutral host-agent responses | Not executed |
@@ -151,8 +158,8 @@ permanent chat column, new ontology or speculative personalized agent storage.
 
 ## No new owner decision is needed for the next bounded engineering step
 
-The next responsible actor should integrate and execute the current stack
-rather than ask the owner to restate the product design. If verification
+The next responsible actor should CHECK OUT and QUALIFY PR #436, not rebuild
+the same source integration or ask the owner to restate the product design. If verification
 finds defects, repair the nearest demonstrated cause, repeat the failing
 test, and continue within existing author-authority invariants.
 
