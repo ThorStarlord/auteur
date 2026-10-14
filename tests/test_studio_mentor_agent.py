@@ -238,3 +238,28 @@ def test_missing_response_envelope_fields_are_400_class_errors(tmp_path):
     with pytest.raises(ValueError, match="malformed mentor host-agent response"):
         complete_mentor(store, {"schema": "auteur_host_agent_response_v1"})
     assert project_mentor(store)["status"] == "awaiting_host_agent"
+
+def test_working_id_collision_does_not_inherit_candidate_edges(tmp_path, monkeypatch):
+    store = working(tmp_path)
+    # Both owner namespaces independently use "hero"; equality of spelling
+    # is not evidence that the author working note is the AI candidate node.
+    candidate = {
+        "nodes": [
+            {"id": "hero", "title": "Agent's unrelated hero", "summary": "Other concept"},
+            {"id": "other", "title": "Agent's other node", "summary": "No working link"},
+        ],
+        "links": [{"source": "hero", "target": "other", "function": "contrasts"}],
+        "open_questions": ["Question about the candidate, not the note"],
+    }
+    monkeypatch.setattr(
+        "auteur.beginner.studio_mentor.project_architecture",
+        lambda _store: {"status": "ready", "candidate": candidate,
+                        "candidate_request_sha256": "d" * 64},
+    )
+    snapshot = _context(store, "hero", "working")
+    assert snapshot["context"]["focus"]["authority"] == "author_working"
+    assert snapshot["context"]["proposed_relations"] == []
+    assert snapshot["context"]["proposed_questions"] == []
+    assert "links/0" not in snapshot["allowed_refs"]
+    assert "nodes/other" not in snapshot["allowed_refs"]
+    assert "open_questions/0" not in snapshot["allowed_refs"]
