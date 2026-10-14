@@ -20,12 +20,14 @@
       return helper.projectLocalSuggestions(s.architecture,s.architectureRequestSha,s.unfoldingFocus,
         s.items,dismissed(),global.innerWidth<=480?2:3,s.unfoldingOffset||0);
     }
-    function updateWorkingCommand(action,command,{sourceSha=null,focusId=null}={}){
+    function updateWorkingCommand(action,command,{sourceSha=null,focusId=null,expectedCanvasRevision=null}={}){
       var s=bridge.state(),remote=bridge.remote(),canvasId=remote.canvasId;
       if(s.unfoldingSaving||!remote.ready||remote.failed)return Promise.resolve(bridge.status('Canvas unavailable; nothing was adopted.'));
       s.unfoldingSaving=true;
       return Promise.resolve(bridge.flush()).then(function(){
         if(remote.failed||remote.canvasId!==canvasId)throw Error('Working canvas changed or cannot save.');
+        if(expectedCanvasRevision!==null && remote.revision!==expectedCanvasRevision)
+          throw Error('Mentor advice is stale relative to the working canvas.');
         if(focusId && (!s.unfoldingFocus || s.unfoldingFocus.id!==focusId))
           throw Error('Working focus changed before save.');
         if(sourceSha && s.architectureRequestSha!==sourceSha)
@@ -33,12 +35,13 @@
         if(sourceSha && !current().some(x=>x.id===command.ghostId))throw Error('Suggestion is no longer available.');
         return bridge.post(action,command);
       }).then(function(doc){
-        if(!doc||remote.canvasId!==canvasId)return;
+        if(!doc||remote.canvasId!==canvasId)return false;
         s.unfoldingFocus={kind:'working',id:command.payload.item.id};
         s.unfoldingInspected=null;s.unfoldingOffset=0;
         bridge.applySaved(doc);
         bridge.status(action==='adopt-suggestion'?'Adopted into working architecture, not canon.':'Working idea saved, not canon.');
-      }).catch(function(e){bridge.status('Working change was not confirmed: '+e.message);})
+        return true;
+      }).catch(function(e){bridge.status('Working change was not confirmed: '+e.message);return false;})
         .finally(function(){s.unfoldingSaving=false;render();});
     }
     function createAnchor(){
@@ -67,6 +70,31 @@
       catch(e){bridge.status('Invalid suggestion: '+e.message);return Promise.resolve();}
       cmd.ghostId=ghost.id;
       return updateWorkingCommand('adopt-suggestion',cmd,{sourceSha:ghost.requestSha,focusId:s.unfoldingFocus.id});
+    }
+    function keepMentorIdea(choice){
+      var s=bridge.state(),remote=bridge.remote();
+      if(!choice||!s.unfoldingFocus||s.unfoldingFocus.id!==choice.focusId||
+          (s.architectureRequestSha||null)!==(choice.candidateSha||null)||
+          !Number.isInteger(choice.canvasRevision)||choice.canvasRevision!==remote.revision||
+          !/^[a-f0-9]{64}$/.test(choice.mentorRequestSha||'')||
+          !/^(directions\/[a-z][a-z0-9_-]{0,39}|interpretation|question)$/.test(choice.sourceRef||'')||
+          typeof choice.title!=='string'||!choice.title.trim()||choice.title.trim().length>120||
+          typeof choice.content!=='string'||choice.content.length>20000){
+        bridge.status('Mentor suggestion is invalid or stale; no working change saved.');
+        return Promise.resolve(false);
+      }
+      var command;
+      try{
+        command=helper.buildManualAnchorCommand('other',choice.title,bridge.newItemId(),bridge.position());
+        command.payload.item.content=choice.content;
+        command.payload.item.proposal_origin={
+          request_sha:choice.mentorRequestSha,source_ref:choice.sourceRef,
+          source_kind:'host_agent_suggestion',focus_id:choice.focusId
+        };
+      }catch(e){bridge.status('Invalid working mentorship idea: '+e.message);return Promise.resolve(false);}
+      return updateWorkingCommand('create-item',command,{
+        focusId:choice.focusId,expectedCanvasRevision:choice.canvasRevision
+      });
     }
     function positionLocalFocus(host,focus){
       // Align the local explanation with its actual transformed canvas node.
@@ -294,7 +322,7 @@
       var projection=mentorProjection(focus,current());
       if(projection)requestMentor(projection);
     }
-    return {render:render,create:createAnchor,adopt:adopt,more:more};
+    return {render:render,create:createAnchor,adopt:adopt,more:more,keepMentorIdea:keepMentorIdea};
   }
   global.AuteurStudioUnfoldingController={create:create};
 })(window,document);
