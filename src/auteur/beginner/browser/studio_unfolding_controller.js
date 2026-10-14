@@ -108,11 +108,13 @@
         var el=document.createElement(tag);el.textContent=value;(parent||host).appendChild(el);return el;
       }
       var tabs=add('nav','');tabs.className='mentor-tabs';tabs.setAttribute('aria-label','Contextual narrative mentorship');
-      ['learn','explore','question','challenge'].forEach(function(name){
+      ['learn','explore','question','challenge'].forEach(function(name,index){
         var b=add('button',name[0].toUpperCase()+name.slice(1),tabs);
         b.type='button';b.setAttribute('aria-pressed',String(mode===name));
         b.addEventListener('click',function(){
-          s.mentorMode=name;renderMentor(target,suggestions); // Never re-render the unsaved working editor.
+          s.mentorMode=name;renderMentor(target,suggestions); // Do not rebuild the working editor.
+          var active=$('unfolding-mentor').children[0].children[index];
+          if(active && typeof active.focus==='function')active.focus();
         });
       });
       var body=add('div','');body.className='mentor-body';
