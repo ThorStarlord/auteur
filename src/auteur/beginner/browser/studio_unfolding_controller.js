@@ -165,7 +165,7 @@
         });
         if(projection.options.length<2){
           var explore=add('button','Develop divergent options with coding agent',body);
-          explore.type='button';explore.addEventListener('click',function(){requestMentor(projection);});
+          explore.type='button';explore.addEventListener('click',function(){requestMentor(projection,'explore');});
         }
       }else if(mode==='question'){
         add('strong','A question for your story',body);
@@ -174,7 +174,11 @@
         keep.type='button';keep.disabled=s.unfoldingSaving;
         keep.addEventListener('click',function(){return keepMentorQuestion(projection);});
         var follow=add('button','Develop follow-up with coding agent',body);
-        follow.type='button';follow.addEventListener('click',function(){requestMentor(projection);});
+        follow.type='button';follow.addEventListener('click',function(){requestMentor(projection,'question');});
+        var resume=add('button','Resume prior mentor exchange',body);
+        resume.type='button';resume.addEventListener('click',function(){
+          if(bridge.resumeMentor)bridge.resumeMentor(projection);
+        });
       }else{
         add('strong','An assumption worth examining',body);
         add('p',projection.challenge,body);
@@ -182,7 +186,7 @@
           'Source: proposed '+projection.challengeSourceRef+'. Not an accepted contradiction.':
           'Conditional creative hypothesis, not evidence of a defect.',body);
         var develop=add('button','Explore this tension with coding agent',body);
-        develop.type='button';develop.addEventListener('click',function(){requestMentor(projection);});
+        develop.type='button';develop.addEventListener('click',function(){requestMentor(projection,'challenge');});
       }
       var visible=mode==='explore';
       $('unfolding-ghosts').hidden=!visible;
@@ -194,10 +198,10 @@
       return !!focusIsValid(s)&&s.unfoldingFocus.id===p.focusId&&
         (s.architectureRequestSha||null)===p.sourceSha;
     }
-    function requestMentor(p){
+    function requestMentor(p,purpose){
       if(!stillFocused(p))return bridge.status('Mentor source changed. Select this idea again.');
-      var vision=$('vision-text');
-      return bridge.prepare(global.AuteurStudioMentorship.hostInstruction(p,vision?vision.value:''));
+      if(!bridge.prepareMentor)return bridge.status('Mentor handoff unavailable; no architecture was rewritten.');
+      return bridge.prepareMentor(p,purpose||'explore');
     }
     function keepMentorQuestion(p){
       if(!stillFocused(p))return Promise.resolve(bridge.status('Question source changed; nothing saved.'));

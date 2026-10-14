@@ -13,7 +13,7 @@
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
   state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
   state.fullArchitectureEvidence = null;
-  var unfoldingController = null, fullArchitectureController = null;
+  var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
@@ -1726,6 +1726,7 @@
   }
   function renderUnfolding() {
     if (unfoldingController) unfoldingController.render();
+    if (mentorDialogueController) mentorDialogueController.render();
   }
   function renderFullArchitectureStudio() {
     if (!fullArchitectureController) return;
@@ -2162,7 +2163,32 @@
       $("architecture-instruction").value=instruction;
       requestArchitecture(instruction);
     },
+    prepareMentor: function(projection,purpose){
+      return mentorDialogueController && mentorDialogueController.open(projection,purpose);
+    },
+    resumeMentor: function(projection){
+      return mentorDialogueController && mentorDialogueController.resume(projection);
+    },
     status: status, remember: rememberFocus
+  });
+  function mentorEditorClean(){
+    var focus=state.unfoldingFocus;
+    var item=focus&&state.items.find(function(x){return x.id===focus.id;});
+    var editor=$("unfolding-author-edit");
+    if(!item||editor.hidden)return true;
+    var title=Array.prototype.find.call(editor.children,x=>x.id==="unfolding-edit-title");
+    var content=Array.prototype.find.call(editor.children,x=>x.id==="unfolding-edit-content");
+    return !((title&&title.value!==item.title)||(content&&content.value!==item.content));
+  }
+  mentorDialogueController = window.AuteurStudioMentorDialogueController.create({
+    state:function(){return state;},remote:function(){return remote;},
+    canNavigate:mentorEditorClean,
+    flush:function(){
+      if(remote.timer!==null){clearTimeout(remote.timer);remote.timer=null;return queueSave();}
+      return hasUnsavedChanges()?queueSave():remote.queue;
+    },
+    fetch:function(url,config){return fetch(url,config);},
+    apiJson:apiJson,status:status
   });
   fullArchitectureController = window.AuteurStudioFullArchitectureController.create({
     getState: function(){return state;}, getRemote: function(){return remote;},

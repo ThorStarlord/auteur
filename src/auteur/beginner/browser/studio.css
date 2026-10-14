@@ -378,3 +378,27 @@ body.scene-docked #inspector { display:none; }
 .mentor-body p{margin:6px 0}.mentor-body small{display:block;margin:5px 0;color:#6f6078}
 .mentor-body button{display:block;margin-top:7px;min-height:34px;font-size:.72rem;width:100%}
 .mentor-tabs button:focus-visible,.mentor-body button:focus-visible{outline:3px solid #795a97;outline-offset:2px}
+
+/* Host-agent mentoring is opt-in, local to selected graph focus, and never a persistent chat rail. */
+.unfolding-mentor-dialogue[hidden],#mentor-handoff[hidden]{display:none!important}
+.unfolding-mentor-dialogue{display:grid;gap:8px;margin-top:10px;border-top:1px solid #e4dcea;
+ padding-top:10px;font-size:.77rem;min-width:0}
+.mentor-dialogue-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mentor-dialogue-heading button{font-size:.72rem;padding:4px 8px}
+.unfolding-mentor-dialogue label{font-size:.73rem;font-weight:600}
+.unfolding-mentor-dialogue textarea{display:block;width:100%;max-width:100%;box-sizing:border-box;
+ min-height:60px;border:1px solid #c9bfd4;border-radius:7px;background:#fff;
+ padding:8px;font:inherit;line-height:1.4;resize:vertical}
+.mentor-dialogue-actions{display:flex;flex-wrap:wrap;gap:6px}
+.mentor-dialogue-actions button{flex:1 1 100px;font-size:.73rem;padding:6px}
+#mentor-status{font-size:.71rem;line-height:1.35;color:#625571;margin:0}
+#mentor-handoff{padding:7px;background:#f6f3f8;border-radius:7px;min-width:0}
+#mentor-handoff pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;
+ font-size:.65rem}
+#mentor-handoff summary{cursor:pointer}
+.mentor-advice{display:grid;gap:7px;min-width:0}
+.mentor-advice p{margin:3px 0 5px}
+.mentor-advice small{display:block;color:#71637b}
+.mentor-direction{padding:9px;border:1px dashed #b6a0ca;border-radius:8px;background:#faf7fc}
+.unfolding-mentor-dialogue button:focus-visible,.unfolding-mentor-dialogue textarea:focus-visible{
+ outline:3px solid #805b9d;outline-offset:2px}
