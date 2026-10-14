@@ -81,6 +81,8 @@
       (advice.directions||[]).forEach(function(item){
         var box=line('div','',host);box.className='mentor-direction';
         line('strong',item.title+' · '+item.divergence_axis.replaceAll('_',' '),box);
+        if(item.distinguishing_factor)
+          line('p','What makes this different: '+item.distinguishing_factor,box);
         line('p','Mechanism: '+item.mechanism,box);
         line('p','Consequence: '+item.consequence,box);
         line('p','Tradeoff: '+item.tradeoff,box);
