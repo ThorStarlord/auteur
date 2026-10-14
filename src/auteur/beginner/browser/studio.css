@@ -412,3 +412,15 @@ body.scene-docked #inspector { display:none; }
  padding:7px;border:1px solid #c9bfd4;border-radius:7px}
 .mentor-working-preview p{margin:2px 0;font-size:.7rem}
 .mentor-direction button{font-size:.73rem;min-height:32px}
+
+/* Progressive disclosure: one relevant mentor contribution, modes on request. */
+.mentor-mode-details{border:0;padding:0}
+.mentor-mode-details summary{list-style:disclosure-closed;cursor:pointer;
+ font-size:.73rem;color:#705a85;font-weight:650;padding:4px 2px}
+.mentor-mode-details[open] summary{list-style:disclosure-open}
+.mentor-mode-details .mentor-tabs{margin:6px 0}
+.mentor-quiet,.mentor-resume{font-size:.7rem!important;padding:5px 7px;
+ background:transparent!important;color:#625571!important;border:1px solid #d5c9df!important}
+.mentor-quiet{justify-self:end}
+.mentor-resume{width:100%}
+.mentor-mode-details summary:focus-visible{outline:3px solid #795a97;outline-offset:2px}

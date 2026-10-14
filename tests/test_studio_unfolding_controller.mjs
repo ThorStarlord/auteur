@@ -159,7 +159,7 @@ test('mentor starts with source-local Explore and never mutates on passive rende
  const f=fixture();f.ctrl.render();
  const panel=f.els.get('unfolding-mentor');
  assert.equal(panel.hidden,false);
- assert.equal(panel.children[0].children[1].getAttribute('aria-pressed'),'true');
+ assert.equal(panel.children[0].children[1].children[1].getAttribute('aria-pressed'),'true');
  assert.equal(f.els.get('unfolding-ghosts').hidden,false);
  assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
 });
@@ -172,19 +172,19 @@ test('Learn and Challenge change only mentor presentation, not unsaved working e
  f.ctrl.render();
  const edit=f.els.get('unfolding-author-edit'),area=edit.children.find(x=>x.id==='unfolding-edit-content');
  area.value='Unsaved author thought';
- const buttons=f.els.get('unfolding-mentor').children[0].children;
+ const buttons=f.els.get('unfolding-mentor').children[0].children[1].children;
  buttons[0].events.click();
  assert.equal(area.value,'Unsaved author thought');
  assert.equal(edit.children.find(x=>x.id==='unfolding-edit-content'),area);
  assert.equal(f.els.get('unfolding-ghosts').hidden,true);
- f.els.get('unfolding-mentor').children[0].children[3].events.click();
+ f.els.get('unfolding-mentor').children[0].children[1].children[3].events.click();
  assert.equal(area.value,'Unsaved author thought');
  assert.equal(f.posted.length,0);
 });
 
 test('question becomes an editable working item only after explicit keep',async()=>{
  const f=fixture();f.ctrl.render();
- f.els.get('unfolding-mentor').children[0].children[2].events.click();
+ f.els.get('unfolding-mentor').children[0].children[1].children[2].events.click();
  const body=f.els.get('unfolding-mentor').children[1];
  const keep=body.children.find(x=>x.textContent==='Keep question as an editable working idea');
  assert.ok(keep);assert.equal(f.posted.length,0);
@@ -199,7 +199,7 @@ test('question becomes an editable working item only after explicit keep',async(
 
 test('stale question refuses persistence and does not claim a save',async()=>{
  const f=fixture();f.ctrl.render();
- f.els.get('unfolding-mentor').children[0].children[2].events.click();
+ f.els.get('unfolding-mentor').children[0].children[1].children[2].events.click();
  const keep=f.els.get('unfolding-mentor').children[1].children.find(x=>x.textContent.includes('Keep question'));
  f.state.architectureRequestSha='b'.repeat(64);
  await keep.events.click();
@@ -211,7 +211,7 @@ test('fresh divergent reasoning is explicit, source-scoped, and does not call on
  const f=fixture();f.state.architecture.links=[];
  f.els.set('vision-text',Object.assign(new El('vision-text'),{value:'A generous hopeful hero'}));
  f.ctrl.render();assert.equal(f.hostRequests.length,0);
- f.els.get('unfolding-mentor').children[0].children[1].events.click();
+ f.els.get('unfolding-mentor').children[0].children[1].children[1].events.click();
  const body=f.els.get('unfolding-mentor').children[1];
  const request=body.children.find(x=>x.textContent.includes('Develop divergent'));
  assert.ok(request);request.events.click();
@@ -225,7 +225,7 @@ test('declared source tension prompts a conditional challenge, not a canon verdi
  const f=fixture();f.state.architecture.links=[{source:'g',target:'t',function:'contrasts'}];
  f.ctrl.render();
  const panel=f.els.get('unfolding-mentor');
- assert.equal(panel.children[0].children[3].getAttribute('aria-pressed'),'true');
+ assert.equal(panel.children[0].children[1].children[3].getAttribute('aria-pressed'),'true');
  assert.ok(panel.children[1].children.some(x=>x.textContent.includes('Not an accepted contradiction')));
  assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
 });
@@ -253,9 +253,9 @@ test('teaching navigation cannot leave an unsaved working idea behind',()=>{
 
 test('mentor mode changes restore keyboard focus to the selected mode',()=>{
  const f=fixture();f.ctrl.render();
- const previous=f.els.get('unfolding-mentor').children[0].children[0];
+ const previous=f.els.get('unfolding-mentor').children[0].children[1].children[0];
  previous.events.click();
- const current=f.els.get('unfolding-mentor').children[0].children[0];
+ const current=f.els.get('unfolding-mentor').children[0].children[1].children[0];
  assert.notEqual(previous,current);
  assert.equal(current.getAttribute('aria-pressed'),'true');
  assert.equal(current.didFocus,true);
@@ -292,4 +292,23 @@ test('mentor working choice fails closed on stale revision and invalid provenanc
  assert.equal(await f.ctrl.keepMentorIdea({...base,canvasRevision:1,sourceRef:'links/200'}),false);
  assert.equal(f.posted.length,0);
  assert.equal(f.saved.length,0);
+});
+
+test('mentor modes are progressively disclosed, with voluntary quiet guidance',()=>{
+ const f=fixture();f.ctrl.render();
+ const host=f.els.get('unfolding-mentor'),modes=host.children[0];
+ assert.equal(modes.id,'details');
+ assert.equal(modes.open,false);
+ assert.match(modes.children[0].textContent,/Mentor · Explore/);
+ const quiet=host.children.find(x=>x.textContent==='Hide mentor guidance');
+ assert.ok(quiet);quiet.events.click();
+ assert.equal(f.state.mentorQuiet,true);
+ assert.equal(f.els.get('unfolding-ghosts').hidden,true);
+ assert.equal(f.posted.length,0);
+ assert.equal(f.hostRequests.length,0);
+ const restore=host.children[0];
+ assert.equal(restore.textContent,'Show contextual mentorship');
+ restore.events.click();
+ assert.equal(f.state.mentorQuiet,false);
+ assert.equal(f.els.get('unfolding-ghosts').hidden,false);
 });
