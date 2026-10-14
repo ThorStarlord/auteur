@@ -43,6 +43,10 @@
     }
     async function keep(){
       if(!chosen||!stillCurrent()||busy||!packet||packet.status!=='ready')return;
+      if(!bridge.canNavigate()){
+        $('mentor-keep-status').textContent='Save your working-idea edits before keeping mentor advice.';
+        return;
+      }
       var choice={
         title:$('mentor-working-title').value,content:$('mentor-working-content').value,
         sourceRef:chosen.sourceRef,mentorRequestSha:packet.mentor_request_sha256,
