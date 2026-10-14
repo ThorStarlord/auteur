@@ -261,3 +261,35 @@ test('mentor mode changes restore keyboard focus to the selected mode',()=>{
  assert.equal(current.didFocus,true);
  assert.equal(f.posted.length,0);
 });
+
+test('keeping mentor advice requires explicit source-scoped CanvasStore mutation',async()=>{
+ const f=fixture();
+ const chosen={focusId:'g',candidateSha:'a'.repeat(64),canvasRevision:0,
+   mentorRequestSha:'b'.repeat(64),sourceRef:'directions/social',
+   title:'Community restoration',content:'A hopeful author-approved working mechanism'};
+ f.ctrl.render();assert.equal(f.posted.length,0);
+ const success=await f.ctrl.keepMentorIdea(chosen);
+ assert.equal(success,true);
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'create-item');
+ const item=f.posted[0].command.payload.item;
+ assert.equal(item.kind,'note');
+ assert.equal(item.proposal_origin.source_kind,'host_agent_suggestion');
+ assert.equal(item.proposal_origin.request_sha,'b'.repeat(64));
+ assert.equal(item.proposal_origin.source_ref,'directions/social');
+ assert.equal(item.proposal_origin.focus_id,'g');
+ assert.equal(item.content,chosen.content);
+ assert.equal(f.saved.length,1);
+});
+
+test('mentor working choice fails closed on stale revision and invalid provenance',async()=>{
+ const f=fixture(),base={focusId:'g',candidateSha:'a'.repeat(64),canvasRevision:0,
+   mentorRequestSha:'b'.repeat(64),sourceRef:'directions/social',
+   title:'Alternative',content:'Body'};
+ f.remote.revision=1;
+ assert.equal(await f.ctrl.keepMentorIdea(base),false);
+ assert.equal(await f.ctrl.keepMentorIdea({...base,canvasRevision:1,mentorRequestSha:'broken'}),false);
+ assert.equal(await f.ctrl.keepMentorIdea({...base,canvasRevision:1,sourceRef:'links/200'}),false);
+ assert.equal(f.posted.length,0);
+ assert.equal(f.saved.length,0);
+});

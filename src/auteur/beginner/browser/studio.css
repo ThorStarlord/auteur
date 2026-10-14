@@ -402,3 +402,13 @@ body.scene-docked #inspector { display:none; }
 .mentor-direction{padding:9px;border:1px dashed #b6a0ca;border-radius:8px;background:#faf7fc}
 .unfolding-mentor-dialogue button:focus-visible,.unfolding-mentor-dialogue textarea:focus-visible{
  outline:3px solid #805b9d;outline-offset:2px}
+
+/* Explicit review separates AI interpretations from author-owned working content. */
+.mentor-working-preview[hidden]{display:none!important}
+.mentor-working-preview{display:grid;gap:6px;border-top:1px solid #d8c9e4;
+ padding-top:10px;margin-top:6px;min-width:0}
+.mentor-working-preview strong{font-size:.8rem}
+.mentor-working-preview input{width:100%;max-width:100%;box-sizing:border-box;
+ padding:7px;border:1px solid #c9bfd4;border-radius:7px}
+.mentor-working-preview p{margin:2px 0;font-size:.7rem}
+.mentor-direction button{font-size:.73rem;min-height:32px}
