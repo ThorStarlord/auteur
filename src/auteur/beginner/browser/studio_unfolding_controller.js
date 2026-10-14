@@ -86,6 +86,117 @@
       host.style.left=Math.round(x)+'px';host.style.top=Math.round(y)+'px';
       host.style.right='auto';host.style.bottom='auto';
     }
+    function mentorProjection(target,suggestions){
+      if(!global.AuteurStudioMentorship||!target)return null;
+      var s=bridge.state();
+      return global.AuteurStudioMentorship.project({
+        focus:target,focusKind:s.unfoldingFocus?.kind,candidate:s.architecture,
+        requestSha:s.architectureRequestSha,suggestions:suggestions
+      });
+    }
+    function renderMentor(target,suggestions){
+      var host=$('unfolding-mentor'),s=bridge.state(),projection=mentorProjection(target,suggestions);
+      if(!host)return;
+      host.hidden=!projection;host.replaceChildren();
+      if(!projection)return;
+      var key=s.unfoldingFocus.kind+':'+projection.focusId+':'+projection.sourceSha;
+      if(s.mentorFocusKey!==key){
+        s.mentorFocusKey=key;s.mentorMode=projection.recommended;
+      }
+      var mode=s.mentorMode||'explore';
+      function add(tag,value,parent){
+        var el=document.createElement(tag);el.textContent=value;(parent||host).appendChild(el);return el;
+      }
+      var tabs=add('nav','');tabs.className='mentor-tabs';tabs.setAttribute('aria-label','Contextual narrative mentorship');
+      ['learn','explore','question','challenge'].forEach(function(name,index){
+        var b=add('button',name[0].toUpperCase()+name.slice(1),tabs);
+        b.type='button';b.setAttribute('aria-pressed',String(mode===name));
+        b.addEventListener('click',function(){
+          s.mentorMode=name;renderMentor(target,suggestions); // Do not rebuild the working editor.
+          var active=$('unfolding-mentor').children[0].children[index];
+          if(active && typeof active.focus==='function')active.focus();
+        });
+      });
+      var body=add('div','');body.className='mentor-body';
+      if(mode==='learn'){
+        add('strong','Why this matters',body);
+        add('p',projection.definition,body);
+        if(projection.inStory)add('p','In this story: '+projection.inStory,body);
+        add('small',projection.evidenceNote,body);
+        var perspective={genre:'genres',trope:'tropes',structure:'structure',engine:'structure',
+          emotion:'emotions',reader_experience:'emotions'}[projection.role];
+        if(perspective){
+          var learnMore=add('button','See related architecture perspective',body);
+          learnMore.type='button';learnMore.addEventListener('click',function(){
+            var focused=s.unfoldingFocus?.kind==='working'?
+              s.items.find(x=>x.id===s.unfoldingFocus.id):null;
+            if(focused){
+              var editor=$('unfolding-author-edit');
+              var title=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-title');
+              var detail=Array.prototype.find.call(editor.children,x=>x.id==='unfolding-edit-content');
+              if((title&&title.value!==focused.title)||(detail&&detail.value!==focused.content)){
+                bridge.status('Save your working-idea edits before opening another perspective.');return;
+              }
+            }
+            var route=document.querySelector('[data-architecture-facet="'+perspective+'"]');
+            if(route)route.click();
+          });
+        }
+      }else if(mode==='explore'){
+        add('strong','Different directions',body);
+        add('p',projection.options.length?
+          'Explore the source-linked possibilities below. They are proposals, not story commitments.':
+          'No attributed local alternatives. Ask the host agent to develop genuinely different possibilities.',body);
+        projection.options.forEach(function(opt){
+          add('small',opt.title+' · '+opt.dimension.replace(':',' / '),body);
+        });
+        if(projection.options.length<2){
+          var explore=add('button','Develop divergent options with coding agent',body);
+          explore.type='button';explore.addEventListener('click',function(){requestMentor(projection);});
+        }
+      }else if(mode==='question'){
+        add('strong','A question for your story',body);
+        add('p',projection.question,body);
+        var keep=add('button','Keep question as an editable working idea',body);
+        keep.type='button';keep.disabled=s.unfoldingSaving;
+        keep.addEventListener('click',function(){return keepMentorQuestion(projection);});
+        var follow=add('button','Develop follow-up with coding agent',body);
+        follow.type='button';follow.addEventListener('click',function(){requestMentor(projection);});
+      }else{
+        add('strong','An assumption worth examining',body);
+        add('p',projection.challenge,body);
+        add('small',projection.challengeSourceRef?
+          'Source: proposed '+projection.challengeSourceRef+'. Not an accepted contradiction.':
+          'Conditional creative hypothesis, not evidence of a defect.',body);
+        var develop=add('button','Explore this tension with coding agent',body);
+        develop.type='button';develop.addEventListener('click',function(){requestMentor(projection);});
+      }
+      var visible=mode==='explore';
+      $('unfolding-ghosts').hidden=!visible;
+      $('unfolding-more').hidden=!visible;
+      $('unfolding-explanation').hidden=!visible||!suggestions.some(x=>x.id===s.unfoldingInspected);
+    }
+    function stillFocused(p){
+      var s=bridge.state();
+      return !!focusIsValid(s)&&s.unfoldingFocus.id===p.focusId&&
+        (s.architectureRequestSha||null)===p.sourceSha;
+    }
+    function requestMentor(p){
+      if(!stillFocused(p))return bridge.status('Mentor source changed. Select this idea again.');
+      var vision=$('vision-text');
+      return bridge.prepare(global.AuteurStudioMentorship.hostInstruction(p,vision?vision.value:''));
+    }
+    function keepMentorQuestion(p){
+      if(!stillFocused(p))return Promise.resolve(bridge.status('Question source changed; nothing saved.'));
+      var command;
+      try {
+        command=helper.buildManualAnchorCommand('other',
+          ('Question about '+p.title).slice(0,120),bridge.newItemId(),bridge.position());
+        command.payload.item.kind='question';
+        command.payload.item.content=p.question;
+      }catch(e){return Promise.resolve(bridge.status('Cannot keep this question: '+e.message));}
+      return updateWorkingCommand('create-item',command,{focusId:p.focusId});
+    }
     function render(){
       var s=bridge.state(),start=$('unfolding-start'),host=$('unfolding-local');
       var ghosts=$('unfolding-ghosts'),explain=$('unfolding-explanation'),edit=$('unfolding-author-edit');
@@ -112,6 +223,8 @@
         edit.append(h,name,content,save);
       }
       var all=current();
+      var mentor=mentorProjection(target,all);
+      if(mentor){var allowed=new Set(mentor.options.map(x=>x.id));all=all.filter(x=>allowed.has(x.id));}
       if(!all.length){var p=document.createElement('p');p.className='muted';
         p.textContent='No declared nearby proposals for this focus. Choose another concept or explicitly develop more possibilities.';
         ghosts.appendChild(p);
@@ -151,6 +264,7 @@
       var next=helper.projectLocalSuggestions(s.architecture,s.architectureRequestSha,s.unfoldingFocus,
         s.items,dismissed(),global.innerWidth<=480?2:3,(s.unfoldingOffset||0)+(global.innerWidth<=480?2:3));
       $('unfolding-more').textContent=next.length?'Explore further nearby options':'Develop more possibilities (host-agent handoff)';
+      renderMentor(target,all);
     }
     function more(){
       var s=bridge.state();if(!focusIsValid(s))return;
@@ -160,10 +274,8 @@
       var focus=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(x=>x.id===s.unfoldingFocus.id):
         s.items.find(x=>x.id===s.unfoldingFocus.id);
       if(!focus)return;
-      var instruction='Develop up to three additional NONCANONICAL narrative possibilities related to '+focus.title+
-        '. Current source request SHA: '+(s.architectureRequestSha||'none')+
-        '. Explain proposed relationships. Preserve author working notes. Do not accept story canon.';
-      bridge.prepare(instruction.slice(0,4000));
+      var projection=mentorProjection(focus,current());
+      if(projection)requestMentor(projection);
     }
     return {render:render,create:createAnchor,adopt:adopt,more:more};
   }
