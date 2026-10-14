@@ -1,0 +1,180 @@
+{
+  "schema_note": "SCRIPTED proxy-author/agent replay cases drafted by the coding assistant; not independently sampled model output, not a real human study.",
+  "cases": [
+    {
+      "id": "paladin_independence",
+      "purpose": "explore",
+      "focus_id": "paladin_agency",
+      "author_intention": "Keep the paladin exceptionally heroic, beloved and generous while his tank/healer companions become genuinely capable independent people.",
+      "risk": "False dilemma: either companions remain dependent or the protagonist becomes irrelevant.",
+      "advice": {
+        "schema_version": 1,
+        "focus_id": "paladin_agency",
+        "kind": "explore",
+        "summary": "Companion independence can enlarge the paladin's heroic importance rather than erase it.",
+        "explanation": "These mechanisms preserve a powerful and beloved protector while changing what his generosity makes possible. They are hypotheses, not accepted story facts.",
+        "question": "What outcome would let the audience feel both the paladin's exceptional role and the companions' independence?",
+        "challenge": "Conditional challenge: is the hero defined only by personally solving crises, or by making larger flourishing possible as well?",
+        "challenge_basis": "conditional_hypothesis",
+        "author_reply_interpretation": "The author rejects the false tradeoff between capable companions and an exceptional protagonist.",
+        "directions": [
+          {
+            "id": "institutional",
+            "title": "Build enduring refuges",
+            "mechanism": "The paladin establishes sanctuaries and care traditions that let ordinary people support one another.",
+            "consequence": "The world becomes safer even when he travels away.",
+            "tradeoff": "Institutional change is less immediately spectacular than a solo battle.",
+            "distinguishing_factor": "Social-scale propagation of protection rather than direct one-on-one mentorship.",
+            "divergence_axis": "social_scale",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          },
+          {
+            "id": "apprenticeship",
+            "title": "Teach independent judgment",
+            "mechanism": "A companion must decide when to depart from the paladin's preferred strategy and save others using distinct values.",
+            "consequence": "An independent judgment becomes an act of trust, not betrayal.",
+            "tradeoff": "The hero must accept decisions he would not make.",
+            "distinguishing_factor": "Character agency measured through a consequential independent choice, not institutions.",
+            "divergence_axis": "character_agency",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          },
+          {
+            "id": "heroic_reentry",
+            "title": "Become the final safeguard",
+            "mechanism": "The story lets capable companions shoulder ordinary challenges, while the paladin still confronts threats beyond their reach.",
+            "consequence": "Their competence makes his rare interventions more exceptional, not less.",
+            "tradeoff": "The ensemble risks becoming spectators during climaxes unless parallel agency remains active.",
+            "distinguishing_factor": "Structural allocation of escalation and spotlight rather than education or social reform.",
+            "divergence_axis": "structure",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          }
+        ],
+        "source_refs": [],
+        "limitation": "No established genre convention or canonical character identity is asserted."
+      }
+    },
+    {
+      "id": "subversive_genre",
+      "purpose": "challenge",
+      "focus_id": "form",
+      "author_intention": "A fantasy that intentionally refuses a fixed three-act progression and treats heroic transformation as ongoing community restoration.",
+      "risk": "Mentor may falsely identify unconventional structure as a defective genre requirement.",
+      "advice": {
+        "schema_version": 1,
+        "focus_id": "form",
+        "kind": "challenge",
+        "summary": "A nonstandard structure is a creative choice; clarify its renewable change mechanism rather than forcing an act template.",
+        "explanation": "Without a verified Genre Pack, no obligation to follow a particular narrative shape can be inferred.",
+        "question": "Which recurring change distinguishes each return to the same community, even without an escalating act break?",
+        "challenge": "Conditional challenge: could cyclical restoration become static unless each return changes who can act and what people value?",
+        "challenge_basis": "conditional_hypothesis",
+        "author_reply_interpretation": "Preserve nonlinear progression; improve distinguishability of cycles without imposing conventional act structure.",
+        "directions": [
+          {
+            "id": "seasons",
+            "title": "Consequences accumulate across seasons",
+            "mechanism": "Each return reveals material, social and emotional effects of earlier help.",
+            "consequence": "Readers experience progress as lived flourishing.",
+            "tradeoff": "Subtle cumulative change needs precise detail to remain visible.",
+            "distinguishing_factor": "Time and accumulated effects generate structure, not external antagonistic escalation.",
+            "divergence_axis": "structure",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          },
+          {
+            "id": "new_voices",
+            "title": "Let new agents redefine prosperity",
+            "mechanism": "As relationships improve, newly empowered residents formulate different goals than their benefactor.",
+            "consequence": "Cycles open qualitatively new conflicts without erasing prior achievements.",
+            "tradeoff": "The narrative must keep many voices legible without displacing its emotional center.",
+            "distinguishing_factor": "Agency diversity generates renewal, not temporal progression alone.",
+            "divergence_axis": "character_agency",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          }
+        ],
+        "source_refs": [],
+        "limitation": "No verified genre morphology or audience requirement was supplied."
+      }
+    },
+    {
+      "id": "academy_and_horror",
+      "purpose": "explore",
+      "focus_id": "tonal_mix",
+      "author_intention": "An optimistic, habitable futuristic academy with cozy ordinary life, occasional cosmic horror and meaningful restoration.",
+      "risk": "The mentor may demand nihilism and override the desirable home-like setting.",
+      "advice": {
+        "schema_version": 1,
+        "focus_id": "tonal_mix",
+        "kind": "explore",
+        "summary": "Use danger to reveal what makes the academy worth protecting, without converting it into a permanently grim place.",
+        "explanation": "The school is a desirable social home. Horror is a pressure on its protective relationships, not proof that hope was false.",
+        "question": "Which small daily ritual should survive danger so that readers experience restoration rather than only victory?",
+        "challenge": "Conditional challenge: if the academy immediately resets after horror, can the story show genuine repair without making ordinary life disappear?",
+        "challenge_basis": "conditional_hypothesis",
+        "author_reply_interpretation": "Protect the setting's optimistic habitability while allowing bounded transformations.",
+        "directions": [
+          {
+            "id": "care",
+            "title": "Protect a local routine",
+            "mechanism": "A student-led care ritual adapts to strange disruptions, letting people reestablish trust.",
+            "consequence": "The academy remains a place audiences could wish to inhabit.",
+            "tradeoff": "Local stakes require close attention to lived relationships.",
+            "distinguishing_factor": "An intimate social practice anchors horror in routine and restoration.",
+            "divergence_axis": "reader_emotion",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          },
+          {
+            "id": "expedition",
+            "title": "Journey outward and return",
+            "mechanism": "A small expedition confronts uncertainty beyond campus and brings back knowledge that improves shared safety.",
+            "consequence": "External danger expands the habitable world rather than permanently poisoning home.",
+            "tradeoff": "Adventures can dilute campus intimacy unless return scenes show benefits.",
+            "distinguishing_factor": "Exploration and applied knowledge change the social world; not a campus ritual.",
+            "divergence_axis": "causal_engine",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          },
+          {
+            "id": "restorative",
+            "title": "Practice living restoration",
+            "mechanism": "The aftermath of a threatening incursion becomes collaborative rehabilitation of transformed places and creatures.",
+            "consequence": "The setting visibly flourishes through acts of care after crisis.",
+            "tradeoff": "Recovery needs friction and partial setbacks to feel earned.",
+            "distinguishing_factor": "Post-crisis repair itself supplies the recurring narrative engine, not the threat.",
+            "divergence_axis": "theme",
+            "source_status": "agent_hypothesis",
+            "source_refs": []
+          }
+        ],
+        "source_refs": [],
+        "limitation": "Genre-specific expectations remain unverified; suggestions are working hypotheses."
+      }
+    },
+    {
+      "id": "unknown_genre",
+      "purpose": "question",
+      "focus_id": "uncertain",
+      "author_intention": "I want a genre-defying story but have not decided its intended emotional effects or setting.",
+      "risk": "The mentor invents genre packs and overcommits the author's story.",
+      "advice": {
+        "schema_version": 1,
+        "focus_id": "uncertain",
+        "kind": "question",
+        "summary": "The available author brief does not support a specific genre or structure commitment.",
+        "explanation": "Ask for the intended experience before recommending a mechanism.",
+        "question": "What ordinary situation would you most want readers to enjoy inhabiting?",
+        "challenge": null,
+        "challenge_basis": "conditional_hypothesis",
+        "author_reply_interpretation": "No commitment is available yet.",
+        "directions": [],
+        "source_refs": [],
+        "limitation": "Genre, tone, characters and structure remain unknown; no Genre Pack evidence is assumed."
+      }
+    }
+  ]
+}

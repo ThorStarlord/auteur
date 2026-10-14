@@ -1,5 +1,6 @@
 """Browser interactions of exact bundled prototype source; HTTP/ESM is tested separately when allowed."""
 import re
+import os
 from pathlib import Path
 import pytest
 from playwright.sync_api import sync_playwright
@@ -27,7 +28,10 @@ def inline_page():
 @pytest.fixture(scope='module')
 def browser():
     with sync_playwright() as p:
-        b=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+        options = {'headless': True, 'args': ['--no-sandbox']}
+        if os.environ.get('CHROMIUM_PATH'):
+            options['executable_path'] = os.environ['CHROMIUM_PATH']
+        b=p.chromium.launch(**options)
         yield b
         b.close()
 

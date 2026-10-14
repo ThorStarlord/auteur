@@ -132,3 +132,18 @@ test('source-domain revision is checked against the correct origin, not a differ
  d.workingSourceRevision='demo-paladin-v2';
  assert.equal(projectFullArchitecture(d).storySpecific.find(i=>i.itemId==='from-demo').needsReview,true);
 });
+
+
+test('legacy structural and setup beats remain sourced apart from proposal structure',()=>{
+ const d=clone(fixture);
+ d.legacyEvidence=[{genreId:'genre-hero',sourceRef:'genres/data/epic_fantasy.yaml',contract:{
+   genre_id:'epic_fantasy',audience_product:'Awe',primary_excitement_beats:['world threat','alliances'],
+   setup_contract:{minimum_setup_beats:['ordinary world','destabilization']}}}];
+ const genre=projectFullArchitecture(d).genreViews.find(x=>x.genreId==='genre-hero');
+ const beats=genre.morphology.filter(x=>x.kind==='structure');
+ assert.equal(beats.length,4);
+ assert.ok(beats.every(x=>x.authority==='legacy_convention'&&x.sourceKind==='legacy_contract'));
+ assert.ok(beats.some(x=>x.sourceRef.endsWith('/primary_excitement_beats/0')));
+ assert.ok(beats.some(x=>x.sourceRef.endsWith('/setup_contract/minimum_setup_beats/1')));
+ assert.ok(genre.candidateInterpretations.some(x=>x.kind==='structure'));
+});
