@@ -155,3 +155,29 @@ test('author reply and AI interpretation stay separately attributed in preview',
  assert.match(f.elements.get('mentor-working-content').value,/AI INTERPRETATION/);
  assert.equal(f.saved.length,0);
 });
+
+test('ready advice becomes visibly stale after working-canvas revision changes',async()=>{
+ const f=fixture();await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ assert.ok(f.elements.get('mentor-advice').children.length>0);
+ f.remote.revision++;
+ f.ctrl.render();
+ assert.equal(f.elements.get('mentor-advice').children.length,0);
+ assert.equal(f.elements.get('mentor-working-preview').hidden,true);
+ assert.equal(f.elements.get('mentor-complete').disabled,true);
+ assert.match(f.elements.get('mentor-status').textContent,/advice is stale/);
+ assert.equal(f.saved.length,0);
+});
+
+test('refreshing a stale server result cannot resurrect old ready advice',async()=>{
+ const f=fixture();await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ assert.ok(f.elements.get('mentor-advice').children.length>0);
+ f.bridge.fetch=async()=>({
+   ok:true,json:async()=>({status:'stale',focus_id:'g',focus_kind:'candidate'})
+ });
+ await f.ctrl.resume(p());
+ assert.equal(f.elements.get('mentor-advice').children.length,0);
+ assert.match(f.elements.get('mentor-status').textContent,/response is stale/);
+ assert.equal(f.saved.length,0);
+});
