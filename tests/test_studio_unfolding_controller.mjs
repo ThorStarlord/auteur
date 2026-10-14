@@ -187,7 +187,7 @@ test('question becomes an editable working item only after explicit keep',async(
  assert.equal(f.posted[0].action,'create-item');
  assert.equal(f.posted[0].command.payload.item.kind,'question');
  assert.equal(f.posted[0].command.payload.item.proposal_origin,null);
- assert.match(f.posted[0].command.payload.item.content,/genre|expectations/i);
+ assert.match(f.posted[0].command.payload.item.content,/proposal links|expectations/i);
  assert.equal(f.saved.length,1);
 });
 
