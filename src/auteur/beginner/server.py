@@ -56,6 +56,7 @@ from .studio_full_evidence import project_legacy_genre_evidence
 from .studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
+from .studio_mentor import complete_mentor, prepare_mentor, project_mentor
 from .studio_realization import (
     apply_realization_review, complete_realization, prepare_realization, project_realization,
 )
@@ -575,6 +576,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
             if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "mentor"):
+                try:
+                    self._send_json(200, project_mentor(CanvasStore(self.project_root, parts[4])))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5] == "architecture"):
                 try:
                     self._send_json(200, project_architecture(CanvasStore(self.project_root, parts[4])))
@@ -669,6 +677,22 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         ))
                     else:
                         self._send_json(200, complete_realization(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "mentor" and parts[6] in {"prepare", "host-agent-response"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[6] == "prepare":
+                        result = prepare_mentor(
+                            store, payload.get("focus_id"), payload.get("focus_kind"),
+                            payload.get("purpose", "explore"), payload.get("author_reply", ""),
+                        )
+                        self._send_json(202, result)
+                    else:
+                        self._send_json(200, complete_mentor(store, payload))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
