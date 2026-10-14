@@ -47,7 +47,9 @@ def test_home_to_new_story_to_story_architecture_round_trip(tmp_path: Path) -> N
         "people closest to him and starts investigating what they are hiding."
     )
     with running_server(tmp_path) as server:
-        with urlopen(_base(server) + "/") as response:
+        # Studio is the development default at /; keep checking the retained
+        # Beginner home at its explicit route.
+        with urlopen(_base(server) + "/beginner.html") as response:
             html = response.read().decode("utf-8")
             assert response.status == 200
             assert "<title>Auteur</title>" in html

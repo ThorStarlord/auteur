@@ -5,6 +5,7 @@ preserves the JS/CSS source and JSON fixtures but adapts ES module imports to in
 """
 import json
 import re
+import os
 from pathlib import Path
 import pytest
 from playwright.sync_api import sync_playwright
@@ -13,8 +14,8 @@ ROOT=Path(__file__).resolve().parents[1] / 'docs/prototypes/studio-explanations'
 
 
 def inline_document():
-    html=(ROOT/'index.html').read_text()
-    css=(ROOT/'styles.css').read_text()
+    html=(ROOT/'index.html').read_text(encoding='utf-8')
+    css=(ROOT/'styles.css').read_text(encoding='utf-8')
     html=html.replace('<link rel="stylesheet" href="./styles.css">',f'<style>{css}</style>')
     html=html.replace('<script type="module" src="./app.mjs"></script>','')
     modules=[
@@ -27,7 +28,7 @@ def inline_document():
     ]
     script=''
     for filename,var,exports in modules:
-        src=(ROOT/filename).read_text()
+        src=(ROOT/filename).read_text(encoding='utf-8')
         src=re.sub(r'^import .*?;\s*$', '', src, flags=re.MULTILINE)
         src=re.sub(r'\bexport (function|const)\b',r'\1',src)
         script+=f'const {var}=(()=>{{\n{src}\nreturn {{{",".join(exports)}}};\n}})();\n'
@@ -39,7 +40,7 @@ def inline_document():
     script+='const {normalizeEvidence,entriesForPerspective,connectionsForSelection}=__model;\n'
     script+='const {deriveSemanticLinks,linksForFocus,preferredPerspective}=__semantic;\n'
     script+='const {visitRoute,returnRoute,reconcileRoute,serializeFixtureRoute,parseFixtureRoute}=__routes;\n'
-    app=(ROOT/'app.mjs').read_text()
+    app=(ROOT/'app.mjs').read_text(encoding='utf-8')
     app=re.sub(r'^import .*?;\s*$', '',app,flags=re.MULTILINE)
     app=app.replace('await import(files[mode])','await Promise.resolve(__views[mode])')
     script+=app
@@ -49,7 +50,10 @@ def inline_document():
 @pytest.fixture(scope='module')
 def browser():
     with sync_playwright() as p:
-        browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+        options = {'headless': True, 'args': ['--no-sandbox']}
+        if os.environ.get('CHROMIUM_PATH'):
+            options['executable_path'] = os.environ['CHROMIUM_PATH']
+        browser=p.chromium.launch(**options)
         yield browser
         browser.close()
 

@@ -32,6 +32,8 @@ def test_studio_script_parses_and_references_existing_elements():
     html = (BROWSER / "studio.html").read_text(encoding="utf-8")
     import re
     ids = set(re.findall(r'\bid="([^"]+)"', html))
+    unfolding = (BROWSER / "studio_unfolding_controller.js").read_text(encoding="utf-8")
+    ids.update(re.findall(r"\.id\s*=\s*['\"]([^'\"]+)['\"]", unfolding))
     for referenced in re.findall(r'\$\("([^"]+)"\)', script):
         assert referenced in ids, referenced
     node = shutil.which("node")

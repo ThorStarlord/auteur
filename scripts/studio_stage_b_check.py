@@ -92,11 +92,15 @@ def canonical_snapshot():
     """Map each non-canonical-store file to its SHA-256 content hash."""
     # Studio working store and Quick Draft's provisional staging are non-canonical by design.
     noncanonical = (".auteur/beginner/studio", ".auteur/quick_draft")
-    return {
-        str(f.relative_to(proj)): hashlib.sha256(f.read_bytes()).hexdigest()
-        for f in proj.rglob("*")
-        if f.is_file() and not any(part in str(f) for part in noncanonical)
-    }
+    snapshot = {}
+    for f in proj.rglob("*"):
+        if not f.is_file():
+            continue
+        relative = f.relative_to(proj).as_posix()
+        if any(relative.startswith(f"{part}/") for part in noncanonical):
+            continue
+        snapshot[relative] = hashlib.sha256(f.read_bytes()).hexdigest()
+    return snapshot
 
 
 def canvas_docs():

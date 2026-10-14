@@ -63,7 +63,9 @@ def test_http_studio_assets_expose_architecture_controls_without_duplicate_ids(t
             assert f'id="{name}"' in html
         ids = re.findall(r'\bid="([^"]+)"', html)
         assert len(ids) == len(set(ids))
-        assert set(re.findall(r'\$\("([^"]+)"\)', script)) <= set(ids)
+        unfolding = (BROWSER / "studio_unfolding_controller.js").read_text(encoding="utf-8")
+        dynamic_ids = set(re.findall(r"\.id\s*=\s*['\"]([^'\"]+)['\"]", unfolding))
+        assert set(re.findall(r'\$\("([^"]+)"\)', script)) <= set(ids) | dynamic_ids
         assert 'SOURCE-LINKED PROPOSAL / NOT ACCEPTED' in script
     finally:
         server.stop()

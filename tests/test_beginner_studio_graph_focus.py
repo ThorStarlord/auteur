@@ -27,4 +27,6 @@ def test_emotional_report_is_below_graph_and_timeline_is_alternative():
     assert 'if (state.workspace === "architecture") requestArchitecture("");' in js
     ids = re.findall(r'\bid="([^"]+)"', html)
     assert len(ids) == len(set(ids))
-    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids)
+    unfolding = (BROWSER / "studio_unfolding_controller.js").read_text(encoding="utf-8")
+    dynamic_ids = set(re.findall(r"\.id\s*=\s*['\"]([^'\"]+)['\"]", unfolding))
+    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids) | dynamic_ids

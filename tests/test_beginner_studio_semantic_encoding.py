@@ -21,4 +21,6 @@ def test_typed_semantic_nodes_and_legend_with_explicit_proposal_status():
     assert 'button.addEventListener("click", function () { visitFacet("overview", null, other.id); });' in js
     ids = re.findall(r'\bid="([^"]+)"', html)
     assert len(ids) == len(set(ids))
-    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids)
+    unfolding = (BROWSER / "studio_unfolding_controller.js").read_text(encoding="utf-8")
+    dynamic_ids = set(re.findall(r"\.id\s*=\s*['\"]([^'\"]+)['\"]", unfolding))
+    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids) | dynamic_ids

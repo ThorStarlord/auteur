@@ -40,4 +40,6 @@ def test_script_references_real_controls_and_no_duplicate_ids():
     js = (BROWSER / "studio.js").read_text(encoding="utf-8")
     ids = re.findall(r'\bid="([^"]+)"', html)
     assert len(ids) == len(set(ids))
-    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids)
+    unfolding = (BROWSER / "studio_unfolding_controller.js").read_text(encoding="utf-8")
+    dynamic_ids = set(re.findall(r"\.id\s*=\s*['\"]([^'\"]+)['\"]", unfolding))
+    assert set(re.findall(r'\$\("([^"]+)"\)', js)) <= set(ids) | dynamic_ids
