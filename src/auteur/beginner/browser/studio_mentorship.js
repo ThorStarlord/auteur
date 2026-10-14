@@ -77,7 +77,7 @@
       tension.otherTitle+'". Is that tension intentional, and what should it change?':
       'One possible assumption to test: will "'+title+
       '" continue producing meaningful choices beyond its first appearance? What could vary?';
-    const recommended=tension?'challenge':options.length>=2?'explore':'learn';
+    const recommended=tension?'challenge':options.length?'explore':'learn';
     return {focusId:focus.id,sourceSha:sha,title,role,definition:lessons[role]||lessons.other,
       inStory:bounded(focus.summary||focus.content,280),
       question:questions[role]||'What does this idea change for the story and the intended reader?',
