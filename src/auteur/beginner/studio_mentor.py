@@ -170,6 +170,9 @@ def project_mentor(store: CanvasStore) -> dict:
             "focus_id": request.settings["focus_id"],
             "focus_kind": request.settings["focus_kind"],
             "source_sha256": request.settings["source_sha256"],
+            "mentor_request_sha256": sha,
+            "canvas_revision": payload["working_context"]["canvas_revision"],
+            "candidate_request_sha256": payload["working_context"]["candidate_request_sha256"],
             "author_reply": payload.get("author_reply", "") if fresh else ""}
 
 
