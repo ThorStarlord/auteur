@@ -312,3 +312,44 @@ test('mentor modes are progressively disclosed, with voluntary quiet guidance',(
  assert.equal(f.state.mentorQuiet,false);
  assert.equal(f.els.get('unfolding-ghosts').hidden,false);
 });
+
+test('working editor text is protected from a mentor choice or question creation',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Original title',content:'Original details',
+   architecture_role:'theme'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const editor=f.els.get('unfolding-author-edit');
+ const detail=editor.children.find(x=>x.id==='unfolding-edit-content');
+ assert.ok(detail);
+ detail.value='Important unsaved author wording';
+ const choice={focusId:'working',candidateSha:'a'.repeat(64),canvasRevision:0,
+   mentorRequestSha:'b'.repeat(64),sourceRef:'directions/social',
+   title:'Mentor alternative',content:'Noncanonical option'};
+ assert.equal(await f.ctrl.keepMentorIdea(choice),false);
+ assert.equal(f.posted.length,0);
+ assert.equal(detail.value,'Important unsaved author wording');
+ const modes=f.els.get('unfolding-mentor').children[0].children[1].children;
+ modes[2].events.click();
+ const question=f.els.get('unfolding-mentor').children[1].children.find(x=>
+   x.textContent.includes('Keep question'));
+ await question.events.click();
+ assert.equal(f.posted.length,0);
+ assert.equal(detail.value,'Important unsaved author wording');
+ assert.ok(f.statuses.some(x=>x.includes('Save the unsaved working-idea text')));
+});
+
+test('working editor can still explicitly save its own dirty contents',async()=>{
+ const f=fixture();
+ f.state.items=[{id:'working',kind:'note',title:'Original title',content:'Original details'}];
+ f.state.unfoldingFocus={kind:'working',id:'working'};
+ f.ctrl.render();
+ const editor=f.els.get('unfolding-author-edit');
+ editor.children.find(x=>x.id==='unfolding-edit-content').value='Revised author prose';
+ const save=editor.children.find(x=>x.textContent==='Save working idea');
+ assert.ok(save);
+ await save.events.click();
+ assert.equal(f.posted.length,1);
+ assert.equal(f.posted[0].action,'update-item');
+ assert.equal(f.posted[0].command.payload.item.content,'Revised author prose');
+});
