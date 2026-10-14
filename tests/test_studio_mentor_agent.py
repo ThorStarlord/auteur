@@ -50,7 +50,7 @@ def test_prepare_uses_actual_working_context_without_mutating_canvas(tmp_path):
     assert pending["status"] == "awaiting_host_agent"
     request = pending["request"]
     assert request["role"] == "studio_mentor"
-    assert "No accepted" in request["system"]
+    assert "Never claim accepted Identity exists" in request["system"]
     ctx = json.loads(request["user"])
     assert ctx["working_context"]["accepted_identity_status"] == "not_bound"
     assert ctx["working_context"]["author_story_vision"].startswith("Hope")
