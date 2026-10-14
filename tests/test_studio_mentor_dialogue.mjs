@@ -14,7 +14,8 @@ class El{
 function fixture(){
  const ids=['unfolding-mentor-dialogue','mentor-author-reply','mentor-send','mentor-refresh',
   'mentor-complete','mentor-dismiss','mentor-status','mentor-request','mentor-advice',
-  'mentor-handoff','mentor-response'];
+  'mentor-handoff','mentor-response','mentor-working-preview','mentor-working-title',
+  'mentor-working-content','mentor-keep','mentor-keep-status'];
  const elements=new Map(ids.map(id=>[id,new El(id)]));
  const doc={getElementById:id=>elements.get(id),createElement:t=>new El(t)};
  const win={};new Function('window','document',source)(win,doc);
@@ -23,7 +24,7 @@ function fixture(){
    fullArchitectureDisplay:'focus',architectureRequestSha:sha,
    unfoldingFocus:{kind:'candidate',id:'g'}};
  const remote={ready:true,failed:false,canvasId:'canvas-test',revision:3};
- const requests=[],statuses=[];let dirty=false,flushed=0;
+ const requests=[],statuses=[],saved=[];let dirty=false,flushed=0;
  const advice={focus_id:'g',kind:'explore',summary:'Three distinct options',
    question:'What future should the hero create?',challenge_basis:'conditional_hypothesis',
    directions:[{id:'social',title:'Community restoration',divergence_axis:'social_scale',
@@ -31,7 +32,9 @@ function fixture(){
      tradeoff:'The hero shares agency',source_status:'agent_hypothesis',source_refs:[]}]};
  const pending={status:'awaiting_host_agent',request:{schema:'auteur_host_agent_request_v1',
    request_sha256:'b'.repeat(64)},focus_id:'g',focus_kind:'candidate'};
- const ready={status:'ready',advice,focus_id:'g',focus_kind:'candidate'};
+ const ready={status:'ready',advice,focus_id:'g',focus_kind:'candidate',
+   mentor_request_sha256:'b'.repeat(64),canvas_revision:3,
+   candidate_request_sha256:'a'.repeat(64),author_reply:''};
  const bridge={state:()=>state,remote:()=>remote,canNavigate:()=>!dirty,
    flush:async()=>{flushed++},
    fetch:async(url,config)=>{
@@ -39,9 +42,10 @@ function fixture(){
      return {ok:true,json:async()=>url.endsWith('/prepare')?pending:
        url.endsWith('/host-agent-response')?ready:ready};
    },
-   apiJson:async r=>r.json(),status:s=>statuses.push(s)};
+   apiJson:async r=>r.json(),status:s=>statuses.push(s),
+   saveWorking:async choice=>{saved.push(choice);return true}};
  const ctrl=win.AuteurStudioMentorDialogueController.create(bridge);
- return {ctrl,elements,state,remote,requests,statuses,pending,ready,bridge,
+ return {ctrl,elements,state,remote,requests,statuses,saved,pending,ready,bridge,
    setDirty:v=>{dirty=v},flushed:()=>flushed};
 }
 function p(){return {focusId:'g',sourceSha:'a'.repeat(64)};}
@@ -105,4 +109,48 @@ test('focus changes conceal mentor and preserve the typed reply',async()=>{
  f.state.unfoldingFocus={kind:'candidate',id:'g'};
  await f.ctrl.resume(p());
  assert.equal(f.elements.get('mentor-author-reply').value,'My own unpublished intention');
+});
+
+test('AI alternative stays read-only until author reviews and keeps it',async()=>{
+ const f=fixture();await f.ctrl.open(p(),'explore');
+ f.elements.get('mentor-response').value='{}';await f.ctrl.complete();
+ const box=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ assert.ok(box);
+ box.children.find(y=>y.textContent==='Review as working idea').events.click();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+ assert.equal(f.saved.length,0);
+ f.elements.get('mentor-working-title').value='My revised direction';
+ f.elements.get('mentor-working-content').value='I choose this hopeful variation';
+ await f.elements.get('mentor-keep').events.click();
+ assert.equal(f.saved.length,1);
+ assert.equal(f.saved[0].title,'My revised direction');
+ assert.equal(f.saved[0].content,'I choose this hopeful variation');
+ assert.equal(f.saved[0].sourceRef,'directions/social');
+ assert.equal(f.saved[0].mentorRequestSha,'b'.repeat(64));
+});
+
+test('stale canvas prevents even the working preview, not just saving',async()=>{
+ const f=fixture();await f.ctrl.open(p(),'explore');f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();f.remote.revision=4;
+ const box=f.elements.get('mentor-advice').children.find(x=>
+   x.children.some(y=>y.textContent==='Review as working idea'));
+ box.children.find(y=>y.textContent==='Review as working idea').events.click();
+ assert.equal(f.elements.get('mentor-working-preview').hidden,true);
+ assert.match(f.elements.get('mentor-status').textContent,/stale/);
+ assert.equal(f.saved.length,0);
+});
+
+test('author reply and AI interpretation stay separately attributed in preview',async()=>{
+ const f=fixture();f.ready.author_reply='Keep the protagonist beloved';
+ f.ready.advice.author_reply_interpretation='Heroism becomes an enabling social force';
+ await f.ctrl.open(p(),'question');f.elements.get('mentor-response').value='{}';
+ await f.ctrl.complete();
+ const button=f.elements.get('mentor-advice').children.find(x=>
+   x.textContent==='Review interpretation as working idea');
+ assert.ok(button);button.events.click();
+ assert.match(f.elements.get('mentor-working-content').value,/AUTHOR ANSWER \(verbatim\)/);
+ assert.match(f.elements.get('mentor-working-content').value,/Keep the protagonist beloved/);
+ assert.match(f.elements.get('mentor-working-content').value,/AI INTERPRETATION/);
+ assert.equal(f.saved.length,0);
 });
