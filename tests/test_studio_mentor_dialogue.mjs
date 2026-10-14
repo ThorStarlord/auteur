@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const source=readFileSync(new URL('../src/auteur/beginner/browser/studio_mentor_dialogue_controller.js',import.meta.url),'utf8');
+const proxyCases=JSON.parse(readFileSync(new URL('./fixtures/studio_mentor_proxy_author_cases.json',import.meta.url),'utf8')).cases;
 class El{
  constructor(id=''){this.id=id;this.hidden=true;this.value='';this.children=[];this.textContent='';
    this.disabled=false;this.events={};this.attributes={};this.style={};}
@@ -325,4 +326,43 @@ test('working focus remains mentor-eligible when prior candidate architecture is
  assert.equal(JSON.parse(f.requests[0].config.body).focus_kind,'working');
  assert.equal(f.elements.get('unfolding-mentor-dialogue').hidden,false);
  assert.equal(f.saved.length,0);
+});
+
+test('scripted coding-agent story alternatives remain explicit, source-labelled, and reviewable',async()=>{
+ for(const scenario of proxyCases){
+   const f=fixture(),id=scenario.focus_id;
+   f.state.unfoldingFocus={kind:'candidate',id};
+   f.ready.focus_id=id;f.pending.focus_id=id;
+   f.ready.author_reply=scenario.author_intention;
+   f.ready.advice=scenario.advice;
+   await f.ctrl.open({focusId:id,sourceSha:'a'.repeat(64)},scenario.purpose);
+   assert.equal(f.requests.length,1);
+   f.elements.get('mentor-response').value='{}';
+   await f.ctrl.complete();
+   assert.equal(f.elements.get('mentor-advice').children[0].textContent,
+     'Mentor interpretation · Noncanonical');
+   const advice=f.elements.get('mentor-advice').children;
+   const options=advice.filter(x=>x.className==='mentor-direction');
+   assert.equal(options.length,scenario.advice.directions.length);
+   assert.equal(f.saved.length,0);
+   assert.ok(advice.some(x=>x.textContent.includes('Nothing here changes')));
+   for(let i=0;i<options.length;i++){
+     const texts=options[i].children.map(x=>x.textContent).join(' ');
+     assert.match(texts,/What makes this different/);
+     assert.match(texts,/Tradeoff:/);
+     assert.match(texts,/not accepted story/);
+   }
+   if(options.length){
+     options[0].children.find(x=>x.textContent==='Review as working idea').events.click();
+     assert.equal(f.elements.get('mentor-working-preview').hidden,false);
+     assert.equal(f.saved.length,0);
+     assert.match(f.elements.get('mentor-working-content').value,/Author's original answer/);
+     assert.match(f.elements.get('mentor-working-content').value,/AI PROPOSAL/);
+     f.elements.get('mentor-working-title').value='My considered choice';
+     await f.elements.get('mentor-keep').events.click();
+     assert.equal(f.saved.length,1);
+     assert.equal(f.saved[0].mentorRequestSha,'b'.repeat(64));
+     assert.equal(f.saved[0].sourceRef,'directions/'+scenario.advice.directions[0].id);
+   }
+ }
 });
