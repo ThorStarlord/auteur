@@ -1,0 +1,154 @@
+/* Explicit host-agent conversation in the existing Focused Unfolding surface.
+ * Passive render never issues HTTP requests or author-story writes. */
+(function(global,document){
+  'use strict';
+  function create(bridge){
+    function $(id){return document.getElementById(id);}
+    var active=null,drafts=Object.create(null),packet=null,busy=false,notice='';
+    function current(){
+      var state=bridge.state(),focus=state.unfoldingFocus;
+      return state.workspace==='architecture'&&state.view==='architecture'&&
+        state.architectureFacet==='overview'&&state.fullArchitectureDisplay!=='full'&&
+        state.fullArchitectureDisplay!=='review'&&!!focus;
+    }
+    function key(info){return info.canvasId+':'+info.kind+':'+info.id+':'+(info.sourceSha||'none');}
+    function stillCurrent(){
+      if(!active||!current())return false;
+      var state=bridge.state(),remote=bridge.remote(),focus=state.unfoldingFocus;
+      return remote.canvasId===active.canvasId&&focus.kind===active.kind&&
+        focus.id===active.id&&(state.architectureRequestSha||null)===active.sourceSha;
+    }
+    function saveDraft(){
+      if(active)drafts[key(active)]=$('mentor-author-reply').value;
+    }
+    function base(){
+      return '/api/beginner/studio/canvases/'+encodeURIComponent(bridge.remote().canvasId)+'/mentor';
+    }
+    function line(tag,value,parent){
+      var element=document.createElement(tag);element.textContent=value;parent.appendChild(element);
+      return element;
+    }
+    function drawAdvice(result){
+      var host=$('mentor-advice');host.replaceChildren();
+      if(!result||result.status!=='ready'||!result.advice)return;
+      var advice=result.advice;
+      var title=line('strong','Mentor interpretation · Noncanonical',host);
+      if(advice.summary)line('p',advice.summary,host);
+      if(advice.explanation)line('p',advice.explanation,host);
+      if(advice.author_reply_interpretation)
+        line('p','Your reply interpreted as: '+advice.author_reply_interpretation,host);
+      if(advice.question)line('p','Question: '+advice.question,host);
+      if(advice.challenge){
+        line('p','Constructive challenge: '+advice.challenge,host);
+        line('small',advice.challenge_basis==='proposed_tension'?
+          'Attributable proposed tension, not an accepted contradiction.':
+          'Conditional creative hypothesis, not an established defect.',host);
+      }
+      (advice.directions||[]).forEach(function(item){
+        var box=line('div','',host);box.className='mentor-direction';
+        line('strong',item.title+' · '+item.divergence_axis.replaceAll('_',' '),box);
+        line('p','Mechanism: '+item.mechanism,box);
+        line('p','Consequence: '+item.consequence,box);
+        line('p','Tradeoff: '+item.tradeoff,box);
+        line('small',item.source_status==='source_bound_proposal'?
+          'Source-linked proposal · '+item.source_refs.join(', '):
+          'Model hypothesis · not accepted story',box);
+      });
+      if(advice.limitation)line('small','Limitations: '+advice.limitation,host);
+      line('small','Nothing here changes working or accepted story by itself.',host);
+    }
+    function render(){
+      var host=$('unfolding-mentor-dialogue');if(!host)return;
+      host.hidden=!stillCurrent();
+      if(host.hidden)return;
+      $('mentor-author-reply').disabled=busy;
+      $('mentor-send').disabled=busy;
+      $('mentor-complete').disabled=busy||!packet||packet.status!=='awaiting_host_agent';
+      $('mentor-handoff').hidden=!packet||packet.status!=='awaiting_host_agent';
+      $('mentor-status').textContent=notice;
+      $('mentor-request').textContent=packet&&packet.request?
+        JSON.stringify(packet.request,null,2):'';
+      drawAdvice(packet);
+    }
+    function show(info){
+      var remote=bridge.remote(),state=bridge.state();
+      if(!remote.ready||remote.failed||!current()||!info||!info.focusId){
+        bridge.status('Save the working canvas and select an architecture idea first.');return false;
+      }
+      var incoming={id:info.focusId,kind:state.unfoldingFocus.kind,
+        sourceSha:state.architectureRequestSha||null,canvasId:remote.canvasId};
+      if(state.unfoldingFocus.id!==incoming.id||incoming.kind!=='candidate'&&incoming.kind!=='working'){
+        bridge.status('Mentor focus has changed. Select the idea again.');return false;
+      }
+      if(active)saveDraft();
+      var changed=!active||key(active)!==key(incoming);
+      active=incoming;if(changed){packet=null;notice='Working advice only. The author decides what to keep.';}
+      $('mentor-author-reply').value=drafts[key(active)]||'';
+      render();return true;
+    }
+    async function prepare(purpose){
+      if(!active||!stillCurrent()||busy)return;
+      if(!['learn','explore','question','challenge','followup'].includes(purpose))return;
+      saveDraft();var selected={...active},reply=$('mentor-author-reply').value;
+      if(reply.length>2000){notice='Reply exceeds 2,000 characters.';render();return;}
+      busy=true;notice='Saving author edits before preparing the host-agent request…';render();
+      try{
+        await bridge.flush();
+        if(!stillCurrent()||bridge.remote().canvasId!==selected.canvasId)throw Error('Mentor focus changed.');
+        if(bridge.remote().failed)throw Error('Working canvas could not be saved.');
+        var response=await bridge.fetch(base()+'/prepare',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({focus_id:selected.id,focus_kind:selected.kind,
+            purpose:purpose,author_reply:reply})
+        }).then(bridge.apiJson);
+        if(!stillCurrent())throw Error('Mentor focus changed while request was prepared.');
+        packet=response;
+        notice='Host-agent request prepared. Use your coding agent to fulfill it; no provider was called automatically.';
+      }catch(error){notice='Mentor request not prepared: '+error.message;}
+      finally{busy=false;render();}
+    }
+    async function complete(){
+      if(!stillCurrent()||busy||!packet||packet.status!=='awaiting_host_agent')return;
+      var payload;
+      try{payload=JSON.parse($('mentor-response').value);}catch(error){
+        notice='Paste a complete HostAgentResponse JSON envelope, or fulfill through the CLI.';
+        render();return;
+      }
+      busy=true;render();
+      try{
+        var response=await bridge.fetch(base()+'/host-agent-response',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        }).then(bridge.apiJson);
+        if(!stillCurrent())throw Error('Mentor focus changed; result was not applied to this view.');
+        packet=response;notice=response.status==='ready'?
+          'Advice is ready to inspect. No story meaning has been accepted.':
+          'Mentor source changed; refresh before using advice.';
+      }catch(error){notice='Mentor response rejected: '+error.message;}
+      finally{busy=false;render();}
+    }
+    async function open(projection,purpose){
+      if(!show(projection))return;
+      return prepare(purpose||'explore');
+    }
+    async function resume(projection){
+      if(!show(projection))return;
+      busy=true;render();
+      try{
+        var response=await bridge.fetch(base()).then(bridge.apiJson);
+        if(!stillCurrent())throw Error('Focus changed.');
+        if(response.focus_id===active.id&&response.focus_kind===active.kind&&
+            response.status!=='stale')packet=response;
+        notice=packet?.status==='ready'?'Previous mentor advice restored as read-only.':
+          'No current advice for this focus. Choose a question or exploration.';
+      }catch(error){notice='Could not read mentor advice: '+error.message;}
+      finally{busy=false;render();}
+    }
+    $('mentor-author-reply').addEventListener('input',saveDraft);
+    $('mentor-send').addEventListener('click',function(){return prepare('followup');});
+    $('mentor-complete').addEventListener('click',complete);
+    $('mentor-dismiss').addEventListener('click',function(){saveDraft();active=null;packet=null;render();});
+    return {render,open,resume,prepare,complete};
+  }
+  global.AuteurStudioMentorDialogueController={create};
+})(window,document);
