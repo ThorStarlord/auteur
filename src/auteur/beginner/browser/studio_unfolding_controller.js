@@ -17,7 +17,9 @@
       return s.unfoldingFocus.kind==='working'&&s.items.some(x=>x.id===s.unfoldingFocus.id);
     }
     function current(){var s=bridge.state();if(!focusIsValid(s))return [];
-      return helper.projectLocalSuggestions(s.architecture,s.architectureRequestSha,s.unfoldingFocus,
+      var candidateReady=!s.architectureSourceStatus||s.architectureSourceStatus==='ready';
+      return helper.projectLocalSuggestions(candidateReady?s.architecture:null,
+        candidateReady?s.architectureRequestSha:null,s.unfoldingFocus,
         s.items,dismissed(),global.innerWidth<=480?2:3,s.unfoldingOffset||0);
     }
     function hasDirtyWorkingEditor(){
@@ -90,7 +92,8 @@
     function keepMentorIdea(choice){
       var s=bridge.state(),remote=bridge.remote();
       if(!choice||!s.unfoldingFocus||s.unfoldingFocus.id!==choice.focusId||
-          (s.architectureRequestSha||null)!==(choice.candidateSha||null)||
+          ((s.architectureSourceStatus&&s.architectureSourceStatus!=='ready'
+            ?null:s.architectureRequestSha)||null)!==(choice.candidateSha||null)||
           !Number.isInteger(choice.canvasRevision)||choice.canvasRevision!==remote.revision||
           !/^[a-f0-9]{64}$/.test(choice.mentorRequestSha||'')||
           !/^(directions\/[a-z][a-z0-9_-]{0,39}|interpretation|question)$/.test(choice.sourceRef||'')||
@@ -133,11 +136,14 @@
     function mentorProjection(target,suggestions){
       if(!global.AuteurStudioMentorship||!target)return null;
       var s=bridge.state();
+      var candidateReady=!s.architectureSourceStatus||s.architectureSourceStatus==='ready';
+      if(s.unfoldingFocus?.kind==='candidate'&&!candidateReady)return null;
       var context=global.AuteurStudioMentorContext?
         global.AuteurStudioMentorContext.project(s,target,s.unfoldingFocus?.kind):null;
       return global.AuteurStudioMentorship.project({
-        focus:target,focusKind:s.unfoldingFocus?.kind,candidate:s.architecture,
-        requestSha:s.architectureRequestSha,suggestions:suggestions,authorContext:context
+        focus:target,focusKind:s.unfoldingFocus?.kind,candidate:candidateReady?s.architecture:null,
+        requestSha:candidateReady?s.architectureRequestSha:null,
+        suggestions:candidateReady?suggestions:[],authorContext:context
       });
     }
     function renderMentor(target,suggestions){
