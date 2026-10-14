@@ -122,7 +122,7 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
     vision = next((i.content for i in canvas.items if i.id == "story-vision"), "")
     related = []
     allowed_refs = {"canvas/items/" + i.id for i in canvas.items}
-    if candidate and request_sha:
+    if architecture['status'] == 'ready' and candidate and request_sha:
         allowed_refs.update("nodes/" + n["id"] for n in candidate.get("nodes", []))
         for index, link in enumerate(candidate.get("links", [])):
             if link["source"] == focus_id or link["target"] == focus_id:
@@ -218,10 +218,13 @@ def complete_mentor(store: CanvasStore, payload: dict) -> dict:
         if any(d.source_status == "source_bound_proposal" and not d.source_refs
                for d in advice.directions):
             raise ValueError("source-bound mentor direction needs actual provenance")
-        if advice.challenge_basis == "proposed_tension" and not any(
-            ref.startswith("links/") for ref in advice.source_refs
-        ):
-            raise ValueError("proposed-tension challenge needs an actual linked source")
+        if advice.challenge_basis == "proposed_tension":
+            tension_verbs = {"contrasts", "conflicts", "contradicts", "opposes",
+                             "undermines", "creates_tension"}
+            relations = {edge["source_ref"] for edge in context["context"]["proposed_relations"]
+                         if edge["function"].strip().lower() in tension_verbs}
+            if not relations.intersection(advice.source_refs):
+                raise ValueError("proposed-tension challenge needs an actual tension link")
         written = _read(base / "response.json")
         value = {"response": response.model_dump(), "advice": advice.model_dump(mode="json")}
         if written and written != value:
