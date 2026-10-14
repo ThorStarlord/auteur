@@ -4,7 +4,7 @@
   'use strict';
   function create(bridge){
     function $(id){return document.getElementById(id);}
-    var active=null,drafts=Object.create(null),packet=null,busy=false,notice='';
+    var active=null,drafts=Object.create(null),packet=null,busy=false,notice='',chosen=null;
     function current(){
       var state=bridge.state(),focus=state.unfoldingFocus;
       return state.workspace==='architecture'&&state.view==='architecture'&&
@@ -27,6 +27,40 @@
     function line(tag,value,parent){
       var element=document.createElement(tag);element.textContent=value;parent.appendChild(element);
       return element;
+    }
+    function choose(title,content,sourceRef){
+      if(!stillCurrent()||!packet||packet.status!=='ready')return;
+      var remote=bridge.remote();
+      if(packet.canvas_revision!==remote.revision||
+          (packet.candidate_request_sha256||null)!==active.sourceSha){
+        notice='Mentor advice is stale; no working change can be prepared.';render();return;
+      }
+      chosen={sourceRef:sourceRef};
+      $('mentor-working-title').value=title.slice(0,120);
+      $('mentor-working-content').value=content.slice(0,20000);
+      $('mentor-keep-status').textContent='Review or edit before choosing to save; nothing is accepted automatically.';
+      render();
+    }
+    async function keep(){
+      if(!chosen||!stillCurrent()||busy||!packet||packet.status!=='ready')return;
+      var choice={
+        title:$('mentor-working-title').value,content:$('mentor-working-content').value,
+        sourceRef:chosen.sourceRef,mentorRequestSha:packet.mentor_request_sha256,
+        canvasRevision:packet.canvas_revision,
+        candidateSha:packet.candidate_request_sha256,focusId:active.id
+      };
+      if(!bridge.saveWorking){
+        $('mentor-keep-status').textContent='Working save unavailable; nothing changed.';return;
+      }
+      busy=true;render();
+      try{
+        var saved=await bridge.saveWorking(choice);
+        $('mentor-keep-status').textContent=saved?
+          'Confirmed as working architecture, NOT canon.':
+          'Working save not confirmed. Your preview is still editable.';
+        if(saved)chosen=null;
+      }catch(e){$('mentor-keep-status').textContent='Working save failed: '+e.message;}
+      finally{busy=false;render();}
     }
     function drawAdvice(result){
       var host=$('mentor-advice');host.replaceChildren();
@@ -53,7 +87,24 @@
         line('small',item.source_status==='source_bound_proposal'?
           'Source-linked proposal · '+item.source_refs.join(', '):
           'Model hypothesis · not accepted story',box);
+        var action=line('button','Review as working idea',box);
+        action.type='button';action.addEventListener('click',function(){
+          var content='AI PROPOSAL — not accepted story\n\nMechanism: '+item.mechanism+
+            '\nConsequence: '+item.consequence+'\nTradeoff: '+item.tradeoff+
+            '\n\nAuthor\'s original answer (if any): '+(result.author_reply||'')+
+            '\n\nReview and rewrite this proposal in your own words.';
+          choose(item.title,content,'directions/'+item.id);
+        });
       });
+      if(advice.author_reply_interpretation){
+        var interpret=line('button','Review interpretation as working idea',host);
+        interpret.type='button';interpret.addEventListener('click',function(){
+          choose('Interpretation of '+(active?.id||'story'),
+            'AUTHOR ANSWER (verbatim): '+(result.author_reply||'')+
+            '\n\nAI INTERPRETATION — noncanonical:\n'+advice.author_reply_interpretation,
+            'interpretation');
+        });
+      }
       if(advice.limitation)line('small','Limitations: '+advice.limitation,host);
       line('small','Nothing here changes working or accepted story by itself.',host);
     }
@@ -66,6 +117,8 @@
       $('mentor-complete').disabled=busy||!packet||packet.status!=='awaiting_host_agent';
       $('mentor-handoff').hidden=!packet||packet.status!=='awaiting_host_agent';
       $('mentor-status').textContent=notice;
+      $('mentor-working-preview').hidden=!chosen||!packet||packet.status!=='ready';
+      $('mentor-keep').disabled=busy;
       $('mentor-request').textContent=packet&&packet.request?
         JSON.stringify(packet.request,null,2):'';
       drawAdvice(packet);
@@ -83,7 +136,7 @@
       }
       if(active)saveDraft();
       var changed=!active||key(active)!==key(incoming);
-      active=incoming;if(changed){packet=null;notice='Working advice only. The author decides what to keep.';}
+      active=incoming;if(changed){packet=null;chosen=null;notice='Working advice only. The author decides what to keep.';}
       $('mentor-author-reply').value=drafts[key(active)]||'';
       render();return true;
     }
@@ -95,7 +148,7 @@
         notice='Save working-idea edits before requesting mentorship.';render();return;
       }
       if(reply.length>2000){notice='Reply exceeds 2,000 characters.';render();return;}
-      busy=true;notice='Saving author edits before preparing the host-agent request…';render();
+      busy=true;chosen=null;notice='Saving author edits before preparing the host-agent request…';render();
       try{
         await bridge.flush();
         if(!stillCurrent()||bridge.remote().canvasId!==selected.canvasId)throw Error('Mentor focus changed.');
@@ -125,7 +178,7 @@
           body:JSON.stringify(payload)
         }).then(bridge.apiJson);
         if(!stillCurrent())throw Error('Mentor focus changed; result was not applied to this view.');
-        packet=response;notice=response.status==='ready'?
+        packet=response;chosen=null;notice=response.status==='ready'?
           'Advice is ready to inspect. No story meaning has been accepted.':
           'Mentor source changed; refresh before using advice.';
       }catch(error){notice='Mentor response rejected: '+error.message;}
@@ -142,7 +195,7 @@
         var response=await bridge.fetch(base()).then(bridge.apiJson);
         if(!stillCurrent())throw Error('Focus changed.');
         if(response.focus_id===active.id&&response.focus_kind===active.kind&&
-            response.status!=='stale')packet=response;
+            response.status!=='stale'){packet=response;chosen=null;}
         notice=packet?.status==='ready'?'Previous mentor advice restored as read-only.':
           'No current advice for this focus. Choose a question or exploration.';
       }catch(error){notice='Could not read mentor advice: '+error.message;}
@@ -154,7 +207,8 @@
     });
     $('mentor-send').addEventListener('click',function(){return prepare('followup');});
     $('mentor-complete').addEventListener('click',complete);
-    $('mentor-dismiss').addEventListener('click',function(){saveDraft();active=null;packet=null;render();});
+    $('mentor-keep').addEventListener('click',keep);
+    $('mentor-dismiss').addEventListener('click',function(){saveDraft();active=null;packet=null;chosen=null;render();});
     return {render,open,resume,prepare,complete};
   }
   global.AuteurStudioMentorDialogueController={create};
