@@ -15,6 +15,7 @@
   state.fullArchitectureEvidence = null;
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
+  state.architectureSourceStatus = "not_started";
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
   state.realizationStale = false;
@@ -162,6 +163,7 @@
       state.facetSelection = null;
     }
     state.architecture = projection.candidate;
+    state.architectureSourceStatus = projection.status;
     if (state.selectedPhase && (!state.architecture ||
         !state.architecture.phases.some(function (p) { return p.id === state.selectedPhase; })))
       state.selectedPhase = null;
@@ -470,6 +472,7 @@
   }
   function loadRemote(doc) {
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
+    state.architectureSourceStatus = "not_started";
     state.selectedPhase = null;
     state.candidatePositions = {}; state.selectedCandidate = null;
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
