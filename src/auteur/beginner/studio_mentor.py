@@ -243,8 +243,9 @@ def complete_mentor(store: CanvasStore, payload: dict) -> dict:
             raise ValueError("mentor host-agent response must be an object")
         try:
             response = validate_host_agent_response(request, payload)
-        except TypeError as exc:
-            # A missing envelope field is a caller error, not HTTP 500.
+        except (TypeError, AttributeError) as exc:
+            # Missing fields, null text, or an invalid time are input errors,
+            # not server failures. Keep the pending request available to retry.
             raise ValueError("malformed mentor host-agent response envelope") from exc
         advice = MentorAdvice.model_validate_json(response.text, strict=True)
         if advice.focus_id != request.settings["focus_id"]:
