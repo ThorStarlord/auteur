@@ -25,7 +25,7 @@ function setup(){
  'unfolding-mentor-dialogue','mentor-author-reply','mentor-send','mentor-refresh',
  'mentor-complete','mentor-dismiss','mentor-status','mentor-request','mentor-advice',
  'mentor-handoff','mentor-response','mentor-working-preview','mentor-working-title',
- 'mentor-working-content','mentor-keep','mentor-keep-status'];
+ 'mentor-working-content','mentor-keep','mentor-discard-preview','mentor-keep-status'];
  const els=new Map(ids.map(id=>[id,new El(id)]));
  const doc={getElementById:id=>els.get(id),querySelectorAll:()=>[],
   querySelector:()=>null,createElement:tag=>new El(tag)};
