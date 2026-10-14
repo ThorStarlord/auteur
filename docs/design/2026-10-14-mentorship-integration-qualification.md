@@ -28,8 +28,8 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence:** exact-source JavaScript simulator checks passed (20 controller,
-10 dialogue, 2 combined journey, at last recorded checkpoint).
+**Actual evidence:** exact-source JavaScript simulator checks passed (15 model/context,
+20 controller, 10 dialogue, 2 combined journey: 47/47 isolated checks).
 **NOT established:** exact Node test process; Python/persistence/HTTP suite; complete
 served browser; accessibility with a screen reader; a capable live coding agent fulfilling
 a real mentor request; author creative outcomes or 390px screenshot acceptability.
@@ -141,7 +141,7 @@ permanent chat column, new ontology or speculative personalized agent storage.
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
 | Source files and regression specifications exist | GitHub commit/ref and diff | Established on draft stack |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | Focused 20; dialogue 10; combined 2 PASS |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | Model/context 15; focused 20; dialogue 10; combined 2 PASS |
 | Runnable repository integration | Current main + assembled branch + build/run | Not established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
