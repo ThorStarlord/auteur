@@ -364,3 +364,17 @@ body.scene-docked #inspector { display:none; }
 .review-disclaimer{border-top:1px solid #eee8f0;padding-top:15px;color:#8c8294;font-size:.79rem}
 @media(max-width:760px){.full-grid,.review-items{grid-template-columns:minmax(0,1fr)}#studio-full-architecture,#studio-review-architecture{padding:12px}.full-cluster{padding:15px}.full-hero{padding:17px}.studio-full-modes span{margin-left:0;width:100%}}
 @media(max-width:480px){.studio-full-modes{gap:6px}.studio-full-modes button{font-size:.77rem;padding:9px 10px}.full-hero h2{font-size:1.9rem}.full-cluster h3{font-size:1.23rem}}
+
+/* Mentorship appears within focused unfolding, never as another persistent sidebar. */
+.unfolding-mentor{margin:8px 0;display:grid;gap:6px}
+.unfolding-mentor[hidden],.unfolding-ghosts[hidden],.unfolding-explanation[hidden],
+#unfolding-more[hidden]{display:none!important}
+.mentor-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+.mentor-tabs button{font-size:.7rem;padding:6px 2px;background:#f7f5f9;color:#50465a;
+ border:1px solid #e0d8e8;border-radius:6px;min-height:32px}
+.mentor-tabs button[aria-pressed=true]{background:#eadcf4;border-color:#795a97;font-weight:700}
+.mentor-body{padding:9px;background:#f7f4f9;border:1px solid #e7deec;border-radius:8px;
+ font-size:.78rem;line-height:1.45;overflow-wrap:anywhere}
+.mentor-body p{margin:6px 0}.mentor-body small{display:block;margin:5px 0;color:#6f6078}
+.mentor-body button{display:block;margin-top:7px;min-height:34px;font-size:.72rem;width:100%}
+.mentor-tabs button:focus-visible,.mentor-body button:focus-visible{outline:3px solid #795a97;outline-offset:2px}
