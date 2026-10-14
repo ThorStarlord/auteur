@@ -2222,6 +2222,10 @@
     fetch:function(url,config){return fetch(url,config);},
     apiJson:apiJson,status:status,
     saveWorking:function(payload){
+      if(!mentorEditorClean()){
+        status('Save your unsaved working-idea edits before keeping mentor advice.');
+        return Promise.resolve(false);
+      }
       return unfoldingController.keepMentorIdea(payload);
     }
   });
