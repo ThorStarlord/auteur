@@ -144,7 +144,9 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
     related = []
     questions = []
     candidate_ready = architecture["status"] == "ready" and bool(candidate) and bool(request_sha)
-    if candidate_ready:
+    # Working canvas IDs and agent-candidate node IDs are independent
+    # namespaces. Matching strings do not establish a relation between them.
+    if candidate_ready and focus_kind == "candidate":
         questions = candidate.get("open_questions", [])[:8]
         allowed_refs.update("open_questions/" + str(i) for i in range(len(questions)))
         if focus_kind == "candidate":
