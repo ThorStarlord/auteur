@@ -28,9 +28,9 @@ Source work is distributed across:
 - #433 progressive-disclosure/quiet UI;
 - #434 combined synthetic authoring journey.
 
-**Actual evidence at the #436 integrated source checkpoint:** 76/76 isolated
-JavaScript simulation checks passed: 15 model/context, 20 Focused Unfolding,
-10 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
+**Actual evidence at the latest #436 integrated source checkpoint:** 81/81 isolated
+JavaScript simulation checks passed: 15 model/context, 22 Focused Unfolding,
+13 dialogue, 2 combined creative journey, 11 local suggestion/adoption,
 8 Full Architecture and 10 explanation-view checks. HTML script-route, duplicate-ID
 and classic-JavaScript syntax checks also passed. None are real served-browser tests.
 **NOT established:** exact Node test process; Python/persistence/HTTP suite; complete
@@ -65,6 +65,33 @@ available until the integrated source is proven equivalent.
 the repository and Python/Node/Chromium dependencies. Reconfirm latest `main`
 before integration promotion; if it advanced, reconcile real differences rather
 than force-pushing or fabricating a merge.
+
+
+### Integration hardening after initial assembly
+
+Source review identified bounded authority and data-loss defects, repaired on
+the same integration PR rather than starting another feature stack:
+
+- Backend mentor context now cites **only actually disclosed** working and
+  candidate sources, never hidden working items or stale candidate questions.
+  Connected candidate summaries, relation verbs and candidate authority are
+  included where properly source-bound.
+- Working item IDs are independent from AI candidate node IDs. Equal ID text
+  cannot silently transfer candidate links or open questions to working notes.
+- A malformed host-agent response missing required envelope fields is a
+  **400-class client validation error**, not an opaque HTTP 500; the pending
+  mentor request and working canvas remain intact.
+- Mentor dialogue clears previously visible advice and Keep controls after
+  canvas/source changes or a stale server response, not merely at save time.
+- The shared working-command controller refuses to create/keep questions or
+  adopt local/agent suggestions while the working editor has unsaved text.
+  Explicit Save of that editor remains available.
+
+**Regression additions:** six focused Python/HTTP cases for source visibility,
+stale sources, independent node-ID namespaces and malformed envelopes; five
+JavaScript tests across conversational and Focused Unfolding controls. The
+JavaScript cases were executed in isolation against exact GitHub source bytes;
+the new Python and real HTTP tests are still **NOT RUN**.
 
 ## M1 — real Studio mechanical qualification
 
@@ -148,7 +175,7 @@ permanent chat column, new ontology or speculative personalized agent storage.
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
 | Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 76/76 focused source checks PASS; not browser |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 81/81 focused source checks PASS; not browser |
 | Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
 | Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
 | Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
