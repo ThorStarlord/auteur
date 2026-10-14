@@ -39,7 +39,7 @@ function fixture(){
   resumeMentor:projection=>hostRequests.push({projection,purpose:'resume'}),
   status:text=>statuses.push(text),remember:()=>{}};
  const ctrl=win.AuteurStudioUnfoldingController.create(bridge);
- return{state,remote,ctrl,win,doc,els,posted,saved,hostRequests,statuses,nodeElements};
+ return{state,remote,ctrl,win,doc,els,posted,saved,hostRequests,statuses,nodeElements,bridge};
 }
 
 test('render is read-only and shows declared focus-local ghosts',()=>{
