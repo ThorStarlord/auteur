@@ -353,3 +353,15 @@ test('working editor can still explicitly save its own dirty contents',async()=>
  assert.equal(f.posted[0].action,'update-item');
  assert.equal(f.posted[0].command.payload.item.content,'Revised author prose');
 });
+
+test('stale candidate does not expose mentor links or auto-trigger a new request',()=>{
+ const f=fixture();
+ f.state.architectureSourceStatus='stale';
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-mentor').hidden,true);
+ assert.equal(f.hostRequests.length,0);
+ assert.equal(f.posted.length,0);
+ f.state.architectureSourceStatus='ready';
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-mentor').hidden,false);
+});
