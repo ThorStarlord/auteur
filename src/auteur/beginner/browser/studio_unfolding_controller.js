@@ -89,9 +89,11 @@
     function mentorProjection(target,suggestions){
       if(!global.AuteurStudioMentorship||!target)return null;
       var s=bridge.state();
+      var context=global.AuteurStudioMentorContext?
+        global.AuteurStudioMentorContext.project(s,target,s.unfoldingFocus?.kind):null;
       return global.AuteurStudioMentorship.project({
         focus:target,focusKind:s.unfoldingFocus?.kind,candidate:s.architecture,
-        requestSha:s.architectureRequestSha,suggestions:suggestions
+        requestSha:s.architectureRequestSha,suggestions:suggestions,authorContext:context
       });
     }
     function renderMentor(target,suggestions){
@@ -122,6 +124,17 @@
         add('strong','Why this matters',body);
         add('p',projection.definition,body);
         if(projection.inStory)add('p','In this story: '+projection.inStory,body);
+        var context=projection.authorContext;
+        if(context){
+          var details=add('details','',body);
+          var summary=add('summary','What Auteur knows and does not know',details);
+          if(context.storyVision.text)add('p','Author working Story Vision: '+context.storyVision.text,details);
+          else add('p','No author Story Vision supplied yet.',details);
+          if(context.declaredEdges.length)add('p',context.declaredEdges.length+
+            ' linked candidate relation(s) available. These are proposals, not accepted facts.',details);
+          add('small',context.acceptedIdentity.note,details);
+          add('small',context.genreEvidence.note,details);
+        }
         add('small',projection.evidenceNote,body);
         var perspective={genre:'genres',trope:'tropes',structure:'structure',engine:'structure',
           emotion:'emotions',reader_experience:'emotions'}[projection.role];
