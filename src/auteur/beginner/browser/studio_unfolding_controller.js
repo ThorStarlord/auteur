@@ -162,7 +162,7 @@
       var visible=mode==='explore';
       $('unfolding-ghosts').hidden=!visible;
       $('unfolding-more').hidden=!visible;
-      $('unfolding-explanation').hidden=!visible||!s.unfoldingInspected;
+      $('unfolding-explanation').hidden=!visible||!suggestions.some(x=>x.id===s.unfoldingInspected);
     }
     function stillFocused(p){
       var s=bridge.state();
