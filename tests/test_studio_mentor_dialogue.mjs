@@ -16,7 +16,7 @@ function fixture(){
  const ids=['unfolding-mentor-dialogue','mentor-author-reply','mentor-send','mentor-refresh',
   'mentor-complete','mentor-dismiss','mentor-status','mentor-request','mentor-advice',
   'mentor-handoff','mentor-response','mentor-working-preview','mentor-working-title',
-  'mentor-working-content','mentor-keep','mentor-keep-status'];
+  'mentor-working-content','mentor-keep','mentor-discard-preview','mentor-keep-status'];
  const elements=new Map(ids.map(id=>[id,new El(id)]));
  const doc={getElementById:id=>elements.get(id),createElement:t=>new El(t)};
  const win={};new Function('window','document',source)(win,doc);
