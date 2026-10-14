@@ -2188,7 +2188,10 @@
       return hasUnsavedChanges()?queueSave():remote.queue;
     },
     fetch:function(url,config){return fetch(url,config);},
-    apiJson:apiJson,status:status
+    apiJson:apiJson,status:status,
+    saveWorking:function(payload){
+      return unfoldingController.keepMentorIdea(payload);
+    }
   });
   fullArchitectureController = window.AuteurStudioFullArchitectureController.create({
     getState: function(){return state;}, getRemote: function(){return remote;},
