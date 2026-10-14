@@ -9,7 +9,8 @@
     const candidate=state?.architecture;
     const nodes=Array.isArray(candidate?.nodes)?candidate.nodes:[];
     const links=Array.isArray(candidate?.links)?candidate.links:[];
-    const sourceSha=/^[a-f0-9]{64}$/.test(state?.architectureRequestSha||'')?
+    const candidateReady=state?.architectureSourceStatus===undefined||state.architectureSourceStatus==='ready';
+    const sourceSha=candidateReady&&/^[a-f0-9]{64}$/.test(state?.architectureRequestSha||'')?
       state.architectureRequestSha:null;
     const vision=items.find(x=>x.id==='story-vision');
     const visionContent=slice(vision?.content,900);
