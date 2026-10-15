@@ -8,18 +8,18 @@ Short operational handoff only; history belongs in Git, PRs, issues, qualificati
 
 ## Current Frontier: F2 + X3
 
-Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journey began against the exact merged baseline above and stopped at Chapter 1 after a demonstrated Windows persistence defect.
+Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journey began against the exact merged baseline above. The Windows persistence defect was repaired and passed a clean Chapter 1 retry; the controlled run stopped at Chapter 2 after repeated under-target chapter prose.
 
 - The first Chapter completion wrote LF candidate text as CRLF, so its persisted bytes did not match the completion receipt hash. Acceptance then encountered the same translation in `final.md`.
 - `Project.write_draft` and `Project.write_final` now preserve LF bytes; byte-level regression assertions were added. Focused chapter-generation, acceptance, and project persistence tests pass (34 tests).
-- The exact Chapter 1 host-agent response completed and was explicitly accepted in the disposable fixture after the repair. The generated scene was 946 words. No later Chapter has been run, so F2/X3 has **not** passed its journey gate.
-- The failed pre-repair acceptance had already written Bible events before the wrapper rejected the CRLF final. Retrying that interrupted operation duplicated authority events in the disposable fixture. This is recorded as a consequence of the failed attempt, not a clean-run outcome. No production story was used.
+- On a clean fixture, Chapter 1 (946 words) completed and was explicitly accepted. Draft and final bytes matched; reopening showed Chapter 2, recent accepted facts, and the next action. The earlier interrupted fixture had duplicate Bible events from retrying its CRLF acceptance failure; those records were confined to that disposable project.
+- The generated Chapter 2 outline was corrected before drafting so Sister Beatrice and Saint Orra were absent from the initial plan, as the frozen fixture requires. Chapter 2 then surfaced Beatrice, Saint Orra and historical ledger evidence in a 965-word Working candidate. Both Chapter outputs were below the requested 1,066-word minimum. Chapter 2 remains unaccepted; the run stopped at this recurring under-target output. F2 and X3 are blocked/incomplete, not passed. No production story was used.
 
 The repair is committed as `c17771db218565625915fd9d90b6cb9f2fd5a396` on top of merge SHA `4122321`. At this code SHA, Node passed 64/64, focused mentorship Python passed 28, `-k studio` exited successfully (163 tests), and Stage B passed 16/16. The full Python run collected 5,617: 5,599 passed, 16 failed, 2 skipped; all 16 failure IDs were reproduced with the same assertions on exact merge baseline. This is engineering regression evidence, not completion of the F2/X3 book journey. Continue from a clean fixture at Chapter 1, then proceed only while the controlled checkpoint succeeds.
 
 ## Quick Draft (#310)
 
-Four real host-agent Quick Draft scenarios were run (mystery, character-driven, speculative, intentionally vague). Each generated response remained a Working draft (`accepted: false`). The complete requests, responses, outputs, hashes, and measured word counts are in [post-#436 product-use evidence](qualification-evidence/4122321-post436-product-use.json).
+Four core host-agent Quick Draft scenarios were run (mystery, character-driven, speculative, intentionally vague), plus the requested Sister Beatrice / convent follow-up. All generated responses remained Working drafts (`accepted: false`). The follow-up selected only Sister Beatrice and the convent for a noncanonical handoff; other detected discoveries were excluded. The complete requests, responses, outputs, hashes, and measured word counts are in [post-#436 product-use evidence](qualification-evidence/4122321-post436-product-use.json).
 
 Observed issue: a Browser session displayed `awaiting_host_agent`, disabled its editor, and did not expose the request prompt/hash in the page. No natural notification to the active coding-agent environment was observed; this run required task context and local request inspection. The API accepted a response, but the page did not update during the observed wait; reopening the session displayed the saved draft. This does not establish a general host bridge or successful unattended fulfillment.
 
@@ -40,7 +40,7 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 The merged work is integrated development work. The Windows repair has exact-SHA regression evidence, with the full-suite failures matching the tested baseline; the controlled F2/X3 journey remains incomplete. Do not call F2/X3 complete or the experience product-ready yet.
 
-1. Resume the controlled Glass Archive from a clean fixture at Chapter 1; continue through the frozen checkpoints only while author authority and narrative state persist correctly.
+1. Decide whether to repair host-agent target-length adherence; if so, change only the demonstrated prompt/runtime boundary, then resume from the clean accepted Chapter 1 state and corrected Chapter 2 plan.
 2. Reconcile issue #318 using the actual journey evidence.
 3. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
 4. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
