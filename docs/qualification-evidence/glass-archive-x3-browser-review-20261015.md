@@ -106,6 +106,36 @@ count.
 - **Human UX:** not tested. No comfort, preference, cognitive-load, product
   quality, or production-readiness claim is made.
 
+## Follow-up graph-first navigation and re-entry evidence
+
+The owner-selected direction remains the graph-first Studio documented in
+`docs/design/2026-10-09-living-story-studio.md`. The earlier comparison of
+compact, graph-first, and manuscript/map compositions is retained as tradeoff
+analysis; the manuscript/map layout is an interaction composition, not a
+replacement product direction.
+
+At exact code SHA `aabfe577068f383887709e7bbc695261634e3d66`, an automated
+Chromium run used the disposable project
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-navigation-v2-20261015/project`,
+copied from the complete fixture at
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-fixture-complete-20261015/project`.
+It observed: a completed Book orientation on Studio entry; Chapter 2 marked
+Kept in the graph; the Chapter action opening the existing
+`/beginner.html?chapter=2` review route with its 8,269-character accepted prose;
+browser Back returning to the Book graph; and completed Book orientation after
+reopening the explicit canvas URL. At 390px the document had no horizontal
+overflow. No page errors occurred, and all 89 non-Studio fixture files matched
+the source hashes after the journey.
+
+`node --check` passed for both affected Browser scripts. Focused Browser tests
+passed, and `scripts/studio_stage_b_check.py` passed 16/16 on that SHA. One
+intermediate Stage B attempt failed during its restart/reopen step; a repeat on
+the same source passed all 16 checks. The focused check does not test author
+comprehension. The baseline-identical `test_book_progress_reuses_accepted_book_as_publication_preflight`
+failure remains a separate Python test issue and was not weakened or skipped.
+This is bounded automated Browser behavior evidence, not human UX validation
+or product readiness.
+
 ## Interface concepts explored
 
 The concepts below are low-fidelity interaction sketches grounded in the
@@ -172,19 +202,18 @@ reconciliation, and canon.
 
 ## Selected direction and next boundary
 
-Select the **hybrid** as the long-term direction, with a compact progressive
-workspace as its default surface and the graph as an optional structural view.
-This follows the observed task failure: authors need accepted/Working status
-and the next action before an empty spatial canvas, while the graph remains
-useful for inspecting relationships and whole-story shape. A compact-only
-workspace was not selected as the whole interface because it would under-serve
-spatial structure work; graph-first was not selected as the default because the
-current Book map cannot open a Chapter manuscript and initially hid the Book's
-orientation.
+The owner-selected **graph-first Studio** remains the product direction, as
+specified in `docs/design/2026-10-09-living-story-studio.md`. The hybrid and
+compact concepts are useful interaction compositions and comparison points;
+they do not replace the spatial work surface. The documented tradeoffs remain
+useful: graph-first supports spatial structure work, compact progressive
+disclosure emphasizes current status and next action, and a manuscript/map
+composition can bring prose closer to structural context while keeping the map
+derived.
 
-The implemented change is only the reversible Book-view boundary fix described
-above. The next evidence-led responsibility is to improve density and give each
-Chapter a clear manuscript/review destination in the hybrid surface. Do not
-claim the current Beginner UI is a design-quality baseline, do not add a second
-story-state owner, and do not treat these automated Browser observations as
-human UX validation.
+The bounded implementation now connects the graph-first Chapter node to the
+existing manuscript/review route and restores Book orientation when a saved
+Studio canvas is reopened. This is a reversible interaction repair over
+existing source-bound Book state, not a second story owner. Further work should
+follow observed Browser defects; automated evidence does not establish a
+design-quality baseline, human usability, or product readiness.

@@ -21,19 +21,26 @@ and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-revi
   story quality.
 - **X3 persistence:** API/file-level pass. Six accepted final prose files
   matched the recorded SHA-256 values after a fresh process load.
-- **X3 Browser experience:** not qualified. Serving the Book first showed a
-  false Chapter 7 action and hid orientation in the default Architecture tab.
-  Local candidate `bb98998baeedb1aaae1c564a48f5dd79732e4383` fixes those two
-  Book-view defects; history density, manuscript navigation, and restoration of
-  Book orientation after reopening remain unresolved.
+- **X3 Browser experience:** the initial completed-Book projection defects
+  were repaired on the unmerged local candidate. At
+  `aabfe577068f383887709e7bbc695261634e3d66`, automated Chromium on a
+  disposable complete fixture verified Book orientation on re-entry, Chapter
+  2 navigation to its accepted manuscript/review, return to the graph, and
+  390px viewport fit with all 89 non-Studio source files unchanged. Long Book
+  details now collapse behind disclosure controls. This is bounded automated
+  behavior evidence; broader Browser experience and human UX remain
+  unqualified.
 - **Human UX:** not tested. No comfort, preference, usability, or production
   readiness claim follows from automated Browser interaction or simulated
   author decisions.
 
 The local X3 repair candidate is separate from integrated `main`; no merge or
-release is claimed. Its focused tests passed 4/4 and Stage B Chromium passed
-16/16. One existing book-progress assertion fails identically on this candidate
-and unchanged `main`; see the Browser review record.
+release is claimed. On the recorded candidate SHA, focused Browser checks
+passed 11/11 and Stage B Chromium passed 16/16. The
+`test_book_progress_reuses_accepted_book_as_publication_preflight` assertion
+fails identically on the candidate and exact-main checkout (4 passed, 1 failed
+in that file on each); it was not weakened or skipped. See the updated Browser
+review record for the exact disposable project and observed route.
 
 ## Historical Windows execution — 2026-10-14
 
@@ -67,10 +74,10 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 ## Claim ceiling and next execution
 
-The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds a separate, bounded F2 simulated-author and X3 persistence result. The overall X3 Browser experience and human UX remain unqualified; the Browser review identifies the next UX work and its exact limitations.
+The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds separate, bounded F2 simulated-author, X3 persistence, and automated Browser results. Human UX remains untested; the Browser review records the remaining density and interaction questions.
 
 1. Keep the Chapter-generation length deviation visible; the reconstructed run preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
-2. Improve Chapter navigation and reduce long-history density at the existing Browser projection boundary.
+2. Continue graph-first Studio improvements at the existing projection boundary, keeping provenance and suggested changes available and testing their comprehension with authors before making human UX claims.
 3. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
 4. Use a human walkthrough before making human UX or product-readiness claims.
 
