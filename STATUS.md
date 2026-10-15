@@ -1,7 +1,8 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-14
-**Integrated baseline:** `main @ 4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
+**Last reconciled:** 2026-10-15
+**Current integrated main:** `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c` (PR #438 merge)
+**Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
