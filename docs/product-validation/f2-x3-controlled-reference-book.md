@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Tracking:** #318  
-**Status:** PREPARED TEST FIXTURE / NOT YET ACTIVE  
+**Status:** FROZEN REFERENCE FIXTURE / ACTIVE F2+X3 FRONTIER / EXECUTION PENDING  
 **Purpose:** provide one frozen six-Chapter story for longitudinal coherence and persistent-workspace qualification.
 
 ## Why this fixture exists
@@ -456,9 +456,21 @@ It cannot by itself establish:
 
 Those claims require their own evidence.
 
-## Activation
+## Execution status — 2026-10-14
 
-This fixture is prepared but inactive.
+This is the **active, frozen six-Chapter story for #318**. The prior #313
+activation prerequisite is satisfied; no new Book fixture or general
+beginner-persona test campaign is necessary. Preserve the Chapter-by-Chapter
+injections, original chronology, accepted facts, unknowns, and separate
+narrative (F2) versus experience (X3) questions.
 
-Activate only when #313 selects/reaffirms #318 after consuming #310 provider
-evidence and qualified #316 evidence.
+Use contemporary integrated `main` (current checkpoint
+`4122321fe09d1959278fdd087fc29f85e2f3a9d2`) and record the exact
+target-runtime commit and session artifacts. No complete Glass Archive run
+or actual host-agent six-Chapter generation has been produced by the
+current connected-container session.
+
+**Activation != PASS.** If execution is unavailable, report the environment
+boundary in #318 without inventing a transcript, accepted prose or author
+decision. The optional evidence-link candidate #343 is unmerged; inspect
+actual Chapter-6 context before admitting it as a solution.
