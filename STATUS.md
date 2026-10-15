@@ -15,7 +15,7 @@ Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journe
 - The exact Chapter 1 host-agent response completed and was explicitly accepted in the disposable fixture after the repair. The generated scene was 946 words. No later Chapter has been run, so F2/X3 has **not** passed its journey gate.
 - The failed pre-repair acceptance had already written Bible events before the wrapper rejected the CRLF final. Retrying that interrupted operation duplicated authority events in the disposable fixture. This is recorded as a consequence of the failed attempt, not a clean-run outcome. No production story was used.
 
-The repair is currently an uncommitted worktree change based on merge SHA `4122321`; it is not yet a new exact-head qualification or a merged fix. Continue from a clean fixture after establishing an exact candidate SHA, then resume at Chapter 1 and proceed only while the same controlled checkpoint succeeds.
+The repair is committed as `c17771db218565625915fd9d90b6cb9f2fd5a396` on top of merge SHA `4122321`. At this code SHA, Node passed 64/64, focused mentorship Python passed 28, `-k studio` exited successfully (163 tests), and Stage B passed 16/16. The full Python run collected 5,617: 5,599 passed, 16 failed, 2 skipped; all 16 failure IDs were reproduced with the same assertions on exact merge baseline. This is engineering regression evidence, not completion of the F2/X3 book journey. Continue from a clean fixture at Chapter 1, then proceed only while the controlled checkpoint succeeds.
 
 ## Quick Draft (#310)
 
@@ -38,13 +38,12 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 ## Claim ceiling and next execution
 
-The merged work is integrated development work. The Windows repair has focused test evidence only; the exact candidate SHA and broader post-repair qualification remain outstanding. Do not call F2/X3 complete, the fix merge-ready, or the experience product-ready yet.
+The merged work is integrated development work. The Windows repair has exact-SHA regression evidence, with the full-suite failures matching the tested baseline; the controlled F2/X3 journey remains incomplete. Do not call F2/X3 complete or the experience product-ready yet.
 
-1. Freeze and record the repair candidate SHA; run the required exact-head Node and Python qualification, including baseline comparison for required-check failures.
-2. Resume the controlled Glass Archive from a clean fixture at Chapter 1; continue through the frozen checkpoints only while author authority and narrative state persist correctly.
-3. Reconcile issue #318 using the actual journey evidence.
-4. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
-5. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
+1. Resume the controlled Glass Archive from a clean fixture at Chapter 1; continue through the frozen checkpoints only while author authority and narrative state persist correctly.
+2. Reconcile issue #318 using the actual journey evidence.
+3. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
+4. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
 
 F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
 

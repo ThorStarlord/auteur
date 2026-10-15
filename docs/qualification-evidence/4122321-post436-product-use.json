@@ -216,6 +216,7 @@
     "verification": "PYTHONPATH=src python -m pytest -q tests/test_chapter_generation.py tests/test_beginner_post_draft.py tests/test_project.py => 34 passed; git diff --check passed."
   },
   "post_repair_qualification": {
+    "exact_code_sha": "c17771db218565625915fd9d90b6cb9f2fd5a396",
     "node_tests": {
       "passed": 64,
       "failed": 0
@@ -227,7 +228,8 @@
     },
     "python_k_studio": {
       "exit_code": 0,
-      "failure": 0
+      "failure": 0,
+      "passed": 163
     },
     "stage_b_browser": {
       "passed": 16,
@@ -235,13 +237,12 @@
     },
     "full_python_run": {
       "collected": 5617,
-      "passed": 5597,
+      "passed": 5599,
       "skipped": 2,
       "xfailed": 0,
       "xpassed": 0,
-      "failed": 18,
+      "failed": 16,
       "errors": 0,
-      "candidate_failure_ids_reproduced_on_exact_baseline": 18,
       "candidate_failure_ids": [
         "tests/test_beginner_book_progress.py::test_book_progress_reuses_accepted_book_as_publication_preflight",
         "tests/test_book_comparison.py::test_cli_compare_success",
@@ -250,7 +251,6 @@
         "tests/test_dashboard_author_attention.py::test_author_attention_prioritizes_existing_artifact_states_without_writes",
         "tests/test_dashboard_author_attention.py::test_dashboard_adds_author_attention_without_changing_project_files",
         "tests/test_expression_composition.py::test_reconciliation_cli_creates_and_shows_report",
-        "tests/test_f2_context_prompt.py::test_f2_prompt_consumer_probe_preserves_context_authority",
         "tests/test_guided_author_workspace.py::test_workspace_payload_is_read_only_and_reuses_author_attention",
         "tests/test_guided_author_workspace.py::test_workspace_server_is_loopback_get_only_and_does_not_mutate_project",
         "tests/test_series_productization.py::test_series_focus_cli_is_author_readable_and_hides_internal_ids_by_default",
@@ -261,14 +261,7 @@
         "tests/test_story_discovery.py::test_story_discovery_rejects_custom_genre_before_llm_call",
         "tests/test_story_state_manager.py::test_grouped_report_shows_layer_headers"
       ],
-      "note": "The full run preceded adding the current-main coherence reconciliation paragraph; that paragraph restored the documentation test expectation and its focused test passed. The other 17 full-suite failures were separately reproduced against exact merge baseline 4122321. No full-suite rerun followed the docs-only correction."
-    },
-    "baseline_failure_check": {
-      "baseline_sha": "4122321fe09d1959278fdd087fc29f85e2f3a9d2",
-      "selected_failure_tests": 18,
-      "failed": 18,
-      "passed": 0,
-      "note": "All failure IDs from the full candidate run failed on the exact baseline with the same assertion shapes."
+      "baseline_comparison": "All 16 final failure IDs were among 18 baseline failures separately rerun at exact merge SHA 4122321fe09d1959278fdd087fc29f85e2f3a9d2; all failed there with the same assertion shape. No candidate-only failure observed. The stale STATUS test failure from the first pre-reconciliation run was corrected and passed in the final exact-SHA run."
     }
   }
 }
