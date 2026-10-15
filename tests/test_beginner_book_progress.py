@@ -32,6 +32,38 @@ def test_book_progress_is_read_only_when_publication_is_not_ready(tmp_path: Path
     assert progress.authority_status == "DERIVED / NOT CANON"
 
 
+def test_book_progress_uses_discovered_chapter_count_for_completed_orientation(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    chapters = project / "chapters"
+    for index in range(1, 7):
+        chapter = chapters / f"{index:02d}"
+        chapter.mkdir(parents=True)
+        prose = f"Kept chapter {index}.\n".encode()
+        (chapter / "final.md").write_bytes(prose)
+        (chapter / "draft_v1.md").write_bytes(prose)
+
+    monkeypatch.setattr(
+        "auteur.beginner.book_progress.gather_status",
+        lambda _root: {
+            "chapters": [{} for _ in range(6)],
+            "blueprint": {},
+            "book": {},
+            "reconciliation": {},
+        },
+    )
+
+    progress = project_book_progress(project)
+
+    assert progress.planned_chapters == 6
+    assert progress.accepted_chapters == 6
+    assert progress.current_chapter == 6
+    assert progress.current_chapter_state == "Kept"
+    assert progress.next_story_action == "Review your Book"
+
+
 def test_book_progress_reuses_accepted_book_as_publication_preflight(tmp_path: Path) -> None:
     project = _accepted_book_project(tmp_path)
 

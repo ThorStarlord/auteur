@@ -913,6 +913,7 @@
       fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
       $("book-orientation").hidden = false;
       if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
+      state.workspace = "realization";
       state.view = "book"; state.selected = null; state.selectedDerived = null;
       $("layer-view").value = "book";
       render();
@@ -1224,7 +1225,7 @@
     }
     var item = state.workspace === "realization" ? selected() : null;
     if (item && !visibleWorking(item)) item = null;
-    $("inspector-empty").hidden = !!item;
+    $("inspector-empty").hidden = !!item || state.view === "book";
     $("inspector-fields").hidden = !item;
     $("inspector-empty").textContent = state.workspace === "architecture"
       ? (state.view === "genre_timeline" ? "Explore a phase in the timeline." :
@@ -1830,9 +1831,9 @@
     var host = $("nodes"); host.replaceChildren();
     var awaitingArchitecture = state.view === "architecture" &&
       (!state.architecture || !state.architecture.nodes.length);
-    $("empty-state").hidden = state.view === "architecture" ?
+    $("empty-state").hidden = state.view === "book" || (state.view === "architecture" ?
       (state.architectureFacet === "overview" || !awaitingArchitecture) :
-      state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization);
+      state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization));
     $("empty-state").querySelector("h1").textContent = designing
       ? "Explore your narrative architecture" : "What story do you want to tell?";
     $("empty-state").querySelector("p").textContent = designing

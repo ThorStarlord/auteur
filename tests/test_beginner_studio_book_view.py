@@ -13,4 +13,7 @@ def test_book_projection_is_not_a_second_book_owner():
     assert "book.next_story_action" in js
     assert "Chapter-order orientation only" in js
     assert 'id="book-orientation"' in html
+    assert 'state.workspace = "realization";' in js
+    assert '$("inspector-empty").hidden = !!item || state.view === "book";' in js
+    assert '$("empty-state").hidden = state.view === "book" ||' in js
     assert "read-only" in js.lower()

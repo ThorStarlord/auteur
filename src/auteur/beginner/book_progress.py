@@ -42,9 +42,7 @@ def project_book_progress(project_root: Path) -> BookProgressProjection:
     reconciliation = status.get("reconciliation") or {}
 
     planned_chapters = int(blueprint.get("chapters") or len(chapters) or 0)
-    orientation = project_book_orientation(
-        root, planned_chapters=int(blueprint.get("chapters") or 0),
-    )
+    orientation = project_book_orientation(root, planned_chapters=planned_chapters)
     accepted_chapters = len(orientation.accepted_chapter_refs)
 
     publication_ready = False
