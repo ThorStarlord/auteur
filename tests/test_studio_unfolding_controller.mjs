@@ -95,6 +95,17 @@ test('explicit develop alternatives prepares bounded host-agent request without 
  assert.equal(f.posted.length,0);
 });
 
+
+test('explicit alternative comparison reaches mentor with source-bound focus even when nearby ghosts exist',()=>{
+ const f=fixture();f.ctrl.render();
+ assert.equal(f.els.get('unfolding-ghosts').children.length,1);
+ f.ctrl.exploreAlternatives();
+ assert.equal(f.hostRequests.length,1);
+ assert.equal(f.hostRequests[0].purpose,'explore');
+ assert.equal(f.hostRequests[0].projection.focusId,'g');
+ assert.equal(f.posted.length,0);
+});
+
 test('mobile restricts current suggestions and leaves authored ideas intact',()=>{
  const f=fixture();f.win.innerWidth=390;
  f.state.architecture.nodes.push({id:'e',title:'Challenge',category:'engine'});
