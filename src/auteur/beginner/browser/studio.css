@@ -424,3 +424,11 @@ body.scene-docked #inspector { display:none; }
 .mentor-quiet{justify-self:end}
 .mentor-resume{width:100%}
 .mentor-mode-details summary:focus-visible{outline:3px solid #795a97;outline-offset:2px}
+
+/* The author's exact words and the agent's interpretation have distinct authority. */
+.author-proposal-contrast { flex-basis:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:8px 0; }
+.author-proposal-entry { min-width:0; padding:10px; border:1px solid #d8d6cc; border-radius:9px; background:#fffdf9; }
+.author-proposal-entry strong { font-size:.82rem; display:block; }
+.author-proposal-entry p { white-space:pre-wrap; max-height:110px; overflow:auto; font-size:.84rem; line-height:1.5; margin:7px 0; }
+.author-proposal-entry small { color:#6c6357; }
+@media(max-width:700px) { .author-proposal-contrast { grid-template-columns:1fr; } }

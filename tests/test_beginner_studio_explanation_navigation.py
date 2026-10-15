@@ -45,7 +45,7 @@ def test_navigation_cannot_create_accepted_story_actions_or_data_mutation():
 
 def test_browser_assets_are_explicitly_allowlisted():
     source_text=source(SERVER)
-    for name in ('studio_explanations.js', 'studio_explanation_views.js'):
+    for name in ('studio_explanations.js', 'studio_explanation_views.js', 'studio_author_intent.js', 'studio_agent_handoff.js'):
         assert f'"/{name}": "{name}"' in source_text
         assert f'src="/{name}"' in source(BROWSER/'studio.html')
 
