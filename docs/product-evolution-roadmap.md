@@ -192,7 +192,7 @@ X3 — Persistent Book Workspace
 Use the **same frozen six-Chapter Glass Archive**, record independent F2 and X3
 verdicts, and let the first material recurring failure select the smallest
 owning repair. The frozen protocol/fixture currentness is also tracked by
-the existing documentation PR #345; active is not passed.
+the currentness documentation PR #437 (which supersedes closed-unmerged #345); active is not passed.
 
 Do not preselect a Dashboard, sidebar, graph, timeline, or multi-pane layout.
 Let the first meaningful experience failure determine the lowest correct UX/UI
