@@ -127,6 +127,23 @@ try:
 
         open_(pg)
         check("root serves Studio with --studio-development-default", pg.locator("#viewport").count() == 1)
+        check(
+            "source-honest creative collaboration scripts are loaded",
+            pg.evaluate("!!window.AuteurStudioAuthorIntent && !!window.AuteurStudioAgentHandoff"),
+        )
+        pg.fill("#vision-text", "Joy through generous heroism: an exceptionally kind paladin.")
+        pg.click("#vision-save")
+        pg.click("#architecture-develop")
+        pg.locator("#architecture-copy-request").wait_for(state="visible", timeout=5000)
+        request = json.loads(pg.input_value("#architecture-request"))
+        vision_context = json.loads(request["user"])["working_context"]["vision"]
+        check(
+            "source-bound architecture request remains manual without a connected host",
+            request["role"] == "studio_architecture"
+            and vision_context.startswith("Joy through generous heroism")
+            and "no coding agent is connected" in pg.locator("#architecture-status").inner_text().lower()
+            and pg.locator("#author-proposal-contrast").is_hidden(),
+        )
         pg.click("#workspace-realization")
         pg.wait_for_timeout(300)
         pg.click("#add-note")
