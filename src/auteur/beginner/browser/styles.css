@@ -913,6 +913,25 @@ summary:focus-visible {
   background: #fff;
 }
 
+.quick-draft-host-handoff {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: #fbfaf7;
+}
+
+#quick-draft-agent-instructions {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 15rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 7px;
+  background: #f3f2ed;
+  font-size: 0.86rem;
+}
+
 #quick-draft-editor {
   width: 100%;
   box-sizing: border-box;
