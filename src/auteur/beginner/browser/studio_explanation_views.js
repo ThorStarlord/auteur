@@ -53,15 +53,16 @@
     if(!e){section(root,'NO TROPE','No trope proposal available.');return;}
     var columns=el('div','studio-explanation-comparison');
     var left=el('section','studio-explanation-card');
-    left.append(el('div','studio-explanation-label','GENRE EVIDENCE'));
+    left.append(el('div','studio-explanation-label','GENRE EXPECTATION — ONLY WHERE SOURCED'));
     if(e.ownerGenreId){
       var genre=packet.genres.find(function(x){return x.nodeId===e.ownerGenreId;});
       left.append(el('h3','',genre?genre.title:e.ownerGenreId));
       left.append(el('p','',genre?genre.coverageMessage:'No verified pack attached.'));
-    }else left.append(el('p','','No attributed Genre Pack relation is established by this trope node.'));
+      left.append(el('p','studio-explanation-note','Missing coverage does not imply unconventionality or originality.'));
+    }else left.append(el('p','','No attributed Genre Pack relation is established by this trope node; its conventionality is unknown.'));
     columns.append(left);
     var right=el('section','studio-explanation-card');
-    right.append(el('div','studio-explanation-label','THIS STORY PROPOSES'),el('h3','',e.title),
+    right.append(el('div','studio-explanation-label','THIS STORY PROPOSES — NOT AUTHOR-ACCEPTED'),el('h3','',e.title),
       el('p','',e.detail||'A proposed narrative role, not accepted canon.'),
       el('small','studio-explanation-note',e.sourceRef));
     columns.append(right);root.append(columns);
