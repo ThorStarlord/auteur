@@ -1,7 +1,7 @@
 # F2 + X3 Controlled Qualification Protocol
 
 **Date:** 2026-10-04  
-**Status:** ACTIVE controlled product-use protocol; six-Chapter F2/X3 execution pending  
+**Status:** ACTIVE controlled product-use protocol; Chapters 1–2 partly executed, full six-Chapter F2/X3 incomplete  
 **Narrative frontier:** F2 — Small-Book Longitudinal Coherence  
 **Experience frontier:** X3 — Persistent Book Workspace  
 **Authority:** protocol only; does not pre-authorize implementation, UI components, merge, release, or provider spend
