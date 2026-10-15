@@ -36,6 +36,7 @@
     quickDraftPending: false,
     quickDraftPollTimer: null,
     quickDraftPollAttempts: 0,
+    quickDraftPollGeneration: 0,
   };
 
   function $(id) {
@@ -207,6 +208,8 @@
   }
 
   function clearQuickDraftPoll() {
+    // Invalidate callbacks from a GET that is already in flight, not just its timer.
+    state.quickDraftPollGeneration += 1;
     if (state.quickDraftPollTimer !== null) {
       window.clearTimeout(state.quickDraftPollTimer);
       state.quickDraftPollTimer = null;
@@ -234,15 +237,19 @@
         state.quickDraftPollTimer !== null || state.quickDraftPollAttempts >= 12 ||
         document.hidden || $("home-surface").hidden) return;
     var sessionId = state.quickDraftSessionId;
+    var generation = state.quickDraftPollGeneration;
     state.quickDraftPollTimer = window.setTimeout(function () {
       state.quickDraftPollTimer = null;
-      if (!state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+      if (generation !== state.quickDraftPollGeneration ||
+          !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
           $("home-surface").hidden || document.hidden) return;
       state.quickDraftPollAttempts += 1;
       fetch("/api/beginner/quick-draft/" + encodeURIComponent(sessionId), {
         headers: { Accept: "application/json" }
       }).then(readJson).then(function (projection) {
-        if (state.quickDraftSessionId !== sessionId) return;
+        if (generation !== state.quickDraftPollGeneration ||
+            !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+            $("home-surface").hidden || document.hidden) return;
         if ((projection.draft || {}).status === "awaiting_host_agent") {
           if (state.quickDraftPollAttempts >= 12) {
             $("quick-draft-handoff-status").textContent =
@@ -255,7 +262,9 @@
           renderQuickDraftProjection(projection);
         }
       }).catch(function (error) {
-        if (state.quickDraftSessionId !== sessionId) return;
+        if (generation !== state.quickDraftPollGeneration ||
+            !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+            $("home-surface").hidden || document.hidden) return;
         $("quick-draft-handoff-status").textContent =
           "Could not check the scene: " + error.message + ". You can check again.";
         scheduleQuickDraftPoll();
