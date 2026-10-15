@@ -48,9 +48,10 @@ like "draft", "unmerged", or "Python not run" below as current assertions.
 
 **Selected continuation:** #318 F2/X3 frozen six-Chapter Glass Archive and
 #310 real host-agent Quick Draft; #305 human calibration remains conditional.
-Unmerged candidates #343 (explicit accepted-source references), #344 (pending
-Quick Draft interaction), and #345 (activation of F2 protocol) are **not**
-silently promoted by the #436 merge. Do not start another broad synthetic
+Unmerged implementation candidates #343 (explicit accepted-source references)
+and #344 (pending Quick Draft interaction) are **not** promoted by the #436
+merge. The docs-only activation PR #345 was closed unmerged as superseded by
+the consolidated post-merge currentness PR #437. Do not start another broad synthetic
 mentor test/feature wave; let actual use select the smallest repair.
 
 
