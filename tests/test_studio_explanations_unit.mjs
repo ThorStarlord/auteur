@@ -55,3 +55,17 @@ test('stale SHA, missing ID, or altered source never silently remaps by a shared
  assert.equal(api.resolve(a,'tropes','trope:unknown:0','sha-1'),null);
  const found=api.resolve(a,'tropes','trope:g:0','sha-1');assert.equal(found.title,'Earned breakthrough');
 });
+
+
+test('validated legacy evidence informs coverage but never becomes a versioned Genre Pack',()=>{
+ const evidence={g:{sourceKind:'legacy_contract',sourceRef:'genres/data/progression_fantasy.yaml',
+  contentHash:'a'.repeat(64)}};
+ const a=api.project(candidate,'sha-1',evidence);
+ assert.match(a.genres[0].coverageMessage,/Legacy genre contract/);
+ assert.match(a.genres[0].coverageMessage,/not a verified Genre Pack/);
+ const forged=api.project(candidate,'sha-1',{g:{sourceKind:'legacy_contract',verified:true,
+  source_ref:'forged',sourceRef:'genres/data/progression_fantasy.yaml'}});
+ assert.match(forged.genres[0].coverageMessage,/No verified pack/);
+ const noSource=api.project(candidate,'sha-1',{g:{sourceKind:'legacy_contract',sourceRef:'unsupported'}});
+ assert.match(noSource.genres[0].coverageMessage,/No verified pack/);
+});
