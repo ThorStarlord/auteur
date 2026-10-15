@@ -9,6 +9,34 @@ Short operational handoff only; history belongs in Git, PRs, issues, qualificati
 
 ## Current Frontier: F2 + X3
 
+Issue #318 remains open. The latest full six-Chapter execution used a
+fixture-complete disposable reconstruction from source `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`.
+It does not recover the unavailable original workspace or replace the
+historical Windows execution below. The full report and independent Browser
+review are in [qualification evidence](qualification-evidence/glass-archive-fixture-complete-20261015.md)
+and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-review-20261015.md).
+
+- **F2 narrative behavior:** bounded simulated-author pass for this six-Chapter
+  reconstruction. It does not establish human creative judgment or general
+  story quality.
+- **X3 persistence:** API/file-level pass. Six accepted final prose files
+  matched the recorded SHA-256 values after a fresh process load.
+- **X3 Browser experience:** not qualified. Serving the Book first showed a
+  false Chapter 7 action and hid orientation in the default Architecture tab.
+  Local candidate `bb98998baeedb1aaae1c564a48f5dd79732e4383` fixes those two
+  Book-view defects; history density, manuscript navigation, and restoration of
+  Book orientation after reopening remain unresolved.
+- **Human UX:** not tested. No comfort, preference, usability, or production
+  readiness claim follows from automated Browser interaction or simulated
+  author decisions.
+
+The local X3 repair candidate is separate from integrated `main`; no merge or
+release is claimed. Its focused tests passed 4/4 and Stage B Chromium passed
+16/16. One existing book-progress assertion fails identically on this candidate
+and unchanged `main`; see the Browser review record.
+
+## Historical Windows execution — 2026-10-14
+
 Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journey began against the exact merged baseline above. The Windows persistence defect was repaired and passed a clean Chapter 1 retry; the controlled run stopped at Chapter 2 after repeated under-target chapter prose.
 
 - The first Chapter completion wrote LF candidate text as CRLF, so its persisted bytes did not match the completion receipt hash. Acceptance then encountered the same translation in `final.md`.
@@ -39,12 +67,12 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 ## Claim ceiling and next execution
 
-The merged work is integrated development work. The Windows repair has exact-SHA regression evidence, with the full-suite failures matching the tested baseline; the controlled F2/X3 journey remains incomplete. Do not call F2/X3 complete or the experience product-ready yet.
+The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds a separate, bounded F2 simulated-author and X3 persistence result. The overall X3 Browser experience and human UX remain unqualified; the Browser review identifies the next UX work and its exact limitations.
 
-1. Decide whether to repair host-agent target-length adherence; if so, change only the demonstrated prompt/runtime boundary, then resume from the clean accepted Chapter 1 state and corrected Chapter 2 plan.
-2. Reconcile issue #318 using the actual journey evidence.
-3. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
-4. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
+1. Keep the Chapter-generation length deviation visible; the reconstructed run preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
+2. Improve Chapter navigation and reduce long-history density at the existing Browser projection boundary.
+3. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
+4. Use a human walkthrough before making human UX or product-readiness claims.
 
 F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
 

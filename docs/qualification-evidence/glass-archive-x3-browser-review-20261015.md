@@ -1,0 +1,190 @@
+# Glass Archive Browser review and interface direction
+
+**Date:** 2026-10-15  
+**Scope:** automated Browser review of the reconstructed, disposable Glass Archive Book; no human UX session  
+**Integrated product source:** `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c` (current `main`)  
+**Local repair candidate:** `bb98998baeedb1aaae1c564a48f5dd79732e4383` (`codex/glass-archive-x3-ux-review`)
+
+## Provenance and setup
+
+The full six-Chapter simulated-author qualification is recorded separately in
+[the fixture-complete report](glass-archive-fixture-complete-20261015.md).
+That report's source checkout was clean at `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`.
+GitHub's `main` ref matched that SHA at review time. All six accepted `final.md`
+files in the fixture were independently re-hashed and matched the report's
+Chapter 1–6 SHA-256 values.
+
+The served Browser used another disposable copy:
+
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-x3-browser-review-20261015/project`
+
+It was copied from:
+
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-fixture-complete-20261015/project`
+
+The browser copy gained only a local empty Studio canvas and its lock under
+`.auteur/beginner/studio/canvases/`. Hash comparison found no changed or missing
+source-project files, including all story files, accepted Chapters, Bible,
+outlines, and author-decision receipts. This is a new browser-test copy, not the
+original project.
+
+The UI was served by Auteur's local Beginner server and inspected with
+Playwright Chromium at 1365×900 and 390×844. The desktop UI connector had no
+available Browser provider, so this was automated Browser evidence, not a
+visible user-browser or human walkthrough. Screenshots were retained locally
+under `C:/Users/Admin/AppData/Local/Temp/glass-archive-x3-browser-review-20261015/`
+and are not committed.
+
+## Observed behavior on integrated `main`
+
+At the root route, the Studio opened in **Narrative Architecture** with a new
+empty working canvas, while the existing Book was not shown. The Book overview
+was buried under **More tools**. After selecting it from that default tab:
+
+- the map showed Chapters 1–6 plus a false **Chapter 7 · Working** node;
+- the next action incorrectly said **Write Chapter 7**, although the fixture
+  had six accepted Chapters and a six-Chapter plan;
+- the Story Architecture empty-state card remained over the chapter map;
+- the Book orientation panel was hidden because the workspace remained in
+  Narrative Architecture;
+- Chapter nodes were read-only positions. Selecting Chapter 2 did not open its
+  manuscript; it showed `position only` and chapter-order links;
+- the pending list exposed six unreviewed proposals, including rough fragments
+  such as `Then Beatrice` and `treat the convent`. They remained Suggested and
+  noncanonical; no author decision was made in the browser;
+- the recent-history panel displayed five long event summaries, including
+  multiple entries from Chapters 5 and 6.
+
+At 390px the document width remained 390px. The graph and menu were still dense;
+this measures overflow only and does not establish mobile usability. No browser
+page errors occurred.
+
+## Small repair and verification
+
+The progress adapter resolved its displayed planned count from discovered
+Chapters, then passed only the blueprint's absent count (`0`) to the orientation
+projection. The fix passes the already resolved count to that projection.
+The Studio's Book-view command now switches to Story Realization, hides the
+irrelevant empty-canvas prompt and generic inspector prompt, and presents the
+existing read-only orientation panel. No story files, canon, discovery proposal,
+or authority workflow changed.
+
+At exact local candidate `bb98998baeedb1aaae1c564a48f5dd79732e4383`, a fresh
+served Browser run from the default Architecture tab verified:
+
+- Book overview selects Story Realization and shows the orientation panel;
+- six Chapter nodes are present, with Chapter 6 marked `Kept · current`;
+- the heading reads **Chapter 6 · Kept** and the next action reads **Review your
+  Book**;
+- the empty-canvas and generic inspector prompts are hidden;
+- at 390px, document width equals viewport width; no page errors occurred;
+- the only added files in the Browser project are its disposable empty Studio
+  canvas and lock; the story-state files remain byte-identical.
+
+Focused tests: 4 passed. Existing Stage B Chromium check: 16/16 passed,
+including save/reopen, conflict safety, no canonical file changes, and no page
+errors. A separate assertion in the pre-existing book-progress test fails on
+both this candidate and unchanged `main` (`test_book_progress_reuses_accepted_book_as_publication_preflight` expects
+two accepted prose Chapters where the fixture contains zero). It is recorded as
+a baseline-identical test failure and was excluded from the four focused pass
+count.
+
+## Separate dispositions
+
+- **F2 narrative behavior:** bounded simulated-author pass for this reconstructed
+  six-Chapter journey only. The exact Chapter decisions and source freshness are
+  in the fixture-complete report. No general story-quality claim follows.
+- **X3 persistence:** API/file-level pass for that reconstructed project; all six
+  accepted prose files matched their recorded hashes after fresh-process load.
+- **X3 Browser experience:** initially failed at the completed-Book re-entry
+  projection. The bounded repair fixes the incorrect Chapter 7 action and makes
+  Book overview visible when opened from the default tab. The overall Browser
+  experience remains **not qualified**: chapter-to-manuscript navigation is
+  absent, recent history is dense, pending discovery labels need author review,
+  and reopening the Studio starts in the working canvas rather than restoring
+  Book orientation.
+- **Human UX:** not tested. No comfort, preference, cognitive-load, product
+  quality, or production-readiness claim is made.
+
+## Interface concepts explored
+
+The concepts below are low-fidelity interaction sketches grounded in the
+observed Book task. They are not human-tested mockups.
+
+### A. Graph-first spatial authoring
+
+```text
+Narrative Architecture | Map / Relationships / Consequences
+[Structure graph with linked characters, events, and Chapters]
+                                      [Selected item inspector]
+```
+
+It is strongest for comparing relationships and seeing whole-story shape.
+The current screen puts many tools and graph vocabulary in view before the
+author can resume a manuscript. Its Chapter nodes currently orient by position
+but do not navigate to prose. A production graph-first experience would require
+stronger links from accepted story state to writing and review actions.
+
+### B. Compact progressive-disclosure workspace
+
+```text
+The Glass Archive                         Chapter 6 · Kept · 6/6
+Review your Book
+Recently changed: forecasting system exposed                 [Details]
+Suggested updates: 6                                      [Review]
+Chapters   1 Kept — 2 Kept — 3 Kept — 4 Kept — 5 Kept — 6 Kept
+```
+
+It gives the next author action and accepted/Working status the strongest
+hierarchy. Rationale, provenance, continuity detail, and long change summaries
+can open only when requested. This is compact and comparatively cheap to build
+over the existing Book projection, but it is weaker for authors who actively
+think spatially about plot and relationship structure.
+
+### C. Hybrid manuscript-and-map workspace
+
+```text
+The Glass Archive             Chapters / Map / Updates
+Chapter 6 · Kept · 6/6        1  2  3  4  5  6
+Review your Book               Kept … Kept; 6 current
+------------------------------------------------------
+Accepted manuscript / current writing surface
+------------------------------------------------------
+Recent change (collapsed)   Suggested updates (explicit review)
+Map opens as a derived, read-only whole-story view.
+```
+
+This keeps manuscript work and the next action primary, with a compact Chapter
+navigator and an optional spatial map. Accepted history, Working prose, and
+Suggested discoveries remain visibly separate. Map and evidence views stay
+derived; existing domain services remain the owners of review, acceptance,
+reconciliation, and canon.
+
+| Dimension | Graph-first | Compact progressive disclosure | Hybrid |
+|---|---|---|---|
+| Product value | High for spatial structure work; weaker re-entry to prose in the observed screen | High for resume/write/review flow | High across prose, navigation, and structural inspection |
+| Cognitive load | Highest in the current implementation: broad toolbar, facets, graph, inspector | Lowest default load; detail is on demand | Low-to-medium if map and evidence remain optional |
+| Information architecture | Graph is primary; accepted text is secondary | One current task with clear status and next action | Manuscript is primary; compact navigator and optional map |
+| Implementation cost | Existing graph has substantial surface; connecting it to every author task is high | Low-to-medium using current read-only progress projection | Medium; needs reliable navigation and shared current-state projection |
+| Maintenance | High if graph views duplicate story-state rules | Lowest if UI remains a projection of existing domain owners | Medium if graph remains derived and no parallel state is added |
+| Extensibility | Strong for multi-thread/relationship exploration | Strong for linear drafting but spatial work is less expressive | Strongest potential while preserving a single story authority |
+| Architectural consequence | Risks making graph/visualization the default interaction owner | Adds no new owner; projection plus progressive disclosure | Adds no semantic owner; composes manuscript, navigator, and read-only graph |
+
+## Selected direction and next boundary
+
+Select the **hybrid** as the long-term direction, with a compact progressive
+workspace as its default surface and the graph as an optional structural view.
+This follows the observed task failure: authors need accepted/Working status
+and the next action before an empty spatial canvas, while the graph remains
+useful for inspecting relationships and whole-story shape. A compact-only
+workspace was not selected as the whole interface because it would under-serve
+spatial structure work; graph-first was not selected as the default because the
+current Book map cannot open a Chapter manuscript and initially hid the Book's
+orientation.
+
+The implemented change is only the reversible Book-view boundary fix described
+above. The next evidence-led responsibility is to improve density and give each
+Chapter a clear manuscript/review destination in the hybrid surface. Do not
+claim the current Beginner UI is a design-quality baseline, do not add a second
+story-state owner, and do not treat these automated Browser observations as
+human UX validation.
