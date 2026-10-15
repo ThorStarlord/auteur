@@ -151,7 +151,8 @@ try:
         pg2 = br.new_page(viewport={"width": 1300, "height": 900})
         open_(pg2)
         pg2.click("#workspace-realization")
-        pg2.wait_for_timeout(300)
+        pg2.locator("button.node:visible", has_text="Note A").wait_for(state="visible", timeout=5000)
+        pg2.locator("button.node:visible", has_text="Note B").wait_for(state="visible", timeout=5000)
         titles = [t.split("\n")[0] for t in pg2.locator("button.node:visible").all_inner_texts()]
         check("autosave survives server restart and reopen", "Note A" in titles and "Note B" in titles, titles)
         pg2.locator("button.node", has_text="Note A").first.click()
@@ -160,6 +161,42 @@ try:
             "reopened note content intact", pg2.input_value("#content") == "alpha text one", pg2.input_value("#content")
         )
         first_canvas = pg2.url
+        pg2.route(
+            "**/api/beginner/book/progress",
+            lambda route: route.fulfill(
+                status=200,
+                content_type="application/json",
+                body=json.dumps({
+                    "current_chapter": 1,
+                    "current_chapter_state": "Kept",
+                    "recent_changes": [],
+                    "pending_updates": [],
+                    "needs_attention": [],
+                    "accepted_chapter_refs": ["chapters/01/final.md"],
+                    "next_story_action": "Review the Book",
+                    "orientation_reason": "A one-Chapter reference Book is complete.",
+                    "planned_chapters": 1,
+                    "discovered_chapters": 1,
+                    "accepted_chapters": 1,
+                }),
+            ),
+        )
+        pg2.goto(first_canvas, wait_until="networkidle")
+        pg2.locator("button.node:visible", has_text="Note A").wait_for(state="visible", timeout=5000)
+        pg2.wait_for_function("document.querySelector('#layer-view').value === 'create'")
+        check(
+            "explicit canvas URL preserves saved working focus with Book state",
+            pg2.input_value("#content") == "alpha text one" and pg2.locator("#book-orientation").is_hidden(),
+            {"view": pg2.input_value("#layer-view"), "content": pg2.input_value("#content")},
+        )
+        pg2.goto(BASE + "/", wait_until="networkidle")
+        pg2.wait_for_function("document.querySelector('#layer-view').value === 'book'")
+        check(
+            "ordinary re-entry foregrounds Book orientation",
+            pg2.locator("#book-orientation").is_visible()
+            and "Chapter 1 · Kept" in pg2.locator("#book-heading").inner_text(),
+            pg2.locator("#book-heading").inner_text(),
+        )
         pg2.locator("summary:visible", has_text="More tools").first.click()
         pg2.wait_for_timeout(200)
         pg2.click("#new-canvas")

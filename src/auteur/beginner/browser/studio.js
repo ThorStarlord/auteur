@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "architecture", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "architecture", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null, focusRestored: false };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
@@ -88,7 +88,7 @@
     catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
     if (!saved) return null;
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
-    state.view = ["create", "realization_candidates", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
+    state.view = ["create", "realization_candidates", "relationships", "all", "architecture", "genre_timeline", "book"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
     state.selectedRealization = saved.realization || null;
     state.workspace = saved.workspace === "architecture" || ["architecture", "genre_timeline"].includes(state.view)
@@ -105,7 +105,7 @@
     state.fullArchitectureGenre = typeof saved.fullGenre === "string" ? saved.fullGenre : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
-    if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
+    if (state.workspace === "architecture" && state.view !== "book") state.view = state.architectureFacet === "timeline"
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
     state.lastWorkingSelection = state.selected;
@@ -486,6 +486,7 @@
     state.deleted = doc.deleted || {}; showRecoveryAction();
     remote.savedSnapshot = JSON.stringify(snapshot());
     var focus = restoreFocus();
+    state.focusRestored = !!focus;
     if (!focus) $("layer-view").value = state.view;
     state.lastWorkingSelection = state.selected;
     if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
@@ -597,25 +598,27 @@
         remote.failed = true;
         status("Invalid canvas link. Return to Studio Home or use New canvas."); return;
       }
-      activateCanvas(canvas).then(restoreBookOrientation); return;
+      activateCanvas(canvas).then(function () { restoreBookOrientation(true); }); return;
     }
     // Bare /studio.html reopens recent work instead of silently making a new
     // empty canvas every time the author returns from Home.
     listCanvasChoices().then(function (canvases) {
       var recent = canvases.find(function (entry) { return entry.state === "ready"; });
-      if (recent) activateCanvas(recent.canvas_id).then(restoreBookOrientation);
+      if (recent) activateCanvas(recent.canvas_id).then(function () { restoreBookOrientation(false); });
       else if (canvases.length) {
         remote.failed = true;
         status("Saved canvases need recovery. No new canvas was silently created. Choose New canvas to start fresh.");
-      } else activateCanvas(id("canvas")).then(restoreBookOrientation);
+      } else activateCanvas(id("canvas")).then(function () { restoreBookOrientation(false); });
     }).catch(function (error) {
       remote.failed = true;
       status("Cannot check existing canvases: " + error.message + ". No new canvas was created.");
     });
   }
-  function restoreBookOrientation() {
+  function restoreBookOrientation(preserveSavedFocus) {
     fetch("/api/beginner/book/progress").then(apiJson).then(function (book) {
-      if (book.discovered_chapters || book.accepted_chapters || book.planned_chapters) loadBook();
+      if (!(book.discovered_chapters || book.accepted_chapters || book.planned_chapters)) return;
+      if (preserveSavedFocus && state.focusRestored && state.view !== "book") return;
+      loadBook();
     }).catch(function () { /* New or unavailable Book keeps the graph-first canvas. */ });
   }
   function restoreDeleted() {

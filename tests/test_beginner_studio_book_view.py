@@ -27,3 +27,5 @@ def test_book_chapter_link_uses_existing_review_route_without_workspace_identity
     assert '"/beginner.html?chapter="' in js
     assert "else if (currentChapterFromQuery())" in app
     assert "loadPostDraftReview();" in app
+    assert "restoreBookOrientation(true)" in js
+    assert "state.focusRestored && state.view !== \"book\"" in js
