@@ -597,21 +597,26 @@
         remote.failed = true;
         status("Invalid canvas link. Return to Studio Home or use New canvas."); return;
       }
-      activateCanvas(canvas); return;
+      activateCanvas(canvas).then(restoreBookOrientation); return;
     }
     // Bare /studio.html reopens recent work instead of silently making a new
     // empty canvas every time the author returns from Home.
     listCanvasChoices().then(function (canvases) {
       var recent = canvases.find(function (entry) { return entry.state === "ready"; });
-      if (recent) activateCanvas(recent.canvas_id);
+      if (recent) activateCanvas(recent.canvas_id).then(restoreBookOrientation);
       else if (canvases.length) {
         remote.failed = true;
         status("Saved canvases need recovery. No new canvas was silently created. Choose New canvas to start fresh.");
-      } else activateCanvas(id("canvas"));
+      } else activateCanvas(id("canvas")).then(restoreBookOrientation);
     }).catch(function (error) {
       remote.failed = true;
       status("Cannot check existing canvases: " + error.message + ". No new canvas was created.");
     });
+  }
+  function restoreBookOrientation() {
+    fetch("/api/beginner/book/progress").then(apiJson).then(function (book) {
+      if (book.discovered_chapters || book.accepted_chapters || book.planned_chapters) loadBook();
+    }).catch(function () { /* New or unavailable Book keeps the graph-first canvas. */ });
   }
   function restoreDeleted() {
     if (!remote.ready || remote.failed) return;
@@ -896,10 +901,15 @@
       for (var i = 1; i <= visible; i++) {
         var id = "book:chapter:" + i;
         var current = i === book.current_chapter;
+        var acceptedRef = (book.accepted_chapter_refs || []).find(function (ref) {
+          return new RegExp("^chapters/0*" + i + "/final\\.md$").test(ref);
+        });
+        var chapterRef = acceptedRef || "chapters/" + String(i).padStart(2, "0") + "/";
+        var chapterState = acceptedRef ? "Kept" : (current ? book.current_chapter_state : "Working");
         state.derived.nodes.push({ id: id, kind: "chapter", title: "Chapter " + i,
           detail: current ? book.orientation_reason : "Chapter-order orientation only; inspect accepted history before making changes.",
-          authority: "DERIVED / NOT CANON", source_ref: "book progress, Chapter " + i,
-          status: current ? book.current_chapter_state + " · current" : "position only",
+          authority: "DERIVED / NOT CANON", source_ref: chapterRef,
+          status: chapterState + (current ? " · current" : ""),
           impact_role: current ? "source" : "affected" });
         state.derivedPositions[id] = { x: 115 + ((i - 1) % 4) * 195, y: 90 + Math.floor((i - 1) / 4) * 120 };
         if (i > 1) state.derived.edges.push({ id: "chapter-order:" + (i - 1) + ":" + i,
@@ -907,6 +917,7 @@
           authority: "DERIVED / NOT CANON", source_ref: "book progress" });
       }
       $("book-heading").textContent = "Chapter " + book.current_chapter + " · " + book.current_chapter_state;
+      $("book-open-chapter").hidden = true;
       $("book-next-action").textContent = "Next: " + (book.next_story_action || "Continue writing");
       fillBookList("book-recent", book.recent_changes, "Nothing established yet.");
       fillBookList("book-pending", book.pending_updates, "No pending updates.");
@@ -966,6 +977,10 @@
   function chooseDerived(nodeId) {
     if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selected = null; state.selectedDerived = nodeId; state.selectedCandidate = null;
+    var chapterButton = $("book-open-chapter");
+    var selectedNode = state.derived && state.derived.nodes.find(function (node) { return node.id === nodeId; });
+    chapterButton.hidden = !(state.view === "book" && selectedNode && selectedNode.kind === "chapter");
+    if (!chapterButton.hidden) chapterButton.textContent = "Open " + selectedNode.title + " · " + selectedNode.status.split(" · ")[0];
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
     });
@@ -2386,6 +2401,12 @@
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
+  $("book-open-chapter").addEventListener("click", function () {
+    var node = state.derived && state.derived.nodes.find(function (entry) { return entry.id === state.selectedDerived; });
+    var match = node && node.kind === "chapter" && /^book:chapter:([1-9][0-9]*)$/.exec(node.id);
+    if (!match) return;
+    window.location.assign("/beginner.html?chapter=" + encodeURIComponent(match[1]));
+  });
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
     state.view = this.value;
