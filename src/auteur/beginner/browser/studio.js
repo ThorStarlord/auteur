@@ -1644,7 +1644,9 @@
     if (!state.architecture) return;
     (state.architecture.emotion_targets || []).forEach(function (target) {
       var p = document.createElement("p");
-      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + target.provenance +
+      var attribution = window.AuteurStudioAuthorIntent ?
+        window.AuteurStudioAuthorIntent.provenanceLabel(target.provenance) : "Attribution unverified";
+      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + attribution +
         "): " + target.intended_effect + " | Elicited by: " + target.eliciting_condition +
         " | Aesthetic strategy: " + target.aesthetic_strategy;
       host.appendChild(p);
