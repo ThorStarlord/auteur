@@ -6,6 +6,21 @@
 **Authority:** Development plan and evidence boundary only; does not approve merge, release,
 canonical semantic-layer changes or automated author story acceptance.
 
+## Reconciliation after PR #436 merge — 2026-10-14
+
+The historical M0/M1 sections below describe the pre-merge plan and are retained as a record; their statements that PR #436 is unmerged or that a runnable checkout is unavailable are superseded by this section.
+
+PR #436 merged as `4122321fe09d1959278fdd087fc29f85e2f3a9d2`. Its exact source qualification SHA was `97354ee6ea293df6c6b15783406e6c1d560403bf`. Recorded checks were Node 64/64, focused Python 28, `-k studio` 163, Stage B 16/16 and unfolding 11/11. The serial full Python suite reported 5,591 passed, 24 failed and 2 skipped; all 24 failures matched exact-main baseline, with no candidate-only failure recorded. No GitHub Actions runs were recorded. This is merged source evidence, not a claim that every suite passed.
+
+A fresh agent mentorship sample against the merged backend completed through CanvasStore and passed strict response validation. It produced three materially different mechanisms while preserving the supplied author constraints. This is one response only; no real-author session, broad scenario set, narrow-screen UX study, or creative-product-readiness claim is established.
+
+The 2026-10-14 post-merge product-use run found a Windows newline translation defect in exact-byte Chapter persistence. `Project.write_draft` and `Project.write_final` now request LF output; byte-level regression assertions accompany the repair. The focused chapter-generation, acceptance, and project tests pass (34 total) when `PYTHONPATH=src` ensures imports come from the isolated worktree. The repair remains an uncommitted worktree change on top of the merge SHA, so the recorded #436 qualification does not qualify this repair.
+
+Issue #318 product use reached only Glass Archive Chapter 1. After repairing persistence, the frozen outline generated and explicitly accepted a 946-word Working scene in the disposable fixture. The pre-repair failed acceptance had written Bible events before exact-byte reconciliation failed; retrying that interrupted acceptance duplicated authority events in the fixture. The run stopped there; Chapters 2–6 and the F2/X3 journey gate remain unqualified. See [the full evidence packet](../qualification-evidence/4122321-post436-product-use.json).
+
+Issue #310 used four fresh host-agent Quick Draft cases: mystery, character-driven, speculative and intentionally vague. All remain Working drafts. Browser `awaiting_host_agent` displayed a waiting state with the editor disabled, but did not expose the request prompt/hash in the page or naturally notify the active host agent during this run. The API accepted a response; reopening the session displayed the draft, while in-place completion was not observed. Per-request model and trustworthy latency were unavailable. Two scenes fell below the approximate 1,400-word target. These are agent dogfood results, not human author feedback; exact packets are in the evidence file linked above.
+
+Current evidence does not establish product readiness, human usability, or completion of #318. It does establish that #436 is merged, that focused tests pass for the local newline repair, and that the selected product-use surfaces exposed concrete persistence and Browser handoff behavior. Continue by freezing the repair candidate SHA and qualifying it, then resume #318 from a clean controlled fixture. Reconcile #310 with the observed Browser interaction gap. Do not infer or implement a host bridge from this one observation.
 ## Objective and completed source work
 
 An author can:
