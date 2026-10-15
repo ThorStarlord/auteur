@@ -141,7 +141,7 @@ MANA, Progressive Commitment runtime states, F3+, generalized retrieval/vector s
    a broad readiness claim.
 6. Let product-use evidence choose the next bounded repair; do not promote
    F3/X4, start deferred #248, or invent a host bridge speculatively.
-   Documentation activation PR #345 remains open rather than passed.
+   Documentation-only PR #345 was closed unmerged as superseded by #437; activation is not an F2/X3 pass.
 
 ## Simplification Rule
 
