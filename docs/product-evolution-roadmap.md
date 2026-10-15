@@ -80,10 +80,15 @@ unified experience architecture
 -> #318 selected F2/X3 controlled product-use frontier (active, not passed)
 ```
 
-**Currentness (2026-10-14):** PR #436 graph-first Studio/contextual
-mentorship is merged and mechanically qualified for development, not
-released or broadly UX-validated. #318 remains a six-Chapter product-use
-run and #310 remains separate Quick Draft dogfood. Do not reopen #313 or
+**Currentness (2026-10-15):** PR #436 graph-first Studio/mentorship is merged
+and mechanically qualified; PR #438 repaired exact-byte Chapter persistence
+on Windows and merged at `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`.
+#318 **actually began** the frozen Book: Chapter 1 was accepted and reopened;
+Chapter 2 surfaced the planned discovery but stopped unaccepted after repeated
+under-length prose. #310 **actually ran** four host-agent Quick Draft scenarios;
+two outputs were short and the Browser's waiting-to-completion handoff required
+manual agent intervention. Neither the complete six-Chapter journey nor
+human author usefulness is qualified. Do not reopen #313 or
 turn prior #305 uncertainty into an automatic participant/approval gate.
 
 A blocking product defect discovered during validation may still receive a
@@ -192,7 +197,7 @@ X3 — Persistent Book Workspace
 Use the **same frozen six-Chapter Glass Archive**, record independent F2 and X3
 verdicts, and let the first material recurring failure select the smallest
 owning repair. The frozen protocol/fixture currentness is also tracked by
-the currentness documentation PR #437 (which supersedes closed-unmerged #345); active is not passed.
+the currentness reconciliation PR #437 (superseding closed-unmerged #345); an attempted frontier is not a passed frontier.
 
 Do not preselect a Dashboard, sidebar, graph, timeline, or multi-pane layout.
 Let the first meaningful experience failure determine the lowest correct UX/UI

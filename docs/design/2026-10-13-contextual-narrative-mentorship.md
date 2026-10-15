@@ -9,8 +9,12 @@
 The merged PR #436 reports **64/64 real Node checks, 28 focused Python/HTTP
 mentor checks, 163 Studio Python checks, 16/16 Stage-B browser checks, 11 focused
 Unfolding browser checks**, and an exact-head working-editor/reopen journey.
-The full Python suite remains **5,591 passed / 24 baseline-equivalent failed /
-2 skipped**, with no candidate-only failures and no GitHub CI. See the
+That PR's complete Python suite was **5,591 passed / 24 baseline-equivalent
+failed / 2 skipped**. The subsequent Windows exact-byte repair in merged PR
+#438 passed Node **64/64**, focused mentor Python **28**, Studio Python **163**,
+and Stage B **16/16**. Its full Python suite was **5,599 passed / 16 inherited
+failures / 2 skipped**, with no candidate-only failure or GitHub CI. Neither
+result establishes product/release readiness. See the
 post-merge addendum in
 `2026-10-14-mentorship-integration-qualification.md` for provenance.
 

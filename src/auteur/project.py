@@ -121,7 +121,7 @@ class Project:
     def write_draft(self, n: int, version: int, prose: str) -> Path:
         path = self.chapter_dir(n) / f"draft_v{version}.md"
         try:
-            with path.open("x", encoding="utf-8") as draft_file:
+            with path.open("x", encoding="utf-8", newline="\n") as draft_file:
                 draft_file.write(prose)
         except FileExistsError as exc:
             raise FileExistsError(f"Draft version already exists: {path}") from exc
@@ -138,7 +138,7 @@ class Project:
 
     def write_final(self, n: int, prose: str) -> Path:
         path = self.chapter_dir(n) / "final.md"
-        path.write_text(prose, encoding="utf-8")
+        path.write_text(prose, encoding="utf-8", newline="\n")
         return path
 
     def has_final(self, n: int) -> bool:

@@ -1,66 +1,26 @@
 # Contextual Narrative Mentorship — Integration and Qualification Handoff
 
-> **Historical handoff notice:** The initial source-assembly/isolated-test
-> sections below preserve what was known *before* the PR #436 executable
-> qualification and merge. This post-merge addendum controls current status.
-
-## Post-merge qualification reconciliation — 2026-10-14
-
-**Merged:** [PR #436](https://github.com/ThorStarlord/auteur/pull/436)
-into development `main` at
-`4122321fe09d1959278fdd087fc29f85e2f3a9d2`.
-**Exactly tested candidate:** `97354ee6ea293df6c6b15783406e6c1d560403bf`.
-The merge is not a separately recorded test run.
-
-The merged PR records the following *executed*, Windows-based qualification
-(Python 3.14.3, pytest 8.4.2, Node v24.14.1, Playwright Chromium 1248):
-
-| Gate | Observed result | Claim boundary |
-| --- | --- | --- |
-| `node --test` | **64 passed, 0 failed** | Real Node tests on candidate HEAD |
-| Focused mentor Python / HTTP / proxy | **28 passed** | Real Python/HTTP contract checks |
-| `python -m pytest tests -k studio` | **163 passed**, 5,454 deselected | Focused real Studio checks |
-| `scripts/studio_stage_b_check.py` | **16/16 passed** | Served Chromium persistence, conflict, navigation, noncanonical safety |
-| Focused Unfolding browser tests | **11 passed** | Browser interactions |
-| Working-editor journey | Re-render, failed write, explicit save, reload behaved safely | One concrete served journey |
-| 1440×900, 900×700, 390×844 | No horizontal overflow or page errors | Visual layout smoke checks, **not** human usability |
-| Full serial Python suite (5,617 collected) | **5,591 passed / 24 failed / 2 skipped** | **Not a clean suite PASS** |
-
-The 24 failures had the exact same failing node IDs as the pre-merge
-`main` baseline; **no candidate-only regression** was reported. Severity
-and ownership of those 24 individual failures are **not established by this
-aggregate receipt**. No GitHub Actions/hosted CI runs were recorded or charged.
-
-**Additional owner-supplied creative observation, outside the merged PR's
-original qualification claim:** an independent coding agent produced three
-distinct mentorship/audit paths from one temporary sample canvas, preserving
-privacy and neighbor-agency constraints. The app accepted the responses, left
-the canvas at revision 2 with its original two items, and accepted no story
-decision. This establishes **one fresh exploratory model-backed sample**,
-not broad advice usefulness, author satisfaction, new Genre Pack validity, or
-population-level preference.
-
-**Current disposition:** Studio/mentor is **mechanically qualified and merged
-for development**. Broader creative differentiation, author corrections across
-turns, actual screen-reader use, and first-contact UX remain open
-claim-appropriate product validation. Do not read historical phrases
-like "draft", "unmerged", or "Python not run" below as current assertions.
-
-**Selected continuation:** #318 F2/X3 frozen six-Chapter Glass Archive and
-#310 real host-agent Quick Draft; #305 human calibration remains conditional.
-Unmerged implementation candidates #343 (explicit accepted-source references)
-and #344 (pending Quick Draft interaction) are **not** promoted by the #436
-merge. The docs-only activation PR #345 was closed unmerged as superseded by
-the consolidated post-merge currentness PR #437. Do not start another broad synthetic
-mentor test/feature wave; let actual use select the smallest repair.
-
-
 **Date:** 2026-10-14
 **Scope:** Auteur graph-first Studio; implementation drafts #425, #427–#434; source contract in
 `2026-10-13-contextual-narrative-mentorship.md`.
 **Authority:** Development plan and evidence boundary only; does not approve merge, release,
 canonical semantic-layer changes or automated author story acceptance.
 
+## Reconciliation after PR #436 merge — 2026-10-14
+
+The historical M0/M1 sections below describe the pre-merge plan and are retained as a record; their statements that PR #436 is unmerged or that a runnable checkout is unavailable are superseded by this section.
+
+PR #436 merged as `4122321fe09d1959278fdd087fc29f85e2f3a9d2`. Its exact source qualification SHA was `97354ee6ea293df6c6b15783406e6c1d560403bf`. Recorded checks were Node 64/64, focused Python 28, `-k studio` 163, Stage B 16/16 and unfolding 11/11. The serial full Python suite reported 5,591 passed, 24 failed and 2 skipped; all 24 failures matched exact-main baseline, with no candidate-only failure recorded. No GitHub Actions runs were recorded. This is merged source evidence, not a claim that every suite passed.
+
+A fresh agent mentorship sample against the merged backend completed through CanvasStore and passed strict response validation. It produced three materially different mechanisms while preserving the supplied author constraints. This is one response only; no real-author session, broad scenario set, narrow-screen UX study, or creative-product-readiness claim is established.
+
+The 2026-10-14 post-merge product-use run found a Windows newline translation defect in exact-byte Chapter persistence. `Project.write_draft` and `Project.write_final` now request LF output; byte-level regression assertions accompany the repair. The repair is committed as `c17771db218565625915fd9d90b6cb9f2fd5a396` on top of the merge SHA. At that code SHA Node passed 64/64, focused mentorship Python passed 28, `-k studio` exited successfully (163 tests), and Stage B passed 16/16. The complete Python suite collected 5,617: 5,599 passed, 16 failed and 2 skipped. All 16 failure IDs were reproduced with the same assertions on the exact merge baseline; no candidate-only failure was observed. `PYTHONPATH=src` was set so imports came from the isolated worktree.
+
+Issue #318 product use reached Chapter 2 in a clean corrected fixture. Chapter 1 generated 946 words, was explicitly accepted, and reopened with matching draft/final SHA-256 bytes, accepted facts, current Chapter 2, and a story-language next action. The initial interrupted fixture had duplicate Bible events after the CRLF acceptance failure; those records are isolated to that disposable attempt. Before Chapter 2 drafting, the test-author corrected the generated outline to remove Sister Beatrice and Saint Orra from the initial plan. The Chapter 2 response introduced Beatrice, the convent, and historical records as working discoveries, but at 965 words it was below the requested 1,066-word minimum. Chapter 1 was also below the same minimum. The run stopped before Chapter 2 acceptance; F2/X3 remain incomplete. See [the full evidence packet](../qualification-evidence/4122321-post436-product-use.json).
+
+Issue #310 used four core host-agent Quick Draft cases: mystery, character-driven, speculative and intentionally vague. It also ran the Sister Beatrice / convent follow-up; the noncanonical handoff retained only the two selected discoveries. All remain Working drafts. Browser `awaiting_host_agent` displayed a waiting state with the editor disabled, but did not expose the request prompt/hash in the page or naturally notify the active host agent during this run. The API accepted a response; reopening the session displayed the draft, while in-place completion was not observed. Per-request model and trustworthy latency were unavailable. Two scenes fell below the approximate 1,400-word target. These are agent dogfood results, not human author feedback; exact packets are in the evidence file linked above.
+
+Current evidence does not establish product readiness, human usability, or completion of #318. It establishes that #436 is merged, the newline repair has exact-SHA regression evidence with baseline-matched suite failures, and the selected product-use surfaces exposed concrete persistence and Browser handoff behavior. Resume #318 from a clean controlled fixture. Reconcile #310 with the observed Browser interaction gap. Do not infer or implement a host bridge from this one observation.
 ## Objective and completed source work
 
 An author can:
@@ -338,26 +298,21 @@ permanent chat column, new ontology or speculative personalized agent storage.
 
 | Claim | Evidence required | Current disposition |
 | --- | --- | --- |
-| Source files and regression specifications exist | GitHub commit/ref and diff | **Merged** as PR #436 into development main |
-| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | Historical 107/107 check; superseded by real Node/browser evidence for mechanics |
-| Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | **Merged**, qualified candidate `97354ee6` |
-| Backend mentor protocol correctness | Python contract and real HTTP tests | **Focused 28 passed at candidate head** |
-| Real author working persistence | Served Browser/CanvasStore and reload | **Stage B 16/16 and separate editor journey passed** |
-| Authentic model creative quality | Actual neutral host-agent responses | One owner-reported independent sample, **not broad creative-quality qualification** |
-| Human usability and flow | Real author walkthrough | **Not established**; mobile/desktop layout smoke observed |
-| Full Python regression health | Full suite and candidate-baseline comparison | **5,591 passed, 24 baseline-equivalent failed, 2 skipped** |
-| Merge / rollout / release ready | Explicit owning gates and authority | **Development merge completed**; rollout/release not claimed |
+| Source files and regression specifications exist | GitHub commit/ref and diff | Established on integration PR #436 |
+| Simulated JavaScript interaction correctness | Exact-source V8 isolated runs | 107/107 exact-source isolated checks PASS; not Node/browser |
+| Main-based integration source assembly | Git tree overlay + #404 hunk reconciliation | Constructed on branch #436; runnable checkout NOT established |
+| Backend mentor protocol correctness | Python contract and real HTTP tests | Not executed |
+| Real author working persistence | Served Browser/CanvasStore and reload | Not executed |
+| Authentic model creative quality | Actual neutral host-agent responses | Not executed |
+| Human usability and flow | Real author walkthrough | Not established |
+| Merge / rollout / release ready | Explicit owning gates and authority | NOT claimed |
 
-## Next bounded responsibility — product-use evidence, not replay of merge
+## No new owner decision is needed for the next bounded engineering step
 
-The PR #436 executable qualification and development merge are finished.
-Resume the **existing** frozen #318 Glass Archive Book and #310 Quick Draft
-host-agent dogfood against contemporary `main`. Their real generation and
-Book/experience outcomes are **not** supplied by the prior #436 qualification.
+The next responsible actor should CHECK OUT and QUALIFY PR #436, not rebuild
+the same source integration or ask the owner to restate the product design. If verification
+finds defects, repair the nearest demonstrated cause, repeat the failing
+test, and continue within existing author-authority invariants.
 
-If this agent environment lacks a runnable checkout, record
-`EXECUTION_ENVIRONMENT_UNAVAILABLE` only for those product-use tasks. Preserve
-the selected protocols and exact repository SHA; do not invent author actions,
-provider latency, six-Chapter prose, or subjective usability findings.
-An unrelated cloud provider, paid workflow, or alternate billing arrangement
-is not an authorized workaround.
+A blocked local runtime is an evidence limit, not a reason to mark all
+independent source development complete or to invent success.

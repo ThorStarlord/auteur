@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Tracking:** #318  
-**Status:** FROZEN REFERENCE FIXTURE / ACTIVE F2+X3 FRONTIER / EXECUTION PENDING  
+**Status:** FROZEN REFERENCE FIXTURE / ACTIVE F2+X3 FRONTIER / CHAPTER 1–2 RUN PARTIAL  
 **Purpose:** provide one frozen six-Chapter story for longitudinal coherence and persistent-workspace qualification.
 
 ## Why this fixture exists
@@ -465,12 +465,17 @@ injections, original chronology, accepted facts, unknowns, and separate
 narrative (F2) versus experience (X3) questions.
 
 Use contemporary integrated `main` (current checkpoint
-`4122321fe09d1959278fdd087fc29f85e2f3a9d2`) and record the exact
-target-runtime commit and session artifacts. No complete Glass Archive run
-or actual host-agent six-Chapter generation has been produced by the
-current connected-container session.
+`ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`), preserving the exact
+target-runtime commit and session artifacts. The first real host-agent attempt
+accepted/reopened Chapter 1 after the Windows exact-byte repair, then produced
+an **unaccepted**, under-target Chapter 2 Working draft with the expected
+Sister Beatrice/Saint Orra discovery. Chapters 3–6 have not run; F2 and X3
+remain incomplete. See
+`docs/qualification-evidence/4122321-post436-product-use.json` and issue
+#318 for the exact receipts and stop reason.
 
-**Activation != PASS.** If execution is unavailable, report the environment
-boundary in #318 without inventing a transcript, accepted prose or author
-decision. The optional evidence-link candidate #343 is unmerged; inspect
+**Partial execution != PASS.** Retain the accepted Chapter 1 result, do
+not auto-accept short Chapter 2 prose, and do not invent later Chapters or
+author decisions. The runner should resume after repairing/demonstrating
+the smallest under-length generation issue. The optional evidence-link candidate #343 is unmerged; inspect
 actual Chapter-6 context before admitting it as a solution.

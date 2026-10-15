@@ -254,22 +254,38 @@ The prior #313 activation gate is resolved: #313 is closed, #318 is active,
 and the required Chapter-N orchestration, bounded context composition and
 Book orientation are integrated into development `main`.
 
-**Latest source checkpoint (2026-10-14):**
-`main@4122321fe09d1959278fdd087fc29f85e2f3a9d2`, after the qualified
-graph-first Studio/mentorship PR #436 merge. Its separate 64 Node, 28 focused
+**Current integrated source checkpoint (2026-10-15):**
+`main@ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c` after PR #438's
+Windows LF-byte repair. The real product-use attempt started from
+`4122321fe09d1959278fdd087fc29f85e2f3a9d2` with the repair qualified at
+`c17771db218565625915fd9d90b6cb9f2fd5a396`. Its separate 64 Node, 28 focused
 Python mentor, 163 Studio, and 16 Stage-B browser successes **do not**
 constitute a Glass Archive six-Chapter execution.
 
-Run the existing frozen reference Book exactly once as the controlled
-authoring journey, using its P1–P6 injections. At Chapter 6 include the
+The first target-runtime run used the frozen reference Book and **did not
+complete it**: Chapter 1 persisted/accepted/reopened with identical LF-byte
+draft/final receipts and proper Chapter 2 orientation. Chapter 1 generated
+946 words; Chapter 2 generated 965 words while introducing the intended
+unplanned Beatrice/convent discovery; both were below the explicit 1,066-word
+minimum. The Chapter 2 candidate remains **Working/unaccepted**.
+`docs/qualification-evidence/4122321-post436-product-use.json` and issue
+#318 own the raw requests/results, not this protocol.
+
+**Resume at the first unresolved material failure, not a new six-Chapter
+campaign.** Preserve the clean Chapter 1 accepted history; investigate the
+repeated under-target generation without weakening its word-count contract
+or silently accepting short Chapter 2 prose. Inspect rendered request, active
+host-agent compliance, token budgets, and permitted revision/continue paths.
+Make the smallest warranted repair, rerun Chapter 2 with a correctly shaped
+candidate, and advance to Chapters 3–6 only when that checkpoint succeeds. At Chapter 6 include the
 already-recorded lexical-paraphrase variant from #318: distinguish a fact
 omitted from compact context from a fact genuinely unavailable to the
 rendered generation prompt. Inspect the actual accepted-state, evidence
 index, and Bard request before selecting a repair.
 
-Record the target runtime and exact checkout SHA. If no runnable Auteur
-workspace or authorized host-agent executor exists, record
-`EXECUTION_ENVIRONMENT_UNAVAILABLE` rather than inventing Chapter output.
+Record the target runtime and exact checkout SHA. If the active local coding-agent workspace is unavailable to the current
+actor, report its execution boundary; do not erase or reinterpret the
+**already-recorded real Chapter 1–2 evidence**.
 F2 continuity and X3 author orientation have **independent** verdicts.
 A real host-agent/prose run, not source-derived simulations, must establish
 their product-use results.

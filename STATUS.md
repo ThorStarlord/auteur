@@ -1,147 +1,57 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-14  
-**Reconciled baseline:** `main @ 4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merged)  
+**Last reconciled:** 2026-10-14
+**Integrated baseline:** `main @ 4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
-Short operational handoff only; history belongs in Git, PRs, issues, qualification, and release records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
+Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
-## Current Frontier
+## Current Frontier: F2 + X3
 
-**F2 — Small-Book Longitudinal Coherence + X3 — Persistent Book Workspace**  
-Evidence surface: issue #318 and the frozen six-Chapter **The Glass Archive**.
+Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journey began against the exact merged baseline above. The Windows persistence defect was repaired and passed a clean Chapter 1 retry; the controlled run stopped at Chapter 2 after repeated under-target chapter prose.
 
-Current `main` now contains the unqualified F2 implementation:
-- #341 — unique atomic host-agent packet staging;
-- #340 — filesystem-exclusive draft-version creation;
-- #332 — Chapter-N host-agent orchestration;
-- #335 — crash/replay recovery plus exact response/provenance binding.
+- The first Chapter completion wrote LF candidate text as CRLF, so its persisted bytes did not match the completion receipt hash. Acceptance then encountered the same translation in `final.md`.
+- `Project.write_draft` and `Project.write_final` now preserve LF bytes; byte-level regression assertions were added. Focused chapter-generation, acceptance, and project persistence tests pass (34 tests).
+- On a clean fixture, Chapter 1 (946 words) completed and was explicitly accepted. Draft and final bytes matched; reopening showed Chapter 2, recent accepted facts, and the next action. The earlier interrupted fixture had duplicate Bible events from retrying its CRLF acceptance failure; those records were confined to that disposable project.
+- The generated Chapter 2 outline was corrected before drafting so Sister Beatrice and Saint Orra were absent from the initial plan, as the frozen fixture requires. Chapter 2 then surfaced Beatrice, Saint Orra and historical ledger evidence in a 965-word Working candidate. Both Chapter outputs were below the requested 1,066-word minimum. Chapter 2 remains unaccepted; the run stopped at this recurring under-target output. F2 and X3 are blocked/incomplete, not passed. No production story was used.
 
-```text
-integrated implementation
--> run same controlled Book
--> first recurring material failure
--> smallest owning repair
--> rerun same checkpoint
-```
+The repair is committed as `c17771db218565625915fd9d90b6cb9f2fd5a396` on top of merge SHA `4122321`. At this code SHA, Node passed 64/64, focused mentorship Python passed 28, `-k studio` exited successfully (163 tests), and Stage B passed 16/16. The full Python run collected 5,617: 5,599 passed, 16 failed, 2 skipped; all 16 failure IDs were reproduced with the same assertions on exact merge baseline. This is engineering regression evidence, not completion of the F2/X3 book journey. Continue from a clean fixture at Chapter 1, then proceed only while the controlled checkpoint succeeds.
 
-F3/X4 is not selected.
+## Quick Draft (#310)
 
-## Living Story Studio and contextual mentorship
+Four core host-agent Quick Draft scenarios were run (mystery, character-driven, speculative, intentionally vague), plus the requested Sister Beatrice / convent follow-up. All generated responses remained Working drafts (`accepted: false`). The follow-up selected only Sister Beatrice and the convent for a noncanonical handoff; other detected discoveries were excluded. The complete requests, responses, outputs, hashes, and measured word counts are in [post-#436 product-use evidence](qualification-evidence/4122321-post436-product-use.json).
 
-PR **#436** merged into development `main` at
-`4122321fe09d1959278fdd087fc29f85e2f3a9d2`, with candidate qualification
-head `97354ee6ea293df6c6b15783406e6c1d560403bf`.
+Observed issue: a Browser session displayed `awaiting_host_agent`, disabled its editor, and did not expose the request prompt/hash in the page. No natural notification to the active coding-agent environment was observed; this run required task context and local request inspection. The API accepted a response, but the page did not update during the observed wait; reopening the session displayed the saved draft. This does not establish a general host bridge or successful unattended fulfillment.
 
-**Actual Windows qualification at the candidate head**, reported in the merged
-PR: Node **64/64**; focused mentor Python/HTTP/proxy **28 passed**; Studio Python
-**163 passed**; Stage B real Chromium **16/16**; focused Unfolding browser
-**11 passed**; tested working-editor save/reopen; real desktop and mobile
-captures without page errors or horizontal overflow. The complete Python suite
-was **5,591 passed / 24 failed / 2 skipped** (5,617 collected). All 24 failure
-node IDs matched the exact pre-merge `main` baseline: no candidate-only failures.
-There were **no recorded GitHub CI runs**.
+Model identity and reliable per-request latency were unavailable, so they are recorded as unavailable. The four scenarios are agent-generated dogfood evidence, not human author feedback. Two outputs were below the prompt’s approximate 1,400-word target (1,030 and 1,076 words); the other two were 1,147 and 1,129 words.
 
-**Evidence boundaries:** this mechanically qualifies the changed Studio
-development behavior; it is not a zero-failure repository result, release
-qualification, screen-reader accessibility result, or population-level UX
-evaluation. The owner separately reported one fresh independent host-agent
-mentorship sample producing three distinct acceptable audit paths while
-preserving privacy and neighbor agency; its temporary canvas stayed at
-revision 2 with the original two items and no accepted story change. That is
-a **single exploratory creative sample**, not broad usefulness proof.
+## Current-main Beginner Narrative-Architecture Coherence
 
-The historical source-only handoff in
-`docs/design/2026-10-14-mentorship-integration-qualification.md` is superseded
-for merge/testing status by its post-merge qualification update. Future Studio
-mentorship improvement should use real author/coding-agent interactions,
-focusing on intention correction, meaningful causal divergence, accessibility,
-and graph-first legibility. Do not re-run another general static/persona
-qualification wave to recover evidence already established.
+`CURRENT_MAIN_BEGINNER_COHERENCE_RECONCILIATION`: the Beginner path reuses the accepted whole-story Structure to derive Chapter and scene plans. Scene plans mark the **Structure → Realization** boundary; outline and Chapter plans remain derived proposals until the author explicitly accepts them. L3 verification and human qualification remain separate evidence gates. This handoff records agent product use only; no human author walkthrough occurred in this run.
+## PR #436 integration and qualification evidence
 
-## Quick Draft Runtime
+PR #436 is merged. Its exact source qualification was recorded at `97354ee6ea293df6c6b15783406e6c1d560403bf`; the integration commit is `4122321fe09d1959278fdd087fc29f85e2f3a9d2`.
 
-Current `main` also contains the unqualified host-agent-first Quick Draft implementation:
-- #334 — Book completion / pending-failure guarantee repairs;
-- #336 — host-agent-first Browser/API/CLI path with replay/overwrite protection;
-- #341 — shared atomic host-agent packet persistence.
+Recorded exact-source checks: Node 64/64; focused Python 28; `-k studio` 163; Stage B browser check 16/16; focused unfolding 11/11. The serial full Python suite had 5,591 passed, 24 failed, 2 skipped; all 24 failures matched the exact-main baseline and no candidate-only failure was recorded. GitHub Actions had no runs. These results do not qualify the subsequent Windows persistence repair.
 
-Next evidence surface: issue #310, using the real target host-agent environment.
+A fresh mentorship response was also sampled through CanvasStore: one response passed the strict backend contract and offered three distinct options while preserving supplied constraints. It remains one agent sample, not a human study or product-readiness finding.
 
-## Claim Ceiling and inherited baseline debt
+## Claim ceiling and next execution
 
-**Do not collapse the independent evidence lanes:**
+The merged work is integrated development work. The Windows repair has exact-SHA regression evidence, with the full-suite failures matching the tested baseline; the controlled F2/X3 journey remains incomplete. Do not call F2/X3 complete or the experience product-ready yet.
 
-- Studio / mentorship PR #436: **mechanically qualified development integration**
-  at the specific tested head described above, **not** product/release readiness.
-- F2/X3 six-Chapter continuity/workspace #318: **not product-use qualified**.
-- Real host-agent Quick Draft #310: **not runtime qualified**; the Studio
-  mentorship sample does not constitute a Quick Draft prose generation run.
-- Human creative usefulness/current UX #305: **conditional evidence lane**,
-  not a prerequisite for the selected mechanical F2/X3 run.
+1. Decide whether to repair host-agent target-length adherence; if so, change only the demonstrated prompt/runtime boundary, then resume from the clean accepted Chapter 1 state and corrected Chapter 2 plan.
+2. Reconcile issue #318 using the actual journey evidence.
+3. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
+4. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
 
-The 24 inherited full-Python-suite failures were observed against the exact
-pre-merge baseline, but the aggregate receipt does not identify each failure's
-owning subsystem or severity. Keep the red baseline visible, inspect individual
-node IDs before assigning a cause, and repair a baseline failure when it
-threatens author data/authority, blocks the active frontier, or is otherwise
-the smallest warranted maintenance owner. Do not declare the full suite green
-or initiate an unbounded 24-test repair campaign merely to reach zero.
-
-```text
-merged != product-use PASS != release-qualified
-baseline-equivalent failures != all tests green
-scripted agent example != human preference evidence
-```
-
-Existing exact-head tests remain executable specifications; no paid GitHub
-Actions run is required merely to restate this evidence.
-
-## Validation Posture
-
-- **L1:** focused ordinary-development evidence.
-- **L2:** only for a named changed boundary.
-- **L3:** explicit stabilization/milestone/recovery checkpoint.
-- **Release Qualification:** separate frozen-candidate lifecycle.
-- GitHub Actions remain optional.
-
-This agent environment still has no runnable Auteur checkout: container DNS
-cannot resolve GitHub, the connected GitHub integration has no remote coding
-executor, and unrelated Vercel infrastructure must not be repurposed or billed.
-Therefore #318 and #310 remain **EXECUTION_ENVIRONMENT_UNAVAILABLE here**, not
-F2/X3 PASS/FAIL or a host-agent runtime outcome. A separate target coding-agent
-workspace can execute them against the new `main` SHA above.
+F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
 
 ## Governance / External Gates
 
 - **#338:** human protected commit — replace the absolute 500-line/12-file rejection rule and consolidate AGENTS/CLAUDE guidance.
 - **#272:** GitHub admin — require PR-only `main`, no mandatory hosted Actions.
-- **#295 / #218:** separate qualification lanes; neither blocks F2 product-use evidence.
-
-The architecture admission guard is now integrated via #339: new durable architecture must be earned by observed frontier failure plus a behavioral distinction the existing model cannot express.
-
-## Deferred
-
-MANA, Progressive Commitment runtime states, F3+, generalized retrieval/vector search, new semantic layers/global story-state enums, Episode 2+ expansion, another first-session feature wave, and #248 post-F2 decomposition remain deferred.
-
-## Next Trigger
-
-1. Resume the **same frozen six-Chapter Glass Archive** run in #318 against
-   `main@4122321fe09d1959278fdd087fc29f85e2f3a9d2`. Existing
-   explicitly linked-evidence candidate #343 is unmerged/unqualified, not
-   the automatic answer to a lexical-paraphrase hypothesis.
-2. If it exposes a material recurring failure, repair the smallest owning boundary and rerun that checkpoint.
-3. If F2/X3 succeeds at the intended product-use boundary, close/reconcile that frontier at the evidence-supported claim level and activate #248.
-4. Run #310 real host-agent Quick Draft dogfood; observe request fulfillment,
-   first-scene adherence, provisional-assumption leakage, discovery behavior,
-   latency, and whether Browser `awaiting_host_agent` is naturally fulfilled.
-   Existing Browser waiting-state candidate #344 remains unmerged/unqualified.
-5. Evaluate mentor correction/creative differentiation through bounded
-   author/coding-agent use, without elevating the single successful sample to
-   a broad readiness claim.
-6. Let product-use evidence choose the next bounded repair; do not promote
-   F3/X4, start deferred #248, or invent a host bridge speculatively.
-   Documentation-only PR #345 was closed unmerged as superseded by #437; activation is not an F2/X3 pass.
+- **#295 / #218:** separate qualification lanes; neither blocks current F2 product-use evidence.
 
 ## Simplification Rule
 
@@ -152,4 +62,4 @@ accepted story
 + explicit promotion
 ```
 
-Preserve rigor around story meaning/authority; reduce machinery that mainly administers the repository.
+Preserve authorial authority and auditable provenance; reduce machinery that mainly administers the repository.
