@@ -1,14 +1,14 @@
 # F2 + X3 Controlled Qualification Protocol
 
 **Date:** 2026-10-04  
-**Status:** pre-authored qualification protocol; execution gated by #313 reaffirmation  
+**Status:** ACTIVE controlled product-use protocol; six-Chapter F2/X3 execution pending  
 **Narrative frontier:** F2 — Small-Book Longitudinal Coherence  
 **Experience frontier:** X3 — Persistent Book Workspace  
 **Authority:** protocol only; does not pre-authorize implementation, UI components, merge, release, or provider spend
 
 ## Purpose
 
-After #313 reaffirms the Unified Author Experience, run one controlled small Book
+Against contemporary integrated `main`, run one controlled small Book
 through the complete author journey and let the **first material failure** select
 the next bounded implementation responsibility.
 
@@ -248,13 +248,35 @@ specific failure it would solve.
 
 ---
 
-## 8. Execution gate
+## 8. Active execution and evidence boundary
 
-Do not execute this protocol as the next construction frontier until #313 has
-consumed the residual #305/#310 evidence and either:
+The prior #313 activation gate is resolved: #313 is closed, #318 is active,
+and the required Chapter-N orchestration, bounded context composition and
+Book orientation are integrated into development `main`.
 
-- **REAFFIRMS** the current Unified Author Experience; or
-- **REVISES** it without invalidating F2/X3 as the next controlled frontier.
+**Latest source checkpoint (2026-10-14):**
+`main@4122321fe09d1959278fdd087fc29f85e2f3a9d2`, after the qualified
+graph-first Studio/mentorship PR #436 merge. Its separate 64 Node, 28 focused
+Python mentor, 163 Studio, and 16 Stage-B browser successes **do not**
+constitute a Glass Archive six-Chapter execution.
 
-If #313 produces a material product-thesis contradiction, return to the
-appropriate strategic boundary instead.
+Run the existing frozen reference Book exactly once as the controlled
+authoring journey, using its P1–P6 injections. At Chapter 6 include the
+already-recorded lexical-paraphrase variant from #318: distinguish a fact
+omitted from compact context from a fact genuinely unavailable to the
+rendered generation prompt. Inspect the actual accepted-state, evidence
+index, and Bard request before selecting a repair.
+
+Record the target runtime and exact checkout SHA. If no runnable Auteur
+workspace or authorized host-agent executor exists, record
+`EXECUTION_ENVIRONMENT_UNAVAILABLE` rather than inventing Chapter output.
+F2 continuity and X3 author orientation have **independent** verdicts.
+A real host-agent/prose run, not source-derived simulations, must establish
+their product-use results.
+
+The earlier coding-agent preflight was refreshed in merged #342; candidate
+#343 is an **unmerged optional accepted-source-pointer repair**, not already
+qualified or the automatic answer to the paraphrase hypothesis.
+Do not require a new broad human-persona study or build retrieval, a new
+semantic layer, or a dashboard before the first material recurring failure
+shows its own smallest responsible boundary.
