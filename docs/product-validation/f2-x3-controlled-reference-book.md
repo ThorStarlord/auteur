@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Tracking:** #318  
-**Status:** PREPARED TEST FIXTURE / NOT YET ACTIVE  
+**Status:** FROZEN REFERENCE FIXTURE / ACTIVE F2+X3 FRONTIER / CHAPTER 1–2 RUN PARTIAL  
 **Purpose:** provide one frozen six-Chapter story for longitudinal coherence and persistent-workspace qualification.
 
 ## Why this fixture exists
@@ -456,9 +456,26 @@ It cannot by itself establish:
 
 Those claims require their own evidence.
 
-## Activation
+## Execution status — 2026-10-14
 
-This fixture is prepared but inactive.
+This is the **active, frozen six-Chapter story for #318**. The prior #313
+activation prerequisite is satisfied; no new Book fixture or general
+beginner-persona test campaign is necessary. Preserve the Chapter-by-Chapter
+injections, original chronology, accepted facts, unknowns, and separate
+narrative (F2) versus experience (X3) questions.
 
-Activate only when #313 selects/reaffirms #318 after consuming #310 provider
-evidence and qualified #316 evidence.
+Use contemporary integrated `main` (current checkpoint
+`ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`), preserving the exact
+target-runtime commit and session artifacts. The first real host-agent attempt
+accepted/reopened Chapter 1 after the Windows exact-byte repair, then produced
+an **unaccepted**, under-target Chapter 2 Working draft with the expected
+Sister Beatrice/Saint Orra discovery. Chapters 3–6 have not run; F2 and X3
+remain incomplete. See
+`docs/qualification-evidence/4122321-post436-product-use.json` and issue
+#318 for the exact receipts and stop reason.
+
+**Partial execution != PASS.** Retain the accepted Chapter 1 result, do
+not auto-accept short Chapter 2 prose, and do not invent later Chapters or
+author decisions. The runner should resume after repairing/demonstrating
+the smallest under-length generation issue. The optional evidence-link candidate #343 is unmerged; inspect
+actual Chapter-6 context before admitting it as a solution.

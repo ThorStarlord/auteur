@@ -68,17 +68,28 @@ Primary synthesis:
 - `docs/product/auteur-system-interaction-map.md`
 - `docs/product/auteur-ux-product-requirements.md`
 
-Current evidence flow:
+Historical decision path:
 
 ```text
-#305 real-author evidence
+#305 conditional human evidence
 +
-#310 real-provider evidence
+#310 host-agent runtime evidence
 +
 unified experience architecture
--> #313 high-order reconciliation
--> one bounded next implementation wave
+-> #313 high-order reconciliation (closed)
+-> #318 selected F2/X3 controlled product-use frontier (active, not passed)
 ```
+
+**Currentness (2026-10-15):** PR #436 graph-first Studio/mentorship is merged
+and mechanically qualified; PR #438 repaired exact-byte Chapter persistence
+on Windows and merged at `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`.
+#318 **actually began** the frozen Book: Chapter 1 was accepted and reopened;
+Chapter 2 surfaced the planned discovery but stopped unaccepted after repeated
+under-length prose. #310 **actually ran** four host-agent Quick Draft scenarios;
+two outputs were short and the Browser's waiting-to-completion handoff required
+manual agent intervention. Neither the complete six-Chapter journey nor
+human author usefulness is qualified. Do not reopen #313 or
+turn prior #305 uncertainty into an automatic participant/approval gate.
 
 A blocking product defect discovered during validation may still receive a
 bounded repair. Ordinary hesitation, preference, or local friction should not be
@@ -122,9 +133,9 @@ Current frontier interpretation:
 
 ```text
 F0 — Coherent Scene                      mechanically established
-F1 — Messy Discovery                     current evidence boundary
-#305 + #310 -> #313                      reconcile current experience
-F2 — Small-Book Longitudinal Coherence   preferred next major frontier if reaffirmed
+F1 — Messy Discovery                     bounded prior evidence, broader feel unqualified
+#313                                     closed; current mental model conditionally retained
+F2 — Small-Book Longitudinal Coherence   selected ACTIVE frontier in #318; six-Chapter run unqualified
 F3 — Multi-Thread Book
 F4 — Narrative Depth
 F5 — Evolving Long Book
@@ -132,10 +143,12 @@ F6 — Complex Long Book
 F7 — Series
 ```
 
-F2 is **not automatically authorized** by appearing next. #313 must reconcile
-the current human/provider evidence first. If the unified experience model is
-reaffirmed, F2 should be preferred over another local Quick Draft feature or an
-unmotivated new narrative subsystem.
+F2 was **selected through the concluded #313 reconciliation**; #318 now owns
+its actual six-Chapter evidence. This authorizes a controlled attempt, **not**
+an F2 PASS, automatic F3 build, or speculative new narrative subsystem.
+Retain #305 as conditional human calibration and #310 as separate Quick Draft
+host-agent evidence rather than treating them as unfulfilled preactivation
+gates.
 
 ## Experience Frontier construction model
 
@@ -173,7 +186,7 @@ X7 — Series Workspace
 Narrative and experience frontiers are coordinated but pass/fail
 independently.
 
-If #313 reaffirms the current model, the preferred next paired qualification is:
+The selected paired product-use qualification is now active in #318:
 
 ```text
 F2 — Small-Book Longitudinal Coherence
@@ -181,7 +194,10 @@ F2 — Small-Book Longitudinal Coherence
 X3 — Persistent Book Workspace
 ```
 
-using the same controlled six-Chapter reference Book.
+Use the **same frozen six-Chapter Glass Archive**, record independent F2 and X3
+verdicts, and let the first material recurring failure select the smallest
+owning repair. The frozen protocol/fixture currentness is also tracked by
+the currentness reconciliation PR #437 (superseding closed-unmerged #345); an attempted frontier is not a passed frontier.
 
 Do not preselect a Dashboard, sidebar, graph, timeline, or multi-pane layout.
 Let the first meaningful experience failure determine the lowest correct UX/UI

@@ -3,7 +3,7 @@
 **Frozen target:** \`bd2ba539d2f300941681fa7c7b80ab4765354b79\`
 **Review lens:** interaction and mental-model attack; no acceptance of graph-first utility merely from UI presence.
 **Evidence:** source control flow, selected contracts, one isolated execution of original JS handlers against a minimal DOM stub; **no live Browser or human subject session**.
-**Provisional disposition:** **REFINE INTERACTION / BLOCK DEFAULT PROMOTION**. Graph-first UX may be worthwhile, but two core re-entry/editing flows require repair and observation.
+**Provisional disposition:** **REFINE THE GRAPH-FIRST INTERACTION**. These findings identify authoring and re-entry gaps within the owner-selected direction; they do not reopen that product decision. Promotion remains subject to the staged safety checks in the selected design.
 
 ## 1. Intended author journey and baseline
 
@@ -85,6 +85,37 @@ The implementation correctly distinguishes working versus read-only derived node
 
 ## 5. Verdict
 
-**REFINE INTERACTION.** The two core creation/re-entry defects are stronger evidence than aesthetic intuitions. Neither establishes that spatial creativity is worthless. Do not default the Studio until S2/S8 loss and re-entry are repaired and S1/S5/S6 demonstrate actual author value.
+**REFINE INTERACTION.** The creation/re-entry defects are stronger evidence than aesthetic intuitions. They do not establish that spatial creativity is worthless, and they do not supersede the owner-selected graph-first target default in the living Studio design. They identify work needed to make that direction more coherent. Automated checks do not establish felt author value or authorize broader rollout.
 
-**Claim ceiling:** one narrow code-executed DOM-stub reproduction, source-grounded UI mapping and proposed comparative scenarios; no real browser accessibility results or human preference claims.
+**Claim ceiling for the original review:** one narrow code-executed DOM-stub reproduction, source-grounded UI mapping and proposed comparative scenarios; no real browser accessibility results or human preference claims.
+
+## 6. Direction reconciliation and follow-up evidence
+
+The owner-selected direction remains **graph-first Studio**, as recorded in
+[`2026-10-09-living-story-studio.md`](../../design/2026-10-09-living-story-studio.md).
+The comparison above remains useful: compact status presentation can reduce
+re-entry load, while a manuscript-and-map composition can combine readable
+prose, Chapter navigation, and structural context. Those are interaction
+compositions available within a graph-first product; neither replaces the
+selected spatial work surface or establishes a new product direction.
+
+The original observations remain intact: Chapter nodes lacked a manuscript
+route, Book orientation was hidden from the initial view, recent history was
+dense, and narrow-screen overflow alone could not establish usability. A later
+bounded implementation addressed navigation and re-entry without adding story
+state. At code SHA `aabfe577068f383887709e7bbc695261634e3d66`, an automated
+Chromium run on a disposable copy of the complete six-Chapter fixture showed
+completed-Book orientation on bare and explicit-canvas Studio re-entry;
+Chapter 2 opened the existing review route and displayed its accepted prose;
+browser Back returned to the Book graph; and the 390px page had no horizontal
+overflow. All 89 non-Studio source files retained their original hashes.
+Focused Browser tests passed and the Stage B Chromium script passed 16/16 on
+that SHA. This updates implementation evidence; it does not rewrite the
+historical failure or claim a human UX result.
+
+Recent history, suggested updates, and attention details now use disclosure
+controls, keeping Book orientation and next action visible while retaining
+review detail. Their comprehension and information density remain untested
+with authors. Continue small observable improvements within graph-first Studio;
+do not infer human usability or broad rollout readiness from automated Browser
+evidence.
