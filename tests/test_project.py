@@ -97,9 +97,12 @@ def test_write_outline_and_draft_and_validation(tmp_path):
 def test_write_final_and_has_final(tmp_path):
     project = Project.init(tmp_path / "n", StoryBlueprint.from_yaml(SAMPLE_YAML))
     assert not project.has_final(1)
-    project.write_final(1, "the chapter prose")
+    prose = "the chapter prose\nwith a second line\n"
+    project.write_final(1, prose)
     assert project.has_final(1)
-    assert (project.chapter_dir(1) / "final.md").read_text(encoding="utf-8") == "the chapter prose"
+    final_path = project.chapter_dir(1) / "final.md"
+    assert final_path.read_text(encoding="utf-8") == prose
+    assert final_path.read_bytes() == prose.encode("utf-8")
 
 
 def test_write_draft_uses_exclusive_create_even_if_precheck_would_be_stale(

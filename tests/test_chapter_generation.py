@@ -73,6 +73,7 @@ def test_completion_writes_working_only_and_preserves_unknown_latency(tmp_path, 
     result = generation.complete_chapter_generation(
         root, 6, command_id="cmd", response_payload=response,
     )
+    assert hashlib.sha256(result.draft_path.read_bytes()).hexdigest() == result.candidate_sha256
     metadata = json.loads(result.metadata_path.read_text())
     assert result.draft_path.name == "draft_v1.md"
     assert result.elapsed_seconds is None

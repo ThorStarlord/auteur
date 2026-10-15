@@ -1,0 +1,7 @@
+{
+  "progression_fantasy":{"coverage":"inference_only","pack_version":null,"source_ref":"illustrative:paladin-screenshot-and-premise","legacy_rule_field":null,"note":"No verified versioned Progression Fantasy Genre Pack exists on the examined main baseline; descriptions are illustrative craft hypotheses."},
+  "heroic_fantasy":{"coverage":"inference_only","pack_version":null,"source_ref":"illustrative:paladin-screenshot-and-premise","legacy_rule_field":null,"note":"No verified versioned Heroic Fantasy Genre Pack exists on the examined main baseline."},
+  "epic_fantasy":{"coverage":"legacy_contract","pack_version":null,"source_ref":"src/auteur/genres/data/epic_fantasy.yaml","legacy_rule_field":"required_tropes","note":"Legacy YAML uses required_tropes for chosen-one/prophecy; preserve label as a legacy contract assertion, not a universal literary law."},
+  "mystery":{"coverage":"legacy_contract","pack_version":null,"source_ref":"src/auteur/genres/data/mystery.yaml","legacy_rule_field":null,"note":"Legacy YAML exists, but its convention fields were not extracted into this illustrative prototype. Do not invent them."},
+  "horror":{"coverage":"legacy_contract","pack_version":null,"source_ref":"src/auteur/genres/data/horror.yaml","legacy_rule_field":null,"note":"Legacy YAML exists, but its convention fields were not extracted into this illustrative prototype. Do not invent them."}
+}

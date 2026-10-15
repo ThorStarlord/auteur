@@ -772,6 +772,23 @@ A coherent architecture, passing test, or agent simulation MUST NOT be presented
 
 ---
 
+### VAL-05 — Fair incumbent comparison
+**Status:** OWNER-SELECTED PROCESS / EVIDENCE PRINCIPLE (2026-10-10)
+
+An existing user interface is an operational comparison baseline, **not** presumptively product/UX mature because it has been implemented longer. When considering a new design, evaluate the incumbent's demonstrated author value, friction, and costs under a comparably fair standard. Additional safeguards are justified by actual data/switching consequences, not by familiarity alone.
+
+Owner-observed preference or clunkiness is legitimate product input and may select a reversible development direction; it MUST NOT be represented as proof of broader author-population preference.
+
+### VAL-06 — Evidence scaled to adoption consequence
+**Status:** OWNER-SELECTED PROCESS / EVIDENCE PRINCIPLE (2026-10-10)
+
+Separate (a) selected product direction, (b) development default after essential safety qualification, (c) early-user beta default after everyday reliability, accessible use and rollback qualification, and (d) broad release/legacy retirement after commensurate evidence and authorization.
+
+Technical safety — working text durability, restart/recovery, authority and accepted-story continuity, failure truth — is non-negotiable for routine author work. Comparative human preference studies are **not blanket prerequisites** for choosing a product direction or a reversible development default. Evidence strength must match the claim and the affected users.
+
+When a review favored the older UI without adequate UX evidence, diagnose the **process** (proxy measures, unequal burdens, conflated gates, uncounted omission cost), repair the decision policy, retain finding ownership and avoid personal blame. See [Staged Default Decision](../product-validation/living-story-studio/2026-10-10-staged-default-product-decision.md).
+
+
 # 19. Evidence-gated product decisions
 
 The unresolved questions now belong to different evidence gates:

@@ -136,7 +136,7 @@ def test_synthetic_walkthrough_covers_the_four_experiential_claims(tmp_path: Pat
     workspace_id = "synthetic-walkthrough"
     with _running_server(tmp_path) as server:
         # The served bundle must wire the action-hierarchy surface the walkthrough asserts.
-        index_type, index_html = _get(server, "/")
+        index_type, index_html = _get(server, "/beginner.html")
         _, app_js = _get(server, "/app.js")
         _, styles_css = _get(server, "/styles.css")
         assert "text/html" in index_type
