@@ -908,7 +908,7 @@
           return new RegExp("^chapters/0*" + i + "/final\\.md$").test(ref);
         });
         var chapterRef = acceptedRef || "chapters/" + String(i).padStart(2, "0") + "/";
-        var chapterState = acceptedRef ? "Kept" : (current ? book.current_chapter_state : "Working");
+        var chapterState = current ? book.current_chapter_state : (acceptedRef ? "Kept" : "Working");
         state.derived.nodes.push({ id: id, kind: "chapter", title: "Chapter " + i,
           detail: current ? book.orientation_reason : "Chapter-order orientation only; inspect accepted history before making changes.",
           authority: "DERIVED / NOT CANON", source_ref: chapterRef,

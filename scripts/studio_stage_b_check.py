@@ -310,6 +310,55 @@ try:
         b2 = node.bounding_box()
         check("arrow keys move a focused node", b2["x"] > b1["x"], (b1["x"], b2["x"]))
         pg5.close()
+
+        # Keep a prior accepted version beside a newer, unaccepted revision.
+        # The graph must label the current projection Working and route review
+        # to the newer candidate without changing either manuscript.
+        chapter_files = {
+            "blueprint.yaml": "structure:\n  estimated_chapters: 2\n",
+            "chapters/01/final.md": "Accepted first chapter.\n",
+            "chapters/01/draft_v1.md": "Accepted first chapter.\n",
+            "chapters/02/final.md": "Previously accepted Chapter 2 version.\n",
+            "chapters/02/draft_v1.md": "Previously accepted Chapter 2 version.\n",
+            "chapters/02/draft_v2.md": "Current unaccepted Chapter 2 revision.\n",
+        }
+        for relative, content in chapter_files.items():
+            path = proj / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+            before[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+
+        pg6 = br.new_page(viewport={"width": 1300, "height": 900})
+        pg6.on("pageerror", lambda e: errs.append(str(e)))
+        open_(pg6)
+        pg6.wait_for_function("document.querySelector('#layer-view').value === 'book'")
+        chapter_two = pg6.locator("button.node:visible", has_text="Chapter 2")
+        chapter_two.wait_for(state="visible", timeout=5000)
+        chapter_label = chapter_two.inner_text()
+        chapter_two.evaluate("element => element.click()")
+        open_label = pg6.locator("#book-open-chapter").inner_text()
+        check(
+            "newer revision overrides historical Kept label in Book graph",
+            "Working · current" in chapter_label and open_label == "Open Chapter 2 · Working",
+            {"graph": chapter_label, "selected_action": open_label},
+        )
+        pg6.locator("#book-open-chapter").click()
+        pg6.wait_for_url("**/beginner.html?chapter=2")
+        pg6.locator("#post-draft-review").wait_for(state="visible", timeout=5000)
+        review_text = pg6.locator(".draft-prose").inner_text()
+        check(
+            "Chapter review shows the current unaccepted revision",
+            "Current unaccepted Chapter 2 revision." in review_text
+            and "Previously accepted Chapter 2 version." not in review_text
+            and "candidate draft" in pg6.locator("#post-draft-status").inner_text().lower(),
+            pg6.locator("#post-draft-status").inner_text(),
+        )
+        check(
+            "Chapter review leaves accepted and Working manuscripts unchanged",
+            (proj / "chapters/02/final.md").read_text(encoding="utf-8") == chapter_files["chapters/02/final.md"]
+            and (proj / "chapters/02/draft_v2.md").read_text(encoding="utf-8") == chapter_files["chapters/02/draft_v2.md"],
+        )
+        pg6.close()
         check("no page errors", not errs, errs[:3])
         br.close()
     after = canonical_snapshot()

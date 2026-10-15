@@ -105,6 +105,35 @@ def test_estimated_blueprint_chapters_are_authoritative_plan(tmp_path: Path) -> 
     assert progress.planned_chapters == 2
 
 
+def test_newer_working_revision_remains_working_alongside_kept_version(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    copy_bootstrap_template(project)
+    (project / "blueprint.yaml").write_text(
+        "structure:\n  estimated_chapters: 2\n", encoding="utf-8",
+    )
+    chapter_one = project / "chapters" / "01"
+    chapter_one.mkdir(parents=True, exist_ok=True)
+    (chapter_one / "final.md").write_text("Kept Chapter 1.\n", encoding="utf-8")
+    (chapter_one / "draft_v1.md").write_text("Kept Chapter 1.\n", encoding="utf-8")
+    chapter_two = project / "chapters" / "02"
+    chapter_two.mkdir(parents=True, exist_ok=True)
+    kept = "Previously accepted Chapter 2.\n"
+    working = "New unaccepted Chapter 2 revision.\n"
+    (chapter_two / "final.md").write_text(kept, encoding="utf-8")
+    (chapter_two / "draft_v1.md").write_text(kept, encoding="utf-8")
+    (chapter_two / "draft_v2.md").write_text(working, encoding="utf-8")
+
+    progress = project_book_progress(project)
+
+    assert progress.current_chapter == 2
+    assert progress.current_chapter_state == "Working"
+    assert "chapters/02/final.md" in progress.accepted_chapter_refs
+    assert progress.next_story_action == "Continue Chapter 2"
+    assert (chapter_two / "final.md").read_text(encoding="utf-8") == kept
+    assert (chapter_two / "draft_v2.md").read_text(encoding="utf-8") == working
+
+
 def test_book_progress_reuses_accepted_book_as_publication_preflight(tmp_path: Path) -> None:
     project = _accepted_book_project(tmp_path)
 
