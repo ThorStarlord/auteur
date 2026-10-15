@@ -1644,7 +1644,9 @@
     if (!state.architecture) return;
     (state.architecture.emotion_targets || []).forEach(function (target) {
       var p = document.createElement("p");
-      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + target.provenance +
+      var attribution = window.AuteurStudioAuthorIntent ?
+        window.AuteurStudioAuthorIntent.provenanceLabel(target.provenance) : "Attribution unverified";
+      p.textContent = target.emotion.toUpperCase() + " (" + target.role + ", " + attribution +
         "): " + target.intended_effect + " | Elicited by: " + target.eliciting_condition +
         " | Aesthetic strategy: " + target.aesthetic_strategy;
       host.appendChild(p);
@@ -1788,7 +1790,17 @@
       noData.textContent = "Develop a working architecture proposal to explore its narrative meaning.";
       host.appendChild(noData); return;
     }
-    var projection = projector.project(state.architecture,state.architectureRequestSha,null);
+    var evidence = state.fullArchitectureEvidence;
+    var sourceMap = null;
+    if (evidence && evidence.canvasId === remote.canvasId &&
+        evidence.requestSha === state.architectureRequestSha &&
+        state.architectureSourceStatus === "ready") {
+      sourceMap = {};
+      evidence.legacyEvidence.forEach(function (entry) {
+        if (entry && entry.genreId) sourceMap[entry.genreId] = entry;
+      });
+    }
+    var projection = projector.project(state.architecture,state.architectureRequestSha,sourceMap);
     var facet = state.architectureFacet, list = projection[facet] || [];
     var key = state.facetSelection && projector.resolve(projection,facet,state.facetSelection,state.architectureRequestSha)
       ? state.facetSelection : (list.length ? list[0].key : null);

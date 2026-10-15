@@ -36,3 +36,9 @@ test('current authored text is not reclassified by agent self-labels', () => {
   assert.equal(result.authorVision.text, items[0].content);
   assert.equal(result.proposal.text, suggestion.candidate.summary);
 });
+
+test('AI self-described author provenance is explicitly unverified', () => {
+  assert.match(window.AuteurStudioAuthorIntent.provenanceLabel('author_declared'),/AI claimed.*verify/i);
+  assert.equal(window.AuteurStudioAuthorIntent.provenanceLabel('agent_proposed'), 'AI proposal · not accepted');
+  assert.match(window.AuteurStudioAuthorIntent.provenanceLabel('unknown'),/unverified/i);
+});
