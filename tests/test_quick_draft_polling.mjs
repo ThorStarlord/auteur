@@ -69,6 +69,18 @@ function readyResponse() {
   };
 }
 
+function pendingResponse() {
+  return {
+    ok: true,
+    json: async () => ({
+      session_id: 'session-a',
+      draft: { status: 'awaiting_host_agent', accepted: false },
+      draft_text: null,
+      scaffold: { inputs: { premise: 'Premise', first_scene_intent: 'Opening' } },
+    }),
+  };
+}
+
 async function settleMicrotasks() {
   for (let n = 0; n < 8; n += 1) await Promise.resolve();
 }
@@ -85,6 +97,27 @@ test('in-flight poll cannot render a hidden Quick Draft after workspace navigati
   assert.equal(f.element('quick-draft-result').hidden, true);
   assert.equal(f.control.state.quickDraftPending, false);
   assert.equal(f.timeouts.size, 0);
+});
+
+test('manual Check for scene confirms when the host-agent response is still pending', async () => {
+  const f = fixture();
+  const manualCheck = f.control.checkQuickDraftResult();
+  assert.equal(f.requests.length, 1);
+  f.requests[0].resolve(pendingResponse());
+  await manualCheck;
+  assert.match(f.element('quick-draft-handoff-status').textContent, /still waiting/i);
+  assert.equal(f.control.state.quickDraftPending, true);
+});
+
+test('manual Check for scene response cannot render after workspace navigation', async () => {
+  const f = fixture();
+  const manualCheck = f.control.checkQuickDraftResult();
+  assert.equal(f.requests.length, 1);
+  f.control.showWorkspace();
+  f.requests[0].resolve(pendingResponse());
+  await manualCheck;
+  assert.equal(f.element('home-surface').hidden, true);
+  assert.equal(f.element('quick-draft-result').hidden, true);
 });
 
 test('late poll failure cannot overwrite a newer manual Check for scene result', async () => {

@@ -293,7 +293,18 @@
     if (!state.quickDraftSessionId) return Promise.resolve(null);
     clearQuickDraftPoll();
     state.quickDraftPollAttempts = 0;
-    return loadQuickDraftSession(state.quickDraftSessionId);
+    var sessionId = state.quickDraftSessionId;
+    var generation = state.quickDraftPollGeneration;
+    return loadQuickDraftSession(sessionId, generation).then(function (projection) {
+      if (!projection || generation !== state.quickDraftPollGeneration ||
+          state.quickDraftSessionId !== sessionId || !state.quickDraftPending ||
+          $("home-surface").hidden || document.hidden) return projection;
+      if ((projection.draft || {}).status === "awaiting_host_agent") {
+        $("quick-draft-handoff-status").textContent =
+          "Still waiting. Ask your coding agent to finish the request, then choose 'Check for scene'.";
+      }
+      return projection;
+    });
   }
 
   function renderQuickDraftProjection(projection) {
@@ -384,7 +395,7 @@
       });
   }
 
-  function loadQuickDraftSession(sessionId) {
+  function loadQuickDraftSession(sessionId, expectedGeneration) {
     if (!sessionId) return Promise.resolve(null);
     $("home-status").textContent = "Loading your working scene…";
     return fetch(
@@ -393,6 +404,10 @@
     )
       .then(readJson)
       .then(function (projection) {
+        if (expectedGeneration !== undefined &&
+            (expectedGeneration !== state.quickDraftPollGeneration ||
+             state.quickDraftSessionId !== sessionId || !state.quickDraftPending ||
+             $("home-surface").hidden || document.hidden)) return null;
         state.quickDraftDiscoveriesVisible = false;
         $("home-status").textContent = "";
         renderQuickDraftProjection(projection);
