@@ -28,5 +28,10 @@
       sourceStatus: status
     };
   }
-  global.AuteurStudioAuthorIntent = { project: project };
+  function provenanceLabel(label) {
+    if (label === 'agent_proposed') return 'AI proposal · not accepted';
+    if (label === 'author_declared') return 'AI claimed this was author-declared; verify against your Story Vision';
+    return 'Attribution unverified · not accepted';
+  }
+  global.AuteurStudioAuthorIntent = { project: project, provenanceLabel: provenanceLabel };
 })(window);
