@@ -82,6 +82,10 @@
         </details>
       </section>
       <section id="architecture-tools" class="architecture-actions" aria-label="Agent-assisted narrative architecture">
+        <section id="author-proposal-contrast" class="author-proposal-contrast" aria-label="Your vision and Auteur's proposed interpretation" hidden>
+          <div class="author-proposal-entry"><strong>Your Story Vision · working author input</strong><p id="contrast-author"></p></div>
+          <div class="author-proposal-entry"><strong>Auteur's interpretation · AI proposal, not accepted</strong><p id="contrast-proposal"></p><small id="contrast-proposal-status"></small></div>
+        </section>
         <button id="architecture-develop" type="button">Develop architecture with coding agent</button>
         <button id="architecture-refresh" type="button">Check agent result</button>
         <label for="architecture-scope">Focus</label>
@@ -331,6 +335,7 @@
   <script src="/studio_unfolding_controller.js" defer></script>
   <script src="/studio_full_architecture.js" defer></script>
   <script src="/studio_full_architecture_controller.js" defer></script>
+  <script src="/studio_author_intent.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
 </html>
