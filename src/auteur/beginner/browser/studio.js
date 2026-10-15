@@ -16,6 +16,7 @@
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
+  var architecturePollToken = 0, architecturePendingSha = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
   state.realizationStale = false;
@@ -190,6 +191,7 @@
       });
     }
     $("architecture-handoff").hidden = !projection.request;
+    $("architecture-copy-request").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
     $("architecture-review").hidden = !state.architectureReview;
     $("architecture-diff").replaceChildren();
@@ -211,14 +213,10 @@
         summary.textContent = "Governing summary changed"; $("architecture-diff").appendChild(summary);
       }
     }
-    $("architecture-status").textContent = projection.status === "review_ready"
-      ? "A revised proposal is ready for review. Current working architecture is unchanged."
-      : projection.status === "awaiting_host_agent"
-      ? "Awaiting the active coding agent. Prior working proposal remains available if present."
-      : projection.status === "stale"
-      ? "Working architecture is outdated relative to your Story Vision. Regenerate or revise before developing concrete story material."
-      : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."
-      : "Describe a vision and ask the coding agent to develop the architecture.";
+    var handoff = window.AuteurStudioAgentHandoff ?
+      window.AuteurStudioAgentHandoff.present(projection, null) : null;
+    $("architecture-status").textContent = handoff ? handoff.message :
+      "The architecture request is not connected to a provider.";
     updateArchitectureScopes();
     if (openGraph && state.architecture) {
       state.view = "architecture"; $("layer-view").value = state.view;
@@ -238,12 +236,58 @@
     var canvasId = remote.canvasId;
     return fetch(architectureUrl()).then(apiJson).then(function (projection) {
       if (remote.canvasId !== canvasId) return;
-      var ready = !!projection.candidate;
+      var ready = projection.status === "ready" && !!projection.candidate;
       applyArchitectureProjection(projection, ready);
       if (ready) fit();
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
+  }
+  function startArchitecturePoll(projection) {
+    if (!projection.request || !window.AuteurStudioAgentHandoff) return;
+    var sha = projection.request.request_sha256, canvasId = remote.canvasId;
+    architecturePendingSha = sha;
+    var token = ++architecturePollToken;
+    var key = canvasId + ":" + sha;
+    window.AuteurStudioAgentHandoff.poll({
+      key: key,
+      getKey: function () { return remote.canvasId + ":" + architecturePendingSha; },
+      shouldStop: function () { return token !== architecturePollToken || document.hidden; },
+      read: function () { return fetch(architectureUrl()).then(apiJson); },
+      maxAttempts: 12, delayMs: 5000
+    }).then(function (result) {
+      if (token !== architecturePollToken || remote.canvasId !== canvasId ||
+          architecturePendingSha !== sha) return;
+      if (result.reason === "ready" || result.reason === "review_ready") {
+        architecturePendingSha = null;
+        applyArchitectureProjection(result.projection, result.reason === "ready");
+        status("A working architecture proposal is ready for review; no story facts were accepted.");
+      } else if (result.reason === "exhausted") {
+        $("architecture-status").textContent =
+          "No response yet. Use Check agent result later; the request remains available to copy.";
+      } else if (result.reason === "error") {
+        $("architecture-status").textContent = "Could not check the request: " + result.error;
+      }
+    });
+  }
+  function copyArchitectureRequest() {
+    var packet = $("architecture-request").value;
+    if (!packet) { status("Prepare a request before copying it."); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(packet).then(function () {
+        status("Source-bound request copied. Give it to your active coding agent; no model was called here.");
+      }).catch(function () {
+        $("architecture-handoff").open = true;
+        $("architecture-request").focus();
+        $("architecture-request").select();
+        status("Select the request and copy it manually; clipboard access is unavailable.");
+      });
+    } else {
+      $("architecture-handoff").open = true;
+      $("architecture-request").focus();
+      $("architecture-request").select();
+      status("Request selected. Copy it manually for your coding agent.");
+    }
   }
   function requestArchitecture(instruction) {
     if (!remote.ready || remote.failed) { status("Save the working canvas before requesting architecture."); return; }
@@ -259,8 +303,8 @@
       }).then(apiJson);
     }).then(function (projection) {
       applyArchitectureProjection(projection, false);
-      $("architecture-handoff").open = true;
-      status("Host-agent request prepared. Ask your active coding agent to fulfill it; no provider was called automatically.");
+      startArchitecturePoll(projection);
+      status("Request ready to copy. No coding agent was invoked by the browser.");
     }).catch(function (error) {
       $("architecture-status").textContent = "Cannot request architecture: " + error.message;
     });
@@ -2371,6 +2415,7 @@
   $("architecture-facet-back").addEventListener("click", function () { restoreFacetHistory(state.facetHistory.length-1); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", checkArchitectureResult);
+  $("architecture-copy-request").addEventListener("click", copyArchitectureRequest);
   $("architecture-revise").addEventListener("click", function () {
     var intent = $("architecture-instruction").value.trim();
     if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
