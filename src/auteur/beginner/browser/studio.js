@@ -788,6 +788,23 @@
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   // A stable, author-editable working item; never a fabricated StoryIdentity premise.
   function visionItem() { return state.items.find(function (item) { return item.id === "story-vision"; }); }
+  function renderAuthorProposalContrast() {
+    var host = $("author-proposal-contrast");
+    host.hidden = state.workspace !== "architecture" || !state.architecture;
+    if (host.hidden || !window.AuteurStudioAuthorIntent) return;
+    var contrast = window.AuteurStudioAuthorIntent.project(state.items, {
+      candidate: state.architecture,
+      candidate_request_sha256: state.architectureRequestSha,
+      status: state.architectureSourceStatus
+    });
+    $("contrast-author").textContent = contrast.authorVision ?
+      contrast.authorVision.text : "No Story Vision recorded. This proposal has no author-authored premise to quote.";
+    $("contrast-proposal").textContent = contrast.proposal ?
+      contrast.proposal.text : "No agent interpretation available.";
+    $("contrast-proposal-status").textContent = contrast.proposal && contrast.proposal.freshness === "stale" ?
+      "Older proposal; your working Story Vision has changed." :
+      "This is a proposed reading of your idea, not an author-approved character arc or story fact.";
+  }
   function showVision() {
     var item = visionItem();
     if (document.activeElement !== $("vision-text")) $("vision-text").value = item ? item.content : "";
@@ -813,6 +830,7 @@
       item.content = text;
       if (state.selected === item.id) $("content").value = text;
     }
+    renderAuthorProposalContrast();
     scheduleSave();
     $("vision-status").textContent = "Saving working vision locally...";
   }
@@ -1803,6 +1821,7 @@
   }
   function render() {
     var designing = state.workspace === "architecture";
+    renderAuthorProposalContrast();
     $("architecture-context").hidden = !designing;
     $("architecture-work-area").classList.toggle("is-architecture", designing);
     $("architecture-legend").hidden = !designing || state.view !== "architecture";
