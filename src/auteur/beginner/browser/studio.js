@@ -356,7 +356,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
     });
-    drawEdges(); renderUnfolding(); rememberFocus();
+    drawEdges(); renderUnfolding(); renderAuthorProposalContrast(); rememberFocus();
   }
 
   function focusRelatedArchitecture() {
@@ -845,6 +845,7 @@
       contrast.authorVision.text : "No Story Vision recorded. This proposal has no author-authored premise to quote.";
     $("contrast-proposal").textContent = contrast.proposal ?
       contrast.proposal.text : "No agent interpretation available.";
+    $("contrast-explore").disabled = !state.selectedCandidate || state.architectureSourceStatus !== "ready";
     $("contrast-proposal-status").textContent = contrast.proposal && contrast.proposal.freshness === "stale" ?
       "Older proposal; your working Story Vision has changed." :
       "This is a proposed reading of your idea, not an author-approved character arc or story fact.";
@@ -862,6 +863,7 @@
     if (!remote.ready || remote.failed) { status("Vision cannot be saved while the canvas is unavailable."); return; }
     var text = $("vision-text").value;
     var item = visionItem();
+    if (state.architecture && (!item || item.content !== text)) state.architectureSourceStatus = "stale";
     if (!item && !text.trim()) return;
     if (!item) {
       if (state.items.length >= 200) { status("This canvas reached its working-item limit."); return; }
@@ -2416,6 +2418,14 @@
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", checkArchitectureResult);
   $("architecture-copy-request").addEventListener("click", copyArchitectureRequest);
+  $("contrast-explore").addEventListener("click", function () {
+    if (!unfoldingController || !state.selectedCandidate || state.architectureSourceStatus !== "ready") {
+      status("Select a current proposed graph concept to explore alternative interpretations.");
+      return;
+    }
+    state.unfoldingFocus={kind:"candidate",id:state.selectedCandidate};
+    unfoldingController.exploreAlternatives();
+  });
   $("architecture-revise").addEventListener("click", function () {
     var intent = $("architecture-instruction").value.trim();
     if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
