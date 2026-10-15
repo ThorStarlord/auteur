@@ -34,7 +34,12 @@
       var evidence=packEvidence&&packEvidence[id];
       record('genres',{key:g,title:name(id),detail:c.narrative_engine||'',nodeId:id,
         sourceRef:'genre_contracts/'+id,role:c.role||'proposed',contract:c,
-        coverageMessage:evidence&&evidence.verified?'Verified external genre evidence attached: '+evidence.source_ref:
+        coverageMessage:evidence&&evidence.sourceKind==='versioned_pack'&&evidence.verified===true?
+          'Verified versioned Genre Pack: '+evidence.sourceRef:
+          evidence&&evidence.sourceKind==='legacy_contract'&&
+          /^genres\/data\/[a-z0-9_]+\.yaml$/.test(evidence.sourceRef||'')&&
+          /^[a-f0-9]{64}$/.test(evidence.contentHash||'')?
+          'Legacy genre contract: '+evidence.sourceRef+' (not a verified Genre Pack or universal genre law).':
           'No verified pack attached. These are working proposal interpretations, not universal genre requirements.'});
       (c.trope_functions||[]).forEach(function(phrase,i){
         var key='trope:'+id+':'+i,src='genre_contracts/'+id+'/trope_functions/'+i;
