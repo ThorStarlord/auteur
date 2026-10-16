@@ -82,3 +82,13 @@ def test_reentry_requires_candidate_and_working_choice_not_just_vision():
     assert not subject.reentry_invariants({**candidate, 'candidate': None}, canvas, 'a'*64, 'working-choice')
     assert not subject.reentry_invariants(candidate, {'items': canvas['items'][:1]}, 'a'*64, 'working-choice')
     assert not subject.reentry_invariants(candidate, canvas, 'b'*64, 'working-choice')
+
+
+def test_failed_agent_does_not_expose_stderr_secrets_in_receipt():
+    packet = {'role': 'studio_architecture', 'request_sha256': 'a'*64}
+    cmd = [sys.executable, '-c',
+           "import sys; sys.stderr.write('SECRET_FROM_AGENT_STDERR'); sys.exit(7)"]
+    with pytest.raises(RuntimeError) as caught:
+        subject.run_agent(cmd, packet, 2)
+    assert 'Agent exited with code 7' in str(caught.value)
+    assert 'SECRET_FROM_AGENT_STDERR' not in str(caught.value)
