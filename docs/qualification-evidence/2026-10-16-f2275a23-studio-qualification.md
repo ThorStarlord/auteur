@@ -38,3 +38,9 @@ Two probes of the Codex CLI were made. The first failed because the directory wa
 - The full 5,641-test regression was not rerun. The change is one line in one controller, and the controller's suite, the Python selected suites and the served Stage B journey all pass. The earlier checkpoint at `62e1df9f` had 17 failures, all of which reproduce on pinned `main`; this candidate was not compared against that set again.
 - Protected integration is held. The configured factory validator is logged out and autonomy is 0. No merge and no release.
 - Mentor fulfilment is still manual in the default server. The connected lane, when unblocked, is the only path where an attached executor runs.
+
+## Nonempty canonical canary (added after review)
+
+The 21/21 manual receipt records `canonical_file_hashes: {}`, because its fresh project has no accepted files. That makes `canonical_unchanged: True` trivially true, so it does not show preservation of existing story files.
+
+The adversarial replay supplies that evidence. Re-run at `f2275a23` against the onboarding worktree, it passed. It includes three nonempty accepted-path canaries (`chapters/01/final.md` and two others) whose hashes were unchanged after refusals, a wrong-identifier and malformed-candidate sweep, a cross-canvas refusal, and a delayed response after a source edit. Receipt: `2026-10-16-f2275a23-studio-adversarial.json`.
