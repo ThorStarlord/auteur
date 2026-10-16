@@ -71,7 +71,30 @@ The MVP need not introduce a new canonical schema or classify every candidate no
 6. Keyboard-only and narrow-screen authors can reach Story Vision, primary request action, a selected graph idea, the proposed/author distinction, alternatives, and return/back navigation without horizontal overflow.
 7. A synthetic/automated Browser journey establishes mechanical UX only. A short actual-author walkthrough independently probes whether these meanings are understood.
 
-## 7. Out of scope
+## 7. Mandatory Narrative Architecture end-to-end proof
+
+**Owner decision (2026-10-15):** A coding agent must prove the **author-visible Narrative Architecture journey** before describing that journey as end-to-end working, implemented-and-qualified, or ready for authors. A validated JSON response, isolated component test, backend-only round-trip, prepared request packet, or graph screenshot alone is insufficient.
+
+**Two distinct execution claims must not be conflated:**
+
+- **Manual host-agent journey:** A real running Auteur Browser creates a source-bound request from the author's saved Story Vision; an actual coding agent receives that exact request and produces a matching HostAgentResponse; the existing supported CLI/API completes and validates it; the Browser loads and explores the resulting proposal. Manual transport is explicitly disclosed. This is eligible for **PASS — manual E2E**, not **PASS — automatic execution**.
+- **Connected/automatic host journey:** The same authored request is dispatched **without copying the packet or hand-pasting a response** via a real attached executor, then validated and displayed. Claim **PASS — connected E2E** only after that authentic runtime path has executed. When no callable host exists, record **BLOCKED — no attached executor**; a fake callback, injected fixture, passive polling, or mere attached=true flag does not satisfy it. The manual journey may still be independently qualified.
+
+**Minimum author journey (disposable project, real served Browser):**
+
+1. Start at an empty or explicitly identified disposable project, enter the paladin Story Vision emphasizing extraordinary generous heroism, save, and reopen to verify exact persisted author wording.
+2. Press the author-facing architecture action; capture its exact request SHA and source revision. Fulfill it through the actual configured/manual coding agent lane, without hardcoded generated creative material or replacing the live host boundary with a fake provider.
+3. Validate the response through existing source-identity and schema contracts. The Browser must display a nonempty, coherent proposed graph with inspectable reader experience/emotion, genre roles, trope treatments, structural mechanisms and declared relationships appropriate to this vision. It must not invent author acceptance or require the paladin to have an unchosen starting moral flaw.
+4. Inspect at least one node and one **source-bound** link, switch among Genres, Tropes and Structure, explain coverage gaps and what is merely proposed, and return to the graph without losing source identity or navigation.
+5. Request a substantively different alternative via existing mentorship. Compare consequences/tradeoffs, explicitly keep or reject a **working** interpretation, and verify that no accepted Story Identity, Structure, Relationship or manuscript has changed.
+6. Reload/reopen the same project. Verify the Story Vision, validated candidate, current working choice, and useful graph navigation survive. Compare canonical/story file hashes before and after.
+7. Exercise at least one negative case: changed vision/source SHA, stale or conflicting response, missing host capability, or interrupted/reopened request. Failure must be visible and must not promote stale content or trigger automatic acceptance.
+
+**Recorded proof:** The coding agent must link a repeatable executable browser/host test or controlled actual-run script **and** an observed evidence receipt. Record exact Git SHAs (including integrated tree when relevant), test project/fixture identity, real execution path and runtime/model or unavailable, request/response identifiers, screenshots or Browser trace/console findings where available, step outcomes, relevant test counts, and before/after canonical hashes. Record failures and untouched baseline failures, not just the successful retry. Use existing qualification evidence/PR records; do not invent passing results.
+
+**Claim discipline:** A PASS on one fixture establishes only that fixture's bounded E2E. Probe a materially different narrative premise before claiming the workflow is genre-general. Automated Browser evidence does not establish that a human understands the UI; actual human comprehension remains a separate gate. A blocked connected-host capability must not block independently useful, accurately scoped manual-flow repairs, but it must block claims of working automatic generation.
+
+## 8. Out of scope
 
 No direct chat-plugin integration claim, mandatory new genre packs, universal trope originality classifier, semantic graph database, second mentorship engine, permanent provider daemon, background autonomous generation, hosted collaboration, native desktop GUI, rewriting prior author intent, auto-accept, auto-publish, or broad release.
 
