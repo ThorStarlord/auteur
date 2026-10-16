@@ -46,5 +46,14 @@
     }
     return { reason: 'exhausted', attempts: max };
   }
-  global.AuteurStudioAgentHandoff = { present: present, poll: poll };
+  async function dispatch(options) {
+    var capability = options.capability;
+    if (!capability || !capability.studio_architecture ||
+        capability.studio_architecture.attached !== true) return null;
+    if (!options.projection.request) throw new Error('No pending host request');
+    return options.post(options.url + '/dispatch', {
+      request_sha256: options.projection.request.request_sha256
+    });
+  }
+  global.AuteurStudioAgentHandoff = { present: present, poll: poll, dispatch: dispatch };
 })(window);

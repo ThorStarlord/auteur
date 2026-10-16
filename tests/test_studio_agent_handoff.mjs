@@ -33,3 +33,14 @@ test('poll detects validated response, supports stop and bounded exhaustion',asy
  const stopped=await api.poll({key,getKey:()=>key,shouldStop:()=>stop,read:async()=>{throw Error('must not fetch');},delay:async()=>{}});
  assert.equal(stopped.reason,'stopped');
 });
+test('dispatch submits only deliberate exact requests to an attached executor', async () => {
+  const calls = [];
+  const post = async (url, body) => { calls.push({url, body}); return {state:'submitted'}; };
+  const projection = {request:{request_sha256:'a'.repeat(64)}};
+  const opts = {projection, url:'/canvas/architecture', post};
+  assert.equal(await window.AuteurStudioAgentHandoff.dispatch({...opts, capability:{}}), null);
+  assert.equal(calls.length, 0);
+  assert.deepEqual(await window.AuteurStudioAgentHandoff.dispatch({...opts,
+    capability:{studio_architecture:{attached:true}}}), {state:'submitted'});
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)), [{url:'/canvas/architecture/dispatch', body:{request_sha256:'a'.repeat(64)}}]);
+});
