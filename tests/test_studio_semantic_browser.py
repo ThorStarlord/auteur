@@ -60,7 +60,8 @@ def browser():
 
 def page_with_source(browser, width=1440,height=900):
     page=browser.new_page(viewport={'width':width,'height':height})
-    errors=[];page.on('pageerror',lambda err:errors.append(str(err)))
+    errors=[]
+    page.on('pageerror',lambda err:errors.append(str(err)))
     page.set_content(inline_document(),wait_until='domcontentloaded')
     page.locator('h2.stage-heading').wait_for()
     return page,errors
@@ -84,7 +85,8 @@ def test_paladin_genre_to_trope_to_mechanism_and_exact_back(browser):
         assert page.get_by_text('What makes a genre work?',exact=True).is_visible()
         assert 'Progression Fantasy' in page.locator('#explanation-main').inner_text()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_multi_genre_roles_and_no_unfounded_emotion_shortcut(browser):
@@ -98,7 +100,8 @@ def test_multi_genre_roles_and_no_unfounded_emotion_shortcut(browser):
         assert page.locator('#arrival-context').is_visible()
         assert page.locator('#arrival-context').inner_text().find('Heroic Fantasy')>=0
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 @pytest.mark.parametrize('width,height',[(1440,900),(900,700),(390,844)])
@@ -113,7 +116,8 @@ def test_all_views_without_horizontal_page_overflow_or_console_errors(browser,wi
             viewportWidth=page.evaluate('document.documentElement.clientWidth')
             assert documentWidth<=viewportWidth+1,(tab,width,documentWidth,viewportWidth)
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_public_hash_only_contains_fixture_identifiers_and_no_made_up_back(browser):
@@ -127,7 +131,8 @@ def test_public_hash_only_contains_fixture_identifiers_and_no_made_up_back(brows
         assert 'generous paladin' not in fragment.lower()
         assert page.locator('#semantic-return').is_hidden()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_browser_back_forward_restores_semantic_link_and_focus(browser):
@@ -136,7 +141,8 @@ def test_browser_back_forward_restores_semantic_link_and_focus(browser):
         page.get_by_role('tab',name='Genre anatomy').click()
         src=page.get_by_role('link',name=re.compile('Progression Fantasy uses Earned breakthrough',re.I))
         link_ref=src.get_attribute('data-nav-focus')
-        src.focus();page.keyboard.press('Enter')
+        src.focus()
+        page.keyboard.press('Enter')
         assert page.locator('#arrival-context').is_visible()
         page.go_back(wait_until='domcontentloaded')
         assert page.get_by_text('What makes a genre work?',exact=True).is_visible()
@@ -145,7 +151,8 @@ def test_browser_back_forward_restores_semantic_link_and_focus(browser):
         assert page.locator('#arrival-context').is_visible()
         assert 'Earned breakthrough' in page.locator('#arrival-context').inner_text()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_unavailable_hash_does_not_select_title_similar_fallback(browser):
@@ -157,7 +164,8 @@ def test_unavailable_hash_does_not_select_title_similar_fallback(browser):
         assert 'unavailable' in page.locator('#navigation-unavailable').inner_text().lower()
         assert page.locator('.stage-heading').inner_text()=='The story at a glance'
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_change_fixture_clears_semantic_history(browser):
@@ -171,4 +179,5 @@ def test_change_fixture_clears_semantic_history(browser):
         assert page.locator('.stage-heading').inner_text()=='The story at a glance'
         assert 'story=hybrid' in page.evaluate('location.hash')
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
