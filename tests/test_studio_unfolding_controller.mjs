@@ -77,6 +77,14 @@ test('manual first-session authoring posts only create-item, no candidate requir
  assert.equal(f.saved.length,1);assert.equal(f.hostRequests.length,0);
 });
 
+test('start panel never covers a populated proposal graph when no concept is focused',()=>{
+ const f=fixture();f.state.unfoldingFocus=null;
+ assert.ok(f.state.architecture.nodes.length>0);
+ f.ctrl.render();
+ assert.equal(f.els.get('unfolding-start').hidden,true);
+ assert.equal(f.els.get('unfolding-local').hidden,true);
+});
+
 test('stale source refuses adoption and never posts a mutation',async()=>{
  const f=fixture();f.ctrl.render();
  const before=f.win.AuteurStudioUnfolding.projectLocalSuggestions(f.state.architecture,f.state.architectureRequestSha,
