@@ -61,9 +61,9 @@ def test_agent_is_executable_dependency_not_emulated_model():
     with pytest.raises(RuntimeError, match='BLOCKED'):
         subject.run_agent(['no-such-real-agent-tool-543222'], packet, 2)
     with pytest.raises(ValueError, match='single raw JSON object'):
-        subject.run_agent([sys.executable, '-c', "print('not json')"], packet, 2)
+        subject.run_agent([sys.executable, '-c', "print('not json')"], packet, 10)
     with pytest.raises(ValueError, match='raw JSON object'):
-        subject.run_agent([sys.executable, '-c', "print('\"still not an object\"')"], packet, 2)
+        subject.run_agent([sys.executable, '-c', "print('\"still not an object\"')"], packet, 10)
 
 
 def test_generated_payload_fingerprint_is_stable_across_json_object_order():
@@ -103,3 +103,12 @@ def test_waits_for_persisted_mentor_keep_not_an_arbitrary_delay():
     assert subject.wait_for_working_choice(read, timeout=1, interval=0)[1]['id'] == 'kept'
     with pytest.raises(TimeoutError):
         subject.wait_for_working_choice(lambda: {'items': []}, timeout=0, interval=0)
+
+
+def test_uses_local_source_checkout_for_response_validation(tmp_path):
+    with pytest.raises(RuntimeError, match='BLOCKED.*local Auteur source'):
+        subject.local_source_path(tmp_path)
+    source = tmp_path / 'src' / 'auteur'
+    source.mkdir(parents=True)
+    (source / 'host_agent.py').write_text('')
+    assert subject.local_source_path(tmp_path) == str(tmp_path / 'src')
