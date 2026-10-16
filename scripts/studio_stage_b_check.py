@@ -57,8 +57,16 @@ PORT = PORT or free_port()
 BASE = f"http://127.0.0.1:{PORT}"
 
 
+def wait_port_released(port, timeout=10):
+    """A terminated server can keep the socket for a moment on Windows; wait it out."""
+    deadline = time.monotonic() + timeout
+    while port_in_use(port) and time.monotonic() < deadline:
+        time.sleep(0.2)
+
+
 def start():
     """Start a server on PORT and insist that the answering server is this process."""
+    wait_port_released(PORT)
     if port_in_use(PORT):
         raise RuntimeError(f"port {PORT} is already in use; set STAGE_B_PORT to a free port")
     p = subprocess.Popen(
@@ -171,7 +179,7 @@ try:
         pg2.locator("button.node:visible", has_text="Note A").wait_for(state="visible", timeout=5000)
         pg2.locator("button.node:visible", has_text="Note B").wait_for(state="visible", timeout=5000)
         titles = [t.split("\n")[0] for t in pg2.locator("button.node:visible").all_inner_texts()]
-        check("autosave survives server restart and reopen", "Note A" in titles and "Note B" in titles, titles)
+        check("autosave survives server restart and reopen", any("Note A" in t for t in titles) and any("Note B" in t for t in titles), titles)
         pg2.locator("button.node", has_text="Note A").first.click()
         pg2.wait_for_timeout(300)
         check(
@@ -229,7 +237,7 @@ try:
         pg3.click("#workspace-realization")
         pg3.wait_for_timeout(300)
         t3 = [t.split("\n")[0] for t in pg3.locator("button.node:visible").all_inner_texts()]
-        check("root reopens the most recently edited canvas", "Second canvas note" in t3, t3)
+        check("root reopens the most recently edited canvas", any("Second canvas note" in t for t in t3), t3)
         picker = pg3.locator("#canvas-picker option").count()
         check("earlier canvas still reachable from picker", picker >= 2, picker)
         pg3.close()

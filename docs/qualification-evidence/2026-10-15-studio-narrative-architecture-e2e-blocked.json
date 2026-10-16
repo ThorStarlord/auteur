@@ -1,0 +1,22 @@
+{
+  "claim": "manual coding-agent Narrative Architecture E2E only",
+  "connected_host_e2e": "BLOCKED: no attached executor proven",
+  "human_usability": "NOT_TESTED",
+  "steps": [
+    {
+      "step": "Browser prepares exact Story Vision request",
+      "result": "PASS",
+      "detail": ""
+    }
+  ],
+  "agent_runtime": "operator-supplied executable; model unverified",
+  "code_sha": "a2b86d77a788889f8efd35c16bb42161bd4a78d9",
+  "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\auteur-architecture-e2e-wqlyrb05",
+  "canvas": "canvas-mvac81eb-1",
+  "architecture_request_sha256": "f9c95f613f053fea664a84b7feaa34a1fdc8f59d300bd3ced0b724ceb6ebfe43",
+  "source_sha256": "652f2c6cc00dc37e87c815bf672830a2bd851b891ec0b89ab1bd17066fcd697a",
+  "canonical_file_hashes": {},
+  "canonical_unchanged": true,
+  "result": "BLOCKED",
+  "error": "BLOCKED: coding-agent executable not available"
+}
