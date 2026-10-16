@@ -274,6 +274,9 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             record(report, "re-entry restores proposal and deliberately kept working idea",
                    reentry_invariants(api(base, prefix + "/architecture"),
                                       api(base, prefix), packet["request_sha256"], kept_id))
+            page.locator("#nodes button.node:visible").first.wait_for(state="visible", timeout=8000)
+            record(report, "reopened Browser still exposes the architecture graph",
+                   page.locator("#nodes button.node:visible").count() >= 4)
             record(report, "Browser produces no page errors", not errors, "; ".join(errors[:2]))
             browser.close()
     finally:
