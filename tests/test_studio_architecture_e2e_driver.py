@@ -64,3 +64,10 @@ def test_agent_is_executable_dependency_not_emulated_model():
         subject.run_agent([sys.executable, '-c', "print('not json')"], packet, 2)
     with pytest.raises(ValueError, match='raw JSON object'):
         subject.run_agent([sys.executable, '-c', "print('\"still not an object\"')"], packet, 2)
+
+
+def test_generated_payload_fingerprint_is_stable_across_json_object_order():
+    left = {'nodes': [{'id': 'a'}], 'summary': 'A'}
+    right = {'summary': 'A', 'nodes': [{'id': 'a'}]}
+    assert subject.fingerprint_json(left) == subject.fingerprint_json(right)
+    assert len(subject.fingerprint_json(left)) == 64
