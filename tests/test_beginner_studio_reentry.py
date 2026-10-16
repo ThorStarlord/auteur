@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from urllib.request import Request, urlopen
+from urllib.request import urlopen
 
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_store import CanvasStore, list_canvas_summaries

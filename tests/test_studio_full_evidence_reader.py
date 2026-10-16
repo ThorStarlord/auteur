@@ -26,7 +26,8 @@ def checked(raw):
 
 
 def test_source_matched_legacy_genre_has_real_bytes_and_hash(tmp_path):
-    p=tmp_path/"epic_fantasy.yaml";p.write_text(VALID,encoding="utf-8")
+    p=tmp_path/"epic_fantasy.yaml"
+    p.write_text(VALID,encoding="utf-8")
     candidate={"nodes":[{"id":"epic","title":"Epic Fantasy","category":"genre"},
                         {"id":"hero","title":"Heroic Fantasy","category":"genre"}]}
     found=module.project_legacy_genre_evidence(candidate,data_dir=tmp_path,validate_contract=checked)
@@ -68,7 +69,8 @@ def test_no_traversal_fuzzy_match_or_trope_title_match(tmp_path):
 
 
 def test_bounded_scan_no_file_writes(tmp_path):
-    path=tmp_path/"epic_fantasy.yaml";path.write_text(VALID,encoding="utf-8")
+    path=tmp_path/"epic_fantasy.yaml"
+    path.write_text(VALID,encoding="utf-8")
     before=path.read_bytes()
     nodes=[{"id":f"g{i}","title":"Epic Fantasy","category":"genre"} for i in range(80)]
     found=module.project_legacy_genre_evidence({"nodes":nodes},

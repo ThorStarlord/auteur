@@ -10,7 +10,7 @@ from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.beginner.studio_architecture import prepare_architecture, complete_architecture
 from auteur.beginner.studio_realization import (
-    RealizationCandidate, apply_realization_review, complete_realization,
+    apply_realization_review, complete_realization,
     prepare_realization, project_realization,
 )
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
