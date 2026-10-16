@@ -57,7 +57,7 @@ from .studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
 from .studio_mentor import complete_mentor, prepare_mentor, project_mentor
-from .studio_host_dispatch import HostSubmissionError, StudioArchitectureExecutor, dispatch_architecture
+from .studio_host_dispatch import HostSubmissionError, StudioArchitectureExecutor, StudioHostDispatch
 from .studio_realization import (
     apply_realization_review, complete_realization, prepare_realization, project_realization,
 )
@@ -709,14 +709,23 @@ class _RequestHandler(BaseHTTPRequestHandler):
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response", "apply", "dispatch"}):
                 payload = self._read_json()
+                if parts[6] == "dispatch":
+                    host = self.headers.get("Host", "")
+                    port = self.server.server_address[1]
+                    if host not in {f"127.0.0.1:{port}", f"localhost:{port}"}:
+                        raise BeginnerRequestError(421, "Host executor requires this loopback server")
+                    origin = self.headers.get("Origin")
+                    if origin and origin != "http://" + host:
+                        raise BeginnerRequestError(403, "Host execution requires the same Browser origin")
+                    if self.headers.get_content_type() != "application/json":
+                        raise BeginnerRequestError(415, "Host dispatch requires application/json")
                 store = CanvasStore(self.project_root, parts[4])
                 try:
                     if parts[6] == "dispatch":
                         if self.studio_architecture_executor is None:
                             raise BeginnerRequestError(503, "No trusted host executor is attached")
                         try:
-                            result = dispatch_architecture(store, payload.get("request_sha256"),
-                                                           self.studio_architecture_executor)
+                            result = self.studio_host_dispatch.submit(store, payload.get("request_sha256"))
                         except HostSubmissionError as exc:
                             raise BeginnerRequestError(503, "Host executor could not submit this request") from exc
                         self._send_json(202, result)
@@ -1034,6 +1043,8 @@ class BeginnerWorkspaceServer:
                 "dependencies": self.dependencies,
                 "studio_development_default": studio_development_default,
                 "studio_architecture_executor": studio_architecture_executor,
+                "studio_host_dispatch": StudioHostDispatch(studio_architecture_executor)
+                    if studio_architecture_executor is not None else None,
             },
         )
         self._httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)

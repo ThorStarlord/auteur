@@ -226,8 +226,14 @@
   }
   function loadArchitecture() {
     var canvasId = remote.canvasId;
-    return fetch(architectureUrl()).then(apiJson).then(function (projection) {
-      if (remote.canvasId === canvasId) applyArchitectureProjection(projection, false);
+    return window.AuteurStudioAgentHandoff.load({
+      readProjection: function () { return fetch(architectureUrl()).then(apiJson); },
+      readCapability: function () { return fetch('/api/beginner/studio/host-capabilities').then(apiJson); }
+    }).then(function (loaded) {
+      if (remote.canvasId === canvasId) {
+        state.hostCapability = loaded.capability;
+        applyArchitectureProjection(loaded.projection, false);
+      }
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
@@ -314,7 +320,8 @@
         }
       }).then(function (submitted) {
         startArchitecturePoll(projection);
-        status(submitted ? "Request submitted to the attached coding agent. Nothing was accepted." :
+        status(!projection.request ? "The working proposal is already available." :
+          submitted ? "Request submitted to the attached coding agent. Nothing was accepted." :
           "Request ready to copy. No coding agent was invoked by the browser.");
       });
     }).catch(function (error) {

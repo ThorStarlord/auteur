@@ -10,9 +10,9 @@ from auteur.beginner.studio_architecture import prepare_architecture
 from auteur.beginner.studio_store import CanvasStore
 
 
-def http(base, path, payload=None):
+def http(base, path, payload=None, headers=None):
     req = Request(base + path, data=None if payload is None else json.dumps(payload).encode(),
-                  headers={'Content-Type': 'application/json'})
+                  headers={'Content-Type': 'application/json', **(headers or {})})
     with urlopen(req, timeout=5) as response:
         return response.status, json.load(response)
 
@@ -46,6 +46,8 @@ def test_real_executor_is_opt_in_and_dispatch_is_exact_and_source_bound(tmp_path
         assert http(base, route, {'request_sha256': packet['request_sha256']}) == (
             202, {'state': 'submitted', 'request_sha256': packet['request_sha256']})
         assert calls == [(tmp_path, store.canvas_id, packet)]
+        assert http(base, route, {'request_sha256': packet['request_sha256']})[0] == 202
+        assert len(calls) == 1, 'A retried dispatch must not enqueue duplicate model work'
         canvas(tmp_path, 'other')
         with pytest.raises(HTTPError) as cross:
             http(base, route.replace('dispatch-test', 'other'), {'request_sha256': packet['request_sha256']})
@@ -94,6 +96,31 @@ def test_failed_submission_preserves_pending_request_and_canvas(tmp_path):
         assert failed.value.code == 503
         assert http(base, route)[1]['status'] == 'awaiting_host_agent'
         assert store.load().model_dump(mode='json') == before
+    finally:
+        server.stop()
+        thread.join(timeout=3)
+
+
+@pytest.mark.parametrize('headers,status', [
+    ({'Origin': 'https://untrusted.example'}, 403),
+    ({'Content-Type': 'text/plain'}, 415),
+    ({'Host': 'untrusted.example'}, 421),
+])
+def test_privileged_dispatch_refuses_foreign_or_simple_requests(tmp_path, headers, status):
+    store = canvas(tmp_path)
+    packet = prepare_architecture(store)['request']
+    calls = []
+    class Executor:
+        def enqueue(self, *args): calls.append(args)
+    server = BeginnerWorkspaceServer(tmp_path, port=0, studio_architecture_executor=Executor())
+    thread = server.start_in_thread()
+    base = f'http://127.0.0.1:{server.port}'
+    try:
+        with pytest.raises(HTTPError) as refused:
+            http(base, '/api/beginner/studio/canvases/dispatch-test/architecture/dispatch',
+                 {'request_sha256': packet['request_sha256']}, headers=headers)
+        assert refused.value.code == status
+        assert calls == []
     finally:
         server.stop()
         thread.join(timeout=3)

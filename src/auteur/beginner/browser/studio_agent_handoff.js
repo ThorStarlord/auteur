@@ -50,10 +50,14 @@
     var capability = options.capability;
     if (!capability || !capability.studio_architecture ||
         capability.studio_architecture.attached !== true) return null;
-    if (!options.projection.request) throw new Error('No pending host request');
+    if (!options.projection.request) return null;
     return options.post(options.url + '/dispatch', {
       request_sha256: options.projection.request.request_sha256
     });
   }
-  global.AuteurStudioAgentHandoff = { present: present, poll: poll, dispatch: dispatch };
+  async function load(options) {
+    var values = await Promise.all([options.readProjection(), options.readCapability()]);
+    return {projection: values[0], capability: values[1]};
+  }
+  global.AuteurStudioAgentHandoff = { present: present, poll: poll, dispatch: dispatch, load: load };
 })(window);
