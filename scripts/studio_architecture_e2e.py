@@ -159,6 +159,14 @@ def read_mentor_request(locator) -> dict:
     return json.loads(locator.text_content())
 
 
+def reopen_story_vision(page) -> str:
+    field = page.locator('#vision-text')
+    if not field.is_visible():
+        page.locator('#vision-disclosure > summary').click()
+    field.wait_for(state='visible')
+    return field.input_value()
+
+
 def record(report: dict, label: str, result: bool, detail: str = "") -> None:
     report["steps"].append({"step": label, "result": "PASS" if result else "FAIL",
                             "detail": detail[:500]})
@@ -290,8 +298,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             record(report, "explicit keep creates only working story item", bool(kept))
             kept_id = kept["id"]
             page.reload(wait_until="networkidle")
-            page.locator("#vision-text").wait_for(state="visible")
-            record(report, "re-entry preserves verbatim Story Vision", page.input_value("#vision-text") == VISION)
+            record(report, "re-entry preserves verbatim Story Vision", reopen_story_vision(page) == VISION)
             record(report, "re-entry restores proposal and deliberately kept working idea",
                    reentry_invariants(api(base, prefix + "/architecture"),
                                       api(base, prefix), packet["request_sha256"], kept_id))
