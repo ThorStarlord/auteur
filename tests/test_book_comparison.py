@@ -909,7 +909,7 @@ def test_cli_compare_success(tmp_path: Path, capsys) -> None:
                "--external-manuscript", str(manuscript), "--project", str(project)])
     out = capsys.readouterr().out
     assert rc == 0
-    assert "derived, evaluated, noncanonical" in out
+    assert "working versions, reviewed, not accepted yet" in out
     assert "Ready for Book acceptance: yes" in out
     assert "Accepted pointers changed: no" in out
 
