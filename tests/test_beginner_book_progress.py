@@ -139,7 +139,11 @@ def test_book_progress_reuses_accepted_book_as_publication_preflight(tmp_path: P
 
     progress = project_book_progress(project)
 
-    assert progress.accepted_chapters >= 2
+    # Accepted Chapter Expressions and an accepted Book are distinct authority
+    # records from individually kept Chapter files (chapters/NN/final.md). This
+    # fixture has no kept Chapter files, so none may be counted or inferred.
+    assert progress.accepted_chapters == 0
+    assert progress.accepted_chapter_refs == ()
     assert progress.book_expression.startswith("accepted")
     assert progress.publication_ready is True
     assert progress.publication_blocker is None
@@ -147,6 +151,18 @@ def test_book_progress_reuses_accepted_book_as_publication_preflight(tmp_path: P
         "auteur publish --project . --format html",
         "auteur publish --project . --format epub",
     )
+
+
+def test_book_progress_counts_only_kept_chapter_files(tmp_path: Path) -> None:
+    project = _accepted_book_project(tmp_path)
+    kept = project / "chapters" / "01" / "final.md"
+    kept.write_text("A kept Chapter file.\n", encoding="utf-8")
+
+    progress = project_book_progress(project)
+
+    assert progress.accepted_chapters == 1
+    assert progress.accepted_chapter_refs == ("chapters/01/final.md",)
+    assert progress.book_expression.startswith("accepted")
 
 
 def test_book_progress_endpoint_is_read_only(tmp_path: Path) -> None:
