@@ -4,7 +4,7 @@ Example (a real adapter executable that reads HostAgentRequest JSON on stdin and
 prints ONLY the raw requested candidate/advice JSON on stdout):
 
   python scripts/studio_architecture_e2e.py --report /tmp/auteur-e2e.json \
-      --agent python scripts/local_agent_adapter.py
+      --agent python /absolute/path/to/actual_coding_agent_adapter.py
 
 The agent program is an explicitly selected LOCAL test dependency, not a Studio
 provider bridge. A synthetic adapter cannot establish authentic-agent E2E proof.
@@ -227,7 +227,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             advice = run_agent(args.agent, mentor_packet, args.agent_timeout)
             report['mentor_payload_sha256'] = fingerprint_json(advice)
             directions = advice.get("directions", [])
-            record(report, "real agent supplies different narrative directions",
+            record(report, "agent returns at least two non-identical mechanisms",
                    len(directions) >= 2 and len({d.get("mechanism") for d in directions}) >= 2)
             mentor_envelope = build_host_agent_response(HostAgentRequest(**mentor_packet), json.dumps(advice))
             mentor = api(base, prefix + "/mentor/host-agent-response", mentor_envelope.model_dump())
