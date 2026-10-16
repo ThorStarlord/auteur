@@ -36,6 +36,12 @@ VISION = ("An epic progression fantasy celebrating joy through generous heroism.
 NONCANONICAL_PREFIXES = (".auteur/beginner/studio/", ".auteur/quick_draft/")
 
 
+def fingerprint_json(value: dict) -> str:
+    body = json.dumps(value, ensure_ascii=False, sort_keys=True,
+                      separators=(',', ':')).encode('utf-8')
+    return hashlib.sha256(body).hexdigest()
+
+
 def snapshot(root: Path) -> dict[str, str]:
     """Hash all files except existing approved noncanonical working stores."""
     result = {}
@@ -169,6 +175,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             report["architecture_request_sha256"] = packet["request_sha256"]
             report["source_sha256"] = packet["settings"].get("source_sha256")
             response = run_agent(args.agent, packet, args.agent_timeout)
+            report['candidate_payload_sha256'] = fingerprint_json(response)
             record(report, "real coding agent returned candidate JSON", isinstance(response, dict))
             prefix = "/api/beginner/studio/canvases/" + canvas_id
             envelope = build_host_agent_response(HostAgentRequest(**packet), json.dumps(response))
@@ -218,6 +225,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             mentor_packet = json.loads(page.locator("#mentor-request").inner_text())
             report["mentor_request_sha256"] = mentor_packet["request_sha256"]
             advice = run_agent(args.agent, mentor_packet, args.agent_timeout)
+            report['mentor_payload_sha256'] = fingerprint_json(advice)
             directions = advice.get("directions", [])
             record(report, "real agent supplies different narrative directions",
                    len(directions) >= 2 and len({d.get("mechanism") for d in directions}) >= 2)
