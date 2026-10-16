@@ -112,3 +112,16 @@ def test_uses_local_source_checkout_for_response_validation(tmp_path):
     source.mkdir(parents=True)
     (source / 'host_agent.py').write_text('')
     assert subject.local_source_path(tmp_path) == str(tmp_path / 'src')
+
+
+def test_agent_transport_preserves_unicode_with_windows_ansi_locale(monkeypatch):
+    packet = {'role': 'studio_architecture', 'request_sha256': 'a'*64,
+              'user': 'Generosidade — proteção 🛡️'}
+    original = subprocess.run
+    def ansi_default(*args, **kwargs):
+        kwargs.setdefault('encoding', 'cp1252')
+        return original(*args, **kwargs)
+    monkeypatch.setattr(subject.subprocess, 'run', ansi_default)
+    command = [sys.executable, '-c',
+               'import sys; sys.stdout.buffer.write(sys.stdin.buffer.read())']
+    assert subject.run_agent(command, packet, 10) == packet
