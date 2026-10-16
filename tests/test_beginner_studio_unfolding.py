@@ -49,7 +49,6 @@ def test_single_explicit_adopt_uses_canvas_command_not_story_acceptance():
     assert "applyReviewedArchitecture(" not in controller
 
 def test_server_exposes_helper_without_exposing_arbitrary_assets():
-    js=source("studio.js")
     server=(BROWSER.parent/"server.py").read_text(encoding="utf-8")
     assert '"/studio_unfolding.js": "studio_unfolding.js"' in server
     assert '"/studio_unfolding_controller.js": "studio_unfolding_controller.js"' in server
@@ -88,7 +87,8 @@ def test_real_canvas_http_adoption_and_idempotent_replay(tmp_path):
             assert e.code==400
         assert not (tmp_path/"story_identity.yaml").exists()
     finally:
-        server.stop();thread.join(timeout=2)
+        server.stop()
+        thread.join(timeout=2)
         assert not thread.is_alive()
 
 def test_frontend_can_create_manual_emotion_anchor_without_an_agent():

@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 from auteur.beginner.persistence import BeginnerConcurrencyError
-from auteur.beginner.studio_store import CanvasItem, CanvasStore, ProposalOrigin, WorkingCanvas
+from auteur.beginner.studio_store import CanvasItem, CanvasStore
 
 SHA = "a" * 64
 ALT_SHA = "b" * 64

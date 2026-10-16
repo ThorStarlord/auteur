@@ -60,7 +60,8 @@ def test_http_assets_and_dom_are_available_without_extra_public_routes(tmp_path)
                 assert response.status==200
                 if path.endswith('.js'):
                     assert 'javascript' in response.headers.get('Content-Type','').lower()
-        with urlopen(base+'/studio.html') as response: html=response.read().decode('utf-8')
+        with urlopen(base+'/studio.html') as response:
+            html=response.read().decode('utf-8')
         ids=re.findall(r'\bid="([^"]+)"',html)
         assert len(ids)==len(set(ids))
     finally:
