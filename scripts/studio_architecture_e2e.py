@@ -82,6 +82,20 @@ def reentry_invariants(architecture: dict, canvas: dict, sha: str, kept_id: str)
                     for item in items))
 
 
+def wait_for_working_choice(read, *, timeout: float = 10, interval: float = 0.2):
+    """Await observed CanvasStore persistence, not an arbitrary Browser sleep."""
+    deadline = time.monotonic() + max(timeout, 0)
+    while True:
+        saved = read()
+        choices = [item for item in saved.get('items', [])
+                   if (item.get('proposal_origin') or {}).get('source_kind') == 'host_agent_suggestion']
+        if choices:
+            return saved, choices[-1]
+        if time.monotonic() >= deadline:
+            raise TimeoutError('The mentor working choice was not persisted')
+        time.sleep(interval)
+
+
 def free_port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -251,12 +265,9 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             page.locator(".mentor-direction button").first.wait_for(state="visible", timeout=8000)
             page.locator(".mentor-direction button").first.click()
             page.locator("#mentor-keep").click()
-            page.wait_for_timeout(300)
-            stored = api(base, prefix)
-            chosen_items = [i for i in stored.get("items", [])
-                            if (i.get("proposal_origin") or {}).get("source_kind") == "host_agent_suggestion"]
-            record(report, "explicit keep creates only working story item", bool(chosen_items))
-            kept_id = chosen_items[-1]["id"]
+            stored, kept = wait_for_working_choice(lambda: api(base, prefix))
+            record(report, "explicit keep creates only working story item", bool(kept))
+            kept_id = kept["id"]
             page.reload(wait_until="networkidle")
             page.locator("#vision-text").wait_for(state="visible")
             record(report, "re-entry preserves verbatim Story Vision", page.input_value("#vision-text") == VISION)
