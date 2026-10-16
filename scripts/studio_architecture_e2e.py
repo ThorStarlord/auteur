@@ -113,8 +113,9 @@ def run_agent(argv: list[str], request: dict, timeout: int) -> dict:
     except subprocess.TimeoutExpired as error:
         raise RuntimeError("BLOCKED: coding-agent command timed out") from error
     if completed.returncode:
+        # Stderr may contain tokens or prompts. Keep it out of shareable receipts.
         raise RuntimeError("Agent exited with code " + str(completed.returncode) +
-                           "; stderr: " + completed.stderr[-500:])
+                           "; inspect private agent logs locally")
     try:
         result = json.loads(completed.stdout)
     except json.JSONDecodeError as error:
