@@ -33,5 +33,9 @@
     if (label === 'author_declared') return 'AI claimed this was author-declared; verify against your Story Vision';
     return 'Attribution unverified · not accepted';
   }
-  global.AuteurStudioAuthorIntent = { project: project, provenanceLabel: provenanceLabel };
+  // A proposal goes stale when the Story Vision OR any working idea or connection it was built from changes.
+  function staleProposalNotice() {
+    return 'Older proposal: your Story Vision or working ideas changed after it was generated.';
+  }
+  global.AuteurStudioAuthorIntent = { project: project, provenanceLabel: provenanceLabel, staleProposalNotice: staleProposalNotice };
 })(window);
