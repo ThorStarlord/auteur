@@ -92,3 +92,14 @@ def test_failed_agent_does_not_expose_stderr_secrets_in_receipt():
         subject.run_agent(cmd, packet, 2)
     assert 'Agent exited with code 7' in str(caught.value)
     assert 'SECRET_FROM_AGENT_STDERR' not in str(caught.value)
+
+
+def test_waits_for_persisted_mentor_keep_not_an_arbitrary_delay():
+    steps = [{'items': []}, {'items': [{'id': 'kept', 'proposal_origin': {'source_kind': 'host_agent_suggestion'}}]}]
+    def read():
+        return steps.pop(0) if len(steps) > 1 else steps[0]
+    saved, kept = subject.wait_for_working_choice(read, timeout=1, interval=0)
+    assert saved['items'][0]['id'] == kept['id'] == 'kept'
+    assert subject.wait_for_working_choice(read, timeout=1, interval=0)[1]['id'] == 'kept'
+    with pytest.raises(TimeoutError):
+        subject.wait_for_working_choice(lambda: {'items': []}, timeout=0, interval=0)
