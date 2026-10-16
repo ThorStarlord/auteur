@@ -71,6 +71,17 @@ def source_identity(root: Path) -> str:
     return sha
 
 
+def reentry_invariants(architecture: dict, canvas: dict, sha: str, kept_id: str) -> bool:
+    """A stale-but-retained proposal is valid after an intentional working edit."""
+    items = canvas.get('items') or []
+    return (architecture.get('status') in {'ready', 'stale'}
+            and architecture.get('candidate_request_sha256') == sha
+            and isinstance(architecture.get('candidate'), dict)
+            and any(item.get('id') == kept_id and
+                    (item.get('proposal_origin') or {}).get('source_kind') == 'host_agent_suggestion'
+                    for item in items))
+
+
 def free_port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -202,6 +213,9 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             page.locator("#nodes button.node").first.wait_for(state="visible", timeout=10000)
             record(report, "Browser presents proposed spatial graph",
                    page.locator("#nodes button.node").count() >= 4)
+            record(report, "author words and AI summary are visibly separate",
+                   page.locator('#contrast-author').inner_text() == VISION and
+                   page.locator('#contrast-proposal').inner_text() == response['summary'])
             first_edge = response["links"][0]
             linked_node = next(n for n in response["nodes"] if n["id"] == first_edge["source"])
             page.locator("#nodes button.node", has_text=linked_node["title"]).first.click()
@@ -238,12 +252,16 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             page.locator("#mentor-keep").click()
             page.wait_for_timeout(300)
             stored = api(base, prefix)
-            record(report, "explicit keep creates only working story item",
-                   any(i.get("proposal_origin", {}).get("source_kind") == "host_agent_suggestion"
-                       for i in stored.get("items", []) if i.get("proposal_origin")))
+            chosen_items = [i for i in stored.get("items", [])
+                            if (i.get("proposal_origin") or {}).get("source_kind") == "host_agent_suggestion"]
+            record(report, "explicit keep creates only working story item", bool(chosen_items))
+            kept_id = chosen_items[-1]["id"]
             page.reload(wait_until="networkidle")
             page.locator("#vision-text").wait_for(state="visible")
             record(report, "re-entry preserves verbatim Story Vision", page.input_value("#vision-text") == VISION)
+            record(report, "re-entry restores proposal and deliberately kept working idea",
+                   reentry_invariants(api(base, prefix + "/architecture"),
+                                      api(base, prefix), packet["request_sha256"], kept_id))
             record(report, "Browser produces no page errors", not errors, "; ".join(errors[:2]))
             browser.close()
     finally:
