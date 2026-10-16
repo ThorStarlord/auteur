@@ -147,3 +147,18 @@ def test_outer_runner_timeout_stops_adapter_descendants(tmp_path):
                           {'role': 'studio_mentor', 'request_sha256': 'b'*64}, 1)
     time.sleep(2.5)
     assert not marker.exists(), 'Outer timeout left the adapter descendant running'
+
+
+def test_reentry_opens_saved_vision_through_its_author_control():
+    class Vision:
+        visible = False
+        def is_visible(self): return self.visible
+        def wait_for(self, **options): assert self.visible
+        def input_value(self): return 'Saved author words'
+    field = Vision()
+    class Summary:
+        def click(self): field.visible = True
+    class Page:
+        def locator(self, selector):
+            return field if selector == '#vision-text' else Summary()
+    assert subject.reopen_story_vision(Page()) == 'Saved author words'
