@@ -71,3 +71,14 @@ def test_generated_payload_fingerprint_is_stable_across_json_object_order():
     right = {'summary': 'A', 'nodes': [{'id': 'a'}]}
     assert subject.fingerprint_json(left) == subject.fingerprint_json(right)
     assert len(subject.fingerprint_json(left)) == 64
+
+
+def test_reentry_requires_candidate_and_working_choice_not_just_vision():
+    candidate = {'status': 'stale', 'candidate_request_sha256': 'a'*64,
+                 'candidate': {'summary': 'Original abstract architecture'}}
+    canvas = {'items': [{'id': 'story-vision'}, {'id': 'working-choice',
+              'proposal_origin': {'source_kind': 'host_agent_suggestion'}}]}
+    assert subject.reentry_invariants(candidate, canvas, 'a'*64, 'working-choice')
+    assert not subject.reentry_invariants({**candidate, 'candidate': None}, canvas, 'a'*64, 'working-choice')
+    assert not subject.reentry_invariants(candidate, {'items': canvas['items'][:1]}, 'a'*64, 'working-choice')
+    assert not subject.reentry_invariants(candidate, canvas, 'b'*64, 'working-choice')
