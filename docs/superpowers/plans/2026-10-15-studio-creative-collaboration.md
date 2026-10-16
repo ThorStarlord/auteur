@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-15-studio-creative-collaboration.md`.
 
+**Execution/qualification companion:** `docs/superpowers/plans/2026-10-15-studio-narrative-architecture-e2e-qualification.md` contains the exact-commit local Browser/agent qualification, adversarial checks, evidence receipts, and protected integration handoff for already-published PRs #441-#443. Use it for Task 6 rather than drafting new qualification instructions.
+
 ## Global Constraints
 
 - Start from the current actual `main`; at planning time `bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`, with #439 merged. Resolve current heads before work; do not modify or rely on the dirty user's primary worktree.
