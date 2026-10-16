@@ -96,6 +96,13 @@ def wait_for_working_choice(read, *, timeout: float = 10, interval: float = 0.2)
         time.sleep(interval)
 
 
+def local_source_path(root: Path) -> str:
+    source = root / 'src'
+    if not (source / 'auteur' / 'host_agent.py').is_file():
+        raise RuntimeError('BLOCKED: local Auteur source checkout is unavailable')
+    return str(source)
+
+
 def free_port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -178,6 +185,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
     try:
         wait_server(base, server)
         from playwright.sync_api import sync_playwright
+        sys.path.insert(0, local_source_path(ROOT))
         from auteur.host_agent import HostAgentRequest, build_host_agent_response
 
         with sync_playwright() as playwright:
