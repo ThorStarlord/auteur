@@ -1,0 +1,43 @@
+{
+  "claim": "validator-equivalent unit suite (harness unit command, PYTHONPATH pinned to checkout under test) at candidate f2275a23: NOT GREEN",
+  "candidate_sha": "f2275a2391d3d579db3c2740717e262b80758563",
+  "base_origin_main": "bb9c102d",
+  "stale_local_main_note": "Local main checkout is 3836c26d, an ancestor of origin/main bb9c102d. Its 10 failures are not relevant to the stack and are not reported as main status.",
+  "import_path_finding": "Bare python imported auteur from a stale editable install at auteur-studio-ux-checkout. Unpinned run gave 48 failed, invalid for classification. Pinned runs used PYTHONPATH.",
+  "candidate_run": {
+    "passed": 5634,
+    "failed": 16,
+    "skipped": 2,
+    "duration_s": 462.5
+  },
+  "candidate_failures": [
+    "tests/test_beginner_book_progress.py::test_book_progress_reuses_accepted_book_as_publication_preflight",
+    "tests/test_book_comparison.py::test_cli_compare_success",
+    "tests/test_book_recomposition.py::test_cli_recompose_success",
+    "tests/test_cli_formatters.py::test_format_audit_with_diagnostics",
+    "tests/test_dashboard_author_attention.py::test_author_attention_prioritizes_existing_artifact_states_without_writes",
+    "tests/test_dashboard_author_attention.py::test_dashboard_adds_author_attention_without_changing_project_files",
+    "tests/test_expression_composition.py::test_reconciliation_cli_creates_and_shows_report",
+    "tests/test_guided_author_workspace.py::test_workspace_payload_is_read_only_and_reuses_author_attention",
+    "tests/test_guided_author_workspace.py::test_workspace_server_is_loopback_get_only_and_does_not_mutate_project",
+    "tests/test_series_productization.py::test_continuity_review_cli_is_read_only_and_progressively_discloses_detail",
+    "tests/test_series_productization.py::test_series_focus_cli_is_author_readable_and_hides_internal_ids_by_default",
+    "tests/test_series_repeated_map_focus.py::test_cli_books_2_3_4_probe_surface_journey",
+    "tests/test_series_repeated_map_focus.py::test_cli_repeated_focus_uses_real_service_and_explicit_seed",
+    "tests/test_series_repeated_map_focus.py::test_format_repeated_focus_uses_current_book_noncanonical_language",
+    "tests/test_story_discovery.py::test_story_discovery_rejects_custom_genre_before_llm_call",
+    "tests/test_story_state_manager.py::test_grouped_report_shows_layer_headers"
+  ],
+  "classification": {
+    "all_candidate_failures_in_prior_inherited_baseline": true,
+    "prior_baseline_failures": 17,
+    "new_failures_introduced_by_stack_vs_origin_main": 0,
+    "reproduced_on_origin_main_bb9c102d": [
+      "tests/test_story_state_manager.py::test_grouped_report_shows_layer_headers",
+      "tests/test_cli_formatters.py::test_format_audit_with_diagnostics"
+    ],
+    "reproduction_scope": "2 of 16 directly reproduced; remainder inferred from the prior baseline"
+  },
+  "gate_result": "NOT GREEN: protected validator unit gate cannot pass on this candidate without an owner decision (repair origin/main failures or accept them as a documented baseline).",
+  "validator_static_gate": "STATIC_OK (harness/ci.py)"
+}
