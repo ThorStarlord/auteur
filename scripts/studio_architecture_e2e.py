@@ -31,8 +31,9 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent.parent
 VISION = ("An epic progression fantasy celebrating joy through generous heroism. "
-          "The paladin is already extraordinarily kind and protects beautiful, "
-          "flourishing communities; a starting moral flaw is not required.")
+          "The protagonist is an extraordinarily kind and powerful paladin whose growth "
+          "enables increasingly remarkable acts of courage, protection, and generosity "
+          "throughout a beautiful fantasy world.")
 NONCANONICAL_PREFIXES = (".auteur/beginner/studio/", ".auteur/quick_draft/")
 
 
@@ -127,7 +128,7 @@ def run_agent(argv: list[str], request: dict, timeout: int) -> dict:
         raise ValueError("missing or unexpected host-agent request identity")
     try:
         completed = subprocess.run(argv, input=json.dumps(request, ensure_ascii=False),
-                                   text=True, capture_output=True, timeout=timeout,
+                                   text=True, encoding='utf-8', capture_output=True, timeout=timeout,
                                    cwd=ROOT, shell=False, check=False)
     except FileNotFoundError as error:
         raise RuntimeError("BLOCKED: coding-agent executable not available") from error
