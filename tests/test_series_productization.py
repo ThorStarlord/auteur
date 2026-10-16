@@ -168,7 +168,7 @@ def test_series_focus_cli_is_author_readable_and_hides_internal_ids_by_default(
     assert "RELEVANT HISTORY" in output
     assert "PERSISTENT PRESSURES" in output
     assert "LONG-RANGE CONNECTIONS" in output
-    assert "PROVENANCE" in output
+    assert "SOURCE HISTORY" in output
     assert "revision 1" in output
     assert "Relation:" not in output
 
@@ -218,7 +218,7 @@ def test_continuity_review_cli_is_read_only_and_progressively_discloses_detail(
     assert "Series Continuity Review: Book 4" in default_output
     assert "Series open question" in default_output
     assert "ACTIVE COMMITMENTS" in default_output
-    assert "No narrative authority has changed." in default_output
+    assert "No accepted story material has changed." in default_output
     assert "global-map-book-4" not in default_output
     assert "archive-admitted" not in default_output
 
