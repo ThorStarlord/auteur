@@ -16,6 +16,30 @@ import time
 import uuid
 
 
+def run_command(argv, *, input, timeout, **options):
+    """Bound a launcher and its descendants, including outer-runner cancellation."""
+    with subprocess.Popen(argv, stdin=subprocess.PIPE, text=True, encoding='utf-8',
+                          start_new_session=os.name != 'nt', **options) as process:
+        try:
+            stdout, stderr = process.communicate(input=input, timeout=timeout)
+        except BaseException:
+            if os.name == 'nt':
+                subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               timeout=10, check=False)
+            else:
+                import signal
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass  # The process group already exited.
+            if process.poll() is None:
+                process.kill()
+            process.wait(timeout=10)
+            raise
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
+
 def invoke(argv: list[str], request: dict, evidence: Path, timeout: float) -> dict:
     if request.get('role') not in {'studio_architecture', 'studio_mentor'}:
         raise ValueError('Unsupported or missing request role')
@@ -27,17 +51,23 @@ def invoke(argv: list[str], request: dict, evidence: Path, timeout: float) -> di
     env = os.environ.copy()
     env['PYTHONIOENCODING'] = 'utf-8'
     started = time.monotonic()
+    invocation = {'argv': argv, 'request_sha256': request['request_sha256'],
+                  'returncode': None, 'timed_out': False}
+    receipt = evidence / 'invocation.json'
+    receipt.write_text(json.dumps(invocation, indent=2), encoding='utf-8')
     # Keep raw diagnostics private, even if the process fails or times out.
     with (evidence / 'events.jsonl').open('w', encoding='utf-8') as events_file, \
          (evidence / 'private-stderr.log').open('w', encoding='utf-8') as stderr_file:
-        result = subprocess.run(argv, input=payload, text=True, encoding='utf-8',
-                                stdout=events_file, stderr=stderr_file, timeout=timeout,
-                                env=env, shell=False, check=False)
-    (evidence / 'invocation.json').write_text(json.dumps({
-        'argv': argv, 'returncode': result.returncode,
-        'elapsed_seconds': time.monotonic() - started,
-        'request_sha256': request['request_sha256'],
-    }, indent=2), encoding='utf-8')
+        try:
+            result = run_command(argv, input=payload, stdout=events_file,
+                                 stderr=stderr_file, timeout=timeout, env=env, shell=False)
+            invocation['returncode'] = result.returncode
+        except subprocess.TimeoutExpired:
+            invocation.update(timed_out=True, returncode=-1)
+            raise
+        finally:
+            invocation['elapsed_seconds'] = time.monotonic() - started
+            receipt.write_text(json.dumps(invocation, indent=2), encoding='utf-8')
     if result.returncode:
         raise RuntimeError('Coding agent failed; inspect private local evidence')
     events = [json.loads(line) for line in
