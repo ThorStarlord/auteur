@@ -42,3 +42,11 @@ test('AI self-described author provenance is explicitly unverified', () => {
   assert.equal(window.AuteurStudioAuthorIntent.provenanceLabel('agent_proposed'), 'AI proposal · not accepted');
   assert.match(window.AuteurStudioAuthorIntent.provenanceLabel('unknown'),/unverified/i);
 });
+
+test('stale notice names every source that can make a proposal stale, not only the Story Vision', () => {
+  const notice = window.AuteurStudioAuthorIntent.staleProposalNotice();
+  assert.match(notice, /Story Vision/);
+  assert.match(notice, /working ideas/);
+  assert.match(notice, /changed/);
+  assert.doesNotMatch(notice, /only|Story Vision has changed/);
+});
