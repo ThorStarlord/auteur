@@ -1,0 +1,339 @@
+diff --git a/harness/harness.config.json b/harness/harness.config.json
+index 862fbcf9..72397cbc 100644
+--- a/harness/harness.config.json
++++ b/harness/harness.config.json
+@@ -18,11 +18,12 @@
+   "_driver": "cli - the whole product surface is the auteur command.",
+   "driver": "cli",
+   "e2e_timeout_s": 300,
+-  "mutations_timeout_s": 5400,
++  "mutations_timeout_s": 11520,
+   "cli": {
+     "_note": "invoke is python -m auteur.cli (main guard at cli.py). The venv's editable install resolves auteur from THIS worktree's src/.",
+     "invoke": "python -m auteur.cli {args}",
+     "smoke_args": "ontology list",
+     "smoke_contains": "Character"
+-  }
++  },
++  "mutation_margin_s": 120
+ }
+diff --git a/harness/mutations/run.py b/harness/mutations/run.py
+index a5dfafd3..92490abd 100644
+--- a/harness/mutations/run.py
++++ b/harness/mutations/run.py
+@@ -34,6 +34,7 @@ from __future__ import annotations
+ import json
+ import os
+ import shutil
++import signal
+ import subprocess
+ import sys
+ import tempfile
+@@ -71,6 +72,61 @@ def build_copy(dest: Path) -> None:
+     subprocess.run(["git", "init", "-q"], cwd=dest, capture_output=True)
+ 
+ 
++def load_config() -> dict:
++    # Read from ROOT at call time so the budget always describes the tree the runner copies.
++    path = ROOT / "harness" / "harness.config.json"
++    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
++
++
++def mutant_budget_s() -> int:
++    """Deadline for ONE mutant's inner gate.
++
++    The inner gate runs every rung that can fail (static, unit, e2e, holdout), and a
++    mutant caught by the unit rung needs that rung to run to completion. A fixed 600 s
++    cap was below the configured unit budget (900 s) and timed out the honest case.
++    The budget is therefore the sum of the configured rungs plus a margin.
++    """
++    cfg = load_config()
++    rungs = sum(int(cfg.get(key, 0)) for key in ("static_timeout_s", "unit_timeout_s", "e2e_timeout_s"))
++    return rungs + int(cfg.get("mutation_margin_s", 120))
++
++
++def _kill_tree(process: subprocess.Popen) -> None:
++    """Terminate the inner gate and every descendant, including pytest-xdist workers.
++
++    A plain Popen.kill() only ends the direct child; its workers keep files open under the
++    throwaway build, which is what made the temporary-directory cleanup fail on Windows.
++    """
++    if os.name == "nt":
++        subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
++                       capture_output=True, text=True)
++    else:
++        try:
++            os.killpg(process.pid, signal.SIGKILL)
++        except ProcessLookupError:
++            pass
++
++
++def run_inner_gate(dest: Path, env: dict, budget: int) -> tuple[str, int | None, str]:
++    """Return (status, exit_code, output). status is 'exited' or 'timed_out'."""
++    output_file = Path(tempfile.mkstemp(prefix="inner-", suffix=".out", dir=dest.parent)[1])
++    popen_options = {"start_new_session": True} if os.name != "nt" else {}
++    with output_file.open("wb") as out:
++        process = subprocess.Popen([sys.executable, "harness/ci.py"], cwd=dest, env=env,
++                                   stdout=out, stderr=subprocess.STDOUT, **popen_options)
++        try:
++            process.wait(timeout=budget)
++            status = "exited"
++        except subprocess.TimeoutExpired:
++            _kill_tree(process)
++            process.wait(timeout=60)
++            status = "timed_out"
++    # The file sits inside the throwaway temp root and is removed with it; an explicit unlink
++    # here can race a handle that is still closing on Windows.
++    text = output_file.read_text(encoding="utf-8", errors="replace")
++    return status, (None if status == "timed_out" else process.returncode), text
++
++
+ def apply(dest: Path, d: dict) -> bool:
+     """Textual mutation. Returns False if the anchor was not found."""
+     target = dest / d["file"]
+@@ -89,12 +145,20 @@ def main() -> int:
+         return 0
+ 
+     defects = json.loads(DEFECTS.read_text(encoding="utf-8"))["defects"]
+-    total = caught = not_injected = 0
+-
+-    print("MUTATION_START", flush=True)
++    budget = mutant_budget_s()
++    outer = int(load_config().get("mutations_timeout_s", 0) or 0)
++    if outer and outer < len(defects) * budget:
++        # Refuse before running anything: a budget that cannot cover every mutant would
++        # time out mid-set and leave a partial verdict that looks like a crash.
++        print(f"MUTATIONS_BUDGET outer budget {outer}s cannot cover {len(defects)} mutants "
++              f"x {budget}s each; no mutant was run. Raise mutations_timeout_s.", flush=True)
++        return 1
++    total = caught = not_injected = inconclusive = 0
++
++    print(f"MUTATION_START per_mutant_budget={budget}s", flush=True)
+     for d in defects:
+         total += 1
+-        with tempfile.TemporaryDirectory() as td:
++        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as td:
+             dest = Path(td) / "build"
+             dest.mkdir()
+             build_copy(dest)
+@@ -118,26 +182,38 @@ def main() -> int:
+             shadow = str(dest / "src")
+             env["PYTHONPATH"] = (shadow + os.pathsep + env["PYTHONPATH"]
+                                  if env.get("PYTHONPATH") else shadow)
+-            r = subprocess.run([sys.executable, "harness/ci.py"], cwd=dest, env=env,
+-                               capture_output=True, text=True, timeout=600)
+-            if r.returncode != 0:
++            status, code, text = run_inner_gate(dest, env, budget)
++            verdict_lines = [l for l in text.splitlines() if l.startswith("GATE_FAILED:")]
++            # Only a completed inner gate that reports a rung failure is a caught mutation.
++            # A timeout, a rung that timed out inside the gate, or a crash without a verdict
++            # says nothing about the defect, so it is inconclusive and fails the verdict.
++            if status == "timed_out":
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} inner gate exceeded {budget}s; tree terminated",
++                      flush=True)
++            elif "TIMEOUT after" in text:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} a rung inside the inner gate timed out",
++                      flush=True)
++            elif code != 0 and verdict_lines:
+                 caught += 1
+-                step = "gate"
+-                for line in (r.stdout or "").splitlines():
+-                    if line.startswith("GATE_FAILED:"):
+-                        step = line.split(":", 1)[1].strip()
++                step = verdict_lines[0].split(":", 1)[1].strip()
+                 print(f"  CAUGHT        {d['id']:<38} by {step}", flush=True)
++            elif code != 0:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} no gate verdict (exit {code})", flush=True)
+             else:
+                 print(f"  ESCAPED       {d['id']:<38} <-- {d['why']}", flush=True)
+ 
+     print(f"MUTATIONS_TOTAL={total}", flush=True)
+     print(f"MUTATIONS_CAUGHT={caught}", flush=True)
++    print(f"MUTATIONS_INCONCLUSIVE={inconclusive}", flush=True)
+     print(f"MUTATIONS_NOT_INJECTED={not_injected}", flush=True)
+-    if caught == total and not_injected == 0:
++    if caught == total and inconclusive == 0 and not_injected == 0:
+         print("MUTATIONS_OK", flush=True)
+         return 0
+-    print("MUTATIONS_FAILED - every escaped defect is a class of bug that can currently "
+-          "merge unreviewed", flush=True)
++    print("MUTATIONS_FAILED - every escaped, inconclusive or uninjected defect means the gate "
++          "cannot currently be trusted to catch this class of bug", flush=True)
+     return 1
+ 
+ 
+diff --git a/tests/test_mutation_runner_failure_paths.py b/tests/test_mutation_runner_failure_paths.py
+new file mode 100644
+index 00000000..5c6331e5
+--- /dev/null
++++ b/tests/test_mutation_runner_failure_paths.py
+@@ -0,0 +1,166 @@
++"""Deterministic failure-path regressions for the mutation runner (harness/mutations/run.py).
++
++Each test builds a tiny fake repository whose inner gate (harness/ci.py) is scripted, so the
++runner's classification and process handling are exercised without the real validator.
++"""
++from __future__ import annotations
++
++import importlib.util
++import json
++import time
++from pathlib import Path
++
++import pytest
++
++RUNNER = Path(__file__).resolve().parents[1] / "harness" / "mutations" / "run.py"
++
++FAKE_CI = r'''
++import os, pathlib, subprocess, sys, time
++mode = os.environ.get("FAKE_MODE", "")
++if mode == "caught":
++    print("GATE_FAILED: unit", flush=True)
++    sys.exit(1)
++if mode == "escaped":
++    sys.exit(0)
++if mode == "inner_timeout":
++    # Mirrors harness/ci.py: a rung times out, then the gate prints GATE_FAILED for it.
++    print("TIMEOUT after 1s", flush=True)
++    print("GATE_FAILED: unit", flush=True)
++    sys.exit(1)
++if mode == "crash":
++    # An infrastructure failure: non-zero exit with no GATE_FAILED verdict.
++    sys.exit(2)
++if mode == "hang_tree":
++    marker = os.environ["FAKE_SENTINEL"]
++    child = "import sys,time,pathlib; time.sleep(8); pathlib.Path(sys.argv[1]).write_text('leaked')"
++    subprocess.Popen([sys.executable, "-c", child, marker])
++    time.sleep(120)
++if mode == "readonly_leftover":
++    leftover = pathlib.Path("leftover.txt")
++    leftover.write_text("x", encoding="utf-8")
++    os.chmod(leftover, 0o400)
++    print("GATE_FAILED: static", flush=True)
++    sys.exit(1)
++sys.exit(3)
++'''
++
++
++def _load_runner():
++    spec = importlib.util.spec_from_file_location("mutation_run_under_test", RUNNER)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def _fake_repo(root: Path, *, anchor: str = "VALUE = 1", outer_s: int = 100,
++               static_s: int = 1, unit_s: int = 1, e2e_s: int = 1, margin_s: int = 0) -> Path:
++    (root / "harness" / "mutations").mkdir(parents=True)
++    (root / "src").mkdir()
++    (root / "harness" / "ci.py").write_text(FAKE_CI, encoding="utf-8")
++    (root / "src" / "target.py").write_text("VALUE = 1\n", encoding="utf-8")
++    (root / "harness" / "mutations" / "defects.json").write_text(json.dumps({"defects": [{
++        "id": "fake-defect", "file": "src/target.py", "find": anchor,
++        "replace": "VALUE = 2", "why": "test defect",
++    }]}), encoding="utf-8")
++    (root / "harness" / "harness.config.json").write_text(json.dumps({
++        "static_timeout_s": static_s, "unit_timeout_s": unit_s, "e2e_timeout_s": e2e_s,
++        "mutations_timeout_s": outer_s, "mutation_margin_s": margin_s,
++    }), encoding="utf-8")
++    return root
++
++
++def _run(runner, root: Path, monkeypatch, mode: str, **env) -> tuple[int, str]:
++    monkeypatch.setattr(runner, "ROOT", root)
++    monkeypatch.setattr(runner, "DEFECTS", root / "harness" / "mutations" / "defects.json")
++    monkeypatch.setattr(runner, "COPY", ["harness", "src"])
++    monkeypatch.setenv("FAKE_MODE", mode)
++    for key, value in env.items():
++        monkeypatch.setenv(key, value)
++    import io
++    import contextlib
++    out = io.StringIO()
++    with contextlib.redirect_stdout(out):
++        rc = runner.main()
++    return rc, out.getvalue()
++
++
++def test_genuine_gate_failure_is_still_a_caught_mutation(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "caught")
++    assert rc == 0
++    assert "CAUGHT" in out and "by unit" in out
++    assert "MUTATIONS_CAUGHT=1" in out
++    assert "MUTATIONS_OK" in out
++
++
++def test_escaped_mutation_fails_the_verdict(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "escaped")
++    assert rc == 1
++    assert "ESCAPED" in out
++    assert "MUTATIONS_CAUGHT=0" in out
++
++
++def test_missing_anchor_is_not_injected_and_fails(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path, anchor="NO SUCH TEXT"), monkeypatch, "caught")
++    assert rc == 1
++    assert "NOT_INJECTED" in out
++    assert "MUTATIONS_NOT_INJECTED=1" in out
++
++
++def test_inner_timeout_is_inconclusive_not_a_caught_mutation(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "inner_timeout")
++    assert rc == 1
++    assert "  CAUGHT " not in out
++    assert "MUTATIONS_CAUGHT=0" in out
++    assert "MUTATIONS_INCONCLUSIVE=1" in out
++
++
++def test_crash_without_a_gate_verdict_is_inconclusive(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "crash")
++    assert rc == 1
++    assert "  CAUGHT " not in out
++    assert "MUTATIONS_CAUGHT=0" in out
++    assert "MUTATIONS_INCONCLUSIVE=1" in out
++
++
++def test_hanging_inner_gate_is_bounded_inconclusive_and_its_tree_is_killed(tmp_path, monkeypatch):
++    runner = _load_runner()
++    sentinel = tmp_path / "grandchild-leaked.txt"
++    start = time.monotonic()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "hang_tree",
++                   FAKE_SENTINEL=str(sentinel))
++    elapsed = time.monotonic() - start
++    assert rc == 1
++    assert "MUTATIONS_INCONCLUSIVE=1" in out
++    assert elapsed < 60, "the per-mutant deadline must bound the run"
++    # The grandchild would write the sentinel after 8 seconds if it survived the tree kill.
++    time.sleep(10)
++    assert not sentinel.exists(), "a descendant of the timed-out inner gate survived"
++
++
++def test_read_only_leftover_does_not_turn_a_verdict_into_a_crash(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "readonly_leftover")
++    assert rc == 0
++    assert "MUTATIONS_CAUGHT=1" in out
++
++
++def test_outer_budget_must_cover_every_mutant_before_any_runs(tmp_path, monkeypatch):
++    runner = _load_runner()
++    # One mutant with a per-mutant budget of 3s needs 3s; an outer budget of 2s cannot cover it.
++    root = _fake_repo(tmp_path, outer_s=2, static_s=1, unit_s=1, e2e_s=1, margin_s=0)
++    rc, out = _run(runner, root, monkeypatch, "caught")
++    assert rc == 1
++    assert "BUDGET" in out
++    assert "  CAUGHT " not in out and "  ESCAPED " not in out
++
++
++def test_per_mutant_budget_is_derived_from_the_inner_rungs(tmp_path, monkeypatch):
++    runner = _load_runner()
++    monkeypatch.setattr(runner, "ROOT", _fake_repo(tmp_path, static_s=600, unit_s=900,
++                                                   e2e_s=300, margin_s=120))
++    assert runner.mutant_budget_s() == 600 + 900 + 300 + 120
