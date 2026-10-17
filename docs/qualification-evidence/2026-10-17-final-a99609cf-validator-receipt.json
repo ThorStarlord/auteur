@@ -1,0 +1,77 @@
+{
+  "claim": "Full protected validator (harness/ci.py) on final combined candidate a99609cf, two attempts. Parsed from the raw logs.",
+  "source": {
+    "commit": "a99609cf",
+    "tree": "c782b0c4",
+    "worktree": "studio-final (branch codex/studio-final-candidate)",
+    "product_source_difference_from_validated_fdcf39cb": [
+      "tests/test_phase0_workflow.py"
+    ]
+  },
+  "interpreter": "validation-venv (python 3.14.3, playwright 1.64.0); see 2026-10-16-validation-environment.json",
+  "command": "PYTHONPATH=<checkout>/src PYTHONIOENCODING=utf-8 timeout 9000 <validation-venv>/python harness/ci.py",
+  "outcome": "FAIL at the mutations rung in both attempts. Static, unit (5653), E2E (14 steps) and holdout (3 scenarios) passed in both attempts.",
+  "classification": "First failure in both attempts: subprocess.TimeoutExpired raised by the mutation runner at its 600 s per-mutant deadline (harness/mutations/run.py), while the inner gate was still running. The Windows temporary-directory cleanup errors (WinError 32, then WinError 145) occur while unwinding that exception. The per-mutant deadline is below the configured unit rung (900 s), and a timed-out inner gate is not a caught mutation. No escaped defect was reported. Protected file; not repaired by the builder.",
+  "redaction": "Windows user-home path prefix (single, doubled and forward-slash forms) replaced by <user-home>; the literal path is not repeated in this receipt.",
+  "attempts": {
+    "attempt-1": {
+      "raw_log_file": "validator-final-a99609cf-attempt1.log",
+      "published_file": "2026-10-17-final-a99609cf-validator-attempt1.log",
+      "raw_sha256": "04a6ddb1e64bc3dc8d850dae52ed65db5a761e58c77cb25e03c101c9dca32d2a",
+      "published_sha256": "6b4797fa4671c21bafde6ca57d9baab62b48b8a91323f29da46ada63b3daa385",
+      "home_path_replacements": 5,
+      "exit_codes_in_log": [
+        1
+      ],
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "UNIT_PASSED tests=5653",
+        "E2E_PASSED steps=14",
+        "HOLDOUT_PASSED scenarios=3 assertions=9",
+        "MUTATION_START",
+        "CAUGHT        override-silently-accepted             by static",
+        "GATE_FAILED: mutations"
+      ],
+      "timeout_lines": [
+        "raise TimeoutExpired(self.args, orig_timeout)",
+        "subprocess.TimeoutExpired: Command '['H:\\\\codex\\\\qualification\\\\auteur-narrative-20261016\\\\validation-venv\\\\Scripts\\\\python.exe', 'harness/ci.py']' timed out after 600 seconds"
+      ],
+      "error_lines": [
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 5] Acesso negado: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 5] Acesso negado: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'"
+      ]
+    },
+    "attempt-2": {
+      "raw_log_file": "validator-final-a99609cf-attempt2.log",
+      "published_file": "2026-10-17-final-a99609cf-validator-attempt2.log",
+      "raw_sha256": "8612b2d7150d897de771a4fcdf3ffd2d423aa19c04bdb79a8af6666021690ce0",
+      "published_sha256": "f57efd23712b2b653e340df80a0b9fb0f7a5fbe384689d220de53c074f7cbe78",
+      "home_path_replacements": 1,
+      "exit_codes_in_log": [
+        1
+      ],
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "UNIT_PASSED tests=5653",
+        "E2E_PASSED steps=14",
+        "HOLDOUT_PASSED scenarios=3 assertions=9",
+        "MUTATION_START",
+        "CAUGHT        override-silently-accepted             by static",
+        "CAUGHT        persistence-write-dropped              by unit",
+        "GATE_FAILED: mutations"
+      ],
+      "timeout_lines": [
+        "raise TimeoutExpired(self.args, orig_timeout)",
+        "subprocess.TimeoutExpired: Command '['H:\\\\codex\\\\qualification\\\\auteur-narrative-20261016\\\\validation-venv\\\\Scripts\\\\python.exe', 'harness/ci.py']' timed out after 600 seconds"
+      ],
+      "error_lines": [
+        "OSError: [WinError 145] A pasta não está vazia: '<user-home>\\\\AppData\\\\Local\\\\Temp\\\\tmpn7pqlcp1\\\\build'"
+      ]
+    }
+  }
+}
