@@ -1,0 +1,293 @@
+diff --git a/tests/test_mutation_runner_failure_paths.py b/tests/test_mutation_runner_failure_paths.py
+new file mode 100644
+index 00000000..3abb670e
+--- /dev/null
++++ b/tests/test_mutation_runner_failure_paths.py
+@@ -0,0 +1,287 @@
++"""Deterministic failure-path regressions for the mutation runner (harness/mutations/run.py).
++
++Each test builds a tiny fake repository whose inner gate (harness/ci.py) is scripted, so the
++runner's classification, process handling and cleanup are exercised without the real validator.
++The last test reads the real defect catalogue and checks that all six anchors still exist.
++"""
++from __future__ import annotations
++
++import contextlib
++import importlib.util
++import io
++import json
++import os
++import tempfile
++import time
++from pathlib import Path
++
++import pytest
++
++RUNNER = Path(__file__).resolve().parents[1] / "harness" / "mutations" / "run.py"
++
++FAKE_CI = r'''
++import os, pathlib, subprocess, sys, time
++mode = os.environ.get("FAKE_MODE", "")
++if mode == "caught":
++    print("GATE_FAILED: unit", flush=True)
++    sys.exit(1)
++if mode == "escaped":
++    sys.exit(0)
++if mode == "inner_timeout":
++    # Mirrors harness/ci.py: a rung times out, then the gate prints GATE_FAILED for it.
++    print("TIMEOUT after 1s", flush=True)
++    print("GATE_FAILED: unit", flush=True)
++    sys.exit(1)
++if mode == "crash":
++    # An infrastructure failure: non-zero exit with no GATE_FAILED verdict.
++    sys.exit(2)
++if mode == "unknown_label":
++    # A verdict naming something that is not a rung: infrastructure, not a mutation finding.
++    print("GATE_FAILED: infra", flush=True)
++    sys.exit(1)
++if mode == "hang":
++    time.sleep(120)
++if mode == "hang_tree":
++    marker = os.environ["FAKE_SENTINEL"]
++    child = "import sys,time,pathlib; time.sleep(8); pathlib.Path(sys.argv[1]).write_text('leaked')"
++    subprocess.Popen([sys.executable, "-c", child, marker])
++    time.sleep(120)
++if mode == "readonly_leftover":
++    leftover = pathlib.Path("leftover.txt")
++    leftover.write_text("x", encoding="utf-8")
++    os.chmod(leftover, 0o400)
++    print("GATE_FAILED: static", flush=True)
++    sys.exit(1)
++sys.exit(3)
++'''
++
++
++def _load_runner():
++    spec = importlib.util.spec_from_file_location("mutation_run_under_test", RUNNER)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def _fake_repo(root: Path, *, anchor: str = "VALUE = 1", outer_s: int = 100,
++               static_s: int = 1, unit_s: int = 1, e2e_s: int = 1, margin_s: int = 0,
++               overhead_s: int = 0, defect_count: int = 1) -> Path:
++    (root / "harness" / "mutations").mkdir(parents=True)
++    (root / "src").mkdir()
++    (root / "harness" / "ci.py").write_text(FAKE_CI, encoding="utf-8")
++    (root / "src" / "target.py").write_text("VALUE = 1\n", encoding="utf-8")
++    defects = [{"id": f"fake-defect-{i}", "file": "src/target.py", "find": anchor,
++                "replace": "VALUE = 2", "why": "test defect"} for i in range(defect_count)]
++    (root / "harness" / "mutations" / "defects.json").write_text(
++        json.dumps({"defects": defects}), encoding="utf-8")
++    (root / "harness" / "harness.config.json").write_text(json.dumps({
++        "static_timeout_s": static_s, "unit_timeout_s": unit_s, "e2e_timeout_s": e2e_s,
++        "mutations_timeout_s": outer_s, "mutation_margin_s": margin_s,
++        "mutation_overhead_s": overhead_s,
++    }), encoding="utf-8")
++    return root
++
++
++def _run(runner, root: Path, monkeypatch, mode: str, scratch: Path | None = None, **env):
++    monkeypatch.setattr(runner, "ROOT", root)
++    monkeypatch.setattr(runner, "DEFECTS", root / "harness" / "mutations" / "defects.json")
++    monkeypatch.setattr(runner, "COPY", ["harness", "src"])
++    if scratch is not None:
++        scratch.mkdir(parents=True, exist_ok=True)
++        monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    monkeypatch.setenv("FAKE_MODE", mode)
++    for key, value in env.items():
++        monkeypatch.setenv(key, value)
++    out = io.StringIO()
++    with contextlib.redirect_stdout(out):
++        rc = runner.main()
++    return rc, out.getvalue()
++
++
++def _leftovers(scratch: Path) -> list[str]:
++    return sorted(p.name for p in scratch.iterdir())
++
++
++# --- classification: a timeout, a crash or an unknown verdict is never a catch -----------------
++
++def test_genuine_gate_failure_is_still_a_caught_mutation(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "caught")
++    assert rc == 0
++    assert "  CAUGHT " in out and "by unit" in out
++    assert "MUTATIONS_CAUGHT=1" in out and "MUTATIONS_OK" in out
++
++
++def test_escaped_mutation_fails_the_verdict(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "escaped")
++    assert rc == 1
++    assert "  ESCAPED " in out and "MUTATIONS_CAUGHT=0" in out
++
++
++def test_missing_anchor_is_not_injected_and_fails(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path, anchor="NO SUCH TEXT"), monkeypatch, "caught")
++    assert rc == 1
++    assert "NOT_INJECTED" in out and "MUTATIONS_NOT_INJECTED=1" in out
++
++
++def test_inner_timeout_is_inconclusive_not_a_caught_mutation(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "inner_timeout")
++    assert rc == 1
++    assert "  CAUGHT " not in out
++    assert "MUTATIONS_CAUGHT=0" in out and "MUTATIONS_INCONCLUSIVE=1" in out
++
++
++def test_crash_without_a_gate_verdict_is_inconclusive(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "crash")
++    assert rc == 1
++    assert "  CAUGHT " not in out
++    assert "MUTATIONS_INCONCLUSIVE=1" in out
++
++
++def test_unrecognised_gate_label_is_inconclusive_not_caught(tmp_path, monkeypatch):
++    runner = _load_runner()
++    rc, out = _run(runner, _fake_repo(tmp_path), monkeypatch, "unknown_label")
++    assert rc == 1
++    assert "  CAUGHT " not in out
++    assert "unrecognised gate verdict" in out and "MUTATIONS_INCONCLUSIVE=1" in out
++
++
++def test_hanging_inner_gate_is_bounded_inconclusive_and_its_tree_is_killed(tmp_path, monkeypatch):
++    runner = _load_runner()
++    sentinel = tmp_path / "grandchild-leaked.txt"
++    start = time.monotonic()
++    rc, out = _run(runner, _fake_repo(tmp_path, static_s=1, unit_s=1, e2e_s=1),
++                   monkeypatch, "hang_tree", FAKE_SENTINEL=str(sentinel))
++    elapsed = time.monotonic() - start
++    assert rc == 1
++    assert "MUTATIONS_INCONCLUSIVE=1" in out
++    assert "tree terminated and confirmed" in out
++    assert elapsed < 60, "the per-mutant deadline must bound the run"
++    # The grandchild would write the sentinel after 8 seconds if it survived the tree kill.
++    time.sleep(10)
++    assert not sentinel.exists(), "a descendant of the timed-out inner gate survived"
++
++
++def test_unconfirmed_termination_is_inconclusive_and_says_so(tmp_path, monkeypatch):
++    runner = _load_runner()
++
++    def pretend_failure(process):
++        # Report an unconfirmed termination, but still end the process so the test leaves nothing.
++        process.kill()
++        return False
++
++    monkeypatch.setattr(runner, "_terminate_tree", pretend_failure)
++    rc, out = _run(runner, _fake_repo(tmp_path, static_s=1, unit_s=1, e2e_s=1), monkeypatch, "hang")
++    assert rc == 1
++    assert "TERMINATION NOT CONFIRMED" in out
++    assert "  CAUGHT " not in out and "MUTATIONS_CAUGHT=0" in out
++
++
++# --- outer budget: bounded, never a partial pass -------------------------------------------------
++
++def test_outer_budget_exhaustion_is_inconclusive_and_never_a_pass(tmp_path, monkeypatch):
++    runner = _load_runner()
++    # Per-mutant bound 3 s, outer bound 3 s, two defects. The first mutant uses the whole outer
++    # budget (it hangs until its slot ends); the second has no time left and must not run.
++    root = _fake_repo(tmp_path, outer_s=3, static_s=1, unit_s=1, e2e_s=1, margin_s=0,
++                      defect_count=2)
++    rc, out = _run(runner, root, monkeypatch, "hang")
++    assert rc == 1
++    assert "MUTATIONS_OK" not in out
++    assert "outer budget exhausted; not run" in out
++    assert "MUTATIONS_INCONCLUSIVE=2" in out
++
++
++def test_per_mutant_budget_is_derived_from_the_inner_rungs(tmp_path, monkeypatch):
++    runner = _load_runner()
++    monkeypatch.setattr(runner, "ROOT", _fake_repo(tmp_path, static_s=600, unit_s=900,
++                                                   e2e_s=300, margin_s=120))
++    assert runner.mutant_budget_s() == 600 + 900 + 300 + 120
++
++
++def test_outer_budget_is_not_raised_by_the_runner(tmp_path, monkeypatch):
++    runner = _load_runner()
++    root = _fake_repo(tmp_path, outer_s=5400, static_s=600, unit_s=900, e2e_s=300, margin_s=120)
++    monkeypatch.setattr(runner, "ROOT", root)
++    assert json.loads((root / "harness" / "harness.config.json").read_text())[
++        "mutations_timeout_s"] == 5400
++    assert runner.load_config()["mutations_timeout_s"] == 5400
++
++
++# --- temporary files: really removed, and failures are reported ----------------------------------
++
++def test_scratch_is_removed_after_normal_completion(tmp_path, monkeypatch):
++    runner = _load_runner()
++    scratch = tmp_path / "scratch"
++    rc, out = _run(runner, _fake_repo(tmp_path / "repo"), monkeypatch, "caught", scratch=scratch)
++    assert rc == 0 and "MUTATIONS_CLEANUP_FAILURES=0" in out
++    assert _leftovers(scratch) == [], "temporary build or output files were left behind"
++
++
++def test_scratch_is_removed_after_an_inner_timeout(tmp_path, monkeypatch):
++    runner = _load_runner()
++    scratch = tmp_path / "scratch"
++    rc, out = _run(runner, _fake_repo(tmp_path / "repo", static_s=1, unit_s=1, e2e_s=1),
++                   monkeypatch, "hang", scratch=scratch)
++    assert rc == 1 and "MUTATIONS_CLEANUP_FAILURES=0" in out
++    assert _leftovers(scratch) == [], "temporary files survived a terminated timeout"
++
++
++def test_inner_output_descriptor_is_closed_on_return(tmp_path, monkeypatch):
++    runner = _load_runner()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    monkeypatch.setenv("FAKE_MODE", "caught")
++    dest = tmp_path / "repo"
++    (dest / "harness").mkdir(parents=True)
++    (dest / "harness" / "ci.py").write_text(FAKE_CI, encoding="utf-8")
++    dest_root = scratch / "dest-root"
++    dest_root.mkdir()
++    status, code, text = runner.run_inner_gate(dest, dict(os.environ), timeout=30)
++    assert status == "exited" and code == 1 and "GATE_FAILED: unit" in text
++    # A still-open descriptor keeps a file locked on Windows; a closed one can be removed now.
++    for leftover in dest_root.parent.glob("inner-*.out"):
++        os.remove(leftover)
++    assert list(dest_root.parent.glob("inner-*.out")) == []
++
++
++def test_removal_failure_fails_the_verdict_and_is_reported(tmp_path, monkeypatch):
++    runner = _load_runner()
++    monkeypatch.setattr(runner.time, "sleep", lambda seconds: None)
++
++    def refuse(*args, **kwargs):
++        raise PermissionError("held by another process")
++
++    monkeypatch.setattr(runner.shutil, "rmtree", refuse)
++    scratch = tmp_path / "scratch"
++    rc, out = _run(runner, _fake_repo(tmp_path / "repo"), monkeypatch, "caught", scratch=scratch)
++    assert rc == 1
++    assert "CLEANUP_FAILED" in out and "MUTATIONS_CLEANUP_FAILURES=1" in out
++    assert "MUTATIONS_OK" not in out
++
++
++def test_read_only_leftover_is_removed_and_the_verdict_passes(tmp_path, monkeypatch):
++    runner = _load_runner()
++    scratch = tmp_path / "scratch"
++    rc, out = _run(runner, _fake_repo(tmp_path / "repo"), monkeypatch, "readonly_leftover",
++                   scratch=scratch)
++    assert rc == 0
++    assert "MUTATIONS_CAUGHT=1" in out and "MUTATIONS_CLEANUP_FAILURES=0" in out
++    assert _leftovers(scratch) == []
++
++
++# --- the protected defect set itself ------------------------------------------------------------
++
++def test_the_six_defects_and_their_anchors_are_intact(tmp_path):
++    repo = Path(__file__).resolve().parents[1]
++    catalogue = json.loads((repo / "harness" / "mutations" / "defects.json").read_text(encoding="utf-8"))
++    defects = catalogue["defects"]
++    assert len(defects) == 6, "the six-defect contract changed"
++    for d in defects:
++        body = (repo / d["file"]).read_text(encoding="utf-8")
++        assert d["find"] in body, f"anchor for {d['id']} is missing from {d['file']}"
