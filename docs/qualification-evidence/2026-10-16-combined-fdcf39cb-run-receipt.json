@@ -20,7 +20,7 @@
       "published_file": "2026-10-16-combined-fdcf39cb-validator-full.log",
       "raw_sha256": "8ea42d4d53aaeca9bcf6d6c49efe85b701993a83ccaf6de96def2edec4b2f1d2",
       "published_sha256": "8ea42d4d53aaeca9bcf6d6c49efe85b701993a83ccaf6de96def2edec4b2f1d2",
-      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "redaction": "Windows user-home path prefix replaced by <user-home>; the literal path is not repeated in this receipt",
       "exit_codes_in_log": [
         0
       ],
@@ -42,7 +42,7 @@
       "published_file": "2026-10-16-combined-fdcf39cb-stage-b.log",
       "raw_sha256": "535ff8ee16ce7ab6769af8a819cd954fd3435ecd46aa3b9b37f1bc199588dd44",
       "published_sha256": "fea6b44d2be08fbcc75a0f41ba6d502da561a7b40b509c717b5e546108d87ca4",
-      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "redaction": "Windows user-home path prefix replaced by <user-home>; the literal path is not repeated in this receipt",
       "exit_codes_in_log": [],
       "exit_code_source": "NOT in the log file; recorded from the invoking shell output only",
       "gate_markers": [
@@ -55,7 +55,7 @@
       "published_file": "2026-10-16-baseline-8344a909-validator-unit-timeout.log",
       "raw_sha256": "5355386e1923bb70a563b3aa970c86cf705a0c8fb65efb55edaaa70442b30a49",
       "published_sha256": "5355386e1923bb70a563b3aa970c86cf705a0c8fb65efb55edaaa70442b30a49",
-      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "redaction": "Windows user-home path prefix replaced by <user-home>; the literal path is not repeated in this receipt",
       "exit_codes_in_log": [
         1
       ],
@@ -72,7 +72,7 @@
       "published_file": "2026-10-16-baseline-8344a909-validator-static-yaml-missing.log",
       "raw_sha256": "79ac9f73f58222886448613591d861420601d889996641e2d8aa10f708fa0de6",
       "published_sha256": "79ac9f73f58222886448613591d861420601d889996641e2d8aa10f708fa0de6",
-      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "redaction": "Windows user-home path prefix replaced by <user-home>; the literal path is not repeated in this receipt",
       "exit_codes_in_log": [
         1
       ],
