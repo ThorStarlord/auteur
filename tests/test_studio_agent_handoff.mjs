@@ -33,3 +33,29 @@ test('poll detects validated response, supports stop and bounded exhaustion',asy
  const stopped=await api.poll({key,getKey:()=>key,shouldStop:()=>stop,read:async()=>{throw Error('must not fetch');},delay:async()=>{}});
  assert.equal(stopped.reason,'stopped');
 });
+test('dispatch submits only deliberate exact requests to an attached executor', async () => {
+  const calls = [];
+  const post = async (url, body) => { calls.push({url, body}); return {state:'submitted'}; };
+  const projection = {request:{request_sha256:'a'.repeat(64)}};
+  const opts = {projection, url:'/canvas/architecture', post};
+  assert.equal(await window.AuteurStudioAgentHandoff.dispatch({...opts, capability:{}}), null);
+  assert.equal(calls.length, 0);
+  assert.deepEqual(await window.AuteurStudioAgentHandoff.dispatch({...opts,
+    capability:{studio_architecture:{attached:true}}}), {state:'submitted'});
+  assert.deepEqual(JSON.parse(JSON.stringify(calls)), [{url:'/canvas/architecture/dispatch', body:{request_sha256:'a'.repeat(64)}}]);
+});
+
+test('completed projections do not submit a second request or become errors', async () => {
+  let calls = 0;
+  const result = await api.dispatch({projection:{status:'ready',request:null},
+    capability:{studio_architecture:{attached:true}},post:async()=>{calls++;}});
+  assert.equal(result, null); assert.equal(calls, 0);
+});
+
+test('re-entry loads current capability before presenting a pending request', async () => {
+  const loaded = await api.load({
+    readProjection:async()=>({status:'awaiting_host_agent',request}),
+    readCapability:async()=>({studio_architecture:{attached:true}})
+  });
+  assert.equal(api.present(loaded.projection, loaded.capability).mode, 'awaiting_response');
+});

@@ -366,3 +366,9 @@ def test_architecture_becomes_stale_after_author_revises_vision(tmp_path):
     old = project_architecture(store)
     assert old["status"] == "stale"
     assert old["candidate"]["schema_version"] == 2
+def test_architecture_request_discloses_all_genre_contract_roles():
+    from typing import get_args
+    from auteur.beginner.studio_architecture import GenreContract, _SYSTEM
+    contract = _SYSTEM.split('genre_contract:', 1)[1].split('genre_interaction:', 1)[0]
+    for role in get_args(GenreContract.model_fields['role'].annotation):
+        assert role in contract, f'The self-contained agent request omits genre role {role}'

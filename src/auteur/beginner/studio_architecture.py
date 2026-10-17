@@ -279,7 +279,8 @@ role primary/supporting/contrasting/local; provenance author_declared/agent_prop
 complex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.
 genre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,
 trope_functions,narrative_engine,structural_pattern,aesthetic_strategies,
-payoff_expectations}; genre_node_id identifies one genre node.
+payoff_expectations}; genre_node_id identifies one genre node;
+genre_contract role must be governing/supporting/tertiary/local.
 genre_interaction: {id,source_genre_id,target_genre_id,kind,mechanism,risk}.
 phase: {id,title,order,scope,genres,genre_activations,reader_experience,
 aesthetic,narrative_function,transition,parallel_with}.

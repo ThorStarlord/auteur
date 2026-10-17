@@ -214,7 +214,7 @@
       }
     }
     var handoff = window.AuteurStudioAgentHandoff ?
-      window.AuteurStudioAgentHandoff.present(projection, null) : null;
+      window.AuteurStudioAgentHandoff.present(projection, state.hostCapability) : null;
     $("architecture-status").textContent = handoff ? handoff.message :
       "The architecture request is not connected to a provider.";
     updateArchitectureScopes();
@@ -226,8 +226,14 @@
   }
   function loadArchitecture() {
     var canvasId = remote.canvasId;
-    return fetch(architectureUrl()).then(apiJson).then(function (projection) {
-      if (remote.canvasId === canvasId) applyArchitectureProjection(projection, false);
+    return window.AuteurStudioAgentHandoff.load({
+      readProjection: function () { return fetch(architectureUrl()).then(apiJson); },
+      readCapability: function () { return fetch('/api/beginner/studio/host-capabilities').then(apiJson); }
+    }).then(function (loaded) {
+      if (remote.canvasId === canvasId) {
+        state.hostCapability = loaded.capability;
+        applyArchitectureProjection(loaded.projection, false);
+      }
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
@@ -297,14 +303,27 @@
     $("architecture-status").textContent = "Saving creative intent and preparing exact coding-agent request...";
     Promise.resolve(remote.queue).then(function () {
       if (remote.failed) throw new Error("The working canvas did not save; no agent request was created.");
+      return fetch('/api/beginner/studio/host-capabilities').then(apiJson);
+    }).then(function (capability) {
+      state.hostCapability = capability;
       return fetch(architectureUrl() + "/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ instruction: instruction || "" })
       }).then(apiJson);
     }).then(function (projection) {
       applyArchitectureProjection(projection, false);
-      startArchitecturePoll(projection);
-      status("Request ready to copy. No coding agent was invoked by the browser.");
+      return window.AuteurStudioAgentHandoff.dispatch({
+        projection: projection, capability: state.hostCapability, url: architectureUrl(),
+        post: function (url, payload) {
+          return fetch(url, {method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)}).then(apiJson);
+        }
+      }).then(function (submitted) {
+        startArchitecturePoll(projection);
+        status(!projection.request ? "The working proposal is already available." :
+          submitted ? "Request submitted to the attached coding agent. Nothing was accepted." :
+          "Request ready to copy. No coding agent was invoked by the browser.");
+      });
     }).catch(function (error) {
       $("architecture-status").textContent = "Cannot request architecture: " + error.message;
     });
