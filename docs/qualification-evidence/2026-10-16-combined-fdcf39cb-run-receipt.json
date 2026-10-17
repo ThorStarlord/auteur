@@ -1,0 +1,87 @@
+{
+  "claim": "Combined Studio source fdcf39cb under the protected validator harness (harness/ci.py) and served Stage B. Every field below is parsed from the raw logs named in runs[].raw_log_file.",
+  "source": {
+    "commit": "fdcf39cb",
+    "tree": "c4b88445",
+    "worktree": "studio-combined (branch codex/studio-combined-candidate)",
+    "head_moved_after_merges": false,
+    "basis": "reflog of the worktree: last HEAD movement is the final merge at 21:05:21 -0300, before both runs"
+  },
+  "interpreter": "validation-venv (python 3.14.3); environment in 2026-10-16-validation-environment.json",
+  "commands": {
+    "combined-validator-full": "PYTHONPATH=<checkout>/src PYTHONIOENCODING=utf-8 timeout 9000 <validation-venv>/python harness/ci.py",
+    "combined-stage-b": "PYTHONIOENCODING=utf-8 PYTHONPATH=<checkout>/src CHROMIUM_PATH=<ms-playwright>/chromium-1248 AUTEUR_PYTHON=<Python312> timeout 900 <validation-venv>/python -u scripts/studio_stage_b_check.py",
+    "baseline-8344a909-unit-timeout": "PYTHONPATH=<baseline-integration>/src PYTHONIOENCODING=utf-8 <validation-venv>/python harness/ci.py at 8344a909",
+    "baseline-8344a909-static-yaml-missing": "same harness command at 8344a909, before pyyaml was installed in the validation venv"
+  },
+  "runs": {
+    "combined-validator-full": {
+      "raw_log_file": "validator-combined-fdcf39cb-full.log",
+      "published_file": "2026-10-16-combined-fdcf39cb-validator-full.log",
+      "raw_sha256": "8ea42d4d53aaeca9bcf6d6c49efe85b701993a83ccaf6de96def2edec4b2f1d2",
+      "published_sha256": "8ea42d4d53aaeca9bcf6d6c49efe85b701993a83ccaf6de96def2edec4b2f1d2",
+      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "exit_codes_in_log": [
+        0
+      ],
+      "exit_code_source": "EXIT= line appended to the log by the invoking command",
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "UNIT_PASSED tests=5652",
+        "E2E_PASSED steps=14",
+        "HOLDOUT_PASSED scenarios=3 assertions=9",
+        "MUTATIONS_TOTAL=6",
+        "MUTATIONS_CAUGHT=6",
+        "MUTATIONS_OK",
+        "GATE_OK mode=full"
+      ]
+    },
+    "combined-stage-b": {
+      "raw_log_file": "stage-b-combined-fdcf39cb.log",
+      "published_file": "2026-10-16-combined-fdcf39cb-stage-b.log",
+      "raw_sha256": "535ff8ee16ce7ab6769af8a819cd954fd3435ecd46aa3b9b37f1bc199588dd44",
+      "published_sha256": "fea6b44d2be08fbcc75a0f41ba6d502da561a7b40b509c717b5e546108d87ca4",
+      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "exit_codes_in_log": [],
+      "exit_code_source": "NOT in the log file; recorded from the invoking shell output only",
+      "gate_markers": [
+        "SUMMARY: 23 / 23 passed"
+      ],
+      "exit_code_from_invoking_shell": 0
+    },
+    "baseline-8344a909-unit-timeout": {
+      "raw_log_file": "validator-baseline-validationvenv-2.log",
+      "published_file": "2026-10-16-baseline-8344a909-validator-unit-timeout.log",
+      "raw_sha256": "5355386e1923bb70a563b3aa970c86cf705a0c8fb65efb55edaaa70442b30a49",
+      "published_sha256": "5355386e1923bb70a563b3aa970c86cf705a0c8fb65efb55edaaa70442b30a49",
+      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "exit_codes_in_log": [
+        1
+      ],
+      "exit_code_source": "EXIT= line appended to the log by the invoking command",
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "TIMEOUT after 900s",
+        "GATE_FAILED: unit"
+      ]
+    },
+    "baseline-8344a909-static-yaml-missing": {
+      "raw_log_file": "validator-baseline-validationvenv.log",
+      "published_file": "2026-10-16-baseline-8344a909-validator-static-yaml-missing.log",
+      "raw_sha256": "79ac9f73f58222886448613591d861420601d889996641e2d8aa10f708fa0de6",
+      "published_sha256": "79ac9f73f58222886448613591d861420601d889996641e2d8aa10f708fa0de6",
+      "redaction": "'C:\\Users\\Admin' replaced by '<user-home>'; no other change",
+      "exit_codes_in_log": [
+        1
+      ],
+      "exit_code_source": "EXIT= line appended to the log by the invoking command",
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "GATE_FAILED: static"
+      ],
+      "exit_code_from_invoking_shell": 1
+    }
+  }
+}

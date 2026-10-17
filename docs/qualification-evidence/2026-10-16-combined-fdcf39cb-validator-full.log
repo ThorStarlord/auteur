@@ -1,0 +1,34 @@
+HARNESS_START mode=full driver=cli
+STATIC_OK
+UNIT_PASSED tests=5652
+APP_STARTED driver=cli
+  ok    the brief is created
+  ok    brief.yaml exists
+  ok    the premise is preserved in the brief
+  ok    no canonical state before acceptance (start)
+  ok    the brief is refined
+  ok    the search output is staged
+  ok    review renders
+  ok    review recommends the winning direction
+  ok    review's accept path names candidate_1
+  ok    no canonical state before acceptance (review)
+  ok    accept succeeds
+  ok    story_identity.yaml exists after accept
+  ok    the accepted identity is the candidate, field for field
+  ok    the title a user would look for is present
+E2E_PASSED steps=14
+APP_STARTED driver=cli
+HOLDOUT_PASSED scenarios=3 assertions=9
+MUTATION_START
+  CAUGHT        override-silently-accepted             by static
+  CAUGHT        persistence-write-dropped              by unit
+  CAUGHT        validator-reversed                     by unit
+  CAUGHT        review-hides-the-accept-path           by static
+  CAUGHT        promote-writes-wrong-content           by unit
+  CAUGHT        author-decision-write-dropped          by unit
+MUTATIONS_TOTAL=6
+MUTATIONS_CAUGHT=6
+MUTATIONS_NOT_INJECTED=0
+MUTATIONS_OK
+GATE_OK mode=full
+EXIT=0

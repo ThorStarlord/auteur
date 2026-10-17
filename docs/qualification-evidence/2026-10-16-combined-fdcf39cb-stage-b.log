@@ -1,0 +1,25 @@
+Project: <user-home>\AppData\Local\Temp\auteur-stage-b-1zxm2qjc
+PASS root serves Studio with --studio-development-default
+PASS source-honest creative collaboration scripts are loaded
+PASS source-bound architecture request remains manual without a connected host
+PASS A->B->A edit preserved in inspector :: alpha text one
+PASS autosave survives server restart and reopen :: ['Story Vision', 'Note A', 'Note B']
+PASS reopened note content intact :: alpha text one
+PASS explicit canvas URL preserves saved working focus with Book state :: {'view': 'create', 'content': 'alpha text one'}
+PASS ordinary re-entry foregrounds Book orientation :: Chapter 1 · Kept
+PASS root reopens the most recently edited canvas :: ['Second canvas note']
+PASS earlier canvas still reachable from picker :: 2
+PASS Quick Draft reports pending/failure truthfully, never success :: Request staged for the active coding agent. Check again after it fulfills the request.
+PASS scene text persisted
+PASS stale tab does not overwrite newer content
+PASS stale tab is told about the conflict :: SAVE FAILED: canvas version mismatch: expected 9, found 10. Do not reload; export your work before recovery.
+PASS leaving to Previous Beginner UI saves first :: http://127.0.0.1:64364/beginner.html
+PASS navigation refused while save is failing :: http://127.0.0.1:64364/studio.html?canvas=canvas-mvbqkwig-1
+PASS unsaved content still on screen
+PASS arrow keys move a focused node :: (45, 69)
+PASS newer revision overrides historical Kept label in Book graph :: {'graph': 'Chapter 2\nWorking · current · Read-only', 'selected_action': 'Open Chapter 2 · Working'}
+PASS Chapter review shows the current unaccepted revision :: Chapter 2 · candidate draft
+PASS Chapter review leaves accepted and Working manuscripts unchanged
+PASS no page errors
+PASS no canonical project files created or changed outside the Studio working store
+SUMMARY: 23 / 23 passed

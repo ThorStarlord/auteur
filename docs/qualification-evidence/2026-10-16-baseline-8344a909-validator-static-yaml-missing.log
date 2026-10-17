@@ -1,0 +1,8 @@
+HARNESS_START mode=full driver=cli
+$ H:\codex\qualification\auteur-narrative-20261016\validation-venv\Scripts\python.exe scripts/test-validators.py
+Traceback (most recent call last):
+  File "H:\codex\qualification\auteur-narrative-20261016\baseline-integration\scripts\test-validators.py", line 4, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+GATE_FAILED: static
+EXIT=1
