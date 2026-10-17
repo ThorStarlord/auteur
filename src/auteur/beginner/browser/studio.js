@@ -866,7 +866,7 @@
       contrast.proposal.text : "No agent interpretation available.";
     $("contrast-explore").disabled = !state.selectedCandidate || state.architectureSourceStatus !== "ready";
     $("contrast-proposal-status").textContent = contrast.proposal && contrast.proposal.freshness === "stale" ?
-      "Older proposal; your working Story Vision has changed." :
+      window.AuteurStudioAuthorIntent.staleProposalNotice() :
       "This is a proposed reading of your idea, not an author-approved character arc or story fact.";
   }
   function showVision() {
