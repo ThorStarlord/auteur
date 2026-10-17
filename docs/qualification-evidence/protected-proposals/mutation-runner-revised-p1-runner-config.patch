@@ -1,0 +1,291 @@
+diff --git a/harness/harness.config.json b/harness/harness.config.json
+index 862fbcf9..83889176 100644
+--- a/harness/harness.config.json
++++ b/harness/harness.config.json
+@@ -24,5 +24,7 @@
+     "invoke": "python -m auteur.cli {args}",
+     "smoke_args": "ontology list",
+     "smoke_contains": "Character"
+-  }
++  },
++  "mutation_margin_s": 120,
++  "mutation_overhead_s": 120
+ }
+diff --git a/harness/mutations/run.py b/harness/mutations/run.py
+index a5dfafd3..4dfddb74 100644
+--- a/harness/mutations/run.py
++++ b/harness/mutations/run.py
+@@ -27,16 +27,26 @@ The first run of a real mutation set found that zeroing a bonus escaped every ch
+ because the assertion only tested that a total MOVED rather than by how much. That hole
+ existed for weeks and no amount of reading the tests would have found it.
+ 
+-Emits `MUTATIONS_TOTAL=N` and `MUTATIONS_CAUGHT=N`. The gate requires them to be equal.
++Emits `MUTATIONS_TOTAL=N`, `MUTATIONS_CAUGHT=N`, `MUTATIONS_INCONCLUSIVE=N`,
++`MUTATIONS_NOT_INJECTED=N` and `MUTATIONS_CLEANUP_FAILURES=N`. The gate requires every
++mutant to be CAUGHT and every other count to be zero.
++
++A defect is CAUGHT only when its inner gate completed, reported a verdict for a known rung,
++and no rung timed out. Anything else - a timeout, a termination that could not be confirmed,
++an exhausted outer budget, a crash without a verdict - is INCONCLUSIVE, and an inconclusive
++defect fails the verdict. A timeout is never a catch.
+ """
+ from __future__ import annotations
+ 
+ import json
+ import os
+ import shutil
++import stat
++import signal
+ import subprocess
+ import sys
+ import tempfile
++import time
+ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parent.parent.parent
+@@ -54,6 +64,13 @@ COPY = ["src", "tests", "scripts", "docs", "examples", "skills", "artifacts",
+         "CONTEXT.md", "LICENSE", "CONTRIBUTING.md", "AGENTS.md", "CLAUDE.md"]
+ SKIP_DIRS = {"__pycache__", ".git", "runs", "locks-runtime", "builds", ".worktrees"}
+ 
++# Rung labels the inner gate can print in GATE_FAILED. A verdict naming anything else is
++# not a mutation-specific finding and is treated as inconclusive.
++KNOWN_RUNGS = {"static", "unit", "e2e", "holdout"}
++
++# Attempts to remove a temporary tree before giving up. Windows releases handles slowly.
++CLEANUP_ATTEMPTS = 5
++
+ 
+ def build_copy(dest: Path) -> None:
+     for item in COPY:
+@@ -71,6 +88,117 @@ def build_copy(dest: Path) -> None:
+     subprocess.run(["git", "init", "-q"], cwd=dest, capture_output=True)
+ 
+ 
++def load_config() -> dict:
++    # Read from ROOT at call time so the budget always describes the tree the runner copies.
++    path = ROOT / "harness" / "harness.config.json"
++    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
++
++
++def mutant_budget_s() -> int:
++    """Upper bound for ONE mutant's inner gate.
++
++    The inner gate runs every rung that can fail (static, unit, e2e, holdout), and a
++    mutant caught by the unit rung needs that rung to run to completion. The bound is the
++    sum of the configured rungs plus a margin. It never raises the outer budget.
++    """
++    cfg = load_config()
++    rungs = sum(int(cfg.get(key, 0)) for key in ("static_timeout_s", "unit_timeout_s", "e2e_timeout_s"))
++    return rungs + int(cfg.get("mutation_margin_s", 120))
++
++
++def overhead_s() -> int:
++    """Time reserved per mutant for copying, cleanup and scheduling, outside the inner gate."""
++    return int(load_config().get("mutation_overhead_s", 120))
++
++
++def _terminate_tree(process: subprocess.Popen) -> bool:
++    """Terminate the inner gate and its descendants. Return True only if termination is confirmed.
++
++    Windows: `taskkill /T /F` ends the tree rooted at the process. Its return code is checked.
++    A return code of 128 means the root had already exited; that is accepted only if the
++    root is observed gone. Descendants re-parented before the kill cannot be enumerated by
++    /T, so a clean result here is a confirmation for the tree that was still attached.
++
++    POSIX: the child was started in its own session, so the whole group is killed.
++    """
++    if os.name == "nt":
++        result = subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
++                                capture_output=True, text=True)
++        if result.returncode != 0 and process.poll() is None:
++            return False
++        return True
++    try:
++        os.killpg(process.pid, signal.SIGKILL)
++    except ProcessLookupError:
++        pass
++    except OSError:
++        return False
++    return True
++
++
++def run_inner_gate(dest: Path, env: dict, timeout: int) -> tuple[str, int | None, str]:
++    """Run the inner gate once. Return (status, exit_code, output).
++
++    status is one of:
++      'exited'              the gate finished on its own; exit_code is its exit status
++      'timed_out'           the deadline passed and the tree was terminated and confirmed
++      'termination_failed'  the deadline passed and the tree could NOT be confirmed terminated
++    """
++    # Take the descriptor from mkstemp and close it immediately. Keeping it open would hold a
++    # Windows handle on a file that is about to be removed with the temporary tree.
++    fd, output_name = tempfile.mkstemp(prefix="inner-", suffix=".out", dir=dest.parent)
++    os.close(fd)
++    output_file = Path(output_name)
++    popen_options = {"start_new_session": True} if os.name != "nt" else {}
++    with output_file.open("wb") as out:
++        process = subprocess.Popen([sys.executable, "harness/ci.py"], cwd=dest, env=env,
++                                   stdout=out, stderr=subprocess.STDOUT, **popen_options)
++        try:
++            process.wait(timeout=timeout)
++            status, code = "exited", process.returncode
++        except subprocess.TimeoutExpired:
++            terminated = _terminate_tree(process)
++            try:
++                process.wait(timeout=60)
++                root_gone = True
++            except subprocess.TimeoutExpired:
++                root_gone = False
++            status = "timed_out" if (terminated and root_gone) else "termination_failed"
++            code = None
++    text = output_file.read_text(encoding="utf-8", errors="replace")
++    return status, code, text
++
++
++def _clear_read_only(function, failed_path, _exc) -> None:
++    """Make a read-only entry writable, then retry the operation that failed on it."""
++    os.chmod(failed_path, stat.S_IWRITE)
++    function(failed_path)
++
++
++def remove_tree(path: Path) -> bool:
++    """Remove a temporary tree and report whether it is actually gone.
++
++    Read-only entries are made writable first, because Windows refuses to unlink them.
++    Retries briefly because Windows releases handles slowly after a process ends. Errors are
++    never swallowed: a tree that survives every attempt is reported to the caller, which fails
++    the verdict.
++    """
++    for attempt in range(CLEANUP_ATTEMPTS):
++        try:
++            if sys.version_info >= (3, 12):
++                shutil.rmtree(path, onexc=lambda f, p, e: _clear_read_only(f, p, e))
++            else:
++                shutil.rmtree(path, onerror=lambda f, p, e: _clear_read_only(f, p, e))
++        except FileNotFoundError:
++            return True
++        except OSError:
++            pass
++        if not path.exists():
++            return True
++        time.sleep(1 + attempt)
++    return not path.exists()
++
++
+ def apply(dest: Path, d: dict) -> bool:
+     """Textual mutation. Returns False if the anchor was not found."""
+     target = dest / d["file"]
+@@ -89,13 +217,29 @@ def main() -> int:
+         return 0
+ 
+     defects = json.loads(DEFECTS.read_text(encoding="utf-8"))["defects"]
+-    total = caught = not_injected = 0
++    per_mutant = mutant_budget_s()
++    reserve = overhead_s()
++    outer = int(load_config().get("mutations_timeout_s", 0) or 0)
++    started = time.monotonic()
++    total = caught = not_injected = inconclusive = cleanup_failures = 0
+ 
+-    print("MUTATION_START", flush=True)
++    print(f"MUTATION_START per_mutant_budget={per_mutant}s overhead_reserve={reserve}s "
++          f"outer_budget={outer or 'none'}s", flush=True)
+     for d in defects:
+         total += 1
+-        with tempfile.TemporaryDirectory() as td:
+-            dest = Path(td) / "build"
++        # The outer budget is a wall-clock bound for the whole set. Each mutant gets the smaller
++        # of its own bound and the time that remains after a reserve for copy, cleanup and
++        # scheduling. A mutant with no time left is INCONCLUSIVE and never run.
++        remaining = (outer - (time.monotonic() - started)) if outer else per_mutant
++        slot = min(per_mutant, int(remaining) - reserve)
++        if slot <= 0:
++            inconclusive += 1
++            print(f"  INCONCLUSIVE  {d['id']:<38} outer budget exhausted; not run", flush=True)
++            continue
++
++        dest_root = Path(tempfile.mkdtemp(prefix="mutant-"))
++        try:
++            dest = dest_root / "build"
+             dest.mkdir()
+             build_copy(dest)
+ 
+@@ -108,6 +252,15 @@ def main() -> int:
+                       flush=True)
+                 continue
+ 
++            # The remaining time is measured again after the copy, so the copy is charged.
++            remaining = (outer - (time.monotonic() - started)) if outer else per_mutant
++            slot = min(per_mutant, int(remaining) - reserve)
++            if slot <= 0:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} outer budget exhausted after copy; not run",
++                      flush=True)
++                continue
++
+             # Tell the inner gate not to recurse into its own mutation suite.
+             env = dict(os.environ, FACTORY_IN_MUTATION="1")
+             # The inner gate must import the MUTATED tree. Without this, an
+@@ -118,26 +271,52 @@ def main() -> int:
+             shadow = str(dest / "src")
+             env["PYTHONPATH"] = (shadow + os.pathsep + env["PYTHONPATH"]
+                                  if env.get("PYTHONPATH") else shadow)
+-            r = subprocess.run([sys.executable, "harness/ci.py"], cwd=dest, env=env,
+-                               capture_output=True, text=True, timeout=600)
+-            if r.returncode != 0:
++            status, code, text = run_inner_gate(dest, env, slot)
++            labels = [l.split(":", 1)[1].strip() for l in text.splitlines()
++                      if l.startswith("GATE_FAILED:")]
++
++            # Classification. Only a completed inner gate that names a known rung, with no rung
++            # timeout, is a catch. Every other outcome is inconclusive and fails the verdict.
++            if status == "timed_out":
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} inner gate passed its {slot}s deadline; "
++                      f"tree terminated and confirmed", flush=True)
++            elif status == "termination_failed":
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} inner gate passed its {slot}s deadline; "
++                      f"TERMINATION NOT CONFIRMED - processes may still be running", flush=True)
++            elif "TIMEOUT after" in text:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} a rung inside the inner gate timed out",
++                      flush=True)
++            elif code != 0 and labels and labels[0] in KNOWN_RUNGS:
+                 caught += 1
+-                step = "gate"
+-                for line in (r.stdout or "").splitlines():
+-                    if line.startswith("GATE_FAILED:"):
+-                        step = line.split(":", 1)[1].strip()
+-                print(f"  CAUGHT        {d['id']:<38} by {step}", flush=True)
++                print(f"  CAUGHT        {d['id']:<38} by {labels[0]}", flush=True)
++            elif code != 0 and labels:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} unrecognised gate verdict {labels[0]!r}",
++                      flush=True)
++            elif code != 0:
++                inconclusive += 1
++                print(f"  INCONCLUSIVE  {d['id']:<38} no gate verdict (exit {code})", flush=True)
+             else:
+                 print(f"  ESCAPED       {d['id']:<38} <-- {d['why']}", flush=True)
++        finally:
++            if not remove_tree(dest_root):
++                cleanup_failures += 1
++                print(f"  CLEANUP_FAILED {dest_root}", flush=True)
+ 
+     print(f"MUTATIONS_TOTAL={total}", flush=True)
+     print(f"MUTATIONS_CAUGHT={caught}", flush=True)
++    print(f"MUTATIONS_INCONCLUSIVE={inconclusive}", flush=True)
+     print(f"MUTATIONS_NOT_INJECTED={not_injected}", flush=True)
+-    if caught == total and not_injected == 0:
++    print(f"MUTATIONS_CLEANUP_FAILURES={cleanup_failures}", flush=True)
++    print(f"MUTATIONS_ELAPSED={int(time.monotonic() - started)}s", flush=True)
++    if caught == total and inconclusive == 0 and not_injected == 0 and cleanup_failures == 0:
+         print("MUTATIONS_OK", flush=True)
+         return 0
+-    print("MUTATIONS_FAILED - every escaped defect is a class of bug that can currently "
+-          "merge unreviewed", flush=True)
++    print("MUTATIONS_FAILED - an escaped, inconclusive, uninjected or uncleaned defect means the "
++          "gate cannot currently be trusted to catch this class of bug", flush=True)
+     return 1
+ 
+ 

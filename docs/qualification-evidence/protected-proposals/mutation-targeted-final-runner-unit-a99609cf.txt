@@ -1,0 +1,11 @@
+MUTATION_START per_mutant_budget=1920s overhead_reserve=120s outer_budget=5400s
+  CAUGHT        persistence-write-dropped              by unit
+MUTATIONS_TOTAL=1
+MUTATIONS_CAUGHT=1
+MUTATIONS_INCONCLUSIVE=0
+MUTATIONS_NOT_INJECTED=0
+MUTATIONS_CLEANUP_FAILURES=0
+MUTATIONS_ELAPSED=695s
+MUTATIONS_OK
+EXIT=0
+Exit code recorded from the invoking shell: 0. The log also ends with EXIT=0.
