@@ -1,0 +1,127 @@
+HARNESS_START mode=full driver=cli
+STATIC_OK
+UNIT_PASSED tests=5653
+APP_STARTED driver=cli
+  ok    the brief is created
+  ok    brief.yaml exists
+  ok    the premise is preserved in the brief
+  ok    no canonical state before acceptance (start)
+  ok    the brief is refined
+  ok    the search output is staged
+  ok    review renders
+  ok    review recommends the winning direction
+  ok    review's accept path names candidate_1
+  ok    no canonical state before acceptance (review)
+  ok    accept succeeds
+  ok    story_identity.yaml exists after accept
+  ok    the accepted identity is the candidate, field for field
+  ok    the title a user would look for is present
+E2E_PASSED steps=14
+APP_STARTED driver=cli
+HOLDOUT_PASSED scenarios=3 assertions=9
+MUTATION_START
+  CAUGHT        override-silently-accepted             by static
+Traceback (most recent call last):
+  File "H:\codex\qualification\auteur-narrative-20261016\studio-final\harness\mutations\run.py", line 121, in main
+    r = subprocess.run([sys.executable, "harness/ci.py"], cwd=dest, env=env,
+                       capture_output=True, text=True, timeout=600)
+  File "C:\Python314\Lib\subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\subprocess.py", line 1220, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\subprocess.py", line 1663, in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+subprocess.TimeoutExpired: Command '['H:\\codex\\qualification\\auteur-narrative-20261016\\validation-venv\\Scripts\\python.exe', 'harness/ci.py']' timed out after 600 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\shutil.py", line 693, in _rmtree_unsafe
+    os.rmdir(fullname)
+    ~~~~~~~~^^^^^^^^^^
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\tempfile.py", line 930, in onexc
+    _os.unlink(path)
+    ~~~~~~~~~~^^^^^^
+PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\shutil.py", line 707, in _rmtree_unsafe
+    os.rmdir(path)
+    ~~~~~~~~^^^^^^
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Python314\Lib\tempfile.py", line 930, in onexc
+    _os.unlink(path)
+    ~~~~~~~~~~^^^^^^
+PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "H:\codex\qualification\auteur-narrative-20261016\studio-final\harness\mutations\run.py", line 145, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "H:\codex\qualification\auteur-narrative-20261016\studio-final\harness\mutations\run.py", line 97, in main
+    with tempfile.TemporaryDirectory() as td:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\tempfile.py", line 971, in __exit__
+    self.cleanup()
+    ~~~~~~~~~~~~^^
+  File "C:\Python314\Lib\tempfile.py", line 975, in cleanup
+    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 955, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 697, in _rmtree_unsafe
+    onexc(os.rmdir, fullname, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 945, in onexc
+    cls._rmtree(path, ignore_errors=ignore_errors,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                repeated=(path == name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 955, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 711, in _rmtree_unsafe
+    onexc(os.rmdir, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 945, in onexc
+    cls._rmtree(path, ignore_errors=ignore_errors,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                repeated=(path == name))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\tempfile.py", line 955, in _rmtree
+    _shutil.rmtree(name, onexc=onexc)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 852, in rmtree
+    _rmtree_impl(path, dir_fd, onexc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 711, in _rmtree_unsafe
+    onexc(os.rmdir, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\shutil.py", line 707, in _rmtree_unsafe
+    os.rmdir(path)
+    ~~~~~~~~^^^^^^
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+GATE_FAILED: mutations
+EXIT=1

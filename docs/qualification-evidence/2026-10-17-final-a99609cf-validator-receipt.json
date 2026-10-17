@@ -1,0 +1,66 @@
+{
+  "claim": "Full protected validator (harness/ci.py) on final combined candidate a99609cf, two attempts. Parsed from the raw logs.",
+  "source": {
+    "commit": "a99609cf",
+    "tree": "c782b0c4",
+    "worktree": "studio-final (branch codex/studio-final-candidate)",
+    "product_source_difference_from_validated_fdcf39cb": [
+      "tests/test_phase0_workflow.py"
+    ]
+  },
+  "interpreter": "validation-venv (python 3.14.3, playwright 1.64.0); see 2026-10-16-validation-environment.json",
+  "command": "PYTHONPATH=<checkout>/src PYTHONIOENCODING=utf-8 timeout 9000 <validation-venv>/python harness/ci.py",
+  "outcome": "FAIL at the mutations rung in both attempts; static, unit (5653), E2E (14 steps) and holdout (3 scenarios) passed in both.",
+  "classification": "Mutations rung crashed in harness/mutations/run.py during tempfile cleanup of the mutation build, with a different Windows file-lock error each time (WinError 32, then WinError 145). It did not report an escaped defect. Protected file; not repaired here. The earlier full run on fdcf39cb passed 6/6, so the rung is intermittent on this host.",
+  "attempts": {
+    "attempt-1": {
+      "raw_log_file": "validator-final-a99609cf-attempt1.log",
+      "published_file": "2026-10-17-final-a99609cf-validator-attempt1.log",
+      "raw_sha256": "04a6ddb1e64bc3dc8d850dae52ed65db5a761e58c77cb25e03c101c9dca32d2a",
+      "published_sha256": "04a6ddb1e64bc3dc8d850dae52ed65db5a761e58c77cb25e03c101c9dca32d2a",
+      "exit_codes_in_log": [
+        1
+      ],
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "UNIT_PASSED tests=5653",
+        "E2E_PASSED steps=14",
+        "HOLDOUT_PASSED scenarios=3 assertions=9",
+        "MUTATION_START",
+        "CAUGHT        override-silently-accepted             by static",
+        "GATE_FAILED: mutations"
+      ],
+      "error_lines": [
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p",
+        "PermissionError: [WinError 5] Acesso negado: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p",
+        "PermissionError: [WinError 5] Acesso negado: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p'",
+        "PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpmfsl9on0\\\\build\\\\.pytest-tmp\\\\popen-gw0\\\\test_record_undecided_with_sig0\\\\p"
+      ]
+    },
+    "attempt-2": {
+      "raw_log_file": "validator-final-a99609cf-attempt2.log",
+      "published_file": "2026-10-17-final-a99609cf-validator-attempt2.log",
+      "raw_sha256": "8612b2d7150d897de771a4fcdf3ffd2d423aa19c04bdb79a8af6666021690ce0",
+      "published_sha256": "8612b2d7150d897de771a4fcdf3ffd2d423aa19c04bdb79a8af6666021690ce0",
+      "exit_codes_in_log": [
+        1
+      ],
+      "gate_markers": [
+        "HARNESS_START mode=full driver=cli",
+        "STATIC_OK",
+        "UNIT_PASSED tests=5653",
+        "E2E_PASSED steps=14",
+        "HOLDOUT_PASSED scenarios=3 assertions=9",
+        "MUTATION_START",
+        "CAUGHT        override-silently-accepted             by static",
+        "CAUGHT        persistence-write-dropped              by unit",
+        "GATE_FAILED: mutations"
+      ],
+      "error_lines": [
+        "OSError: [WinError 145] A pasta não está vazia: 'C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Temp\\\\tmpn7pqlcp1\\\\build'"
+      ]
+    }
+  }
+}
