@@ -6,7 +6,6 @@ run without error.
 """
 from __future__ import annotations
 
-import tempfile
 
 import pytest
 
@@ -308,9 +307,9 @@ def test_planning_call_scope_and_structure(blueprint_with_psychology):
     assert len(call.arc_directives) == 2
 
 
-def test_diagnostics_run_without_cartographer_outline(blueprint_with_psychology):
+def test_diagnostics_run_without_cartographer_outline(blueprint_with_psychology, tmp_path):
     """run_all_diagnostics works when no cartographer_outline is provided."""
-    bible_path = tempfile.mktemp(suffix=".json")
+    bible_path = tmp_path / "bible.json"
     bible = StoryBible(bible_path)
     diags = run_all_diagnostics(blueprint_with_psychology, bible, cartographer_outline=None)
     assert isinstance(diags, list)
