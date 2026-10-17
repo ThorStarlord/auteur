@@ -44,6 +44,15 @@ def packet(request, *, kind="explore", source_refs=None, directions=None, **over
     return build_host_agent_response(HostAgentRequest(**request), json.dumps(doc)).model_dump()
 
 
+
+def test_mentor_request_never_converts_author_virtue_to_mandatory_flaw(tmp_path):
+    store = working(tmp_path)
+    pending = prepare_mentor(store, "hero", "working", "explore")
+    system = pending["request"]["system"]
+    assert "Do not turn an author-declared virtue into a mandatory starting flaw" in system
+    assert "growth without an initial moral failure" in system
+    assert "optional dramatic tension" in system
+
 def test_prepare_uses_actual_working_context_without_mutating_canvas(tmp_path):
     store = working(tmp_path)
     before = store.load().model_dump(mode="json")

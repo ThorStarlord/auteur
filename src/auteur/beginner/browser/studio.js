@@ -16,6 +16,7 @@
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
+  var architecturePollToken = 0, architecturePendingSha = null;
   state.workspace = "architecture"; state.lastRealizationView = "create";
   state.realization = null; state.realizationRequestSha = null;
   state.realizationStale = false;
@@ -190,6 +191,7 @@
       });
     }
     $("architecture-handoff").hidden = !projection.request;
+    $("architecture-copy-request").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
     $("architecture-review").hidden = !state.architectureReview;
     $("architecture-diff").replaceChildren();
@@ -211,14 +213,10 @@
         summary.textContent = "Governing summary changed"; $("architecture-diff").appendChild(summary);
       }
     }
-    $("architecture-status").textContent = projection.status === "review_ready"
-      ? "A revised proposal is ready for review. Current working architecture is unchanged."
-      : projection.status === "awaiting_host_agent"
-      ? "Awaiting the active coding agent. Prior working proposal remains available if present."
-      : projection.status === "stale"
-      ? "Working architecture is outdated relative to your Story Vision. Regenerate or revise before developing concrete story material."
-      : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."
-      : "Describe a vision and ask the coding agent to develop the architecture.";
+    var handoff = window.AuteurStudioAgentHandoff ?
+      window.AuteurStudioAgentHandoff.present(projection, null) : null;
+    $("architecture-status").textContent = handoff ? handoff.message :
+      "The architecture request is not connected to a provider.";
     updateArchitectureScopes();
     if (openGraph && state.architecture) {
       state.view = "architecture"; $("layer-view").value = state.view;
@@ -238,12 +236,58 @@
     var canvasId = remote.canvasId;
     return fetch(architectureUrl()).then(apiJson).then(function (projection) {
       if (remote.canvasId !== canvasId) return;
-      var ready = !!projection.candidate;
+      var ready = projection.status === "ready" && !!projection.candidate;
       applyArchitectureProjection(projection, ready);
       if (ready) fit();
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
+  }
+  function startArchitecturePoll(projection) {
+    if (!projection.request || !window.AuteurStudioAgentHandoff) return;
+    var sha = projection.request.request_sha256, canvasId = remote.canvasId;
+    architecturePendingSha = sha;
+    var token = ++architecturePollToken;
+    var key = canvasId + ":" + sha;
+    window.AuteurStudioAgentHandoff.poll({
+      key: key,
+      getKey: function () { return remote.canvasId + ":" + architecturePendingSha; },
+      shouldStop: function () { return token !== architecturePollToken || document.hidden; },
+      read: function () { return fetch(architectureUrl()).then(apiJson); },
+      maxAttempts: 12, delayMs: 5000
+    }).then(function (result) {
+      if (token !== architecturePollToken || remote.canvasId !== canvasId ||
+          architecturePendingSha !== sha) return;
+      if (result.reason === "ready" || result.reason === "review_ready") {
+        architecturePendingSha = null;
+        applyArchitectureProjection(result.projection, result.reason === "ready");
+        status("A working architecture proposal is ready for review; no story facts were accepted.");
+      } else if (result.reason === "exhausted") {
+        $("architecture-status").textContent =
+          "No response yet. Use Check agent result later; the request remains available to copy.";
+      } else if (result.reason === "error") {
+        $("architecture-status").textContent = "Could not check the request: " + result.error;
+      }
+    });
+  }
+  function copyArchitectureRequest() {
+    var packet = $("architecture-request").value;
+    if (!packet) { status("Prepare a request before copying it."); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(packet).then(function () {
+        status("Source-bound request copied. Give it to your active coding agent; no model was called here.");
+      }).catch(function () {
+        $("architecture-handoff").open = true;
+        $("architecture-request").focus();
+        $("architecture-request").select();
+        status("Select the request and copy it manually; clipboard access is unavailable.");
+      });
+    } else {
+      $("architecture-handoff").open = true;
+      $("architecture-request").focus();
+      $("architecture-request").select();
+      status("Request selected. Copy it manually for your coding agent.");
+    }
   }
   function requestArchitecture(instruction) {
     if (!remote.ready || remote.failed) { status("Save the working canvas before requesting architecture."); return; }
@@ -259,8 +303,8 @@
       }).then(apiJson);
     }).then(function (projection) {
       applyArchitectureProjection(projection, false);
-      $("architecture-handoff").open = true;
-      status("Host-agent request prepared. Ask your active coding agent to fulfill it; no provider was called automatically.");
+      startArchitecturePoll(projection);
+      status("Request ready to copy. No coding agent was invoked by the browser.");
     }).catch(function (error) {
       $("architecture-status").textContent = "Cannot request architecture: " + error.message;
     });
@@ -312,7 +356,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
     });
-    drawEdges(); renderUnfolding(); rememberFocus();
+    drawEdges(); renderUnfolding(); renderAuthorProposalContrast(); rememberFocus();
   }
 
   function focusRelatedArchitecture() {
@@ -788,6 +832,24 @@
   function transform() { $("world").style.transform = "translate(" + state.panX + "px," + state.panY + "px) scale(" + state.zoom + ")"; }
   // A stable, author-editable working item; never a fabricated StoryIdentity premise.
   function visionItem() { return state.items.find(function (item) { return item.id === "story-vision"; }); }
+  function renderAuthorProposalContrast() {
+    var host = $("author-proposal-contrast");
+    host.hidden = state.workspace !== "architecture" || !state.architecture;
+    if (host.hidden || !window.AuteurStudioAuthorIntent) return;
+    var contrast = window.AuteurStudioAuthorIntent.project(state.items, {
+      candidate: state.architecture,
+      candidate_request_sha256: state.architectureRequestSha,
+      status: state.architectureSourceStatus
+    });
+    $("contrast-author").textContent = contrast.authorVision ?
+      contrast.authorVision.text : "No Story Vision recorded. This proposal has no author-authored premise to quote.";
+    $("contrast-proposal").textContent = contrast.proposal ?
+      contrast.proposal.text : "No agent interpretation available.";
+    $("contrast-explore").disabled = !state.selectedCandidate || state.architectureSourceStatus !== "ready";
+    $("contrast-proposal-status").textContent = contrast.proposal && contrast.proposal.freshness === "stale" ?
+      "Older proposal; your working Story Vision has changed." :
+      "This is a proposed reading of your idea, not an author-approved character arc or story fact.";
+  }
   function showVision() {
     var item = visionItem();
     if (document.activeElement !== $("vision-text")) $("vision-text").value = item ? item.content : "";
@@ -801,6 +863,7 @@
     if (!remote.ready || remote.failed) { status("Vision cannot be saved while the canvas is unavailable."); return; }
     var text = $("vision-text").value;
     var item = visionItem();
+    if (state.architecture && (!item || item.content !== text)) state.architectureSourceStatus = "stale";
     if (!item && !text.trim()) return;
     if (!item) {
       if (state.items.length >= 200) { status("This canvas reached its working-item limit."); return; }
@@ -813,6 +876,7 @@
       item.content = text;
       if (state.selected === item.id) $("content").value = text;
     }
+    renderAuthorProposalContrast();
     scheduleSave();
     $("vision-status").textContent = "Saving working vision locally...";
   }
@@ -1803,6 +1867,7 @@
   }
   function render() {
     var designing = state.workspace === "architecture";
+    renderAuthorProposalContrast();
     $("architecture-context").hidden = !designing;
     $("architecture-work-area").classList.toggle("is-architecture", designing);
     $("architecture-legend").hidden = !designing || state.view !== "architecture";
@@ -2352,6 +2417,15 @@
   $("architecture-facet-back").addEventListener("click", function () { restoreFacetHistory(state.facetHistory.length-1); });
   $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
   $("architecture-refresh").addEventListener("click", checkArchitectureResult);
+  $("architecture-copy-request").addEventListener("click", copyArchitectureRequest);
+  $("contrast-explore").addEventListener("click", function () {
+    if (!unfoldingController || !state.selectedCandidate || state.architectureSourceStatus !== "ready") {
+      status("Select a current proposed graph concept to explore alternative interpretations.");
+      return;
+    }
+    state.unfoldingFocus={kind:"candidate",id:state.selectedCandidate};
+    unfoldingController.exploreAlternatives();
+  });
   $("architecture-revise").addEventListener("click", function () {
     var intent = $("architecture-instruction").value.trim();
     if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
