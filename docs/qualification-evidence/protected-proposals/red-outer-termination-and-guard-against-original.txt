@@ -1,0 +1,19 @@
+FFFFFF..F...                                                             [100%]
+================================== FAILURES ===================================
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_outer_rung_termination.py:49: AssertionError: outer run() blocked for 12.8s after a 3s deadline
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_outer_rung_termination.py:60: AssertionError: a descendant of the timed-out outer rung kept running
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_factory_guard_validator_paths.py:35: AssertionError: harness/ci.py is not a protected path
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_factory_guard_validator_paths.py:35: AssertionError: harness/harness.config.json is not a protected path
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_factory_guard_validator_paths.py:35: AssertionError: harness/e2e.py is not a protected path
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_factory_guard_validator_paths.py:35: AssertionError: harness/appproc.py is not a protected path
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_factory_guard_validator_paths.py:35: AssertionError: harness/fixtures/some_fixture.json is not a protected path
+=========================== short test summary info ===========================
+FAILED tests/test_outer_rung_termination.py::test_outer_run_returns_at_its_deadline_even_with_a_descendant_holding_the_pipe
+FAILED tests/test_outer_rung_termination.py::test_outer_run_reclaims_descendants_after_its_deadline
+FAILED tests/test_factory_guard_validator_paths.py::test_validator_entrypoint_config_and_harness_are_protected[harness/ci.py]
+FAILED tests/test_factory_guard_validator_paths.py::test_validator_entrypoint_config_and_harness_are_protected[harness/harness.config.json]
+FAILED tests/test_factory_guard_validator_paths.py::test_validator_entrypoint_config_and_harness_are_protected[harness/e2e.py]
+FAILED tests/test_factory_guard_validator_paths.py::test_validator_entrypoint_config_and_harness_are_protected[harness/appproc.py]
+FAILED tests/test_factory_guard_validator_paths.py::test_validator_entrypoint_config_and_harness_are_protected[harness/fixtures/some_fixture.json]
+EXIT=1
+Exit code recorded from the invoking shell: 1 (expected: RED against origin/main).
