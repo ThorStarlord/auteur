@@ -1,0 +1,81 @@
+--- a/.github/workflows/validation.yml
++++ b/.github/workflows/validation.yml
+@@ -28,6 +28,14 @@
+ 
+       - name: Install dependencies
+         run: python -m pip install -e ".[dev]"
++
++      - name: Install Playwright Chromium (Linux, with system dependencies)
++        if: runner.os == 'Linux'
++        run: python -m playwright install --with-deps chromium
++
++      - name: Install Playwright Chromium (Windows and macOS)
++        if: runner.os != 'Linux'
++        run: python -m playwright install chromium
+ 
+       - name: Select focused tests and Ruff paths
+         shell: bash
+--- a/.github/workflows/stabilization.yml
++++ b/.github/workflows/stabilization.yml
+@@ -20,6 +20,14 @@
+       - name: Install dependencies
+         run: python -m pip install -e ".[dev]"
+ 
++      - name: Install Playwright Chromium (Linux, with system dependencies)
++        if: runner.os == 'Linux'
++        run: python -m playwright install --with-deps chromium
++
++      - name: Install Playwright Chromium (Windows and macOS)
++        if: runner.os != 'Linux'
++        run: python -m playwright install chromium
++
+       - name: Run L3 full regression suite
+         shell: bash
+         run: |
+--- a/.github/workflows/release-qualification.yml
++++ b/.github/workflows/release-qualification.yml
+@@ -30,6 +30,14 @@
+       - name: Install dependencies
+         run: python -m pip install -e ".[dev]"
+ 
++      - name: Install Playwright Chromium (Linux, with system dependencies)
++        if: runner.os == 'Linux'
++        run: python -m playwright install --with-deps chromium
++
++      - name: Install Playwright Chromium (Windows and macOS)
++        if: runner.os != 'Linux'
++        run: python -m playwright install chromium
++
+       - name: Verify exact candidate
+         shell: bash
+         run: test "$(git rev-parse HEAD)" = "${{ inputs.candidate_sha }}"
+@@ -53,6 +61,14 @@
+ 
+       - name: Install dependencies
+         run: python -m pip install -e ".[dev]"
++
++      - name: Install Playwright Chromium (Linux, with system dependencies)
++        if: runner.os == 'Linux'
++        run: python -m playwright install --with-deps chromium
++
++      - name: Install Playwright Chromium (Windows and macOS)
++        if: runner.os != 'Linux'
++        run: python -m playwright install chromium
+ 
+       - name: Verify exact candidate
+         shell: pwsh
+@@ -79,6 +95,14 @@
+ 
+       - name: Install dependencies
+         run: python -m pip install -e ".[dev]"
++
++      - name: Install Playwright Chromium (Linux, with system dependencies)
++        if: runner.os == 'Linux'
++        run: python -m playwright install --with-deps chromium
++
++      - name: Install Playwright Chromium (Windows and macOS)
++        if: runner.os != 'Linux'
++        run: python -m playwright install chromium
+ 
+       - name: Verify exact candidate
+         shell: bash
