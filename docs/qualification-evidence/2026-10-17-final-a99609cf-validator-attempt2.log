@@ -63,6 +63,6 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\shutil.py", line 693, in _rmtree_unsafe
     os.rmdir(fullname)
     ~~~~~~~~^^^^^^^^^^
-OSError: [WinError 145] A pasta não está vazia: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpn7pqlcp1\\build'
+OSError: [WinError 145] A pasta não está vazia: '<user-home>\\AppData\\Local\\Temp\\tmpn7pqlcp1\\build'
 GATE_FAILED: mutations
 EXIT=1

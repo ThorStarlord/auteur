@@ -41,7 +41,7 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\shutil.py", line 693, in _rmtree_unsafe
     os.rmdir(fullname)
     ~~~~~~~~^^^^^^^^^^
-PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
 
 During handling of the above exception, another exception occurred:
 
@@ -49,7 +49,7 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\tempfile.py", line 930, in onexc
     _os.unlink(path)
     ~~~~~~~~~~^^^^^^
-PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+PermissionError: [WinError 5] Acesso negado: '<user-home>\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
 
 During handling of the above exception, another exception occurred:
 
@@ -57,7 +57,7 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\shutil.py", line 707, in _rmtree_unsafe
     os.rmdir(path)
     ~~~~~~~~^^^^^^
-PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
 
 During handling of the above exception, another exception occurred:
 
@@ -65,7 +65,7 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\tempfile.py", line 930, in onexc
     _os.unlink(path)
     ~~~~~~~~~~^^^^^^
-PermissionError: [WinError 5] Acesso negado: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+PermissionError: [WinError 5] Acesso negado: '<user-home>\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
 
 During handling of the above exception, another exception occurred:
 
@@ -122,6 +122,6 @@ Traceback (most recent call last):
   File "C:\Python314\Lib\shutil.py", line 707, in _rmtree_unsafe
     os.rmdir(path)
     ~~~~~~~~^^^^^^
-PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'C:\\Users\\Admin\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: '<user-home>\\AppData\\Local\\Temp\\tmpmfsl9on0\\build\\.pytest-tmp\\popen-gw0\\test_record_undecided_with_sig0\\p'
 GATE_FAILED: mutations
 EXIT=1
