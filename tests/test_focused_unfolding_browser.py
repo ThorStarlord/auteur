@@ -39,7 +39,8 @@ def browser():
 def opened(browser,width=1440,height=900):
     page=browser.new_page(viewport={'width':width,'height':height})
     page.set_default_timeout(3500)
-    errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    errors=[]
+    page.on('pageerror',lambda e:errors.append(str(e)))
     page.set_content(inline_page(),wait_until='domcontentloaded')
     return page,errors
 
@@ -62,7 +63,8 @@ def test_first_session_emotion_invitation_and_early_alternative(browser):
         assert 'Eira the healer' in page.locator('#graph-stage').inner_text()
         assert page.locator('.ghost-card').count()==3
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_emotion_ghosts_explain_and_adopt_without_canon(browser):
@@ -80,7 +82,8 @@ def test_emotion_ghosts_explain_and_adopt_without_canon(browser):
         assert 'Accepted story' not in page.locator('#graph-stage').inner_text()
         assert page.locator('.ghost-card').count()<=3
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_adopted_trope_unfolds_structure_and_can_return_to_emotion(browser):
@@ -95,7 +98,8 @@ def test_adopted_trope_unfolds_structure_and_can_return_to_emotion(browser):
         page.get_by_role('button',name='Previous focus').click()
         assert 'Joy through generous heroism' in page.locator('#current-focus').inner_text()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_dismissal_and_focus_switch_do_not_accumulate_ghosts(browser):
@@ -112,7 +116,8 @@ def test_dismissal_and_focus_switch_do_not_accumulate_ghosts(browser):
         assert page.locator('.ghost-card').count()<=3
         assert 'Earned breakthrough' not in page.locator('.ghost-layer').inner_text()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_collapse_is_visual_only_and_expand_preserves_work(browser):
@@ -127,7 +132,8 @@ def test_collapse_is_visual_only_and_expand_preserves_work(browser):
         page.get_by_role('button',name='Expand this branch').click()
         assert page.locator('.working-node').count()==2
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_revision_change_preserves_adoption_and_expires_stale_ghosts(browser):
@@ -140,7 +146,8 @@ def test_revision_change_preserves_adoption_and_expires_stale_ghosts(browser):
         assert page.locator('.working-node').count()==2
         assert 'new revision' in page.locator('#announcement').inner_text().lower()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 @pytest.mark.parametrize('width,height',[(1440,900),(900,700),(390,844)])
@@ -152,23 +159,27 @@ def test_responsive_density_and_keyboard_without_overflow(browser,width,height):
         assert page.locator('.ghost-card').count()==limit
         assert page.evaluate('document.documentElement.scrollWidth') <= page.evaluate('document.documentElement.clientWidth')+1
         first=page.locator('.ghost-card').first
-        first.focus();page.keyboard.press('Enter')
+        first.focus()
+        page.keyboard.press('Enter')
         assert page.locator('#focus-explainer').is_visible()
         assert page.get_by_role('button',name='Adopt into working architecture').is_visible()
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_no_network_calls_on_render_or_focus(browser):
     page,errors=opened(browser)
-    requests=[];page.on('request',lambda req:requests.append(req.url))
+    requests=[]
+    page.on('request',lambda req:requests.append(req.url))
     try:
         start_emotion(page)
         page.locator('.ghost-card').first.click()
         page.get_by_role('button',name='Explore proposed meaning').click()
         assert requests==[]
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
 
 
 def test_spatial_edges_show_only_current_hypothetical_ghost_relations(browser):
@@ -182,4 +193,5 @@ def test_spatial_edges_show_only_current_hypothetical_ghost_relations(browser):
         page.get_by_role('button',name='Dismiss suggestion').click()
         assert page.locator('#ghost-connections .ghost-edge').count()==3
         assert errors==[]
-    finally:page.close()
+    finally:
+        page.close()
