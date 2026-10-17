@@ -158,6 +158,20 @@ def _call(base, method, route, payload=None):
         return result.status, json.loads(result.read().decode("utf-8"))
 
 
+
+def test_http_studio_host_capability_is_unavailable_without_real_adapter(tmp_path):
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        status, result = _call(base, "GET", "/api/beginner/studio/host-capabilities")
+        assert status == 200
+        assert result == {"studio_architecture": {"attached": False}}
+        assert not (tmp_path / ".auteur").exists()
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+
 def test_http_prepare_complete_and_missing_canvas(tmp_path):
     server = BeginnerWorkspaceServer(tmp_path, port=0)
     thread = server.start_in_thread()

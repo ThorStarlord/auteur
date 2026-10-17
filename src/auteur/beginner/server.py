@@ -499,6 +499,11 @@ class _RequestHandler(BaseHTTPRequestHandler):
             if parts == ["api", "beginner", "health"]:
                 self._send_json(200, {"app": "auteur", "surface": "beginner", "status": "ok"})
                 return
+            if parts == ["api", "beginner", "studio", "host-capabilities"]:
+                # This local Browser cannot invoke its parent coding agent. Do not
+                # advertise an executor unless a real attached host is integrated.
+                self._send_json(200, {"studio_architecture": {"attached": False}})
+                return
             if parts == ["api", "beginner", "book", "progress"]:
                 self._send_json(200, project_book_progress(self.project_root))
                 return
