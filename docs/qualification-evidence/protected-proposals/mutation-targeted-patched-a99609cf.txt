@@ -1,0 +1,9 @@
+MUTATION_START per_mutant_budget=1920s
+  CAUGHT        override-silently-accepted             by static
+  CAUGHT        persistence-write-dropped              by unit
+MUTATIONS_TOTAL=2
+MUTATIONS_CAUGHT=2
+MUTATIONS_INCONCLUSIVE=0
+MUTATIONS_NOT_INJECTED=0
+MUTATIONS_OK
+EXIT=0
