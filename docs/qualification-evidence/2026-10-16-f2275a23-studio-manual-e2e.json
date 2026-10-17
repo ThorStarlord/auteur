@@ -1,0 +1,124 @@
+{
+  "claim": "manual coding-agent Narrative Architecture E2E only",
+  "connected_host_e2e": "BLOCKED: no attached executor proven",
+  "human_usability": "NOT_TESTED",
+  "steps": [
+    {
+      "step": "Browser prepares exact Story Vision request",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "real coding agent returned candidate JSON",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "existing backend validates exact host response",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "wrong-source response rejected without changing candidate",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "candidate has explanatory content and declared graph links",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "Browser presents proposed spatial graph",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "author words and AI summary are visibly separate",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "author can inspect source-declared link verb",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "narrative facet genres explains proposal",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "narrative facet tropes explains proposal",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "narrative facet structure explains proposal",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "author can return to graph",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "narrow Browser has no horizontal overflow",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "agent returns at least two non-identical mechanisms",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "mentor alternative validates",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "explicit keep creates only working story item",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "re-entry preserves verbatim Story Vision",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "re-entry restores proposal and deliberately kept working idea",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "reopened Browser still exposes the architecture graph",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "Browser produces no page errors",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "step": "all canonical/story hashes preserved",
+      "result": "PASS",
+      "detail": "new="
+    }
+  ],
+  "agent_runtime": "operator-supplied executable; model unverified",
+  "code_sha": "f2275a2391d3d579db3c2740717e262b80758563",
+  "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\auteur-architecture-e2e-552d2a4a",
+  "canvas": "canvas-mvaks6gd-1",
+  "architecture_request_sha256": "c0f4936bc05ae4cc0f8619211f6cd81a61b13b7c59f68facad0b8733fe6a01b6",
+  "source_sha256": "b29640432cf7399a6284ef89d6f0007a345282188784526400e5cd7ab6624a97",
+  "candidate_payload_sha256": "7683ba6bc64c99f8eed49c4440a35cdd0330c01385434eb3f6883d7977967c08",
+  "mentor_request_sha256": "8a1d499ae7aa90055a29dd55cc67e7fe60f26fcdbd489aa4c4deb6da610f163c",
+  "mentor_payload_sha256": "48926bd8d688eab76f8fd68d64fe854c5d947ccc7d95080af658b4015290c385",
+  "canonical_file_hashes": {},
+  "canonical_unchanged": true,
+  "result": "PASS - bounded manual E2E"
+}

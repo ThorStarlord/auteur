@@ -1,0 +1,23 @@
+{
+  "claim": "connected Browser-to-attached-CLI lane NOT RUN at f2275a23: external blocker",
+  "code_sha": "f2275a2391d3d579db3c2740717e262b80758563",
+  "runtime": "Codex CLI 0.153.4, requested model gpt-6-astra",
+  "probe": {
+    "attempts": [
+      {
+        "attempt": 1,
+        "exit_code": 1,
+        "message": "Not inside a trusted directory and --skip-git-repo-check was not specified (run from scratch directory; invocation problem, not runtime)"
+      },
+      {
+        "attempt": 2,
+        "exit_code": 1,
+        "message": "Your workspace is out of credits. Ask your workspace owner to refill in order to continue.",
+        "run_from": "trusted worktree"
+      }
+    ],
+    "command": "codex exec --json --ephemeral -m gpt-6-astra -s read-only (raw stdin prompt)"
+  },
+  "retry_policy": "Two probes total. The second failed on the workspace credit error; not retried, because nothing about the account has changed since.",
+  "private_stderr": "not published"
+}

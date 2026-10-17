@@ -1,0 +1,25 @@
+{
+  "code_sha": "f2275a2391d3d579db3c2740717e262b80758563",
+  "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\auteur-adversarial-fs_i_1xi",
+  "steps": [
+    "Keyboard can focus and inspect a retained graph node",
+    "Retained proposal remains inspectable at 390px",
+    "Wrong identifiers, fingerprints, malformed and incomplete candidates refused",
+    "Cross-canvas response refused",
+    "Pending request survives close/reopen without phantom generation",
+    "Delayed response after source edit refused without replacing prior proposal",
+    "Three nonempty accepted-path canary hashes unchanged"
+  ],
+  "canonical_before": {
+    "relations.yaml": "095602e121945f05176dec9275956e5837e65c856ea79e9ef2483083c8be5b8a",
+    "story_identity.yaml": "2c89845d4e9f0ffa212e97ac8d087aec3a4c532f17d2fcbc033db998d4978774",
+    "chapters/01/final.md": "5486720798083c1ffadefed6f65aac4d1edc3defae858f0a3488b36ffca60d7e"
+  },
+  "page_errors": [],
+  "canonical_after": {
+    "relations.yaml": "095602e121945f05176dec9275956e5837e65c856ea79e9ef2483083c8be5b8a",
+    "story_identity.yaml": "2c89845d4e9f0ffa212e97ac8d087aec3a4c532f17d2fcbc033db998d4978774",
+    "chapters/01/final.md": "5486720798083c1ffadefed6f65aac4d1edc3defae858f0a3488b36ffca60d7e"
+  },
+  "result": "PASS bounded adversarial replay; replay is not new creative generation"
+}
