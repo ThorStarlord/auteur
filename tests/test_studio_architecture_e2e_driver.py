@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 import pytest
 
@@ -125,3 +126,39 @@ def test_agent_transport_preserves_unicode_with_windows_ansi_locale(monkeypatch)
     command = [sys.executable, '-c',
                'import sys; sys.stdout.buffer.write(sys.stdin.buffer.read())']
     assert subject.run_agent(command, packet, 10) == packet
+
+
+def test_reads_exact_packet_from_collapsed_advanced_handoff():
+    packet = {'role': 'studio_mentor', 'request_sha256': 'b'*64, 'user': 'Proteção 🛡️'}
+    class CollapsedRequest:
+        def inner_text(self):
+            return ''  # Chromium's rendered text for the closed details panel.
+        def text_content(self):
+            return json.dumps(packet, ensure_ascii=False)
+    assert subject.read_mentor_request(CollapsedRequest()) == packet
+
+
+def test_outer_runner_timeout_stops_adapter_descendants(tmp_path):
+    marker = tmp_path / 'outer-timeout-child'
+    child = 'import time,pathlib; time.sleep(2); pathlib.Path(' + repr(str(marker)) + ').touch()'
+    parent = 'import subprocess,sys,time; subprocess.Popen([sys.executable,"-c",' + repr(child) + ']); time.sleep(20)'
+    with pytest.raises(RuntimeError, match='BLOCKED.*timed out'):
+        subject.run_agent([sys.executable, '-c', parent],
+                          {'role': 'studio_mentor', 'request_sha256': 'b'*64}, 1)
+    time.sleep(2.5)
+    assert not marker.exists(), 'Outer timeout left the adapter descendant running'
+
+
+def test_reentry_opens_saved_vision_through_its_author_control():
+    class Vision:
+        visible = False
+        def is_visible(self): return self.visible
+        def wait_for(self, **options): assert self.visible
+        def input_value(self): return 'Saved author words'
+    field = Vision()
+    class Summary:
+        def click(self): field.visible = True
+    class Page:
+        def locator(self, selector):
+            return field if selector == '#vision-text' else Summary()
+    assert subject.reopen_story_vision(Page()) == 'Saved author words'

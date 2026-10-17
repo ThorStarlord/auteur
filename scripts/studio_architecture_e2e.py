@@ -127,9 +127,16 @@ def run_agent(argv: list[str], request: dict, timeout: int) -> dict:
     }:
         raise ValueError("missing or unexpected host-agent request identity")
     try:
-        completed = subprocess.run(argv, input=json.dumps(request, ensure_ascii=False),
-                                   text=True, encoding='utf-8', capture_output=True, timeout=timeout,
-                                   cwd=ROOT, shell=False, check=False)
+        # Import the sibling transport from the pinned checkout, including when
+        # this script is loaded by file path in driver tests.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('studio_agent_transport',
+                    ROOT / 'scripts' / 'studio_live_agent_adapter.py')
+        transport = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(transport)
+        completed = transport.run_command(argv, input=json.dumps(request, ensure_ascii=False),
+                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                          timeout=timeout, cwd=ROOT, shell=False)
     except FileNotFoundError as error:
         raise RuntimeError("BLOCKED: coding-agent executable not available") from error
     except subprocess.TimeoutExpired as error:
@@ -145,6 +152,19 @@ def run_agent(argv: list[str], request: dict, timeout: int) -> dict:
     if not isinstance(result, dict):
         raise ValueError("Agent response must be one raw JSON object")
     return result
+
+
+def read_mentor_request(locator) -> dict:
+    """Read source bytes even when the advanced details panel is collapsed."""
+    return json.loads(locator.text_content())
+
+
+def reopen_story_vision(page) -> str:
+    field = page.locator('#vision-text')
+    if not field.is_visible():
+        page.locator('#vision-disclosure > summary').click()
+    field.wait_for(state='visible')
+    return field.input_value()
 
 
 def record(report: dict, label: str, result: bool, detail: str = "") -> None:
@@ -260,7 +280,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             page.locator("#nodes button.node:visible").first.click()
             page.locator("#contrast-explore").click()
             page.wait_for_function("document.querySelector('#mentor-request').textContent.includes('request_sha256')", timeout=12000)
-            mentor_packet = json.loads(page.locator("#mentor-request").inner_text())
+            mentor_packet = read_mentor_request(page.locator("#mentor-request"))
             report["mentor_request_sha256"] = mentor_packet["request_sha256"]
             advice = run_agent(args.agent, mentor_packet, args.agent_timeout)
             report['mentor_payload_sha256'] = fingerprint_json(advice)
@@ -278,8 +298,7 @@ def qualify(args: argparse.Namespace, report: dict) -> None:
             record(report, "explicit keep creates only working story item", bool(kept))
             kept_id = kept["id"]
             page.reload(wait_until="networkidle")
-            page.locator("#vision-text").wait_for(state="visible")
-            record(report, "re-entry preserves verbatim Story Vision", page.input_value("#vision-text") == VISION)
+            record(report, "re-entry preserves verbatim Story Vision", reopen_story_vision(page) == VISION)
             record(report, "re-entry restores proposal and deliberately kept working idea",
                    reentry_invariants(api(base, prefix + "/architecture"),
                                       api(base, prefix), packet["request_sha256"], kept_id))

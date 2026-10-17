@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 import pytest
 
@@ -56,3 +57,17 @@ def test_adapter_timeout_is_not_success(tmp_path):
     with pytest.raises(subprocess.TimeoutExpired):
         adapter().invoke([sys.executable, '-c', 'import time; time.sleep(5)'],
                          {'role': 'studio_mentor', 'request_sha256': 'a'*64}, tmp_path, .1)
+
+
+def test_timeout_stops_descendant_and_records_failed_invocation(tmp_path):
+    marker = tmp_path / 'child-was-left-running'
+    child = 'import time,pathlib; time.sleep(2); pathlib.Path(' + repr(str(marker)) + ').touch()'
+    parent = 'import subprocess,sys,time; subprocess.Popen([sys.executable,"-c",' + repr(child) + ']); time.sleep(20)'
+    with pytest.raises(subprocess.TimeoutExpired):
+        adapter().invoke([sys.executable, '-c', parent],
+                         {'role': 'studio_mentor', 'request_sha256': 'a'*64}, tmp_path, 1)
+    time.sleep(2.5)
+    assert not marker.exists(), 'Timed-out agent descendant continued executing'
+    receipt = json.loads((tmp_path / 'invocation.json').read_text(encoding='utf-8'))
+    assert receipt['timed_out'] is True
+    assert receipt['returncode'] != 0
