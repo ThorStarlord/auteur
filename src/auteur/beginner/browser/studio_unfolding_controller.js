@@ -300,7 +300,7 @@
       var active=s.workspace==='architecture'&&s.view==='architecture'&&s.architectureFacet==='overview';
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
-      if(!focusIsValid(s)){start.hidden=false;return;}
+      if(!focusIsValid(s)){start.hidden=!!(s.architecture&&s.architecture.nodes&&s.architecture.nodes.length);return;}
       start.hidden=true;host.hidden=false;positionLocalFocus(host,s.unfoldingFocus);
       ghosts.replaceChildren();explain.replaceChildren();
       var target=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(n=>n.id===s.unfoldingFocus.id):
