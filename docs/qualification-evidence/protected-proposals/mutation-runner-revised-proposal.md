@@ -59,3 +59,13 @@ Each patch is under the 500-line cap and applies with `git apply --check` to the
 ## Authority boundary
 
 The builder has not merged, rewritten history, changed authentication or changed `FACTORY_AUTONOMY`. Protected changes stop at the human-maintained route.
+
+## Correction: rung output-file cleanup (owner review of #465)
+
+`harness/ci.py`'s `run()` previously removed its temporary output file inside `finally` and swallowed the `OSError`. It now:
+
+- retries the removal briefly through `_discard_rung_output()`, then returns the last error to the caller;
+- keeps the rung's own exit code and diagnosis unchanged, and appends a `CLEANUP_FAILED` line naming the file and the error;
+- turns a successful rung into a failure (exit 1) when its output file cannot be removed, because a gate that cannot clean up after itself does not pass.
+
+Regression evidence: `test_successful_rung_leaves_no_temporary_output_file` (passes both before and after, as a guard); `test_failed_rung_keeps_its_own_diagnosis_and_reports_the_cleanup_failure` and `test_successful_rung_with_a_cleanup_failure_is_not_reported_as_success` (RED against the previous helper, GREEN after). Logs are in `protected-proposals/` of #465.
