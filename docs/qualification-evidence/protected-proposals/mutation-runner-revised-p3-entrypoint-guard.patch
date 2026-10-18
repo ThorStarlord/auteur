@@ -14,10 +14,10 @@ index a905bb11..8bce778c 100644
      # that appears for the first time - see the pre-flight in run-workflow.sh.
      ".env", ".env.*", "*.local", "*credential*", "*secret*",
 diff --git a/harness/ci.py b/harness/ci.py
-index f346035b..9b87f3c9 100644
+index f346035b..19cacc3d 100644
 --- a/harness/ci.py
 +++ b/harness/ci.py
-@@ -36,8 +36,10 @@ import os
+@@ -36,9 +36,12 @@ import os
  import re
  import shlex
  import shutil
@@ -26,9 +26,11 @@ index f346035b..9b87f3c9 100644
  import sys
 +import tempfile
  import threading
++import time
  from pathlib import Path
  
-@@ -95,17 +97,62 @@ def resolve(argv: list[str]) -> list[str]:
+ HERE = Path(__file__).resolve().parent
+@@ -95,17 +98,94 @@ def resolve(argv: list[str]) -> list[str]:
      return [found or head, *argv[1:]]
  
  
@@ -57,6 +59,26 @@ index f346035b..9b87f3c9 100644
 +    return True
 +
 +
++def _discard_rung_output(path: Path) -> str | None:
++    """Remove a rung's output file. Return None when it is gone, otherwise the failure to report.
++
++    Retried briefly, because Windows releases a handle a moment after its process ends. The
++    last error is returned to the caller and is never swallowed: a file that stays behind is a
++    reported condition, not a silent one.
++    """
++    last = None
++    for attempt in range(3):
++        try:
++            path.unlink()
++            return None
++        except FileNotFoundError:
++            return None
++        except OSError as e:
++            last = f"{type(e).__name__}: {e}"
++            time.sleep(0.5 * (attempt + 1))
++    return last
++
++
  def run(step: str, cmd: str | list[str], timeout: int = 300) -> tuple[int, str]:
 -    """One rung. A timeout is a FAILURE, not a skip - a hung check reports nothing."""
 +    """One rung. A timeout is a FAILURE, not a skip - a hung check reports nothing.
@@ -64,36 +86,50 @@ index f346035b..9b87f3c9 100644
 +    Output goes to a real file, not a pipe. A descendant that inherits a captured pipe keeps the
 +    caller blocked after its own deadline, and it keeps running. On timeout the whole tree is
 +    terminated and the outcome of that termination is reported, never assumed.
++
++    The rung's own result is never replaced. A failure to remove its output file is added to the
++    text, and a rung that succeeded is then reported as a failure: a gate that cannot clean up
++    after itself does not pass.
 +    """
      argv = resolve(shlex.split(cmd, posix=False) if isinstance(cmd, str) else list(cmd))
 +    fd, name = tempfile.mkstemp(prefix=f"rung-{step}-", suffix=".out")
 +    os.close(fd)
 +    out_path = Path(name)
++    timeout_note = None
      try:
 -        p = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True,
 -                           encoding="utf-8", errors="replace", timeout=timeout)
 -        return p.returncode, (p.stdout or "") + (p.stderr or "")
 -    except subprocess.TimeoutExpired:
 -        return 124, f"TIMEOUT after {timeout}s"
-+        with out_path.open("wb") as out:
-+            popen_options = {"start_new_session": True} if os.name != "nt" else {}
-+            proc = subprocess.Popen(argv, cwd=ROOT, stdout=out, stderr=subprocess.STDOUT,
-+                                    **popen_options)
-+            try:
-+                code = proc.wait(timeout=timeout)
-+            except subprocess.TimeoutExpired:
-+                confirmed = _terminate_rung_tree(proc)
-+                note = "" if confirmed else " (TERMINATION NOT CONFIRMED - processes may still run)"
-+                text = out_path.read_text(encoding="utf-8", errors="replace")
-+                return 124, f"TIMEOUT after {timeout}s{note}\n{text}"
-+        return code, out_path.read_text(encoding="utf-8", errors="replace")
-     except OSError as e:
-         return 127, f"could not run {argv[0] if argv else cmd!r}: {e}"
-+    finally:
+-    except OSError as e:
+-        return 127, f"could not run {argv[0] if argv else cmd!r}: {e}"
 +        try:
-+            out_path.unlink()
-+        except OSError:
-+            pass
++            with out_path.open("wb") as out:
++                popen_options = {"start_new_session": True} if os.name != "nt" else {}
++                proc = subprocess.Popen(argv, cwd=ROOT, stdout=out, stderr=subprocess.STDOUT,
++                                        **popen_options)
++                try:
++                    code = proc.wait(timeout=timeout)
++                except subprocess.TimeoutExpired:
++                    confirmed = _terminate_rung_tree(proc)
++                    timeout_note = (f"TIMEOUT after {timeout}s" if confirmed else
++                                    f"TIMEOUT after {timeout}s (TERMINATION NOT CONFIRMED - "
++                                    f"processes may still run)")
++                    code = 124
++            text = out_path.read_text(encoding="utf-8", errors="replace")
++        except OSError as e:
++            code, text = 127, f"could not run {argv[0] if argv else cmd!r}: {e}"
++    finally:
++        cleanup_failure = _discard_rung_output(out_path)
++    if timeout_note:
++        text = f"{timeout_note}\n{text}"
++    if cleanup_failure:
++        text += (f"\nCLEANUP_FAILED: rung output {out_path} could not be removed "
++                 f"({cleanup_failure}); a process may still hold it")
++        if code == 0:
++            code = 1
++    return code, text
  
  
  def watchdog(seconds: int, label: str, app=None):
@@ -150,10 +186,10 @@ index 00000000..12c2804a
 +    assert not guard.matches(path, guard.PROTECTED), f"{path} is unexpectedly protected"
 diff --git a/tests/test_outer_rung_termination.py b/tests/test_outer_rung_termination.py
 new file mode 100644
-index 00000000..d042befa
+index 00000000..2f57be51
 --- /dev/null
 +++ b/tests/test_outer_rung_termination.py
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,112 @@
 +"""Does the outer validator's `run()` (harness/ci.py) return and reclaim its workers at its deadline?
 +
 +The mutation rung is executed through `run()`, which calls subprocess.run(..., capture_output=True,
@@ -164,13 +200,10 @@ index 00000000..d042befa
 +from __future__ import annotations
 +
 +import importlib.util
-+import os
-+import subprocess
 +import sys
 +import time
 +from pathlib import Path
 +
-+import pytest
 +
 +CI = Path(__file__).resolve().parents[1] / "harness" / "ci.py"
 +
@@ -214,3 +247,58 @@ index 00000000..d042befa
 +    # The grandchild writes the sentinel after 12 s if it is still alive.
 +    time.sleep(16)
 +    assert not sentinel.exists(), "a descendant of the timed-out outer rung kept running"
++
++
++# --- the rung's temporary output file: removed on success, cleanup failures reported ---------
++
++def _rung_files(scratch):
++    return sorted(p.name for p in scratch.iterdir() if p.name.startswith("rung-"))
++
++
++def test_successful_rung_leaves_no_temporary_output_file(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    code, text = ci.run("unit", [sys.executable, "-c", "print('ok')"], timeout=60)
++    assert code == 0 and "ok" in text
++    assert _rung_files(scratch) == [], "a successful rung left its output file behind"
++
++
++def _refuse_rung_unlink(monkeypatch):
++    real_unlink = Path.unlink
++
++    def unlink(self, *args, **kwargs):
++        if self.name.startswith("rung-"):
++            raise PermissionError("output file held by another process")
++        return real_unlink(self, *args, **kwargs)
++
++    monkeypatch.setattr(Path, "unlink", unlink)
++
++
++def test_failed_rung_keeps_its_own_diagnosis_and_reports_the_cleanup_failure(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    _refuse_rung_unlink(monkeypatch)
++    code, text = ci.run("unit", [sys.executable, "-c",
++                                 "import sys; print('PRIMARY DIAGNOSIS: 2 tests failed'); sys.exit(3)"],
++                        timeout=60)
++    assert code == 3, "the rung's own failure code must be preserved"
++    assert "PRIMARY DIAGNOSIS: 2 tests failed" in text, "the original diagnosis must survive"
++    assert "CLEANUP" in text and "PermissionError" in text, "the cleanup failure must be reported"
++
++
++def test_successful_rung_with_a_cleanup_failure_is_not_reported_as_success(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    _refuse_rung_unlink(monkeypatch)
++    code, text = ci.run("unit", [sys.executable, "-c", "print('ok')"], timeout=60)
++    assert code != 0, "a gate whose output could not be cleaned up must not report success"
++    assert "CLEANUP" in text and "PermissionError" in text
