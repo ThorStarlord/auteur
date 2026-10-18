@@ -1,9 +1,9 @@
 diff --git a/tests/test_mutation_runner_failure_paths.py b/tests/test_mutation_runner_failure_paths.py
 new file mode 100644
-index 00000000..3abb670e
+index 00000000..7a87399a
 --- /dev/null
 +++ b/tests/test_mutation_runner_failure_paths.py
-@@ -0,0 +1,287 @@
+@@ -0,0 +1,286 @@
 +"""Deterministic failure-path regressions for the mutation runner (harness/mutations/run.py).
 +
 +Each test builds a tiny fake repository whose inner gate (harness/ci.py) is scripted, so the
@@ -21,7 +21,6 @@ index 00000000..3abb670e
 +import time
 +from pathlib import Path
 +
-+import pytest
 +
 +RUNNER = Path(__file__).resolve().parents[1] / "harness" / "mutations" / "run.py"
 +
