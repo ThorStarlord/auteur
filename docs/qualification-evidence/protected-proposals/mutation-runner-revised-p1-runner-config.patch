@@ -12,7 +12,7 @@ index 862fbcf9..83889176 100644
 +  "mutation_overhead_s": 120
  }
 diff --git a/harness/mutations/run.py b/harness/mutations/run.py
-index a5dfafd3..4dfddb74 100644
+index a5dfafd3..7f58fd2c 100644
 --- a/harness/mutations/run.py
 +++ b/harness/mutations/run.py
 @@ -27,16 +27,26 @@ The first run of a real mutation set found that zeroing a bonus escaped every ch
@@ -233,8 +233,8 @@ index a5dfafd3..4dfddb74 100644
 -                               capture_output=True, text=True, timeout=600)
 -            if r.returncode != 0:
 +            status, code, text = run_inner_gate(dest, env, slot)
-+            labels = [l.split(":", 1)[1].strip() for l in text.splitlines()
-+                      if l.startswith("GATE_FAILED:")]
++            labels = [line.split(":", 1)[1].strip() for line in text.splitlines()
++                      if line.startswith("GATE_FAILED:")]
 +
 +            # Classification. Only a completed inner gate that names a known rung, with no rung
 +            # timeout, is a catch. Every other outcome is inconclusive and fails the verdict.
