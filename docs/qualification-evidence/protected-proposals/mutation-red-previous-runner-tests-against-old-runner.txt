@@ -1,0 +1,22 @@
+.....FFFF..FFFFF.                                                        [100%]
+================================== FAILURES ===================================
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:148: assert 0 == 1
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:162: AssertionError: assert 'tree terminated and confirmed' in 'MUTATION_START per_mutant_budget=3s\n  INCONCLUSIVE  fake-defect-0                          inner gate exceeded 3s; t...ery escaped, inconclusive or uninjected defect means the gate cannot currently be trusted to catch this class of bug\n'
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:177: AttributeError: <module 'mutation_run_under_test' from 'H:\\codex\\qualification\\auteur-narrative-20261016\\mutation-red\\harness\\mutations\\run.py'> has no attribute '_terminate_tree'
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:195: AssertionError: assert 'outer budget exhausted; not run' in 'MUTATIONS_BUDGET outer budget 3s cannot cover 2 mutants x 3s each; no mutant was run. Raise mutations_timeout_s.\n'
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:221: AssertionError: assert (0 == 0 and 'MUTATIONS_CLEANUP_FAILURES=0' in 'MUTATION_START per_mutant_budget=3s\n  CAUGHT        fake-defect-0                          by unit\nMUTATIONS_TOTAL=1\nMUTATIONS_CAUGHT=1\nMUTATIONS_INCONCLUSIVE=0\nMUTATIONS_NOT_INJECTED=0\nMUTATIONS_OK\n')
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:230: AssertionError: assert (1 == 1 and 'MUTATIONS_CLEANUP_FAILURES=0' in 'MUTATION_START per_mutant_budget=3s\n  INCONCLUSIVE  fake-defect-0                          inner gate exceeded 3s; t...ery escaped, inconclusive or uninjected defect means the gate cannot currently be trusted to catch this class of bug\n')
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:245: TypeError: run_inner_gate() got an unexpected keyword argument 'timeout'
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:255: AttributeError: module 'mutation_run_under_test' has no attribute 'time'
+H:\codex\qualification\auteur-narrative-20261016\mutation-red\tests\test_mutation_runner_failure_paths.py:274: AssertionError: assert ('MUTATIONS_CAUGHT=1' in 'MUTATION_START per_mutant_budget=3s\n  CAUGHT        fake-defect-0                          by static\nMUTATIONS_TOTAL=1\nMUTATIONS_CAUGHT=1\nMUTATIONS_INCONCLUSIVE=0\nMUTATIONS_NOT_INJECTED=0\nMUTATIONS_OK\n' and 'MUTATIONS_CLEANUP_FAILURES=0' in 'MUTATION_START per_mutant_budget=3s\n  CAUGHT        fake-defect-0                          by static\nMUTATIONS_TOTAL=1\nMUTATIONS_CAUGHT=1\nMUTATIONS_INCONCLUSIVE=0\nMUTATIONS_NOT_INJECTED=0\nMUTATIONS_OK\n')
+=========================== short test summary info ===========================
+FAILED tests/test_mutation_runner_failure_paths.py::test_unrecognised_gate_label_is_inconclusive_not_caught
+FAILED tests/test_mutation_runner_failure_paths.py::test_hanging_inner_gate_is_bounded_inconclusive_and_its_tree_is_killed
+FAILED tests/test_mutation_runner_failure_paths.py::test_unconfirmed_termination_is_inconclusive_and_says_so
+FAILED tests/test_mutation_runner_failure_paths.py::test_outer_budget_exhaustion_is_inconclusive_and_never_a_pass
+FAILED tests/test_mutation_runner_failure_paths.py::test_scratch_is_removed_after_normal_completion
+FAILED tests/test_mutation_runner_failure_paths.py::test_scratch_is_removed_after_an_inner_timeout
+FAILED tests/test_mutation_runner_failure_paths.py::test_inner_output_descriptor_is_closed_on_return
+FAILED tests/test_mutation_runner_failure_paths.py::test_removal_failure_fails_the_verdict_and_is_reported
+FAILED tests/test_mutation_runner_failure_paths.py::test_read_only_leftover_is_removed_and_the_verdict_passes
+Exit code recorded from the invoking shell: 1 (expected: the previous runner fails nine behaviour tests; two fail on missing new API, labelled in the log).

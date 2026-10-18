@@ -1,0 +1,3 @@
+.............................                                            [100%]
+EXIT=0
+Exit code recorded from the invoking shell: 0. This output is the pytest progress line only; no summary line was captured.
