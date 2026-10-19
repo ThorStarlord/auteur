@@ -139,7 +139,9 @@ def test_book_progress_reuses_accepted_book_as_publication_preflight(tmp_path: P
 
     progress = project_book_progress(project)
 
-    assert progress.accepted_chapters >= 2
+    # Accepted Book-expression sources are not Chapter final.md history used
+    # by the Book re-entry projection.
+    assert progress.accepted_chapters == 0
     assert progress.book_expression.startswith("accepted")
     assert progress.publication_ready is True
     assert progress.publication_blocker is None
