@@ -165,6 +165,18 @@
       "evidence_refs": [
         "file:docs/adr/019-derived-global-map-and-story-instance-relation-authority.md:line:19"
       ]
+    },
+    {
+      "id": "decision:host-agent-first-generation",
+      "kind": "decision",
+      "statement": "ADR 022 selects backend-agnostic, host-agent-first generation when a capable coding agent is available; direct OpenAI/Anthropic provider adapters remain explicit optional backends, not a mandatory credential prerequisite.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/adr/022-host-agent-first-backend-agnostic-generation.md",
+      "evidence_refs": [
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:17",
+        "file:MISSION.md:line:11"
+      ]
     }
   ],
   "relations": [

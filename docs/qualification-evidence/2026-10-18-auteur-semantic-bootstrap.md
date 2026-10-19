@@ -1,9 +1,20 @@
-# Auteur repository-semantic-steward initial semantic pilot (candidate)
+# Auteur repository-semantic-steward: authored knowledge and qualification history
 
 **Source identity:** `ThorStarlord/auteur@bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`
 **Sensemaking source:** integrated `main@d67cfe560a3f649e065ad8adc024c01d1163603a`.
-**State at current candidate:** knowledge schema/path checks, source-pinned indexing, one independent engineering/reconciliation episode, and one independent recovery episode completed. Full Issue #554 acceptance remains incomplete.
-**Authority:** Auteur MISSION.md and docs/narrative-architecture.md remain primary; these semantic JSON files are a *review proposal*, not canonical story state or product design revisions.
+**Status:** the three authored knowledge packs are merged; independent source-checked retrieval and a test-contract correction are documented. Full Issue #554 qualification remains incomplete. See the dated episodes below.
+**Authority:** Auteur MISSION.md, ADR 022 and docs/narrative-architecture.md remain primary; Git-reviewed semantic records are reusable interpretation, not canonical story state or a substitute for product/owner decisions.
+
+## Review-derived architectural learning — 2026-10-19
+
+The initial PR #466 seed had **35** source-linked claims and **26** authored relations. This subsequent, bounded RECONCILE **adds three claims and five relations** (38/31 total) after a review of actual code, tests, ADR 022, and the product-use handoff. These are new documented interpretations, **not** new application behavior or a claim of fully qualified semantic truth.
+
+1. **Accepted Book Expression is not kept Chapter history** (`inv:book-expression-vs-kept-history`). `BookExpressionStore` composes from accepted Chapter Expressions (`src/auteur/expression/book.py`), whereas `project_book_progress` counts `project_book_orientation().accepted_chapter_refs` from kept `chapters/<n>/final.md` files. The corrected `test_book_progress_reuses_accepted_book_as_publication_preflight` asserted the distinction. The earlier `NO_MODEL_CHANGE` episodes did not establish existing claims were false; this later review found that preserving this *additional reusable distinction* is warranted.
+2. **Host-agent-first generation is a documented architectural choice** (`decision:host-agent-first-generation`) and Chapter-N has a request/response handoff (`cap:chapter-host-agent-handoff`). ADR 022 and `MISSION.md` explicitly prefer the active capable coding agent; direct OpenAI/Anthropic adapters are optional. `prepare_chapter_generation` and `complete_chapter_generation` verify the exact request and current source fingerprint before writing Working drafts.
+
+**Coverage-versus-decision lesson:** accurate Book/Studio recall did not include generation-backend alternatives. Missing direct-provider keys prove only that those direct-adapter calls cannot run in that environment; they do **not**, by themselves, establish that the host-agent path is unavailable or that the Chapter 2 probe is executable. The previous C2 episode made no model call. A new bounded investigation must inspect actual host-agent capability, exact fixture availability, request/response provenance, and authorization before concluding `BLOCKED` or executing the probe. Do not infer a product-code defect or waive the original word-count floor.
+
+**Skill learning:** source-linked retrieval and cross-session recovery are demonstrated narrowly; actual reduction of engineering rediscovery, cost, and a complete learn-update-reuse cycle remain unqualified. Sensemaking's RECALL now asks for decision-relevant `NOT ASSESSED` gaps and blocker alternatives; RECONCILE considers learning from corrected tests even when implementation remains unchanged. These are guidance refinements, not another ontology, automatic action selector, or second authority system.
 
 ## Historical first-visit baseline — 2026-10-18
 
