@@ -1,11 +1,11 @@
 # Auteur repository-semantic-steward initial semantic pilot (candidate)
 
 **Source identity:** `ThorStarlord/auteur@bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`
-**Sensemaking candidate:** `ThorStarlord/sensemaking-skills` PR #555, stacked on PR #553.
-**State:** source-reviewed proposed knowledge, NOT independently agent-qualified.
+**Sensemaking source:** integrated `main@d67cfe560a3f649e065ad8adc024c01d1163603a`.
+**State at current candidate:** knowledge schema/path checks, source-pinned indexing, one independent engineering/reconciliation episode, and one independent recovery episode completed. Full Issue #554 acceptance remains incomplete.
 **Authority:** Auteur MISSION.md and docs/narrative-architecture.md remain primary; these semantic JSON files are a *review proposal*, not canonical story state or product design revisions.
 
-## First-visit result
+## Historical first-visit baseline — 2026-10-18
 
 Created a focused, deliberately cross-layer authored semantic proposal:
 
@@ -27,32 +27,57 @@ The relations deliberately distinguish documented rules, observed source code,
 and hypotheses. The semantic relation `implemented_by` was used only for
 manually inspected code paths, not inferred from shared filenames.
 
-## Known limitations
+This proposal began from Auteur `main@bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`, after PR #439's graph-first Book re-entry repair had reached main. It was initially a source-reviewed model only; no test execution or index build was claimed at that baseline.
+
+## Baseline limitations recorded before execution
 
 - This model does not claim comprehensive repository ontology coverage.
 - Existing STATUS.md is historically dated and may not describe current main.
-- No full Auteur checkout was available in this connector workspace for
-  `semantic knowledge-build`, `knowledge-proposal-check`, pytest, or Browser.
-- No executable coding-agent CLI, independent new agent context, human author
-  validation or deployment was operated in this pilot.
+- The initial connector-only review had no local Auteur runtime, so it could
+  not execute `knowledge-build`, proposal validation, pytest, or Browser.
+- At that point there was no independent-agent episode, human author
+  validation, or deployment.
 - A test file's existence and assertions are not test execution evidence.
 - A JSON model is not accepted merely because GitHub stores the blob.
 - ADR 019's three-digit filename needs the Sensemaking proposed importer change.
 - JavaScript files are path-indexed in the proposed bootstrap, not parsed for
   runtime architecture/dependencies.
 
-## Next qualification
+## Current status and remaining qualification — 2026-10-19
 
-In a real clean Auteur checkout, install an exact tested Sensemaking candidate,
-check these draft claims/edges against original current sources, then run
-`knowledge-proposal-check` on the working proposal and `knowledge-build` on
-its committed source revision in an isolated clean worktree. Inspect
-`explain`, `why`, `impact`, `history`, and source `knowledge-audit` output.
+**Completed pilot evidence:** all three packs pass source-pinned proposal
+validation; a clean exact candidate was indexed; an independent engineering
+episode source-checked the Book model and corrected one test expectation; a
+separate independent recovery episode correctly reconstructed the model and
+checked original sources. The focused Book/Studio suite passes 15 tests. No
+product behavior changed in this PR.
 
-Select a warranted, real Issue #318 Book-reentry engineering responsibility.
-Start a genuinely **new, independent** coding-agent session for actual reuse,
-then update the affected semantic records after the returned engineering
-evidence. Do not report an independent-agent PASS before that happens.
+**Historical product-use evidence:** Issue #318's original Windows run accepted
+a 946-word Chapter 1 and stopped at a 965-word, unaccepted Chapter 2 against a
+1,066-word minimum. It did not complete Chapters 3–6. A separate
+fixture-complete reconstruction received six simulated-author decisions and
+qualified only bounded F2 behavior plus API/file persistence. The later
+graph-first Browser work reached main in PR #439; exact candidate checks cover
+named navigation and re-entry paths. These executions are separate and do not
+combine into a six-Chapter live-author or human-UX pass. Details remain in
+[Issue #318](https://github.com/ThorStarlord/auteur/issues/318), [PR #437](https://github.com/ThorStarlord/auteur/pull/437), and its linked evidence.
+
+**Current limitations:** F2's full controlled journey remains incomplete; the
+current-runtime Chapter-2 continuation probe has not run. Overall Browser
+experience, long-history density, manuscript navigation, and human UX remain
+unqualified. The independent recovery session read the authored JSON directly;
+it did not query SQLite. Comparative benefit and agent time/token costs remain
+unmeasured. No Issue #554 PASS is claimed.
+
+**Remaining work:** resume the existing Issue #318 Chapter-2 checkpoint using
+the frozen fixture and its explicit minimum/self-check procedure, if the
+configured target runtime and required observability are available. Preserve
+the accepted Chapter 1 and unaccepted Chapter 2; do not relax the threshold or
+change the fixture. Continue later Chapters only after that checkpoint. For
+Issue #554, use the pinned installed CLI in another fresh session to retrieve
+and source-check accumulated knowledge during that real responsibility, then
+compare observed work with ordinary source inspection without claiming causal
+benefit. Keep all F2, X3 persistence, Browser, and human-UX verdicts separate.
 
 ## Independent coding-agent episode B — Book re-entry source check
 
@@ -80,6 +105,41 @@ The requested focused runtime suite exposed one faulty test expectation: `test_b
 This episode demonstrates independent retrieval followed by original-source checking, and practical usefulness in finding a mistaken test assumption. It does not demonstrate a product-code repair, live Browser usability, completion of Issue #318, or comparative causal benefit over retrieval without the semantic pack. It is one independent re-entry episode after the initial proposal; it does not establish full Issue #554 acceptance or transfer to a second product. No hourly/token/cost metrics were available. No semantic pack proposal was necessary or changed; all three authored packs remain unmodified.
 
 The test/evidence update was committed locally as `325e117c453c9a3ba89d676eae457f42f210b964` (`test: clarify book expression and chapter history`). At that exact clean commit, `knowledge-orient` again covered 2,412 tracked files and `knowledge-build` indexed 746 claims / 705 relations, digest `50cb5d1f9633da57c594d6b079bc8d6671c69f4d45198e526febef8f60fb64ff`, to `H:\GithubRepositories\_rss-pilot-auteur-episode-b-result.sqlite`; `explain cap:book-reentry-orientation` returned the same checked Book boundary. The first post-commit pytest invocation inherited Sensemaking's `PYTHONPATH` and failed collection because Auteur's `src` was not on that invocation's import path; rerunning with `PYTHONPATH=src` passed all 15 focused tests.
+
+## CLI installation and retrieval check — 2026-10-19
+
+The earlier fresh agent's missing-command report came from executable
+resolution, not an unavailable implementation. In the active Windows agent
+environment, Get-Command sensemaking-skills -All selected
+C:\Users\Admin\AppData\Roaming\Python\Python314\Scripts\sensemaking-skills.exe
+first. Its installed package was 1.0.0rc3, editable from the older, dirty
+H:\GithubRepositories\sensemaking-skills checkout. A second script existed
+under H:\Python\Python312\Scripts. The first executable's semantic --help did
+not list knowledge-orient, knowledge-build, knowledge-query, knowledge-audit,
+or knowledge-proposal-check.
+
+Installed a separate persistent tool environment from the integrated source
+pin, leaving those existing scripts untouched:
+
+    uv tool install --python C:\Python314\python.exe --with click==8.5.0 --with PyYAML==6.0.3 --from git+https://github.com/ThorStarlord/sensemaking-skills.git@d67cfe560a3f649e065ad8adc024c01d1163603a sensemaking-skills
+    uv tool run --from git+https://github.com/ThorStarlord/sensemaking-skills.git@d67cfe560a3f649e065ad8adc024c01d1163603a sensemaking-skills --version
+
+The pinned invocation reports 1.0.0rc5.dev0; help confirmed all five
+commands. Calling uv tool run sensemaking-skills without --from resolved an
+unrelated 0.2.1 command with no semantic group, so the exact source ref must
+remain on each invocation.
+
+From this same installed environment, the clean candidate at
+4fc9b75a51e55e976a940fd32090bfcd9d8a6ea0 indexed 1,269 claims and 1,705
+relations, digest
+255102a92786da196da447e7fbd4579fc6ff077c6031517473b181c5b1f3f7b5. All
+three knowledge-proposal-check commands passed. Search for
+'Book re-entry current Chapter Working Kept Studio canvas' returned no claims;
+search for 'Book re-entry' returned three relevant claims. The implementation
+confirms the reason: search performs case-insensitive literal substring
+matching against one claim statement or ID. It is not natural-language search.
+The RECALL instructions now tell agents to use known claim IDs or short literal
+phrases, inspect returned IDs, and open the original cited sources.
 
 ## Fresh-session accumulated-knowledge recovery check
 
