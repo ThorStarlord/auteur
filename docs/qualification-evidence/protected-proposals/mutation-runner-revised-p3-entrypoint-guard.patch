@@ -1,0 +1,304 @@
+diff --git a/factory/guard.py b/factory/guard.py
+index a905bb11..8bce778c 100644
+--- a/factory/guard.py
++++ b/factory/guard.py
+@@ -43,6 +43,10 @@ PROTECTED = [
+     # The deliberate-defect set. A builder that can edit the mutations can pass them.
+     # ADD YOUR PATH if you build one.
+     "harness/mutations/*",
++    # The validator entrypoint, its configuration, and the harness it runs (E2E, process
++    # helpers, fixtures). A builder that can edit the rung that judges its work, or the timeouts
++    # that bound it, is grading its own homework. Governed by the same human-maintained route.
++    "harness/*",
+     # Secrets. Being unable to EDIT one does not stop `git add -A` from publishing one
+     # that appears for the first time - see the pre-flight in run-workflow.sh.
+     ".env", ".env.*", "*.local", "*credential*", "*secret*",
+diff --git a/harness/ci.py b/harness/ci.py
+index f346035b..19cacc3d 100644
+--- a/harness/ci.py
++++ b/harness/ci.py
+@@ -36,9 +36,12 @@ import os
+ import re
+ import shlex
+ import shutil
++import signal
+ import subprocess
+ import sys
++import tempfile
+ import threading
++import time
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -95,17 +98,94 @@ def resolve(argv: list[str]) -> list[str]:
+     return [found or head, *argv[1:]]
+ 
+ 
++def _terminate_rung_tree(proc: subprocess.Popen) -> bool:
++    """End a timed-out rung and every descendant. True only if the root is confirmed gone.
++
++    A plain Popen.kill() ends only the direct child. The child's workers keep running, and on
++    Windows they keep files open. This is the same tree termination the mutation runner uses.
++    """
++    if os.name == "nt":
++        result = subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
++                                capture_output=True, text=True)
++        if result.returncode != 0 and proc.poll() is None:
++            return False
++    else:
++        try:
++            os.killpg(proc.pid, signal.SIGKILL)
++        except ProcessLookupError:
++            pass
++        except OSError:
++            return False
++    try:
++        proc.wait(timeout=60)
++    except subprocess.TimeoutExpired:
++        return False
++    return True
++
++
++def _discard_rung_output(path: Path) -> str | None:
++    """Remove a rung's output file. Return None when it is gone, otherwise the failure to report.
++
++    Retried briefly, because Windows releases a handle a moment after its process ends. The
++    last error is returned to the caller and is never swallowed: a file that stays behind is a
++    reported condition, not a silent one.
++    """
++    last = None
++    for attempt in range(3):
++        try:
++            path.unlink()
++            return None
++        except FileNotFoundError:
++            return None
++        except OSError as e:
++            last = f"{type(e).__name__}: {e}"
++            time.sleep(0.5 * (attempt + 1))
++    return last
++
++
+ def run(step: str, cmd: str | list[str], timeout: int = 300) -> tuple[int, str]:
+-    """One rung. A timeout is a FAILURE, not a skip - a hung check reports nothing."""
++    """One rung. A timeout is a FAILURE, not a skip - a hung check reports nothing.
++
++    Output goes to a real file, not a pipe. A descendant that inherits a captured pipe keeps the
++    caller blocked after its own deadline, and it keeps running. On timeout the whole tree is
++    terminated and the outcome of that termination is reported, never assumed.
++
++    The rung's own result is never replaced. A failure to remove its output file is added to the
++    text, and a rung that succeeded is then reported as a failure: a gate that cannot clean up
++    after itself does not pass.
++    """
+     argv = resolve(shlex.split(cmd, posix=False) if isinstance(cmd, str) else list(cmd))
++    fd, name = tempfile.mkstemp(prefix=f"rung-{step}-", suffix=".out")
++    os.close(fd)
++    out_path = Path(name)
++    timeout_note = None
+     try:
+-        p = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True,
+-                           encoding="utf-8", errors="replace", timeout=timeout)
+-        return p.returncode, (p.stdout or "") + (p.stderr or "")
+-    except subprocess.TimeoutExpired:
+-        return 124, f"TIMEOUT after {timeout}s"
+-    except OSError as e:
+-        return 127, f"could not run {argv[0] if argv else cmd!r}: {e}"
++        try:
++            with out_path.open("wb") as out:
++                popen_options = {"start_new_session": True} if os.name != "nt" else {}
++                proc = subprocess.Popen(argv, cwd=ROOT, stdout=out, stderr=subprocess.STDOUT,
++                                        **popen_options)
++                try:
++                    code = proc.wait(timeout=timeout)
++                except subprocess.TimeoutExpired:
++                    confirmed = _terminate_rung_tree(proc)
++                    timeout_note = (f"TIMEOUT after {timeout}s" if confirmed else
++                                    f"TIMEOUT after {timeout}s (TERMINATION NOT CONFIRMED - "
++                                    f"processes may still run)")
++                    code = 124
++            text = out_path.read_text(encoding="utf-8", errors="replace")
++        except OSError as e:
++            code, text = 127, f"could not run {argv[0] if argv else cmd!r}: {e}"
++    finally:
++        cleanup_failure = _discard_rung_output(out_path)
++    if timeout_note:
++        text = f"{timeout_note}\n{text}"
++    if cleanup_failure:
++        text += (f"\nCLEANUP_FAILED: rung output {out_path} could not be removed "
++                 f"({cleanup_failure}); a process may still hold it")
++        if code == 0:
++            code = 1
++    return code, text
+ 
+ 
+ def watchdog(seconds: int, label: str, app=None):
+diff --git a/tests/test_factory_guard_validator_paths.py b/tests/test_factory_guard_validator_paths.py
+new file mode 100644
+index 00000000..12c2804a
+--- /dev/null
++++ b/tests/test_factory_guard_validator_paths.py
+@@ -0,0 +1,45 @@
++"""The protected-path guard must cover the validator entrypoint, its configuration and its harness.
++
++Only the mutation rung was protected before this change: `harness/mutations/*`. The validator
++entrypoint (`harness/ci.py`), its configuration (`harness/harness.config.json`) and the E2E
++harness it runs were not, so an autonomous change to them would pass the structural guard.
++"""
++from __future__ import annotations
++
++import importlib.util
++from pathlib import Path
++
++import pytest
++
++GUARD = Path(__file__).resolve().parents[1] / "factory" / "guard.py"
++
++
++def _guard():
++    spec = importlib.util.spec_from_file_location("factory_guard_under_test", GUARD)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++@pytest.mark.parametrize("path", [
++    "harness/ci.py",
++    "harness/harness.config.json",
++    "harness/e2e.py",
++    "harness/appproc.py",
++    "harness/mutations/run.py",
++    "harness/mutations/defects.json",
++    "harness/fixtures/some_fixture.json",
++])
++def test_validator_entrypoint_config_and_harness_are_protected(path):
++    guard = _guard()
++    assert guard.matches(path, guard.PROTECTED), f"{path} is not a protected path"
++
++
++@pytest.mark.parametrize("path", [
++    "src/auteur/beginner/server.py",
++    "tests/test_mutation_runner_failure_paths.py",
++    "docs/narrative-architecture.md",
++])
++def test_ordinary_product_paths_are_not_protected(path):
++    guard = _guard()
++    assert not guard.matches(path, guard.PROTECTED), f"{path} is unexpectedly protected"
+diff --git a/tests/test_outer_rung_termination.py b/tests/test_outer_rung_termination.py
+new file mode 100644
+index 00000000..2f57be51
+--- /dev/null
++++ b/tests/test_outer_rung_termination.py
+@@ -0,0 +1,112 @@
++"""Does the outer validator's `run()` (harness/ci.py) return and reclaim its workers at its deadline?
++
++The mutation rung is executed through `run()`, which calls subprocess.run(..., capture_output=True,
++timeout=...). On timeout that call kills only the direct child. A descendant that inherited the
++captured pipe can keep the call blocked, and it keeps running. These tests measure both effects with
++the real helper rather than assuming them.
++"""
++from __future__ import annotations
++
++import importlib.util
++import sys
++import time
++from pathlib import Path
++
++
++CI = Path(__file__).resolve().parents[1] / "harness" / "ci.py"
++
++PARENT = r'''
++import subprocess, sys, time
++# The grandchild inherits this process's stdout, which the caller captures through a pipe.
++subprocess.Popen([sys.executable, "-c",
++                  "import time,pathlib,sys; time.sleep(12); pathlib.Path(sys.argv[1]).write_text('alive')",
++                  sys.argv[1]])
++time.sleep(120)
++'''
++
++
++def _ci():
++    spec = importlib.util.spec_from_file_location("validator_ci_under_test", CI)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def test_outer_run_returns_at_its_deadline_even_with_a_descendant_holding_the_pipe(tmp_path, monkeypatch):
++    ci = _ci()
++    parent = tmp_path / "parent.py"
++    parent.write_text(PARENT, encoding="utf-8")
++    sentinel = tmp_path / "grandchild-finished.txt"
++    start = time.monotonic()
++    code, text = ci.run("mutations", [sys.executable, str(parent), str(sentinel)], timeout=3)
++    elapsed = time.monotonic() - start
++    assert code == 124 and "TIMEOUT after 3s" in text
++    # A deadline of 3 s must return within a few seconds. If the held pipe blocks the call, this
++    # measures how long the outer validator stalls instead.
++    assert elapsed < 10, f"outer run() blocked for {elapsed:.1f}s after a 3s deadline"
++
++
++def test_outer_run_reclaims_descendants_after_its_deadline(tmp_path):
++    ci = _ci()
++    parent = tmp_path / "parent.py"
++    parent.write_text(PARENT, encoding="utf-8")
++    sentinel = tmp_path / "grandchild-finished.txt"
++    ci.run("mutations", [sys.executable, str(parent), str(sentinel)], timeout=3)
++    # The grandchild writes the sentinel after 12 s if it is still alive.
++    time.sleep(16)
++    assert not sentinel.exists(), "a descendant of the timed-out outer rung kept running"
++
++
++# --- the rung's temporary output file: removed on success, cleanup failures reported ---------
++
++def _rung_files(scratch):
++    return sorted(p.name for p in scratch.iterdir() if p.name.startswith("rung-"))
++
++
++def test_successful_rung_leaves_no_temporary_output_file(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    code, text = ci.run("unit", [sys.executable, "-c", "print('ok')"], timeout=60)
++    assert code == 0 and "ok" in text
++    assert _rung_files(scratch) == [], "a successful rung left its output file behind"
++
++
++def _refuse_rung_unlink(monkeypatch):
++    real_unlink = Path.unlink
++
++    def unlink(self, *args, **kwargs):
++        if self.name.startswith("rung-"):
++            raise PermissionError("output file held by another process")
++        return real_unlink(self, *args, **kwargs)
++
++    monkeypatch.setattr(Path, "unlink", unlink)
++
++
++def test_failed_rung_keeps_its_own_diagnosis_and_reports_the_cleanup_failure(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    _refuse_rung_unlink(monkeypatch)
++    code, text = ci.run("unit", [sys.executable, "-c",
++                                 "import sys; print('PRIMARY DIAGNOSIS: 2 tests failed'); sys.exit(3)"],
++                        timeout=60)
++    assert code == 3, "the rung's own failure code must be preserved"
++    assert "PRIMARY DIAGNOSIS: 2 tests failed" in text, "the original diagnosis must survive"
++    assert "CLEANUP" in text and "PermissionError" in text, "the cleanup failure must be reported"
++
++
++def test_successful_rung_with_a_cleanup_failure_is_not_reported_as_success(tmp_path, monkeypatch):
++    import tempfile
++    ci = _ci()
++    scratch = tmp_path / "scratch"
++    scratch.mkdir()
++    monkeypatch.setattr(tempfile, "tempdir", str(scratch))
++    _refuse_rung_unlink(monkeypatch)
++    code, text = ci.run("unit", [sys.executable, "-c", "print('ok')"], timeout=60)
++    assert code != 0, "a gate whose output could not be cleaned up must not report success"
++    assert "CLEANUP" in text and "PermissionError" in text

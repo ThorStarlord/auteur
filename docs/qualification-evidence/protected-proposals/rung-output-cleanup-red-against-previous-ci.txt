@@ -1,0 +1,9 @@
+...FF                                                                    [100%]
+================================== FAILURES ===================================
+H:\codex\qualification\auteur-narrative-20261016\mutation-scratch\tests\test_outer_rung_termination.py:103: AssertionError: the cleanup failure must be reported
+H:\codex\qualification\auteur-narrative-20261016\mutation-scratch\tests\test_outer_rung_termination.py:114: AssertionError: a gate whose output could not be cleaned up must not report success
+=========================== short test summary info ===========================
+FAILED tests/test_outer_rung_termination.py::test_failed_rung_keeps_its_own_diagnosis_and_reports_the_cleanup_failure
+FAILED tests/test_outer_rung_termination.py::test_successful_rung_with_a_cleanup_failure_is_not_reported_as_success
+EXIT=1
+Exit code recorded from the invoking shell: 1 (expected: the three cleanup regressions fail against the previous helper, which swallowed the OSError).
