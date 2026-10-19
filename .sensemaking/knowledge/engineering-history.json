@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "id": "observation:book-reentry-merged-main",
+      "kind": "observation",
+      "statement": "At main bb9c102d, Studio's source contains read-only Book re-entry through /api/beginner/book/progress; source observation is not Browser qualification.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/browser/studio.js",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:617"
+      ]
+    },
+    {
+      "id": "observation:status-historical-f2-x3",
+      "kind": "observation",
+      "statement": "STATUS.md reconciled 2026-10-14 describes F2/X3 work and incomplete six-Chapter journey; it predates main bb9c102d and is not evidence of the latest qualification outcome.",
+      "epistemic_status": "observed",
+      "authority_kind": "document",
+      "authority_ref": "STATUS.md",
+      "evidence_refs": [
+        "file:STATUS.md:line:1"
+      ]
+    },
+    {
+      "id": "hypothesis:book-reentry-next-value",
+      "kind": "hypothesis",
+      "statement": "Independent live Browser Book re-entry and same-canvas recovery are worthwhile future evidence candidates; not demonstrated by static inspection.",
+      "epistemic_status": "hypothetical",
+      "authority_kind": "hypothesis",
+      "authority_ref": "tests/test_beginner_studio_book_view.py",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_book_view.py:line:22"
+      ]
+    },
+    {
+      "id": "observation:pilot-coverage-limit",
+      "kind": "observation",
+      "statement": "This first-visit proposal inspects selected governance, narrative, Book/Studio Python+JS and tests, not all Auteur components or a runtime Browser.",
+      "epistemic_status": "observed",
+      "authority_kind": "document",
+      "authority_ref": "AGENTS.md",
+      "evidence_refs": [
+        "file:AGENTS.md:line:1"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:historical-status-to-cap",
+      "subject": "observation:status-historical-f2-x3",
+      "predicate": "references",
+      "object": "cap:book-reentry-orientation",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:STATUS.md:line:1"
+      ]
+    },
+    {
+      "id": "rel:live-hypothesis-to-cap",
+      "subject": "hypothesis:book-reentry-next-value",
+      "predicate": "candidate_opportunity_for",
+      "object": "cap:book-studio-view",
+      "epistemic_status": "hypothetical",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_book_view.py:line:22"
+      ]
+    },
+    {
+      "id": "rel:source-merged-reentry",
+      "subject": "observation:book-reentry-merged-main",
+      "predicate": "references",
+      "object": "cap:book-studio-view",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:617"
+      ]
+    }
+  ]
+}
