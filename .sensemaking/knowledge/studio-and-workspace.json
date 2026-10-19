@@ -185,9 +185,9 @@
       "authority_kind": "code",
       "authority_ref": "src/auteur/beginner/book_progress.py",
       "evidence_refs": [
-        "file:src/auteur/expression/book.py:line:72",
+        "file:src/auteur/expression/book.py:line:75",
         "file:src/auteur/beginner/book_progress.py:line:49",
-        "file:tests/test_beginner_book_progress.py:line:137"
+        "file:tests/test_beginner_book_progress.py:line:144"
       ]
     },
     {
@@ -198,8 +198,9 @@
       "authority_kind": "code",
       "authority_ref": "src/auteur/beginner/chapter_generation.py",
       "evidence_refs": [
-        "file:src/auteur/beginner/chapter_generation.py:line:160",
-        "file:src/auteur/beginner/chapter_generation.py:line:239",
+        "file:src/auteur/beginner/chapter_generation.py:line:166",
+        "file:src/auteur/beginner/chapter_generation.py:line:275",
+        "file:src/auteur/beginner/chapter_generation.py:line:293",
         "file:src/auteur/host_agent.py:line:1"
       ]
     }
@@ -401,7 +402,7 @@
       "derivation": "authored",
       "evidence_refs": [
         "file:src/auteur/beginner/book_progress.py:line:49",
-        "file:tests/test_beginner_book_progress.py:line:137"
+        "file:tests/test_beginner_book_progress.py:line:144"
       ]
     },
     {
@@ -412,7 +413,7 @@
       "epistemic_status": "observed",
       "derivation": "authored",
       "evidence_refs": [
-        "file:src/auteur/beginner/book_orientation.py:line:171",
+        "file:src/auteur/beginner/book_orientation.py:line:87",
         "file:src/auteur/beginner/book_progress.py:line:49"
       ]
     },
@@ -424,7 +425,7 @@
       "epistemic_status": "observed",
       "derivation": "authored",
       "evidence_refs": [
-        "file:tests/test_beginner_book_progress.py:line:137"
+        "file:tests/test_beginner_book_progress.py:line:144"
       ]
     },
     {
@@ -435,8 +436,8 @@
       "epistemic_status": "declared",
       "derivation": "authored",
       "evidence_refs": [
-        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:17",
-        "file:src/auteur/beginner/chapter_generation.py:line:160"
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:22",
+        "file:src/auteur/beginner/chapter_generation.py:line:166"
       ]
     },
     {
@@ -447,8 +448,8 @@
       "epistemic_status": "declared",
       "derivation": "authored",
       "evidence_refs": [
-        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:37",
-        "file:src/auteur/beginner/chapter_generation.py:line:242"
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:53",
+        "file:src/auteur/beginner/chapter_generation.py:line:326"
       ]
     }
   ]
