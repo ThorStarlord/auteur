@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-19
-**Current integrated main:** `be212c7f2f46a4ca575c7774431e536a7c1af6b4` (PR #468 merge)
+**Last reconciled:** 2026-10-20
+**Main reviewed for this reconciliation:** `7043f9cd5b031b218e5e75ca953f496ee7030e90` (PR #437 merge; includes PR #439)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -25,13 +25,14 @@ and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-revi
   navigation repair is integrated by PR #439 (`bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`).
   The exact candidate passed focused Browser checks and Stage B Chromium
   21/21; a baseline-identical publication-preflight test failure was preserved
-  rather than weakened. On current `main@be212c7`, a fresh Chromium run against
+  on `main@be212c7`, a fresh Chromium run against
   a disposable copy of the complete six-Chapter fixture verified Chapter 6
   re-entry, Chapter 2 accepted manuscript review (8,269 characters), the
   `Plan Chapter 3` continuation action, browser Back, and ordinary Studio
   re-entry. All 89 story files retained their hashes and no page errors
   occurred. This is bounded automated behavior evidence; broader Browser
-  experience and human UX remain unqualified.
+  experience and human UX remain unqualified. Current main is now
+  `7043f9c` (documentation/history reconciliation; no product code changed).
 - **Human UX:** not tested. No comfort, preference, usability, or production
   readiness claim follows from automated Browser interaction or simulated
   author decisions.
@@ -74,7 +75,7 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds separate, bounded F2 simulated-author, X3 persistence, and automated Browser results. Human UX remains untested; the Browser review records the remaining density and interaction questions.
 
-1. Keep the Chapter-generation length deviation visible; the reconstructed run preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
+1. Keep the Chapter-generation length deviation visible; the reconstruction preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
 2. Do not repeat the Chapter 2 generation probe solely to revisit word-count adherence: the reconstructed run produced a fresh 1,412-word Chapter 2 and continued the six-Chapter journey under explicit simulated-author decisions.
 3. The next product-use responsibility is a human-author walkthrough of graph-first Book re-entry, manuscript review, and continued writing. Automated Browser checks do not establish comprehension, preference, or usability.
 4. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
