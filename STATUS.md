@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-20
-**Main reviewed for this reconciliation:** `7043f9cd5b031b218e5e75ca953f496ee7030e90` (PR #437 merge; includes PR #439)
+**Main reviewed for this reconciliation:** `662ed9eb92a29ca0b754c17b07ed1eb9206fcf00` (PR #469 merge; includes PRs #437 and #439)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -31,8 +31,8 @@ and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-revi
   `Plan Chapter 3` continuation action, browser Back, and ordinary Studio
   re-entry. All 89 story files retained their hashes and no page errors
   occurred. This is bounded automated behavior evidence; broader Browser
-  experience and human UX remain unqualified. Current main is now
-  `7043f9c` (documentation/history reconciliation; no product code changed).
+  experience and human UX remain unqualified. Later docs-only merges #437
+  and #469 do not upgrade this Browser evidence or change product code.
 - **Human UX:** not tested. No comfort, preference, usability, or production
   readiness claim follows from automated Browser interaction or simulated
   author decisions.
@@ -77,10 +77,28 @@ The original Windows run remains a valid partial product-use record; it stopped 
 
 1. Keep the Chapter-generation length deviation visible; the reconstruction preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
 2. Do not repeat the Chapter 2 generation probe solely to revisit word-count adherence: the reconstructed run produced a fresh 1,412-word Chapter 2 and continued the six-Chapter journey under explicit simulated-author decisions.
-3. The next product-use responsibility is a human-author walkthrough of graph-first Book re-entry, manuscript review, and continued writing. Automated Browser checks do not establish comprehension, preference, or usability.
-4. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
+3. **Next selected construction responsibility:** exercise the integrated
+   agent-first Studio journey from one meaningful Story Vision through a real
+   host coding-agent architecture response, populated graph, one natural-language
+   revision, and updated graph/related views. Architecture/HTTP tests supply
+   static candidates; the six-Chapter reconstruction starts from a built
+   fixture. Neither establishes this whole journey. Reuse existing handoffs;
+   build only the smallest missing integration demonstrated by a disposable run.
+4. **Separate human-evidence lane:** the graph-first Book re-entry walkthrough
+   is prepared in
+   `docs/product-validation/auteur-graph-first-book-reentry-human-walkthrough.md`
+   but has not been performed. It remains useful for genuine comprehension and
+   usability questions, not a mandatory gate before reversible agent-first
+   construction. Automated Browser checks cannot establish author preference
+   or creative quality.
+5. Keep pending discoveries separate from accepted story and route any canonical
+   author decision through existing acceptance/reconciliation owners. Manual
+   node editing remains optional; generating or revising working architecture
+   is not canonical acceptance.
 
-F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
+F3/X4 remains unselected. This narrower Studio interaction responsibility does
+not select that frontier, authorize a new host bridge or test framework, or
+imply release readiness.
 
 ## Governance / External Gates
 

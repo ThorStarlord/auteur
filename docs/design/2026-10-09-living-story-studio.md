@@ -149,6 +149,10 @@ A completion claim for an earlier stage does not authorize speculative construct
 10. Reopen a six-Chapter Book: identify current chapter, accepted changes, pending updates and one useful next action.
 11. Keyboard-only user can create, locate, connect, edit and inspect elements.
 12. Existing Beginner Browser/CLI golden paths remain functional.
+13. A fresh Story Vision without manually built nodes produces a connected
+    working architecture via an actual host coding agent. One ordinary-language
+    revision updates affected graph/phase/inspector projections, preserves
+    unaffected elements, and survives reopening without accepting canon.
 
 ## 11. Discovery, qualification and claim ceiling
 
@@ -200,6 +204,41 @@ Choose the lowest owning repair before adding complexity. Preserve a usable curr
 **P5 — Long horizon:** Use focused derived views across scope and phase rather than inserting every story element into the 200-item working canvas. A derived graph never becomes a universal ontology or canonical store; Source Identity/Structure/Realization/Series owners remain authoritative.
 
 **P6 — Revision:** The agent may propose a targeted architecture revision, explain material differences and affected relationships, and retain earlier proposals. Revising working architecture does not change accepted story meaning; upstream changes must pass explicit existing owner actions. Stale requests cannot apply to current working material.
+
+### Default agent-first creative interaction (reconfirmed 2026-10-20)
+
+One meaningful initial Story Vision, premise, or free-form creative brief is
+sufficient author input to request a rich, coherent *working* whole-story
+narrative architecture. The capable active coding agent—not an author assembling
+nodes—develops relevant emotional intentions, genre contracts and interactions,
+trope functions, narrative engines, structural patterns and connected
+relationships. "Full" means useful coverage of supported narrative mechanisms,
+not mandatory completion of every facet, invented facts, concrete cast/plot,
+or universal story-quality certification. Keep uncertain or unsupported elements
+explicit. The distinct Story Realization agent handles proposed concrete
+characters, locations and events when that work is requested.
+
+A natural-language creative revision should be interpreted by the agent into
+source-bound changes to affected working components, relationships and phases.
+Preserve unaffected IDs and meaning, explain material differences, and use the
+existing staged working-review contract. Studio then refreshes its graph,
+inspector, facets and timeline from the changed proposals. Ordinary story
+feedback must not require frontend source edits or manually visiting every
+affected panel. Contextual presentation focus may adapt predictably to the
+author's task while preserving explicit focus/layout controls. Direct editing
+of working nodes, connections and layout remains **optional**, never a
+prerequisite for comprehensive agent generation or revision.
+
+**Qualification boundary:** Existing contract, HTTP, static-candidate and
+graph-projection tests establish components, not a complete actual-host-agent
+interaction. Use a fresh disposable Story Vision with no prebuilt graph; have
+the active coding agent fulfill the real request, inspect the connected Studio
+graph, issue one natural-language revision, verify affected and unaffected
+components and visible graph updates, and reopen without data loss or canonical
+mutation. Preserve exact request/response identities and report any missing
+integration. Human walkthroughs establish subjective comprehension and value
+separately; their absence does not block reversible construction of this
+selected interaction.
 
 **Acceptance sequence:** author-editable no-premise vision → exact host-agent request and validated response → readable connected candidate graph → temporal genre/reader timeline → scope focus → bounded revision with impact preview. Test the concrete Browser/HTTP/store/host-agent boundaries before trust, not a new omnibus UX gate. No automatic acceptance, auto-publication, new provider configuration, or broad release.
 

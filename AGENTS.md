@@ -44,6 +44,12 @@ governing documents and sit on the protected list.
   meta-documents merely to restate information already preserved elsewhere.
 - Keep user-authorial choices explicit. Do not silently fill or rewrite the
   story spine.
+- Before prescribing a Studio workflow, recover the owner-selected agent-first
+  contract in `docs/design/2026-10-09-living-story-studio.md`: one meaningful
+  Story Vision should suffice for a rich working architecture; natural-language
+  revision should update its graph/projections; manual graph construction is
+  optional. Do not require the owner to restate this settled direction or treat
+  prepared handoff/static-candidate tests as proof of a live end-to-end journey.
 - Treat workspace identity as a preflight condition, not something the
   executor should discover or repair after work begins.
 
@@ -321,7 +327,11 @@ Follow `docs/engineering/release-qualification.md`.
   Do not run exact-SHA release qualification for ordinary development commits.
 
 More testing is not automatically safer when it does not change a decision.
-Do not spend expensive validation merely because it exists.
+Do not spend expensive validation merely because it exists. Missing human UX
+qualification limits claims about real-author experience; it does not
+automatically make a new human walkthrough the next responsibility or block
+reversible work on an already-selected agent-first interaction. Choose the
+smallest evidence or construction step that can change the product decision.
 
 ## Qualification and release evidence
 
