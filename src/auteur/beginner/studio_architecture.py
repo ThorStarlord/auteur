@@ -288,6 +288,12 @@ genre_activation: {genre_node_id,basic_emotions,trope_functions,structural_funct
 Unknown lengths stay unknown; phase order is NOT a chapter or act number.
 Do not fabricate genre commitments when the brief does not establish them.
 Keep stable IDs across revisions, preserve unaffected choices, explain uncertainty.
+Resolve story-mechanics questions with coherent, revisable provisional defaults
+when the supplied vision supports them. Put those defaults in the architecture
+and identify them as agent proposals; do not turn them into required author
+questions. Reserve open_questions for genuinely authorial preferences or
+commitments that cannot be responsibly inferred. A proposal never waits for
+answers before it can be developed or revised.
 All material is a noncanonical proposal; never accept Identity, Structure or prose."""
 
 

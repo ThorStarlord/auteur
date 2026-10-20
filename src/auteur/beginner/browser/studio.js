@@ -1040,26 +1040,58 @@
       });
     }
     if (state.architecture && state.view === "architecture") {
-      (state.architecture.genre_interactions || []).forEach(function (edge) {
+      var genreInteractions = state.architecture.genre_interactions || [];
+      if (genreInteractions.length) {
+        var defs = document.createElementNS(svgNS, "defs");
+        var arrow = document.createElementNS(svgNS, "marker");
+        arrow.setAttribute("id", "architecture-genre-arrow");
+        arrow.setAttribute("markerWidth", "8"); arrow.setAttribute("markerHeight", "8");
+        arrow.setAttribute("refX", "7"); arrow.setAttribute("refY", "4");
+        arrow.setAttribute("orient", "auto"); arrow.setAttribute("markerUnits", "userSpaceOnUse");
+        var arrowHead = document.createElementNS(svgNS, "path");
+        arrowHead.setAttribute("d", "M 0 0 L 8 4 L 0 8 z"); arrowHead.setAttribute("fill", "#75487b");
+        arrow.appendChild(arrowHead); defs.appendChild(arrow); svg.appendChild(defs);
+      }
+      genreInteractions.forEach(function (edge) {
         var a = candidateNode(edge.source_genre_id), b = candidateNode(edge.target_genre_id);
         if (!a || !b || !candidateVisible(a) || !candidateVisible(b)) return;
         var from = state.candidatePositions[a.id], to = state.candidatePositions[b.id];
         if (!from || !to) return;
-        var line = document.createElementNS(svgNS, "line");
-        line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
-        line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
-        line.setAttribute("stroke", "#855a8b"); line.setAttribute("stroke-width", "3");
-        line.setAttribute("stroke-dasharray", "3 6");
+        var pair = genreInteractions.filter(function (other) {
+          return (other.source_genre_id === edge.source_genre_id && other.target_genre_id === edge.target_genre_id) ||
+            (other.source_genre_id === edge.target_genre_id && other.target_genre_id === edge.source_genre_id);
+        });
+        var pairIndex = pair.findIndex(function (other) { return other.id === edge.id; });
+        var canonicalFrom = edge.source_genre_id < edge.target_genre_id ? from : to;
+        var canonicalTo = edge.source_genre_id < edge.target_genre_id ? to : from;
+        var dx = canonicalTo.x - canonicalFrom.x, dy = canonicalTo.y - canonicalFrom.y;
+        var length = Math.sqrt(dx * dx + dy * dy) || 1;
+        var offset = (pairIndex - (pair.length - 1) / 2) * 20;
+        var middle = { x: (from.x + to.x) / 2 - dy / length * offset,
+          y: (from.y + to.y) / 2 + dx / length * offset };
+        function boundaryPoint(point, other) {
+          var vx = other.x - point.x, vy = other.y - point.y;
+          var scale = 1 / Math.max(Math.abs(vx) / 82, Math.abs(vy) / 34, 0.0001);
+          return { x: point.x + vx * scale, y: point.y + vy * scale };
+        }
+        var start = boundaryPoint(from, to), end = boundaryPoint(to, from);
+        var path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", "M " + start.x + " " + start.y + " Q " + middle.x + " " + middle.y + " " + end.x + " " + end.y);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#855a8b"); path.setAttribute("stroke-width", "3");
+        path.setAttribute("stroke-dasharray", "3 6");
+        path.setAttribute("marker-end", "url(#architecture-genre-arrow)");
+        path.setAttribute("data-genre-interaction-id", edge.id);
         var highlighted = edge.source_genre_id === state.selectedCandidate ||
           edge.target_genre_id === state.selectedCandidate;
-        line.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".2" : ".9");
+        path.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".2" : ".9");
         var label = document.createElementNS(svgNS, "title");
-        label.textContent = edge.kind.replace(/_/g, " ") + ": " + edge.mechanism; line.appendChild(label);
-        svg.appendChild(line);
+        label.textContent = edge.kind.replace(/_/g, " ") + ": " + a.title + " → " + b.title + ". " + edge.mechanism;
+        path.appendChild(label); svg.appendChild(path);
         if (highlighted) {
           var text = document.createElementNS(svgNS, "text");
-          text.setAttribute("x", String((from.x + to.x) / 2 + 82));
-          text.setAttribute("y", String((from.y + to.y) / 2 + 26));
+          text.setAttribute("x", String(middle.x + 82));
+          text.setAttribute("y", String(middle.y + 26));
           text.setAttribute("text-anchor", "middle"); text.setAttribute("fill", "#75487b");
           text.setAttribute("font-size", "12"); text.textContent = edge.kind.replace(/_/g, " ");
           svg.appendChild(text);

@@ -50,6 +50,14 @@ test('render is read-only and shows declared focus-local ghosts',()=>{
  assert.equal(f.posted.length,0);assert.equal(f.hostRequests.length,0);
 });
 
+test('loaded architecture does not leave the unrelated start prompt over the graph',()=>{
+ const f=fixture();f.state.unfoldingFocus=null;f.ctrl.render();
+ assert.equal(f.els.get('unfolding-start').hidden,true);
+ assert.equal(f.els.get('unfolding-local').hidden,true);
+ f.state.architecture=null;f.ctrl.render();
+ assert.equal(f.els.get('unfolding-start').hidden,false);
+});
+
 test('inspecting does not persist; adopting explicitly posts exact CanvasStore command',async()=>{
  const f=fixture();f.ctrl.render();
  const btn=f.els.get('unfolding-ghosts').children[0];btn.events.click();

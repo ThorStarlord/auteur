@@ -233,6 +233,10 @@ the prompt, and submit an exact response. Current paths:
 The agent should prefer a small readable architecture over 80 decorative nodes,
 retain stable IDs on revision, and use Book/arc/chapter scopes and focused
 neighborhoods rather than packing an entire long-running series onto one screen.
+Resolve story-mechanics questions as explicit, revisable defaults when the
+Story Vision supports them. Keep `open_questions` for authorial choices and
+uncertainties that cannot responsibly be inferred; they are invitations, not a
+questionnaire or a gate on developing the proposal.
 This is an operational handoff contract, **not** a claim of live-provider,
 real-browser, or human-usability qualification.
 
