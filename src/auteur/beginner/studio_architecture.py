@@ -14,6 +14,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from auteur.narrative_ontology.architecture_preferences import (
+    CausalDistributionPreference, ComplexityPreference, EngineHierarchyPreference,
+)
 from auteur.host_agent import (
     _atomic_json_write,
     HostAgentRequest,
@@ -245,7 +248,108 @@ def _source(store: CanvasStore, *, previous: dict | None = None) -> dict:
     }
 
 
+# A bounded, source-referenced projection of established narrative design rules.
+# The source documents/models remain authoritative; this is generation context,
+# not a competing ontology or a set of author-declared preferences.
+_DESIGN_PRINCIPLES = (
+    ("docs/narrative-architecture.md", "Ontology defines concept meaning; Identity owns accepted commitments, Structure owns plans, and Realization owns concrete events. Working Studio graphs never accept those commitments."),
+    ("src/auteur/narrative_ontology/architecture_preferences.py", "Complexity, causal distribution and engine hierarchy are independent composition choices. Do not infer a declared value from another dimension or from the presence of many nodes."),
+    ("docs/plans/story-discovery-intent-aware-architecture.md", "Identify a governing causal engine, causal ownership, protagonist/actor action patterns, pressures, reversals and payoff mechanics. Place compatible subordinate engines under a legible hierarchy instead of treating all mechanisms as equally central."),
+    ("docs/plans/story-discovery-intent-aware-architecture.md", "Explain craft propagation: causal strategy and ownership -> action/scene families and pressure -> story texture and aesthetics -> reader experience -> thematic implications. Prefer causal interaction over rhetorical variations or decorative links."),
+    ("docs/adr/008-rich-target-experience.md", "Distinguish the governing emotional promise, supporting/contrasting palette, avoided experience and macro trajectory; do not reduce rich TargetExperience to three basic-emotion labels."),
+    ("data/ontology/base_ontology.yaml", "Use typed narrative relationships and their functions: e.g. conflict drives arcs, setups lead to payoffs, themes manifest through narrative change. Abstract Studio nodes are not concrete character, scene or beat instances."),
+    ("docs/PRD.md", "Explain why the particular genre, trope, structure, aesthetic and emotional components affect each other. A flat label list is not enough; preserve unsupported dimensions as unknown."),
+)
+
+
+def _accepted_story_design_context(store: CanvasStore) -> dict | None:
+    """Read a project's accepted Identity only, never a guessed author preference."""
+    path = store.project_root / "story_identity.yaml"
+    if not path.is_file():
+        return None
+    if not path.resolve().is_relative_to(store.project_root):
+        raise ValueError("accepted Story Identity must remain inside the project root")
+    # Avoid importing Identity in no-premise Studio sessions.
+    from auteur.identity import StoryIdentity
+
+    identity = StoryIdentity.from_yaml(path)
+    preferences = identity.architecture_preferences
+    context = {
+        "source_ref": "story_identity.yaml",
+        "authority": "accepted_story_identity",
+        "core_answer": identity.core_answer,
+        "central_engine": identity.central_engine.model_dump(mode="json"),
+        "story_type": identity.story_type.model_dump(mode="json", exclude_none=True),
+        "target_experience": identity.target_experience.model_dump(mode="json", exclude_none=True),
+        "architecture_preferences": (
+            preferences.model_dump(mode="json", exclude_none=True)
+            if preferences is not None else None
+        ),
+        "hard_constraints": identity.hard_constraints,
+        "not_this": identity.not_this,
+    }
+    if len(json.dumps(context, ensure_ascii=False).encode("utf-8")) > 65536:
+        raise ValueError("accepted Story Identity exceeds the bounded Studio design context")
+    return context
+
+
+def _narrative_design_context(store: CanvasStore) -> dict:
+    """Compose the same small, auditable ontology guidance on develop and revise."""
+    return {
+        "kind": "source_referenced_narrative_design_guidance",
+        "authority": "derived_guidance_not_author_intent",
+        "source_principles": [
+            {"source_ref": source, "principle": rule}
+            for source, rule in _DESIGN_PRINCIPLES
+        ],
+        "architecture_preference_vocabulary": {
+            "complexity": [value.value for value in ComplexityPreference],
+            "causal_distribution": [value.value for value in CausalDistributionPreference],
+            "engine_hierarchy": [value.value for value in EngineHierarchyPreference],
+        },
+        "accepted_story_identity": _accepted_story_design_context(store),
+        "unknown_policy": (
+            "No accepted Identity or omitted preference means UNKNOWN, not an "
+            "implicit focused/maximalist/causal default. The agent may propose "
+            "a provisional composition with explicit rationale; it may not "
+            "attribute that choice to the author."
+        ),
+    }
+
+
+def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
+    """Preserve the original digest for pre-context request/artifact reopens."""
+    user = json.loads(request_user)
+    previous = user["working_context"]["previous_candidate"]
+    working = _source(store, previous=previous)
+    if "narrative_design_context" not in user:
+        return _digest(working)
+    return _digest({
+        "working_context": working,
+        "narrative_design_context": _narrative_design_context(store),
+    })
+
+
 _SYSTEM = """You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.
+Read narrative_design_context in the user request BEFORE composing an architecture.
+Its source-linked ontology principles are design guidance, not invented author
+commitments. The accepted_story_identity, when present, is authoritative;
+the current Story Vision and previous candidate are working material.
+If working intent conflicts with accepted Identity, surface the tension as
+an unresolved proposal; never silently change the accepted story.
+
+First work out the governing renewable causal engine, causal ownership,
+subordinate mechanisms, action/pressure/reversal patterns, reader experience
+and thematic consequences. Then project that composition as schema-v2 nodes,
+functional links, parent_id hierarchy, genre contracts and phase activations.
+A set of plausible disconnected category labels is not an architecture.
+Do not invent links merely to satisfy graph connectivity. Explain why each
+meaningful mechanism matters and how subordinate parts interact.
+Explicitly declared architecture preferences constrain working interpretation;
+missing preferences remain UNKNOWN, even when the agent proposes a working
+composition. Separate primary emotional promise from supporting palette and
+temporal movement; do not replace rich emotion design with a basic-label count.
+
 Generate narrative MECHANISMS, not a fictional cast, setting or plotted storyline.
 Never invent names of characters, places, factions, events, plot acts or scenes.
 You may refer to concrete proper nouns explicitly supplied by the author, but
@@ -322,8 +426,7 @@ def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> boo
     request = load_host_agent_request(
         _root(store) / "requests" / current["request_sha256"] / "request.json"
     )
-    previous = json.loads(request.user)["working_context"]["previous_candidate"]
-    return _digest(_source(store, previous=previous)) != current["source_sha256"]
+    return _source_fingerprint(store, request.user) != current["source_sha256"]
 
 
 def project_architecture(store: CanvasStore) -> dict:
@@ -360,11 +463,18 @@ def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
         context = _source(store, previous=previous)
         if not context["vision"].strip() and not context["working_items"]:
             raise ValueError("write a Story Vision or a working idea first")
-        source_sha = _digest(context)
+        design_context = _narrative_design_context(store)
+        source_sha = _digest({
+            "working_context": context,
+            "narrative_design_context": design_context,
+        })
         settings = {"canvas_id": store.canvas_id, "source_sha256": source_sha,
                     "operation": "revise" if instruction.strip() else "develop"}
-        user = json.dumps({"working_context": context, "revision_instruction": instruction},
-                          ensure_ascii=False, sort_keys=True)
+        user = json.dumps({
+            "working_context": context,
+            "narrative_design_context": design_context,
+            "revision_instruction": instruction,
+        }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
             role="studio_architecture", system=_SYSTEM, user=user, settings=settings,
@@ -394,7 +504,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             return project_architecture(store)
         instruction = json.loads(request.user)["revision_instruction"]
         previous = current["candidate"] if instruction.strip() and current else None
-        if _digest(_source(store, previous=previous)) != request.settings["source_sha256"]:
+        if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
                 "the author's source vision or working story changed; response retained as stale evidence"
@@ -433,8 +543,8 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
             request = load_host_agent_request(
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
-            if _digest(_source(store, previous=current["candidate"])) != request.settings["source_sha256"]:
-                raise BeginnerConcurrencyError("story vision or working context changed; review again")
+            if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
+                raise BeginnerConcurrencyError("story vision or design context changed; review again")
             _atomic_json_write(_root(store) / "current.json", {
                 "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
                 "candidate": review["candidate"],

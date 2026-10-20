@@ -233,6 +233,17 @@ the prompt, and submit an exact response. Current paths:
 The agent should prefer a small readable architecture over 80 decorative nodes,
 retain stable IDs on revision, and use Book/arc/chapter scopes and focused
 neighborhoods rather than packing an entire long-running series onto one screen.
+
+**Generation-context repair (2026-10-20):** The request now includes bounded
+source-referenced principles from the existing Ontology, Phase F causal-composition
+guidance, rich TargetExperience decision and PRD. It supplies the existing
+architecture-preference enum vocabulary and, when present, a source-bound accepted
+`story_identity.yaml` projection. Missing preferences stay unknown: vocabulary
+choices are not declarations, and proposed values are not canon. Request fingerprints
+include this design context, so changed accepted Identity makes pending responses
+stale. Older pre-context requests retain their original fingerprint treatment.
+This is a context-delivery repair, not a schema-v3/ontology/automatic-acceptance
+change or an assertion of improved story quality.
 This is an operational handoff contract, **not** a claim of live-provider,
 real-browser, or human-usability qualification.
 
