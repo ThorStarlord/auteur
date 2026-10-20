@@ -11,7 +11,8 @@ from pydantic import ValidationError
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
-    ArchitectureCandidate, apply_architecture_review, complete_architecture,
+    ArchitectureCandidate, _digest, _source, _source_fingerprint,
+    apply_architecture_review, complete_architecture,
     main, prepare_architecture, project_architecture,
 )
 from auteur.beginner.studio_store import CanvasStore
@@ -60,6 +61,120 @@ def response(status, data=None):
         request, json.dumps(data if data is not None else candidate()),
         runtime="integration-test", model="UNAVAILABLE",
     ).model_dump()
+
+
+def test_architecture_request_carries_source_grounded_ontology_not_hidden_author_choices(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    request = json.loads(waiting["request"]["user"])
+    guidance = request["narrative_design_context"]
+    assert guidance["authority"] == "derived_guidance_not_author_intent"
+    assert guidance["accepted_story_identity"] is None
+    assert guidance["architecture_preference_vocabulary"]["complexity"] == [
+        "focused", "layered", "maximalist",
+    ]
+    assert guidance["architecture_preference_vocabulary"]["causal_distribution"] == [
+        "concentrated", "layered", "mixed",
+    ]
+    assert guidance["architecture_preference_vocabulary"]["engine_hierarchy"] == [
+        "single_center", "primary_with_layers", "ensemble",
+    ]
+    refs = [source["source_ref"] for source in guidance["source_principles"]]
+    assert "docs/narrative-architecture.md" in refs
+    assert "docs/plans/story-discovery-intent-aware-architecture.md" in refs
+    assert "docs/adr/008-rich-target-experience.md" in refs
+    assert "data/ontology/base_ontology.yaml" in refs
+    assert "governing renewable causal engine" in waiting["request"]["system"]
+    assert "UNKNOWN" in guidance["unknown_policy"]
+    assert request["working_context"]["vision"].startswith("A long fantasy")
+    assert waiting["request"]["settings"]["source_sha256"] == _source_fingerprint(
+        store, waiting["request"]["user"],
+    )
+
+
+def test_accepted_story_preferences_and_target_experience_are_grounded(tmp_path):
+    from auteur.identity import StoryIdentity
+
+    store = working_store(tmp_path)
+    identity = StoryIdentity.model_validate({
+        "title": "Architecture source",
+        "core_answer": "Shared inquiry changes what a community protects.",
+        "story_type": {"genre": "mystery", "medium": "novel", "mode": "tragic"},
+        "central_engine": {
+            "want": "Protect everyone", "resistance": "Incomplete evidence",
+            "conflict": "Care risks control", "stakes": "Trust and freedom",
+            "change": "A revisable decision process",
+        },
+        "target_experience": {
+            "primary_emotional_promise": "uncertain compassion",
+            "secondary_palette": ["hope", "curiosity"],
+            "emotional_trajectory": {
+                "pattern": "deepening",
+                "start": "unease", "midpoint": "ethical pressure",
+                "ending": "earned hope",
+            },
+        },
+        "architecture_preferences": {
+            "complexity": "maximalist", "causal_distribution": "mixed",
+        },
+        "hard_constraints": ["No intervention guarantees safety"],
+    })
+    identity.to_yaml(tmp_path / "story_identity.yaml")
+    prepared = prepare_architecture(store)
+    packet = json.loads(prepared["request"]["user"])
+    accepted = packet["narrative_design_context"]["accepted_story_identity"]
+    assert accepted["source_ref"] == "story_identity.yaml"
+    assert accepted["authority"] == "accepted_story_identity"
+    assert accepted["architecture_preferences"] == {
+        "complexity": "maximalist", "causal_distribution": "mixed",
+    }
+    assert accepted["target_experience"]["primary_emotional_promise"] == "uncertain compassion"
+    assert accepted["target_experience"]["emotional_trajectory"]["ending"] == "earned hope"
+    assert accepted["hard_constraints"] == ["No intervention guarantees safety"]
+    assert "engine_hierarchy" not in accepted["architecture_preferences"]
+
+    identity.hard_constraints.append("Refusal can change the process")
+    identity.to_yaml(tmp_path / "story_identity.yaml")
+    with pytest.raises(BeginnerConcurrencyError, match="story"):
+        complete_architecture(store, response(prepared))
+    assert project_architecture(store)["candidate"] is None
+    sha = prepared["request"]["request_sha256"]
+    assert (store.directory / "architecture" / "requests" / sha / "stale_response.json").exists()
+
+
+def test_omitted_identity_defaults_are_not_attributed_to_author(tmp_path):
+    store = working_store(tmp_path)
+    minimal = {
+        "title": "Only an explicit central engine",
+        "core_answer": "Mutual responsibility matters.",
+        "central_engine": {
+            "want": "Act with care", "resistance": "Uncertainty",
+            "conflict": "Care and control", "stakes": "Trust",
+            "change": "Shared accountability",
+        },
+    }
+    (tmp_path / "story_identity.yaml").write_text(json.dumps(minimal), encoding="utf-8")
+    status = prepare_architecture(store)
+    accepted = json.loads(status["request"]["user"])[
+        "narrative_design_context"
+    ]["accepted_story_identity"]
+    assert accepted["core_answer"] == "Mutual responsibility matters."
+    assert accepted["story_type"] is None
+    assert accepted["target_experience"] is None
+    assert accepted["architecture_preferences"] is None
+
+
+def test_legacy_architecture_fingerprint_remains_readable(tmp_path):
+    store = working_store(tmp_path)
+    legacy_user = json.dumps({"working_context": {"previous_candidate": None}})
+    assert _source_fingerprint(store, legacy_user) == _digest(_source(store))
+
+
+def test_invalid_accepted_identity_is_not_silently_ignored(tmp_path):
+    store = working_store(tmp_path)
+    (tmp_path / "story_identity.yaml").write_text("title: incomplete", encoding="utf-8")
+    with pytest.raises(ValidationError):
+        prepare_architecture(store)
 
 
 def test_no_premise_host_agent_proposal_reopen_and_no_canon(tmp_path):
