@@ -1,12 +1,46 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-14
-**Integrated baseline:** `main @ 4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
+**Last reconciled:** 2026-10-19
+**Current integrated main:** `be212c7f2f46a4ca575c7774431e536a7c1af6b4` (PR #468 merge)
+**Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
 ## Current Frontier: F2 + X3
+
+Issue #318 remains open. The latest full six-Chapter execution used a
+fixture-complete disposable reconstruction from source `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`.
+It does not recover the unavailable original workspace or replace the
+historical Windows execution below. The full report and independent Browser
+review are in [qualification evidence](qualification-evidence/glass-archive-fixture-complete-20261015.md)
+and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-review-20261015.md).
+
+- **F2 narrative behavior:** bounded simulated-author pass for this six-Chapter
+  reconstruction. It does not establish human creative judgment or general
+  story quality.
+- **X3 persistence:** API/file-level pass. Six accepted final prose files
+  matched the recorded SHA-256 values after a fresh process load.
+- **X3 Browser experience:** the graph-first Book re-entry and Chapter
+  navigation repair is integrated by PR #439 (`bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`).
+  The exact candidate passed focused Browser checks and Stage B Chromium
+  21/21; a baseline-identical publication-preflight test failure was preserved
+  rather than weakened. On current `main@be212c7`, a fresh Chromium run against
+  a disposable copy of the complete six-Chapter fixture verified Chapter 6
+  re-entry, Chapter 2 accepted manuscript review (8,269 characters), the
+  `Plan Chapter 3` continuation action, browser Back, and ordinary Studio
+  re-entry. All 89 story files retained their hashes and no page errors
+  occurred. This is bounded automated behavior evidence; broader Browser
+  experience and human UX remain unqualified.
+- **Human UX:** not tested. No comfort, preference, usability, or production
+  readiness claim follows from automated Browser interaction or simulated
+  author decisions.
+
+PR #439 is integrated on current `main`; no release or human UX qualification
+is claimed. The current-main product-use evidence and the earlier exact
+candidate test results are recorded separately in the updated Browser review.
+
+## Historical Windows execution — 2026-10-14
 
 Issue #318 remains open. The controlled six-Chapter **The Glass Archive** journey began against the exact merged baseline above. The Windows persistence defect was repaired and passed a clean Chapter 1 retry; the controlled run stopped at Chapter 2 after repeated under-target chapter prose.
 
@@ -38,12 +72,12 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 
 ## Claim ceiling and next execution
 
-The merged work is integrated development work. The Windows repair has exact-SHA regression evidence, with the full-suite failures matching the tested baseline; the controlled F2/X3 journey remains incomplete. Do not call F2/X3 complete or the experience product-ready yet.
+The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds separate, bounded F2 simulated-author, X3 persistence, and automated Browser results. Human UX remains untested; the Browser review records the remaining density and interaction questions.
 
-1. Decide whether to repair host-agent target-length adherence; if so, change only the demonstrated prompt/runtime boundary, then resume from the clean accepted Chapter 1 state and corrected Chapter 2 plan.
-2. Reconcile issue #318 using the actual journey evidence.
-3. Reconcile issue #310 with the observed `awaiting_host_agent` interaction gap and four exact scenario outputs.
-4. Use a real author walkthrough for creative mentorship and UX claims; current agent samples cannot answer those questions.
+1. Keep the Chapter-generation length deviation visible; the reconstructed run preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
+2. Do not repeat the Chapter 2 generation probe solely to revisit word-count adherence: the reconstructed run produced a fresh 1,412-word Chapter 2 and continued the six-Chapter journey under explicit simulated-author decisions.
+3. The next product-use responsibility is a human-author walkthrough of graph-first Book re-entry, manuscript review, and continued writing. Automated Browser checks do not establish comprehension, preference, or usability.
+4. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
 
 F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
 

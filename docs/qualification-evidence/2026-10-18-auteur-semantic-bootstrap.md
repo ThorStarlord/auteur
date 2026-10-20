@@ -16,6 +16,59 @@ The initial PR #466 seed had **35** source-linked claims and **26** authored rel
 
 **Skill learning:** source-linked retrieval and cross-session recovery are demonstrated narrowly; actual reduction of engineering rediscovery, cost, and a complete learn-update-reuse cycle remain unqualified. Sensemaking's RECALL now asks for decision-relevant `NOT ASSESSED` gaps and blocker alternatives; RECONCILE considers learning from corrected tests even when implementation remains unchanged. These are guidance refinements, not another ontology, automatic action selector, or second authority system.
 
+## RECALL / RECONCILE continuation — 2026-10-19
+
+This continuation used `repository-semantic-steward` from Sensemaking
+`main@76742d4a72daf4334621d657fa27bc9de13b60ba` against a clean Auteur
+checkout at `main@be212c7f2f46a4ca575c7774431e536a7c1af6b4`. The global
+Sensemaking CLI was `1.0.0rc3` and lacked the semantic knowledge commands. The
+exact pinned `uv tool run --from ...@76742d4...` exposed them. Its current-main
+index contained 749 claims and 710 relationships (digest
+`a3c3cca4c2bf28f3a7028dec6393ee74e5a6b55c89cad92b8dc4e55ff05dbb44`).
+Queries recovered the Book re-entry and Studio Chapter-view architecture, but
+did not recover the October 15 F2/X3 qualification outcome. A literal search
+for the 1,412-word Chapter 2 result returned no claims.
+
+The missing result was an **engineering-history coverage gap**, not evidence
+against the archived run. At the indexed `be212c7` tree, `engineering-history.json`
+recorded a historical STATUS date and source-level Book behavior but had no
+claim linked to the fixture-complete report. The report was available on open
+PR #437, outside the exact `main` snapshot used by the earlier f77-based
+RECALL. The prior agent checked architecture claims and source files but did
+not inspect #437's qualification record. The index is a queryable projection
+of authored claims and their sources, not a repository-wide search of every
+qualification report. When qualification history could change the next
+responsibility, RECALL must inspect the relevant issue/PR evidence and the
+engineering-history records, then reconcile durable outcomes into those
+records.
+
+The October 15 reconstruction already answered the narrow C2 length question:
+it restored the exact recorded C1 prose, prepared a fresh C2 request from a
+fixture-complete disposable project, and produced a 1,412-word C2. C3–C6
+proceeded under explicit simulated-test-author decisions; six accepted outputs
+matched candidate hashes after a fresh process load. This is bounded
+simulated-author F2 and API/file X3 persistence evidence. It is **not** recovery
+of the original Windows project, human creative judgment, Browser UX, or
+product-readiness qualification. Repeating C2 solely to test length would not
+materially improve the current evidence.
+
+PR #439 is now merged at `bb9c102d6cc4e9473ca7cffc5253ed72361ef37a` and is an
+ancestor of `be212c7`. In a new Chromium run against a disposable copy of the
+complete reconstructed Book, current main restored the Book view, opened the
+accepted Chapter 2 manuscript, exposed `Plan Chapter 3` without an acceptance
+action, returned to the Book graph, and restored Book orientation on ordinary
+Studio re-entry. The 89 story files retained their hashes and there were no
+page errors. This checks bounded Browser behavior; human comprehension,
+preference, and usability remain unqualified.
+
+**Knowledge reconciliation:** add source-linked engineering-history records
+for the reconstructed F2/persistence result, the current-main Browser result,
+and the discoverability gap above. Keep historical simulated evidence and
+current integrated code distinct. Do not alter product code or the original
+Windows evidence. The next useful product evidence is a human-author walkthrough
+of Book re-entry, manuscript review, and continued writing; this environment
+cannot establish human UX.
+
 ## Historical first-visit baseline — 2026-10-18
 
 Created a focused, deliberately cross-layer authored semantic proposal:
