@@ -63,7 +63,6 @@ def response(status, data=None):
     ).model_dump()
 
 
-
 def test_architecture_request_carries_source_grounded_ontology_not_hidden_author_choices(tmp_path):
     store = working_store(tmp_path)
     waiting = prepare_architecture(store)
@@ -95,7 +94,6 @@ def test_architecture_request_carries_source_grounded_ontology_not_hidden_author
 
 def test_accepted_story_preferences_and_target_experience_are_grounded(tmp_path):
     from auteur.identity import StoryIdentity
-    from auteur.narrative_ontology.architecture_preferences import NarrativeArchitecturePreferences
 
     store = working_store(tmp_path)
     identity = StoryIdentity.model_validate({

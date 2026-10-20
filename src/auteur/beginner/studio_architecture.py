@@ -252,15 +252,50 @@ def _source(store: CanvasStore, *, previous: dict | None = None) -> dict:
 # The source documents/models remain authoritative; this is generation context,
 # not a competing ontology or a set of author-declared preferences.
 _DESIGN_PRINCIPLES = (
-    ("docs/narrative-architecture.md", "Ontology defines concept meaning; Identity owns accepted commitments, Structure owns plans, and Realization owns concrete events. Working Studio graphs never accept those commitments."),
-    ("src/auteur/narrative_ontology/architecture_preferences.py", "Complexity, causal distribution and engine hierarchy are independent composition choices. Do not infer a declared value from another dimension or from the presence of many nodes."),
-    ("docs/plans/story-discovery-intent-aware-architecture.md", "Identify a governing causal engine, causal ownership, protagonist/actor action patterns, pressures, reversals and payoff mechanics. Place compatible subordinate engines under a legible hierarchy instead of treating all mechanisms as equally central."),
-    ("docs/plans/story-discovery-intent-aware-architecture.md", "Explain craft propagation: causal strategy and ownership -> action/scene families and pressure -> story texture and aesthetics -> reader experience -> thematic implications. Prefer causal interaction over rhetorical variations or decorative links."),
-    ("docs/adr/008-rich-target-experience.md", "Distinguish the governing emotional promise, supporting/contrasting palette, avoided experience and macro trajectory; do not reduce rich TargetExperience to three basic-emotion labels."),
-    ("data/ontology/base_ontology.yaml", "Use typed narrative relationships and their functions: e.g. conflict drives arcs, setups lead to payoffs, themes manifest through narrative change. Abstract Studio nodes are not concrete character, scene or beat instances."),
-    ("docs/PRD.md", "Explain why the particular genre, trope, structure, aesthetic and emotional components affect each other. A flat label list is not enough; preserve unsupported dimensions as unknown."),
+    (
+        "docs/narrative-architecture.md",
+        "Ontology defines concept meaning; Identity owns accepted commitments, "
+        "Structure owns plans, and Realization owns concrete events. "
+        "Working Studio graphs never accept those commitments.",
+    ),
+    (
+        "src/auteur/narrative_ontology/architecture_preferences.py",
+        "Complexity, causal distribution and engine hierarchy are independent "
+        "composition choices. Do not infer a declared value from another "
+        "dimension or from the presence of many nodes.",
+    ),
+    (
+        "docs/plans/story-discovery-intent-aware-architecture.md",
+        "Identify a governing causal engine, causal ownership, actor action patterns, "
+        "pressures, reversals and payoff mechanics. Place compatible subordinate "
+        "engines under a legible hierarchy instead of treating all mechanisms "
+        "as equally central.",
+    ),
+    (
+        "docs/plans/story-discovery-intent-aware-architecture.md",
+        "Explain craft propagation: causal strategy and ownership -> action/scene "
+        "families and pressure -> texture and aesthetics -> reader experience -> "
+        "thematic implications. Prefer causal interactions over decorative links.",
+    ),
+    (
+        "docs/adr/008-rich-target-experience.md",
+        "Distinguish the governing emotional promise, supporting/contrasting palette, "
+        "avoided experience and macro trajectory. Rich TargetExperience is not "
+        "equivalent to a count of basic-emotion labels.",
+    ),
+    (
+        "data/ontology/base_ontology.yaml",
+        "Use typed narrative relationships and their functions: conflict drives "
+        "arcs, setups lead to payoffs, themes manifest through narrative change. "
+        "Abstract Studio nodes are not concrete character, scene or beat instances.",
+    ),
+    (
+        "docs/PRD.md",
+        "Explain why this story's genre, trope, structure, aesthetic and emotional "
+        "components affect each other. A flat label list is not enough; "
+        "preserve unsupported dimensions as unknown.",
+    ),
 )
-
 
 def _accepted_story_design_context(store: CanvasStore) -> dict | None:
     """Read a project's accepted Identity only, never a guessed author preference."""

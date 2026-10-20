@@ -244,6 +244,7 @@ include this design context, so changed accepted Identity makes pending response
 stale. Older pre-context requests retain their original fingerprint treatment.
 This is a context-delivery repair, not a schema-v3/ontology/automatic-acceptance
 change or an assertion of improved story quality.
+
 This is an operational handoff contract, **not** a claim of live-provider,
 real-browser, or human-usability qualification.
 
