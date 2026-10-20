@@ -183,6 +183,8 @@ def test_no_premise_host_agent_proposal_reopen_and_no_canon(tmp_path):
     assert waiting["status"] == "awaiting_host_agent"
     assert waiting["request"]["role"] == "studio_architecture"
     assert "awe" in waiting["request"]["user"].lower()
+    assert "coherent, revisable provisional defaults" in waiting["request"]["system"]
+    assert "Reserve open_questions for genuinely authorial preferences" in waiting["request"]["system"]
     ready = complete_architecture(store, response(waiting))
     assert ready["status"] == "ready"
     assert len(ready["candidate"]["nodes"]) == 2

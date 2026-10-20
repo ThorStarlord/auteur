@@ -298,9 +298,10 @@
       edit.hidden=true;edit.replaceChildren();
       edit.dataset.workingItemId='';edit.dataset.workingCanvasId='';
       var active=s.workspace==='architecture'&&s.view==='architecture'&&s.architectureFacet==='overview';
+      var hasProposedArchitecture=!!(s.architecture&&Array.isArray(s.architecture.nodes)&&s.architecture.nodes.length);
       start.hidden=!active;host.hidden=true;explain.hidden=true;
       if(!active)return;
-      if(!focusIsValid(s)){start.hidden=false;return;}
+      if(!focusIsValid(s)){start.hidden=hasProposedArchitecture;return;}
       start.hidden=true;host.hidden=false;positionLocalFocus(host,s.unfoldingFocus);
       ghosts.replaceChildren();explain.replaceChildren();
       var target=s.unfoldingFocus.kind==='candidate'?(s.architecture.nodes||[]).find(n=>n.id===s.unfoldingFocus.id):

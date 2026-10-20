@@ -233,6 +233,7 @@ the prompt, and submit an exact response. Current paths:
 The agent should prefer a small readable architecture over 80 decorative nodes,
 retain stable IDs on revision, and use Book/arc/chapter scopes and focused
 neighborhoods rather than packing an entire long-running series onto one screen.
+<<<<<<< HEAD
 
 **Generation-context repair (2026-10-20):** The request now includes bounded
 source-referenced principles from the existing Ontology, Phase F causal-composition
@@ -245,6 +246,12 @@ stale. Older pre-context requests retain their original fingerprint treatment.
 This is a context-delivery repair, not a schema-v3/ontology/automatic-acceptance
 change or an assertion of improved story quality.
 
+=======
+Resolve story-mechanics questions as explicit, revisable defaults when the
+Story Vision supports them. Keep `open_questions` for authorial choices and
+uncertainties that cannot responsibly be inferred; they are invitations, not a
+questionnaire or a gate on developing the proposal.
+>>>>>>> 8d4db52 (feat(studio): improve agent-first architecture graph)
 This is an operational handoff contract, **not** a claim of live-provider,
 real-browser, or human-usability qualification.
 
