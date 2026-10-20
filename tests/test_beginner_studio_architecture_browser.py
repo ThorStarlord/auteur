@@ -54,3 +54,15 @@ def test_long_story_focus_is_reversible_and_does_not_mutate_story_authority():
     assert "edge.source === center" in js
     assert "node.parent_id === center" in js
     assert "render(); fit(); rememberFocus();" in js
+
+
+def test_parallel_genre_interactions_have_distinct_directed_graph_paths():
+    js = (BROWSER / "studio.js").read_text(encoding="utf-8")
+    assert 'createElementNS(svgNS, "path")' in js
+    assert 'setAttribute("marker-end", "url(#architecture-genre-arrow)")' in js
+    assert 'data-genre-interaction-id' in js
+    assert "var pair = genreInteractions.filter" in js
+    assert "var canonicalFrom = edge.source_genre_id < edge.target_genre_id ? from : to;" in js
+    assert "pairIndex - (pair.length - 1) / 2" in js
+    assert "genreInteractionCurveGeometry(from, to, canonicalFrom, canonicalTo, offset)" in js
+    assert 'text.setAttribute("x", String(curve.control.x));' in js
