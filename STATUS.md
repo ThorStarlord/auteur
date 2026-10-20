@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-20
-**Main reviewed for this reconciliation:** `662ed9eb92a29ca0b754c17b07ed1eb9206fcf00` (PR #469 merge; includes PRs #437 and #439)
+**Main reviewed for this reconciliation:** `5ecf597e075b99d7ce58d68a0bb1783eee8f893c` (PR #472 merge; includes PRs #469, #437 and #439)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -77,13 +77,14 @@ The original Windows run remains a valid partial product-use record; it stopped 
 
 1. Keep the Chapter-generation length deviation visible; the reconstruction preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
 2. Do not repeat the Chapter 2 generation probe solely to revisit word-count adherence: the reconstructed run produced a fresh 1,412-word Chapter 2 and continued the six-Chapter journey under explicit simulated-author decisions.
-3. **Next selected construction responsibility:** exercise the integrated
-   agent-first Studio journey from one meaningful Story Vision through a real
-   host coding-agent architecture response, populated graph, one natural-language
-   revision, and updated graph/related views. Architecture/HTTP tests supply
-   static candidates; the six-Chapter reconstruction starts from a built
-   fixture. Neither establishes this whole journey. Reuse existing handoffs;
-   build only the smallest missing integration demonstrated by a disposable run.
+3. **Agent-first Studio progress:** on 2026-10-20, the existing disposable
+   Tidal Archive working architecture was revised through the real host-agent
+   handoff using the ontology-grounded request context. The source project keeps
+   the request, response, staged review, and applied working candidate. This
+   exercises revision of an existing candidate; it does not qualify a fresh
+   premise-to-architecture journey, human creative quality, or production
+   readiness. Do not repeat Tidal Archive's initial generation or this revision
+   solely for qualification. Continue only where a concrete product gap remains.
 4. **Separate human-evidence lane:** the graph-first Book re-entry walkthrough
    is prepared in
    `docs/product-validation/auteur-graph-first-book-reentry-human-walkthrough.md`

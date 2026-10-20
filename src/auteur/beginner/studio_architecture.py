@@ -603,7 +603,9 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
             if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
-                raise BeginnerConcurrencyError("story vision or design context changed; review again")
+                raise BeginnerConcurrencyError(
+                    "working context changed: story vision or design context changed; review again"
+                )
             _atomic_json_write(_root(store) / "current.json", {
                 "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
                 "candidate": review["candidate"],
