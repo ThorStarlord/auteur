@@ -111,6 +111,26 @@ A useful restatement is:
 
 > **The author decides the story. Auteur manages the machinery required to realize, remember, and revise those decisions.**
 
+**SELECTED EXPERIENCE DIRECTION — creative authority is not manual assembly.**
+The author supplies initial intent and may direct revisions in ordinary story
+language; the active coding agent develops, connects and revises a rich working
+Narrative Architecture, while Studio projects the resulting graph and relevant
+views. Editing nodes, edges or layout by hand remains optional rather than a
+default responsibility imposed on beginners. Narrative Architecture mechanisms
+and concrete Story Realization remain distinct internal responsibilities, but
+the author should not need to orchestrate their handoffs or manually apply a
+creative instruction to each affected component. Generated candidates stay
+noncanonical until an explicit existing-owner acceptance action.
+
+**Product-direction versus evidence boundary:** Agent-first generation and
+natural-language architecture revision are selected interaction requirements.
+Static-candidate integration tests and a separate six-Chapter fixture journey
+do not prove their complete live-host-agent, one-vision-to-updated-graph flow.
+Missing human usability evidence limits claims about author comprehension or
+preference, but does not by itself select a human study ahead of reversible
+construction of this already-chosen interaction. Select the next responsibility
+by the decision-changing capability gap, not the nearest unqualified claim.
+
 ## 2.3 The freedom / authority relationship
 
 Creative freedom and strict authority are not opposites.
