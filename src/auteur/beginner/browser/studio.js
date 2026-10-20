@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "architecture", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null };
+  var state = { items: [], connections: [], positions: {}, selected: null, selectedDerived: null, derived: null, derivedPositions: {}, view: "architecture", focusGroup: "", panX: 0, panY: 0, zoom: 1, serial: 0, undo: null, focusRestored: false };
   // Local, noncanonical working document: server is the persistence owner.
   var remote = { canvasId: null, revision: 0, ready: false, failed: false, queue: Promise.resolve(), timer: null, savedSnapshot: null };
   state.deleted = {};
@@ -88,7 +88,7 @@
     catch (error) { status("Previous focus unavailable; working canvas remains safe: " + error.message); return null; }
     if (!saved) return null;
     state.focusGroup = typeof saved.group === "string" ? saved.group : "";
-    state.view = ["create", "realization_candidates", "relationships", "all", "architecture", "genre_timeline"].includes(saved.view) ? saved.view : "create";
+    state.view = ["create", "realization_candidates", "relationships", "all", "architecture", "genre_timeline", "book"].includes(saved.view) ? saved.view : "create";
     state.selectedCandidate = saved.candidate || null;
     state.selectedRealization = saved.realization || null;
     state.workspace = saved.workspace === "architecture" || ["architecture", "genre_timeline"].includes(state.view)
@@ -105,7 +105,7 @@
     state.fullArchitectureGenre = typeof saved.fullGenre === "string" ? saved.fullGenre : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
-    if (state.workspace === "architecture") state.view = state.architectureFacet === "timeline"
+    if (state.workspace === "architecture" && state.view !== "book") state.view = state.architectureFacet === "timeline"
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
     state.lastWorkingSelection = state.selected;
@@ -486,6 +486,7 @@
     state.deleted = doc.deleted || {}; showRecoveryAction();
     remote.savedSnapshot = JSON.stringify(snapshot());
     var focus = restoreFocus();
+    state.focusRestored = !!focus;
     if (!focus) $("layer-view").value = state.view;
     state.lastWorkingSelection = state.selected;
     if (visionItem() && visionItem().content.trim()) $("vision-disclosure").open = false;
@@ -597,21 +598,28 @@
         remote.failed = true;
         status("Invalid canvas link. Return to Studio Home or use New canvas."); return;
       }
-      activateCanvas(canvas); return;
+      activateCanvas(canvas).then(function () { restoreBookOrientation(true); }); return;
     }
     // Bare /studio.html reopens recent work instead of silently making a new
     // empty canvas every time the author returns from Home.
     listCanvasChoices().then(function (canvases) {
       var recent = canvases.find(function (entry) { return entry.state === "ready"; });
-      if (recent) activateCanvas(recent.canvas_id);
+      if (recent) activateCanvas(recent.canvas_id).then(function () { restoreBookOrientation(false); });
       else if (canvases.length) {
         remote.failed = true;
         status("Saved canvases need recovery. No new canvas was silently created. Choose New canvas to start fresh.");
-      } else activateCanvas(id("canvas"));
+      } else activateCanvas(id("canvas")).then(function () { restoreBookOrientation(false); });
     }).catch(function (error) {
       remote.failed = true;
       status("Cannot check existing canvases: " + error.message + ". No new canvas was created.");
     });
+  }
+  function restoreBookOrientation(preserveSavedFocus) {
+    fetch("/api/beginner/book/progress").then(apiJson).then(function (book) {
+      if (!(book.discovered_chapters || book.accepted_chapters || book.planned_chapters)) return;
+      if (preserveSavedFocus && state.focusRestored && state.view !== "book") return;
+      loadBook();
+    }).catch(function () { /* New or unavailable Book keeps the graph-first canvas. */ });
   }
   function restoreDeleted() {
     if (!remote.ready || remote.failed) return;
@@ -896,10 +904,15 @@
       for (var i = 1; i <= visible; i++) {
         var id = "book:chapter:" + i;
         var current = i === book.current_chapter;
+        var acceptedRef = (book.accepted_chapter_refs || []).find(function (ref) {
+          return new RegExp("^chapters/0*" + i + "/final\\.md$").test(ref);
+        });
+        var chapterRef = acceptedRef || "chapters/" + String(i).padStart(2, "0") + "/";
+        var chapterState = current ? book.current_chapter_state : (acceptedRef ? "Kept" : "Working");
         state.derived.nodes.push({ id: id, kind: "chapter", title: "Chapter " + i,
           detail: current ? book.orientation_reason : "Chapter-order orientation only; inspect accepted history before making changes.",
-          authority: "DERIVED / NOT CANON", source_ref: "book progress, Chapter " + i,
-          status: current ? book.current_chapter_state + " · current" : "position only",
+          authority: "DERIVED / NOT CANON", source_ref: chapterRef,
+          status: chapterState + (current ? " · current" : ""),
           impact_role: current ? "source" : "affected" });
         state.derivedPositions[id] = { x: 115 + ((i - 1) % 4) * 195, y: 90 + Math.floor((i - 1) / 4) * 120 };
         if (i > 1) state.derived.edges.push({ id: "chapter-order:" + (i - 1) + ":" + i,
@@ -907,12 +920,14 @@
           authority: "DERIVED / NOT CANON", source_ref: "book progress" });
       }
       $("book-heading").textContent = "Chapter " + book.current_chapter + " · " + book.current_chapter_state;
+      $("book-open-chapter").hidden = true;
       $("book-next-action").textContent = "Next: " + (book.next_story_action || "Continue writing");
       fillBookList("book-recent", book.recent_changes, "Nothing established yet.");
       fillBookList("book-pending", book.pending_updates, "No pending updates.");
       fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
       $("book-orientation").hidden = false;
       if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
+      state.workspace = "realization";
       state.view = "book"; state.selected = null; state.selectedDerived = null;
       $("layer-view").value = "book";
       render();
@@ -965,6 +980,10 @@
   function chooseDerived(nodeId) {
     if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
     state.selected = null; state.selectedDerived = nodeId; state.selectedCandidate = null;
+    var chapterButton = $("book-open-chapter");
+    var selectedNode = state.derived && state.derived.nodes.find(function (node) { return node.id === nodeId; });
+    chapterButton.hidden = !(state.view === "book" && selectedNode && selectedNode.kind === "chapter");
+    if (!chapterButton.hidden) chapterButton.textContent = "Open " + selectedNode.title + " · " + selectedNode.status.split(" · ")[0];
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (button) {
       button.setAttribute("aria-pressed", String(button.dataset.itemId === nodeId));
     });
@@ -1224,7 +1243,7 @@
     }
     var item = state.workspace === "realization" ? selected() : null;
     if (item && !visibleWorking(item)) item = null;
-    $("inspector-empty").hidden = !!item;
+    $("inspector-empty").hidden = !!item || state.view === "book";
     $("inspector-fields").hidden = !item;
     $("inspector-empty").textContent = state.workspace === "architecture"
       ? (state.view === "genre_timeline" ? "Explore a phase in the timeline." :
@@ -1830,9 +1849,9 @@
     var host = $("nodes"); host.replaceChildren();
     var awaitingArchitecture = state.view === "architecture" &&
       (!state.architecture || !state.architecture.nodes.length);
-    $("empty-state").hidden = state.view === "architecture" ?
+    $("empty-state").hidden = state.view === "book" || (state.view === "architecture" ?
       (state.architectureFacet === "overview" || !awaitingArchitecture) :
-      state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization);
+      state.items.length > 0 || (state.view === "realization_candidates" && !!state.realization));
     $("empty-state").querySelector("h1").textContent = designing
       ? "Explore your narrative architecture" : "What story do you want to tell?";
     $("empty-state").querySelector("p").textContent = designing
@@ -2385,6 +2404,12 @@
   $("show-evidence").addEventListener("click", loadEvidence);
   $("relationship-chapter").addEventListener("change", function () { render(); status(this.value ? "Showing relationships with recorded changes in " + this.value + ". Current relation values are not historical snapshots." : "Showing all declared relationships."); });
   $("show-book").addEventListener("click", loadBook);
+  $("book-open-chapter").addEventListener("click", function () {
+    var node = state.derived && state.derived.nodes.find(function (entry) { return entry.id === state.selectedDerived; });
+    var match = node && node.kind === "chapter" && /^book:chapter:([1-9][0-9]*)$/.exec(node.id);
+    if (!match) return;
+    window.location.assign("/beginner.html?chapter=" + encodeURIComponent(match[1]));
+  });
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
     state.view = this.value;

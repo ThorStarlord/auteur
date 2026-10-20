@@ -1,0 +1,456 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "id": "cap:noncanonical-working-canvas",
+      "kind": "capability",
+      "statement": "Auteur provides a locally persisted graph-like working canvas distinct from accepted StoryIdentity.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/studio_store.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:1"
+      ]
+    },
+    {
+      "id": "comp:canvas-store",
+      "kind": "component",
+      "statement": "CanvasStore stores revisioned noncanonical canvas documents under .auteur/beginner/studio/canvases.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/studio_store.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:137"
+      ]
+    },
+    {
+      "id": "comp:studio-browser",
+      "kind": "component",
+      "statement": "Studio browser manages working items, connections and local focus state, and posts working document saves.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/browser/studio.js",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:3"
+      ]
+    },
+    {
+      "id": "comp:beginner-http",
+      "kind": "component",
+      "statement": "Beginner server exposes read-only Book progress and Studio canvas HTTP endpoints.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/server.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/server.py:line:500"
+      ]
+    },
+    {
+      "id": "cap:book-reentry-orientation",
+      "kind": "capability",
+      "statement": "Book re-entry projects current Chapter, Working/Kept state, recent accepted changes, pending updates and next story action.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_orientation.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:24"
+      ]
+    },
+    {
+      "id": "comp:book-orientation",
+      "kind": "component",
+      "statement": "project_book_orientation reads accepted finals, detects newer working drafts, and determines next Chapter without modifying project bytes.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_orientation.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:156"
+      ]
+    },
+    {
+      "id": "comp:book-progress",
+      "kind": "component",
+      "statement": "project_book_progress composes read-only orientation with planned/discovered/accepted counts and publication preflight.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_progress.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:35"
+      ]
+    },
+    {
+      "id": "cap:book-studio-view",
+      "kind": "capability",
+      "statement": "The graph-first Studio provides a read-only Book Chapter view and routes Chapter opening into the existing Beginner review interface.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/browser/studio.js",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:895"
+      ]
+    },
+    {
+      "id": "inv:book-progress-not-canon",
+      "kind": "invariant",
+      "statement": "Book progress and derived Studio orientation cannot accept, reconcile or publish canonical Book content.",
+      "epistemic_status": "declared",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_progress.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:1"
+      ]
+    },
+    {
+      "id": "inv:working-vs-kept",
+      "kind": "invariant",
+      "statement": "A newer Working Chapter revision does not erase its accepted final; the re-entry projection represents it as Working.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_orientation.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:158"
+      ]
+    },
+    {
+      "id": "inv:book-plan-not-discovery",
+      "kind": "invariant",
+      "statement": "Discovered Chapter folders do not establish the authoritative planned Chapter count or Book completion.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_progress.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:44"
+      ]
+    },
+    {
+      "id": "inv:canvas-revision-check",
+      "kind": "invariant",
+      "statement": "CanvasStore enforces expected revision on commands and rejects mismatched current state.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/studio_store.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:170"
+      ]
+    },
+    {
+      "id": "verification:book-progress-tests",
+      "kind": "verification",
+      "statement": "Source tests assert read-only Book orientation, planned counts, Working/Kept revisions and immutable accepted chapter bytes; test execution not verified here.",
+      "epistemic_status": "observed",
+      "authority_kind": "test",
+      "authority_ref": "tests/test_beginner_book_progress.py",
+      "evidence_refs": [
+        "file:tests/test_beginner_book_progress.py:line:1"
+      ]
+    },
+    {
+      "id": "verification:studio-book-tests",
+      "kind": "verification",
+      "statement": "Source tests assert Book view uses progress projection and opens Chapter via existing Beginner review route; test execution not verified here.",
+      "epistemic_status": "observed",
+      "authority_kind": "test",
+      "authority_ref": "tests/test_beginner_studio_book_view.py",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_book_view.py:line:7"
+      ]
+    },
+    {
+      "id": "verification:studio-reentry-tests",
+      "kind": "verification",
+      "statement": "Source tests cover recent canvas recovery, unavailable canvas reporting and no new canvas created by listing; test execution not verified here.",
+      "epistemic_status": "observed",
+      "authority_kind": "test",
+      "authority_ref": "tests/test_beginner_studio_reentry.py",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_reentry.py:line:10"
+      ]
+    },
+    {
+      "id": "verification:studio-authority-http-tests",
+      "kind": "verification",
+      "statement": "Source tests exercise local HTTP Studio and Quick Draft staging without StoryIdentity creation; test execution not verified here.",
+      "epistemic_status": "observed",
+      "authority_kind": "test",
+      "authority_ref": "tests/test_beginner_studio_authority_integration.py",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_authority_integration.py:line:17"
+      ]
+    },
+    {
+      "id": "inv:book-expression-vs-kept-history",
+      "kind": "invariant",
+      "statement": "An accepted Book Expression assembled from accepted Chapter Expressions does not itself create kept Chapter final.md history; Book re-entry counts kept chapters from chapters/<n>/final.md independently of the accepted Book Expression.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/book_progress.py",
+      "evidence_refs": [
+        "file:src/auteur/expression/book.py:line:75",
+        "file:src/auteur/beginner/book_progress.py:line:49",
+        "file:tests/test_beginner_book_progress.py:line:144"
+      ]
+    },
+    {
+      "id": "cap:chapter-host-agent-handoff",
+      "kind": "capability",
+      "statement": "Chapter-N generation implements a neutral prepare/complete host-agent request/response handoff, verifying request identity and current story-source fingerprint before persisting a new Working draft. This code path does not prove a usable host runtime is configured in a given session.",
+      "epistemic_status": "observed",
+      "authority_kind": "code",
+      "authority_ref": "src/auteur/beginner/chapter_generation.py",
+      "evidence_refs": [
+        "file:src/auteur/beginner/chapter_generation.py:line:166",
+        "file:src/auteur/beginner/chapter_generation.py:line:275",
+        "file:src/auteur/beginner/chapter_generation.py:line:293",
+        "file:src/auteur/host_agent.py:line:1"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:working-canvas-store",
+      "subject": "cap:noncanonical-working-canvas",
+      "predicate": "implemented_by",
+      "object": "comp:canvas-store",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:137"
+      ]
+    },
+    {
+      "id": "rel:working-canvas-browser",
+      "subject": "cap:noncanonical-working-canvas",
+      "predicate": "implemented_by",
+      "object": "comp:studio-browser",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:38"
+      ]
+    },
+    {
+      "id": "rel:canvas-authority",
+      "subject": "cap:noncanonical-working-canvas",
+      "predicate": "constrained_by",
+      "object": "inv:explicit-story-authority",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:1"
+      ]
+    },
+    {
+      "id": "rel:canvas-revisions",
+      "subject": "comp:canvas-store",
+      "predicate": "constrained_by",
+      "object": "inv:canvas-revision-check",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/studio_store.py:line:198"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-owner",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "implemented_by",
+      "object": "comp:book-orientation",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:156"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-progress",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "implemented_by",
+      "object": "comp:book-progress",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:48"
+      ]
+    },
+    {
+      "id": "rel:book-view-browser",
+      "subject": "cap:book-studio-view",
+      "predicate": "implemented_by",
+      "object": "comp:studio-browser",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/browser/studio.js:line:895"
+      ]
+    },
+    {
+      "id": "rel:book-view-server",
+      "subject": "cap:book-studio-view",
+      "predicate": "implemented_by",
+      "object": "comp:beginner-http",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/server.py:line:500"
+      ]
+    },
+    {
+      "id": "rel:book-progress-reuses-orientation",
+      "subject": "comp:book-progress",
+      "predicate": "depends_on",
+      "object": "comp:book-orientation",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:48"
+      ]
+    },
+    {
+      "id": "rel:book-progress-derived",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "constrained_by",
+      "object": "inv:book-progress-not-canon",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:32"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-working",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "constrained_by",
+      "object": "inv:working-vs-kept",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:158"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-plan",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "constrained_by",
+      "object": "inv:book-plan-not-discovery",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:44"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-verify",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "tested_by",
+      "object": "verification:book-progress-tests",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_book_progress.py:line:1"
+      ]
+    },
+    {
+      "id": "rel:book-view-verify",
+      "subject": "cap:book-studio-view",
+      "predicate": "tested_by",
+      "object": "verification:studio-book-tests",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_book_view.py:line:7"
+      ]
+    },
+    {
+      "id": "rel:studio-reentry-verify",
+      "subject": "cap:noncanonical-working-canvas",
+      "predicate": "tested_by",
+      "object": "verification:studio-reentry-tests",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_reentry.py:line:10"
+      ]
+    },
+    {
+      "id": "rel:studio-authority-verify",
+      "subject": "cap:noncanonical-working-canvas",
+      "predicate": "tested_by",
+      "object": "verification:studio-authority-http-tests",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_studio_authority_integration.py:line:17"
+      ]
+    },
+    {
+      "id": "rel:studio-author-no-autoaccept",
+      "subject": "cap:book-studio-view",
+      "predicate": "constrained_by",
+      "object": "non-goal:auto-accept",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:MISSION.md:line:35"
+      ]
+    },
+    {
+      "id": "rel:book-progress-expression-boundary",
+      "subject": "comp:book-progress",
+      "predicate": "constrained_by",
+      "object": "inv:book-expression-vs-kept-history",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_progress.py:line:49",
+        "file:tests/test_beginner_book_progress.py:line:144"
+      ]
+    },
+    {
+      "id": "rel:reentry-expression-boundary",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "constrained_by",
+      "object": "inv:book-expression-vs-kept-history",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:src/auteur/beginner/book_orientation.py:line:87",
+        "file:src/auteur/beginner/book_progress.py:line:49"
+      ]
+    },
+    {
+      "id": "rel:book-expression-boundary-tested",
+      "subject": "inv:book-expression-vs-kept-history",
+      "predicate": "tested_by",
+      "object": "verification:book-progress-tests",
+      "epistemic_status": "observed",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:tests/test_beginner_book_progress.py:line:144"
+      ]
+    },
+    {
+      "id": "rel:chapter-handoff-adr",
+      "subject": "cap:chapter-host-agent-handoff",
+      "predicate": "decided_by",
+      "object": "decision:host-agent-first-generation",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:22",
+        "file:src/auteur/beginner/chapter_generation.py:line:166"
+      ]
+    },
+    {
+      "id": "rel:chapter-handoff-authority",
+      "subject": "cap:chapter-host-agent-handoff",
+      "predicate": "constrained_by",
+      "object": "contract:canon-derived-working",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:53",
+        "file:src/auteur/beginner/chapter_generation.py:line:326"
+      ]
+    }
+  ]
+}

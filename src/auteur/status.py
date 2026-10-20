@@ -322,11 +322,16 @@ def gather_status(project_root: Path) -> dict[str, Any]:
     # Blueprint
     bp_data = _read_yaml(root / "blueprint.yaml")
     bp_lines = 0
+    planned_chapters = 0
     if bp_data:
-        bp_lines = len(bp_data.get("chapters", bp_data.get("structure", {}).get("chapters", [])))
+        chapter_plan = bp_data.get("chapters", bp_data.get("structure", {}).get("chapters", []))
+        bp_lines = chapter_plan if type(chapter_plan) is int else len(chapter_plan)
+        structure_plan = (bp_data.get("structure") or {}).get("estimated_chapters", 0)
+        planned_chapters = bp_lines or (structure_plan if type(structure_plan) is int else 0)
     blueprint_status: dict[str, Any] = {"status": "present" if bp_data else "missing"}
     if bp_data:
         blueprint_status["chapters"] = bp_lines
+        blueprint_status["planned_chapters"] = planned_chapters
 
     # Structure
     diag_dir = root / "structure" / "diagnostics"

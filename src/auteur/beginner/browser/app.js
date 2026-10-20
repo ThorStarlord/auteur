@@ -2258,6 +2258,13 @@
       loadProjection();
       loadPostDraftReview();
       loadBookProgress();
+    } else if (currentChapterFromQuery()) {
+      // A source-bound Studio Chapter link can open read-only review without
+      // inventing a Beginner workspace identity for the existing Book.
+      showWorkspace();
+      $("decision-card").hidden = true;
+      loadPostDraftReview();
+      loadBookProgress();
     } else {
       showHome();
       loadRecentStories();

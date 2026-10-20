@@ -41,10 +41,11 @@ def project_book_progress(project_root: Path) -> BookProgressProjection:
     book = status.get("book") or {}
     reconciliation = status.get("reconciliation") or {}
 
-    planned_chapters = int(blueprint.get("chapters") or len(chapters) or 0)
-    orientation = project_book_orientation(
-        root, planned_chapters=int(blueprint.get("chapters") or 0),
-    )
+    # An accepted manuscript folder proves that a Chapter exists, not that it
+    # is the final Chapter in the author's plan. Completion needs an explicit
+    # planned count from the blueprint; discovered count remains separate.
+    planned_chapters = int(blueprint.get("planned_chapters") or blueprint.get("chapters") or 0)
+    orientation = project_book_orientation(root, planned_chapters=planned_chapters)
     accepted_chapters = len(orientation.accepted_chapter_refs)
 
     publication_ready = False

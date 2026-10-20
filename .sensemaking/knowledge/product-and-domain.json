@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "claims": [
+    {
+      "id": "goal:author-controlled-literary-compiler",
+      "kind": "goal",
+      "statement": "Auteur is a local-first literary compiler for long-form fiction; the author's choices govern canonical story state.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "MISSION.md",
+      "evidence_refs": [
+        "file:MISSION.md:line:7"
+      ]
+    },
+    {
+      "id": "non-goal:auto-accept",
+      "kind": "non_goal",
+      "statement": "Automatic canonical acceptance of recommendations is explicitly excluded.",
+      "epistemic_status": "declared",
+      "authority_kind": "policy",
+      "authority_ref": "MISSION.md",
+      "evidence_refs": [
+        "file:MISSION.md:line:35"
+      ]
+    },
+    {
+      "id": "non-goal:cloud-multi-author",
+      "kind": "non_goal",
+      "statement": "Cloud and multi-author collaboration are outside Auteur's declared scope.",
+      "epistemic_status": "declared",
+      "authority_kind": "policy",
+      "authority_ref": "MISSION.md",
+      "evidence_refs": [
+        "file:MISSION.md:line:36"
+      ]
+    },
+    {
+      "id": "inv:explicit-story-authority",
+      "kind": "invariant",
+      "statement": "Modifying StoryIdentity requires explicit author action, atomic persistence, provenance and preservation on failure.",
+      "epistemic_status": "declared",
+      "authority_kind": "policy",
+      "authority_ref": "MISSION.md",
+      "evidence_refs": [
+        "file:MISSION.md:line:50"
+      ]
+    },
+    {
+      "id": "inv:no-author-data-loss",
+      "kind": "invariant",
+      "statement": "Failed writes must preserve prior author state.",
+      "epistemic_status": "declared",
+      "authority_kind": "policy",
+      "authority_ref": "MISSION.md",
+      "evidence_refs": [
+        "file:MISSION.md:line:54"
+      ]
+    },
+    {
+      "id": "concept:ontology-layer",
+      "kind": "domain_concept",
+      "statement": "Narrative Ontology describes concepts, relationships, vocabulary and domain rules, not authorial commitments.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:10"
+      ]
+    },
+    {
+      "id": "concept:identity-layer",
+      "kind": "domain_concept",
+      "statement": "Narrative Identity owns accepted commitments such as genre, target experience, theme and story engine.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:12"
+      ]
+    },
+    {
+      "id": "concept:structure-layer",
+      "kind": "domain_concept",
+      "statement": "Narrative Structure owns plans, threads, arcs, beats and chapter intentions, not realized events or prose.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:14"
+      ]
+    },
+    {
+      "id": "concept:realization-layer",
+      "kind": "domain_concept",
+      "statement": "Narrative Realization owns concrete events and state changes, not prose rendering.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:15"
+      ]
+    },
+    {
+      "id": "concept:expression-layer",
+      "kind": "domain_concept",
+      "statement": "Narrative Expression owns prose, dialogue, voice, imagery and revision at the language layer.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:16"
+      ]
+    },
+    {
+      "id": "concept:scope-axis",
+      "kind": "domain_concept",
+      "statement": "Universe, Series, Book, Chapter and Scene are independent scopes, not additional semantic layers.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:20"
+      ]
+    },
+    {
+      "id": "contract:canon-derived-working",
+      "kind": "contract",
+      "statement": "Accepted artifacts may be canonical; compiled graphs, diagnostics and session state are derived, and working proposals do not silently become accepted sources.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/narrative-architecture.md",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:68"
+      ]
+    },
+    {
+      "id": "contract:product-projection",
+      "kind": "contract",
+      "statement": "Beginner/Studio interfaces present specialized systems without becoming parallel semantic or accepted-story owners.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/architecture/system-ownership-and-product-compression.md",
+      "evidence_refs": [
+        "file:docs/architecture/system-ownership-and-product-compression.md:line:38"
+      ]
+    },
+    {
+      "id": "decision:derived-global-map",
+      "kind": "decision",
+      "statement": "ADR 019 accepts the Global Map and Focus as rebuildable derived projections; relationship indexes do not themselves create accepted narrative authority.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/adr/019-derived-global-map-and-story-instance-relation-authority.md",
+      "evidence_refs": [
+        "file:docs/adr/019-derived-global-map-and-story-instance-relation-authority.md:line:7"
+      ]
+    },
+    {
+      "id": "concept:story-instance-relations",
+      "kind": "domain_concept",
+      "statement": "Story-instance causal/pressure relations are distinct from the accepted character-relationship state governed by relations.yaml and relation_changes.yaml.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/adr/019-derived-global-map-and-story-instance-relation-authority.md",
+      "evidence_refs": [
+        "file:docs/adr/019-derived-global-map-and-story-instance-relation-authority.md:line:19"
+      ]
+    },
+    {
+      "id": "decision:host-agent-first-generation",
+      "kind": "decision",
+      "statement": "ADR 022 selects backend-agnostic, host-agent-first generation when a capable coding agent is available; direct OpenAI/Anthropic provider adapters remain explicit optional backends, not a mandatory credential prerequisite.",
+      "epistemic_status": "declared",
+      "authority_kind": "document",
+      "authority_ref": "docs/adr/022-host-agent-first-backend-agnostic-generation.md",
+      "evidence_refs": [
+        "file:docs/adr/022-host-agent-first-backend-agnostic-generation.md:line:22",
+        "file:MISSION.md:line:14"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:identity-under-author-control",
+      "subject": "concept:identity-layer",
+      "predicate": "constrained_by",
+      "object": "inv:explicit-story-authority",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:MISSION.md:line:50"
+      ]
+    },
+    {
+      "id": "rel:structure-under-author-control",
+      "subject": "concept:structure-layer",
+      "predicate": "constrained_by",
+      "object": "inv:explicit-story-authority",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:70"
+      ]
+    },
+    {
+      "id": "rel:canon-boundary",
+      "subject": "contract:canon-derived-working",
+      "predicate": "constrained_by",
+      "object": "inv:explicit-story-authority",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/narrative-architecture.md:line:70"
+      ]
+    },
+    {
+      "id": "rel:no-auto-accept-boundary",
+      "subject": "contract:canon-derived-working",
+      "predicate": "constrained_by",
+      "object": "non-goal:auto-accept",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:MISSION.md:line:35"
+      ]
+    },
+    {
+      "id": "rel:derived-map-contract",
+      "subject": "decision:derived-global-map",
+      "predicate": "defines",
+      "object": "contract:canon-derived-working",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/adr/019-derived-global-map-and-story-instance-relation-authority.md:line:9"
+      ]
+    },
+    {
+      "id": "rel:derived-map-adr",
+      "subject": "decision:derived-global-map",
+      "predicate": "references",
+      "object": "concept:story-instance-relations",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:docs/adr/019-derived-global-map-and-story-instance-relation-authority.md:line:14"
+      ]
+    }
+  ]
+}
