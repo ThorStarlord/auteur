@@ -64,3 +64,5 @@ def test_parallel_genre_interactions_have_distinct_directed_graph_paths():
     assert "var pair = genreInteractions.filter" in js
     assert "var canonicalFrom = edge.source_genre_id < edge.target_genre_id ? from : to;" in js
     assert "pairIndex - (pair.length - 1) / 2" in js
+    assert "genreInteractionCurveGeometry(from, to, canonicalFrom, canonicalTo, offset)" in js
+    assert 'text.setAttribute("x", String(curve.control.x));' in js

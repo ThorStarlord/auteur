@@ -990,6 +990,23 @@
     renderInspector();
     rememberFocus();
   }
+  function genreInteractionCurveGeometry(from, to, canonicalFrom, canonicalTo, offset) {
+    // Candidate positions are top-left corners; architecture links use +82/+34 centers.
+    var sourceCenter = { x: from.x + 82, y: from.y + 34 };
+    var targetCenter = { x: to.x + 82, y: to.y + 34 };
+    var dx = canonicalTo.x - canonicalFrom.x, dy = canonicalTo.y - canonicalFrom.y;
+    var length = Math.sqrt(dx * dx + dy * dy) || 1;
+    var control = { x: (sourceCenter.x + targetCenter.x) / 2 - dy / length * offset,
+      y: (sourceCenter.y + targetCenter.y) / 2 + dx / length * offset };
+    function boundaryPoint(point, other) {
+      var vx = other.x - point.x, vy = other.y - point.y;
+      var scale = 1 / Math.max(Math.abs(vx) / 82, Math.abs(vy) / 34, 0.0001);
+      return { x: point.x + vx * scale, y: point.y + vy * scale };
+    }
+    return { start: boundaryPoint(sourceCenter, targetCenter),
+      control: control, end: boundaryPoint(targetCenter, sourceCenter) };
+  }
+
   function drawEdges() {
     var svg = $("edges");
     svg.replaceChildren();
@@ -1064,19 +1081,10 @@
         var pairIndex = pair.findIndex(function (other) { return other.id === edge.id; });
         var canonicalFrom = edge.source_genre_id < edge.target_genre_id ? from : to;
         var canonicalTo = edge.source_genre_id < edge.target_genre_id ? to : from;
-        var dx = canonicalTo.x - canonicalFrom.x, dy = canonicalTo.y - canonicalFrom.y;
-        var length = Math.sqrt(dx * dx + dy * dy) || 1;
         var offset = (pairIndex - (pair.length - 1) / 2) * 20;
-        var middle = { x: (from.x + to.x) / 2 - dy / length * offset,
-          y: (from.y + to.y) / 2 + dx / length * offset };
-        function boundaryPoint(point, other) {
-          var vx = other.x - point.x, vy = other.y - point.y;
-          var scale = 1 / Math.max(Math.abs(vx) / 82, Math.abs(vy) / 34, 0.0001);
-          return { x: point.x + vx * scale, y: point.y + vy * scale };
-        }
-        var start = boundaryPoint(from, to), end = boundaryPoint(to, from);
+        var curve = genreInteractionCurveGeometry(from, to, canonicalFrom, canonicalTo, offset);
         var path = document.createElementNS(svgNS, "path");
-        path.setAttribute("d", "M " + start.x + " " + start.y + " Q " + middle.x + " " + middle.y + " " + end.x + " " + end.y);
+        path.setAttribute("d", "M " + curve.start.x + " " + curve.start.y + " Q " + curve.control.x + " " + curve.control.y + " " + curve.end.x + " " + curve.end.y);
         path.setAttribute("fill", "none");
         path.setAttribute("stroke", "#855a8b"); path.setAttribute("stroke-width", "3");
         path.setAttribute("stroke-dasharray", "3 6");
@@ -1090,8 +1098,8 @@
         path.appendChild(label); svg.appendChild(path);
         if (highlighted) {
           var text = document.createElementNS(svgNS, "text");
-          text.setAttribute("x", String(middle.x + 82));
-          text.setAttribute("y", String(middle.y + 26));
+          text.setAttribute("x", String(curve.control.x));
+          text.setAttribute("y", String(curve.control.y - 8));
           text.setAttribute("text-anchor", "middle"); text.setAttribute("fill", "#75487b");
           text.setAttribute("font-size", "12"); text.textContent = edge.kind.replace(/_/g, " ");
           svg.appendChild(text);
