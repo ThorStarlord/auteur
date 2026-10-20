@@ -10,6 +10,8 @@ import hashlib
 import json
 import re
 from pathlib import Path
+
+import yaml
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -307,15 +309,31 @@ def _accepted_story_design_context(store: CanvasStore) -> dict | None:
     # Avoid importing Identity in no-premise Studio sessions.
     from auteur.identity import StoryIdentity
 
-    identity = StoryIdentity.from_yaml(path)
+    # Parse the exact bytes once; Pydantic's compatibility defaults are not
+    # evidence that a missing field was explicitly committed by the author.
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    identity = StoryIdentity.model_validate(raw)
     preferences = identity.architecture_preferences
     context = {
         "source_ref": "story_identity.yaml",
         "authority": "accepted_story_identity",
+        "title": identity.title,
         "core_answer": identity.core_answer,
         "central_engine": identity.central_engine.model_dump(mode="json"),
-        "story_type": identity.story_type.model_dump(mode="json", exclude_none=True),
-        "target_experience": identity.target_experience.model_dump(mode="json", exclude_none=True),
+        "story_type": (
+            identity.story_type.model_dump(
+                mode="json", include=identity.story_type.model_fields_set,
+                exclude_none=True,
+            )
+            if "story_type" in identity.model_fields_set else None
+        ),
+        "target_experience": (
+            identity.target_experience.model_dump(
+                mode="json", include=identity.target_experience.model_fields_set,
+                exclude_none=True,
+            )
+            if "target_experience" in identity.model_fields_set else None
+        ),
         "architecture_preferences": (
             preferences.model_dump(mode="json", exclude_none=True)
             if preferences is not None else None

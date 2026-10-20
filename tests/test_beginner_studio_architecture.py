@@ -142,6 +142,28 @@ def test_accepted_story_preferences_and_target_experience_are_grounded(tmp_path)
     assert (store.directory / "architecture" / "requests" / sha / "stale_response.json").exists()
 
 
+def test_omitted_identity_defaults_are_not_attributed_to_author(tmp_path):
+    store = working_store(tmp_path)
+    minimal = {
+        "title": "Only an explicit central engine",
+        "core_answer": "Mutual responsibility matters.",
+        "central_engine": {
+            "want": "Act with care", "resistance": "Uncertainty",
+            "conflict": "Care and control", "stakes": "Trust",
+            "change": "Shared accountability",
+        },
+    }
+    (tmp_path / "story_identity.yaml").write_text(json.dumps(minimal), encoding="utf-8")
+    status = prepare_architecture(store)
+    accepted = json.loads(status["request"]["user"])[
+        "narrative_design_context"
+    ]["accepted_story_identity"]
+    assert accepted["core_answer"] == "Mutual responsibility matters."
+    assert accepted["story_type"] is None
+    assert accepted["target_experience"] is None
+    assert accepted["architecture_preferences"] is None
+
+
 def test_legacy_architecture_fingerprint_remains_readable(tmp_path):
     store = working_store(tmp_path)
     legacy_user = json.dumps({"working_context": {"previous_candidate": None}})
