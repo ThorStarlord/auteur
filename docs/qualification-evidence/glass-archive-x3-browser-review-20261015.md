@@ -136,6 +136,37 @@ failure remains a separate Python test issue and was not weakened or skipped.
 This is bounded automated Browser behavior evidence, not human UX validation
 or product readiness.
 
+## Current-main integration and product-use follow-up — 2026-10-19
+
+The graph-first navigation/re-entry repair is integrated by PR #439. Its exact
+qualified candidate was `6363408b781b17d9389b5bf299c63e030c278ab9`; protected
+merge commit `bb9c102d6cc4e9473ca7cffc5253ed72361ef37a` is an ancestor of
+current Auteur `main@be212c7f2f46a4ca575c7774431e536a7c1af6b4`. The historical
+candidate and initial Browser observations above remain separate evidence.
+
+I repeated a bounded served-Chromium walkthrough against current `main` using
+a fresh disposable copy of the complete fixture at
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-fixture-complete-20261015/project`.
+The test copy was
+`C:/Users/Admin/AppData/Local/Temp/glass-archive-main-be212-final-mv2bghdu/project`.
+It verified:
+
+- ordinary Studio entry showed `Chapter 6 · Kept` and `Review your Book`;
+- selecting Chapter 2 opened the existing Beginner review route and displayed
+  its accepted 8,269-character manuscript;
+- the accepted Chapter exposed `Plan Chapter 3`, while no draft-accept action
+  was available;
+- browser Back restored the Book orientation, and ordinary Studio re-entry
+  restored it again;
+- there were no Browser page errors and all 89 non-Studio story files retained
+  their original SHA-256 hashes.
+
+This confirms those bounded Browser routes on current integrated source and a
+complete reconstructed fixture. It does not establish human comprehension,
+comfort, preference, accessibility, or overall product readiness. The
+six-Chapter narrative and API/file persistence results remain the separate
+simulated-author and persistence evidence in the fixture-complete report.
+
 ## Interface concepts explored
 
 The concepts below are low-fidelity interaction sketches grounded in the

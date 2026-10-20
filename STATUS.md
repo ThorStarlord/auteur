@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-15
-**Current integrated main:** `ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c` (PR #438 merge)
+**Last reconciled:** 2026-10-19
+**Current integrated main:** `be212c7f2f46a4ca575c7774431e536a7c1af6b4` (PR #468 merge)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -21,26 +21,24 @@ and [the X3 Browser review](qualification-evidence/glass-archive-x3-browser-revi
   story quality.
 - **X3 persistence:** API/file-level pass. Six accepted final prose files
   matched the recorded SHA-256 values after a fresh process load.
-- **X3 Browser experience:** the initial completed-Book projection defects
-  were repaired on the unmerged local candidate. At
-  `aabfe577068f383887709e7bbc695261634e3d66`, automated Chromium on a
-  disposable complete fixture verified Book orientation on re-entry, Chapter
-  2 navigation to its accepted manuscript/review, return to the graph, and
-  390px viewport fit with all 89 non-Studio source files unchanged. Long Book
-  details now collapse behind disclosure controls. This is bounded automated
-  behavior evidence; broader Browser experience and human UX remain
-  unqualified.
+- **X3 Browser experience:** the graph-first Book re-entry and Chapter
+  navigation repair is integrated by PR #439 (`bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`).
+  The exact candidate passed focused Browser checks and Stage B Chromium
+  21/21; a baseline-identical publication-preflight test failure was preserved
+  rather than weakened. On current `main@be212c7`, a fresh Chromium run against
+  a disposable copy of the complete six-Chapter fixture verified Chapter 6
+  re-entry, Chapter 2 accepted manuscript review (8,269 characters), the
+  `Plan Chapter 3` continuation action, browser Back, and ordinary Studio
+  re-entry. All 89 story files retained their hashes and no page errors
+  occurred. This is bounded automated behavior evidence; broader Browser
+  experience and human UX remain unqualified.
 - **Human UX:** not tested. No comfort, preference, usability, or production
   readiness claim follows from automated Browser interaction or simulated
   author decisions.
 
-The local X3 repair candidate is separate from integrated `main`; no merge or
-release is claimed. On the recorded candidate SHA, focused Browser checks
-passed 11/11 and Stage B Chromium passed 16/16. The
-`test_book_progress_reuses_accepted_book_as_publication_preflight` assertion
-fails identically on the candidate and exact-main checkout (4 passed, 1 failed
-in that file on each); it was not weakened or skipped. See the updated Browser
-review record for the exact disposable project and observed route.
+PR #439 is integrated on current `main`; no release or human UX qualification
+is claimed. The current-main product-use evidence and the earlier exact
+candidate test results are recorded separately in the updated Browser review.
 
 ## Historical Windows execution — 2026-10-14
 
@@ -77,9 +75,9 @@ A fresh mentorship response was also sampled through CanvasStore: one response p
 The original Windows run remains a valid partial product-use record; it stopped at the under-length Chapter 2 and did not run Chapters 3–6. The later reconstructed run adds separate, bounded F2 simulated-author, X3 persistence, and automated Browser results. Human UX remains untested; the Browser review records the remaining density and interaction questions.
 
 1. Keep the Chapter-generation length deviation visible; the reconstructed run preserved the original Chapter 1 deviation and explicitly revised the under-length Chapter 5 candidate.
-2. Continue graph-first Studio improvements at the existing projection boundary, keeping provenance and suggested changes available and testing their comprehension with authors before making human UX claims.
-3. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
-4. Use a human walkthrough before making human UX or product-readiness claims.
+2. Do not repeat the Chapter 2 generation probe solely to revisit word-count adherence: the reconstructed run produced a fresh 1,412-word Chapter 2 and continued the six-Chapter journey under explicit simulated-author decisions.
+3. The next product-use responsibility is a human-author walkthrough of graph-first Book re-entry, manuscript review, and continued writing. Automated Browser checks do not establish comprehension, preference, or usability.
+4. Keep pending discoveries separate from accepted story and route any author decision through the existing reconciliation workflow.
 
 F3/X4 remains unselected. Do not add a host bridge, new test framework, or feature without evidence from the existing product-use boundaries.
 

@@ -15,7 +15,7 @@
     {
       "id": "observation:status-historical-f2-x3",
       "kind": "observation",
-      "statement": "STATUS.md reconciled 2026-10-14 describes F2/X3 work and incomplete six-Chapter journey; it predates main bb9c102d and is not evidence of the latest qualification outcome.",
+      "statement": "STATUS.md was stale relative to the October 15 fixture-complete reconstruction and PR #439; its 2026-10-19 reconciliation records the current evidence boundary, not human UX qualification.",
       "epistemic_status": "observed",
       "authority_kind": "document",
       "authority_ref": "STATUS.md",
@@ -24,14 +24,41 @@
       ]
     },
     {
-      "id": "hypothesis:book-reentry-next-value",
-      "kind": "hypothesis",
-      "statement": "Independent live Browser Book re-entry and same-canvas recovery are worthwhile future evidence candidates; not demonstrated by static inspection.",
-      "epistemic_status": "hypothetical",
-      "authority_kind": "hypothesis",
-      "authority_ref": "tests/test_beginner_studio_book_view.py",
+      "id": "observation:fixture-complete-f2-x3-20261015",
+      "kind": "observation",
+      "statement": "At source main ef5ae8c, a disposable fixture-complete reconstruction produced a fresh 1,412-word Chapter 2 and six accepted Chapter outputs after explicit simulated-author decisions; accepted output hashes matched after fresh-process reload. This is bounded simulated-author F2 and API/file persistence evidence, not recovery of the original Windows project or human UX qualification.",
+      "epistemic_status": "observed",
+      "authority_kind": "document",
+      "authority_ref": "docs/qualification-evidence/glass-archive-fixture-complete-20261015.md",
       "evidence_refs": [
-        "file:tests/test_beginner_studio_book_view.py:line:22"
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:8",
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:20",
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:43",
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:53"
+      ]
+    },
+    {
+      "id": "observation:book-reentry-browser-main-20261019",
+      "kind": "observation",
+      "statement": "On current main be212c7, served Chromium against a disposable copy of the complete reconstructed fixture verified Book re-entry, accepted Chapter 2 manuscript review, Plan Chapter 3, Back, ordinary Studio re-entry, zero page errors, and unchanged hashes for 89 story files. Human comprehension, preference, accessibility, and usability remain unqualified.",
+      "epistemic_status": "observed",
+      "authority_kind": "document",
+      "authority_ref": "docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md",
+      "evidence_refs": [
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:140",
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:155"
+      ]
+    },
+    {
+      "id": "lesson:qualification-history-recall-gap-20261019",
+      "kind": "lesson",
+      "statement": "An exact-revision semantic RECALL over Auteur main be212c7 recovered source-level Book architecture but not the October 15 fixture qualification because engineering-history.json had no source-linked claim for that outcome and the qualification report was outside the earlier indexed main tree. For decision-relevant qualification, inspect relevant issue/PR evidence and reconcile durable outcomes into authored history; the semantic index is not a repository-wide report search.",
+      "epistemic_status": "observed",
+      "authority_kind": "document",
+      "authority_ref": "docs/qualification-evidence/2026-10-18-auteur-semantic-bootstrap.md",
+      "evidence_refs": [
+        "file:docs/qualification-evidence/2026-10-18-auteur-semantic-bootstrap.md:line:19",
+        "file:docs/qualification-evidence/2026-10-18-auteur-semantic-bootstrap.md:line:31"
       ]
     },
     {
@@ -56,17 +83,6 @@
       "derivation": "authored",
       "evidence_refs": [
         "file:STATUS.md:line:1"
-      ]
-    },
-    {
-      "id": "rel:live-hypothesis-to-cap",
-      "subject": "hypothesis:book-reentry-next-value",
-      "predicate": "candidate_opportunity_for",
-      "object": "cap:book-studio-view",
-      "epistemic_status": "hypothetical",
-      "derivation": "authored",
-      "evidence_refs": [
-        "file:tests/test_beginner_studio_book_view.py:line:22"
       ]
     },
     {
