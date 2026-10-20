@@ -1,7 +1,7 @@
 # F2 + X3 Controlled Qualification Protocol
 
 **Date:** 2026-10-04  
-**Status:** ACTIVE controlled product-use protocol; Chapters 1–2 partly executed, full six-Chapter F2/X3 incomplete  
+**Status:** ACTIVE evidence boundaries; the separate six-Chapter simulated reconstruction is complete, and human UX remains untested. See the 2026-10-20 current responsibility below.
 **Narrative frontier:** F2 — Small-Book Longitudinal Coherence  
 **Experience frontier:** X3 — Persistent Book Workspace  
 **Authority:** protocol only; does not pre-authorize implementation, UI components, merge, release, or provider spend
@@ -254,45 +254,62 @@ The prior #313 activation gate is resolved: #313 is closed, #318 is active,
 and the required Chapter-N orchestration, bounded context composition and
 Book orientation are integrated into development `main`.
 
-**Current integrated source checkpoint (2026-10-15):**
-`main@ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c` after PR #438's
-Windows LF-byte repair. The real product-use attempt started from
-`4122321fe09d1959278fdd087fc29f85e2f3a9d2` with the repair qualified at
-`c17771db218565625915fd9d90b6cb9f2fd5a396`. Its separate 64 Node, 28 focused
-Python mentor, 163 Studio, and 16 Stage-B browser successes **do not**
-constitute a Glass Archive six-Chapter execution.
+### Historical Windows execution — 2026-10-14
 
-The first target-runtime run used the frozen reference Book and **did not
-complete it**: Chapter 1 persisted/accepted/reopened with identical LF-byte
-draft/final receipts and proper Chapter 2 orientation. Chapter 1 generated
-946 words; Chapter 2 generated 965 words while introducing the intended
-unplanned Beatrice/convent discovery; both were below the explicit 1,066-word
-minimum. The Chapter 2 candidate remains **Working/unaccepted**.
-`docs/qualification-evidence/4122321-post436-product-use.json` and issue
-#318 own the raw requests/results, not this protocol.
+The real target-runtime attempt started from
+`4122321fe09d1959278fdd087fc29f85e2f3a9d2`; the LF-byte repair was qualified at
+`c17771db218565625915fd9d90b6cb9f2fd5a396`. Chapter 1 persisted, was accepted,
+and reopened with matching LF-byte receipts. It generated 946 words. Chapter 2
+produced a 965-word Working candidate after surfacing the intended
+Beatrice/convent discovery; it remained unaccepted, below the 1,066-word
+minimum. Chapters 3–6 did not run in this Windows project. Raw requests,
+responses, and hashes remain in
+`docs/qualification-evidence/4122321-post436-product-use.json` and Issue #318.
+This historical run is not the later fixture-complete reconstruction.
 
-**Resume at the first unresolved material failure, not a new six-Chapter
-campaign.** Preserve the clean Chapter 1 accepted history; investigate the
-repeated under-target generation without weakening its word-count contract
-or silently accepting short Chapter 2 prose. Inspect rendered request, active
-host-agent compliance, token budgets, and permitted revision/continue paths.
-Make the smallest warranted repair, rerun Chapter 2 with a correctly shaped
-candidate, and advance to Chapters 3–6 only when that checkpoint succeeds. At Chapter 6 include the
-already-recorded lexical-paraphrase variant from #318: distinguish a fact
-omitted from compact context from a fact genuinely unavailable to the
-rendered generation prompt. Inspect the actual accepted-state, evidence
-index, and Bard request before selecting a repair.
+### Separate fixture-complete reconstruction — 2026-10-15
 
-Record the target runtime and exact checkout SHA. If the active local coding-agent workspace is unavailable to the current
-actor, report its execution boundary; do not erase or reinterpret the
-**already-recorded real Chapter 1–2 evidence**.
-F2 continuity and X3 author orientation have **independent** verdicts.
-A real host-agent/prose run, not source-derived simulations, must establish
-their product-use results.
+From source `main@ef5ae8c7910fe7b3db38f6e2af87d1f45ed6182c`, a fresh disposable
+project restored the exact recorded Chapter 1 prose, generated a fresh
+1,412-word Chapter 2, then completed all six Chapters under explicit
+simulated-test-author decisions. The accepted outputs matched their latest
+candidates after fresh-process reload. This is bounded simulated-author F2
+and API/file X3 persistence evidence. It is not recovery of the original
+Windows project, independent human creative judgment, or human UX evidence.
+The original Windows requests/decisions and this reconstruction's requests,
+responses, hashes, receipts, and decisions remain distinct and preserved.
+
+### Later Browser integration and current responsibility — 2026-10-20
+
+PR #439 integrated the graph-first Book re-entry and Chapter navigation repair
+at merge `bb9c102d6cc4e9473ca7cffc5253ed72361ef37a`. A served Chromium check on
+that later source (Auteur `main@be212c7`, now an ancestor of current
+`main@7043f9c`) verified Book re-entry, accepted Chapter 2 manuscript review,
+the `Plan Chapter 3` action, browser Back, ordinary Studio re-entry, no page
+errors, and unchanged hashes for all 89 story files. See
+`docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md`.
+Human comprehension, preference, accessibility, and usability remain
+unqualified.
+
+**Do not repeat the Chapter 2 generation probe or reconstruct the six-Chapter
+Book merely to repeat completed evidence.** The 1,412-word Chapter 2 and
+six-Chapter simulated-author run already answer that bounded question. Use the
+existing evidence and fixtures as historical references; do not conflate them
+with recovery of the original Windows project.
+
+The current product-use responsibility is a human-author walkthrough of the
+integrated graph-first Studio: reopen the disposable Book, identify its state,
+review a kept manuscript and suggested updates, return to the graph, and
+continue toward the next Chapter. A prepared local walkthrough and its exact
+fixture/browser identity are recorded in
+`docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md`.
+Automated Chromium and simulated-author decisions are not human UX evidence.
+If no human observation occurs, leave UX unqualified; do not infer a defect or
+repair from automation alone. F2 narrative capability, API/file persistence,
+automated Browser behavior, and human UX retain separate claim ceilings.
 
 The earlier coding-agent preflight was refreshed in merged #342; candidate
-#343 is an **unmerged optional accepted-source-pointer repair**, not already
-qualified or the automatic answer to the paraphrase hypothesis.
-Do not require a new broad human-persona study or build retrieval, a new
-semantic layer, or a dashboard before the first material recurring failure
-shows its own smallest responsible boundary.
+#343 remains an optional accepted-source-pointer repair and is not the
+automatic answer to a paraphrase hypothesis. Do not require a new broad
+persona study, retrieval subsystem, semantic layer, or dashboard without
+decision-changing evidence.

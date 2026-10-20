@@ -15,7 +15,7 @@
     {
       "id": "observation:status-historical-f2-x3",
       "kind": "observation",
-      "statement": "STATUS.md was stale relative to the October 15 fixture-complete reconstruction and PR #439; its 2026-10-19 reconciliation records the current evidence boundary, not human UX qualification.",
+      "statement": "STATUS.md pins the 2026-10-20 review baseline to main 7043f9c, records the October 15 fixture-complete reconstruction and integrated PR #439, and keeps human UX unqualified.",
       "epistemic_status": "observed",
       "authority_kind": "document",
       "authority_ref": "STATUS.md",
@@ -40,7 +40,7 @@
     {
       "id": "observation:book-reentry-browser-main-20261019",
       "kind": "observation",
-      "statement": "On current main be212c7, served Chromium against a disposable copy of the complete reconstructed fixture verified Book re-entry, accepted Chapter 2 manuscript review, Plan Chapter 3, Back, ordinary Studio re-entry, zero page errors, and unchanged hashes for 89 story files. Human comprehension, preference, accessibility, and usability remain unqualified.",
+      "statement": "On main be212c7, served Chromium against a disposable copy of the complete reconstructed fixture verified Book re-entry, accepted Chapter 2 manuscript review, Plan Chapter 3, Back, ordinary Studio re-entry, zero page errors, and unchanged hashes for 89 story files. This source revision precedes current documentation merge 7043f9c; human comprehension, preference, accessibility, and usability remain unqualified.",
       "epistemic_status": "observed",
       "authority_kind": "document",
       "authority_ref": "docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md",
@@ -94,6 +94,45 @@
       "derivation": "authored",
       "evidence_refs": [
         "file:src/auteur/beginner/browser/studio.js:line:617"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-references-fixture-history",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "references",
+      "object": "observation:fixture-complete-f2-x3-20261015",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:.sensemaking/knowledge/studio-and-workspace.json:line:49",
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:53",
+        "file:docs/qualification-evidence/glass-archive-fixture-complete-20261015.md:line:54"
+      ]
+    },
+    {
+      "id": "rel:book-reentry-references-browser-check",
+      "subject": "cap:book-reentry-orientation",
+      "predicate": "references",
+      "object": "observation:book-reentry-browser-main-20261019",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:.sensemaking/knowledge/studio-and-workspace.json:line:49",
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:140",
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:155"
+      ]
+    },
+    {
+      "id": "rel:book-studio-references-browser-check",
+      "subject": "cap:book-studio-view",
+      "predicate": "references",
+      "object": "observation:book-reentry-browser-main-20261019",
+      "epistemic_status": "declared",
+      "derivation": "authored",
+      "evidence_refs": [
+        "file:.sensemaking/knowledge/studio-and-workspace.json:line:82",
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:140",
+        "file:docs/qualification-evidence/glass-archive-x3-browser-review-20261015.md:line:155"
       ]
     }
   ]

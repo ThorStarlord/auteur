@@ -65,4 +65,4 @@ PR #343 proposes exact source references to retain older accepted evidence when 
 - Chapter 1's 946-word deviation was intentionally preserved. Chapter 5's short v1 was preserved as evidence and superseded by the explicitly reviewed 1,097-word v2.
 - No product code changed, no PR was merged, and no production readiness is claimed.
 
-Next warranted responsibility: run a scripted browser workflow against this reconstructed Book if browser qualification is required; keep human UX and broader product readiness as separate future claims.
+At the time of this October 15 report, the next warranted responsibility was a Browser workflow. That follow-up was completed later on current integrated source and is recorded in [the X3 Browser review](glass-archive-x3-browser-review-20261015.md). This fixture report remains the historical record for the separate simulated-author six-Chapter reconstruction; it is not recovery of the original Windows project. Human UX and broader product readiness remain unqualified.
