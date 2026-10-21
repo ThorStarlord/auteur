@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
-    ArchitectureCandidate, _digest, _source, _source_fingerprint,
+    ArchitectureCandidate, ArchitectureLink, _digest, _source, _source_fingerprint,
     apply_architecture_review, complete_architecture,
     main, prepare_architecture, project_architecture,
 )
@@ -106,6 +106,12 @@ def test_architecture_request_carries_source_grounded_ontology_not_hidden_author
     assert "subordinate parts interact" not in system_prompt
     assert "label that organization as an agent proposal" in system_prompt
     assert "Never manufacture a dominant engine the material does not support" in system_prompt
+    assert "ArchitectureLink.function must contain 1–120 characters" in system_prompt
+    assert "concisely describe the relation from source to target" in system_prompt
+    assert "Put longer explanatory prose in appropriate narrative description fields" in system_prompt
+    function_schema = ArchitectureLink.model_json_schema()["properties"]["function"]
+    assert function_schema["minLength"] == 1
+    assert function_schema["maxLength"] == 120
     assert "UNKNOWN" in guidance["unknown_policy"]
     assert request["working_context"]["vision"].startswith("A long fantasy")
     assert waiting["request"]["settings"]["source_sha256"] == _source_fingerprint(
