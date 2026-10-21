@@ -1006,20 +1006,31 @@
     return { start: boundaryPoint(sourceCenter, targetCenter),
       control: control, end: boundaryPoint(targetCenter, sourceCenter) };
   }
-  function architectureLinkGeometry(from, to, offset) {
-    var sourceCenter = { x: from.x + 82, y: from.y + 33 };
-    var targetCenter = { x: to.x + 82, y: to.y + 33 };
+  function architectureLinkGeometry(from, to, sourceSize, targetSize, offset) {
+    var sourceCenter = { x: from.x + sourceSize.width / 2, y: from.y + sourceSize.height / 2 };
+    var targetCenter = { x: to.x + targetSize.width / 2, y: to.y + targetSize.height / 2 };
     var dx = targetCenter.x - sourceCenter.x, dy = targetCenter.y - sourceCenter.y;
     var length = Math.sqrt(dx * dx + dy * dy) || 1;
     var control = { x: (sourceCenter.x + targetCenter.x) / 2 - dy / length * offset,
       y: (sourceCenter.y + targetCenter.y) / 2 + dx / length * offset };
-    function boundaryPoint(point, toward) {
+    function boundaryPoint(point, toward, size) {
       var vx = toward.x - point.x, vy = toward.y - point.y;
-      var scale = 1 / Math.max(Math.abs(vx) / 82, Math.abs(vy) / 33, 0.0001);
+      var scale = 1 / Math.max(Math.abs(vx) / (size.width / 2),
+        Math.abs(vy) / (size.height / 2), 0.0001);
       return { x: point.x + vx * scale, y: point.y + vy * scale };
     }
-    return { start: boundaryPoint(sourceCenter, control), control: control,
-      end: boundaryPoint(targetCenter, control) };
+    return { start: boundaryPoint(sourceCenter, control, sourceSize), control: control,
+      end: boundaryPoint(targetCenter, control, targetSize) };
+  }
+  function architectureNodeSize(nodeId) {
+    var nodes = document.querySelectorAll("#nodes .node.candidate");
+    var node = Array.prototype.find.call(nodes, function (button) {
+      return button.dataset.itemId === nodeId;
+    });
+    if (!node) return null;
+    var width = node.offsetWidth, height = node.offsetHeight;
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+    return { width: width, height: height };
   }
 
   function drawEdges() {
@@ -1063,10 +1074,14 @@
         if (!fromNode || !toNode || !candidateVisible(fromNode) || !candidateVisible(toNode)) return;
         var from = state.candidatePositions[edge.source], to = state.candidatePositions[edge.target];
         if (!from || !to) return;
+        // #edges and #nodes share #world. Layout sizes and candidatePositions are
+        // therefore local SVG coordinates; the shared pan/zoom transform applies once.
+        var fromSize = architectureNodeSize(edge.source), toSize = architectureNodeSize(edge.target);
+        if (!fromSize || !toSize) return;
         var reciprocal = state.architecture.links.some(function (other) {
           return other.source === edge.target && other.target === edge.source;
         });
-        var curve = architectureLinkGeometry(from, to, reciprocal ? 14 : 0);
+        var curve = architectureLinkGeometry(from, to, fromSize, toSize, reciprocal ? 14 : 0);
         var path = document.createElementNS(svgNS, "path");
         path.setAttribute("d", "M " + curve.start.x + " " + curve.start.y +
           " Q " + curve.control.x + " " + curve.control.y + " " + curve.end.x + " " + curve.end.y);
