@@ -3,7 +3,7 @@
 Repository `ThorStarlord/auteur` · `main` at `a635783` (after #474/#475) · 2026-10-21
 Mode: read-only investigation. No story project was modified, no generation was run, and no ontology or schema was changed.
 
-**Status: source investigation complete; candidate assessment blocked on access.**
+**Status: source investigation complete; candidate assessment blocked on access.** The capture kit ships separately (PR #476) so each change stays within the 500-line review cap.
 The Tidal Archive project exists only on the owner's Windows machine. This
 environment cannot reach it: it is not in the repository, any branch, PR or
 issue, and no session on that machine is connected. The candidate-content
@@ -117,25 +117,30 @@ summary" describes the post-#472 request.
 
 ## 5. Comparisons to perform on the actual artifact (not yet performed)
 
-| Comparison | What the capture provides | Question it answers |
+The capture kit only collects. The analysis below is computed in the
+assessment step from `shareable/evidence.json`. Every reference there is a
+consistent pseudonym, so links, hierarchy, contracts, interactions and
+revision diffs survive anonymization.
+
+| Comparison | Evidence used | Question it answers |
 |---|---|---|
-| Story Vision vs initial request | Vision text (private), fingerprint, `vision_unchanged_since_initial`, working items delivered | Was the agent working from a thin or a mechanism-rich Vision? |
-| Initial request vs prompt history | Prompt hash → version; recomputed request hash; delivered-knowledge summary | Confirms or refutes §3 for this exact request. |
-| Initial candidate | Full text (private) or sanitized outline; P1–P6 indicators; engine locus; link buckets; hierarchy; themes; phase consistency | Q4/Q5: architecture or labels? |
-| Initial vs ontology-grounded revision | Revision request's design-context summary; staged review and current candidate; ID-level diff and metric deltas | Did delivered knowledge change the weaknesses? (A confounded but free natural experiment.) |
+| Story Vision vs initial request | Vision text (owner's `private/` only); shared `story_vision_chars`, `story_vision_equals_canvas_now`, working items delivered | Was the agent working from a thin or a mechanism-rich Vision? |
+| Initial request vs prompt history | Prompt hash → version; `recomputes`; `delivered` block | Confirms or refutes §3 for this exact request. |
+| Initial candidate | The develop request's `response.json` candidate: structure always, labels/text at the chosen sharing level | Q4/Q5: architecture or labels? |
+| Initial vs ontology-grounded revision | Revise request's `delivered` block; its response, staged review and current candidate, canonicalized so default-filled dumps compare equal to raw responses | Did delivered knowledge change the weaknesses? (Corroborating, confounded, free.) |
 | Knowledge available vs delivered | §2/§4 plus each request's `delivered` block | Which absent distinctions show up as defects. |
-| Causal coherence vs presentation | `presentation_pre471`: lines drawn, collapsed reciprocal interactions, undrawn parent relations, nodes drawn with no line vs nodes semantically unconnected | Did the graph look scattered because the candidate was, or because of the renderer? |
+| Causal coherence vs presentation | Pre-#471 rendering recomputed from structure: lines drawn (links + unique genre-interaction pairs), reciprocal pairs collapsed, undrawn `parent_id` relations; nodes drawn without a line vs nodes semantically unconnected | Did the graph look scattered because the candidate was, or because of the renderer? |
 
 **Predictions to test.** These follow from the original prompt and schema. They are hypotheses, not observations.
 
-| # | Prediction | Kit indicator |
+| # | Prediction | Evidence fields (minimum sharing level) |
 |---|---|---|
-| P1 | Engine meaning sits in contract `narrative_engine` text; engine nodes are not referenced by contracts or linked to genres | `indicators.P1_engine_locus_split`, `engines` |
-| P2 | Link functions are mostly generic or "support" | `indicators.P2_generic_links`, `links.function_buckets` |
-| P3 | Hierarchy sparse or used as grouping | `indicators.P3_sparse_hierarchy`, `hierarchy` |
-| P4 | Theme nodes are unlinked labels | `indicators.P4_unlinked_theme` |
-| P5 | Emotion/genre detail exceeds mechanism detail | `counts`, outline |
-| P6 | Story mechanics deferred to `open_questions` (#471 added the provisional-defaults instruction on a Tidal-named branch) | `indicators.P6_open_questions`, outline |
+| P1 | Engine meaning sits in contract `narrative_engine` text; engine nodes are not referenced by contracts or linked to genres | `nodes[].category`, `links[]` endpoints (none); `genre_contracts[].narrative_engine` (text) |
+| P2 | Link functions are mostly generic or "support" | `links[].function` (labels) |
+| P3 | Hierarchy sparse or used as grouping | `nodes[].parent_id` (none) |
+| P4 | Theme nodes are unlinked labels | `nodes[].category` + `links[]` endpoints (none) |
+| P5 | Emotion/genre detail exceeds mechanism detail | counts (none); text for depth |
+| P6 | Story mechanics deferred to `open_questions` (#471 added the provisional-defaults instruction on a Tidal-named branch) | count (none); content (text) |
 
 **Assessment criteria.** The candidate counts as genuine architecture to the degree it has:
 
@@ -173,7 +178,7 @@ summary" describes the post-#472 request.
   - per #471, the start panel shown over a populated graph.
 - **C5** — Model/runtime identity is probably absent from the artifact.
 - **C6 — The engine summary is gated on Identity.** The current request delivers Identity's engine summary only when an accepted `story_identity.yaml` exists. STATUS/#473 say no Identity was created for Tidal Archive, so probably none exists; the kit records it.
-- **C7 — The five-field engine contract is a single story-level summary, not a per-mechanism definition.** `StoryIdentity.central_engine` is required, singular, and all five fields are mandatory. `architecture_preferences.engine_hierarchy` may still be `ensemble` alongside it (§7).
+- **C7 — The five-field engine contract is a single story-level summary, not a per-mechanism definition.** `StoryIdentity.central_engine` is required, singular, and all five fields are mandatory. `architecture_preferences.engine_hierarchy` may still be `ensemble` alongside it. Whether that pairing is a tension or an intended whole-story summary is an **open question** (§7.1, R13).
 
 ### Plausible hypotheses (need the capture)
 
@@ -224,10 +229,15 @@ summary" describes the post-#472 request.
 
 **Revised remedy.** If engine semantics are delivered, describe each mechanism
 with the causal-profile terms. Offer want / resistance / stakes / change only
-as an optional lens for mechanisms driven by an agent. Keep the five-field
-summary where it belongs, as accepted Identity. The tension between a single
-required `central_engine` and an `ensemble` preference is an owner-reserved
-Identity question (R13), not a prompt fix.
+as an optional lens for mechanisms driven by an agent. Leave the five-field
+summary where it is, in accepted Identity.
+
+**Open architectural question (R13).** A single required `central_engine`
+alongside an `ensemble` preference may be a genuine tension. It may also be
+intended: one whole-story summary of what an ensemble produces. This review
+does not decide which. It is an owner-reserved Identity question, not a prompt
+fix. Evidence that would settle it: an ensemble story whose single summary
+visibly distorts its architecture, or the owner's statement of intent.
 
 ### 7.2 Can a genre-to-engine reference be expressed with existing schema fields?
 
@@ -254,9 +264,17 @@ Not proposed for implementation now (R1).
 
 ### 7.3 Smallest justified generation-context change
 
-**Not warranted yet.** It is admissible only if the capture confirms a defect
-that also **persists in the ontology-grounded revision**. If P1/P2 are
-confirmed and persist, the candidate change is about 60–100 words, prompt-only:
+**Not warranted yet.** It becomes admissible when the capture confirms a defect
+in the **initial** candidate, and that defect traces to knowledge the
+**current develop request still omits or compresses** (§4, current column).
+
+Whether the defect persists in the ontology-grounded revision is corroborating
+evidence, not a prerequisite. The revision also received the previous
+candidate and a targeted instruction, so it is not a clean test of
+initial-generation context.
+
+If P1/P2 are confirmed on those terms, the candidate change is about 60–100
+words, prompt-only:
 
 1. Describe each mechanism with Phase F causal-profile terms; use want /
    resistance / stakes / change only where a mechanism is driven by an agent
@@ -284,7 +302,7 @@ five-field contract as a universal definition, or schema v3.
 | ID | Finding | Kind | Priority | Admission evidence |
 |---|---|---|---|---|
 | R1 | No typed contract → engine reference; engine meaning split across four places. Schema change specified in §7.2 | Schema | **P1** | P1 confirmed, and the untyped-link convention proves insufficient |
-| R2 | Mechanism semantics (causal-profile terms) not delivered per mechanism; Identity's engine summary only with accepted Identity | Context | **P1** | P1/P2 confirmed and persisting in the revision |
+| R2 | Mechanism semantics (causal-profile terms) not delivered per mechanism; Identity's engine summary only with accepted Identity | Context | **P1** | P1/P2 confirmed in the initial candidate and traced to an omission still present in the current develop request |
 | R3 | `parent_id` meaning undefined and not drawn | Schema + presentation | P1 | Hierarchy misread or misused |
 | R4 | Untyped `ArchitectureLink.function` vs typed `GenreInteraction.kind` | Schema | P2 | Prose functions cannot carry a needed distinction |
 | R5 | Three unreconciled "governing" notions (contract role, phase participation role, `engine_hierarchy`) | Schema | P2 | Contradiction observed |
@@ -295,7 +313,7 @@ five-field contract as a universal definition, or schema v3.
 | R10 | Per-node provenance absent; `author_declared` unvalidated | Schema | P3 | Misattribution observed |
 | R11 | One phase `order` for both chronology and disclosure | Schema | Deferred | Nonlinear Vision needing it |
 | R12 | Guidance edits stale all saved work | Process | Deferred | Frequent guidance changes |
-| **R13** | **Identity requires one `central_engine` while allowing `engine_hierarchy = ensemble`** | **Identity (owner-reserved)** | **P2** | **An ensemble story whose summary distorts it** |
+| **R13** | **Open question: Identity requires one `central_engine` while allowing `engine_hierarchy = ensemble`. Tension or intended whole-story summary?** | **Identity (owner-reserved)** | **Open** | **An ensemble story whose single summary distorts it, or a statement of owner intent** |
 
 ### Outside the initial-generation path (separate legacy lane; do not mix)
 
@@ -321,8 +339,9 @@ five-field contract as a universal definition, or schema v3.
 
 **Admit one bounded comparison only if all of these hold:**
 
-1. a defect is confirmed;
-2. it persists in the revision;
+1. a defect is confirmed in the initial candidate;
+2. it traces to an omission still present in the current develop request
+   (persistence in the revision corroborates but is not required);
 3. a slice of ≤100 words targets it;
 4. model and runtime will be recorded.
 
@@ -334,44 +353,46 @@ same Vision and judge qualitatively against §5.
 ## 10. Capture kit review
 
 [`scripts/tidal_forensic_capture.py`](../../scripts/tidal_forensic_capture.py)
-is standard library only (Python 3.10+) and needs no Auteur install. Review
-findings on the first draft, all fixed:
+is standard library only (Python 3.10+) and needs no Auteur install. It
+collects evidence and does no narrative analysis; analysis happens in the
+assessment step (§5), so the tool that touches the private project stays small.
 
-| # | Issue | Fix |
-|---|---|---|
-| K1 | Unknown prompt hash labelled as "not a shipped version", which reads like a verdict | Reported as a provenance question. `--auteur-repo` searches the owner's local git history (all refs) to identify unpushed or local prompt versions. A request hash that doesn't recompute is likewise a provenance question. |
-| K2 | Analysis read the live project | Analyses only the verified copies |
-| K3 | No detection of the project changing during capture | Hashes each source before copying, the copy itself, and the source again afterwards. Unstable files are flagged; only a copy that differs from a *stable* source aborts. |
-| K4 | Output-path check fragile on Windows (case, junctions) | `realpath` + `normcase` + `commonpath`; refuses `--out` inside the project; never overwrites an existing capture |
-| K5 | Symlinks followed | Not followed; recorded, not copied |
-| K6 | No privacy separation | `private/` (raw copies, full report) vs `shareable/`. The Story Vision, working items and revision instructions are never shared (length + hash only). Candidate free text is redacted by default; `--share-labels`/`--share-text` opt in; `--redact TERM` masks names. |
-| K7 | No output integrity record | `SHA256SUMS.txt` over all outputs |
-| K8 | Missing indicators | Pre-#471 presentation effect, initial → revision diff, delivered-knowledge summary, P1–P6 indicators |
+| Guarantee | How |
+|---|---|
+| Read-only | Writes only to a new `auteur-capture-<UTC>` folder under `--out`; refuses an `--out` inside the project (`realpath` + `normcase` + `commonpath`); never follows symlinks or Windows junctions |
+| One canvas per capture | With several architecture canvases and no `--canvas`, it refuses before writing anything |
+| Integrity | Hashes each source before copying, hashes the copy, and rehashes the source afterwards. Any change, or a copy that differs from a stable source, makes the capture **DISQUALIFIED**: status in both reports, `DISQUALIFIED.txt`, exit code 3. Files are kept for diagnosis only. |
+| Provenance without accusation | Known prompt versions are named. An unknown hash, or a request hash that does not recompute, is reported as a provenance question. `--auteur-repo` identifies local or unpushed prompts by commit and date; the commit subject stays private. |
+| Shareable privacy | All node, link, phase, emotion, interaction, request and canvas IDs, and unknown path segments, become consistent per-capture pseudonyms (`N01`, `R01`, `F01`, …). The table stays in `private/`. No hashes of private content are shared (an unkeyed hash of short text lets a guesser confirm it). Symlink targets and file hashes are not shared. Candidate text is masked unless `--share-labels` (titles, link functions, genre labels) or `--share-text`; `--redact` masks names in shared text. The Story Vision, working items and revision instructions are never shared, only their lengths. |
+| Comparable candidates | Shared candidates are canonicalized (schema defaults dropped), so a raw response and a stored model dump of the same content compare equal. Without this, the earlier draft reported every node of a revision as changed. |
 
-**Tests** (`tests/test_tidal_forensic_capture.py`, 6 passed): source project
-byte- and mtime-identical after capture; copies identical; output inside the
-project refused; unknown prompt reported neutrally; private text kept out of
-shareable output, with redaction; concurrent change detected; local-history
-prompt lookup. Mutation checks confirmed the tests can fail: removing the
-inside-project check, sanitization or the post-copy rehash each fails exactly
-one test. These fixtures test the tool only; none is evidence about Tidal
-Archive.
+**Tests** (`tests/test_tidal_forensic_capture.py`, 6 passed):
+- the project is unchanged (bytes and mtimes) and the copies are identical;
+- an output folder inside the project is refused;
+- several canvases require `--canvas`;
+- a change during capture disqualifies the capture;
+- adversarial privacy: a canary placed in the canvas ID, every ID kind, titles, genre labels, an extra filename, a symlink target and a local commit subject appears nowhere in `shareable/`, filenames included. Neither do raw Vision, request or source hashes. Pseudonyms still connect links, contracts, emotion references and the revision diff, and the private side does hold the canary;
+- unknown-prompt provenance.
+
+Six mutations each make a test fail: no inside-project refusal, real IDs shared,
+no post-copy rehash, no canonicalization, several canvases allowed, Vision hash
+shared. These fixtures test the tool only; none is evidence about Tidal Archive.
 
 ---
 
 ## 11. Next action (owner)
 
 1. Close Auteur Studio.
-2. On the Windows machine, from a checkout that includes this script, run:
+2. On the Windows machine, from a checkout that includes the script, run:
 
    ```powershell
-   python scripts\tidal_forensic_capture.py --project "C:\path\to\tidal-archive" --out "D:\tidal-forensics" --auteur-repo . --share-labels
+   python scripts\tidal_forensic_capture.py --project "C:\path\to\tidal-archive" --out "D:\tidal-forensics" --canvas <canvas-id> --auteur-repo . --share-labels
    ```
 
-   Add `--redact "Name"` for any proper nouns you want masked.
-3. Share `shareable\report.md` and `shareable\evidence.json`. They contain
-   structure, provenance and labels, but no Vision or candidate prose.
-4. If you are willing to share candidate prose for the narrative assessment,
-   rerun with `--share-text`. Keep `private\` to yourself.
-5. The actual-candidate assessment (§5–§6 against P1–P6, the attribution rule
-   and §7.3) follows from those files.
+   Add `--redact "Name"` for proper nouns to mask. Exit code 3 means the capture
+   is disqualified: close Studio and run it again.
+3. Share `shareable\evidence.json` and `shareable\report.md`. Keep `private\` to yourself.
+4. The narrative judgment (§5 criteria) needs candidate prose. If you are
+   willing, rerun with `--share-text`; the Vision is still withheld.
+5. The actual-candidate assessment (§5–§6, the attribution rule and §7.3)
+   follows from those files.
