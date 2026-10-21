@@ -1006,6 +1006,32 @@
     return { start: boundaryPoint(sourceCenter, targetCenter),
       control: control, end: boundaryPoint(targetCenter, sourceCenter) };
   }
+  function architectureLinkGeometry(from, to, sourceSize, targetSize, offset) {
+    var sourceCenter = { x: from.x + sourceSize.width / 2, y: from.y + sourceSize.height / 2 };
+    var targetCenter = { x: to.x + targetSize.width / 2, y: to.y + targetSize.height / 2 };
+    var dx = targetCenter.x - sourceCenter.x, dy = targetCenter.y - sourceCenter.y;
+    var length = Math.sqrt(dx * dx + dy * dy) || 1;
+    var control = { x: (sourceCenter.x + targetCenter.x) / 2 - dy / length * offset,
+      y: (sourceCenter.y + targetCenter.y) / 2 + dx / length * offset };
+    function boundaryPoint(point, toward, size) {
+      var vx = toward.x - point.x, vy = toward.y - point.y;
+      var scale = 1 / Math.max(Math.abs(vx) / (size.width / 2),
+        Math.abs(vy) / (size.height / 2), 0.0001);
+      return { x: point.x + vx * scale, y: point.y + vy * scale };
+    }
+    return { start: boundaryPoint(sourceCenter, control, sourceSize), control: control,
+      end: boundaryPoint(targetCenter, control, targetSize) };
+  }
+  function architectureNodeSize(nodeId) {
+    var nodes = document.querySelectorAll("#nodes .node.candidate");
+    var node = Array.prototype.find.call(nodes, function (button) {
+      return button.dataset.itemId === nodeId;
+    });
+    if (!node) return null;
+    var width = node.offsetWidth, height = node.offsetHeight;
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+    return { width: width, height: height };
+  }
 
   function drawEdges() {
     var svg = $("edges");
@@ -1031,25 +1057,48 @@
       }
     });
     if (state.architecture && state.view === "architecture") {
+      if (state.architecture.links.length) {
+        var linkDefs = document.createElementNS(svgNS, "defs");
+        var linkArrow = document.createElementNS(svgNS, "marker");
+        linkArrow.setAttribute("id", "architecture-link-arrow");
+        linkArrow.setAttribute("markerWidth", "10"); linkArrow.setAttribute("markerHeight", "10");
+        linkArrow.setAttribute("refX", "9"); linkArrow.setAttribute("refY", "5");
+        linkArrow.setAttribute("orient", "auto"); linkArrow.setAttribute("markerUnits", "userSpaceOnUse");
+        var linkArrowHead = document.createElementNS(svgNS, "path");
+        linkArrowHead.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        linkArrowHead.setAttribute("fill", "#684b86");
+        linkArrow.appendChild(linkArrowHead); linkDefs.appendChild(linkArrow); svg.appendChild(linkDefs);
+      }
       state.architecture.links.forEach(function (edge) {
         var fromNode = candidateNode(edge.source), toNode = candidateNode(edge.target);
         if (!fromNode || !toNode || !candidateVisible(fromNode) || !candidateVisible(toNode)) return;
         var from = state.candidatePositions[edge.source], to = state.candidatePositions[edge.target];
         if (!from || !to) return;
-        var line = document.createElementNS(svgNS, "line");
-        line.setAttribute("x1", String(from.x + 82)); line.setAttribute("y1", String(from.y + 34));
-        line.setAttribute("x2", String(to.x + 82)); line.setAttribute("y2", String(to.y + 34));
-        line.setAttribute("stroke", "#846ca1"); line.setAttribute("stroke-width", "2");
-        line.setAttribute("stroke-dasharray", "6 4");
+        // #edges and #nodes share #world. Layout sizes and candidatePositions are
+        // therefore local SVG coordinates; the shared pan/zoom transform applies once.
+        var fromSize = architectureNodeSize(edge.source), toSize = architectureNodeSize(edge.target);
+        if (!fromSize || !toSize) return;
+        var reciprocal = state.architecture.links.some(function (other) {
+          return other.source === edge.target && other.target === edge.source;
+        });
+        var curve = architectureLinkGeometry(from, to, fromSize, toSize, reciprocal ? 14 : 0);
+        var path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", "M " + curve.start.x + " " + curve.start.y +
+          " Q " + curve.control.x + " " + curve.control.y + " " + curve.end.x + " " + curve.end.y);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#684b86"); path.setAttribute("stroke-width", "2.5");
+        path.setAttribute("stroke-dasharray", "6 4");
+        path.setAttribute("marker-end", "url(#architecture-link-arrow)");
+        path.setAttribute("data-architecture-link-id", edge.id);
         var highlighted = edge.source === state.selectedCandidate || edge.target === state.selectedCandidate;
-        line.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".22" : ".8");
+        path.setAttribute("opacity", state.selectedCandidate && !highlighted ? ".22" : ".9");
         var title = document.createElementNS(svgNS, "title");
         title.textContent = (edge.function || "Related") + ": " + fromNode.title + " → " + toNode.title;
-        line.appendChild(title); svg.appendChild(line);
+        path.appendChild(title); svg.appendChild(path);
         if (highlighted && edge.function) {
           var verb = document.createElementNS(svgNS, "text");
-          verb.setAttribute("x", String((from.x + to.x) / 2 + 82));
-          verb.setAttribute("y", String((from.y + to.y) / 2 + 20));
+          verb.setAttribute("x", String(curve.control.x));
+          verb.setAttribute("y", String(curve.control.y - 8));
           verb.setAttribute("text-anchor", "middle"); verb.setAttribute("fill", "#584773");
           verb.setAttribute("font-size", "12"); verb.textContent = edge.function.slice(0, 46);
           svg.appendChild(verb);
@@ -1196,7 +1245,9 @@
         var other = candidateNode(edge.source === proposal.id ? edge.target : edge.source);
         if (!other) return;
         var button = document.createElement("button"); button.type = "button"; button.className = "facet-link";
-        button.textContent = (edge.function || "Related") + " → " + other.title;
+        button.textContent = edge.source === proposal.id
+          ? "Outgoing to " + other.title + ": " + (edge.function || "Related")
+          : "Incoming from " + other.title + ": " + (edge.function || "Related");
         button.addEventListener("click", function () { visitFacet("overview", null, other.id); });
         related.appendChild(button);
       });
