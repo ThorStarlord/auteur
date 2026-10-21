@@ -30,9 +30,9 @@ def working_store(tmp_path):
     return store
 
 
-def candidate():
+def candidate(schema_version=2):
     return {
-        "schema_version": 1,
+        "schema_version": schema_version,
         "summary": "Wonder survives shifting genres.",
         "nodes": [
             {"id": "engine", "title": "Discovery engine", "category": "engine",
@@ -61,6 +61,15 @@ def response(status, data=None):
         request, json.dumps(data if data is not None else candidate()),
         runtime="integration-test", model="UNAVAILABLE",
     ).model_dump()
+
+
+def write_legacy_current(store, waiting, legacy_candidate):
+    architecture = store.directory / "architecture"
+    (architecture / "current.json").write_text(json.dumps({
+        "request_sha256": waiting["request"]["request_sha256"],
+        "source_sha256": waiting["request"]["settings"]["source_sha256"],
+        "candidate": legacy_candidate,
+    }), encoding="utf-8")
 
 
 def test_architecture_request_carries_source_grounded_ontology_not_hidden_author_choices(tmp_path):
@@ -247,6 +256,88 @@ def test_revision_preserves_prior_candidate_and_idempotent_response(tmp_path):
     assert (history / "response.json").exists()
 
 
+def test_new_develop_response_rejects_schema_v1_without_persisting(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    sha = waiting["request"]["request_sha256"]
+
+    with pytest.raises(ValidationError, match="new Studio architecture responses must use schema_version 2"):
+        complete_architecture(store, response(waiting, candidate(schema_version=1)))
+
+    request_dir = store.directory / "architecture" / "requests" / sha
+    assert not (request_dir / "response.json").exists()
+    assert not (request_dir / "review.json").exists()
+    assert not (store.directory / "architecture" / "current.json").exists()
+
+
+def test_revision_response_rejects_schema_v1_and_preserves_v2_baseline(tmp_path):
+    store = working_store(tmp_path)
+    first = prepare_architecture(store)
+    baseline = complete_architecture(store, response(first))
+    revision = prepare_architecture(store, "Revise the supporting mechanism.")
+    sha = revision["request"]["request_sha256"]
+
+    with pytest.raises(ValidationError, match="new Studio architecture responses must use schema_version 2"):
+        complete_architecture(store, response(revision, candidate(schema_version=1)))
+
+    request_dir = store.directory / "architecture" / "requests" / sha
+    assert not (request_dir / "response.json").exists()
+    assert not (request_dir / "review.json").exists()
+    current = project_architecture(store)
+    assert current["candidate"] == baseline["candidate"]
+    assert current["candidate_request_sha256"] == baseline["candidate_request_sha256"]
+
+
+def test_stored_v1_current_and_review_artifacts_still_project_and_apply(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    legacy = ArchitectureCandidate.model_validate(
+        candidate(schema_version=1)
+    ).model_dump(mode="json")
+    write_legacy_current(store, waiting, legacy)
+
+    projection = project_architecture(store)
+    assert projection["status"] == "ready"
+    assert projection["candidate"]["schema_version"] == 1
+    assert projection["candidate"]["summary"] == legacy["summary"]
+
+    revision = prepare_architecture(store, "Revise this legacy proposal.")
+    revised_legacy = {**legacy, "summary": "A revised legacy working proposal."}
+    request_dir = store.directory / "architecture" / "requests" / revision["request"]["request_sha256"]
+    (request_dir / "review.json").write_text(json.dumps({
+        "request_sha256": revision["request"]["request_sha256"],
+        "source_sha256": revision["request"]["settings"]["source_sha256"],
+        "prior_request_sha256": waiting["request"]["request_sha256"],
+        "candidate": revised_legacy,
+        "changes": {},
+    }), encoding="utf-8")
+
+    applied = apply_architecture_review(store, revision["request"]["request_sha256"])
+
+    assert applied["status"] == "ready"
+    assert applied["candidate"]["schema_version"] == 1
+    assert applied["candidate"]["summary"] == revised_legacy["summary"]
+
+
+def test_identical_replay_of_stored_v1_response_remains_idempotent(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    sha = waiting["request"]["request_sha256"]
+    legacy = candidate(schema_version=1)
+    reply = response(waiting, legacy)
+    request_dir = store.directory / "architecture" / "requests" / sha
+    (request_dir / "response.json").write_text(json.dumps(reply), encoding="utf-8")
+    write_legacy_current(
+        store, waiting,
+        ArchitectureCandidate.model_validate(legacy).model_dump(mode="json"),
+    )
+
+    replay = complete_architecture(store, reply)
+
+    assert replay["status"] == "ready"
+    assert replay["candidate"]["schema_version"] == 1
+
+
 
 def test_stale_review_apply_does_not_replace_working_architecture(tmp_path):
     store = working_store(tmp_path)
@@ -303,6 +394,31 @@ def test_http_prepare_complete_and_missing_canvas(tmp_path):
         assert not thread.is_alive()
 
 
+def test_http_rejects_new_v1_architecture_response_as_invalid_candidate(tmp_path):
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        prefix = "/api/beginner/studio/canvases/story-one/architecture"
+        working_store(tmp_path)
+        _, waiting = _call(base, "POST", prefix + "/prepare", {})
+        sha = waiting["request"]["request_sha256"]
+        with pytest.raises(HTTPError) as rejected:
+            _call(base, "POST", prefix + "/host-agent-response",
+                  response(waiting, candidate(schema_version=1)))
+        assert rejected.value.code == 400
+        payload = json.loads(rejected.value.read().decode("utf-8"))
+        assert "new Studio architecture responses must use schema_version 2" in payload["error"]
+        request_dir = CanvasStore(tmp_path, "story-one").directory / "architecture" / "requests" / sha
+        assert not (request_dir / "response.json").exists()
+        assert not (request_dir / "review.json").exists()
+        assert not (request_dir.parent.parent / "current.json").exists()
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
 def test_host_coding_agent_can_complete_raw_candidate_file_via_cli(tmp_path, capsys):
     store = working_store(tmp_path)
     arguments = ["--project", str(tmp_path), "--canvas", "story-one"]
@@ -316,6 +432,14 @@ def test_host_coding_agent_can_complete_raw_candidate_file_via_cli(tmp_path, cap
     output = json.loads(capsys.readouterr().out)
     assert output["status"] == "ready"
     assert output["candidate"]["nodes"][0]["id"] == "engine"
+
+    baseline = output["candidate"]
+    assert main(arguments + ["prepare", "--instruction", "Revise the engine."]) == 0
+    capsys.readouterr()
+    raw.write_text(json.dumps(candidate(schema_version=1)), encoding="utf-8")
+    with pytest.raises(ValidationError, match="new Studio architecture responses must use schema_version 2"):
+        main(arguments + ["complete-file", "--candidate", str(raw)])
+    assert project_architecture(store)["candidate"] == baseline
 
 
 def emotion_first_candidate():
@@ -394,7 +518,7 @@ def test_v2_emotion_first_architecture_and_legacy_v1_remain_readable():
     assert modern.schema_version == 2
     assert modern.complex_emotions[0].basic_emotions == ["anger", "joy"]
     assert modern.genre_interactions[0].kind == "constrains"
-    assert ArchitectureCandidate.model_validate(candidate()).schema_version == 1
+    assert ArchitectureCandidate.model_validate(candidate(schema_version=1)).schema_version == 1
 
 
 def test_v2_rejects_non_basic_emotions_and_premature_concrete_categories():

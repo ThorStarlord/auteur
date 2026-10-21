@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
 
 from auteur.narrative_ontology.architecture_preferences import (
     CausalDistributionPreference, ComplexityPreference, EngineHierarchyPreference,
@@ -156,7 +156,9 @@ class ArchitectureCandidate(BaseModel):
     genre_interactions: list[GenreInteraction] = Field(default_factory=list, max_length=40)
 
     @model_validator(mode="after")
-    def valid_graph(self) -> "ArchitectureCandidate":
+    def valid_graph(self, info: ValidationInfo) -> "ArchitectureCandidate":
+        if info.context and info.context.get("new_host_agent_response") and self.schema_version != 2:
+            raise ValueError("new Studio architecture responses must use schema_version 2")
         nodes = {node.id for node in self.nodes}
         phases = {phase.id for phase in self.phases}
         if len(nodes) != len(self.nodes) or len(phases) != len(self.phases):
@@ -554,15 +556,16 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         base = _root(store) / "requests" / sha
         request = load_host_agent_request(base / "request.json")
         response = validate_host_agent_response(request, payload)
-        proposal = ArchitectureCandidate.model_validate_json(response.text)
         current = _candidate(store)
         prior_response = _read(base / "response.json")
         if prior_response:
             if prior_response != response.model_dump():
                 raise BeginnerConcurrencyError("a different response already completed this request")
             return project_architecture(store)
+        proposal = ArchitectureCandidate.model_validate_json(
+            response.text, context={"new_host_agent_response": True}
+        )
         instruction = json.loads(request.user)["revision_instruction"]
-        previous = current["candidate"] if instruction.strip() and current else None
         if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
