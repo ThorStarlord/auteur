@@ -359,24 +359,26 @@ assessment step (§5), so the tool that touches the private project stays small.
 
 | Guarantee | How |
 |---|---|
-| Read-only | Writes only to a new `auteur-capture-<UTC>` folder under `--out`; refuses an `--out` inside the project (`realpath` + `normcase` + `commonpath`); never follows symlinks or Windows junctions |
+| Read-only | Writes only to a new `auteur-capture-<UTC>` folder under `--out`; refuses an `--out` inside the project (`realpath` + `normcase` + `commonpath`); never follows symlinks or Windows junctions, detected by `os.lstat` and the reparse-tag name-surrogate bit on every supported Python (3.10 and 3.11 lack `os.path.isjunction`); refuses Python < 3.10 |
 | One canvas per capture | With several architecture canvases and no `--canvas`, it refuses before writing anything |
-| Integrity | Hashes each source before copying, hashes the copy, and rehashes the source afterwards. Any change, or a copy that differs from a stable source, makes the capture **DISQUALIFIED**: status in both reports, `DISQUALIFIED.txt`, exit code 3. Files are kept for diagnosis only. |
-| Provenance without accusation | Known prompt versions are named. An unknown hash, or a request hash that does not recompute, is reported as a provenance question. `--auteur-repo` identifies local or unpushed prompts by commit and date; the commit subject stays private. |
-| Shareable privacy | All node, link, phase, emotion, interaction, request and canvas IDs, and unknown path segments, become consistent per-capture pseudonyms (`N01`, `R01`, `F01`, …). The table stays in `private/`. No hashes of private content are shared (an unkeyed hash of short text lets a guesser confirm it). Symlink targets and file hashes are not shared. Candidate text is masked unless `--share-labels` (titles, link functions, genre labels) or `--share-text`; `--redact` masks names in shared text. The Story Vision, working items and revision instructions are never shared, only their lengths. |
+| Integrity | Hashes each source before copying, hashes the copy, rehashes the source afterwards, and re-inventories the canvas. A file that changes, vanishes or appears, or a copy that differs from a stable source, makes the capture **DISQUALIFIED**: status in both reports, `DISQUALIFIED.txt`, exit code 3. Files are kept for diagnosis only. Detection compares before and after, so a change undone in between is invisible; close Studio first. |
+| Provenance without accusation | Known prompt versions are named. An unknown hash, or a request hash that does not recompute, is reported as a provenance question. `--auteur-repo` identifies local or unpushed prompts by commit and date; commit subjects are never recorded. |
+| Shareable privacy | All node, link, phase, emotion, interaction, request and canvas IDs, and unknown path segments, become consistent per-capture pseudonyms (`N01`, `R01`, `F01`, …). The table stays in `private/`. No hashes of private content are shared (an unkeyed hash of short text lets a guesser confirm it). Link targets are never recorded, even privately, and file hashes are not shared. Candidate text is masked unless `--share-labels` (titles, link functions, genre labels) or `--share-text`; `--redact` masks names in shared text. **Those two levels expose the author's creative material**: pseudonyms hide identifiers, not content. The help text, both reports, `evidence.json` and the console all say so. The Story Vision, working items and revision instructions are never shared, only their lengths. |
 | Comparable candidates | Shared candidates are canonicalized (schema defaults dropped), so a raw response and a stored model dump of the same content compare equal. Without this, the earlier draft reported every node of a revision as changed. |
 
 **Tests** (`tests/test_tidal_forensic_capture.py`, 6 passed):
 - the project is unchanged (bytes and mtimes) and the copies are identical;
-- an output folder inside the project is refused;
-- several canvases require `--canvas`;
-- a change during capture disqualifies the capture;
-- adversarial privacy: a canary placed in the canvas ID, every ID kind, titles, genre labels, an extra filename, a symlink target and a local commit subject appears nowhere in `shareable/`, filenames included. Neither do raw Vision, request or source hashes. Pseudonyms still connect links, contracts, emotion references and the revision diff, and the private side does hold the canary;
+- an output folder inside the project, and an ambiguous canvas choice, are refused before writing;
+- junction, symlink and WSL-link reparse tags are excluded and cloud placeholders kept, with `os.path.isjunction` removed;
+- a changed file and a newly appearing file each disqualify the capture;
+- adversarial privacy: a canary placed in the canvas ID, every ID kind, titles, genre labels, an extra filename, a symlinked directory holding a canary file and a local commit subject appears nowhere in `shareable/`, filenames included. Neither do raw Vision, request or source hashes. Pseudonyms still connect links, contracts, emotion references and the revision diff, and the private side does hold the canary;
 - unknown-prompt provenance.
 
-Six mutations each make a test fail: no inside-project refusal, real IDs shared,
+Mutations that each make a test fail: no inside-project refusal, real IDs shared,
 no post-copy rehash, no canonicalization, several canvases allowed, Vision hash
-shared. These fixtures test the tool only; none is evidence about Tidal Archive.
+shared, reparse tag ignored, no re-inventory, creative-material flag always off.
+The kit's command line also ran on Python 3.10, 3.11, 3.12 and 3.13 with
+identical shareable evidence. These fixtures test the tool only; none is evidence about Tidal Archive.
 
 ---
 
