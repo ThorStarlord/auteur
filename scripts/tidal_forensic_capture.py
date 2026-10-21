@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Read-only forensic capture of one Auteur Studio canvas.
+"""Read-only forensic capture of one Auteur Studio canvas (standard library, Python 3.10+).
 
-Copies the canvas (and any story_identity.yaml) into a new folder outside the project,
-proves each copy matches a stable source, and reads only the copies.
-
-    private/    raw copies, full evidence with real IDs and text, pseudonym table. Never share.
-    shareable/  report.md + evidence.json: IDs, requests, canvas and unknown path segments are
-                consistent per-capture pseudonyms; no hashes of private content; no symlink
-                targets; candidate text masked unless --share-labels/--share-text; the Story
-                Vision, working items and revision instructions are never included.
-
-A source that changes while it is read DISQUALIFIES the capture as evidence (status,
-DISQUALIFIED.txt, exit code 3); the files remain for diagnosis only.
-
-Standard library only (Python 3.10+). Close Auteur Studio first.
+Copies the canvas and any story_identity.yaml to a new folder outside the project and reads only the copies.
+  private/    raw copies, full evidence, pseudonym table. Never share.
+  shareable/  report.md + evidence.json: IDs, requests, canvas and unknown path segments become consistent
+              pseudonyms; no hashes of private content or symlink targets; candidate text masked by default;
+              never the Story Vision, working items or revision instructions. --share-labels and --share-text
+              DO expose creative material (titles, link functions, genre labels, or all candidate prose).
+              Link targets are never recorded, even privately.
+A source that changes, disappears or appears during the read DISQUALIFIES the capture (status,
+DISQUALIFIED.txt, exit code 3). Detection compares before and after, so a change undone in between is
+invisible: close Studio first. Symlinks and Windows junctions are never followed on any supported Python.
 """
 from __future__ import annotations
 
@@ -24,6 +21,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 from collections import Counter
@@ -37,7 +35,6 @@ KNOWN_SYSTEM_PROMPTS = {
     "42274805af64323f7e0c76d7b18edb2d2a7f485fbf442838b7197f6d10b4d76c": "8d4db52c PR #471 head; no design context",
     "53dcb696e425e764160d1efc9887f112dfe658d85ad9bc24e953dade7e48c915": "5ecf597e PR #472; ontology-grounded context",
     "e33e64e14450b58cef230e75877a363614b2821768103a6ed4a45303ee723e47": "2260609f PR #473; #472 context + provisional defaults",
-    "ffa3c8075c8c706d29b159a13536b70b44597c0b9ff8a68a3b2cc75ed8ab19ad": "46c4334d PR #475 first commit",
     "35b1f3409e0378a92e5819369666a31df2b93b5a5649ad4a2669d03b46d84466": "a6357839 main after #474/#475",
 }
 UNRECOGNIZED = ("unrecognized prompt version: a provenance question, not evidence of modification "
@@ -52,15 +49,14 @@ REFS = {"nodes": {"id": "node", "parent_id": "node"}, "links": {"id": "link", "s
         "genre_contracts": {"genre_node_id": "node", "emotion_target_ids": "emotion", "complex_emotion_ids": "complex"},
         "genre_interactions": {"id": "interaction", "source_genre_id": "node", "target_genre_id": "node"}}
 KEEP = {"schema_version", "category", "role", "kind", "emotion", "provenance", "basic_emotions", "order"}
+# Windows IsReparseTagNameSurrogate: the reparse point names another location (symlink, junction,
+# WSL link). Cloud-file placeholders lack this bit and are captured normally.
+NAME_SURROGATE = 0x20000000
 LABELS = {"title", "function", "genre"}
 
 
 def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 16), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    return hashlib.sha256(path.read_bytes()).hexdigest()  # Studio artifacts are small JSON files
 
 
 def is_inside(child: Path, parent: Path) -> bool:
@@ -81,12 +77,10 @@ class Pseudonyms:
         self.counts: Counter = Counter()
 
     def __call__(self, kind: str, value):
-        if value is None:
-            return None
-        if (kind, value) not in self.table:
+        if value is not None and (kind, value) not in self.table:
             self.counts[kind] += 1
             self.table[(kind, value)] = f"{self.PREFIX[kind]}{self.counts[kind]:02d}"
-        return self.table[(kind, value)]
+        return None if value is None else self.table[(kind, value)]
 
 
 def _copy(src: Path, dst: Path) -> None:
@@ -94,11 +88,16 @@ def _copy(src: Path, dst: Path) -> None:
     shutil.copy2(src, dst)
 
 
-def _is_link(path: Path) -> bool:
-    return path.is_symlink() or getattr(os.path, "isjunction", lambda _: False)(path)
+def _is_link(path: Path, lstat=os.lstat) -> bool:
+    """Symlink or junction without os.path.isjunction (3.12+); lstat does not traverse on Windows 3.8+."""
+    try:
+        st = lstat(path)
+    except FileNotFoundError:
+        return False
+    return stat.S_ISLNK(st.st_mode) or bool(getattr(st, "st_reparse_tag", 0) & NAME_SURROGATE)
 
 
-def capture(project: Path, canvas: Path, raw: Path) -> dict:
+def _inventory(project: Path, canvas: Path) -> tuple[list[Path], list[Path]]:
     identity = project / "story_identity.yaml"
     links = [identity] if _is_link(identity) else []
     files = [identity] if identity.is_file() and not links else []
@@ -110,6 +109,11 @@ def capture(project: Path, canvas: Path, raw: Path) -> dict:
             elif name in filenames:
                 files.append(full)
         dirnames[:] = sorted(d for d in dirnames if not _is_link(Path(dirpath, d)))
+    return files, links
+
+
+def capture(project: Path, canvas: Path, raw: Path) -> dict:
+    files, links = _inventory(project, canvas)
     before = {f: sha256_file(f) for f in files}
     entries = []
     for f in files:
@@ -121,25 +125,26 @@ def capture(project: Path, canvas: Path, raw: Path) -> dict:
     for e, f in zip(entries, files):
         e["stable"] = f.exists() and sha256_file(f) == e["sha256"]
         if not e["stable"]:
-            reasons.append(("source changed during capture", e["path"]))
+            reasons.append(("source changed or vanished during capture", e["path"]))
         elif e["copy_sha256"] != e["sha256"]:
             reasons.append(("copy differs from a stable source", e["path"]))
-    return {"files": entries, "symlinks": [{"path": p.relative_to(project).as_posix(), "target": os.readlink(p)}
-                                           for p in links],
-            "story_identity_present": identity.is_file(), "reasons": reasons}
+    for late in sorted(set(sum(_inventory(project, canvas), [])) - set(files + links)):
+        reasons.append(("appeared during capture", late.relative_to(project).as_posix()))
+    return {"files": entries, "links_not_followed": [p.relative_to(project).as_posix() for p in links],
+            "story_identity_present": (project / "story_identity.yaml").is_file(), "reasons": reasons}
 
 
 def system_prompts_from_git(repo: Path) -> dict[str, dict]:
-    """sha256(_SYSTEM) -> commit, date, subject for local commits touching the Studio module."""
+    """sha256(_SYSTEM) -> commit and date for local commits touching the Studio module."""
     def git(*args: str) -> str:
         return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True,
                               encoding="utf-8", check=True).stdout
     try:
-        history = git("log", "--all", "--format=%H|%ad|%s", "--date=short", "--", STUDIO_MODULE).splitlines()
+        history = git("log", "--all", "--format=%H|%ad", "--date=short", "--", STUDIO_MODULE).splitlines()
     except (OSError, subprocess.CalledProcessError) as exc:
         sys.exit(f"could not read git history from --auteur-repo {repo}: {exc}")
     found: dict[str, dict] = {}
-    for commit, date, subject in (line.split("|", 2) for line in history):
+    for commit, date in (line.split("|", 1) for line in history):
         try:
             tree = ast.parse(git("show", f"{commit}:{STUDIO_MODULE}"))
         except (subprocess.CalledProcessError, SyntaxError):
@@ -147,14 +152,13 @@ def system_prompts_from_git(repo: Path) -> dict[str, dict]:
         for node in tree.body:
             if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "_SYSTEM":
                 digest = hashlib.sha256(ast.literal_eval(node.value).encode("utf-8")).hexdigest()
-                found.setdefault(digest, {"commit": commit[:8], "date": date, "subject": subject})
+                found.setdefault(digest, {"commit": commit[:8], "date": date})  # the subject is never recorded
     return found
 
 
 def describe_request(path: Path, local: dict[str, dict]) -> dict:
     req = json.loads(path.read_text(encoding="utf-8"))
     body = {k: req.get(k) for k in ("schema", "candidate_id", "role", "system", "user", "settings")}
-    canonical = json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     user = json.loads(req["user"])
     working, design = user.get("working_context") or {}, user.get("narrative_design_context") or {}
     identity = design.get("accepted_story_identity") or {}
@@ -172,11 +176,11 @@ def describe_request(path: Path, local: dict[str, dict]) -> dict:
             responses.append(entry)
     return {
         "dir": path.parent.name, "request_sha256": req.get("request_sha256"), "created_at": req.get("created_at"),
-        "recomputes": hashlib.sha256(canonical).hexdigest() == req.get("request_sha256"),
+        "recomputes": hashlib.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                                     .encode("utf-8")).hexdigest() == req.get("request_sha256"),
         "operation": (req.get("settings") or {}).get("operation"), "system_sha256": system_sha,
         "prompt": KNOWN_SYSTEM_PROMPTS.get(system_sha)
         or (match and f"local commit {match['commit']} ({match['date']})") or UNRECOGNIZED,
-        "prompt_commit_subject": match and match["subject"],
         "delivered": {"narrative_design_context": bool(design),
                       "principle_sources": [p.get("source_ref") for p in design.get("source_principles", [])],
                       "accepted_identity_fields": sorted(k for k, v in identity.items() if v not in (None, [], "")),
@@ -220,15 +224,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--canvas", help="required when more than one canvas has an architecture")
     ap.add_argument("--auteur-repo", type=Path, help="local auteur checkout, to identify unrecognized prompts")
     level = ap.add_mutually_exclusive_group()
-    level.add_argument("--share-labels", action="store_true", help="share titles, link functions, genre labels")
-    level.add_argument("--share-text", action="store_true", help="share all candidate text (never the Story Vision)")
+    level.add_argument("--share-labels", action="store_true", help="share titles, link functions, genre labels (creative material)")
+    level.add_argument("--share-text", action="store_true", help="share all candidate prose (creative material)")
     ap.add_argument("--redact", action="append", default=[], help="term to mask in shared text; repeatable")
     args = ap.parse_args(argv)
+    if sys.version_info < (3, 10):
+        sys.exit("Python 3.10 or newer is required")
     project = args.project.resolve()
     base = project / ".auteur" / "beginner" / "studio" / "canvases"
     if not base.is_dir():
         sys.exit(f"not an Auteur Studio project (missing {base})")
-    if is_inside(args.out, project):
+    if is_inside(args.out, project) or is_inside(args.out, base):
         sys.exit("refusing: --out must be outside the project so the original stays untouched")
     found = [p for p in sorted(base.iterdir()) if p.is_dir() and not _is_link(p) and (p / "architecture").is_dir()]
     found = [p for p in found if p.name == args.canvas] if args.canvas else found
@@ -271,8 +277,9 @@ def main(argv: list[str] | None = None) -> int:
     shared = {
         "forensic_status": status, "disqualifying_reasons": [f"{why}: {safe_path(p)}" for why, p in cap["reasons"]],
         "captured_at_utc": stamp, "canvas": ps("canvas", canvas.name), "sharing_level": share,
+        "contains_creative_material": share != "none",
         "files": [{"path": safe_path(e["path"]), "bytes": e["bytes"], "stable": e["stable"]} for e in cap["files"]],
-        "symlinks_not_followed": len(cap["symlinks"]), "story_identity_present": cap["story_identity_present"],
+        "links_not_followed": len(cap["links_not_followed"]), "story_identity_present": cap["story_identity_present"],
         "requests": [{"request": ps("request", r["request_sha256"]), "created_at": r["created_at"],
                       "operation": r["operation"], "recomputes": r["recomputes"], "system_sha256": r["system_sha256"],
                       "prompt": r["prompt"], "delivered": r["delivered"], "story_vision_chars": len(r["vision"]),
@@ -290,7 +297,9 @@ def main(argv: list[str] | None = None) -> int:
     (out / "shareable" / "evidence.json").write_text(json.dumps(shared, indent=2, ensure_ascii=False), encoding="utf-8")
     lines = [f"# Auteur Studio forensic capture: {status}", "",
              f"Canvas {shared['canvas']}, captured {stamp}, sharing level `{share}`; IDs are per-capture pseudonyms.",
-             "An unrecognized prompt or a hash that does not recompute is a provenance question, not tampering.", ""]
+             "An unrecognized prompt or a hash that does not recompute is a provenance question, not tampering.",
+             *([f"WARNING: level `{share}` exposes creative material; pseudonyms hide identifiers, not content."]
+               if share != "none" else []), ""]
     lines += [f"- {r['request']} {r['operation']} {r['created_at']}: prompt {r['system_sha256'][:12]} = {r['prompt']}; "
               f"recomputes={r['recomputes']}; design context={r['delivered']['narrative_design_context']}; "
               f"models={[s.get('model') for s in r['responses']]}" for r in shared["requests"]]
@@ -302,7 +311,8 @@ def main(argv: list[str] | None = None) -> int:
         listed = [p for p in sorted(folder.rglob("*")) if p.is_file() and p.name != "SHA256SUMS.txt"]
         (target / "SHA256SUMS.txt").write_text(
             "".join(f"{sha256_file(p)}  {p.relative_to(folder).as_posix()}\n" for p in listed), encoding="utf-8")
-    print(f"captured canvas {canvas.name} -> {out}: {status}")
+    print(f"captured canvas {canvas.name} -> {out}: {status}"
+          + (f"\nshareable/ contains creative material (level {share}); review it before sharing" if share != "none" else ""))
     return 3 if cap["reasons"] else 0
 
 

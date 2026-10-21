@@ -1,14 +1,15 @@
 """The forensic capture kit reads one Studio canvas without changing it and shares no identifying detail."""
 from __future__ import annotations
 
-import copy
 import hashlib
 import importlib.util
 import json
 import os
 import shutil
+import stat
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -19,10 +20,10 @@ from auteur.host_agent import HostAgentRequest, build_host_agent_request, build_
 ROOT = Path(__file__).resolve().parents[1]
 CANARY = "zqxsecret"
 VISION = f"A drowned library keeps rewriting its readers. {CANARY}-vision"
-NODE = {"id": f"{CANARY}-tide", "title": f"{CANARY} tide", "category": "engine", "summary": f"{CANARY} engine text."}
 CANDIDATE = {
     "schema_version": 2, "summary": f"{CANARY} summary.",
-    "nodes": [NODE, {"id": f"{CANARY}-mystery", "title": f"{CANARY} Mystery", "category": "genre", "summary": "Q."},
+    "nodes": [{"id": f"{CANARY}-tide", "title": f"{CANARY} tide", "category": "engine", "summary": f"{CANARY} engine."},
+              {"id": f"{CANARY}-mystery", "title": f"{CANARY} Mystery", "category": "genre", "summary": "Q."},
               {"id": f"{CANARY}-loss", "title": "Loss", "category": "theme", "summary": "Unlinked."}],
     "links": [{"id": f"{CANARY}-l1", "source": f"{CANARY}-tide", "target": f"{CANARY}-mystery",
                "function": f"drives {CANARY} investigation"}],
@@ -43,30 +44,19 @@ def _kit():
     return module
 
 
-def _canvas(root: Path, canvas_id: str, revise: bool = False) -> CanvasStore:
+def _canvas(root: Path, canvas_id: str, revise: bool = True) -> Path:
     store = CanvasStore(root, canvas_id)
     store.create()
     store.apply("create-item", expected_revision=0, command_id="vision", payload={
         "item": {"id": "story-vision", "kind": "note", "title": "Story Vision", "content": VISION},
         "position": {"x": 0, "y": 0}})
-    for instruction, candidate in [("", CANDIDATE)] + ([("Sharpen the tide.", _revised())] if revise else []):
+    revised = json.loads(json.dumps(CANDIDATE))
+    revised["nodes"][0]["summary"] = "Sharper tide."
+    for instruction, candidate in [("", CANDIDATE)] + ([("Sharpen the tide.", revised)] if revise else []):
         waiting = prepare_architecture(store, instruction)
         response = build_host_agent_response(HostAgentRequest(**waiting["request"]), json.dumps(candidate))
         complete_architecture(store, response.model_dump())
-    return store
-
-
-def _revised() -> dict:
-    revised = copy.deepcopy(CANDIDATE)
-    revised["nodes"][0]["summary"] = "Sharper tide."
-    return revised
-
-
-def _project(tmp_path: Path, revise: bool = False) -> Path:
-    root = tmp_path / "project"
-    root.mkdir()
-    _canvas(root, f"{CANARY}-canvas", revise)
-    return root
+    return store.directory
 
 
 def _tree(root: Path) -> dict:
@@ -74,103 +64,106 @@ def _tree(root: Path) -> dict:
             for p in sorted(root.rglob("*")) if p.is_file() and not p.is_symlink()}
 
 
-def _capture(kit, project: Path, out: Path, *extra: str, code: int = 0) -> Path:
+def _capture(kit, project: Path, out: Path, *extra: str, code: int = 0) -> tuple[Path, dict]:
     assert kit.main(["--project", str(project), "--out", str(out), *extra]) == code
     (captured,) = out.iterdir()
-    return captured
+    return captured, json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))
 
 
-def _shared(captured: Path) -> str:
-    files = sorted((captured / "shareable").rglob("*"))
-    return "\n".join([p.name for p in files] + [p.read_text(encoding="utf-8") for p in files if p.is_file()])
+@pytest.fixture
+def setup(tmp_path):
+    (tmp_path / "project").mkdir()
+    return _kit(), tmp_path / "project", _canvas(tmp_path / "project", f"{CANARY}-canvas")
 
 
-def test_capture_is_read_only_byte_identical_and_valid(tmp_path):
-    kit, project = _kit(), _project(tmp_path)
+def test_capture_is_read_only_byte_identical_and_valid(setup, tmp_path):
+    kit, project, _ = setup
     before = _tree(project)
-    captured = _capture(kit, project, tmp_path / "out")
+    captured, evidence = _capture(kit, project, tmp_path / "out")
     assert _tree(project) == before
     assert {k: v[0] for k, v in _tree(captured / "private" / "raw").items()} == {k: v[0] for k, v in before.items()}
-    evidence = json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))
     assert evidence["forensic_status"] == "VALID" and evidence["requests"][0]["recomputes"] is True
-    assert [c["source"] for c in evidence["candidates"]] == ["response.json", "current working"]
-    assert not (captured / "DISQUALIFIED.txt").exists()
+    assert evidence["contains_creative_material"] is False and not (captured / "DISQUALIFIED.txt").exists()
+    assert [c["source"] for c in evidence["candidates"]] == ["response.json"] * 2 + ["staged revision", "current working"]
     assert "private/" not in (captured / "shareable" / "SHA256SUMS.txt").read_text(encoding="utf-8")
 
 
-def test_output_inside_project_is_refused_without_writing(tmp_path):
-    kit, project = _kit(), _project(tmp_path)
-    before = _tree(project)
+def test_refuses_output_in_project_and_ambiguous_canvas_without_writing(setup, tmp_path):
+    kit, project, _ = setup
     with pytest.raises(SystemExit, match="outside the project"):
         kit.main(["--project", str(project), "--out", str(project / "forensics")])
-    assert _tree(project) == before and not (project / "forensics").exists()
-
-
-def test_several_canvases_require_an_explicit_choice(tmp_path):
-    kit, project = _kit(), _project(tmp_path)
     _canvas(project, "second")
     with pytest.raises(SystemExit, match="exactly one canvas"):
         kit.main(["--project", str(project), "--out", str(tmp_path / "out")])
-    assert not (tmp_path / "out").exists()
-    captured = _capture(kit, project, tmp_path / "out", "--canvas", "second")
-    assert len(json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))["requests"]) == 1
+    assert not (project / "forensics").exists() and not (tmp_path / "out").exists()
+    assert len(_capture(kit, project, tmp_path / "out", "--canvas", "second")[1]["requests"]) == 2
 
 
-def test_source_change_during_capture_disqualifies_the_evidence(tmp_path, monkeypatch):
-    kit, project = _kit(), _project(tmp_path)
+def test_windows_junctions_are_detected_on_every_supported_python(monkeypatch):
+    kit = _kit()
+    monkeypatch.delattr(os.path, "isjunction", raising=False)  # absent before Python 3.12
+    tags = {0xA0000003: True, 0xA000000C: True, 0xA000001D: True,  # junction, symlink, WSL link
+            0x9000001A: False, 0: False}  # OneDrive placeholder, plain directory
+    for tag, expected in tags.items():
+        fake = SimpleNamespace(st_mode=stat.S_IFDIR | 0o755, st_reparse_tag=tag)
+        assert kit._is_link(Path("x"), lstat=lambda _: fake) is expected, hex(tag)
+
+
+def test_changed_or_new_files_disqualify_the_capture(setup, tmp_path, monkeypatch):
+    kit, project, canvas = setup
     real_copy = kit._copy
 
-    def copy_then_touch(src, dst):
+    def copy_then_disturb(src, dst):
         real_copy(src, dst)
         if src.name == "current.json":
             src.write_text(src.read_text(encoding="utf-8") + " ", encoding="utf-8")
+            (canvas / "late.json").write_text("{}", encoding="utf-8")
 
-    monkeypatch.setattr(kit, "_copy", copy_then_touch)
-    captured = _capture(kit, project, tmp_path / "out", code=3)
-    evidence = json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))
+    monkeypatch.setattr(kit, "_copy", copy_then_disturb)
+    captured, evidence = _capture(kit, project, tmp_path / "out", code=3)
     assert evidence["forensic_status"].startswith("DISQUALIFIED")
     assert (captured / "shareable" / "report.md").read_text(encoding="utf-8").startswith("# Auteur Studio forensic capture: DISQUALIFIED")
-    assert "current.json" in (captured / "DISQUALIFIED.txt").read_text(encoding="utf-8")
+    marker = (captured / "DISQUALIFIED.txt").read_text(encoding="utf-8")
+    assert "source changed or vanished during capture" in marker and "appeared during capture" in marker
 
 
-def test_shareable_output_discloses_no_identifiers_hashes_paths_or_text(tmp_path):
-    kit, project = _kit(), _project(tmp_path, revise=True)
-    canvas = project / ".auteur" / "beginner" / "studio" / "canvases" / f"{CANARY}-canvas"
+def test_shareable_output_discloses_no_identifiers_hashes_paths_or_text(setup, tmp_path):
+    kit, project, canvas = setup
     (canvas / f"{CANARY}-notes.txt").write_text("private", encoding="utf-8")
-    if hasattr(os, "symlink"):
-        try:
-            os.symlink(f"/home/{CANARY}/elsewhere", canvas / "linked")
-        except OSError:
-            pass
-    captured = _capture(kit, project, tmp_path / "out", "--share-labels", "--redact", CANARY)
-    shared = _shared(captured).lower()
+    outside = tmp_path / f"{CANARY}-outside"
+    outside.mkdir()
+    (outside / "elsewhere.txt").write_text(CANARY, encoding="utf-8")
+    try:
+        os.symlink(outside, canvas / "linked", target_is_directory=True)
+    except OSError:  # unprivileged Windows
+        pass
+    captured, evidence = _capture(kit, project, tmp_path / "out", "--share-labels", "--redact", CANARY)
+    files = sorted((captured / "shareable").rglob("*"))
+    shared = "\n".join([p.name for p in files] + [p.read_text(encoding="utf-8") for p in files]).lower()
     requests = [json.loads(p.read_text(encoding="utf-8")) for p in canvas.glob("architecture/requests/*/request.json")]
     secrets = [CANARY, hashlib.sha256(VISION.encode("utf-8")).hexdigest()]
     secrets += [r["request_sha256"] for r in requests] + [r["settings"]["source_sha256"] for r in requests]
     assert not [s for s in secrets if s.lower() in shared]
     assert CANARY in (captured / "private" / "evidence-full.json").read_text(encoding="utf-8")
-    evidence = json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))
+    assert not list((captured / "private" / "raw").rglob("elsewhere.txt"))
+    assert evidence["contains_creative_material"] is True and "creative material" in shared
     by_source = {c["source"]: c["candidate"] for c in evidence["candidates"]}
     initial, staged = evidence["candidates"][0]["candidate"], by_source["staged revision"]
     nodes = {n["category"]: n["id"] for n in initial["nodes"]}
     assert initial["links"][0]["source"] == nodes["engine"] and initial["links"][0]["target"] == nodes["genre"]
     assert initial["genre_contracts"][0]["genre_node_id"] == nodes["genre"]
     assert initial["genre_contracts"][0]["emotion_target_ids"] == [initial["emotion_targets"][0]["id"]]
-    changed = [a["id"] for a, b in zip(initial["nodes"], staged["nodes"]) if a != b]
-    assert changed == [nodes["engine"]]  # raw response vs stored model dump compare equal after canon()
-    assert initial["nodes"][0]["summary"].startswith("[masked")
-    assert "[redacted-1]" in initial["nodes"][0]["title"].lower()
+    assert [a["id"] for a, b in zip(initial["nodes"], staged["nodes"]) if a != b] == [nodes["engine"]]
+    assert initial["nodes"][0]["summary"].startswith("[masked") and "[REDACTED-1]" in initial["nodes"][0]["title"]
 
 
-def test_unknown_prompt_is_a_provenance_question_and_local_subjects_stay_private(tmp_path):
-    kit, project = _kit(), _project(tmp_path)
-    canvas = next((project / ".auteur" / "beginner" / "studio" / "canvases").iterdir())
+def test_unknown_prompt_is_a_provenance_question_and_local_subjects_stay_private(setup, tmp_path):
+    kit, project, canvas = setup
     user = json.dumps({"revision_instruction": "", "working_context": {"vision": VISION}}, sort_keys=True)
     local = build_host_agent_request(candidate_id="studio-local", role="studio_architecture",
-                                     system="A locally edited prompt.", user=user, settings={"operation": "revise"})
+                                     system="A locally edited prompt.", user=user, settings={"operation": "local"})
     write_host_agent_request(canvas / "architecture" / "requests" / local.request_sha256 / "request.json", local)
-    plain = json.loads((_capture(kit, project, tmp_path / "a") / "shareable" / "evidence.json").read_text(encoding="utf-8"))
-    entry = next(r for r in plain["requests"] if r["operation"] == "revise")
+    entry = next(r for r in _capture(kit, project, tmp_path / "a")[1]["requests"] if r["operation"] == "local")
     assert entry["recomputes"] is True and "provenance question, not evidence of modification" in entry["prompt"]
     if shutil.which("git") is None:
         pytest.skip("git is not installed")
@@ -178,11 +171,8 @@ def test_unknown_prompt_is_a_provenance_question_and_local_subjects_stay_private
     module = repo / "src" / "auteur" / "beginner" / "studio_architecture.py"
     module.parent.mkdir(parents=True)
     module.write_text('_SYSTEM = """A locally edited prompt."""\n', encoding="utf-8")
-    git = ["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@example.invalid"]
-    subprocess.run(["git", "init", "-q", str(repo)], check=True)
-    subprocess.run([*git, "add", "."], check=True)
-    subprocess.run([*git, "commit", "-q", "-m", f"{CANARY} subject"], check=True)
-    captured = _capture(kit, project, tmp_path / "b", "--auteur-repo", str(repo))
-    resolved = json.loads((captured / "shareable" / "evidence.json").read_text(encoding="utf-8"))
-    assert next(r for r in resolved["requests"] if r["operation"] == "revise")["prompt"].startswith("local commit ")
-    assert CANARY not in _shared(captured)
+    for args in (["init", "-q"], ["add", "."], ["commit", "-q", "-m", f"{CANARY} subject"]):
+        subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@example.invalid", *args], check=True)
+    captured, evidence = _capture(kit, project, tmp_path / "b", "--auteur-repo", str(repo))
+    assert next(r for r in evidence["requests"] if r["operation"] == "local")["prompt"].startswith("local commit ")
+    assert CANARY not in "".join(p.read_text(encoding="utf-8") for p in (captured / "shareable").iterdir())
