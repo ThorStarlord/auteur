@@ -84,7 +84,18 @@ def test_architecture_request_carries_source_grounded_ontology_not_hidden_author
     assert "docs/plans/story-discovery-intent-aware-architecture.md" in refs
     assert "docs/adr/008-rich-target-experience.md" in refs
     assert "data/ontology/base_ontology.yaml" in refs
-    assert "governing renewable causal engine" in waiting["request"]["system"]
+    principle_three = guidance["source_principles"][2]["principle"]
+    system_prompt = " ".join(waiting["request"]["system"].split())
+    assert "a single center" in principle_three
+    assert "a primary engine with subordinate layers" in principle_three
+    assert "an ensemble of co-governing mechanisms" in principle_three
+    assert "hierarchy or its deliberate absence" in principle_three
+    assert "instead of treating all mechanisms as equally central" not in principle_three
+    assert "instead of treating all mechanisms as equally central" not in system_prompt
+    assert "accepted engine_hierarchy preference" in system_prompt
+    assert "ensemble of co-governing mechanisms" in system_prompt
+    assert "label that organization as an agent proposal" in system_prompt
+    assert "Never manufacture a dominant engine the material does not support" in system_prompt
     assert "UNKNOWN" in guidance["unknown_policy"]
     assert request["working_context"]["vision"].startswith("A long fantasy")
     assert waiting["request"]["settings"]["source_sha256"] == _source_fingerprint(
@@ -469,3 +480,24 @@ def test_architecture_becomes_stale_after_author_revises_vision(tmp_path):
     old = project_architecture(store)
     assert old["status"] == "stale"
     assert old["candidate"]["schema_version"] == 2
+
+
+def test_design_context_fingerprint_tracks_principles_not_system_prompt(tmp_path, monkeypatch):
+    import auteur.beginner.studio_architecture as studio_architecture
+
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    complete_architecture(store, response(waiting, emotion_first_candidate()))
+    assert project_architecture(store)["status"] == "ready"
+
+    monkeypatch.setattr(
+        studio_architecture, "_SYSTEM",
+        studio_architecture._SYSTEM + "\nAdditional operational instruction.",
+    )
+    assert project_architecture(store)["status"] == "ready"
+
+    principles = list(studio_architecture._DESIGN_PRINCIPLES)
+    source, principle = principles[2]
+    principles[2] = (source, principle + " Keep the organization supported by evidence.")
+    monkeypatch.setattr(studio_architecture, "_DESIGN_PRINCIPLES", tuple(principles))
+    assert project_architecture(store)["status"] == "stale"
