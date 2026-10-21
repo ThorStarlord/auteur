@@ -1,8 +1,9 @@
 # Initial Narrative Architecture Adequacy — Adversarial Investigation Plan
 
-Status: **planning**. This document authorizes no prompt change, schema
-migration, freshness change, new generation or UI work. Each of those passes
-through a decision gate (§9).
+Status: **planning; W1/W2 source review recorded in the companion adversarial
+findings report**. This document authorizes no prompt change, schema migration,
+freshness change, new generation or UI work. Each of those passes through a
+decision gate (§9).
 
 Base: `main` at `3dd2b83a`. Historical evidence:
 [Tidal Archive forensic report](../reviews/2026-10-21-tidal-archive-initial-architecture-forensics.md)
@@ -87,13 +88,13 @@ Status: **D** = decided; **P** = provisional (revisit on evidence);
 | E17 | Prefer connected mechanisms over decorative coverage; appropriate breadth depends on the Vision | D |
 | E18 | Ensemble, contemplative, atmosphere-led, cyclical, nonlinear and non-agent architectures are legitimate | D |
 | F19 | `StoryIdentity.central_engine` is read as a possible whole-story summary, not a mandate for one dominant mechanism. FR R13 stays open. Identity is unchanged. | P |
-| F20 | Mechanisms may be non-agent: environment, institutions, information, ritual, social structure. No character-like want is imposed. Check whether Phase F already covers this before any ontology change. | P |
-| F21 | A genre may introduce, constrain, modify, express or organize mechanisms. A mechanism may serve several genres. A genre-specific renewable mechanism is legitimate when warranted. No fixed one-to-one or one-for-all rule. | P |
+| F20 | **Settled principle:** mechanisms need not be driven by intentional actors; no character-like want is required. **Open representation:** how ontology, prompts and schemas express agent and non-agent mechanisms. | D |
+| F21 | **Settled principle:** genres need not have independent engines; mechanisms may serve several genres, and a genre may introduce, constrain, express, organize or modify mechanisms. A genre-specific renewable mechanism remains valid when warranted. **Open representation:** how ontology, prompts and schemas express these functions and shared mechanisms. | D |
 | G22 | No arbitrary context-size limit. Aim for sufficient, relevant, coherent, auditable knowledge. Compare curated, selective-structured and hybrid delivery on merit. | D |
 | G23 | Schema changes are acceptable for demonstrated representational problems, with migration and compatibility planned | D |
 | G24 | A bounded current-context initial generation is allowed when it answers a consequential question that history cannot. It does not need a prior historical defect. | D |
 | G25 | Deliverable: this versionable plan | D |
-| H1 | Freshness policy (§7) | P |
+| FP1 | Separate request identity, author-source freshness, and generation-guidance provenance/compatibility (§7); exact compatibility transitions remain open | P |
 
 ## 4. Qualitative assessment criteria (reusable for any Story Vision)
 
@@ -195,7 +196,7 @@ undetermined?
 These are independent sources of evidence. A structural counterexample can
 establish a limitation without a real historical defect.
 
-### W1 — Knowledge-delivery adequacy (P0; starts now)
+### W1 — Knowledge-delivery adequacy (P0; source review complete, output effect unknown)
 
 - **Questions:**
   - Which knowledge does initial generation *need*?
@@ -216,7 +217,7 @@ establish a limitation without a real historical defect.
 - **Output:** a delivery-adequacy table (need, delivered, misleading, effect
   unknown) and a ranked delivery design.
 
-### W2 — Ontology and `ArchitectureCandidate` representational adequacy (P0; starts now)
+### W2 — Ontology and `ArchitectureCandidate` representational adequacy (P0; counterexample sweep complete, narrative quality untested)
 
 - **Questions:** Can the ontology and schema express every legitimate form
   (E18) without distortion? Does each field have a single interpretation?
@@ -286,35 +287,45 @@ invisible). No general layout or hierarchy redesign in this milestone.
 
 ## 7. Freshness as a design consideration
 
-**Current contract** (CF8; `studio_architecture.py`):
+**Current contract** (CF8; `host_agent.py` and `studio_architecture.py`):
 
-| Input | In the fingerprint? | Effect of a change |
+| Responsibility/input | Current representation | Effect of a change |
 |---|---|---|
-| Story Vision and working items/links (author) | Yes | Saved candidate shown "stale"; pending response rejected |
-| Accepted `story_identity.yaml` (author) | Yes, inside `narrative_design_context` | Same |
-| `_DESIGN_PRINCIPLES`, preference vocabulary (developer guidance) | Yes, recomputed from current code | Same, including a *pending* request prepared under older guidance; the message blames the author's source |
-| `_SYSTEM` (developer guidance) | No | None. Prompt edits never invalidate anything. |
-| Pre-context (legacy) requests | Working context only | Unchanged legacy treatment |
+| Exact request identity | `request_sha256` hashes the canonical request body: schema, candidate ID, role, system prompt, user message and settings. It excludes `created_at` and the derived `request_id`. | Binds a response to the exact generation payload; it is not a source-freshness policy. |
+| Story Vision, working items/connections, previous candidate (working sources) | Included in `source_sha256` through `working_context` | A changed source makes a completed candidate stale or rejects a pending response. |
+| Accepted `story_identity.yaml` | Projected into `narrative_design_context`, then included in `source_sha256` | A changed accepted commitment also changes the same combined digest. |
+| `_DESIGN_PRINCIPLES` and preference vocabulary (developer design context) | Recomputed into `narrative_design_context` when checking `source_sha256` | A guidance-context edit is treated like a changed author source; a pending request prepared under the old context can be rejected with an author-source message. |
+| `_SYSTEM` (developer prompt) | Included in `request_sha256`; excluded from `source_sha256` recomputation | A response is tied to its original prompt, but a later `_SYSTEM` edit alone does not stale a saved candidate or block a pending response. |
+| Runtime/model and guidance compatibility | Runtime/model are recorded on the response; no separate compatibility status is modeled | Exact prompt provenance can be recovered through the request, but compatibility with current guidance is not evaluated. |
+| Pre-context legacy requests | Preserve their original working-context fingerprint treatment | No explicit guidance provenance/compatibility claim is available. |
 
-**Provisional policy (H1 decision; planning assumption only):**
+**Provisional policy (FP1; design recommendation, not implemented):**
 
-1. Changes to **author creative sources** invalidate the affected dependent
-   proposals.
-2. **Pending requests** stay bound to the generation context they were
-   prepared with. A response to such a request is validated against that
-   request's own recorded context, not today's code.
-3. **Existing working artifacts** stay readable after guidance changes, with
-   their generation provenance (prompt and context versions) retained.
-4. Distinguish **outdated guidance** from **changed creative sources**
-   instead of one "stale" status.
+1. Keep exact request identity separate from freshness: a response must match
+   its saved request, including the original system and user messages/settings.
+2. Freshness of author-controlled sources must be checked independently.
+   Changes to the Story Vision or accepted Identity must continue to block
+   applying a proposal built from the old source state; they must never be
+   silently overwritten by a generated candidate.
+3. Record generation-guidance provenance and assess compatibility separately.
+   A pending response remains attributable to the instructions it received;
+   changed guidance must not be mislabeled as changed author input. Define an
+   explicit compatibility outcome before deciding whether a proposal made
+   under older guidance may be applied or must be regenerated.
+4. Preserve completed working artifacts and their provenance across guidance
+   changes. Historical or legacy artifacts with incomplete provenance remain
+   readable but have unknown compatibility rather than an invented status.
 
 **Conflicts to reconcile before any implementation:**
 
-- Policy 2 conflicts with recomputation at completion and apply.
-- Policy 4 conflicts with the single combined digest.
-- Accepted Identity is author material but sits inside the guidance digest.
-- Tests currently pin "a principle change stales a saved candidate" and
-  "`_SYSTEM` does not".
+- Current completion/apply checks recompute developer design context as part of
+  the same `source_sha256` used for creative-source freshness.
+- Accepted Identity is author material but sits inside that combined digest.
+- `_SYSTEM` is protected by exact request identity, but not compared for
+  compatibility with current guidance.
+- Existing tests pin that a design-principle change stales a saved candidate
+  while an `_SYSTEM`-only edit does not; revise them only with a deliberate
+  compatibility contract and legacy reopening behavior.
 
 Any change needs legacy-compatible reopening, its own decision gate (G4), and
 updated tests. The cost of each W1 delivery design is assessed against this
@@ -340,7 +351,7 @@ compared. It is not needed for W1 or W2, nor for planning.
 | Gate | Change | Admissible when |
 |---|---|---|
 | G1 | Delivery change (prompt or context) | W1 identifies a need that is absent or misleading, **and** W2, W3 or W4 shows that it matters, or a counterexample shows harmful steering. Freshness cost assessed (§7). |
-| G2 | Canonical ontology or doc amendment | W2 shows a concept missing or contradictory in the sources; F19–F21 promoted from provisional |
+| G2 | Canonical ontology or doc amendment | W2 shows a concept missing or contradictory in the sources. F20/F21 principles are settled; their ontology/prompt/schema representation remains open. F19 remains provisional and owner-reserved. |
 | G3 | Schema change | W2 shows expression impossible or ambiguous in a way that matters, and no convention suffices; migration and compatibility planned (G23) |
 | G4 | Freshness change | The policy in §7 is reconciled with the existing contract and tests |
 | G5 | Bounded fresh generation | A consequential question is defined that history cannot answer; the environment will be recorded |
@@ -351,15 +362,18 @@ compared. It is not needed for W1 or W2, nor for planning.
 | Uncertain | Evidence that would decide it | Effect on the next decision |
 |---|---|---|
 | Whether CF2 omissions matter (H1) | W3 or W4 artifacts handling, or confusing, those distinctions | Confusion → G1 for those rows only. Handled well → no delivery change; focus moves to W2. |
-| H2 (genre engine bias) | Duplicated per-genre engines, or contracts ignoring engine nodes, in W3 or W4; a W2 paper test of X2, X5 or X6 | Confirmed → G1 wording first; G3 typed reference only if the untyped convention fails (FR §7.2) |
-| H3 (actor bias) | Non-agent Visions (X1, X2) forced into actor framings | Confirmed → G1 wording; G2 if Phase F is insufficient (F20) |
+| H2 (genre engine bias) | W2's X6 validator probe accepts two genre contracts describing one shared mechanism, but cannot test agent behavior; W3/W4 candidates would show whether engines are duplicated or ignored | Confirmed in output → consider G1 wording; G3 typed reference only if the untyped convention fails (FR §7.2) |
+| H3 (actor bias) | Non-agent Visions (X1, X2) forced into actor framings | Confirmed → consider G1 wording; consider G2 only if source ontology cannot represent the settled non-agent principle (F20). |
 | H4 (hierarchy) | Inconsistent `parent_id` use | Convention in the request first; G3 only if a convention cannot carry it |
 | H5 (presentation) | Candidate connected in JSON but drawn scattered | G6 minor fix; weakens the case for G1 |
 | H6 (hidden context) | The agent's session log | If the original agent read the ontology itself, the original result says little about delivery, and W4 gains weight |
 | R13 / F19 | An ensemble story whose single summary distorts it | Owner Identity decision, outside this milestone |
-| §7 conflicts | Reconciliation analysis | Decides whether G1 must wait for G4 |
+| FP1 compatibility transitions in §7 | A decision table for pending, completed and legacy proposals, tested against author-source changes | Determines the freshness implementation boundary (G4); prompt-only delivery work can proceed separately if it does not alter hashed design context. |
 
-**Most likely next implementation decision:** after W1 and W2 (no capture
-needed), a G1 wording change for CF3 and CF4, gated on the counterexample
-evidence, with its freshness cost reconciled under G4. W3 or W4 evidence of
-H1 would widen it, and evidence of good handling would shrink it to nothing.
+**Next evidence step:** W1/W2 findings and validator probes are recorded in
+the companion adversarial review. They establish delivery gaps and schema
+representational limits, but do not show that a generated candidate was harmed
+or that the current prompt misuses them. Recover the private Tidal Archive
+capture for W3; then decide whether W4 needs a bounded initial-generation
+comparison. Do not implement a delivery or schema change from the paper probes
+alone. See the review's freshness analysis before changing hashed design context.
