@@ -341,10 +341,11 @@ compared. It is not needed for W1 or W2, nor for planning.
 | R13 / F19 | An ensemble story whose single summary distorts it | Owner Identity decision, outside this milestone |
 | FP1 compatibility transitions in §7 | A decision table for pending, completed and legacy proposals, tested against author-source changes | Determines the freshness implementation boundary (G4); prompt-only delivery work can proceed separately if it does not alter hashed design context. |
 
-**Next evidence step:** W1/W2 findings and validator probes are recorded in
+**Next evidence steps:** W1/W2 findings and validator probes are recorded in
 the companion adversarial review. They establish delivery gaps and schema
 representational limits, but do not show that a generated candidate was harmed
-or that the current prompt misuses them. Recover the private Tidal Archive
-capture for W3; then decide whether W4 needs a bounded initial-generation
-comparison. Do not implement a delivery or schema change from the paper probes
-alone. See the review's freshness analysis before changing hashed design context.
+or that the current prompt misuses them. W3 historical Tidal Archive forensics
+and W4 current-context initial-generation evidence are independent: pursue W3
+if the private project is located, and run W4 without waiting for that recovery.
+Do not implement a delivery or schema change from paper probes alone. See the
+review's freshness analysis before changing hashed design context.

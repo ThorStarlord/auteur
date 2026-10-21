@@ -128,9 +128,9 @@ Knowledge-delivery work does not categorically depend on a freshness redesign: a
 ## Prioritized findings and next responsibility
 
 1. **Confirmed now:** correct the plan's request-identity/source-freshness conflation, split the duplicated `H1` identifier, and mark the non-agent/shared-genre principles as settled while leaving representation open. These are documentation corrections in PR #478.
-2. **Recommended next investigation:** recover a stable, private Tidal Archive capture using the existing utility. It is the smallest evidence that can move W3 beyond aggregate counts and assess the original vs revised candidates against the exact Vision. Keep private creative material local.
-3. **Then decide W4:** if W3 does not establish current initial-generation adequacy or isolate whether delivery mattered, run the bounded same-Vision comparison above. Do not repeat generic E2E work.
-4. **Only after findings:** decide whether prompt wording alone is warranted, whether selective hybrid delivery is useful, and whether freshness separation is a prerequisite for that particular change. No production change is authorized by this review.
+2. **Independent historical investigation (W3):** if the private Tidal Archive project is located, capture it with the existing utility and assess the original and revised candidates against the exact Vision. Keep private creative material local. W3 remains pending and is not a prerequisite for W4.
+3. **Current-generation investigation (W4):** run the bounded current-context initial generation described above. It answers a separate question about today's initial-generation capability; it does not recover or qualify the historical Tidal run. Do not repeat generic E2E work.
+4. **After either finding:** decide whether prompt wording alone is warranted, whether selective hybrid delivery is useful, and whether freshness separation is a prerequisite for that particular change. No production change is authorized by this review.
 
 ### Explicit claim ceiling
 
