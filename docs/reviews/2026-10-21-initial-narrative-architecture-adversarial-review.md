@@ -136,3 +136,9 @@ Knowledge-delivery work does not categorically depend on a freshness redesign: a
 
 - **Demonstrated:** the current request includes source-linked composition guidance; the current schema accepts shared and non-agent mechanism descriptions; the structural validator accepts disconnected label-only data; the exact request hash includes the system/user/settings payload.
 - **Not demonstrated:** that current initial generation yields a coherent architecture; that omissions cause the historical candidate's weaknesses; that the later revision improved quality because of ontology delivery; that Tidal Archive has been forensically captured; or that schema validity implies narrative adequacy.
+
+## Post-review status update — 2026-10-21
+
+After this report was drafted, one real active-host coding-agent initial-generation attempt used the fixed counterexample Vision in a disposable Auteur project. The preserved original response was rejected by the actual Studio validator because one `ArchitectureLink.function` exceeded its 120-character maximum. A separate copy that shortened only that field completed the same prepared request and rendered in Studio. This was diagnostic completion of the same attempt, not a second generation. The agent had seen the rubric, so the result does not establish request-only adequacy or blinded qualitative performance; substantive quality remains provisional. The original and repaired private project artifacts remain local and are not part of this report.
+
+This updates W4 from “not run” to one operational initial-generation attempt with a schema-rejected first response and successful diagnostic completion. W3 remains pending: neither the bounded search nor this separate W4 project establishes whether the original Tidal Archive project is recoverable.
