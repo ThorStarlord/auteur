@@ -438,6 +438,9 @@ emotion_targets, complex_emotions, genre_contracts, genre_interactions.
 node: {id,title,category,summary,scope,parent_id}; category: reader_experience,
 aesthetic,genre,trope,engine,thread,structure,theme,other (never character/relationship).
 link: {id,source,target,function}; endpoints must exist.
+ArchitectureLink.function must contain 1–120 characters and concisely describe
+the relation from source to target. Put longer explanatory prose in appropriate
+narrative description fields, not in this short relationship label.
 emotion_target: {id,emotion,role,intended_effect,eliciting_condition,
 aesthetic_strategy,provenance}; emotion one of six basics;
 role primary/supporting/contrasting/local; provenance author_declared/agent_proposed.
