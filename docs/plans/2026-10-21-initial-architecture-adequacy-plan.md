@@ -198,40 +198,11 @@ establish a limitation without a real historical defect.
 
 ### W1 — Knowledge-delivery adequacy (P0; source review complete, output effect unknown)
 
-- **Questions:**
-  - Which knowledge does initial generation *need*?
-  - What does the current request deliver (CF2)?
-  - What can the host environment add (§2)?
-  - Where is the delivered wording misleading rather than merely silent
-    (CF3, CF4)?
-- **Method:**
-  1. Build a needs inventory from Auteur's sources (FR §2): conceptual
-     distinctions, relationships, composition choices, epistemic rules,
-     generativity.
-  2. Map each need to the request text.
-  3. Challenge the request with the counterexample set (§6.1): does any
-     wording steer an agent away from a legitimate form?
-  4. Compare delivery designs on relevance, coherence, auditability,
-     maintainability and freshness cost (§7): curated principles (today),
-     selective structured loading, hybrid.
-- **Output:** a delivery-adequacy table (need, delivered, misleading, effect
-  unknown) and a ranked delivery design.
+See the [adversarial findings review](../reviews/2026-10-21-initial-narrative-architecture-adversarial-review.md) for the needs-to-request crosswalk, delivery-strategy comparison, and freshness implications. Whether any delivery gap changes a real candidate remains unresolved pending W3/W4 evidence.
 
 ### W2 — Ontology and `ArchitectureCandidate` representational adequacy (P0; counterexample sweep complete, narrative quality untested)
 
-- **Questions:** Can the ontology and schema express every legitimate form
-  (E18) without distortion? Does each field have a single interpretation?
-- **Method:**
-  1. For each counterexample, write a paper candidate within the current
-     schema.
-  2. Record where expression is impossible, possible only by convention, or
-     ambiguous.
-  3. Examine CF3, CF5, CF6 and CF7, plus whether Phase F's vocabulary already
-     covers F20 and F21.
-- **Output:** per assumption, one of: *adequate*; *adequate with a stated
-  convention* (and where the convention must live: request or docs); or
-  *change needed*, with the shape of the change, migration and compatibility
-  (G23). FR §7.2 already scopes one case: a typed contract → engine reference.
+See the companion review for X1–X6 paper candidates, validator results, representational limits, ambiguities that conventions can address, and the reasons no schema change is yet warranted. These probes do not establish narrative quality.
 
 ### W3 — Historical Tidal Archive forensics (P1; needs the original files)
 
