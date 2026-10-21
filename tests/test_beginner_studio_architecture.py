@@ -94,6 +94,7 @@ def test_architecture_request_carries_source_grounded_ontology_not_hidden_author
     assert "instead of treating all mechanisms as equally central" not in system_prompt
     assert "accepted engine_hierarchy preference" in system_prompt
     assert "ensemble of co-governing mechanisms" in system_prompt
+    assert "subordinate parts interact" not in system_prompt
     assert "label that organization as an agent proposal" in system_prompt
     assert "Never manufacture a dominant engine the material does not support" in system_prompt
     assert "UNKNOWN" in guidance["unknown_policy"]

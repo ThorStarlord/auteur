@@ -403,7 +403,7 @@ when that is the supported organization. Then project that composition as schema
 functional links, parent_id hierarchy, genre contracts and phase activations.
 A set of plausible disconnected category labels is not an architecture.
 Do not invent links merely to satisfy graph connectivity. Explain why each
-meaningful mechanism matters and how subordinate parts interact.
+meaningful mechanism matters and how the parts interact.
 Explicitly declared architecture preferences constrain working interpretation;
 missing preferences remain UNKNOWN, even when the agent proposes a working
 composition. Separate primary emotional promise from supporting palette and
