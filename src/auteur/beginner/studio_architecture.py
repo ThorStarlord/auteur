@@ -270,10 +270,11 @@ _DESIGN_PRINCIPLES = (
     ),
     (
         "docs/plans/story-discovery-intent-aware-architecture.md",
-        "Identify a governing causal engine, causal ownership, actor action patterns, "
-        "pressures, reversals and payoff mechanics. Place compatible subordinate "
-        "engines under a legible hierarchy instead of treating all mechanisms "
-        "as equally central.",
+        "Identify the causal organizing principle: a single center, a primary "
+        "engine with subordinate layers, or an ensemble of co-governing mechanisms. "
+        "Make causal ownership, actor action patterns, pressures, reversals, payoff "
+        "mechanics, and the hierarchy or its deliberate absence legible. Do not "
+        "flatten mechanisms into an undifferentiated list.",
     ),
     (
         "docs/plans/story-discovery-intent-aware-architecture.md",
@@ -393,13 +394,18 @@ the current Story Vision and previous candidate are working material.
 If working intent conflicts with accepted Identity, surface the tension as
 an unresolved proposal; never silently change the accepted story.
 
-First work out the governing renewable causal engine, causal ownership,
-subordinate mechanisms, action/pressure/reversal patterns, reader experience
-and thematic consequences. Then project that composition as schema-v2 nodes,
+First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
+a provisional causal organization supported by the material—a single center,
+a primary engine with subordinate layers, or an ensemble of co-governing
+mechanisms—and label that organization as an agent proposal. Never manufacture
+a dominant engine the material does not support. Make causal ownership,
+actor action patterns, pressures, reversals, payoff mechanics, reader experience
+and thematic consequences legible, including a deliberate absence of hierarchy
+when that is the supported organization. Then project that composition as schema-v2 nodes,
 functional links, parent_id hierarchy, genre contracts and phase activations.
 A set of plausible disconnected category labels is not an architecture.
 Do not invent links merely to satisfy graph connectivity. Explain why each
-meaningful mechanism matters and how subordinate parts interact.
+meaningful mechanism matters and how the parts interact.
 Explicitly declared architecture preferences constrain working interpretation;
 missing preferences remain UNKNOWN, even when the agent proposes a working
 composition. Separate primary emotional promise from supporting palette and
