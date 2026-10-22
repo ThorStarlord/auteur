@@ -604,7 +604,7 @@
     // empty canvas every time the author returns from Home.
     listCanvasChoices().then(function (canvases) {
       var recent = canvases.find(function (entry) { return entry.state === "ready"; });
-      if (recent) activateCanvas(recent.canvas_id).then(function () { restoreBookOrientation(false); });
+      if (recent) activateCanvas(recent.canvas_id).then(function () { restoreBookOrientation(true); });
       else if (canvases.length) {
         remote.failed = true;
         status("Saved canvases need recovery. No new canvas was silently created. Choose New canvas to start fresh.");
