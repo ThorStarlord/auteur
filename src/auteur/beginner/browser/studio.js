@@ -1200,6 +1200,7 @@
     });
     $("candidate-copy").hidden = !proposal;
     $("candidate-focus").hidden = !proposal;
+    $("architecture-realization-continuation").hidden = !proposal;
     $("genre-contract-detail").replaceChildren();
     $("genre-contract-detail").hidden = true;
     $("book-orientation").hidden = state.workspace !== "realization" || state.view !== "book";
@@ -2431,6 +2432,10 @@
   });
   $("workspace-architecture").addEventListener("click", function () { switchWorkspace("architecture"); });
   $("workspace-realization").addEventListener("click", function () { switchWorkspace("realization"); });
+  $("architecture-realization-continue").addEventListener("click", function () {
+    if (!candidateNode(state.selectedCandidate)) return;
+    switchWorkspace("realization");
+  });
   Array.prototype.forEach.call(document.querySelectorAll("[data-architecture-facet]"), function (button) {
     button.addEventListener("click", function () {
       state.facetHistory = []; state.facetSelection = null; state.selectedCandidate = null;
