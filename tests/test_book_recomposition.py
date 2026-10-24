@@ -679,7 +679,7 @@ def test_cli_recompose_success(tmp_path: Path, capsys) -> None:
     rc = main(["expression", "recompose-book-from-accepted", publication["publication_id"], "--project", str(project)])
     out = capsys.readouterr().out
     assert rc == 0
-    assert "derived, noncanonical" in out
+    assert "working version, not accepted yet" in out
     assert "Accepted Book pointer changed: no" in out
     # Artifact was stored.
     assert store._recomposition_path(publication["publication_id"]).exists()
