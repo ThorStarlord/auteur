@@ -79,8 +79,11 @@ fictional elements ONLY when the author requests realization. Use the source-bou
 Narrative Architecture as design guidance, not as a ready-made plot.
 Return candidates for characters, locations, factions, world systems, plot arcs,
 events or scenes, with explicit architecture_refs for EVERY concrete element.
-Construct causally different alternatives if appropriate. Do not assume a
-specific realization has already been accepted or exists in canon.
+Construct causally different alternatives if appropriate. When source.focus_ids
+is nonempty, include at least one concrete element referencing EACH selected
+architecture node; other relevant nodes may also be used. An empty focus_ids
+means whole-story development. Keep link function labels within 120 characters.
+Do not assume a specific realization has already been accepted or exists in canon.
 If concrete discoveries suggest changing the governing architecture, put them
 in architecture_feedback as proposed changes, not silent accepted edits.
 Do not revise the architecture proposal yourself. Preserve stable IDs in a revision.
@@ -205,6 +208,9 @@ def _assert_refs(proposal: RealizationCandidate, source: dict) -> None:
     valid = {node["id"] for node in source["architecture"]["nodes"]}
     if any(ref not in valid for item in proposal.elements for ref in item.architecture_refs):
         raise ValueError("realization elements must link to existing architecture nodes")
+    covered = {ref for item in proposal.elements for ref in item.architecture_refs}
+    if not set(source["focus_ids"]).issubset(covered):
+        raise ValueError("realization elements must cover each selected architecture focus")
     if any(x.architecture_node_id not in valid for x in proposal.architecture_feedback):
         raise ValueError("architecture feedback must reference an existing architecture node")
 
