@@ -12,6 +12,13 @@ This document keeps promising directions for evolving Auteur in one place withou
 
 This file answers **“what directions are worth considering?”** `STATUS.md`, approved issues, bounded plans, and qualification records answer **“what are we actually building now?”**
 
+For UI-specific, **unranked pre-selection exploration**, see the
+[UI Possibility Landscape](research/auteur-ui-possibility-landscape.md).
+It cross-references already-selected, implemented, partial and speculative
+interaction directions; it does not add roadmap commitments, override the
+selected graph-first Studio direction or bypass the active frontier.
+
+
 ## Strategic Thesis
 Default to **product integration before foundational architecture expansion**. The five semantic layers, authority/provenance, transformations, diagnostics/reasoning, StoryIdentity, Structure, Realization/state, Expression workflows, Series continuity, long-horizon projections, and a bounded guided decision loop already exist in operational forms.
 
