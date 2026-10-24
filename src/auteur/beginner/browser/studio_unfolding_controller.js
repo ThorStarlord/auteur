@@ -382,7 +382,16 @@
       var projection=mentorProjection(focus,current());
       if(projection)requestMentor(projection);
     }
+    function exploreAlternatives() {
+      var s=bridge.state(),focus=s.unfoldingFocus;
+      if(!focusIsValid(s))return bridge.status('Choose a current proposed concept to compare interpretations.');
+      var item=focus.kind==='candidate'?(s.architecture.nodes||[]).find(x=>x.id===focus.id):
+        s.items.find(x=>x.id===focus.id);
+      var projection=item&&mentorProjection(item,current());
+      if(projection)return requestMentor(projection,'explore');
+    }
     return {render:render,create:createAnchor,adopt:adopt,more:more,
+      exploreAlternatives:exploreAlternatives,
       keepMentorIdea:keepMentorIdea,hasUnsavedWorkingDrafts:hasUnsavedWorkingDrafts};
   }
   global.AuteurStudioUnfoldingController={create:create};

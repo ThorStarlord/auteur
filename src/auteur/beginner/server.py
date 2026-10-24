@@ -408,6 +408,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/styles.css": "styles.css",
         "/studio.html": "studio.html",
         "/studio.js": "studio.js",
+        "/studio_author_intent.js": "studio_author_intent.js",
+        "/studio_agent_handoff.js": "studio_agent_handoff.js",
         "/studio_explanations.js": "studio_explanations.js",
         "/studio_explanation_views.js": "studio_explanation_views.js",
         "/studio_unfolding.js": "studio_unfolding.js",
