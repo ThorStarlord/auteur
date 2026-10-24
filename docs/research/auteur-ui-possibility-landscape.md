@@ -126,7 +126,7 @@ Use existing source and scripted evidence where sufficient; use a disposable cli
 
 ## 7. Exploration -> strategy -> action boundary
 
-1. **Divergent Exploration:** Expand and organize materially different author jobs, interaction models, and combinations. Record the repository source each idea reuses and what would actually be novel. This document is the initial landscape, **not a completed exhaustive search**.
+1. **Divergent Exploration:** Expand and organize materially different author jobs, interaction models, and combinations. Record the repository source each idea reuses and what would actually be novel. Sections 1–8 establish the initial landscape; Section 9 expands it with one bounded divergent round. Neither constitutes an exhaustive search.
 2. **Adversarial challenge / recombination:** Challenge assumed user value, workflow cost, cognitive load, authority, long-horizon durability, and alternative simpler representations. Preserve credible counterarguments rather than forcing consensus.
 3. **Strategic Evolution Analysis:** Only after the possibility space is sufficiently informative, evaluate coherent construction paths, dependencies, frontier effects, and decision-changing uncertainty. Reconcile with the [product evolution roadmap](../product-evolution-roadmap.md) and current [STATUS](../../STATUS.md).
 4. **Bounded construction, if warranted:** Build or prototype the smallest reversible, valuable author-facing improvement; verify the specific workflow and consequence it claims, proportionate to risk. Do not automatically turn landscape entries into PRs or milestones.
@@ -154,3 +154,215 @@ Use existing source and scripted evidence where sufficient; use a disposable cli
 - [W4 Architecture quality assessment](../reviews/2026-10-21-w4-narrative-architecture-qualitative-assessment-v1.md)
 - [Product Evolution Roadmap](../product-evolution-roadmap.md)
 - [Current Repository Status](../../STATUS.md)
+
+---
+
+## 9. Divergent Exploration — expanded round (2026-10-24)
+
+**Role:** source-grounded expansion of possible author experiences. **Status:** exploratory and unranked; no product-direction, construction, release, or acceptance authority. This round is broader than the six seed directions above but is not a claim of exhaustive discovery.
+
+**Method and evidence:** contrast existing authoring jobs and product contracts with the actual Studio Browser, contextual mentor, narrative candidate schema, counterfactual planning, and experience-frontier roadmap. Recombine coherent mechanisms across their current owners; challenge the graph-first assumption without silently overriding the already-selected target. Distinguish what **code demonstrably exposes** from what **authors might value**. No real-browser session, human study, qualitative manuscript assessment, or new generated architecture was conducted in this round.
+
+Repository anchors: [Studio HTML](../../src/auteur/beginner/browser/studio.html), [Studio controller](../../src/auteur/beginner/browser/studio.js), [contextual mentor](../../src/auteur/beginner/browser/studio_mentorship.js), [ArchitectureCandidate schema](../../src/auteur/beginner/studio_architecture.py), [experience frontier](../product/auteur-experience-frontier-construction-roadmap.md), [Story Opportunity Discovery](../story-opportunity-discovery.md), [counterfactual planning](../architecture/v0.11.0-counterfactual-narrative-planning-design.md), and [decision portfolios](../../src/auteur/portfolio/__init__.py).
+
+### 9.1 Reframe from widgets to consequential author jobs
+
+| Author's job | Existing starting point | Decision-changing question |
+| --- | --- | --- |
+| Find a story worth making from atmosphere, place, influence, or desire | Premise-optional Story Vision and documented upstream Story Opportunity Discovery | Does spatially externalizing attractive fragments produce substantively different stories, or is plain text already better? |
+| Convert creative intention into a coherent mechanism | Agent-first ArchitectureCandidate generation, revision, and review | Can the author direct the design without administering host-agent requests and schemas? |
+| Understand how ideas affect one another | Working/derived graphs, directed links, Focused/Full views, facets, explanations | Which tasks genuinely benefit from the whole graph versus a relationship-local or temporal explanation? |
+| Discover and challenge possibilities | Mentorship Learn/Explore/Question/Challenge, Story Discovery, hypothetical decisions | Are alternatives sufficiently different in *cause and story promise*, or merely rewordings? |
+| Write scenes while preserving design intent | Studio scene panel, focus writing, Story Realization, Quick Draft | Can one intention travel through drafting and revision without duplicate entry or lost focus? |
+| Reframe story decisions without rewriting canon | Impact projection, counterfactual scenarios, author review | Can uncertainty and consequence be explained without presenting projections as facts? |
+| Continue after a long interruption | Saved focus, Book orientation, working canvases, accepted history | Does re-entry recover why the author was doing something, or only where they stopped? |
+| Work without being managed by the UI | Progressive disclosure, optional mentor, focused editor | What could disappear while keeping power and author control available? |
+
+These are different cognitive tasks; making one view do all of them may be the wrong optimization.
+
+### 9.2 Morphological exploration: change independent dimensions
+
+This matrix deliberately avoids starting with a preferred screen layout.
+
+| Dimension | Distinct plausible choices |
+| --- | --- |
+| **Entry material** | Story Vision; unconnected fragments; emotion or mood; place; character relationship; unanswered question; existing prose; resume a Book |
+| **Primary object** | An attractive possibility; narrative engine; relationship change; intended reader journey; draft scene; hypothesis; pending decision; accepted history |
+| **View** | Whole graph; selected causal neighborhood; manuscript; cards; phase/timeline; setting-centered local network; comparison; quiet mode |
+| **Agent posture** | Construct working design; explain source; contrast mechanisms; propose concrete realization; challenge assumption; recover context; remain silent |
+| **Time horizon** | Idea; one scene; a sequence; entire Book; Series |
+| **Authority** | Unselected working idea; derived proposal; hypothetical consequence; accepted fact through its existing owner only |
+
+A genuine alternative changes **where an author starts, what they can reason about, how a creative choice happens, or how uncertainty is understood**. A different label, color, animation, or sidebar location is not a separate experience hypothesis.
+
+### 9.3 Twelve distinct experience possibilities
+
+The following are **possibility families, not twelve feature requests**. For each, the novel interaction is separated from already present capability. Order does not imply priority.
+
+#### P1 — Intent Constellation: atmosphere before premise
+
+- **Experience:** An author begins with 'a beautiful school, belonging, generous heroism, secrets, and an eventual loss' instead of a plot. They arrange working fragments and request two causally different sustaining engines with legible reasons and sacrifices.
+- **Already present:** Optional Story Vision, working Idea/Place/Question nodes, Story Opportunity Discovery, Story Discovery, and agent-generated candidate architecture.
+- **New composition:** Fragments remain visible as author-owned attractions while alternative *interpretations* are proposed and can be compared, rather than requiring a premise at the start.
+- **Counterargument:** This can duplicate a freeform Story Vision field and flood the author with variations. A single strong written vision may be more efficient.
+- **Discriminator:** Does the interaction expose a durable new mechanism, not just more descriptive text? Does it keep inspiration distinct from accepted story meaning?
+
+#### P2 — Question-Centered Studio: the unfinished decision as a navigation anchor
+
+- **Experience:** Return to 'Can the mentor remain loving while hiding the truth?' and see source-backed character tensions, candidate architecture, a related scene, and unchosen interpretations around that question.
+- **Already present:** Working question nodes, contextual mentor questioning, graph focus, and the roadmap's unselected Current Author Intent concept.
+- **New composition:** Persist an explicit creative question *as orientation*, reusing source references and existing author decisions rather than inventing a task-management system.
+- **Counterargument:** The author may not want all creative ambiguity treated as a task or inbox item. Search and graph selection might already suffice.
+- **Discriminator:** Does the user find the relevant creative material and resume a meaningful choice more easily than in the current graph?
+
+#### P3 — Seamless but inspectable Agent Design
+
+- **Experience:** 'Make the middle more unsettling, keep the romance, and preserve the resolution' becomes a legible working revision whose actual changes the author can inspect before developing a scene.
+- **Already present:** **Selected product direction** in the Unified Author Experience; Studio ArchitectureCandidate and Story Realization host-agent handoffs, working diffs, explicit apply-to-working controls.
+- **New composition:** Normal authoring stays in story language while exact requests, source fingerprints, errors, and manual completion remain available when needed.
+- **Counterargument:** A continuous illusion of autonomy can conceal stale data, hidden authorship decisions, or unfulfilled requests.
+- **Discriminator:** Can one ordinary-language change pass through revise, inspect, working apply, realization, and re-entry without manual protocol handling and without implying canonical acceptance?
+
+#### P4 — Relationship Timewalk: characters change across scenes
+
+- **Experience:** Select two characters and walk through how trust, rivalry, complicity, protection, or mutual dependence changes over three points of the Book.
+- **Already present:** Character/relationship architecture concepts, chapter-filtered relationship evidence, scenes and character-arc data.
+- **New composition:** A time-sensitive *explanation* of the relation with source-linked scene evidence and clearly marked interpretations; the graph remains available for context.
+- **Counterargument:** Human relationships are interpretive. A structured progression could make ambiguous interactions look definite or generate bookkeeping.
+- **Discriminator:** Can the author discover and correct a consequential missing relationship transformation without adding unsupported facts?
+
+#### P5 — Living Setting Atlas: places as generators of stories
+
+- **Experience:** Selecting a school, sanctuary, or city reveals how its routines, institutions, material constraints, people, and aesthetic qualities generate choices and emotional attachment. A relevant scene is one click away.
+- **Already present:** Working Place nodes, narrative relation/scene links, mentor questions about setting, and Story Realization.
+- **New composition:** A **setting-as-causal-character** presentation, not an automatic geographical map or new worldbuilding database.
+- **Counterargument:** Fictional places are often more evocative in prose. Spatial interfaces might reduce setting to cartography and decoration.
+- **Discriminator:** Does the place-centered view uncover a meaningful setting-dependent choice, recurring story engine, or distinctive lived atmosphere?
+
+#### P6 — Reader Journey Rehearsal: intended experience across time
+
+- **Experience:** The author traverses a designed transition from wonder to dread to restoration, seeing which mechanisms and hypothetical scenes might create each step and where support is weak.
+- **Already present:** Emotion intentions, genre contracts/interactions, phases, tropes, architecture facets and timeline.
+- **New composition:** One continuous, explanatory walk through *intended* experience rather than separate reports or numeric feeling predictions.
+- **Counterargument:** Actual reader response is not known. Visualizing intentions can encourage deterministic or formulaic thinking about subjective art.
+- **Discriminator:** Can it reveal one unsupported transition or contradictory payoff not already evident in the existing facets?
+
+#### P7 — Causal Fork Bench: compare a decision's consequences
+
+- **Experience:** Place two hypothetical story decisions beside the same captured baseline, follow projected dependencies, and understand both explicit assumptions and unknowns.
+- **Already present:** Deterministic [counterfactual planning](../architecture/v0.11.0-counterfactual-narrative-planning-design.md), impact, review, and [decision portfolios](../../src/auteur/portfolio/__init__.py).
+- **New composition:** A story-language view of the **existing** hypothetical models, not another impact engine.
+- **Counterargument:** A convincing causal visualization can overstate creative predictions or conflate source-level dependencies with interpretation.
+- **Discriminator:** Can the author identify fact, assumption, projection, and unknown before choosing, while confirming no accepted pointers changed?
+
+#### P8 — Parallel Architecture Atelier: keep whole stories divergent
+
+- **Experience:** Compare two complete working architectures with different sustaining engines, genre functions, character relationships, and reader promises. Explore whether a selective recombination deserves a *third working candidate*.
+- **Already present:** ArchitectureCandidate generation/revision, Story Discovery directions, decision alternatives, and portfolios.
+- **New composition:** Identity, preservation, and comparison of **complete working architecture alternatives**; existing decision-portfolio infrastructure does *not* prove whole-ArchitectureCandidate versioning exists.
+- **Counterargument:** Multiple large graphs multiply storage, visual burden, and indecision. Concise compareable synopses may suffice.
+- **Discriminator:** Can a genuinely valuable whole-story alternative be preserved through a revision today, or is it lost? What is the smallest adequate retention mechanism?
+
+#### P9 — Manuscript / Map Dual Plane: prose and structure as one workpiece
+
+- **Experience:** Draft a scene, inspect its causal/thematic purpose, adjust the working intention, and return to the same prose position and unsaved thought.
+- **Already present:** Studio working scene editor, graph, focused writing, saved view, Quick Draft, Story Realization, and Book re-entry.
+- **New composition:** A lossless, comprehensible transition between manuscript and structural meaning, without creating a second manuscript owner.
+- **Counterargument:** Permanent side-by-side surfaces can squeeze prose and amplify distractions. Switching cleanly between full screens may be superior.
+- **Discriminator:** Does the dual-plane experience reduce duplicated intention and lost focus while improving actual scene construction?
+
+#### P10 — Semantic Zoom: the same narrative at different scales
+
+- **Experience:** Move from a Book-level mechanism to one Chapter function, a concrete scene, and a working question, then return along a meaningful navigation trail.
+- **Already present:** Narrative scope model, Studio Focused/Full architecture, inspector, semantic trail, Book view, and scene links.
+- **New composition:** Coordinated navigation **by existing source identity and narrative function**, rather than representing every level as an equivalent flat node.
+- **Counterargument:** Automatic cross-scale links may fabricate structure or confuse which layer the author is inspecting.
+- **Discriminator:** Can a multi-thread Book task be completed without getting lost, and can the author always answer 'Why am I here?'?
+
+#### P11 — Creative-Thread Re-entry: remember purpose, not merely position
+
+- **Experience:** After a month away, Auteur shows the last working question, the accepted changes since then, relevant unfinished alternatives, and one sensible continuation with citations to local sources.
+- **Already present:** Focus persistence, Book history, source fingerprints, source-linked questions, and work-status projections.
+- **New composition:** Recover *source-backed creative intent* across sessions without manufacturing personal memories or a new long-term knowledge subsystem.
+- **Counterargument:** An AI-generated summary of why the author made a decision may be false. A plain recent-items list is less glamorous but more trustworthy.
+- **Discriminator:** Can an author resume the correct creative thread and correct the system's uncertain interpretation rather than receive a misleading confident summary?
+
+#### P12 — Quiet Studio: radical subtraction
+
+- **Experience:** A focused authoring mode hides mentor advice, technical controls, global graph and noncritical alerts; the next relevant narrative question remains recoverable.
+- **Already present:** Focus-writing editor, progressive disclosure, collapsible mentorship, current graph-first target.
+- **New composition:** Rules for **what not to show**, without undoing the owner's graph-first selected default or losing saved state.
+- **Counterargument:** A quiet mode could hide a genuinely blocking contradiction or just duplicate existing focus writing.
+- **Discriminator:** Can an author draft for longer uninterrupted intervals and still recognize a consequential source or acceptance mismatch when needed?
+
+### 9.4 Capability-to-interaction crosswalk: do not reinvent
+
+| Opportunity | Existing owner/substrate | Where change could legitimately live | Non-solution to avoid |
+| --- | --- | --- | --- |
+| Agent-led architecture | Architecture candidate handoff + author review | Interaction composition and status language | Another provider protocol; silent auto-accept |
+| Creative mentorship | Mentor Learn/Explore/Question/Challenge | Relevance and local presentation | Global compulsory chat sidebar |
+| Hypothetical consequences | Simulation, impact, portfolio | Comparative story-language visualization | New hypothetical-state store |
+| Emotional progression | Genre/emotion/phase contracts | Cross-facet reader-intent explanation | Emotional prediction scores |
+| Whole-story alternatives | Discovery and working ArchitectureCandidate | Only evidence-supported working-candidate comparison | Treating decision portfolios as complete story branches |
+| Character relationship changes | Character/relationship and Chapter evidence | Temporal linked interpretation | Unsupported relationship canon |
+| Settings | Working places and realization source links | Place-to-choice and scene explanation | Invented geographic coordinates or default map engine |
+| Book memory | Book orientation, focus, history | Transparent creative-thread re-entry | Unverifiable background 'AI memory' |
+| Drafting | Scene editor and Quick Draft | Lossless workflow continuity | Second accepted-manuscript store |
+
+### 9.5 Deliberately different recombinations
+
+These are examples of *author journeys*, not approved prototype tickets:
+
+1. **From beautiful place to consequential scene (P1 + P5 + P9).** The author starts from a place they want to inhabit, learns what daily life and institutional constraints make possible, and chooses a scene where a distinctive choice becomes dramatic. **Falsifier:** the interaction delivers only decorative setting detail, not new narrative function.
+2. **Question -> alternatives -> consequence -> scene (P2 + P3 + P7 + P9).** Start from one hard creative question, compare two mechanisms, inspect speculative effects, review a working architecture revision, then draft the affected scene. **Falsifier:** the user must repeat the same intention or mistakes a working hypothetical for accepted story.
+3. **One character relationship across the whole Book (P4 + P6 + P10).** Trace a relationship from its setup through transformation and reader-intended payoff, zooming to source scenes when evidence is disputed. **Falsifier:** the view fabricates psychological states or duplicates existing explanatory facets.
+4. **Return and choose without a dashboard (P8 + P11 + P12).** Reopen preserved alternatives and the last unresolved question, then choose comparison or immediate focused writing. **Falsifier:** the interface becomes a backlog-management cockpit rather than a creative invitation.
+
+### 9.6 Cross-domain patterns and their limits
+
+These examples are external *interaction analogies*, not recommendations to clone software or add external integrations:
+
+- [Scrivener — official overview](https://www.literatureandlatte.com/scrivener/overview) relates corkboard index cards and an outline to manuscript sections. **Question for Auteur:** which visual changes should reorganize actual manuscript order, and which must remain nonauthoritative spatial layout?
+- [Obsidian Canvas — official help](https://obsidian.md/help/plugins/canvas) permits positioning, connecting, and grouping cards, files, and media in a spatial surface. **Question:** why should Auteur's canvas be more than a general linked-note board? Answer may lie in narrative function, provenance and creative consequence.
+- [Novelcrafter — official writing guide](https://www.novelcrafter.com/courses/ultimate-beginners-guide/writing-your-first-prose) and [Codex guide](https://www.novelcrafter.com/help/docs/codex/the-codex) show manuscript-proximate story context. **Question:** can relevant story evidence be accessible during prose work without forcing tab switching or repeating intent?
+- [Twine — official website](https://www.twinery.org/) is centered on interactive, nonlinear stories. **Question:** does a diagram represent *the reader's actual branching story* or *the author's provisional alternative designs*? These are different semantics and should not be conflated.
+
+These examples do not establish author preference, feature parity, or adoption requirements for Auteur.
+
+### 9.7 Adversarial tests of the experience thesis
+
+| Appealing claim | Strong counterargument | Smaller alternative |
+| --- | --- | --- |
+| Whole graph should be the continuous center of attention | The author may only need one causal relationship while writing | Focused neighborhood with predictable return path |
+| More autonomous AI means less author work | Hidden generation may reduce intentional authorship and obscure stale requests | Inspectable working proposals with clear source identity |
+| More alternatives are always more creative | Similar variants consume attention without adding different mechanisms | Fewer, causally distinct options with costs |
+| Reader feelings can be optimized on a chart | Reader experience is an intended artistic effect, not a measured output | Evidence-linked promise, phase function, and uncertainty |
+| More graph nodes make a richer story | A large graph can be descriptive rather than causally productive | High-value engines, relationships, choices and transformations |
+| One unified pane should expose everything | Simultaneous capability density can make the author manage tooling | Contextual disclosure and quiet focus |
+| Long-term AI recollection is a reliable memory | Retrospective motivations may be invented | Source-bound work history and visible uncertainty |
+| Literal maps make setting vivid | Places matter through experience and constraints, not coordinates alone | Place -> choice -> scene navigation |
+
+**Negative space matters.** No justification emerged here for a universal conversation sidebar, new ontology, automatic canonical promotion, numeric reader-quality model, all-purpose graph database, mandatory preference questionnaire, or dashboard-first default.
+
+### 9.8 Evidence to distinguish the strongest rival experiences
+
+Do not reduce these qualitative futures to a single ranking score. If a next decision requires evidence, use a task that could genuinely change the chosen representation.
+
+| Rival interpretation | Smallest discriminating author task | Relevant finding |
+| --- | --- | --- |
+| Story Vision text is enough **vs** Intent Constellation adds something | Start from the same setting/mood fragments in either interface | Distinct sustaining story mechanism found without extra administration |
+| Whole graph is preferable **vs** question-local/semantic zoom | Find and explain a changing relationship across three Chapter scenes | Correct source and consequence with less lost context |
+| Existing facets suffice **vs** reader-journey rehearsal | Identify where a promised tonal transition lacks narrative support | New causal insight rather than a prettier timeline |
+| One current working candidate suffices **vs** parallel whole architectures | Preserve two incompatible story engines through a meaningful revision and re-entry | Demonstrable alternative preservation gap |
+| Separate prose and graph are fine **vs** dual-plane integration | Draft, inspect structural function, revise intention, and return to prose | Lower repeated input, intact caret/edits, clear acceptance state |
+| Reopen last focus is enough **vs** creative-thread re-entry | Resume a multi-Chapter project after a real absence | Correct last creative question and next action with transparent source grounding |
+
+For preference/comprehension claims, use a reversible clickable comparison and actual human task observation when needed. For persistence/authority claims, verify exact old/new source identity and that accepted story state remains untouched. Browser tests do not establish literary quality; a polished sketch does not prove durability.
+
+### 9.9 End-of-round synthesis — no strategic selection yet
+
+The expanded landscape now names **twelve conceptually distinct author-job/interaction compositions**, their repo substrates, their strongest counterarguments, and discriminating evidence; it also documents recombinations and subtractive non-solutions. Some entries, especially P3 and portions of P9/P11/P12, are **already selected or partially implemented**. They are included as alternative *experience compositions*, not falsely presented as new capabilities.
+
+**The major uncertainty left to Strategic Evolution Analysis** is whether to obtain the next unit of author value by **connecting established capabilities into one coherent creative workflow**, **deepening a distinctive visual reasoning mode**, or **making existing writing and re-entry dramatically simpler**. This review does not settle that choice.
+
+**Stop rule for this exploration round:** further candidate labels are unlikely to improve decisions without observing an author job or encountering a demonstrable workflow gap. Revisit possibilities only when new evidence changes their distinctness or feasibility. The current F2/X3 controlled frontier and existing product authority remain unchanged. Neither this research file nor its PR grants implementation, merge, release, or thesis-change authority.
