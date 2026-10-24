@@ -356,7 +356,11 @@ element must reference at least one existing architecture component. Realization
 feedback is **an upstream proposal**, not authority to revise the architecture.
 
 Studio's Realization tab prepares a `studio_realization` host-agent request
-with exact source identity and optional selected architecture focus. The
+with exact source identity and optional selected architecture focus. Focused
+requests must develop every selected component through at least one concrete
+element referencing that component; other relevant architecture references
+remain allowed. An empty focus permits whole-story proposals. This is reference
+coverage, not a guarantee of narrative quality or acceptance. The
 active local coding agent can read it, create *raw* RealizationCandidate JSON,
 and complete it through the neutral CLI without any provider API configured:
 
