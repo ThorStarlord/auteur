@@ -296,6 +296,11 @@ def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
             assert fragment in page.locator("#generation-status").inner_text()
             assert page.locator("#scene-premise").input_value() == ""
             assert not quick_draft_requests
+            page.locator("#save-scene").click()
+            page.wait_for_function(
+                'document.querySelector("#status").textContent'
+                '.includes("Working canvas saved locally")'
+            )
             assert not (tmp_path / "story_identity.yaml").exists()
             assert not (tmp_path / "blueprint.yaml").exists()
     finally:
