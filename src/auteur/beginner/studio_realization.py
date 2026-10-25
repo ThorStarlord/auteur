@@ -77,6 +77,12 @@ class RealizationCandidate(BaseModel):
 _SYSTEM = """You are Auteur's STORY REALIZATION agent. Create optional concrete
 fictional elements ONLY when the author requests realization. Use the source-bound
 Narrative Architecture as design guidance, not as a ready-made plot.
+Working items may contain only the first 1,000 characters of longer prose.
+Respect content_is_excerpt, content_characters and omitted_working_item_count;
+source fingerprints show freshness, not content the agent has actually read.
+When interpreting existing manuscript fragments, cite visible working item IDs,
+separate observed text from proposed story mechanisms, and never invent facts
+from missing text. All inferred character motives and outcomes stay provisional.
 Return candidates for characters, locations, factions, world systems, plot arcs,
 events or scenes, with explicit architecture_refs for EVERY concrete element.
 Construct causally different alternatives if appropriate. When source.focus_ids
@@ -111,7 +117,10 @@ def _current(store: CanvasStore) -> dict | None:
     return _read(_root(store) / "current.json")
 
 
-def _source_snapshot(store: CanvasStore, focus_ids: list[str], previous: dict | None) -> dict:
+def _source_snapshot(
+    store: CanvasStore, focus_ids: list[str], previous: dict | None,
+    *, source_format: int = 2,
+) -> dict:
     architecture = architecture_current(store)
     if not architecture:
         raise ValueError("develop Narrative Architecture before generating Story Realization")
@@ -121,15 +130,32 @@ def _source_snapshot(store: CanvasStore, focus_ids: list[str], previous: dict | 
         raise ValueError("realization focus must contain architecture identifiers")
     if len(set(focus_ids)) != len(focus_ids) or any(ref not in known_ids for ref in focus_ids):
         raise ValueError("realization focus must contain distinct existing architecture IDs")
-    working = _source(store)
-    return {
+    working = _source(store, source_format=source_format)
+    visible_items = working["working_items"][:12]
+    result = {
         "architecture_request_sha256": architecture["request_sha256"],
         "architecture": architecture["candidate"],
         "focus_ids": focus_ids,
         "working_vision": working["vision"],
-        "working_items": working["working_items"][:12],
+        "working_items": visible_items,
         "previous_realization": previous,
     }
+    if source_format == 2:
+        dropped_items = working["working_items"][12:]
+        omitted = working["omitted_working_item_count"] + len(dropped_items)
+        result["working_source_format"] = 2
+        result["omitted_working_item_count"] = omitted
+        if omitted:
+            result["omitted_working_items_sha256"] = _digest({
+                "dropped_visible_items": dropped_items,
+                "already_omitted": working.get("omitted_working_items_sha256"),
+            })
+    return result
+
+
+def _source_format(original: dict) -> int:
+    """Honor the source projection used when a prior agent request was staged."""
+    return 2 if original.get("working_source_format") == 2 else 1
 
 
 def _diff(old: dict, new: dict) -> dict:
@@ -165,7 +191,10 @@ def project_realization(store: CanvasStore) -> dict:
         )
         original = json.loads(source_request.user)["source"]
         try:
-            latest = _source_snapshot(store, original["focus_ids"], original["previous_realization"])
+            latest = _source_snapshot(
+                store, original["focus_ids"], original["previous_realization"],
+                source_format=_source_format(original),
+            )
             stale = _digest(latest) != current["source_sha256"]
         except ValueError:
             stale = True
@@ -239,8 +268,11 @@ def complete_realization(store: CanvasStore, payload: dict) -> dict:
         current = _current(store)
         instruction = json.loads(request.user)["revision_instruction"]
         previous = current["candidate"] if instruction.strip() and current else None
-        focus = json.loads(request.user)["source"]["focus_ids"]
-        source = _source_snapshot(store, focus, previous)
+        original_source = json.loads(request.user)["source"]
+        source = _source_snapshot(
+            store, original_source["focus_ids"], previous,
+            source_format=_source_format(original_source),
+        )
         if _digest(source) != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError("Story Vision or architecture changed; stale realization retained")
@@ -279,7 +311,10 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
             raise BeginnerConcurrencyError("realization baseline changed; review again")
         request = load_host_agent_request(_root(store) / "requests" / request_sha256 / "request.json")
         source = json.loads(request.user)["source"]
-        if _digest(_source_snapshot(store, source["focus_ids"], current["candidate"])) != request.settings["source_sha256"]:
+        if _digest(_source_snapshot(
+            store, source["focus_ids"], current["candidate"],
+            source_format=_source_format(source),
+        )) != request.settings["source_sha256"]:
             raise BeginnerConcurrencyError("architecture or working source changed; review again")
         _atomic_json_write(_root(store) / "current.json", {
             "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
