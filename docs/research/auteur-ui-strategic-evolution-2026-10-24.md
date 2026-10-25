@@ -184,7 +184,13 @@ Use a **disposable, repository-accessible fixture** and the existing Studio/Begi
 - **Authority:** writing this analysis does not authorize implementation, canonical story mutation, merge, deployment, release, or new owner-level product default. Protected decisions remain with the existing owner/governance process.
 - **Stop:** at a verified completed cross-workflow trace with no material gap; a named source/host-access blocker; a genuine owner-sensitive product thesis choice; or the first irreducible error requiring a separately grounded responsibility. Do not manufacture a new UI backlog to avoid stopping.
 
-## 9. Evidence and versioning notes
+## 9. Simulated author stress-test follow-up (2026-10-25)
+
+A separate [simulated author / coding-agent UI stress test](../product-validation/living-story-studio/2026-10-25-simulated-author-ui-stress-test.md) examined the preferred integration path using **isolated source-derived model contracts and working-state simulations**, not Auteur's runtime or a human participant. Its 12/12 passing *harness assertions* identified two current-source integration issues: an off-focus Realization can pass the existing global-reference guard (open draft PR #484 contains the focused-coverage repair), and copying a proposed Realization scene does not supply the exact premise/intent fields required for Quick Draft. Two independently different abstract story engines were also **authored synthetically in this assistant session** and checked in a standalone schema replica; they do not demonstrate a complete alternative-architecture UI or live agent behavior.
+
+**Reconciliation:** NO_MODEL_CHANGE / REAFFIRM PATH A. Qualify the existing focused-coverage PR and trace the Realization-to-scene continuity in the real project before additional UI design or a new subsystem. User preference, prose quality, and production readiness remain untested. The simulation does not authorize implementation or merge.
+
+## 10. Evidence and versioning notes
 
 - [UI Possibility Landscape](auteur-ui-possibility-landscape.md), on the source branch of [PR #485](https://github.com/ThorStarlord/auteur/pull/485).
 - [Prior Strategic Repository Analysis](../../artifacts/strategic_repository_analysis.md) and [Strategic Reconciliation](../../artifacts/strategic_reconciliation.md), historical source identities; not overwritten.
