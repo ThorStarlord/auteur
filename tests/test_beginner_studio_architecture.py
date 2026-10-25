@@ -72,6 +72,73 @@ def write_legacy_current(store, waiting, legacy_candidate):
     }), encoding="utf-8")
 
 
+def test_prose_first_architecture_request_labels_truncated_and_omitted_sources(tmp_path):
+    store = working_store(tmp_path)
+    original_scene = "The rescue happened at the first bell. " + "a" * 1060
+    for index in range(25):
+        store.apply(
+            "create-item", expected_revision=store.load().revision,
+            command_id=f"source-{index}",
+            payload={"item": {
+                "id": f"working-scene-{index}", "kind": "scene",
+                "title": f"Manuscript source {index}",
+                "content": original_scene if index == 0 else f"Scene {index} is provisional.",
+            }, "position": {"x": 40 + index, "y": 100 + index}},
+        )
+
+    prepared = prepare_architecture(store)
+    user = json.loads(prepared["request"]["user"])
+    working = user["working_context"]
+    assert working["working_source_format"] == 2
+    assert len(working["working_items"]) == 24
+    assert working["omitted_working_item_count"] == 1
+    assert len(working["omitted_working_items_sha256"]) == 64
+    excerpt = working["working_items"][0]
+    assert excerpt["id"] == "working-scene-0"
+    assert excerpt["content"] == original_scene[:1000]
+    assert excerpt["content_characters"] == len(original_scene)
+    assert excerpt["content_is_excerpt"] is True
+    assert len(excerpt["full_content_sha256"]) == 64
+    assert "working item IDs" in prepared["request"]["system"]
+    assert "missing text" in prepared["request"]["system"]
+
+    # Same-length edits entirely outside the excerpt are still source changes.
+    before = store.load()
+    item = next(item for item in before.items if item.id == "working-scene-0")
+    modified = item.model_copy(update={"content": item.content[:-1] + "b"})
+    store.apply(
+        "update-item", expected_revision=before.revision, command_id="edit-unread-tail",
+        payload={"item": modified.model_dump(mode="json")},
+    )
+    assert _source_fingerprint(store, prepared["request"]["user"]) != (
+        prepared["request"]["settings"]["source_sha256"]
+    )
+
+
+def test_legacy_architecture_request_fingerprint_uses_original_source_projection(tmp_path):
+    store = working_store(tmp_path)
+    scene = "n" * 1100
+    store.apply(
+        "create-item", expected_revision=store.load().revision,
+        command_id="legacy-scene", payload={"item": {
+            "id": "legacy-prose", "kind": "scene", "title": "Prior manuscript",
+            "content": scene,
+        }, "position": {"x": 70, "y": 110}},
+    )
+    prepared = prepare_architecture(store)
+    user = json.loads(prepared["request"]["user"])
+    legacy = _source(store, source_format=1)
+    assert "working_source_format" not in legacy
+    assert legacy["working_items"][0]["content"] == scene[:1000]
+    assert "content_is_excerpt" not in legacy["working_items"][0]
+    user["working_context"] = legacy
+    expected = _digest({
+        "working_context": legacy,
+        "narrative_design_context": user["narrative_design_context"],
+    })
+    assert _source_fingerprint(store, json.dumps(user)) == expected
+
+
 def test_architecture_request_carries_source_grounded_ontology_not_hidden_author_choices(tmp_path):
     store = working_store(tmp_path)
     waiting = prepare_architecture(store)
