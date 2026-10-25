@@ -256,3 +256,48 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         server.stop()
         thread.join(timeout=2)
         assert not thread.is_alive()
+
+
+def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
+    """A broad author Vision is not silently converted into a clipped premise."""
+    long_store = CanvasStore(tmp_path, "long-vision")
+    long_store.create()
+    long_store.apply(
+        "create-item", expected_revision=0, command_id="long-vision",
+        payload={
+            "item": {
+                "id": "story-vision", "title": "Story Vision", "kind": "note",
+                "content": "A" * 4001,
+            },
+            "position": {"x": 40, "y": 50},
+        },
+    )
+    empty_store = CanvasStore(tmp_path, "empty-vision")
+    empty_store.create()
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    quick_draft_requests = []
+    page.on("request", lambda req: quick_draft_requests.append(req)
+            if req.method == "POST" and req.url.endswith("/api/beginner/quick-draft")
+            else None)
+    try:
+        for canvas, fragment in (
+            ("long-vision", "longer than the 4,000-character premise field"),
+            ("empty-vision", "No saved Story Vision to copy"),
+        ):
+            page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas={canvas}")
+            page.locator("#workspace-realization").click()
+            page.locator("#write-shortcut").click()
+            assert page.locator("#scene-premise").input_value() == ""
+            page.locator("#use-vision-as-premise").click()
+            assert fragment in page.locator("#generation-status").inner_text()
+            assert page.locator("#scene-premise").input_value() == ""
+            assert not quick_draft_requests
+            assert not (tmp_path / "story_identity.yaml").exists()
+            assert not (tmp_path / "blueprint.yaml").exists()
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
