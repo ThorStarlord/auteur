@@ -94,6 +94,20 @@ The user should **not** be asked to manually supply fictional scenarios for mech
 
 **Returned exploratory evidence:** [S1/S2 agent-authored creative probe report](../product-validation/2026-10-25-s1-s2-agent-creative-probes.md). This is one transparent synthetic sample, **not** a live Auteur host generation result or a new product commitment.
 
+## 5A. Exploration return — bounded S2 construction (2026-10-25)
+
+The user explicitly resumed **building from this exploration frontier**. After comparing the roadmap with current source, [PR #495](https://github.com/ThorStarlord/auteur/pull/495) was merged as a **bounded manuscript-first source-integrity improvement** rather than an S2 platform or a new author intake pathway.
+
+**Observed gap:** the Studio Architecture host-agent previously received only the first 24 non-Vision items, each clipped to 1,000 characters; Realization received only 12. Neither request disclosed omitted items nor flagged that a working scene was an excerpt. The ordinary fingerprint could overlook changes confined to unseen text. That combination could invite a coding agent to mistake partial prose for a complete manuscript.
+
+**Implemented in existing owners:** source-format-2 packets report per-item full character counts, excerpt status and a hash of unseen prose, plus omitted working-item/connection counts where relevant; Realization accounts for its additional 12-item limit. Both existing agent prompts ask for visible working-item ID attribution and make missing text UNKNOWN. The new context fingerprints track unseen edits without sending the hidden content. Old saved/awaiting source-format-1 requests retain their old comparison behavior rather than becoming stale solely because the software was updated. The work remains WORKING/NOT ACCEPTED and introduces no new narrative ontology, manuscript parser or authority owner.
+
+**Evidence boundary:** source diff/PR integration inspected, with two architecture and one Realization focused regression additions plus a corrected legacy assertion. **These tests were not executed** under the owner's standing immediate-merge/no-test-wait direction. No live host-agent manuscript interpretation, whole-Book extraction accuracy, F2/X3 qualification or author preference is established.
+
+**Nearby S3 existing capacity:** Quick Draft already detects provisional discoveries, lets the author check *only* chosen items, sends that selection to Beginner story shaping, validates it against the current draft and persists a noncanonical shape handoff. The unselected alternatives are not accepted. Consequently, S3 does **not** justify a duplicate discovery queue or new canonical state absent a demonstrated failure.
+
+**Next decision-changing source of evidence:** an authentic coding-agent response to an S2 request containing a deliberately ambiguous, labelled prose excerpt and an author correction. Check which observations cite visible source IDs, which gaps are marked unknown, and whether tentative interpretations remain working. Do not claim this occurred from adding prompt or unit-test fixtures alone. S4–S6 and F3–F7 remain evidence-gated.
+
 ## 6. Evidence integrity and maintenance
 
 - **Source inspection:** the named primary contracts, repository roadmap, frontier roadmaps, and current Studio/Quick Draft evidence were read on the recorded SHA; the two UI PRs are separately linked as **open work**, not as merged capabilities.
