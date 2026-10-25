@@ -287,6 +287,7 @@ def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
             ("empty-vision", "No saved Story Vision to copy"),
         ):
             page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas={canvas}")
+            page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
             page.locator("#workspace-realization").click()
             page.locator("#write-shortcut").click()
             assert page.locator("#scene-premise").input_value() == ""
