@@ -183,7 +183,7 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
     page.on("request", observe_request)
     try:
         page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=scene-bridge")
-        page.get_by_role("button", name="Story Realization").click()
+        page.locator("#workspace-realization").click()
         page.locator("#layer-view").select_option("realization_candidates")
         page.locator('#nodes .node.realization[data-item-id="assembly_scene"]').click()
         page.locator("#realization-copy").click()
