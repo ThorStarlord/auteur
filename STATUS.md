@@ -1,11 +1,27 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-20
-**Main reviewed for this reconciliation:** `5ecf597e075b99d7ce58d68a0bb1783eee8f893c` (PR #472 merge; includes PRs #469, #437 and #439)
+**Last reconciled:** 2026-10-25
+**Main reviewed for this reconciliation:** `fbc585fda2382ebec1e33edee9332f35df9d7693` (through Studio PR #490; development integration, not release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
+
+## 2026-10-25 Studio integration — explicit owner-directed development exception
+
+Seven pull requests were merged into `main` in this integration round:
+[#485](https://github.com/ThorStarlord/auteur/pull/485) (unranked UI possibility landscape),
+[#486](https://github.com/ThorStarlord/auteur/pull/486) (strategic UI comparison and isolated synthetic stress report),
+[#488](https://github.com/ThorStarlord/auteur/pull/488) (repository-wide creative futures and noncanonical S1/S2 probe records),
+[#484](https://github.com/ThorStarlord/auteur/pull/484) (Realization reference coverage for selected Architecture focus),
+[#487](https://github.com/ThorStarlord/auteur/pull/487) (editable scene intent, explicit premise copy, safe provenance and stale-source warnings),
+[#489](https://github.com/ThorStarlord/auteur/pull/489) (prompt instructions for substantive causal development of selected focus), and
+[#490](https://github.com/ThorStarlord/auteur/pull/490) (Quick Draft source-input freshness warning and superseded-response guard).
+PR #486 was integrated after its base #485; the other code changes remained in existing Studio/Realization owners.
+
+**Evidence boundary / owner exception:** The owner explicitly requested immediate integration without waiting for unit or evidence tests. The code-bearing merges **did not run exact-head required L1/L2, repository checkout-based Browser integration, provider quality, or release qualification** in this session. This is a recorded owner-directed exception to the normal [merge evidence policy](docs/engineering/release-qualification.md), **not** a passing or waived-as-passing test result. Earlier 13-assertion source-derived Python stress, 3/4-case Node excerpts and 9-checkpoint Chromium fixtures remain **isolated synthetic evidence**, not proof of the merged full application. The new #489/#490 contract tests were committed but **not executed**.
+
+**Effect:** The selected graph-first, coding-agent-first **Connected Creative Thread** direction remains unchanged. These integrations add bounded working-author controls and a stronger noncanonical request contract. They do **not** complete the F2 small-Book or X3 persistent Book frontier, human usability testing, an end-to-end provider execution, release readiness, or automatic story acceptance. Continue normal development without presenting these as qualified claims; triage any observed defects at the smallest existing owner.
 
 ## Current Frontier: F2 + X3
 
