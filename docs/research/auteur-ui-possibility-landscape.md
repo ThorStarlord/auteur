@@ -366,3 +366,5 @@ The expanded landscape now names **twelve conceptually distinct author-job/inter
 **The major uncertainty left to Strategic Evolution Analysis** is whether to obtain the next unit of author value by **connecting established capabilities into one coherent creative workflow**, **deepening a distinctive visual reasoning mode**, or **making existing writing and re-entry dramatically simpler**. This review does not settle that choice.
 
 **Stop rule for this exploration round:** further candidate labels are unlikely to improve decisions without observing an author job or encountering a demonstrable workflow gap. Revisit possibilities only when new evidence changes their distinctness or feasibility. The current F2/X3 controlled frontier and existing product authority remain unchanged. Neither this research file nor its PR grants implementation, merge, release, or thesis-change authority.
+
+**Companion strategic synthesis:** [Auteur UI Strategic Evolution Analysis](auteur-ui-strategic-evolution-2026-10-24.md) compares coherent construction futures separately. This possibility landscape remains unranked and does not authorize work.
