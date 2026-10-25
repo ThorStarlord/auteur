@@ -2568,7 +2568,10 @@
       $("generation-status").textContent = "Working notes contain a provenance footer. Edit the clean scene intent above, or remove the footer before copying all notes.";
       return;
     }
-    $("scene-intent").value = notes.slice(0, 4000);
+    if (notes.length > 4000) {
+      $("generation-status").textContent = "Scene notes are longer than the 4,000-character intent field. Select the relevant passage manually."; return;
+    }
+    $("scene-intent").value = notes;
     captureScene(); scheduleSave(); rememberFocus();
     $("generation-status").textContent = "Copied working scene notes as editable generation intent. Review before requesting.";
   });
