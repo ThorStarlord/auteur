@@ -229,3 +229,19 @@ This section records **what actually happened** against the plan, not a permanen
 - **P5:** **NO_MODEL_CHANGE / REAFFIRM** Connected Creative Thread for current UI work. Retain Story Opportunity Discovery and manuscript archaeology as separate documentation-first options. **Do not build new runtime, score, canonical importer, ontology, retrieval engine, or UI by default.** The missing exact-head L1/L2/P3 gates have explicit owning PRs and do not block this separate noncanonical exploration conclusion.
 
 **Next bounded execution boundary:** In a real checkout at PR #484 and #487 exact HEADs, run the L1 and two named L2 tests above, fix only demonstrated failures, then execute the single P3 combined journey. Recheck `main` before integration; do not automatically merge or release. A qualified outcome may justify another bounded authoring improvement, not the entire ideas backlog. The original user did not need to provide synthetic inputs; the unsatisfied dependency is actual source-execution access, not owner preference.
+
+## 7. Subsequent focused repair — stale-source continuity (2026-10-25)
+
+**Reason:** The existing Realization projection can be marked `stale` after the underlying creative source changes. Copying such a proposal into the editable working canvas previously replaced the warning with an ordinary success message. Moreover, the ordinary save confirmation can replace transient status text. The selected product contract says a stale realization remains inspectable **but must not be treated as current**.
+
+**Implemented in [draft PR #487](https://github.com/ThorStarlord/auteur/pull/487):** At the changed `copyRealization` boundary, keep copying available as a *working* creative idea but (1) add explicit stale-source feedback and (2) persist `Source freshness at copy: STALE relative to current creative materials.` in the copied note. Keep the original `Origin: working realization ... Not accepted story.` suffix intact. A subsequent `Use my existing scene notes as intent` action continues refusing the provenance footer; the clean copied `scene_intent` is unchanged. No model/schema/acceptance owner was added.
+
+**Focused evidence:** The updated **local selected-function excerpt** test passed **4/4 Node simulations**. A deliberate negative-control mutation removing the stale note annotation failed exactly the targeted fourth scenario (**3 pass, 1 fail**); source code was restored afterward. A third HTTP/Chromium regression scenario was committed to PR #487 to test stale Realization projection, scene copy, persisted note, and no accepted-story files. **None** of the three committed Browser scenarios, full exact-head `studio.js`, or PR #484 Python tests have been executed against an actual Auteur checkout. The current PR #487 head should be re-read from GitHub before running tests.
+
+**Updated exact-head L2 selection:** Only the three named new cases in `tests/test_beginner_studio_architecture_to_realization_browser.py` are justified:
+
+```sh
+python -m pytest -q tests/test_beginner_studio_architecture_to_realization_browser.py -k 'realization_scene_carries_editable_intent_to_quick_draft or vision_to_premise_refuses_truncation_or_fabrication or stale_realization_copy_retains_provenance_warning'
+```
+
+Do not promote this source-level feedback repair into F2/X3 qualification or use it to bypass the blocked production Browser/CanvasStore gate. The strategic decision remains **NO_MODEL_CHANGE / REAFFIRM**; no new roadmap lane is selected.
