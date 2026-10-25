@@ -2560,7 +2560,15 @@
     if (!item || item.kind !== "scene" || !$("scene-text").value.trim()) {
       $("generation-status").textContent = "Write some scene notes first, then use them as editable intent."; return;
     }
-    $("scene-intent").value = $("scene-text").value.trim().slice(0, 4000);
+    var notes = $("scene-text").value.trim();
+    // Source annotations copied with a Realization proposal are not scene intent.
+    // Never silently strip authored text or send provenance to Quick Draft.
+    if (item.group === "Story Realization" &&
+        /\nOrigin: working realization (?:[a-f0-9]{64}|unknown)\/[a-z][a-z0-9_-]*\. Not accepted story\.$/.test(notes)) {
+      $("generation-status").textContent = "Working notes contain a provenance footer. Edit the clean scene intent above, or remove the footer before copying all notes.";
+      return;
+    }
+    $("scene-intent").value = notes.slice(0, 4000);
     captureScene(); scheduleSave(); rememberFocus();
     $("generation-status").textContent = "Copied working scene notes as editable generation intent. Review before requesting.";
   });
