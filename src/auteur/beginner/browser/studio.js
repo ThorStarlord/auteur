@@ -1385,6 +1385,7 @@
     var item = {id:id("item"), kind:kind, title:source.title,
       group:"Story Realization", content:source.description +
       "\n\nArchitecture refs: " + source.architecture_refs.join(", ") +
+      (state.realizationStale ? "\nSource freshness at copy: STALE relative to current creative materials." : "") +
       "\nOrigin: working realization " + (state.realizationRequestSha || "unknown") +
       "/" + source.id + ". Not accepted story."};
     // Copy the concrete scene's proposal text into editable generation intent,
