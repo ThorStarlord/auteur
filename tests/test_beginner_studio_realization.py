@@ -10,7 +10,7 @@ from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.beginner.studio_architecture import prepare_architecture, complete_architecture
 from auteur.beginner.studio_realization import (
-    apply_realization_review, complete_realization,
+    _source_snapshot, apply_realization_review, complete_realization,
     prepare_realization, project_realization,
 )
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
@@ -67,6 +67,65 @@ def candidate():
              "proposed_change": "Consider making ethical responsibility scale with capability."},
         ],
     }
+
+
+def test_manuscript_first_realization_marks_partial_source_without_inventing_text(tmp_path):
+    store = CanvasStore(tmp_path, "manuscript-realization")
+    store.create()
+    store.apply(
+        "create-item", expected_revision=0, command_id="prose-vision",
+        payload={"item": {
+            "id": "story-vision", "kind": "note", "title": "Story Vision",
+            "content": "A rescue is contested, and the truth remains uncertain.",
+        }, "position": {"x": 20, "y": 25}},
+    )
+    text = "At dawn the crew sees a rescue. " + "x" * 1090
+    store.apply(
+        "create-item", expected_revision=store.load().revision,
+        command_id="frozen-prose", payload={"item": {
+            "id": "frozen-scene", "kind": "scene", "title": "First account",
+            "content": text,
+        }, "position": {"x": 50, "y": 85}},
+    )
+    pending = prepare_architecture(store)
+    architecture = {
+        "schema_version": 2, "summary": "Conflicting rescue accounts.",
+        "nodes": [
+            {"id": "growth", "title": "Evidence pressure", "category": "engine",
+             "summary": "Each rescue creates new uncertainty."},
+            {"id": "generosity", "title": "Care", "category": "theme",
+             "summary": "Heroic help may have more than one reading."},
+        ],
+        "links": [], "phases": [], "open_questions": [],
+    }
+    complete_architecture(store, respond(pending, architecture))
+    prepared = prepare_realization(store, ["growth"])
+    original = json.loads(prepared["request"]["user"])["source"]
+    assert original["working_source_format"] == 2
+    assert original["omitted_working_item_count"] == 0
+    excerpt = original["working_items"][0]
+    assert excerpt["id"] == "frozen-scene"
+    assert excerpt["content_is_excerpt"] is True
+    assert excerpt["content_characters"] == len(text)
+    assert excerpt["content"] == text[:1000]
+    assert len(excerpt["full_content_sha256"]) == 64
+    assert "working item IDs" in prepared["request"]["system"]
+    legacy = _source_snapshot(store, ["growth"], None, source_format=1)
+    assert "working_source_format" not in legacy
+    assert "content_is_excerpt" not in legacy["working_items"][0]
+
+    # Editing unseen prose must invalidate the pending request, not become canon.
+    prior = store.load()
+    item = next(item for item in prior.items if item.id == "frozen-scene")
+    updated = item.model_copy(update={"content": text[:-1] + "y"})
+    store.apply(
+        "update-item", expected_revision=prior.revision, command_id="change-tail",
+        payload={"item": updated.model_dump(mode="json")},
+    )
+    with pytest.raises(BeginnerConcurrencyError, match="stale realization"):
+        complete_realization(store, respond(prepared, candidate()))
+    assert not (tmp_path / "story_identity.yaml").exists()
+    assert not (tmp_path / "blueprint.yaml").exists()
 
 
 def test_realization_is_created_only_after_architecture_and_preserves_owner(tmp_path):
