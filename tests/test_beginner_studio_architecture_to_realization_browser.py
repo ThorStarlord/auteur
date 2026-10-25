@@ -296,6 +296,13 @@ def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
             page.locator("#use-vision-as-premise").click()
             assert fragment in page.locator("#generation-status").inner_text()
             assert page.locator("#scene-premise").input_value() == ""
+            # Authored scene notes must not be silently clipped when used as intent.
+            page.locator("#scene-text").fill("N" * 4001)
+            page.locator("#use-scene-as-intent").click()
+            assert "longer than the 4,000-character intent field" in (
+                page.locator("#generation-status").inner_text()
+            )
+            assert page.locator("#scene-intent").input_value() == ""
             assert not quick_draft_requests
             page.locator("#save-scene").click()
             page.wait_for_function(
