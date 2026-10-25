@@ -100,6 +100,19 @@ def _store(tmp_path, canvas_id="w4-public-vision") -> CanvasStore:
     return store
 
 
+def test_focused_request_tells_agent_to_develop_meaning_not_only_reference_ids(tmp_path):
+    store = _store(tmp_path, canvas_id="semantic-focus-request")
+    prepared = prepare_realization(store, ["allocation_process"])
+    request = HostAgentRequest(**prepared["request"])
+    source = json.loads(request.user)["source"]
+
+    assert source["focus_ids"] == ["allocation_process"]
+    assert "make its causal or" in request.system
+    assert "Do not merely attach a focus ID" in request.system
+    assert "not accepted story facts" in request.system
+    assert project_realization(store)["status"] == "awaiting_host_agent"
+
+
 def test_focused_response_cannot_ignore_author_selected_architecture(tmp_path):
     store = _store(tmp_path)
     request = prepare_realization(store, ["allocation_process"])
