@@ -1396,9 +1396,13 @@
     state.view = "create"; state.lastRealizationView = "create";
     $("layer-view").value = state.view;
     render(); queueSave(); rememberFocus();
-    status(kind === "scene"
+    var copyStatus = kind === "scene"
       ? "Copied a proposed scene with editable intent. Review its source, choose a premise and explicitly request Quick Draft; nothing accepted."
-      : "Copied to editable working ideas without accepting any story facts.");
+      : "Copied to editable working ideas without accepting any story facts.";
+    if (state.realizationStale) {
+      copyStatus += " Source is STALE relative to current creative materials; check it before relying on the copied idea.";
+    }
+    status(copyStatus);
   }
   function inspectRealizationPurpose() {
     var element = realizationElement(state.selectedRealization);
