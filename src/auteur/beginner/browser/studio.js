@@ -2180,9 +2180,25 @@
     }).finally(function () { $("generate-scene").disabled = false; });
   }
   function useGenerated() {
-    var item = selected(); if (!item) return;
+    var item = selected();
+    if (!item || item.kind !== "scene" || !remote.ready || remote.failed) {
+      $("generation-status").textContent = "Working canvas is unavailable; cannot copy generated prose.";
+      return;
+    }
     var prose = $("generated-prose").value;
     if (!prose) return;
+    if (prose.length > 20000) {
+      $("generation-status").textContent =
+        "Generated candidate exceeds the 20,000-character scene limit. Review it in guided Quick Draft instead.";
+      return;
+    }
+    var existing = $("scene-text").value;
+    if (existing.trim() && existing !== prose &&
+        !window.confirm("Replace your existing working scene prose with this generated candidate? Copy the current scene elsewhere first if you want to keep both versions.")) {
+      $("generation-status").textContent =
+        "Existing working prose kept. The generated candidate is still available.";
+      return;
+    }
     item.content = prose; $("scene-text").value = prose;
     queueSave(); status("Working candidate copied into scene. Nothing accepted.");
   }
