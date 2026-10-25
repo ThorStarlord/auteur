@@ -92,6 +92,8 @@ The user should **not** be asked to manually supply fictional scenarios for mech
 
 **Operational companion (bounded, not a roadmap promotion):** [Agent-simulated authoring and capability exploration execution plan](../plans/2026-10-25-agent-simulated-authoring-and-exploration-plan.md). It selects focused qualification of existing PRs and small, independent S1/S2 probes with explicit stop rules; the other opportunity families remain possibilities.
 
+**Returned exploratory evidence:** [S1/S2 agent-authored creative probe report](../product-validation/2026-10-25-s1-s2-agent-creative-probes.md). This is one transparent synthetic sample, **not** a live Auteur host generation result or a new product commitment.
+
 ## 6. Evidence integrity and maintenance
 
 - **Source inspection:** the named primary contracts, repository roadmap, frontier roadmaps, and current Studio/Quick Draft evidence were read on the recorded SHA; the two UI PRs are separately linked as **open work**, not as merged capabilities.
