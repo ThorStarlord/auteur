@@ -316,3 +316,71 @@ def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
         server.stop()
         thread.join(timeout=2)
         assert not thread.is_alive()
+
+
+def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
+    """Stale proposed scenes remain creatively reusable but are never labeled current."""
+    store = store_with_architecture(tmp_path, "stale-copy")
+    pending = prepare_realization(store, ["allocation_engine"])
+    request = HostAgentRequest(**pending["request"])
+    scene = "An assembly debates repairs before the old distribution is restored."
+    proposal = {
+        "schema_version": 1, "summary": "A provisional scene.",
+        "elements": [{
+            "id": "stale_assembly", "kind": "scene",
+            "title": "An old proposed assembly", "description": scene,
+            "architecture_refs": ["allocation_engine"],
+        }],
+        "links": [], "architecture_feedback": [], "open_questions": [],
+    }
+    response = build_host_agent_response(
+        request, json.dumps(proposal), runtime="browser-test", model="fixture",
+    )
+    assert complete_realization(store, response.model_dump())["status"] == "ready"
+
+    before = store.load()
+    vision = next(item for item in before.items if item.id == "story-vision")
+    changed = vision.model_copy(update={"content": "The author revised the governing vision."})
+    store.apply(
+        "update-item", expected_revision=before.revision, command_id="vision-revised",
+        payload={"item": changed.model_dump(mode="json")},
+    )
+    assert project_realization(store)["status"] == "stale"
+
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=stale-copy")
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+        page.locator("#workspace-realization").click()
+        page.locator("#layer-view").select_option("realization_candidates")
+        page.locator('#nodes .node.realization[data-item-id="stale_assembly"]').click()
+        assert "stale" in page.locator("#realization-status").inner_text().lower()
+        page.locator("#realization-copy").click()
+        page.locator("#write").click()
+        notes = page.locator("#scene-text").input_value()
+        assert "Source freshness at copy: STALE relative to current creative materials." in notes
+        assert "Origin: working realization" in notes
+        assert page.locator("#scene-intent").input_value() == scene
+        page.locator("#use-scene-as-intent").click()
+        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        assert page.locator("#scene-intent").input_value() == scene
+        page.locator("#save-scene").click()
+        page.wait_for_function(
+            'document.querySelector("#status").textContent'
+            '.includes("Working canvas saved locally")'
+        )
+        stored = store.load()
+        copies = [item for item in stored.items if item.title == "An old proposed assembly"]
+        assert len(copies) == 1
+        assert "Source freshness at copy: STALE" in copies[0].content
+        assert copies[0].scene_intent == scene
+        assert not (tmp_path / "story_identity.yaml").exists()
+        assert not (tmp_path / "blueprint.yaml").exists()
+        assert not (tmp_path / "chapters").exists()
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
