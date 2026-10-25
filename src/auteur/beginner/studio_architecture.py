@@ -231,25 +231,67 @@ def _candidate(store: CanvasStore) -> dict | None:
     return _read(_root(store) / "current.json")
 
 
-def _source(store: CanvasStore, *, previous: dict | None = None) -> dict:
+def _source(
+    store: CanvasStore, *, previous: dict | None = None, source_format: int = 2,
+) -> dict:
+    """Bound the agent-visible working source, without disguising omitted prose.
+
+    Format 1 reproduces the exact historical projection for in-flight requests.
+    Format 2 adds provenance metadata and content fingerprints for freshness;
+    fingerprints never stand in for unavailable prose.
+    """
+    if source_format not in (1, 2):
+        raise ValueError("unsupported Studio working-source format")
     canvas = store.load()
-    selected = [item for item in canvas.items if item.id != "story-vision"][:24]
+    all_items = [item for item in canvas.items if item.id != "story-vision"]
+    selected = all_items[:24]
     selected_ids = {item.id for item in selected}
     vision = next((item.content for item in canvas.items if item.id == "story-vision"), "")
-    return {
+    items = []
+    for item in selected:
+        entry = {"id": item.id, "kind": item.kind, "title": item.title,
+                 "group": item.group, "content": item.content[:1000]}
+        if source_format == 2:
+            entry["content_characters"] = len(item.content)
+            entry["content_is_excerpt"] = len(item.content) > 1000
+            if len(item.content) > 1000:
+                entry["full_content_sha256"] = hashlib.sha256(
+                    item.content.encode("utf-8")
+                ).hexdigest()
+        items.append(entry)
+    included = [
+        edge for edge in canvas.connections
+        if edge.source in selected_ids and edge.target in selected_ids
+    ][:80]
+    result = {
         "vision": vision,
-        "working_items": [
-            {"id": item.id, "kind": item.kind, "title": item.title,
-             "group": item.group, "content": item.content[:1000]}
-            for item in selected
-        ],
+        "working_items": items,
         "working_connections": [
             {"source": edge.source, "target": edge.target, "label": edge.label}
-            for edge in canvas.connections
-            if edge.source in selected_ids and edge.target in selected_ids
-        ][:80],
+            for edge in included
+        ],
         "previous_candidate": previous,
     }
+    if source_format == 2:
+        excluded_items = all_items[24:]
+        included_edge_ids = {edge.id for edge in included}
+        excluded_edges = [
+            edge for edge in canvas.connections if edge.id not in included_edge_ids
+        ]
+        result.update({
+            "working_source_format": 2,
+            "omitted_working_item_count": len(excluded_items),
+            "omitted_working_connection_count": len(excluded_edges),
+        })
+        if excluded_items:
+            result["omitted_working_items_sha256"] = _digest([
+                item.model_dump(mode="json") for item in excluded_items
+            ])
+        if excluded_edges:
+            result["omitted_working_connections_sha256"] = _digest([
+                edge.model_dump(mode="json") for edge in excluded_edges
+            ])
+    return result
 
 
 # A bounded, source-referenced projection of established narrative design rules.
@@ -377,7 +419,8 @@ def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
     """Preserve the original digest for pre-context request/artifact reopens."""
     user = json.loads(request_user)
     previous = user["working_context"]["previous_candidate"]
-    working = _source(store, previous=previous)
+    source_format = 2 if user["working_context"].get("working_source_format") == 2 else 1
+    working = _source(store, previous=previous, source_format=source_format)
     if "narrative_design_context" not in user:
         return _digest(working)
     return _digest({
@@ -391,6 +434,14 @@ Read narrative_design_context in the user request BEFORE composing an architectu
 Its source-linked ontology principles are design guidance, not invented author
 commitments. The accepted_story_identity, when present, is authoritative;
 the current Story Vision and previous candidate are working material.
+Working item content can be just the first 1,000 characters of a longer
+scene, and working items/connections can be omitted by context limits.
+Use working_source_format, content_is_excerpt, content_characters and
+omitted_working_* counts to distinguish visible evidence from missing text.
+A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
+For manuscript-first input, cite working item IDs in relevant summaries and
+open questions. Separate observed prose from alternative interpretations;
+never assert missing passages, motives or outcomes from a truncated excerpt.
 If working intent conflicts with accepted Identity, surface the tension as
 an unresolved proposal; never silently change the accepted story.
 
