@@ -16,7 +16,7 @@ This session had access to exact repository source through the GitHub connector 
 
 Two exercise types were completed:
 
-1. **Contract and flow stress:** 12 explicit executable isolated assertions, using artificially constructed Realization candidates. Compared the current `_assert_refs` rule with the precise additional focus-coverage rule on open PR #484, copied a Realization scene into working-note state, and checked the scene-premise/scene-intent eligibility gate. All 12 harness assertions passed **about the expected source-derived behavior**; this is **not** 12 passing Auteur integration tests. Four cases reproduced undesirable behavior in the replica.
+1. **Contract and flow stress:** 13 explicit executable isolated assertions, using artificially constructed Realization candidates. Compared the current `_assert_refs` rule with the precise additional focus-coverage rule on open PR #484, copied a Realization scene into working-note state, and checked the scene-premise/scene-intent eligibility gate. All 13 harness assertions passed **about the expected source-derived behavior**; this is **not** 12 passing Auteur integration tests. Four cases reproduced undesirable behavior in the replica.
 2. **Coding-agent creative divergence:** this assistant authored two *working, noncanonical* ArchitectureCandidate-v2-style proposals for one synthetic Story Vision and checked both through an isolated schema replica. The two use different sustaining engines rather than superficial relabeling. This was **not** a call to an independent host coding agent, an actual Auteur response envelope, production schema validation, or a live generation/quality evaluation.
 
 We separately challenged UI hypotheses as a **simulated author** (not real humans) across premise-free entry, spatial reasoning, divergent whole-story alternatives, scene writing, and Book re-entry. A simulated author's tastes and task durations are **not observations**.
@@ -56,6 +56,9 @@ Each result below is a **PASS for the harness's predicted assertion**, not proof
 | **S10** | Copy an agent-proposed scene to working canvas, then request Quick Draft | **Missing scene premise and intent blocks generation** | Realization->scene copy is not automatically draft-ready |
 | **S11** | Click *Use my existing scene notes as intent* | Intent is filled but premise remains missing; appended source metadata also enters the editable intent | A recovery affordance exists, but source-to-prose transition is not a single clean author action |
 | **S12** | Supply explicit author premise and cleaned scene intent | Eligibility gate permits request | Existing system can proceed; no prose model was actually called |
+| **S13** | Attach selected reference ID to an otherwise unrelated scene description | Both current and draft rules accept the labeled response | **Residual semantic risk:** reference coverage is not proof that the content fulfills the creative intention |
+
+**Important residual distinction:** PR #484's proposed guard validates *structural coverage* of requested focus IDs, not literary or causal fidelity. S13 shows that an unrelated scene carrying the correct ID passes both guards. Do not solve this by pretending a deterministic label validator can certify subjective narrative quality; preserve an inspectable, challengeable working proposal and qualify meaningful focus fidelity with an actual agent output when that claim matters.
 
 **Current source anchors:**
 
@@ -91,7 +94,7 @@ The table distinguishes **source-grounded prediction** from **unanswered prefere
 
 **Answered mechanically / high source confidence:**
 
-1. A focused request **can** specify a selected abstract node.
+1. A focused request **can** specify a selected abstract node, but a selected ID in a result does not establish semantic fidelity.
 2. On current main, a structurally valid response **can** omit that focus; the open PR #484 source guard covers this narrow case.
 3. Existing source/freshness and working-versus-accepted distinctions are materially protective at inspected boundaries.
 4. Copying a Realization element into working scene content does **not** populate the fields required by the scene-generation request.
@@ -113,7 +116,7 @@ The table distinguishes **source-grounded prediction** from **unanswered prefere
 
 **Falsified simplifications:**
 
-- 'Focus ID is passed, therefore focus is honored' is false on current main.
+- 'Focus ID is passed, therefore focus is honored' is false on current main. 'Focus ID appears in the response, therefore its meaning was honored' remains false even with the draft guard.
 - 'Copy Realization scene, therefore Quick Draft is ready' is false when premise and intent are absent.
 - 'Valid graph candidate, therefore high-quality story' is unsupported.
 - 'A simulated author prefers it, therefore users prefer it' is invalid.
@@ -137,8 +140,8 @@ The table distinguishes **source-grounded prediction** from **unanswered prefere
 ## 6. Evidence provenance and reproduction limits
 
 - GitHub source and [PR #484](https://github.com/ThorStarlord/auteur/pull/484) were read without modifying application code.
-- Isolated standalone scripts were executed with Python 3.13 and Pydantic 2.13.5. The first generated a JSON ledger for 12 contract-state cases; the second generated two abstract synthetic candidate structures checked through a recreated subset of ArchitectureCandidate-v2 constraints.
-- The **12/12 pass** figure is about the correctness of the *isolated scenario assertions*, **not** product success, not an execution of original Auteur's validators, not a passing Chromium suite, and not a test of a real coding-agent host.
+- Isolated standalone scripts were executed with Python 3.13 and Pydantic 2.13.5. The first generated a JSON ledger for 13 contract-state cases; the second generated two abstract synthetic candidate structures checked through a recreated subset of ArchitectureCandidate-v2 constraints.
+- The **13/13 pass** figure is about the correctness of the *isolated scenario assertions*, **not** product success, not an execution of original Auteur's validators, not a passing Chromium suite, and not a test of a real coding-agent host.
 - Actual repository checkout was unavailable because the execution container could not resolve GitHub; no production import, request submission, fixture writing to the owner's project, or clean-room release qualification occurred.
 - No human participant, empirical preference survey, external LLM comparison, model-independent coding-agent run, or private W4 project was used.
 - The landscape and strategic synthesis remain separate authorities: evidence constrains what is reasonable to build, but this file does not promote a candidate into `NOW` or authorize a merge/release.
