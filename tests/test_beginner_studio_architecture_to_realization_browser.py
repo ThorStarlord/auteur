@@ -227,6 +227,9 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         assert quick_draft_requests == [{
             "premise": authored_premise, "first_scene": authored_scene,
         }]
+        page.wait_for_function(
+            'document.querySelector("#generation-status").textContent.includes("Request staged for the active coding agent")'
+        )
         page.locator("#save-scene").click()
         page.wait_for_function(
             'document.querySelector("#status").textContent.includes("Working canvas saved locally")'
