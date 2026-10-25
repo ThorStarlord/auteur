@@ -360,9 +360,15 @@ Studio's Realization tab prepares a `studio_realization` host-agent request
 with exact source identity and optional selected architecture focus. Focused
 requests must develop every selected component through at least one concrete
 element referencing that component; other relevant architecture references
-remain allowed. An empty focus permits whole-story proposals. This is reference
-coverage, not a guarantee of narrative quality or acceptance. The
-active local coding agent can read it, create *raw* RealizationCandidate JSON,
+remain allowed. An empty focus permits whole-story proposals. The coding
+agent should also describe how each focused concept actually causes, constrains,
+enables or changes concrete story action: merely adding the expected ID is not
+meaningful creative development. If the source leaves that meaning open, keep
+the implementation provisional and explain the uncertainty instead of
+inventing an accepted story fact. The validator enforces reference coverage;
+these additional instructions guide interpretation, not a guarantee of
+narrative quality or acceptance. The active local coding agent can read it,
+create *raw* RealizationCandidate JSON,
 and complete it through the neutral CLI without any provider API configured:
 
 ```powershell

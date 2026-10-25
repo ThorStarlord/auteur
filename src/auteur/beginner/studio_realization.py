@@ -82,7 +82,13 @@ events or scenes, with explicit architecture_refs for EVERY concrete element.
 Construct causally different alternatives if appropriate. When source.focus_ids
 is nonempty, include at least one concrete element referencing EACH selected
 architecture node; other relevant nodes may also be used. An empty focus_ids
-means whole-story development. Keep link function labels within 120 characters.
+means whole-story development. For each selected focus, make its causal or
+thematic function visible in a concrete element description: show what it
+causes, constrains, enables, or changes in characters' actions or conflicts.
+Do not merely attach a focus ID to an unrelated element to satisfy validation.
+If an abstract focus has multiple plausible realizations, offer them as
+provisional alternatives or open questions, not accepted story facts.
+Keep link function labels within 120 characters.
 Do not assume a specific realization has already been accepted or exists in canon.
 If concrete discoveries suggest changing the governing architecture, put them
 in architecture_feedback as proposed changes, not silent accepted edits.
