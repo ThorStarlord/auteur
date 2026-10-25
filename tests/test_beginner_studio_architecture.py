@@ -261,7 +261,7 @@ def test_omitted_identity_defaults_are_not_attributed_to_author(tmp_path):
 def test_legacy_architecture_fingerprint_remains_readable(tmp_path):
     store = working_store(tmp_path)
     legacy_user = json.dumps({"working_context": {"previous_candidate": None}})
-    assert _source_fingerprint(store, legacy_user) == _digest(_source(store))
+    assert _source_fingerprint(store, legacy_user) == _digest(_source(store, source_format=1))
 
 
 def test_invalid_accepted_identity_is_not_silently_ignored(tmp_path):
