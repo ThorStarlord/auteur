@@ -87,6 +87,18 @@ def test_manuscript_first_realization_marks_partial_source_without_inventing_tex
             "content": text,
         }, "position": {"x": 50, "y": 85}},
     )
+    # Realization receives only the first 12 working items, not all 24 that
+    # the Architecture request can include; the missing thirteenth remains known.
+    for index in range(12):
+        store.apply(
+            "create-item", expected_revision=store.load().revision,
+            command_id=f"supporting-scene-{index}",
+            payload={"item": {
+                "id": f"supporting-scene-{index}", "kind": "scene",
+                "title": f"Secondary source {index}",
+                "content": f"Unsettled testimony {index}.",
+            }, "position": {"x": 65 + index, "y": 120 + index}},
+        )
     pending = prepare_architecture(store)
     architecture = {
         "schema_version": 2, "summary": "Conflicting rescue accounts.",
@@ -102,7 +114,9 @@ def test_manuscript_first_realization_marks_partial_source_without_inventing_tex
     prepared = prepare_realization(store, ["growth"])
     original = json.loads(prepared["request"]["user"])["source"]
     assert original["working_source_format"] == 2
-    assert original["omitted_working_item_count"] == 0
+    assert original["omitted_working_item_count"] == 1
+    assert len(original["working_items"]) == 12
+    assert len(original["omitted_working_items_sha256"]) == 64
     excerpt = original["working_items"][0]
     assert excerpt["id"] == "frozen-scene"
     assert excerpt["content_is_excerpt"] is True
