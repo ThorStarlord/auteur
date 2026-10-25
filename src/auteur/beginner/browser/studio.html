@@ -316,6 +316,13 @@
       <button id="generate-scene" type="button">Request Quick Draft using host agent</button>
       <button id="refresh-draft" type="button" hidden>Check generated scene</button>
       <p id="generation-status" role="status" aria-live="polite"></p>
+      <details id="quick-draft-handoff" class="quick-draft-handoff" hidden>
+        <summary>Inspect pending coding-agent request</summary>
+        <p>This working request is staged, not automatically executed. The active coding agent can read the request file inside the current project:</p>
+        <p><code id="quick-draft-handoff-file" class="handoff-identifier"></code></p>
+        <p>Exact request SHA-256: <code id="quick-draft-handoff-sha" class="handoff-identifier"></code></p>
+        <p>Complete the matching host-agent request, then choose Check generated scene. No story facts are accepted here.</p>
+      </details>
       <div id="generation-result" hidden>
         <label for="generated-prose">Generated working candidate — never automatically accepted</label>
         <textarea id="generated-prose" rows="10" readonly></textarea>

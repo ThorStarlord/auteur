@@ -199,6 +199,20 @@
       '<p class="hint">Nothing is selected automatically. These are working observations, not accepted story facts.</p>';
   }
 
+  function renderQuickDraftHandoff(projection) {
+    var draft = projection.draft || {};
+    var request = draft.backend_request || {};
+    var sessionId = projection.session_id;
+    var pending = draft.status === "awaiting_host_agent" &&
+      request.file === "host_agent_request.json" &&
+      typeof sessionId === "string" && /^[a-zA-Z0-9_-]{1,120}$/.test(sessionId) &&
+      typeof request.request_sha256 === "string" &&
+      /^[a-f0-9]{64}$/.test(request.request_sha256);
+    $("quick-draft-handoff").hidden = !pending;
+    $("quick-draft-handoff-file").textContent =
+      pending ? ".auteur/quick_draft/" + sessionId + "/host_agent_request.json" : "";
+    $("quick-draft-handoff-sha").textContent = pending ? request.request_sha256 : "";
+  }
   function renderQuickDraftProjection(projection) {
     if (!projection) return;
     state.quickDraftSessionId = projection.session_id;
@@ -211,6 +225,7 @@
     $("quick-draft-result").hidden = false;
     $("quick-draft-editor").value = projection.draft_text || "";
     var draft = projection.draft || {};
+    renderQuickDraftHandoff(projection);
     var pending = draft.status === "awaiting_host_agent" || draft.status === "generating";
     $("quick-draft-editor").disabled = pending;
     $("quick-draft-save").disabled = pending;

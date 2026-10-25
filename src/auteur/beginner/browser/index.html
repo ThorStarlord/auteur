@@ -42,6 +42,13 @@
         <p class="hint">Edit freely. Nothing here becomes accepted story material until you choose what to keep.</p>
         <textarea id="quick-draft-editor" rows="22" aria-label="Editable Quick Draft scene"></textarea>
         <p id="quick-draft-meta" class="hint"></p>
+        <details id="quick-draft-handoff" class="quick-draft-handoff" hidden>
+          <summary>Inspect pending coding-agent request</summary>
+          <p>This working request was staged, not automatically executed. The active coding agent can read the request file inside this project:</p>
+          <p><code id="quick-draft-handoff-file" class="handoff-identifier"></code></p>
+          <p>Exact request SHA-256: <code id="quick-draft-handoff-sha" class="handoff-identifier"></code></p>
+          <p>Complete the matching host-agent request and reopen this Quick Draft. No story facts are accepted here.</p>
+        </details>
         <div class="surface-actions">
           <button id="quick-draft-save" type="button" class="continue-button">Save changes</button>
           <button id="quick-draft-discover" type="button">What did we discover?</button>

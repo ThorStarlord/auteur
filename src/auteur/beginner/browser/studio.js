@@ -2109,9 +2109,24 @@
     item.scene_premise = $("scene-premise").value;
     item.scene_intent = $("scene-intent").value;
   }
+  function renderQuickDraftHandoff(projection) {
+    var draft = projection.draft || {};
+    var request = draft.backend_request || {};
+    var sessionId = projection.session_id;
+    var pending = draft.status === "awaiting_host_agent" &&
+      request.file === "host_agent_request.json" &&
+      typeof sessionId === "string" && /^[a-zA-Z0-9_-]{1,120}$/.test(sessionId) &&
+      typeof request.request_sha256 === "string" &&
+      /^[a-f0-9]{64}$/.test(request.request_sha256);
+    $("quick-draft-handoff").hidden = !pending;
+    $("quick-draft-handoff-file").textContent =
+      pending ? ".auteur/quick_draft/" + sessionId + "/host_agent_request.json" : "";
+    $("quick-draft-handoff-sha").textContent = pending ? request.request_sha256 : "";
+  }
   function draftStatus(projection) {
     var draft = projection.draft || {};
     var stateName = draft.status || "unknown";
+    renderQuickDraftHandoff(projection);
     $("refresh-draft").hidden = false;
     $("generation-status").textContent =
       stateName === "awaiting_host_agent" ? "Request staged for the active coding agent. Check again after it fulfills the request." :
@@ -2214,6 +2229,9 @@
     $("scene-premise").value = item.scene_premise || "";
     $("scene-intent").value = item.scene_intent || "";
     $("generation-result").hidden = true;
+    $("quick-draft-handoff").hidden = true;
+    $("quick-draft-handoff-file").textContent = "";
+    $("quick-draft-handoff-sha").textContent = "";
     $("generation-status").textContent = item.quick_draft_session_id
       ? "A prior Quick Draft request is linked to this scene."
       : "Working prose can be written here without requesting generation.";
