@@ -177,6 +177,7 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
     thread = server.start_in_thread()
     page = browser.new_page(viewport={"width": 1440, "height": 900})
     quick_draft_requests = []
+
     def observe_request(request):
         if request.method == "POST" and request.url.endswith("/api/beginner/quick-draft"):
             quick_draft_requests.append(json.loads(request.post_data))
@@ -228,7 +229,8 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
             "premise": authored_premise, "first_scene": authored_scene,
         }]
         page.wait_for_function(
-            'document.querySelector("#generation-status").textContent.includes("Request staged for the active coding agent")'
+            'document.querySelector("#generation-status").textContent'
+            '.includes("Request staged for the active coding agent")'
         )
         page.locator("#save-scene").click()
         page.wait_for_function(
