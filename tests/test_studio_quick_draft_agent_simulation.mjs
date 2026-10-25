@@ -134,3 +134,14 @@ test('simulated long scene notes refuse truncation without destroying existing i
   assert.match(f.$('generation-status').textContent, /longer than/);
   assert.equal(f.posts.length, 0);
 });
+
+test('simulated stale Realization can be copied without hiding its stale source', () => {
+  const f = simulatedAuthor();
+  f.state.realizationStale = true;
+  const copied = f.copy();
+  assert.equal(copied.scene_intent,
+    'Neighbors decide which repairs should be made before nightfall.');
+  assert.equal(f.state.items.length, 2);
+  assert.match(f.notices.at(-1), /Source is STALE relative to current creative materials/);
+  assert.equal(f.posts.length, 0);
+});
