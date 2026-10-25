@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-25
-**Main reviewed for this reconciliation:** `fbc585fda2382ebec1e33edee9332f35df9d7693` (through Studio PR #490; development integration, not release qualification)
+**Main reviewed for this reconciliation:** `9b923eb477cf1fc0c67167dff35c88e4409e9dac` (through Quick Draft PR #493; development integration, not release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -22,6 +22,8 @@ PR #486 was integrated after its base #485; the other code changes remained in e
 **Evidence boundary / owner exception:** The owner explicitly requested immediate integration without waiting for unit or evidence tests. The code-bearing merges **did not run exact-head required L1/L2, repository checkout-based Browser integration, provider quality, or release qualification** in this session. This is a recorded owner-directed exception to the normal [merge evidence policy](docs/engineering/release-qualification.md), **not** a passing or waived-as-passing test result. Earlier 13-assertion source-derived Python stress, 3/4-case Node excerpts and 9-checkpoint Chromium fixtures remain **isolated synthetic evidence**, not proof of the merged full application. The new #489/#490 contract tests were committed but **not executed**.
 
 **Effect:** The selected graph-first, coding-agent-first **Connected Creative Thread** direction remains unchanged. These integrations add bounded working-author controls and a stronger noncanonical request contract. They do **not** complete the F2 small-Book or X3 persistent Book frontier, human usability testing, an end-to-end provider execution, release readiness, or automatic story acceptance. Continue normal development without presenting these as qualified claims; triage any observed defects at the smallest existing owner.
+
+**Additional 2026-10-25 connected-author continuation:** [PR #492](https://github.com/ThorStarlord/auteur/pull/492) protects an existing working scene from silent replacement when the author copies generated Quick Draft prose: nonempty different text requires explicit confirmation; overlength candidates and unavailable persistence are refused. [PR #493](https://github.com/ThorStarlord/auteur/pull/493) exposes the existing pending host-agent request's project-relative file and SHA-256 as collapsed, read-only details in both Studio and Beginner. Neither change launches an agent, accepts story canon, or adds a state owner. Both **merged by explicit owner instruction without waiting for unit/evidence tests**; their source-reading regression tests are **committed but were not executed**, and the complete served Browser/CanvasStore/host-agent journey remains **unverified**. The current product direction remains Connected Creative Thread; release and F2/X3 qualification status do not change.
 
 ## Current Frontier: F2 + X3
 
