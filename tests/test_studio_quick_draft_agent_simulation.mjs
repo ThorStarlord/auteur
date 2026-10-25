@@ -142,6 +142,11 @@ test('simulated stale Realization can be copied without hiding its stale source'
   assert.equal(copied.scene_intent,
     'Neighbors decide which repairs should be made before nightfall.');
   assert.equal(f.state.items.length, 2);
+  assert.match(copied.content, /Source freshness at copy: STALE relative to current creative materials/);
+  assert.match(copied.content, /Origin: working realization [a-f0-9]{64}\/assembly_scene\. Not accepted story\.$/);
   assert.match(f.notices.at(-1), /Source is STALE relative to current creative materials/);
+  f.click('use-scene-as-intent');
+  assert.match(f.$('generation-status').textContent, /provenance footer/);
+  assert.equal(f.$('scene-intent').value, copied.scene_intent);
   assert.equal(f.posts.length, 0);
 });
