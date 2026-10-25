@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-10-25
-**Main reviewed for this reconciliation:** `9b923eb477cf1fc0c67167dff35c88e4409e9dac` (through Quick Draft PR #493; development integration, not release qualification)
+**Main reviewed for this reconciliation:** `182b18fc9f05130608a351b5e19a6c57cb513f9b` (through Studio PR #495; development integration, not release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -24,6 +24,8 @@ PR #486 was integrated after its base #485; the other code changes remained in e
 **Effect:** The selected graph-first, coding-agent-first **Connected Creative Thread** direction remains unchanged. These integrations add bounded working-author controls and a stronger noncanonical request contract. They do **not** complete the F2 small-Book or X3 persistent Book frontier, human usability testing, an end-to-end provider execution, release readiness, or automatic story acceptance. Continue normal development without presenting these as qualified claims; triage any observed defects at the smallest existing owner.
 
 **Additional 2026-10-25 connected-author continuation:** [PR #492](https://github.com/ThorStarlord/auteur/pull/492) protects an existing working scene from silent replacement when the author copies generated Quick Draft prose: nonempty different text requires explicit confirmation; overlength candidates and unavailable persistence are refused. [PR #493](https://github.com/ThorStarlord/auteur/pull/493) exposes the existing pending host-agent request's project-relative file and SHA-256 as collapsed, read-only details in both Studio and Beginner. Neither change launches an agent, accepts story canon, or adds a state owner. Both **merged by explicit owner instruction without waiting for unit/evidence tests**; their source-reading regression tests are **committed but were not executed**, and the complete served Browser/CanvasStore/host-agent journey remains **unverified**. The current product direction remains Connected Creative Thread; release and F2/X3 qualification status do not change.
+
+**Additional exploration-roadmap construction — 2026-10-25:** [PR #495](https://github.com/ThorStarlord/auteur/pull/495) merged the S2 **honest source-excerpt** improvement in existing Studio Architecture/Realization agent-context owners. The exact main after that merge was `182b18fc9f05130608a351b5e19a6c57cb513f9b`. Working-prose excerpts now carry bounded-source length/omission/freshness information and legacy request compatibility. **The code's focused regression tests are committed but were not executed.** This does not establish live host-agent manuscript analysis, full-text understanding, human preference, F2/X3 progress or release qualification. S3's selective Quick Draft discovery path already exists; no new discovery queue was constructed. See [the exploration frontier's returned evidence](docs/research/auteur-repository-idea-frontier-2026-10-25.md#5a-exploration-return--bounded-s2-construction-2026-10-25).
 
 ## Current Frontier: F2 + X3
 
