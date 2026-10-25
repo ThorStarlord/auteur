@@ -424,3 +424,10 @@ body.scene-docked #inspector { display:none; }
 .mentor-quiet{justify-self:end}
 .mentor-resume{width:100%}
 .mentor-mode-details summary:focus-visible{outline:3px solid #795a97;outline-offset:2px}
+
+/* Pending Quick Draft request identity is technical, opt-in and may be long. */
+.quick-draft-handoff { margin: 0.6rem 0; }
+.quick-draft-handoff .handoff-identifier {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
