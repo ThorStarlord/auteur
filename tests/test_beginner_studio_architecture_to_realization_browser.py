@@ -7,7 +7,9 @@ from playwright.sync_api import sync_playwright
 
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import complete_architecture, prepare_architecture
-from auteur.beginner.studio_realization import project_realization
+from auteur.beginner.studio_realization import (
+    complete_realization, prepare_realization, project_realization,
+)
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
 
@@ -144,6 +146,239 @@ def test_component_continuation_preserves_focus_and_whole_story_remains_availabl
         assert not (tmp_path / "story_identity.yaml").exists()
         assert not (tmp_path / "blueprint.yaml").exists()
         assert errors == []
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, browser):
+    """A source-linked concrete scene becomes editable, but never automatically accepted."""
+    story = "A recurring allocation changes what people owe one another."
+    scene = "In the flood assembly, neighbors negotiate repairs before any claim is settled."
+    store = store_with_architecture(tmp_path, "scene-bridge")
+    pending = prepare_realization(store, ["allocation_engine"])
+    request = HostAgentRequest(**pending["request"])
+    proposal = {
+        "schema_version": 1,
+        "summary": "One proposed concrete scene, not accepted story.",
+        "elements": [{
+            "id": "assembly_scene", "kind": "scene", "title": "Assembly after the storm",
+            "description": scene, "architecture_refs": ["allocation_engine"],
+        }],
+        "links": [], "architecture_feedback": [], "open_questions": [],
+    }
+    response = build_host_agent_response(
+        request, json.dumps(proposal), runtime="browser-test", model="fixture",
+    )
+    assert complete_realization(store, response.model_dump())["status"] == "ready"
+
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    quick_draft_requests = []
+
+    def observe_request(request):
+        if request.method == "POST" and request.url.endswith("/api/beginner/quick-draft"):
+            quick_draft_requests.append(json.loads(request.post_data))
+    page.on("request", observe_request)
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=scene-bridge")
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+        page.locator("#workspace-realization").click()
+        page.locator("#layer-view").select_option("realization_candidates")
+        page.locator('#nodes .node.realization[data-item-id="assembly_scene"]').click()
+        page.locator("#realization-copy").click()
+        page.locator("#write").click()
+
+        # The model's concrete proposal stays editable and working only.
+        # The generation intent must never contain appended provenance labels.
+        assert page.locator("#scene-intent").input_value() == scene
+        assert page.locator("#scene-premise").input_value() == ""
+        assert "Architecture refs: allocation_engine" in page.locator("#scene-text").input_value()
+        assert "Architecture refs:" not in page.locator("#scene-intent").input_value()
+        # Reusing notes must not silently place machine provenance in a model prompt.
+        page.locator("#use-scene-as-intent").click()
+        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        assert page.locator("#scene-intent").input_value() == scene
+        assert quick_draft_requests == []
+
+        # Premise is NOT inferred from a Story Vision that might only describe mood.
+        page.locator("#generate-scene").click()
+        assert "premise and a scene intent" in page.locator("#generation-status").inner_text()
+        assert quick_draft_requests == []
+        page.locator("#use-vision-as-premise").click()
+        assert page.locator("#scene-premise").input_value() == story
+        assert quick_draft_requests == []
+
+        # The explicit copy must not overwrite a user-edited premise.
+        authored_premise = "A town decides how to share the water and repair the canal."
+        authored_scene = "The assembly refuses a seemingly fair but harmful compromise."
+        page.locator("#scene-premise").fill(authored_premise)
+        page.locator("#use-vision-as-premise").click()
+        assert page.locator("#scene-premise").input_value() == authored_premise
+        page.locator("#scene-intent").fill(authored_scene)
+
+        # Quick Draft is staged only through a fresh, explicit action.
+        with page.expect_response(
+            lambda res: res.url.endswith("/api/beginner/quick-draft")
+            and res.request.method == "POST"
+        ) as staging:
+            page.locator("#generate-scene").click()
+        assert staging.value.status == 202
+        assert quick_draft_requests == [{
+            "premise": authored_premise, "first_scene": authored_scene,
+        }]
+        page.wait_for_function(
+            'document.querySelector("#generation-status").textContent'
+            '.includes("Request staged for the active coding agent")'
+        )
+        page.locator("#save-scene").click()
+        page.wait_for_function(
+            'document.querySelector("#status").textContent.includes("Working canvas saved locally")'
+        )
+        saved = store.load()
+        copied = [item for item in saved.items if item.title == "Assembly after the storm"]
+        assert len(copied) == 1
+        assert copied[0].scene_premise == authored_premise
+        assert copied[0].scene_intent == authored_scene
+        assert copied[0].quick_draft_session_id
+        assert not (tmp_path / "story_identity.yaml").exists()
+        assert not (tmp_path / "blueprint.yaml").exists()
+        assert not (tmp_path / "chapters").exists()
+
+        page.reload()
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+        page.locator("#write").click()
+        assert page.locator("#scene-premise").input_value() == authored_premise
+        assert page.locator("#scene-intent").input_value() == authored_scene
+        assert page.locator("#refresh-draft").is_visible()
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+def test_vision_to_premise_refuses_truncation_or_fabrication(tmp_path, browser):
+    """A broad author Vision is not silently converted into a clipped premise."""
+    long_store = CanvasStore(tmp_path, "long-vision")
+    long_store.create()
+    long_store.apply(
+        "create-item", expected_revision=0, command_id="long-vision",
+        payload={
+            "item": {
+                "id": "story-vision", "title": "Story Vision", "kind": "note",
+                "content": "A" * 4001,
+            },
+            "position": {"x": 40, "y": 50},
+        },
+    )
+    empty_store = CanvasStore(tmp_path, "empty-vision")
+    empty_store.create()
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    quick_draft_requests = []
+    page.on("request", lambda req: quick_draft_requests.append(req)
+            if req.method == "POST" and req.url.endswith("/api/beginner/quick-draft")
+            else None)
+    try:
+        for canvas, fragment in (
+            ("long-vision", "longer than the 4,000-character premise field"),
+            ("empty-vision", "No saved Story Vision to copy"),
+        ):
+            page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas={canvas}")
+            page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+            page.locator("#workspace-realization").click()
+            page.locator("#write-shortcut").click()
+            assert page.locator("#scene-premise").input_value() == ""
+            page.locator("#use-vision-as-premise").click()
+            assert fragment in page.locator("#generation-status").inner_text()
+            assert page.locator("#scene-premise").input_value() == ""
+            # Authored scene notes must not be silently clipped when used as intent.
+            page.locator("#scene-text").fill("N" * 4001)
+            page.locator("#use-scene-as-intent").click()
+            assert "longer than the 4,000-character intent field" in (
+                page.locator("#generation-status").inner_text()
+            )
+            assert page.locator("#scene-intent").input_value() == ""
+            assert not quick_draft_requests
+            page.locator("#save-scene").click()
+            page.wait_for_function(
+                'document.querySelector("#status").textContent'
+                '.includes("Working canvas saved locally")'
+            )
+            assert not (tmp_path / "story_identity.yaml").exists()
+            assert not (tmp_path / "blueprint.yaml").exists()
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
+    """Stale proposed scenes remain creatively reusable but are never labeled current."""
+    store = store_with_architecture(tmp_path, "stale-copy")
+    pending = prepare_realization(store, ["allocation_engine"])
+    request = HostAgentRequest(**pending["request"])
+    scene = "An assembly debates repairs before the old distribution is restored."
+    proposal = {
+        "schema_version": 1, "summary": "A provisional scene.",
+        "elements": [{
+            "id": "stale_assembly", "kind": "scene",
+            "title": "An old proposed assembly", "description": scene,
+            "architecture_refs": ["allocation_engine"],
+        }],
+        "links": [], "architecture_feedback": [], "open_questions": [],
+    }
+    response = build_host_agent_response(
+        request, json.dumps(proposal), runtime="browser-test", model="fixture",
+    )
+    assert complete_realization(store, response.model_dump())["status"] == "ready"
+
+    before = store.load()
+    vision = next(item for item in before.items if item.id == "story-vision")
+    changed = vision.model_copy(update={"content": "The author revised the governing vision."})
+    store.apply(
+        "update-item", expected_revision=before.revision, command_id="vision-revised",
+        payload={"item": changed.model_dump(mode="json")},
+    )
+    assert project_realization(store)["status"] == "stale"
+
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=stale-copy")
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+        page.locator("#workspace-realization").click()
+        page.locator("#layer-view").select_option("realization_candidates")
+        page.locator('#nodes .node.realization[data-item-id="stale_assembly"]').click()
+        assert "stale" in page.locator("#realization-status").inner_text().lower()
+        page.locator("#realization-copy").click()
+        page.locator("#write").click()
+        notes = page.locator("#scene-text").input_value()
+        assert "Source freshness at copy: STALE relative to current creative materials." in notes
+        assert "Origin: working realization" in notes
+        assert page.locator("#scene-intent").input_value() == scene
+        page.locator("#use-scene-as-intent").click()
+        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        assert page.locator("#scene-intent").input_value() == scene
+        page.locator("#save-scene").click()
+        page.wait_for_function(
+            'document.querySelector("#status").textContent'
+            '.includes("Working canvas saved locally")'
+        )
+        stored = store.load()
+        copies = [item for item in stored.items if item.title == "An old proposed assembly"]
+        assert len(copies) == 1
+        assert "Source freshness at copy: STALE" in copies[0].content
+        assert copies[0].scene_intent == scene
+        assert not (tmp_path / "story_identity.yaml").exists()
+        assert not (tmp_path / "blueprint.yaml").exists()
+        assert not (tmp_path / "chapters").exists()
     finally:
         page.close()
         server.stop()

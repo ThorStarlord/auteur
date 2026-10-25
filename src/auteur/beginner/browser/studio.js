@@ -1385,14 +1385,25 @@
     var item = {id:id("item"), kind:kind, title:source.title,
       group:"Story Realization", content:source.description +
       "\n\nArchitecture refs: " + source.architecture_refs.join(", ") +
+      (state.realizationStale ? "\nSource freshness at copy: STALE relative to current creative materials." : "") +
       "\nOrigin: working realization " + (state.realizationRequestSha || "unknown") +
       "/" + source.id + ". Not accepted story."};
+    // Copy the concrete scene's proposal text into editable generation intent,
+    // not its provenance annotation. Quick Draft still requires an explicit
+    // author-reviewed premise and a separate request action.
+    if (kind === "scene") item.scene_intent = source.description;
     state.items.push(item); state.positions[item.id] = availablePosition();
     state.selected = item.id; state.selectedRealization = null;
     state.view = "create"; state.lastRealizationView = "create";
     $("layer-view").value = state.view;
     render(); queueSave(); rememberFocus();
-    status("Copied to editable working ideas without accepting any story facts.");
+    var copyStatus = kind === "scene"
+      ? "Copied a proposed scene with editable intent. Review its source, choose a premise and explicitly request Quick Draft; nothing accepted."
+      : "Copied to editable working ideas without accepting any story facts.";
+    if (state.realizationStale) {
+      copyStatus += " Source is STALE relative to current creative materials; check it before relying on the copied idea.";
+    }
+    status(copyStatus);
   }
   function inspectRealizationPurpose() {
     var element = realizationElement(state.selectedRealization);
@@ -2532,12 +2543,40 @@
     $("expand-scene").setAttribute("aria-pressed", String(expanded));
     rememberFocus();
   });
+  $("use-vision-as-premise").addEventListener("click", function () {
+    var item = selected(), vision = visionItem();
+    if (!item || item.kind !== "scene") return;
+    var authored = vision && vision.content;
+    if (!authored || !authored.trim()) {
+      $("generation-status").textContent = "No saved Story Vision to copy. Write a premise yourself."; return;
+    }
+    if (authored.length > 4000) {
+      $("generation-status").textContent = "Story Vision is longer than the 4,000-character premise field. Choose the relevant passage manually."; return;
+    }
+    if ($("scene-premise").value.trim()) {
+      $("generation-status").textContent = "This scene already has a premise. Clear it before copying Story Vision; your edits were preserved."; return;
+    }
+    $("scene-premise").value = authored;
+    captureScene(); scheduleSave(); rememberFocus();
+    $("generation-status").textContent = "Copied your Story Vision verbatim into an editable premise. Check that it really describes your story before requesting Quick Draft.";
+  });
   $("use-scene-as-intent").addEventListener("click", function () {
     var item = selected();
     if (!item || item.kind !== "scene" || !$("scene-text").value.trim()) {
       $("generation-status").textContent = "Write some scene notes first, then use them as editable intent."; return;
     }
-    $("scene-intent").value = $("scene-text").value.trim().slice(0, 4000);
+    var notes = $("scene-text").value.trim();
+    // Source annotations copied with a Realization proposal are not scene intent.
+    // Never silently strip authored text or send provenance to Quick Draft.
+    if (item.group === "Story Realization" &&
+        /\nOrigin: working realization (?:[a-f0-9]{64}|unknown)\/[a-z][a-z0-9_-]*\. Not accepted story\.$/.test(notes)) {
+      $("generation-status").textContent = "Working notes contain a provenance footer. Edit the clean scene intent above, or remove the footer before copying all notes.";
+      return;
+    }
+    if (notes.length > 4000) {
+      $("generation-status").textContent = "Scene notes are longer than the 4,000-character intent field. Select the relevant passage manually."; return;
+    }
+    $("scene-intent").value = notes;
     captureScene(); scheduleSave(); rememberFocus();
     $("generation-status").textContent = "Copied working scene notes as editable generation intent. Review before requesting.";
   });
