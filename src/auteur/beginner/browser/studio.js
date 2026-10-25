@@ -2118,6 +2118,13 @@
       stateName === "generating" ? "Generation is in progress." :
       stateName === "generation_failed" ? "Generation failed: " + (draft.error || "unknown error") :
       "Quick Draft status: " + stateName;
+    var original = projection.scaffold && projection.scaffold.inputs;
+    if (original && selected() && selected().kind === "scene" &&
+        ($("scene-premise").value.trim() !== String(original.premise || "").trim() ||
+         $("scene-intent").value.trim() !== String(original.first_scene_intent || "").trim())) {
+      $("generation-status").textContent +=
+        " This linked Quick Draft was requested with earlier scene inputs. Request another draft for your current edits.";
+    }
     if (projection.draft_text) {
       $("generation-result").hidden = false;
       $("generated-prose").value = projection.draft_text;
@@ -2130,12 +2137,16 @@
   function refreshDraft() {
     var item = selected();
     if (!item || !item.quick_draft_session_id) return;
-    fetch("/api/beginner/quick-draft/" + encodeURIComponent(item.quick_draft_session_id))
+    var sessionId = item.quick_draft_session_id;
+    fetch("/api/beginner/quick-draft/" + encodeURIComponent(sessionId))
       .then(apiJson).then(function (projection) {
-        if (selected() && selected().id === item.id) draftStatus(projection);
+        if (selected() && selected().id === item.id &&
+            item.quick_draft_session_id === sessionId &&
+            projection.session_id === sessionId) draftStatus(projection);
       })
       .catch(function (error) {
-        if (selected() && selected().id === item.id)
+        if (selected() && selected().id === item.id &&
+            item.quick_draft_session_id === sessionId)
           $("generation-status").textContent = "Could not check Quick Draft: " + error.message;
       });
   }
@@ -2542,6 +2553,15 @@
     $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
     $("expand-scene").setAttribute("aria-pressed", String(expanded));
     rememberFocus();
+  });
+  ["scene-premise", "scene-intent"].forEach(function (field) {
+    $(field).addEventListener("input", function () {
+      var item = selected();
+      if (item && item.kind === "scene" && item.quick_draft_session_id) {
+        $("generation-status").textContent =
+          "These scene inputs may differ from your linked Quick Draft. Check its original request or explicitly request a new draft.";
+      }
+    });
   });
   $("use-vision-as-premise").addEventListener("click", function () {
     var item = selected(), vision = visionItem();
