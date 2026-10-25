@@ -195,6 +195,10 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         assert page.locator("#scene-premise").input_value() == ""
         assert "Architecture refs: allocation_engine" in page.locator("#scene-text").input_value()
         assert "Architecture refs:" not in page.locator("#scene-intent").input_value()
+        # Reusing notes must not silently place machine provenance in a model prompt.
+        page.locator("#use-scene-as-intent").click()
+        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        assert page.locator("#scene-intent").input_value() == scene
         assert quick_draft_requests == []
 
         # Premise is NOT inferred from a Story Vision that might only describe mood.
