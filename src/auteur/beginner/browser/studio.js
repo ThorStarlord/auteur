@@ -1387,12 +1387,18 @@
       "\n\nArchitecture refs: " + source.architecture_refs.join(", ") +
       "\nOrigin: working realization " + (state.realizationRequestSha || "unknown") +
       "/" + source.id + ". Not accepted story."};
+    // Copy the concrete scene's proposal text into editable generation intent,
+    // not its provenance annotation. Quick Draft still requires an explicit
+    // author-reviewed premise and a separate request action.
+    if (kind === "scene") item.scene_intent = source.description;
     state.items.push(item); state.positions[item.id] = availablePosition();
     state.selected = item.id; state.selectedRealization = null;
     state.view = "create"; state.lastRealizationView = "create";
     $("layer-view").value = state.view;
     render(); queueSave(); rememberFocus();
-    status("Copied to editable working ideas without accepting any story facts.");
+    status(kind === "scene"
+      ? "Copied a proposed scene with editable intent. Review its source, choose a premise and explicitly request Quick Draft; nothing accepted."
+      : "Copied to editable working ideas without accepting any story facts.");
   }
   function inspectRealizationPurpose() {
     var element = realizationElement(state.selectedRealization);
@@ -2531,6 +2537,23 @@
     $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
     $("expand-scene").setAttribute("aria-pressed", String(expanded));
     rememberFocus();
+  });
+  $("use-vision-as-premise").addEventListener("click", function () {
+    var item = selected(), vision = visionItem();
+    if (!item || item.kind !== "scene") return;
+    var authored = vision && vision.content;
+    if (!authored || !authored.trim()) {
+      $("generation-status").textContent = "No saved Story Vision to copy. Write a premise yourself."; return;
+    }
+    if (authored.length > 4000) {
+      $("generation-status").textContent = "Story Vision is longer than the 4,000-character premise field. Choose the relevant passage manually."; return;
+    }
+    if ($("scene-premise").value.trim()) {
+      $("generation-status").textContent = "This scene already has a premise. Clear it before copying Story Vision; your edits were preserved."; return;
+    }
+    $("scene-premise").value = authored;
+    captureScene(); scheduleSave(); rememberFocus();
+    $("generation-status").textContent = "Copied your Story Vision verbatim into an editable premise. Check that it really describes your story before requesting Quick Draft.";
   });
   $("use-scene-as-intent").addEventListener("click", function () {
     var item = selected();
