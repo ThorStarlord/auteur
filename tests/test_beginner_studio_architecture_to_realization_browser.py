@@ -248,6 +248,7 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         assert not (tmp_path / "chapters").exists()
 
         page.reload()
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
         page.locator("#write").click()
         assert page.locator("#scene-premise").input_value() == authored_premise
         assert page.locator("#scene-intent").input_value() == authored_scene
