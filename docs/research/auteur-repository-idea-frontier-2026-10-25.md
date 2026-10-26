@@ -106,7 +106,9 @@ The user explicitly resumed **building from this exploration frontier**. After c
 
 **Nearby S3 existing capacity:** Quick Draft already detects provisional discoveries, lets the author check *only* chosen items, sends that selection to Beginner story shaping, validates it against the current draft and persists a noncanonical shape handoff. The unselected alternatives are not accepted. Consequently, S3 does **not** justify a duplicate discovery queue or new canonical state absent a demonstrated failure.
 
-**Next decision-changing source of evidence:** an authentic coding-agent response to an S2 request containing a deliberately ambiguous, labelled prose excerpt and an author correction. Check which observations cite visible source IDs, which gaps are marked unknown, and whether tentative interpretations remain working. Do not claim this occurred from adding prompt or unit-test fixtures alone. S4–S6 and F3–F7 remain evidence-gated.
+**Next decision-changing source of evidence:** an authentic coding-agent response to an S2 request containing a deliberately ambiguous, labelled prose excerpt and an author correction. Check which observations cite visible source IDs, which gaps are marked unknown, and whether tentative interpretations remain working. Do not claim this occurred from adding prompt or unit-test fixtures alone.
+
+**Selected bounded execution plan (2026-10-26):** [S2 Manuscript-First Authentic-Agent Journey — Construction Plan](../plans/2026-10-26-s2-authentic-manuscript-agent-construction-plan.md). This plan selects an existing-owner fixture/host-agent exercise and conditional small repairs; it does not claim an authentic run or reopen the entire roadmap. S4–S6 and F3–F7 remain evidence-gated.
 
 ## 6. Evidence integrity and maintenance
 
