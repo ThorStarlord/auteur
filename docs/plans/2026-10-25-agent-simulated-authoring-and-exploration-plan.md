@@ -4,6 +4,7 @@
 **Decision:** Qualify the existing focused Story Realization + Quick Draft handoff, then probe two independently valuable creative capabilities without inventing new infrastructure.  
 **Status:** BOUNDED EXECUTION PLAN / NOT A NEW APPROVED ROADMAP OR RELEASE DECISION.  
 **Base source:** `ThorStarlord/auteur` `main@a8a090580e98cd5f6dcee1645375e2867e644350`; recheck all heads before execution.  
+**Currentness note (2026-10-26):** This is a historical execution plan/receipt: PRs #484/#487 and #485/#486/#488 have since merged, with later S2 source-integrity work merged as #495/#496. For the **next selected S2 authentic coding-agent milestone**, follow [the 2026-10-26 S2 construction plan](2026-10-26-s2-authentic-manuscript-agent-construction-plan.md), not this plan's historical draft-PR instructions. Earlier missing real-host execution evidence is **still missing**.
 **Scope:** existing single-author, graph-first, agent-first Auteur. The selected controlled frontiers remain F2 small-Book coherence and X3 persistent Book workspace.  
 **Companions:** [repository-wide idea frontier](../research/auteur-repository-idea-frontier-2026-10-25.md), [UI possibility landscape (PR #485)](https://github.com/ThorStarlord/auteur/pull/485), [UI strategic evolution + isolated stress evidence (PR #486)](https://github.com/ThorStarlord/auteur/pull/486), [development validation policy](../engineering/release-qualification.md), [mission](../../MISSION.md).
 
