@@ -13,6 +13,10 @@ from typing import Any
 
 _RECENT_CHAPTER_WINDOW = 2
 _MAX_EXPRESSION_CHAPTERS = 4
+_ACCEPTED_SOURCE_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_./#-])(?:bible\.json#/events/[0-9]+|chapters/[0-9]+/final\.md)"
+    r"(?![A-Za-z0-9_/#-])"
+)
 _STOPWORDS = {
     "about", "after", "again", "against", "already", "because", "before",
     "being", "chapter", "continue", "current", "from", "have", "into",
@@ -72,6 +76,26 @@ def _outline_focus(outline: dict[str, Any], role: str | None) -> set[str]:
     return _tokens(values)
 
 
+def _explicit_continuity_sources(outline: dict[str, Any]) -> set[str]:
+    """Read only existing Chapter/scene continuity constraints, not free prose.
+
+    A pointer is a *request* for accepted evidence, never evidence of acceptance.
+    Exact matching against the accepted source index happens below.
+    """
+    constraints: list[Any] = [outline.get("continuity_constraints", ())]
+    scenes = outline.get("scenes")
+    if isinstance(scenes, list):
+        for scene in scenes:
+            if isinstance(scene, dict):
+                constraints.append(scene.get("continuity_constraints", ()))
+    return {
+        match.group(0)
+        for value in constraints
+        for text in _text_values(value)
+        for match in _ACCEPTED_SOURCE_PATTERN.finditer(text)
+    }
+
+
 def _event_tokens(event: dict[str, Any]) -> set[str]:
     deltas = event.get("deltas") if isinstance(event.get("deltas"), dict) else {}
     return _tokens(event.get("summary", ""), deltas)
@@ -93,7 +117,7 @@ def compose_author_context(
     role: str | None,
     role_ref: str | None,
     current_outline: dict[str, Any],
-    accepted_events: list[dict[str, Any]],
+    accepted_events: list[Any],
     prior_chapter_refs: list[dict[str, Any]],
     structure_refs: list[str],
     accepted_expressions: list[dict[str, Any]] | tuple[dict[str, Any], ...] = (),
@@ -111,7 +135,23 @@ def compose_author_context(
         raise ValueError("chapter_index must be positive")
 
     focus = _outline_focus(current_outline, role)
+    requested_sources = _explicit_continuity_sources(current_outline)
     recent_floor = max(1, chapter_index - _RECENT_CHAPTER_WINDOW)
+    # Preserve newer accepted changes to an explicitly referenced old field,
+    # even when the new event uses entirely different words.
+    explicit_fields: dict[str, int] = {}
+    for position, event in enumerate(accepted_events):
+        if not isinstance(event, dict):
+            continue
+        index = event.get("chapter_index")
+        if type(index) is not int or index < 1 or index >= chapter_index:
+            continue
+        if f"bible.json#/events/{position}" not in requested_sources:
+            continue
+        deltas = event.get("deltas")
+        if isinstance(deltas, dict):
+            for field in deltas:
+                explicit_fields[str(field)] = min(index, explicit_fields.get(str(field), index))
     accepted_history: list[dict[str, Any]] = []
     all_event_refs: list[str] = []
     omitted_event_refs: list[str] = []
@@ -127,6 +167,14 @@ def compose_author_context(
         reasons: list[str] = []
         if event_chapter >= recent_floor:
             reasons.append("recent_accepted_outcome")
+        if source_ref in requested_sources:
+            reasons.append("explicit_accepted_source")
+        elif isinstance(event.get("deltas"), dict) and any(
+            str(field) in explicit_fields
+            and event_chapter >= explicit_fields[str(field)]
+            for field in event["deltas"]
+        ):
+            reasons.append("later_update_to_explicit_source")
         overlap = sorted(focus & _event_tokens(event))
         if overlap:
             reasons.append("current_plan_overlap:" + ",".join(overlap[:6]))
@@ -145,7 +193,9 @@ def compose_author_context(
         )
 
     accepted_state: dict[str, dict[str, Any]] = {}
-    for event in accepted_history:
+    # The Bible may contain out-of-order historical entries. The latest accepted
+    # Chapter wins for each field; same-Chapter entries retain source order.
+    for event in sorted(accepted_history, key=lambda item: item["chapter_index"]):
         for field, value in event["deltas"].items():
             accepted_state[str(field)] = {
                 "value": value,
@@ -158,7 +208,7 @@ def compose_author_context(
     # synchronization is incomplete. Select at Chapter granularity so the
     # composer stays deterministic and inspectable rather than inventing a
     # semantic summarizer or hidden retrieval layer.
-    expression_candidates: list[tuple[bool, int, int, dict[str, Any]]] = []
+    expression_candidates: list[tuple[bool, bool, int, int, dict[str, Any]]] = []
     all_expression_refs: list[str] = []
     for item in accepted_expressions:
         if not isinstance(item, dict):
@@ -178,22 +228,29 @@ def compose_author_context(
         all_expression_refs.append(source_ref)
         overlap = focus & _tokens(text)
         recent = expression_chapter >= recent_floor
-        if recent or overlap:
+        explicit = source_ref in requested_sources
+        if recent or overlap or explicit:
             expression_candidates.append(
-                (recent, len(overlap), expression_chapter, {
+                (explicit, recent, len(overlap), expression_chapter, {
                     "chapter_index": expression_chapter,
                     "text": text,
                     "source_ref": source_ref,
                     "authority": "accepted_expression",
                     "relevance_reasons": (
-                        (["recent_accepted_expression"] if recent else [])
+                        (["explicit_accepted_source"] if explicit else [])
+                        + (["recent_accepted_expression"] if recent else [])
                         + (["current_plan_overlap:" + ",".join(sorted(overlap)[:6])] if overlap else [])
                     ),
                 })
             )
-    expression_candidates.sort(key=lambda row: (row[0], row[1], row[2]), reverse=True)
-    selected_expression = [row[3] for row in expression_candidates[:_MAX_EXPRESSION_CHAPTERS]]
+    expression_candidates.sort(key=lambda row: (row[0], row[1], row[2], row[3]), reverse=True)
+    selected_expression = [row[4] for row in expression_candidates[:_MAX_EXPRESSION_CHAPTERS]]
     selected_expression_refs = {item["source_ref"] for item in selected_expression}
+    accepted_source_refs = set(all_event_refs) | set(all_expression_refs)
+    unresolved_sources = sorted(
+        (requested_sources - accepted_source_refs)
+        | ((requested_sources & set(all_expression_refs)) - selected_expression_refs)
+    )
 
     history_refs = [
         str(ref["path"])
@@ -210,6 +267,16 @@ def compose_author_context(
         for item in needs_attention
         if isinstance(item, dict)
     ]
+    uncertainty.extend(
+        {
+            "summary": "A required Chapter continuity source is not available in the accepted context.",
+            "source_ref": ref,
+            "chapter_index": None,
+            "authority": "needs_attention",
+            "blocking": True,
+        }
+        for ref in unresolved_sources
+    )
 
     return {
         "schema": "beginner_author_context_v1",
@@ -233,10 +300,13 @@ def compose_author_context(
             "accepted_event_refs": all_event_refs,
             "structure_refs": list(structure_refs),
             "omitted_accepted_event_refs": omitted_event_refs,
+            "unresolved_explicit_source_refs": unresolved_sources,
         },
         "selection": {
             "mode": "bounded_recency_plus_current_plan_overlap",
             "recent_chapter_window": _RECENT_CHAPTER_WINDOW,
+            "explicit_sources_requested": len(requested_sources),
+            "explicit_sources_unresolved": len(unresolved_sources),
             "accepted_events_considered": len(all_event_refs),
             "accepted_events_selected": len(accepted_history),
             "accepted_events_omitted": len(omitted_event_refs),
