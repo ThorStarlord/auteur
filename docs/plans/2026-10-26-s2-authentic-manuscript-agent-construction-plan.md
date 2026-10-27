@@ -59,6 +59,51 @@ This is a product-construction move, **not** a standalone scientific benchmark a
 
 **Implementation shape:** a small, optional script such as `scripts/probe_s2_manuscript_host_agent.py` that reuses `CanvasStore`, `HostAgentRequest`, and existing CLI functions; no new production service. Separate fixture preparation from response completion, so it can run in a local coding-agent session without hidden dependencies.
 
+**Implementation artifact (2026-10-27):** `scripts/probe_s2_manuscript_host_agent.py` now supplies the reversible fixture driver with `stage`, `stress`, `correct`, `apply-working-review`, `prepare-realization` and `audit` commands. The focused mechanical test is `tests/test_probe_s2_manuscript_host_agent.py`. **Source committed, not yet executed in a runnable Auteur checkout; no host-agent literary result is claimed.** C1 is frozen as a separate fixture constant, deliberately withheld from Canvas/request data until the explicit `correct` action; it is not exposed in an initial request or staged file.
+
+**Execution on a real checkout (use fresh empty disposable project directories outside the repository):**
+
+~~~sh
+# Freeze four manuscript paragraphs and stage the actual Architecture request.
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py stage \
+  --project /tmp/auteur-s2-primary --canvas s2-primary
+PYTHONPATH=src python -m auteur.beginner.studio_architecture \
+  --project /tmp/auteur-s2-primary --canvas s2-primary show
+# A real coding agent reads the precise request_path reported above, answers
+# that system+user contract, and writes RAW architecture JSON in scratch.
+PYTHONPATH=src python -m auteur.beginner.studio_architecture \
+  --project /tmp/auteur-s2-primary --canvas s2-primary \
+  complete-file --candidate /tmp/auteur-s2-primary/architecture-raw.json
+
+# Only after that first valid reply: reveal author correction as WORKING note.
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py correct \
+  --project /tmp/auteur-s2-primary --canvas s2-primary
+# Coding agent now answers the *new* exact revision request and records raw JSON.
+PYTHONPATH=src python -m auteur.beginner.studio_architecture \
+  --project /tmp/auteur-s2-primary --canvas s2-primary \
+  complete-file --candidate /tmp/auteur-s2-primary/architecture-revision.json
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py apply-working-review \
+  --project /tmp/auteur-s2-primary --canvas s2-primary
+
+# Choose an existing engine/theme node ID from that real working candidate.
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py prepare-realization \
+  --project /tmp/auteur-s2-primary --canvas s2-primary --focus <EXISTING_NODE_ID>
+# A real coding agent handles this exact Realization request and returns raw JSON.
+PYTHONPATH=src python -m auteur.beginner.studio_realization \
+  --project /tmp/auteur-s2-primary --canvas s2-primary \
+  complete-file --candidate /tmp/auteur-s2-primary/realization-raw.json
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py audit \
+  --project /tmp/auteur-s2-primary --canvas s2-primary
+
+# Separate 25-item fixture: inspect the actual 24-item/1,000-char boundaries.
+PYTHONPATH=src python scripts/probe_s2_manuscript_host_agent.py stress \
+  --project /tmp/auteur-s2-stress --canvas s2-stress
+~~~
+
+The `complete-file` commands **validate** model-supplied raw candidates; they do not themselves execute a model. Keep raw model output, exact SHA/ID, and truthfully known model/runtime receipt separate. The examples above are an **operator procedure**, not a report that any command succeeded. Tests may be run narrowly with `PYTHONPATH=src python -m pytest -q tests/test_probe_s2_manuscript_host_agent.py` when a checkout is available. Never use a hardcoded candidate from the mechanical test to claim live literary behavior.
+
+
+
 ### Fixture A — interpret an ambiguous, *complete* excerpt
 
 - Copy the exact original P1–P4 paragraphs from the [prior S2 report](../product-validation/2026-10-25-s1-s2-agent-creative-probes.md) **verbatim** into **four** Canvas working items with stable IDs `s2-p1`, `s2-p2`, `s2-p3`, `s2-p4`. Use source-appropriate working item kinds; do not convert these into accepted Chapters.
