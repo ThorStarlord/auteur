@@ -294,3 +294,22 @@ G0  Recheck current main + operating context
 | **F2/X3** | Existing issue #318's complete author/reopen frontier has new decision-changing execution evidence | Continue that frontier on its own authority, not as a declaration that S2 has already validated it |
 
 **Recommended next execution instruction to the coding agent:** Start at `G0` and `B1`, choose the available real host execution surface, stage fixture A, execute the exact Architecture request, delay C1 until the first raw candidate has been recorded, then make the smallest warranted repair. Proceed without repeated owner prompts, but stop at a genuine external or protected decision boundary. Record PR heads and results exactly; merge scoped development PRs without waiting for the test suite under the owner's standing instruction.
+
+
+## 13. Execution return — 2026-10-27 (real work, no fabricated agent response)
+
+The user delegated implementation of this plan without further approvals. The bounded P1 source-construction action was performed via GitHub connector and merged as [PR #498](https://github.com/ThorStarlord/auteur/pull/498), merge `58e4b42fcca88cb624d0fa48f0f027e71b280bf2`. This entry reports what actually happened and **must not be mistaken for completion of the full S2 journey**.
+
+| Stage | Actual state | Executed evidence and limitation |
+| --- | --- | --- |
+| P0 source/environment | **Partial / external blocker** | GitHub connector read/write succeeded; container's `git ls-remote https://github.com/ThorStarlord/auteur.git HEAD` failed DNS and no runnable full checkout was found. The existing `/mnt/data` Auteur files were isolated excerpts/UI fixtures, not source checkout. |
+| P1 retained reusable driver | **Source built and merged; runtime unverified** | `scripts/probe_s2_manuscript_host_agent.py` created with `stage`, `stress`, `correct`, `apply-working-review`, `prepare-realization` and `audit`. Four focused mechanical pytest cases added. Source and changed paths inspected; **no tests run**, no actual scratch Canvas created here. |
+| P2 authentic initial agent Architecture reply | **BLOCKED before stage/host execution** | No actual file-backed `HostAgentRequest` was produced in an Auteur runtime, and no real raw coding-agent candidate was obtained. The script alone cannot fulfill this. |
+| P3 delayed correction | **Not executed** | C1 can be revealed by the driver's explicit command only after P2 completion; no first response exists here. The correction text was committed as an isolated fixture constant and was **not** injected into a story project. |
+| P4 focused Story Realization | **Not executed** | A current source-bound Architecture candidate and a model/host reply are prerequisites. The driver exposes the existing prepare operation but does not invent a completed candidate. |
+| P5 smallest observed repair | **No product defect yet demonstrated** | The checkout/host gap is an **environment dependency**, not a model or Auteur bug. No conditional product-source fix is warranted from this blocker alone. |
+| P6 evidence reconciliation | **Completed for returned evidence only** | `STATUS.md` updated with the P1 merge and P2–P4 unavailable ceilings. `docs/product-validation/2026-10-26-s2-authentic-host-agent-manuscript-journey.md` was **not** manufactured, because no authentic host run returned evidence. |
+
+**Next autonomous boundary:** obtain a genuine shared filesystem with the active coding agent and run the exact P1 staging command already documented in section 5. Then obtain a real P2 candidate, use the existing `complete-file` validation, reveal C1, and proceed within the original P3/P4 scope. Do not re-plan S2, re-create the fixture, claim a synthetic response as real, or promote S4–S6 merely to avoid the blocker.
+
+**Standing owner instruction:** merge scoped completed PRs without waiting for unit/evidence tests while preserving that an unexecuted check is **not** passing evidence. No release, deployment, accepted story mutation, Level-4 thesis change or cross-repository work was authorized.
