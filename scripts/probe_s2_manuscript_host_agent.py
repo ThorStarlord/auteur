@@ -120,15 +120,17 @@ def _items(mode: str) -> tuple[tuple[str, str, str], ...]:
 def _source_manifest(store: CanvasStore, mode: str) -> list[dict[str, Any]]:
     canvas = store.load()
     entries = []
-    for ident, title, text in _items(mode):
+    for order, (ident, title, text) in enumerate(_items(mode), 1):
         actual = next((item for item in canvas.items if item.id == ident), None)
         if actual is None or actual.content != text or actual.title != title:
             raise ValueError(f"source fixture changed during staging: {ident}")
         entries.append({
             "item_id": ident,
+            "source_order": order,
             "title": title,
             "sha256": _sha(text),
             "characters": len(text),
+            "words": len(text.split()),
         })
     return entries
 
