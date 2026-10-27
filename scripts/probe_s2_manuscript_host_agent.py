@@ -93,7 +93,8 @@ def _require_fresh_project(root: Path) -> None:
     if root.exists():
         if not root.is_dir() or any(root.iterdir()):
             raise ValueError("S2 staging requires a NEW or EMPTY disposable project directory")
-    if root == Path.cwd().resolve() or root == Path(__file__).resolve().parents[1]:
+    checkout = Path(__file__).resolve().parents[1]
+    if root == Path.cwd().resolve() or root == checkout or checkout in root.parents:
         raise ValueError("refusing to stage inside the source repository")
     root.mkdir(parents=True, exist_ok=True)
 
