@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-25
-**Main reviewed for this reconciliation:** `182b18fc9f05130608a351b5e19a6c57cb513f9b` (through Studio PR #495; development integration, not release qualification)
+**Last reconciled:** 2026-10-27
+**Main reviewed for this reconciliation:** `58e4b42fcca88cb624d0fa48f0f027e71b280bf2` (S2 fixture PR #498; development integration, not host-agent or release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -26,6 +26,16 @@ PR #486 was integrated after its base #485; the other code changes remained in e
 **Additional 2026-10-25 connected-author continuation:** [PR #492](https://github.com/ThorStarlord/auteur/pull/492) protects an existing working scene from silent replacement when the author copies generated Quick Draft prose: nonempty different text requires explicit confirmation; overlength candidates and unavailable persistence are refused. [PR #493](https://github.com/ThorStarlord/auteur/pull/493) exposes the existing pending host-agent request's project-relative file and SHA-256 as collapsed, read-only details in both Studio and Beginner. Neither change launches an agent, accepts story canon, or adds a state owner. Both **merged by explicit owner instruction without waiting for unit/evidence tests**; their source-reading regression tests are **committed but were not executed**, and the complete served Browser/CanvasStore/host-agent journey remains **unverified**. The current product direction remains Connected Creative Thread; release and F2/X3 qualification status do not change.
 
 **Additional exploration-roadmap construction — 2026-10-25:** [PR #495](https://github.com/ThorStarlord/auteur/pull/495) merged the S2 **honest source-excerpt** improvement in existing Studio Architecture/Realization agent-context owners. The exact main after that merge was `182b18fc9f05130608a351b5e19a6c57cb513f9b`. Working-prose excerpts now carry bounded-source length/omission/freshness information and legacy request compatibility. **The code's focused regression tests are committed but were not executed.** This does not establish live host-agent manuscript analysis, full-text understanding, human preference, F2/X3 progress or release qualification. S3's selective Quick Draft discovery path already exists; no new discovery queue was constructed. See [the exploration frontier's returned evidence](docs/research/auteur-repository-idea-frontier-2026-10-25.md#5a-exploration-return--bounded-s2-construction-2026-10-25).
+
+## 2026-10-27 S2 manuscript-first execution boundary
+
+**Retained development capability:** [PR #498](https://github.com/ThorStarlord/auteur/pull/498) merged a small local `scripts/probe_s2_manuscript_host_agent.py` operator that stages frozen ferry manuscript P1–P4 as noncanonical `CanvasStore` scenes, produces real Architecture **request preparation code**, exposes a separate 25-item/truncated-excerpt stress fixture, delays correction C1 until a completed first candidate, and provides explicit working-only review, Realization preparation and source-integrity audit commands. Four focused **mechanical** Python tests and [exact operator instructions](docs/plans/2026-10-26-s2-authentic-manuscript-agent-construction-plan.md) were committed. The script itself does **not** invoke any coding agent and the focused tests were **not executed**.
+
+**P0 blocker:** The GitHub connector could inspect/write the repository, but the current execution container had no full Auteur checkout; `git ls-remote https://github.com/ThorStarlord/auteur.git HEAD` failed at DNS (`Could not resolve host: github.com`). Previously available files under `/mnt/data` were isolated UI/Node fixtures, **not** the real repository. No full-source Python invocation or scratch Canvas request was executed in this session.
+
+**Precise responsibility state:** P1 **source committed / runtime unverified**; P2 **blocked before an actual staged request and independent coding-agent output**; P3/P4 **implementation paths available but not executed**; P5 **no observed production defect, no conditional repair justified**; P6 **state/evidence reconciled**. No original manuscript, accepted Story Identity, Structure, Chapter, or relation record was mutated by this session's repository operations. **This does not establish an authentic literary response, an accepted story, F2/X3 qualification or release readiness.**
+
+**Next concrete action when a runnable checkout and active coding agent share the same filesystem:** stage fixture A using the [documented command](docs/plans/2026-10-26-s2-authentic-manuscript-agent-construction-plan.md), capture and answer the *exact* generated `HostAgentRequest`, validate with existing `complete-file`, introduce C1 only afterward, and record both real source-grounded responses. The agent should address an observed first material failure at the smallest current owner; it should **not** invent an S2 subsystem merely because this environmental dependency is unresolved. The owner instructed immediate merging without waiting for unit/evidence runs; missing runs are not passes.
 
 ## Current Frontier: F2 + X3
 
