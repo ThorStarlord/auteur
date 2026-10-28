@@ -82,6 +82,7 @@ def test_s2_fixture_stages_exact_frozen_manuscript_without_correction(tmp_path):
     assert staged["original_prose_unchanged"] is True
     assert staged["unexpected_accepted_story_artifacts"] == []
     assert staged["correction_visible_to_agent"] is False
+    assert not (root / probe.CORRECTION_RELATIVE).exists()
     assert staged["request_sha256"] == request["request_sha256"]
     assert Path(staged["request_path"]).is_file()
     assert context["working_source_format"] == 2
@@ -153,6 +154,12 @@ def test_c1_is_delayed_and_working_review_can_reach_realization(tmp_path):
     assert pending["status"] == "awaiting_host_agent"
     assert correction["correction_visible_to_agent"] is True
     assert correction["original_prose_unchanged"] is True
+    correction_file = Path(correction["correction_file"])
+    assert correction_file.is_file()
+    frozen = json.loads(correction_file.read_text(encoding="utf-8"))
+    assert frozen["item_id"] == probe.CORRECTION_ID
+    assert frozen["content"] == probe.CORRECTION
+    assert frozen["sha256"] == correction["correction_sha256"]
     revised = json.loads(pending["request"]["user"])
     assert revised["working_context"]["working_source_format"] == 2
     assert probe.CORRECTION_ID in [
@@ -184,6 +191,7 @@ def test_c1_is_delayed_and_working_review_can_reach_realization(tmp_path):
     assert audit["original_prose_unchanged"] is True
     assert audit["unexpected_accepted_story_artifacts"] == []
     assert audit["correction_matches_fixture"] is True
+    assert audit["correction_file_present"] is True
     assert audit["realization_status"] == "ready"
     assert audit["host_model_execution"] == "not_attested_by_fixture_driver"
 
@@ -211,3 +219,38 @@ def test_correction_never_mutates_original_source_and_rejects_bad_mode(tmp_path)
         probe.correct(root, "original")
     result = probe.audit(root, "original")
     assert result["original_prose_unchanged"] is False
+
+
+def test_frozen_correction_tampering_blocks_working_review(tmp_path):
+    root = tmp_path / "correction-evidence"
+    probe.stage(root, "evidence-one", mode="manuscript")
+    store = CanvasStore(root, "evidence-one")
+    first = project_architecture(store)
+    complete_architecture(store, _respond(first, _architecture_candidate()))
+    correction = probe.correct(root, "evidence-one")
+    revision = project_architecture(store)
+    assert complete_architecture(
+        store, _respond(revision, _architecture_candidate())
+    )["status"] == "review_ready"
+
+    # The working note alone is not sufficient: the delayed frozen C1 receipt
+    # is an independent input integrity boundary, not a source of new canon.
+    path = Path(correction["correction_file"])
+    frozen = json.loads(path.read_text(encoding="utf-8"))
+    path.write_text(
+        json.dumps({**frozen, "content": "a substituted author direction"}),
+        encoding="utf-8",
+    )
+    audit = probe.audit(root, "evidence-one")
+    assert audit["original_prose_unchanged"] is True
+    assert audit["correction_matches_fixture"] is False
+    with pytest.raises(ValueError, match="frozen author correction"):
+        probe.apply_working_review(root, "evidence-one")
+    assert project_architecture(store)["status"] == "review_ready"
+    assert not (root / "story_identity.yaml").exists()
+
+    # Restore only the scratch correction record, then apply WORKING review.
+    path.write_text(json.dumps(frozen), encoding="utf-8")
+    applied = probe.apply_working_review(root, "evidence-one")
+    assert applied["architecture_status"] == "ready"
+    assert probe.audit(root, "evidence-one")["correction_matches_fixture"] is True
