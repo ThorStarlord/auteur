@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-27
-**Main reviewed for this reconciliation:** `58e4b42fcca88cb624d0fa48f0f027e71b280bf2` (S2 fixture PR #498; development integration, not host-agent or release qualification)
+**Last reconciled:** 2026-10-28
+**Main reviewed for this reconciliation:** `94e52a06fea6e56e52b6fad6c3c5d35fdfddfced` (S2 correction-integrity PR #500; development integration, not host-agent or release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
@@ -36,6 +36,8 @@ PR #486 was integrated after its base #485; the other code changes remained in e
 **Precise responsibility state:** P1 **source committed / runtime unverified**; P2 **blocked before an actual staged request and independent coding-agent output**; P3/P4 **implementation paths available but not executed**; P5 **no observed production defect, no conditional repair justified**; P6 **state/evidence reconciled**. No original manuscript, accepted Story Identity, Structure, Chapter, or relation record was mutated by this session's repository operations. **This does not establish an authentic literary response, an accepted story, F2/X3 qualification or release readiness.**
 
 **Next concrete action when a runnable checkout and active coding agent share the same filesystem:** stage fixture A using the [documented command](docs/plans/2026-10-26-s2-authentic-manuscript-agent-construction-plan.md), capture and answer the *exact* generated `HostAgentRequest`, validate with existing `complete-file`, introduce C1 only afterward, and record both real source-grounded responses. The agent should address an observed first material failure at the smallest current owner; it should **not** invent an S2 subsystem merely because this environmental dependency is unresolved. The owner instructed immediate merging without waiting for unit/evidence runs; missing runs are not passes.
+
+**2026-10-28 S2 source-integrity continuation:** [PR #500](https://github.com/ThorStarlord/auteur/pull/500) merged the promised *delayed frozen C1 file* into the existing scratch fixture driver, with exact correction-text/hash checks before a working review or manuscript-mode Realization is prepared. It rejects a changed correction fixture hash **before mutating** the scratch canvas, and it makes a missing/tampered correction file visible in `audit`. The driver now has **six committed focused mechanical tests**, but the active environment still has **no complete runnable Auteur checkout**, and these tests were **not executed**. The exact S2 request/coding-agent/correction/Realization journey remains **BLOCKED before live execution**; do not describe source inspection or a fake mechanical candidate as a completed model run. No accepted story, release, broader product strategy, or F2/X3 qualification changed.
 
 ## Current Frontier: F2 + X3
 
