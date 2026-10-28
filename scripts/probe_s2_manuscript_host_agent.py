@@ -89,7 +89,8 @@ def _correction_path(root: Path) -> Path:
 
 def _correction_matches_fixture(store: CanvasStore, manifest: dict[str, Any]) -> bool:
     """Confirm BOTH the working note and separate frozen correction are intact."""
-    if manifest["mode"] != "manuscript" or manifest["correction_sha256"] != _sha(CORRECTION):
+    if (manifest["mode"] != "manuscript"
+            or manifest["correction_sha256"] != _sha(CORRECTION)):
         return False
     try:
         frozen = json.loads(_correction_path(store.project_root).read_text(encoding="utf-8"))
@@ -239,6 +240,8 @@ def correct(root: Path, canvas_id: str) -> dict[str, Any]:
     manifest = _read_manifest(root, canvas_id)
     if manifest["mode"] != "manuscript":
         raise ValueError("author correction applies only to the four-paragraph fixture")
+    if manifest["correction_sha256"] != _sha(CORRECTION):
+        raise ValueError("correction source changed since fixture staging; use matching code")
     audit = _audit_sources(store, manifest)
     if not audit["original_prose_unchanged"] or audit["unexpected_accepted_story_artifacts"]:
         raise ValueError("source or accepted-story invariant failed; correction not staged")
