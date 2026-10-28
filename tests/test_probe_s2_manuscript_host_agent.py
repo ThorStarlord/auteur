@@ -221,6 +221,23 @@ def test_correction_never_mutates_original_source_and_rejects_bad_mode(tmp_path)
     assert result["original_prose_unchanged"] is False
 
 
+def test_staged_correction_hash_mismatch_rejects_before_working_mutation(tmp_path):
+    root = tmp_path / "correction-version-drift"
+    probe.stage(root, "drift-one", mode="manuscript")
+    manifest_path = root / probe.MANIFEST_RELATIVE
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    payload["correction_sha256"] = "0" * 64
+    manifest_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="correction source changed"):
+        probe.correct(root, "drift-one")
+    assert all(
+        item.id != probe.CORRECTION_ID
+        for item in CanvasStore(root, "drift-one").load().items
+    )
+    assert not (root / probe.CORRECTION_RELATIVE).exists()
+
+
 def test_frozen_correction_tampering_blocks_working_review(tmp_path):
     root = tmp_path / "correction-evidence"
     probe.stage(root, "evidence-one", mode="manuscript")
