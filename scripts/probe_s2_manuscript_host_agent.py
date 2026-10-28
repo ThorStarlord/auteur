@@ -57,7 +57,7 @@ MANUSCRIPT: tuple[tuple[str, str, str], ...] = (
 CORRECTION_ID = "s2-c1-author-correction"
 CORRECTION = (
     "Mara did not start or arrange the fire. The brass key opens a temporary "
-    "shelter, not a ledger room or valuables storage. The traveler's reason "
+    "shelter, not any ledger room or valuables storage. The traveler's reason "
     "for making a potentially false accusation must remain unresolved. "
     "Keep the original text of all four paragraphs."
 )
@@ -68,6 +68,7 @@ CORRECTION_INSTRUCTION = (
     "a tentative, noncanonical hypothesis. Keep existing stable component IDs."
 )
 MANIFEST_RELATIVE = Path(".auteur") / "s2_manuscript_probe" / "manifest.json"
+CORRECTION_RELATIVE = MANIFEST_RELATIVE.with_name("correction.json")
 CANONICAL_PATHS = (
     "story_identity.yaml", "blueprint.yaml", "relations.yaml",
     "story_structure.yaml", "story_realization.yaml",
@@ -80,6 +81,26 @@ def _sha(text: str) -> str:
 
 def _manifest_path(root: Path) -> Path:
     return root / MANIFEST_RELATIVE
+
+
+def _correction_path(root: Path) -> Path:
+    return root / CORRECTION_RELATIVE
+
+
+def _correction_matches_fixture(store: CanvasStore, manifest: dict[str, Any]) -> bool:
+    """Confirm BOTH the working note and separate frozen correction are intact."""
+    if manifest["mode"] != "manuscript" or manifest["correction_sha256"] != _sha(CORRECTION):
+        return False
+    try:
+        frozen = json.loads(_correction_path(store.project_root).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    note = next((item for item in store.load().items if item.id == CORRECTION_ID), None)
+    return bool(note and note.content == CORRECTION) and frozen == {
+        "item_id": CORRECTION_ID,
+        "content": CORRECTION,
+        "sha256": _sha(CORRECTION),
+    }
 
 
 def _read_manifest(root: Path, canvas: str) -> dict[str, Any]:
@@ -223,8 +244,8 @@ def correct(root: Path, canvas_id: str) -> dict[str, Any]:
         raise ValueError("source or accepted-story invariant failed; correction not staged")
     if project_architecture(store)["status"] != "ready":
         raise ValueError("complete the first Architecture request before revealing C1")
-    if any(item.id == CORRECTION_ID for item in store.load().items):
-        raise ValueError("C1 already inserted; use the existing pending revision")
+    if any(item.id == CORRECTION_ID for item in store.load().items) or _correction_path(root).exists():
+        raise ValueError("C1 already inserted or frozen; use the existing pending revision")
     current = store.load()
     store.apply(
         "create-item", expected_revision=current.revision, command_id="reveal-c1",
@@ -237,6 +258,10 @@ def correct(root: Path, canvas_id: str) -> dict[str, Any]:
             "position": {"x": 180, "y": 90},
         },
     )
+    _atomic_json_write(_correction_path(root), {
+        "item_id": CORRECTION_ID, "content": CORRECTION,
+        "sha256": _sha(CORRECTION),
+    })
     prepared = prepare_architecture(store, CORRECTION_INSTRUCTION)
     req = prepared["request"]
     return {
@@ -245,6 +270,7 @@ def correct(root: Path, canvas_id: str) -> dict[str, Any]:
         "request_id": req["request_id"], "request_sha256": req["request_sha256"],
         "correction_id": CORRECTION_ID,
         "correction_sha256": _sha(CORRECTION),
+        "correction_file": str(_correction_path(root)),
         "correction_visible_to_agent": True,
         **_audit_sources(store, manifest),
     }
@@ -259,6 +285,8 @@ def apply_working_review(root: Path, canvas_id: str) -> dict[str, Any]:
         raise ValueError("no completed working Architecture review to apply")
     if not _audit_sources(store, manifest)["original_prose_unchanged"]:
         raise ValueError("the original manuscript changed")
+    if not _correction_matches_fixture(store, manifest):
+        raise ValueError("the frozen author correction was changed or is missing")
     sha = state["review"]["request_sha256"]
     result = apply_architecture_review(store, sha)
     return {
@@ -277,6 +305,8 @@ def prepare_concrete(root: Path, canvas_id: str, focus: str) -> dict[str, Any]:
     audit = _audit_sources(store, manifest)
     if not audit["original_prose_unchanged"] or audit["unexpected_accepted_story_artifacts"]:
         raise ValueError("original manuscript or accepted-story invariant failed")
+    if manifest["mode"] == "manuscript" and not _correction_matches_fixture(store, manifest):
+        raise ValueError("complete the frozen author correction before Realization")
     prepared = prepare_realization(store, [focus])
     req = prepared["request"]
     return {
@@ -306,8 +336,8 @@ def audit(root: Path, canvas_id: str) -> dict[str, Any]:
         "realization_status": realization_status,
         "initial_request_sha256": manifest["initial_request_sha256"],
         "correction_visible_to_agent": correction is not None,
-        "correction_matches_fixture": bool(correction and _sha(correction.content)
-                                           == manifest["correction_sha256"]),
+        "correction_matches_fixture": _correction_matches_fixture(store, manifest),
+        "correction_file_present": _correction_path(root).is_file(),
         "host_model_execution": "not_attested_by_fixture_driver",
         **_audit_sources(store, manifest),
     }
