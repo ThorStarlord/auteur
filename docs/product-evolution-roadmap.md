@@ -413,6 +413,19 @@ Current Author Intent
 
 Guardrails: local/noncanonical by default; never silently promoted into accepted Direction; prefer plain-language author input; do not build a universal intent ontology without recurring evidence.
 
+## CANDIDATE — Narrative Architecture Creative Reasoning UI
+**State:** `CANDIDATE`; owner-endorsed *strategic orientation*, not a newly selected `NOW` implementation program. **Source:** [November 2 Narrative Architecture creative-reasoning follow-on](research/auteur-ui-strategic-evolution-2026-10-24.md#11-follow-on-strategic-evolution--narrative-architecture-as-a-creative-reasoning-ui-2026-11-02).
+
+Adapt the three knowledge-graph objectives without creating a second canonical story graph:
+
+1. **Represent the architecture** — substantially established through noncanonical Studio Canvas, ArchitectureCandidate v2, focused graph projections, Mentor and Story Realization; a unified authoritative graph is **not** claimed.
+2. **Increase useful expressiveness** — investigate causal versus interpretive links, author versus agent attribution, renewable story mechanisms, reader-experience implications and plural engine organization. Introduce new schema only for demonstrated irreducible reasoning needs.
+3. **Make the host coding agent reason effectively through the architecture** — highest strategic opportunity. Reuse the already-selected **Connected Creative Thread** to explore, synthesize, evaluate, compare, develop and reconcile working narrative possibilities through existing author authority.
+
+**Preferred small first step:** recover one exact source-bound author-intent journey through Architecture, contextual Mentor, selected Realization, working scene and re-entry. Determine the first material reasoning/continuity failure; perform only a warranted local, reversible repair. Later options include conditional consequence comparisons, richer spatial reasoning, complete alternative-architecture preservation, or quieter re-entry **if concrete author tasks demand them**.
+
+**Hard boundaries:** no silent StoryIdentity/Structure/Realization/Expression acceptance; no new global story-state owner, agent runtime or provider dependence; no inference of fictional causality from artifact dependency graphs; no objective creative-quality scores; no new F3/X4 frontier selection by roadmap inclusion. [STATUS](../STATUS.md) continues to govern the unresolved F2/X3 and S2 host-execution evidence. Schema tests and synthetic proposals cannot establish human literary quality or a qualified live agent journey.
+
 ## SHIPPED — Bounded Episode 1 Direction
 **State:** `SHIPPED` in the roadmap sense (implemented/merged); qualification and human-validation follow-ups remain open under issue #218 and `STATUS.md`.
 
@@ -474,6 +487,7 @@ observe or simulate concrete workflow friction
         ├─ demand-driven Story Design Packs
         ├─ Existing-Manuscript Reverse Engineering
         ├─ Book-Level Reasoning / Editing
+        ├─ Narrative Architecture creative reasoning (evidence-gated)
         └─ bounded Episode 1 reconstruction when deliberately selected
 ```
 

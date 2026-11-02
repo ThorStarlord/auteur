@@ -201,3 +201,130 @@ A separate [simulated author / coding-agent UI stress test](../product-validatio
 - Merged [PR #482](https://github.com/ThorStarlord/auteur/pull/482), merged [PR #483](https://github.com/ThorStarlord/auteur/pull/483), and **open draft** [PR #484](https://github.com/ThorStarlord/auteur/pull/484), statuses verified at analysis time.
 
 **Maintenance:** Reconcile future product evidence against the exact source revision, rather than converting this advisory analysis into a competing `STATUS`, `NOW` queue, or permanent controller artifact. If later evidence changes the selected path, record the triggering observation and decision explicitly.
+---
+
+## 11. Follow-on strategic evolution — Narrative Architecture as a creative-reasoning UI (2026-11-02)
+
+**Decision question:** Can the three objectives for a repository knowledge graph—build the graph, improve its completeness/expressiveness, and make the agent reason effectively with it—be adapted to Auteur's Narrative Architecture UI?
+
+**Answer:** Yes, with a crucial change of domain. The target is not a larger graph editor, an automatic story-writing system, or a second canonical narrative store. It is an **author-directed, source-grounded environment for exploring, comparing, changing, and concretely realizing narrative possibilities**.
+
+**Disposition:** **OWNER-ENDORSED STRATEGIC ORIENTATION / ADVISORY CANDIDATE CONSTRUCTION**. The owner endorsed the recommendation to prioritize creative reasoning through the current graph-first, coding-agent-first Connected Creative Thread and requested this documentation. This does **not** select a new implementation package, authorize a schema/ontology migration, supersede the F2/X3 frontier, or establish quality, usability, host-agent, or release qualification. The October 24 analysis in sections 1–10 remains a historical decision record; the following is a dated extension, not a retroactive rewrite.
+
+**Source baseline:** `main@1b306d350bc1fbb4db2fb944372a2056ddd3e8f1` (October 28, 2026); [current STATUS](../../STATUS.md) last reconciled October 28. The older references to PR #484 as a draft in sections 2/9/10 were historically accurate when written; [STATUS](../../STATUS.md) records its October 25 merge with unexecuted qualification, not a now-open draft.
+
+### 11.1 Three objectives, adapted
+
+| Objective | Current state on the reviewed main | Product consequence | Evidence ceiling |
+| --- | --- | --- | --- |
+| **1. Represent Narrative Architecture** | **Substantially established, incomplete.** Noncanonical CanvasStore, typed ArchitectureCandidate v2, graph/facet/timeline projections, focused inspector, host-agent request/response, Story Realization and existing canonical owner projections are present. | Authors can see and work with abstract mechanisms, relationships and intended experience. | These are several linked representations with different owners, **not** one unified authoritative knowledge graph; code presence does not prove end-to-end creative value. |
+| **2. Improve completeness and expressiveness** | **Ongoing and demand-driven.** Ontology/genre/emotion/phase contracts exist, but ordinary architecture links remain free-text, general node/link provenance is not uniformly typed, and creative consequences cannot be inferred mechanically from adjacency. | Represent only distinctions that change meaningful author choices or permit grounded agent explanations. | Do not infer a schema defect from one poor candidate or a visually dense diagram. |
+| **3. Make the agent reason creatively through the architecture** | **Highest strategic opportunity, partially supported.** Contextual Mentor already explains, explores, challenges and synthesizes; Realization consumes selected architecture and returns feedback. | Evolve the existing Connected Creative Thread from local inspection to conditional prospective reasoning across author intention, mechanisms, alternatives, concrete story and feedback. | Complete multi-hop narrative reasoning, reliable comparative generation, human literary value and a live uninterrupted host-agent journey remain **unproven**. |
+
+**Priority rule:** Use Objective 3 to identify the decisions and author tasks that matter; evolve Objectives 1–2 to support those tasks. Do **not** treat the graph's size, typed-edge count, color coverage, or generated-prose volume as a proxy for creative usefulness.
+
+### 11.2 What actually exists and which owner holds it
+
+- **Working author ideas** — [CanvasStore](../../src/auteur/beginner/studio_store.py) persists noncanonical notes, scenes, questions, characters, places and working associations. Author-drawn links and spatial layout do **not** define canonical story meaning.
+- **Abstract design** — [`ArchitectureCandidate` v2](../../src/auteur/beginner/studio_architecture.py) represents engines, themes, genres, tropes, reader experience, aesthetics, threads, structure, directed links, emotion targets, genre contracts/interactions and proposed phases. Its validator checks contract coherence; it does not assess literary quality. The v2 generation path excludes newly invented character/relationship instances from abstract design.
+- **Focused explanation and local exploration** — [Studio Mentor](../../src/auteur/beginner/studio_mentor.py) supports `explain` / `explore` / `question` / `challenge` / `synthesis` / `no_intervention` and up to three differentiated directions. Candidate-focused context is source-bound and inspects a bounded immediate neighborhood (up to twelve related links). It does not establish full-Book, multi-hop narrative reasoning, and the Mentor packet currently marks accepted-Identity context as not bound.
+- **UI composition** — [Studio Browser](../../src/auteur/beginner/browser/studio.html), [Studio controller](../../src/auteur/beginner/browser/studio.js) and [focused unfolding](../../src/auteur/beginner/browser/studio_unfolding.js) already expose graph, facets, local suggestions, explicit revise/review and separate Architecture/Realization workspaces. Avoid a parallel permanent sidebar or second conversation product by default.
+- **Concrete development** — [Story Realization](../../src/auteur/beginner/studio_realization.py) derives working characters, locations, factions, world systems, arcs, events or scenes from source-bound architecture IDs, and can report `architecture_feedback`. This is a **proposal** returning to review; it cannot itself mutate accepted Identity, Structure, Realization or Expression.
+- **Registered impact** — [Studio impact preview](../../src/auteur/beginner/studio_impact.py) traces hypothetical dependencies among registered artifacts. A dependency path is **not** evidence that a particular fictional outcome or reader emotion follows.
+- **Accepted authority** — [Narrative Architecture](../narrative-architecture.md), [Mission](../../MISSION.md), the existing Identity/Structure/Realization/Expression owners and explicit acceptance workflows retain their established responsibilities. Do not replace them with the canvas or mentor.
+
+The live claim ceiling matters: [STATUS](../../STATUS.md) records F2/X3 as unqualified, source-level Studio integrations without full later test execution, and an authentic S2 manuscript/host-agent journey blocked before live execution. The earlier [W4 qualitative assessment](../reviews/2026-10-21-w4-narrative-architecture-qualitative-assessment-v1.md) supports a narrow judgment on **one corrected** candidate, not first-pass repeatability, reader reception, or quality of the complete current journey.
+
+### 11.3 Expressiveness: which distinctions deserve representation?
+
+Use the following as **competency questions for actual author tasks**, not a mandate to add six new fields or universal relation kinds:
+
+| Question the author/agent must answer | Existing strength | Proposed improvement, only if required |
+| --- | --- | --- |
+| **What kind of relation is this?** Causal production, constraint, enablement, thematic illustration, experiential evocation or mere association? | `ArchitectureLink.function` explains source-to-target direction in text; `GenreInteraction.kind` is typed for genre-to-genre relations. | Start with source-grounded explanations and disambiguation in the inspector. Type general relationships only after repeated consequential mistakes that prose cannot resolve. |
+| **Who asserted this, and with what authority?** | Candidate vs accepted and current vs stale are distinguished; emotion targets have `provenance`. | Preserve author declaration, agent hypothesis, supported candidate and accepted story fact at the relevant reasoning boundary; add per-node/link storage only if attribution is being lost. |
+| **What sustains and varies this engine?** | Generation guidance asks for renewable causal mechanisms, pressure, reversals, payoffs and hierarchy or its deliberate absence. | Make renewal, independent axes of variation, counterpressures and possible failure-to-sustain inspectable in focused reasoning, not a universal numeric runway score. |
+| **How may structure shape the intended reader experience?** | Emotions, aesthetic strategies, genre contracts and phases already exist. | Connect proposed eliciting conditions, changes of narrative pressure and reader-facing effects with explicit uncertainty; never promise an empirically guaranteed feeling. |
+| **Can the design remain plural or unresolved?** | Single engines, dominant-with-layers, ensembles, non-agent pressure and genre-shared mechanisms are representable; unknowns are explicitly allowed. | Preserve alternative organizations and ambiguity; do not force every story into one engine, fixed acts, invented cast, or definitive theme. |
+| **What changes if one mechanism changes?** | Architecture revisions have deterministic differences; Realization can feed back proposed architectural changes. | Reason conditionally across the relevant story relationships, cite premises and unknowns, then route any desired change to existing working review and later canonical authority. |
+
+**Admission test:** classify a demonstrated failure as presentation, context delivery, craft knowledge, generation behavior, source/currentness, or irreducible representation **before** editing ontology/schema. Prefer reversible read-only projections and the existing bounded agent contract. Preserve unusual literary structures and expressive free text rather than enforcing a mechanically exhaustive taxonomy.
+
+### 11.4 Agent reasoning: a contextual operation, not six new workflow states
+
+Adapt the prospective vocabulary from [Sensemaking's Prospective Reasoning Ontology](https://github.com/ThorStarlord/sensemaking-skills/blob/main/docs/semantic-architecture/prospective-reasoning-ontology.md) without importing its software-repository schema or making Sensemaking a runtime dependency:
+
+```text
+EXPLORE      What materially different story mechanisms or interpretations exist?
+SYNTHESIZE   How could the parts work together without violating the vision?
+EVALUATE     What conflicts, renews, weakens, or depends on an assumption?
+COMPARE      How do alternatives differ causally, thematically and experientially?
+CHOOSE       Which provisional direction does the author wish to develop?
+REALIZE      What concrete optional story material could instantiate it?
+RECONCILE    What did that material reveal that may warrant revising the design?
+```
+
+These are **reasoning operations**, invoked when useful, not mandatory stages, persisted lifecycle states, numerical gates or automatic transitions. The same source-referenced candidate can be explored, compared and reconsidered without silently changing its identity or ownership.
+
+The existing inspector/Mentor is the preferred initial entry point. Useful author-facing questions include:
+
+- **Why does this matter?** Trace the selected mechanism to relevant engines, tensions, theme and intended experience; distinguish a one-hop explanation from a multi-hop hypothesis.
+- **What else could work?** Generate alternatives differing in *causal mechanism*, character agency, narrative organization or reader experience, not lexical restatements.
+- **What would happen if I changed this?** Make proposed consequences conditional on cited premises; distinguish narrative hypotheses from registered artifact impact.
+- **What is the strongest weakness?** Offer constructive, evidence-scoped challenge; include an alternative reading, and permit `no_intervention` when none is warranted.
+- **How could this become a story?** Carry selected source IDs, exact author intent and freshness into the existing Story Realization/scene route; return discoveries for explicit architecture review.
+
+**Reasoning trace requirement (conceptual):** for any consequential suggestion, keep the source/selection, observed or author-declared premises, agent-added assumptions, proposed mechanism, trade-off, uncertainty and author disposition distinguishable. Do not require a new permanent trace store if the current request/review/proposal artifacts can carry the needed continuity.
+
+**Critical epistemic rule:** `proposed consequence != observed fictional event != accepted story fact`. Multi-hop hypothetical relationships do not become proven by graph traversal. A valid JSON candidate, explicit reference IDs or a plausible model explanation are not sufficient proof of meaningful narrative causality.
+
+### 11.5 Worked illustration: Tidal Archive, not new evidence
+
+The [W4 assessment](../reviews/2026-10-21-w4-narrative-architecture-qualitative-assessment-v1.md) describes the corrected Tidal Archive candidate: recurring indifferent floods, community water allocation, a historical ledger, contested fairness, inherited obligation and fascinated unease. The following directions are **illustrative hypotheses in this addendum**, not outputs produced or validated by the repository:
+
+| Proposed direction around the ledger | Different narrative mechanism | Conditional consequences to investigate |
+| --- | --- | --- |
+| **A — The ledger gains authority** | Historical precedent acquires growing decision power. | Could intensify conflict between legitimate procedure and present fairness; may narrow investigative ambiguity. |
+| **B — The ledger remains contestable** | Incomplete records sustain repeated interpretation under unavoidable decisions. | Could preserve mystery and recurring communal conflict; risks cycling through identical debates without substantive change. |
+| **C — Immediate conditions supersede the ledger** | Material crisis makes previous precedent less useful. | Could emphasize adaptive collective problem-solving; may weaken the original ledger-centered thematic tension unless deliberately retained. |
+
+A meaningful session could compare these mechanisms against the same author vision, combine compatible consequences, select one **working** revision, and ask Story Realization for an example. No hypothetical option becomes canon. The fact that an interface can render three cards does not demonstrate creative diversity, good causal reasoning, or story-quality improvement.
+
+### 11.6 Strategic alternatives and continuity with the prior selection
+
+| Path | Value | Principal cost/risk | Disposition |
+| --- | --- | --- | --- |
+| **A — Connected Creative Thread with stronger prospective reasoning** | Reuses Studio, Mentor, Architecture revision, Realization, Quick Draft and Book orientation; preserves author intent through creation. | False seamlessness, hidden authorial assumptions, or a claim that the agent has read omitted material. | **Preferred orientation; bounded existing-workflow investigation first.** |
+| **B — Spatial reasoning expansion** | Helps understand dense cross-scale relationships and reader/temporal effects. | Large graph and ontology complexity without demonstrated author value. | Conditional on a concrete relationship-comprehension failure. |
+| **C — Parallel complete-architecture atelier** | Preserves fundamentally different whole-story options for comparison and recombination. | Branch/version identity, state duplication and choice overload. | Defer persistent branching until an author demonstrably loses meaningful alternatives. |
+| **D — Quiet manuscript/re-entry** | Protects writing momentum and return to unfinished decisions. | Might hide consequential provenance or weaken graph-first orientation. | Reversible complement when writing/re-entry friction is observed. |
+
+A pure **ontology-first expansion** is a potential mechanism within these paths, not an independent destination. The chosen Path A can incorporate bounded spatial or alternative views when demanded by the same authoring thread. This **refines, rather than replaces**, sections 3–8 of the prior strategy.
+
+### 11.7 Conditional construction increments — not an approved implementation queue
+
+1. **R0 — Recover the real baseline.** In a disposable F2/X3-compatible project, trace one author intention through saved Vision, exact Architecture request/response, selected focus, local Mentor reasoning, review, Realization, working scene, and re-entry where the current contracts permit. Record missing host execution honestly. **Output:** owner-classified capability/gap matrix with source IDs and explicit claim ceiling. **Stop:** if a full trace is blocked, identify the external prerequisite rather than inventing a replacement platform.
+2. **R1 — Strengthen one focused reasoning task.** If an agent cannot explain a consequential relationship or offer genuinely different local directions using the current context, repair the smallest existing Mentor/context/projection owner. **Output:** one repeatable source-grounded answer with meaningful trade-offs and a counter-reading. **Stop:** no speculative general reasoning engine or unexplained schema proliferation.
+3. **R2 — Compare conditional alternatives.** Only if an author task exposes insufficient local comparison, use existing working proposal/review semantics to preserve and compare two or more mechanisms and their assumptions. **Output:** intelligible causal distinctions and optional hypothetical consequences. **Stop:** no durable complete-architecture branching or separate consequence database without demonstrated loss/reuse needs.
+4. **R3 — Complete the creative feedback loop.** Confirm that selected mechanisms and author intent survive Architecture -> focused Realization -> working scene/Quick Draft -> proposed Architecture feedback, without duplicate author work or canon mutation. **Output:** source-bound continuation with explicit change review and recoverable working prose. **Stop:** canonical updates remain within existing acceptance owners; no automatic source repair or publication.
+
+These increments may collapse, reorder or stop after R0 if the real workflow shows the ability already exists. The **current F2/X3 controlled frontier and S2 authentic-host dependency remain the operational priorities** in [STATUS](../../STATUS.md); this exploration is not a new `NOW` package.
+
+### 11.8 Evaluation and genuine decision triggers
+
+Evaluate the **author's consequential creative task**, not a screenshot of a dense graph:
+
+1. **Intent fidelity:** source-visible author commitments and unknowns survive agent interpretation without falsely acquired authority.
+2. **Meaningful divergence:** alternatives differ in renewable mechanisms and consequences, not titles or paraphrases.
+3. **Epistemic honesty:** observations, accepted facts, source excerpts/omissions, candidate proposals, unknowns and hypothetical consequences remain distinguishable.
+4. **Story development:** a selected abstract mechanism can meaningfully influence a working concrete element; a matching reference ID alone does not prove it.
+5. **Continuity and recoverability:** source identity, focus, author decisions and prose survive revision/re-entry; no silent overwrite or acceptance.
+6. **Proportionate verification:** local source/contract assertions support mechanical claims; an authentic host-agent completion supports generation behavior; human authors and readers are needed for claims about creative usefulness and reception.
+
+**Next smallest warranted action:** recover one exact source-bound creative-intent journey using the existing Studio/Realization contracts, locate the first *material* reasoning or handoff failure, and either document `NO_CHANGE` or select a bounded repair at its true owner. Do not require a grand multi-agent evaluation program, yet do not promote synthetic fixtures or schema passes into human creative-quality evidence.
+
+**Reconsideration triggers:** a real author cannot inspect a relationship through current focus/facets (B); loses or overwrites materially different full designs (C); repeatedly loses creative purpose when returning to prose (D); or finds that an uninterrupted thread already works and the primary obstacle is elsewhere (reassess A). New evidence must be recorded with the exact source revision, ownership and acceptance boundary.
+
+**Source pointers:** [Canvas](../../src/auteur/beginner/studio_store.py), [Architecture](../../src/auteur/beginner/studio_architecture.py), [Mentor](../../src/auteur/beginner/studio_mentor.py), [Realization](../../src/auteur/beginner/studio_realization.py), [Studio UI](../../src/auteur/beginner/browser/studio.html), [Current STATUS](../../STATUS.md), [Product Roadmap](../product-evolution-roadmap.md), [W4 assessment](../reviews/2026-10-21-w4-narrative-architecture-qualitative-assessment-v1.md), and [initial architecture adversarial review](../reviews/2026-10-21-initial-narrative-architecture-adversarial-review.md).
+
+**Documentation-only boundary:** This addendum creates no product implementation, test result, release claim, canon, authority path, provider integration, or new executable knowledge schema.
