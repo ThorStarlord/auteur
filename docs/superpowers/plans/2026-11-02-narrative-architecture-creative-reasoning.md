@@ -8,11 +8,13 @@
 
 **Tech Stack:** Python >=3.11; Pydantic 2; `auteur.beginner` Studio/CanvasStore and `auteur.host_agent`; vanilla browser JavaScript and existing Studio server; pytest 8; Node built-in `node:test`. No new external provider SDK, persistence platform or state-management library.
 
-**Spec:** [Narrative Architecture as a creative-reasoning UI — strategic analysis `11](../../research/auteur-ui-strategic-evolution-2026-10-24.md#11-follow-on-strategic-evolution--narrative-architecture-as-a-creative-reasoning-ui-2026-11-02); [earlier Connected Creative Thread analysis](../../research/auteur-ui-strategic-evolution-2026-10-24.md#7-strategic-synthesis-and-selected-control-move).
+**Spec:** [Narrative Architecture as a creative-reasoning UI — strategic analysis §11](../../research/auteur-ui-strategic-evolution-2026-10-24.md#11-follow-on-strategic-evolution--narrative-architecture-as-a-creative-reasoning-ui-2026-11-02); [earlier Connected Creative Thread analysis](../../research/auteur-ui-strategic-evolution-2026-10-24.md#7-strategic-synthesis-and-selected-control-move).
 
 **Planning baseline:** `main@9098c6677d6a0b5876183ddee44d7301a54390ec`, November 2, 2026 (documentation PR #502). The executor must re-read current `main` / `STATUS.md`; this hash is not a future worktree lease.
 
 **Disposition:** `R0 SELECTED FOR REPRODUCIBLE INVESTIGATION`; R1–R3 are **conditional candidate repairs**, not a committed feature queue. Owner endorsement of the strategic direction and request for this plan do **not** authorize schema changes, a new state owner, permanent multi-architecture branching or a production rollout.
+
+**Execution preflight (2026-11-02):** [Issue #504](https://github.com/ThorStarlord/auteur/issues/504) records `HOST_AGENT_EXECUTION_UNAVAILABLE` in the present tool environment: no full Auteur checkout, no shared host-agent request filesystem, and network/DNS access unavailable for clone. R0 stopped **before source staging**. Tasks 1–2 were not executed; conditional R1–R3 are not selected. This is an evidence/availability boundary, **not** an observed failure of Auteur's code or its creative reasoning. Resume R0 in a full runnable agent workspace, then update issue/operational status only after new evidence.
 
 ## Global Constraints
 
