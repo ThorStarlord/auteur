@@ -37,6 +37,26 @@ The following high-risk inputs may not be exhaustively specified by the brief; t
 4. **Guidance/ontology updated but Vision unchanged:** the UI must not describe an ontology revision as an author editing their story; legacy in-flight packets remain readable (Task 2).
 5. **Stale, duplicated or mismatched agent responses:** no replacement of current working architecture, no leaked acceptance, and an honest status (Tasks 2, 4, 8).
 
+Representative exact assertions for new pure contracts (complete the surrounding fixture/setup in the indicated test files):
+
+~~~python
+def test_context_contains_reusable_meanings():
+    result = build_relevant_ontology_context("A mystery about knowledge", None)
+    concepts = {item["name"]: item for item in result["concepts"]}
+    assert result["authority"] == "derived_ontology_guidance"
+    assert "Theme" in concepts and concepts["Theme"]["definition"]
+    assert "Conflict" in concepts and concepts["Conflict"]["relationships"]
+
+def test_concept_proposal_is_not_accepted_ontology(tmp_path):
+    store = CanvasStore(tmp_path, "test-concepts")
+    store.create()
+    record_provisional_concept(store, proposal, expected_revision=0, command_id="concept-1")
+    assert list_provisional_concepts(CanvasStore(tmp_path, "test-concepts"))[0].status == "provisional"
+    assert not (tmp_path / "story_identity.yaml").exists()
+~~~
+
+The Task 7 example's proposal is a valid ProvisionalNarrativeConcept fixture; use the existing package loader and a before/after hash to assert that canonical ontology resources are unchanged.
+
 ---
 
 ## 0. File responsibilities and dependency order
@@ -146,7 +166,7 @@ A task may conclude **NO CHANGE REQUIRED** when a working, testable capability a
 
 **Interfaces:** Produces build_architecture_review(previous: dict, proposed: dict, instruction: str) -> dict. Include requested_change, the existing grouped ID diff, changed_components with title/category/before/after summaries, preserved IDs or counts, and a clearly labeled proposed_rationale sourced from candidate.summary (never fabricated by the comparator). Existing review["candidate"] remains intact.
 
-- [ ] **Step 1: Write failing review tests.** Given a change to intended emotion, a narrative engine, genre interaction and phase, check that the review names each affected component and shows before/after meaning, not just IDs. Confirm unchanged author-declared elements are enumerated as preserved and that the exact instruction is shown. A missing rationale must be labeled missing, not invented.
+- [ ] **Step 1: Write failing review tests.** Given a change to intended emotion, a narrative engine, genre interaction and phase, check that the review names each affected component and shows before/after meaning, not just IDs. Confirm explicitly author-declared emotion targets and accepted constraints remain visible as preserved where their provenance is actually known, and that the exact instruction is shown. Do not infer author declarations for generic nodes that lack provenance. A missing rationale must be labeled missing, not invented.
 - [ ] **Step 2: Run the failing tests.** Run python -m pytest tests/test_beginner_studio_architecture_review.py -q.
 - [ ] **Step 3: Implement a deterministic semantic-field projection.** Reuse _candidate_diff and candidate text; do not infer causality from mere JSON differences. New review metadata is optional for reading old review.json artifacts. Apply still uses the existing locked apply_architecture_review authority/staleness checks.
 - [ ] **Step 4: Verify legacy, stale, conflicting and duplicate reply behavior.** Run python -m pytest tests/test_beginner_studio_architecture_review.py tests/test_beginner_studio_architecture.py -q. Inspect that accepted story files are untouched.
@@ -186,9 +206,9 @@ A task may conclude **NO CHANGE REQUIRED** when a working, testable capability a
 
 **Files:** Create src/auteur/beginner/studio_concepts.py and tests/test_beginner_studio_concepts.py; add optional provisional concept reporting to project_architecture_resume in src/auteur/beginner/studio_architecture.py. Do **not** modify data/ontology/*.yaml or src/auteur/data/ontology/*.yaml as a side effect.
 
-**Interfaces:** Define ProvisionalNarrativeConcept(BaseModel): name, definition, motivating_story_use, why_existing_concepts_insufficient, related_concepts, and status="provisional". Provide record_provisional_concept(store: CanvasStore, concept: ProvisionalNarrativeConcept, *, expected_revision: int, command_id: str) -> WorkingCanvas and list_provisional_concepts(store: CanvasStore) -> list[ProvisionalNarrativeConcept]. Back these with CanvasStore's existing noncanonical note kind, in a clearly identified provisional-concepts group; no new canonical store. If necessary for the active agent's workflow, expose a single CLI action "record-concept" with a JSON file argument.
+**Interfaces:** Define ProvisionalNarrativeConcept(BaseModel) with name: str, definition: str, motivating_story_use: str, why_existing_concepts_insufficient: str, related_concepts: list[str], proposed_relations: list[str], compatibility_concerns: list[str], and status: Literal["provisional"] = "provisional". Provide record_provisional_concept(store: CanvasStore, concept: ProvisionalNarrativeConcept, *, expected_revision: int, command_id: str) -> WorkingCanvas and list_provisional_concepts(store: CanvasStore) -> list[ProvisionalNarrativeConcept]. Back these with CanvasStore's existing noncanonical note kind, in a clearly identified provisional-concepts group; no new canonical store. The note is also the **reviewable proposed extension**: it records why existing vocabulary is insufficient, suggested relationships and compatibility concerns. If necessary for the active agent's workflow, expose a single CLI action "record-concept" with a JSON file argument.
 
-- [ ] **Step 1: Write failing tests.** A project-level provisional concept is readable after a fresh-process reload and appears in resume, with its provenance clearly distinct from accepted ontology; duplicate command ID is idempotent; conflicting revision and invalid structure do not overwrite earlier working material. Check that neither canonical Story Identity nor packaged ontology files change.
+- [ ] **Step 1: Write failing tests.** A project-level provisional concept, including its proposed relationships and compatibility concerns, is readable for author review after a fresh-process reload and appears in resume, with its provenance clearly distinct from accepted ontology; duplicate command ID is idempotent; conflicting revision and invalid structure do not overwrite earlier working material. Check that neither canonical Story Identity nor packaged ontology files change.
 - [ ] **Step 2: Run python -m pytest tests/test_beginner_studio_concepts.py tests/test_beginner_studio_architecture_resume.py -q** and observe failure.
 - [ ] **Step 3: Implement the smallest working-note adapter.** Existing ontology definitions must be checked for possible equivalence in the proposed rationale; software cannot deterministically prove semantic novelty, so absence of duplicates remains a review judgment. Do not add proposed terms to global loader resolution until separately accepted by the author.
 - [ ] **Step 4: Verify that new request/re-entry context identifies provisional concepts without treating them as author commitments.** Keep bounded excerpts and omitted counts honest if a large project exceeds context limits; run the focused tests, the ontology loader tests and stale-source tests.
@@ -243,3 +263,9 @@ No task authorizes changing the author-approved experience to a questionnaire-fi
 **Recommended method: Subagent-driven,** because ontology/freshness, review UI, provisional storage and real-agent qualification have different failure modes and benefit from fresh specialist review. Preserve source-level boundaries between author intent and derived guidance.
 
 Before implementing, the executor should fetch the current main, read the approved spec, this plan, MISSION.md, STATUS.md and #504, and use the smallest per-task test gate. If the tool environment cannot provide a runnable checkout, leave an actionable blocker receipt rather than implement from an invented runtime.
+
+### Three execution axioms
+
+1. It is **not** a tool for manually assembling a graph; it is **actually** an agent-directed architecture design process.
+2. It is **not** a transcript and is **not** a frozen dictionary; it is **actually** a durable, reviewable conceptual contract.
+3. Creative continuity is **actually** ontology-grounded reasoning that survives the agent who first performed it.
