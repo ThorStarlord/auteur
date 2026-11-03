@@ -368,3 +368,11 @@ The expanded landscape now names **twelve conceptually distinct author-job/inter
 **Stop rule for this exploration round:** further candidate labels are unlikely to improve decisions without observing an author job or encountering a demonstrable workflow gap. Revisit possibilities only when new evidence changes their distinctness or feasibility. The current F2/X3 controlled frontier and existing product authority remain unchanged. Neither this research file nor its PR grants implementation, merge, release, or thesis-change authority.
 
 **Companion strategic synthesis:** [Auteur UI Strategic Evolution Analysis](auteur-ui-strategic-evolution-2026-10-24.md) compares coherent construction futures separately. This possibility landscape remains unranked and does not authorize work.
+
+---
+
+## 10. Companion divergent exploration — Narrative Architecture UI usability (2026-11-02)
+
+A new, strictly **unranked** [Narrative Architecture usability exploration](narrative-architecture-usability-divergent-exploration-2026-11-02.md) examines **interaction intelligibility** rather than adding more story-development experiences to P1–P12. It preserves **27** materially differentiated possibilities in **nine** overlapping families: author-task wayfinding; readable relation arguments; attention control; inquiry-safe graph interaction; agent/provenance transparency; narrative-literacy scaffolding; unfamiliar explanatory metaphors; nonvisual/mobile/portable access; and honest recovery.
+
+The companion document explicitly cross-references earlier P1–P12 candidates, historical UX findings, the current Studio source baseline, and the limits of nonhuman source inspection. Its candidate identifiers U01–U27 are research names, **not priorities, decisions, tickets, implementation packages or automatic promotions**. Existing graph-first direction, agent/author authority boundaries, F2/X3/S2 qualifications and the previously selected strategic path are unchanged.
