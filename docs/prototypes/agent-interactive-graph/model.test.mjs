@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {resolveAnchor, recordedRelations, listSelectableAnchors} from './model.mjs';
+import {
+  resolveAnchor, recordedRelations, listSelectableAnchors, buildIntentDraft,
+} from './model.mjs';
 
 const RICH_SHA = 'c6269dc2e1953498ced08c1e32fa10b4d7bf05274e72c6214bd8b1f5074b5d66';
 const candidate = JSON.parse(readFileSync(
@@ -220,4 +222,167 @@ test('selectable anchors expose stable kinds and IDs without inferred fields', (
     assert.equal(item.authority, 'working_proposal');
     assert.equal(item.request_sha256, RICH_SHA);
   }
+});
+
+function draftArgs(overrides = {}) {
+  return {
+    candidate,
+    requestSha: RICH_SHA,
+    currentRequestSha: RICH_SHA,
+    anchors: [anchor('node', 'memory_economy'), anchor('emotion_target', 'wonder')],
+    operation: 'ask_relation',
+    authorText: 'How might the memory economy shape wonder without asserting a link?',
+    ...overrides,
+  };
+}
+
+test('intent draft is prepared, source-bound and never executed', () => {
+  const draft = buildIntentDraft(draftArgs());
+  assert.equal(draft.kind, 'studio_graph_intent_draft_v1');
+  assert.equal(draft.authority, 'noncanonical_intent_draft');
+  assert.equal(draft.status, 'prepared_not_executed');
+  assert.equal(draft.request_sha256, RICH_SHA);
+  assert.equal(draft.operation, 'ask_relation');
+  assert.equal(draft.anchors.length, 2);
+  assert.equal(draft.anchors[0].id, 'memory_economy');
+  assert.equal(draft.anchors[0].sourceRef, 'nodes/3');
+  assert.equal(draft.anchors[1].id, 'wonder');
+  assert.equal(draft.anchors[1].sourceRef, 'emotion_targets/0');
+  assert.deepEqual(draft.recorded_support, []);
+  assert.match(draft.draft_instruction, new RegExp(RICH_SHA));
+  assert.match(draft.draft_instruction, /memory_economy/);
+  assert.match(draft.draft_instruction, /wonder/);
+  assert.match(draft.draft_instruction, /No recorded relation/i);
+  assert.match(draft.draft_instruction, /prepared/i);
+  assert.match(draft.draft_instruction, /not been (sent|executed)/i);
+  assert.doesNotMatch(draft.draft_instruction, /relationship created|link saved|story accepted/i);
+  assert.ok(draft.warnings.some(item => /No recorded relation/i.test(item)));
+  assert.ok(draft.warnings.some(item => /author-declared/i.test(item)));
+});
+
+test('challenge records the actual source link and keeps inference separate', () => {
+  const draft = buildIntentDraft(draftArgs({
+    anchors: [anchor('link', 'engine_drives_cost')],
+    operation: 'challenge',
+    authorText: 'Is the link from the memory economy to escalating cost actually supported?',
+  }));
+  assert.equal(draft.operation, 'challenge');
+  assert.equal(draft.recorded_support.length, 1);
+  assert.equal(draft.recorded_support[0].kind, 'link');
+  assert.equal(draft.recorded_support[0].id, 'engine_drives_cost');
+  assert.equal(draft.recorded_support[0].sourceRef, 'links/3');
+  assert.match(draft.recorded_support[0].detail, /personal loss/i);
+  assert.match(draft.draft_instruction, /links\/3/);
+  assert.match(draft.draft_instruction, /Challenge/i);
+  assert.match(draft.draft_instruction, /recorded evidence/i);
+  assert.ok(draft.warnings.some(item => /Challenge/i.test(item)));
+  assert.doesNotMatch(draft.draft_instruction, /accepted story|executed successfully/i);
+});
+
+test('revise preserves the exact author intention and source identities', () => {
+  const intention = 'Make wonder dominate fear while preserving mystery and the memory cost';
+  const draft = buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy'), anchor('emotion_target', 'wonder')],
+    operation: 'revise',
+    authorText: intention,
+  }));
+  assert.equal(draft.operation, 'revise');
+  assert.ok(draft.draft_instruction.includes(intention));
+  assert.match(draft.draft_instruction, /holistic/i);
+  assert.match(draft.draft_instruction, /preserve explicit constraints/i);
+  assert.match(draft.draft_instruction, /working proposal, not story canon/i);
+  assert.equal(draft.recorded_support.length, 0);
+});
+
+test('trace exposes only recorded one-hop evidence for a node', () => {
+  const draft = buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy')],
+    operation: 'trace',
+    authorText: '',
+  }));
+  assert.equal(draft.operation, 'trace');
+  assert.equal(draft.recorded_support.length, 3);
+  assert.deepEqual(
+    draft.recorded_support.map(item => item.id).sort(),
+    ['engine_drives_cost', 'engine_feeds_archive', 'magical_map_instantiates'],
+  );
+  assert.match(draft.draft_instruction, /Trace only/i);
+  assert.match(draft.draft_instruction, /where the evidence stops/i);
+});
+
+test('compare keeps alternatives unselected and unresolved', () => {
+  const draft = buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy'), anchor('emotion_target', 'wonder')],
+    operation: 'compare',
+    authorText: 'Compare two ways the memory economy might create wonder.',
+  }));
+  assert.equal(draft.operation, 'compare');
+  assert.match(draft.draft_instruction, /alternative/i);
+  assert.match(draft.draft_instruction, /do not select or accept/i);
+});
+
+test('duplicate, missing, stale and invalid anchors fail closed', () => {
+  assert.throws(() => buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy'), anchor('node', 'memory_economy')],
+  })), /duplicate/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy'), anchor('node', 'missing_engine')],
+  })), /unavailable/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    currentRequestSha: 'e'.repeat(64),
+  })), /stale/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    requestSha: 'not-a-sha',
+  })), /invalid|stale/i);
+});
+
+test('anchor count, operation and intention size are bounded', () => {
+  assert.throws(() => buildIntentDraft(draftArgs({anchors: []})), /1.*3|anchor/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    anchors: [
+      anchor('node', 'memory_economy'),
+      anchor('node', 'cost_escalation'),
+      anchor('node', 'founding_archive'),
+      anchor('node', 'guild_authority'),
+    ],
+  })), /1.*3|anchor/i);
+  assert.throws(() => buildIntentDraft(draftArgs({operation: 'unknown'})), /operation/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    operation: 'ask_relation',
+    anchors: [anchor('node', 'memory_economy')],
+  })), /two/i);
+  assert.throws(() => buildIntentDraft(draftArgs({
+    operation: 'revise',
+    authorText: '   ',
+  })), /intention|nonempty/i);
+  assert.throws(() => buildIntentDraft(draftArgs({authorText: 'x'.repeat(4001)})), /4000/);
+});
+
+test('draft support is bounded and source refs only point into the candidate', () => {
+  const draft = buildIntentDraft(draftArgs({
+    anchors: [anchor('node', 'memory_economy')],
+    operation: 'trace',
+  }));
+  assert.ok(draft.recorded_support.length <= 8);
+  for (const item of draft.recorded_support) {
+    assert.match(item.sourceRef, /^(nodes|links|genre_contracts|genre_interactions|phases)\/\d+/);
+    assert.ok(item.detail.length <= 500);
+  }
+  assert.ok(draft.draft_instruction.length < 12000);
+});
+
+test('sparse candidate drafts remain explicit about missing genre and relation evidence', () => {
+  const sparseSha = 'b'.repeat(64);
+  const draft = buildIntentDraft({
+    candidate: sparse,
+    requestSha: sparseSha,
+    currentRequestSha: sparseSha,
+    anchors: [anchor('node', 'repair_engine'), anchor('emotion_target', 'trust')],
+    operation: 'ask_relation',
+    authorText: 'How might repair create trust without asserting a genre or a link?',
+  });
+  assert.deepEqual(draft.recorded_support, []);
+  assert.ok(draft.warnings.some(item => /No recorded relation/i.test(item)));
+  assert.match(draft.draft_instruction, /do not assert/i);
+  assert.doesNotMatch(draft.draft_instruction, /genre contract/i);
 });

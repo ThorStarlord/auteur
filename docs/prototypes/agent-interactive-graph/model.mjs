@@ -586,3 +586,179 @@ export function listSelectableAnchors(candidate, requestSha = null) {
   });
   return result;
 }
+
+const OPERATIONS = new Set(['ask_relation', 'trace', 'challenge', 'compare', 'revise']);
+
+function anchorKey(anchor) {
+  return `${anchor.kind}:${anchor.id}`;
+}
+
+function operationInstruction(operation) {
+  if (operation === 'ask_relation') {
+    return 'Ask how the selected elements might relate. Use only the recorded support above as evidence. Propose a working hypothesis with explicit uncertainty; do not assert, save or accept a relationship.';
+  }
+  if (operation === 'trace') {
+    return 'Trace only the recorded relationships above. Explain the path and identify exactly where the evidence stops; do not add inferred, transitive or proximity-based edges.';
+  }
+  if (operation === 'challenge') {
+    return 'Challenge the selected proposal. Separate recorded evidence from assumption, name what is unsupported or uncertain, and suggest what evidence would change the judgment.';
+  }
+  if (operation === 'compare') {
+    return 'Propose one or more alternative working designs that address the author intention. Keep the alternatives unselected and unresolved; do not select or accept one.';
+  }
+  return 'Propose a holistic working revision addressed to the author intention. Reconsider every materially affected emotion, genre, trope function, engine and structural phase; preserve explicit constraints and accepted author commitments; distinguish coordinated changes from optional suggestions. Do not claim that constraints were preserved or that the revision was applied.';
+}
+
+function draftAnchorLine(anchor) {
+  const lines = [
+    `- ${anchor.kind}/${anchor.id} — "${anchor.title}" — source: ${anchor.sourceRef} — ${anchor.authority}`,
+  ];
+  if (anchor.meaning) lines.push(`  meaning: ${anchor.meaning}`);
+  const components = asArray(anchor.components).slice(0, 8);
+  if (components.length) {
+    lines.push(`  components: ${components.map(item => `${item.field}=${item.value}`).join('; ')}`);
+  }
+  return lines.join('\n');
+}
+
+function draftSupportLine(item) {
+  const from = item.from ? `${item.from.kind}/${item.from.id}` : '?';
+  const to = item.to ? `${item.to.kind}/${item.to.id}` : '?';
+  const direction = item.direction ? ` (${item.direction} relative to the first selected anchor)` : '';
+  return `- [${item.kind}/${item.id}] ${item.sourceRef}: ${from} -> ${to}${direction}\n  ${item.label}: ${item.detail}`;
+}
+
+export function buildIntentDraft({
+  candidate,
+  requestSha,
+  currentRequestSha,
+  anchors,
+  operation,
+  authorText,
+}) {
+  if (!SOURCE_SHA.test(requestSha || '') || !SOURCE_SHA.test(currentRequestSha || '')) {
+    throw new Error('Source request SHA is invalid or unavailable.');
+  }
+  if (requestSha !== currentRequestSha) {
+    throw new Error(
+      `Source request is stale: captured ${requestSha} does not match current ${currentRequestSha}. ` +
+      'Refresh the fixture; selections and drafts are not rebound by title.',
+    );
+  }
+  if (!Array.isArray(anchors) || anchors.length < 1 || anchors.length > 3) {
+    throw new Error('Select 1 to 3 source anchors before preparing a draft.');
+  }
+  if (!OPERATIONS.has(operation)) {
+    throw new Error(`Unsupported graph intent operation: ${operation}`);
+  }
+  if (typeof authorText !== 'string') {
+    throw new Error('Author intention must be text.');
+  }
+  if (authorText.length > 4000) {
+    throw new Error('Author intention must be 4000 characters or fewer.');
+  }
+  if (operation === 'revise' && !authorText.trim()) {
+    throw new Error('A revise draft requires a nonempty author intention.');
+  }
+  if (operation === 'ask_relation' && anchors.length !== 2) {
+    throw new Error('ask_relation requires exactly two distinct source anchors.');
+  }
+  const resolved = [];
+  const seen = new Set();
+  for (const item of anchors) {
+    const anchor = resolveCore(candidate, requestSha, item);
+    if (!anchor) {
+      const kind = item && typeof item === 'object' ? item.kind : 'unknown';
+      const id = item && typeof item === 'object' ? item.id : 'unknown';
+      throw new Error(`Anchor is unavailable: ${kind}/${id}. It is not present in the captured candidate.`);
+    }
+    const key = anchorKey(anchor);
+    if (seen.has(key)) throw new Error(`Duplicate selected anchor: ${key}.`);
+    seen.add(key);
+    resolved.push(anchor);
+  }
+  const support = recordedRelations(candidate, anchors).slice(0, 8);
+  const warnings = [
+    'This is an editable intent draft; no coding-agent request has been sent or executed.',
+    'The selected architecture is a working proposal, not story canon or shared ontology.',
+  ];
+  if (!support.length) {
+    warnings.push(
+      'No recorded relation exists between the selected anchors; a proposed relation would be a working hypothesis, not source evidence.',
+    );
+  }
+  if (operation === 'ask_relation') {
+    warnings.push('This draft asks a question; it does not assert, save or accept a relationship.');
+  }
+  if (operation === 'challenge') {
+    warnings.push('Challenge the recorded evidence; do not treat inference or visual proximity as evidence.');
+  }
+  if (resolved.some(anchor => anchor.components.some(
+    item => item.field === 'provenance' && item.value === 'author_declared',
+  ))) {
+    warnings.push(
+      'Author-declared emotion targets are author commitments; preserve them unless the author explicitly requests a change.',
+    );
+  }
+  if (resolved.some(anchor => anchor.components.some(
+    item => item.field === 'provenance' && item.value === 'agent_proposed',
+  ))) {
+    warnings.push('Agent-proposed emotion targets are working hypotheses.');
+  }
+  if (resolved.some(anchor => anchor.kind === 'link' || anchor.kind === 'genre_interaction')) {
+    warnings.push(
+      'Recorded links and genre interactions are working proposals; their presence is not proof of reader effect or accepted causality.',
+    );
+  }
+  const anchorLines = resolved.map(draftAnchorLine).join('\n');
+  const supportLines = support.length
+    ? support.map(draftSupportLine).join('\n')
+    : 'No recorded relation exists between the selected anchors. An absent relation means not recorded, not impossible.';
+  const intention = authorText.trim() ? authorText : '(no free-text intention supplied)';
+  const draftInstruction = [
+    'AUTEUR GRAPH INTENT DRAFT — PREPARED, NOT EXECUTED',
+    'This draft has not been sent or executed.',
+    'kind: studio_graph_intent_draft_v1',
+    'authority: noncanonical_intent_draft',
+    'status: prepared_not_executed',
+    `source_candidate_request_sha256: ${requestSha}`,
+    `operation: ${operation}`,
+    '',
+    'Selected source anchors:',
+    anchorLines,
+    '',
+    'Author intention (verbatim, bounded by the prototype):',
+    intention,
+    '',
+    'Recorded support (one-hop only; no inferred or transitive edges):',
+    supportLines,
+    '',
+    'Requested task:',
+    operationInstruction(operation),
+    '',
+    'Draft constraints:',
+    '- Use only the selected source identities and recorded support above as evidence.',
+    '- Distinguish recorded evidence from creative hypothesis.',
+    '- Do not claim that a relationship exists, that the story changed, or that this draft was executed.',
+    '- Return a working proposal for author review; do not accept story or ontology meaning.',
+    '- Working proposal, not story canon.',
+  ].join('\n');
+  return {
+    kind: 'studio_graph_intent_draft_v1',
+    authority: 'noncanonical_intent_draft',
+    status: 'prepared_not_executed',
+    request_sha256: requestSha,
+    operation,
+    anchors: resolved.map(anchor => ({
+      kind: anchor.kind,
+      id: anchor.id,
+      sourceRef: anchor.sourceRef,
+      title: anchor.title,
+      meaning: anchor.meaning,
+      authority: anchor.authority,
+    })),
+    recorded_support: support,
+    draft_instruction: draftInstruction,
+    warnings,
+  };
+}
