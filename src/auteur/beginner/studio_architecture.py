@@ -392,8 +392,8 @@ def _accepted_story_design_context(store: CanvasStore) -> dict | None:
     return context
 
 
-def _legacy_narrative_design_context(store: CanvasStore) -> dict:
-    """Exact pre-ontology-context shape, for historical request packets."""
+def _guidance_fields() -> dict:
+    """Derived interpretive guidance; never author intent or accepted canon."""
     return {
         "kind": "source_referenced_narrative_design_guidance",
         "authority": "derived_guidance_not_author_intent",
@@ -406,7 +406,6 @@ def _legacy_narrative_design_context(store: CanvasStore) -> dict:
             "causal_distribution": [value.value for value in CausalDistributionPreference],
             "engine_hierarchy": [value.value for value in EngineHierarchyPreference],
         },
-        "accepted_story_identity": _accepted_story_design_context(store),
         "unknown_policy": (
             "No accepted Identity or omitted preference means UNKNOWN, not an "
             "implicit focused/maximalist/causal default. The agent may propose "
@@ -416,21 +415,58 @@ def _legacy_narrative_design_context(store: CanvasStore) -> dict:
     }
 
 
-def _narrative_design_context(store: CanvasStore) -> dict:
-    """Compose the same small, auditable ontology guidance on develop and revise."""
-    context = _legacy_narrative_design_context(store)
-    context["ontology_context"] = build_relevant_ontology_context(
-        _source(store)["vision"], context["accepted_story_identity"],
-    )
+def _legacy_narrative_design_context(store: CanvasStore) -> dict:
+    """Exact pre-ontology-context shape, for historical request packets."""
+    context = _guidance_fields()
+    context["accepted_story_identity"] = _accepted_story_design_context(store)
     return context
 
 
-def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
-    """Preserve the original digest for pre-context request/artifact reopens."""
-    user = json.loads(request_user)
+def _design_context_parts(
+    store: CanvasStore, working: dict | None = None,
+) -> tuple[dict | None, dict, dict]:
+    """Return accepted Identity, derived guidance, and the packet projection."""
+    accepted = _accepted_story_design_context(store)
+    working = working if working is not None else _source(store)
+    guidance = _guidance_fields()
+    guidance["ontology_context"] = build_relevant_ontology_context(
+        working.get("vision", ""), accepted,
+    )
+    return accepted, guidance, {**guidance, "accepted_story_identity": accepted}
+
+
+def _narrative_design_context(store: CanvasStore) -> dict:
+    """Compose the same small, auditable ontology guidance on develop and revise."""
+    return _design_context_parts(store)[2]
+
+
+def _user_working_context(store: CanvasStore, user: dict) -> dict:
     previous = user["working_context"]["previous_candidate"]
     source_format = 2 if user["working_context"].get("working_source_format") == 2 else 1
-    working = _source(store, previous=previous, source_format=source_format)
+    return _source(store, previous=previous, source_format=source_format)
+
+
+def _author_source_fingerprint(store: CanvasStore, user: dict) -> str:
+    """Fingerprint only author-governed source: working material and accepted Identity."""
+    return _digest({
+        "working_context": _user_working_context(store, user),
+        "accepted_story_identity": _accepted_story_design_context(store),
+    })
+
+
+def _design_guidance_fingerprint(store: CanvasStore, request_user: str) -> str:
+    """Fingerprint only derived interpretive guidance, excluding accepted Identity."""
+    user = json.loads(request_user)
+    _, guidance, _ = _design_context_parts(store, _user_working_context(store, user))
+    return _digest(guidance)
+
+
+def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
+    """Preserve historical digests while exposing the new author-source fingerprint."""
+    user = json.loads(request_user)
+    working = _user_working_context(store, user)
+    if user.get("freshness_format") == 2:
+        return _author_source_fingerprint(store, user)
     if "narrative_design_context" not in user:
         return _digest(working)
     design_context = user["narrative_design_context"]
@@ -558,14 +594,30 @@ def _candidate_diff(previous: dict, proposed: dict) -> dict:
     )
     return categories
 
-def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
-    """A saved working architecture stays readable after its input intent changes."""
-    if not current:
-        return False
+def _current_candidate_freshness(store: CanvasStore, current: dict) -> str:
+    """Distinguish author-source change from an interpretive-guidance change."""
     request = load_host_agent_request(
         _root(store) / "requests" / current["request_sha256"] / "request.json"
     )
-    return _source_fingerprint(store, request.user) != current["source_sha256"]
+    settings = request.settings
+    if settings.get("freshness_format") == 2:
+        user = json.loads(request.user)
+        if _author_source_fingerprint(store, user) != current["source_sha256"]:
+            return "stale"
+        expected_guidance = current.get(
+            "design_guidance_sha256", settings.get("design_guidance_sha256"),
+        )
+        if expected_guidance and _digest(_design_context_parts(
+            store, _user_working_context(store, user),
+        )[1]) != expected_guidance:
+            return "guidance_changed"
+        return "ready"
+    return "stale" if _source_fingerprint(store, request.user) != current["source_sha256"] else "ready"
+
+
+def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
+    """Only author-source drift blocks downstream realization; guidance drift does not."""
+    return bool(current) and _current_candidate_freshness(store, current) == "stale"
 
 
 def project_architecture(store: CanvasStore) -> dict:
@@ -580,10 +632,16 @@ def project_architecture(store: CanvasStore) -> dict:
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
     review = _read(_root(store) / "requests" / req.request_sha256 / "review.json") if pending else None
-    stale = _current_candidate_is_stale(store, current) if current and not pending else False
+    if review:
+        status = "review_ready"
+    elif pending:
+        status = "awaiting_host_agent"
+    elif current:
+        status = _current_candidate_freshness(store, current)
+    else:
+        status = "not_started"
     return {
-        "status": "review_ready" if review else "awaiting_host_agent" if pending
-                  else "stale" if stale else "ready" if current else "not_started",
+        "status": status,
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
@@ -602,14 +660,21 @@ def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
         context = _source(store, previous=previous)
         if not context["vision"].strip() and not context["working_items"]:
             raise ValueError("write a Story Vision or a working idea first")
-        design_context = _narrative_design_context(store)
+        accepted, guidance, design_context = _design_context_parts(store, context)
         source_sha = _digest({
             "working_context": context,
-            "narrative_design_context": design_context,
+            "accepted_story_identity": accepted,
         })
-        settings = {"canvas_id": store.canvas_id, "source_sha256": source_sha,
-                    "operation": "revise" if instruction.strip() else "develop"}
+        guidance_sha = _digest(guidance)
+        settings = {
+            "canvas_id": store.canvas_id,
+            "source_sha256": source_sha,
+            "design_guidance_sha256": guidance_sha,
+            "freshness_format": 2,
+            "operation": "revise" if instruction.strip() else "develop",
+        }
         user = json.dumps({
+            "freshness_format": 2,
             "working_context": context,
             "narrative_design_context": design_context,
             "revision_instruction": instruction,
@@ -644,24 +709,45 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             response.text, context={"new_host_agent_response": True}
         )
         instruction = json.loads(request.user)["revision_instruction"]
-        if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
+        settings = request.settings
+        if settings.get("freshness_format") == 2:
+            user = json.loads(request.user)
+            author_changed = _author_source_fingerprint(store, user) != settings["source_sha256"]
+            guidance_changed = (
+                _digest(_design_context_parts(
+                    store, _user_working_context(store, user),
+                )[1]) != settings["design_guidance_sha256"]
+            )
+        else:
+            author_changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
+            guidance_changed = False
+        if author_changed:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
                 "the author's source vision or working story changed; response retained as stale evidence"
             )
+        if guidance_changed:
+            write_host_agent_response(base / "stale_response.json", response)
+            raise BeginnerConcurrencyError(
+                "the narrative design guidance changed; response retained as stale evidence"
+            )
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
+        record = {
+            "request_sha256": sha,
+            "source_sha256": settings["source_sha256"],
+            "candidate": candidate,
+        }
+        if settings.get("freshness_format") == 2:
+            record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
-            _atomic_json_write(base / "review.json", {
-                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
+            record.update({
                 "prior_request_sha256": current["request_sha256"],
-                "candidate": candidate, "changes": _candidate_diff(current["candidate"], candidate),
+                "changes": _candidate_diff(current["candidate"], candidate),
             })
+            _atomic_json_write(base / "review.json", record)
         else:
-            _atomic_json_write(_root(store) / "current.json", {
-                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
-                "candidate": candidate,
-            })
+            _atomic_json_write(_root(store) / "current.json", record)
     return project_architecture(store)
 
 
@@ -683,14 +769,29 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
             request = load_host_agent_request(
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
-            if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
+            settings = request.settings
+            if settings.get("freshness_format") == 2:
+                user = json.loads(request.user)
+                changed = (
+                    _author_source_fingerprint(store, user) != settings["source_sha256"]
+                    or _digest(_design_context_parts(
+                        store, _user_working_context(store, user),
+                    )[1]) != settings["design_guidance_sha256"]
+                )
+            else:
+                changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
+            if changed:
                 raise BeginnerConcurrencyError(
                     "working context changed: story vision or design context changed; review again"
                 )
-            _atomic_json_write(_root(store) / "current.json", {
-                "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
+            record = {
+                "request_sha256": request_sha256,
+                "source_sha256": review["source_sha256"],
                 "candidate": review["candidate"],
-            })
+            }
+            if "design_guidance_sha256" in review:
+                record["design_guidance_sha256"] = review["design_guidance_sha256"]
+            _atomic_json_write(_root(store) / "current.json", record)
         elif not current:
             raise ValueError("there is no current working architecture to revise")
     return project_architecture(store)

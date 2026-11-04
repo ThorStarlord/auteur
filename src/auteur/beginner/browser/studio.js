@@ -215,6 +215,8 @@
       ? "A revised proposal is ready for review. Current working architecture is unchanged."
       : projection.status === "awaiting_host_agent"
       ? "Awaiting the active coding agent. Prior working proposal remains available if present."
+      : projection.status === "guidance_changed"
+      ? "Narrative design guidance changed; review or regenerate. Your Story Vision is unchanged."
       : projection.status === "stale"
       ? "Working architecture is outdated relative to your Story Vision. Regenerate or revise before developing concrete story material."
       : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."

@@ -11,7 +11,8 @@ from pydantic import ValidationError
 from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
-    ArchitectureCandidate, ArchitectureLink, _digest, _source, _source_fingerprint,
+    ArchitectureCandidate, ArchitectureLink, _design_guidance_fingerprint, _digest,
+    _legacy_narrative_design_context, _source, _source_fingerprint,
     apply_architecture_review, complete_architecture,
     main, prepare_architecture, project_architecture,
 )
@@ -131,7 +132,9 @@ def test_legacy_architecture_request_fingerprint_uses_original_source_projection
     assert "working_source_format" not in legacy
     assert legacy["working_items"][0]["content"] == scene[:1000]
     assert "content_is_excerpt" not in legacy["working_items"][0]
+    user.pop("freshness_format", None)
     user["working_context"] = legacy
+    user["narrative_design_context"].pop("ontology_context", None)
     expected = _digest({
         "working_context": legacy,
         "narrative_design_context": user["narrative_design_context"],
@@ -262,6 +265,125 @@ def test_legacy_architecture_fingerprint_remains_readable(tmp_path):
     store = working_store(tmp_path)
     legacy_user = json.dumps({"working_context": {"previous_candidate": None}})
     assert _source_fingerprint(store, legacy_user) == _digest(_source(store, source_format=1))
+
+
+def test_new_request_separates_author_source_and_design_guidance_fingerprints(tmp_path):
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    settings = waiting["request"]["settings"]
+    user = json.loads(waiting["request"]["user"])
+    assert settings["freshness_format"] == 2
+    assert len(settings["source_sha256"]) == 64
+    assert len(settings["design_guidance_sha256"]) == 64
+    assert user["freshness_format"] == 2
+    assert _source_fingerprint(store, waiting["request"]["user"]) == settings["source_sha256"]
+    assert _design_guidance_fingerprint(
+        store, waiting["request"]["user"],
+    ) == settings["design_guidance_sha256"]
+    assert settings["source_sha256"] != settings["design_guidance_sha256"]
+    assert "accepted_story_identity" not in json.loads(
+        waiting["request"]["user"],
+    )["working_context"]
+
+
+def test_guidance_change_is_guidance_changed_not_author_story_change(tmp_path, monkeypatch):
+    import auteur.beginner.studio_architecture as studio_architecture
+
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    complete_architecture(store, response(waiting, emotion_first_candidate()))
+    assert project_architecture(store)["status"] == "ready"
+
+    principles = list(studio_architecture._DESIGN_PRINCIPLES)
+    source, principle = principles[1]
+    principles[1] = (source, principle + " A newly reviewed guidance clarification.")
+    monkeypatch.setattr(studio_architecture, "_DESIGN_PRINCIPLES", tuple(principles))
+    projection = project_architecture(store)
+    assert projection["status"] == "guidance_changed"
+    assert projection["candidate"] is not None
+
+
+def test_ontology_definition_change_is_guidance_changed_not_stale(tmp_path, monkeypatch):
+    import auteur.beginner.studio_architecture as studio_architecture
+
+    store = working_store(tmp_path)
+    waiting = prepare_architecture(store)
+    complete_architecture(store, response(waiting, emotion_first_candidate()))
+
+    original = studio_architecture.build_relevant_ontology_context
+
+    def revised_context(vision, accepted_identity):
+        context = original(vision, accepted_identity)
+        context["source_refs"] = [*context["source_refs"], "auteur.data.ontology:revised.yaml"]
+        return context
+
+    monkeypatch.setattr(
+        studio_architecture, "build_relevant_ontology_context", revised_context,
+    )
+    projection = project_architecture(store)
+    assert projection["status"] == "guidance_changed"
+    assert projection["candidate"] is not None
+
+
+def test_guidance_change_rejects_in_flight_response_without_replacing_baseline(
+    tmp_path, monkeypatch,
+):
+    import auteur.beginner.studio_architecture as studio_architecture
+
+    store = working_store(tmp_path)
+    first = prepare_architecture(store)
+    baseline = complete_architecture(store, response(first, emotion_first_candidate()))
+    revision = prepare_architecture(store, "Make the middle phase more wondrous.")
+    changed_candidate = emotion_first_candidate()
+    changed_candidate["summary"] = "Wonder reorganizes the middle phase."
+
+    principles = list(studio_architecture._DESIGN_PRINCIPLES)
+    source, principle = principles[0]
+    principles[0] = (source, principle + " A reviewed guidance change.")
+    monkeypatch.setattr(studio_architecture, "_DESIGN_PRINCIPLES", tuple(principles))
+
+    with pytest.raises(BeginnerConcurrencyError, match="guidance"):
+        complete_architecture(store, response(revision, changed_candidate))
+    assert project_architecture(store)["candidate"] == baseline["candidate"]
+    sha = revision["request"]["request_sha256"]
+    assert (store.directory / "architecture" / "requests" / sha / "stale_response.json").exists()
+
+
+def test_legacy_design_context_request_remains_completable(tmp_path):
+    from auteur.host_agent import (
+        build_host_agent_request, write_host_agent_request,
+    )
+
+    store = working_store(tmp_path)
+    working = _source(store)
+    design = _legacy_narrative_design_context(store)
+    user = json.dumps({
+        "working_context": working,
+        "narrative_design_context": design,
+        "revision_instruction": "",
+    }, ensure_ascii=False, sort_keys=True)
+    settings = {
+        "canvas_id": store.canvas_id,
+        "source_sha256": _digest({
+            "working_context": working,
+            "narrative_design_context": design,
+        }),
+        "operation": "develop",
+    }
+    request = build_host_agent_request(
+        candidate_id="studio-legacy", role="studio_architecture",
+        system="legacy prompt", user=user, settings=settings,
+    )
+    root = store.directory / "architecture"
+    write_host_agent_request(root / "requests" / request.request_sha256 / "request.json", request)
+    (root / "latest_request.json").write_text(
+        json.dumps({"request_sha256": request.request_sha256}), encoding="utf-8",
+    )
+    ready = complete_architecture(store, response(
+        {"request": request.model_dump()}, emotion_first_candidate(),
+    ))
+    assert ready["status"] == "ready"
+    assert ready["candidate"]["summary"] == emotion_first_candidate()["summary"]
 
 
 def test_invalid_accepted_identity_is_not_silently_ignored(tmp_path):
@@ -680,7 +802,7 @@ def test_architecture_becomes_stale_after_author_revises_vision(tmp_path):
     assert old["candidate"]["schema_version"] == 2
 
 
-def test_design_context_fingerprint_tracks_principles_not_system_prompt(tmp_path, monkeypatch):
+def test_design_context_fingerprint_tracks_guidance_not_system_prompt(tmp_path, monkeypatch):
     import auteur.beginner.studio_architecture as studio_architecture
 
     store = working_store(tmp_path)
@@ -698,4 +820,4 @@ def test_design_context_fingerprint_tracks_principles_not_system_prompt(tmp_path
     source, principle = principles[2]
     principles[2] = (source, principle + " Keep the organization supported by evidence.")
     monkeypatch.setattr(studio_architecture, "_DESIGN_PRINCIPLES", tuple(principles))
-    assert project_architecture(store)["status"] == "stale"
+    assert project_architecture(store)["status"] == "guidance_changed"

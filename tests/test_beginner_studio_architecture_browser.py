@@ -44,6 +44,13 @@ def test_studio_script_parses_and_references_existing_elements():
     assert check.returncode == 0, check.stderr
 
 
+def test_guidance_change_is_presented_as_guidance_not_author_story_change():
+    js = (BROWSER / "studio.js").read_text(encoding="utf-8")
+    assert 'projection.status === "guidance_changed"' in js
+    assert "Narrative design guidance changed; review or regenerate" in js
+    assert "Your Story Vision is unchanged." in js
+
+
 def test_long_story_focus_is_reversible_and_does_not_mutate_story_authority():
     html = (BROWSER / "studio.html").read_text(encoding="utf-8")
     js = (BROWSER / "studio.js").read_text(encoding="utf-8")
