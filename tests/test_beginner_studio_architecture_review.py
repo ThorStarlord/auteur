@@ -180,6 +180,18 @@ def test_changed_author_declared_emotion_is_visible_not_hidden_as_preserved():
     assert changes[0]["id"] == "wonder"
     assert changes[0]["before"] == "primary"
     assert changes[0]["after"] == "supporting"
+    assert changes[0]["changed_fields"] == ["role"]
+
+
+def test_author_declared_emotion_meaning_change_reports_changed_fields():
+    previous = valid_candidate()
+    proposed = copy.deepcopy(previous)
+    proposed["emotion_targets"][0]["intended_effect"] = "Awe that survives loss."
+    review = build_architecture_review(previous, proposed, "Deepen wonder.")
+    changes = review["preserved"]["author_declared_emotion_changes"]
+    assert changes[0]["id"] == "wonder"
+    assert changes[0]["before"] == changes[0]["after"] == "primary"
+    assert changes[0]["changed_fields"] == ["intended_effect"]
 
 
 def test_review_does_not_invent_rationale_when_summary_missing():

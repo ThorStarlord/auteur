@@ -148,6 +148,7 @@ def _author_declared_preservation(
                 "id": identifier,
                 "before": previous_targets[identifier].get("role"),
                 "after": target.get("role"),
+                "changed_fields": _changed_fields(previous_targets[identifier], target),
                 "status": "changed",
             })
     return preserved, changed
