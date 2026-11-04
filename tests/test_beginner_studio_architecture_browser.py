@@ -17,6 +17,7 @@ def test_architecture_views_and_agent_bridge_have_explicit_user_controls():
         "architecture-develop", "architecture-refresh", "architecture-handoff",
         "architecture-complete", "architecture-instruction", "architecture-revise",
         "architecture-scope", "genre-timeline", "timeline-phases", "candidate-copy",
+        "architecture-reader",
     ):
         assert f'id="{name}"' in html
     assert "/host-agent-response" in js and "/prepare" in js
@@ -25,6 +26,41 @@ def test_architecture_views_and_agent_bridge_have_explicit_user_controls():
     assert "phase.parallel_with" in js
     assert "scope === state.architectureFocus" in js
     assert "renderTimeline" in js
+
+
+def test_readable_architecture_reader_precedes_graph_and_reviews_meanings():
+    html = (BROWSER / "studio.html").read_text(encoding="utf-8")
+    js = (BROWSER / "studio.js").read_text(encoding="utf-8")
+    assert "/studio_architecture_reader.js" in html
+    assert 'id="architecture-reader"' in html
+    assert 'aria-label="Readable narrative architecture overview"' in html
+    assert "AuteurStudioArchitectureReader.render(" in js
+    assert "AuteurStudioArchitectureReader.project(" in js
+    assert "review.requested_change" in js
+    assert "review.changed_components" in js
+    assert "review.proposed_rationale" in js
+    assert "review.preserved" in js
+    assert "not provided (none invented)" in js
+
+
+def test_server_serves_readable_reader_script(tmp_path):
+    from urllib.request import urlopen
+    from auteur.beginner.server import BeginnerWorkspaceServer
+
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    try:
+        with urlopen(
+            f"http://127.0.0.1:{server.port}/studio_architecture_reader.js",
+        ) as response:
+            assert response.status == 200
+            body = response.read().decode("utf-8")
+            assert "AuteurStudioArchitectureReader" in body
+            assert "No working architecture has been generated yet." in body
+    finally:
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
 
 
 def test_studio_script_parses_and_references_existing_elements():

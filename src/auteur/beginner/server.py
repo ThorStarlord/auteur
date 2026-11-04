@@ -417,6 +417,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_mentorship.js": "studio_mentorship.js",
         "/studio_full_architecture.js": "studio_full_architecture.js",
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
+        "/studio_architecture_reader.js": "studio_architecture_reader.js",
         "/studio.css": "studio.css",
     }
 

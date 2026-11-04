@@ -153,6 +153,17 @@ body.scene-docked #inspector { display:none; }
 .timeline-phase .parallel { color:#6c6377; font-style:italic; }
 #candidate-copy { margin-top:8px; }
 
+.architecture-reader { flex-basis:100%; background:#fff; border:1px solid #cdbbdc; border-radius:8px;
+ padding:14px 18px; font-size:.88rem; line-height:1.45; }
+.architecture-reader-title { margin:0 0 4px; font-size:1.05rem; }
+.architecture-reader-authority { margin:0 0 8px; color:#614a7c; font-size:.78rem;
+  font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+.architecture-reader-summary { margin:0 0 6px; }
+.architecture-reader-heading { margin:14px 0 4px; font-size:.9rem; color:#4d3a63; }
+.architecture-reader-list { margin:4px 0 0; padding-left:20px; }
+.architecture-reader-list li { margin:4px 0; overflow-wrap:anywhere; }
+@media (max-width:780px) { .architecture-reader { padding:12px; } }
+
 .architecture-review { flex-basis:100%; background:#fff; border:1px solid #cdbbdc; border-radius:8px;
  padding:13px; font-size:.85rem; }
 .architecture-review p { margin:7px 0; }
