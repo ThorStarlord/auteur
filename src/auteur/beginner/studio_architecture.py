@@ -30,6 +30,7 @@ from auteur.host_agent import (
     write_host_agent_response,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
+from .studio_ontology_context import build_relevant_ontology_context
 from .studio_store import CanvasStore
 
 
@@ -391,8 +392,8 @@ def _accepted_story_design_context(store: CanvasStore) -> dict | None:
     return context
 
 
-def _narrative_design_context(store: CanvasStore) -> dict:
-    """Compose the same small, auditable ontology guidance on develop and revise."""
+def _legacy_narrative_design_context(store: CanvasStore) -> dict:
+    """Exact pre-ontology-context shape, for historical request packets."""
     return {
         "kind": "source_referenced_narrative_design_guidance",
         "authority": "derived_guidance_not_author_intent",
@@ -415,6 +416,15 @@ def _narrative_design_context(store: CanvasStore) -> dict:
     }
 
 
+def _narrative_design_context(store: CanvasStore) -> dict:
+    """Compose the same small, auditable ontology guidance on develop and revise."""
+    context = _legacy_narrative_design_context(store)
+    context["ontology_context"] = build_relevant_ontology_context(
+        _source(store)["vision"], context["accepted_story_identity"],
+    )
+    return context
+
+
 def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
     """Preserve the original digest for pre-context request/artifact reopens."""
     user = json.loads(request_user)
@@ -423,16 +433,24 @@ def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
     working = _source(store, previous=previous, source_format=source_format)
     if "narrative_design_context" not in user:
         return _digest(working)
+    design_context = user["narrative_design_context"]
+    current_design = (
+        _narrative_design_context(store)
+        if "ontology_context" in design_context
+        else _legacy_narrative_design_context(store)
+    )
     return _digest({
         "working_context": working,
-        "narrative_design_context": _narrative_design_context(store),
+        "narrative_design_context": current_design,
     })
 
 
 _SYSTEM = """You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.
 Read narrative_design_context in the user request BEFORE composing an architecture.
-Its source-linked ontology principles are design guidance, not invented author
-commitments. The accepted_story_identity, when present, is authoritative;
+Its ontology_context contains the shared definitions and relationship directions
+you must use for narrative concepts; those meanings are not author commitments.
+Its source-linked design principles are guidance, not invented author choices.
+The accepted_story_identity, when present, is authoritative;
 the current Story Vision and previous candidate are working material.
 Working item content can be just the first 1,000 characters of a longer
 scene, and working items/connections can be omitted by context limits.
