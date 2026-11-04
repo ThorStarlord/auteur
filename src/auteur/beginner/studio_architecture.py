@@ -30,6 +30,9 @@ from auteur.host_agent import (
     write_host_agent_response,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
+from .studio_architecture_review import (
+    build_architecture_review, candidate_diff as _candidate_diff,
+)
 from .studio_ontology_context import build_relevant_ontology_context
 from .studio_store import CanvasStore
 
@@ -584,29 +587,6 @@ All material is a noncanonical proposal; never accept Identity, Structure or pro
 
 
 
-def _candidate_diff(previous: dict, proposed: dict) -> dict:
-    """Explain a revision without confusing proposal changes with accepted-story impact."""
-    categories: dict[str, dict] = {}
-    for field, key in (
-        ("nodes", "id"), ("links", "id"), ("phases", "id"),
-        ("emotion_targets", "id"), ("complex_emotions", "id"),
-        ("genre_contracts", "genre_node_id"), ("genre_interactions", "id"),
-    ):
-        old = {entry[key]: entry for entry in previous.get(field, [])}
-        new = {entry[key]: entry for entry in proposed.get(field, [])}
-        categories[field] = {
-            "added": sorted(new.keys() - old.keys()),
-            "removed": sorted(old.keys() - new.keys()),
-            "changed": sorted(k for k in new.keys() & old.keys() if new[k] != old[k]),
-        }
-    categories["summary_changed"] = previous.get("summary") != proposed.get("summary")
-    categories["note"] = (
-        "Working architecture proposal only. Accepted Identity, Structure, Book, "
-        "relations and prose remain unchanged. Any real downstream impact needs "
-        "the existing source-backed impact/revision workflows."
-    )
-    return categories
-
 def _current_candidate_freshness(store: CanvasStore, current: dict) -> str:
     """Distinguish author-source change from an interpretive-guidance change."""
     request = load_host_agent_request(
@@ -754,10 +734,14 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         if settings.get("freshness_format") == 2:
             record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
-            record.update({
-                "prior_request_sha256": current["request_sha256"],
-                "changes": _candidate_diff(current["candidate"], candidate),
-            })
+            accepted_identity = json.loads(request.user)[
+                "narrative_design_context"
+            ].get("accepted_story_identity")
+            record.update(build_architecture_review(
+                current["candidate"], candidate, instruction,
+                accepted_identity=accepted_identity,
+            ))
+            record["prior_request_sha256"] = current["request_sha256"]
             _atomic_json_write(base / "review.json", record)
         else:
             _atomic_json_write(_root(store) / "current.json", record)
