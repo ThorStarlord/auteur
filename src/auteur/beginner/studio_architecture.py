@@ -30,15 +30,15 @@ from auteur.host_agent import (
     write_host_agent_response,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
-from .studio_architecture_review import (
-    build_architecture_review, candidate_diff as _candidate_diff,
-)
+from .studio_architecture_review import build_architecture_review, candidate_diff
 from .studio_concepts import (
     ProvisionalNarrativeConcept, list_provisional_concepts,
     record_provisional_concept,
 )
 from .studio_ontology_context import build_relevant_ontology_context
 from .studio_store import CanvasStore
+
+_candidate_diff = candidate_diff
 
 
 def _digest(value: object) -> str:
@@ -239,6 +239,10 @@ def _candidate(store: CanvasStore) -> dict | None:
     return _read(_root(store) / "current.json")
 
 
+_PROVISIONAL_CONCEPT_GROUP = "provisional-concepts"
+_MAX_PROVISIONAL_CONCEPT_ITEMS = 16
+
+
 def _source(
     store: CanvasStore, *, previous: dict | None = None, source_format: int = 2,
 ) -> dict:
@@ -246,17 +250,26 @@ def _source(
 
     Format 1 reproduces the exact historical projection for in-flight requests.
     Format 2 adds provenance metadata and content fingerprints for freshness;
-    fingerprints never stand in for unavailable prose.
+    fingerprints never stand in for unavailable prose. Provisional concept notes
+    are agent proposals, so they do not displace author working material.
     """
     if source_format not in (1, 2):
         raise ValueError("unsupported Studio working-source format")
     canvas = store.load()
-    all_items = [item for item in canvas.items if item.id != "story-vision"]
+    all_items = [
+        item for item in canvas.items
+        if item.id != "story-vision" and item.group != _PROVISIONAL_CONCEPT_GROUP
+    ]
+    provisional_items = [
+        item for item in canvas.items if item.group == _PROVISIONAL_CONCEPT_GROUP
+    ]
     selected = all_items[:24]
+    visible_provisional = provisional_items[:_MAX_PROVISIONAL_CONCEPT_ITEMS]
     selected_ids = {item.id for item in selected}
+    visible_ids = selected_ids | {item.id for item in visible_provisional}
     vision = next((item.content for item in canvas.items if item.id == "story-vision"), "")
-    items = []
-    for item in selected:
+
+    def project_item(item) -> dict:
         entry = {"id": item.id, "kind": item.kind, "title": item.title,
                  "group": item.group, "content": item.content[:1000]}
         if source_format == 2:
@@ -266,10 +279,13 @@ def _source(
                 entry["full_content_sha256"] = hashlib.sha256(
                     item.content.encode("utf-8")
                 ).hexdigest()
-        items.append(entry)
+        return entry
+
+    items = [project_item(item) for item in selected]
+    items.extend(project_item(item) for item in visible_provisional)
     included = [
         edge for edge in canvas.connections
-        if edge.source in selected_ids and edge.target in selected_ids
+        if edge.source in visible_ids and edge.target in visible_ids
     ][:80]
     result = {
         "vision": vision,
@@ -288,6 +304,10 @@ def _source(
         ]
         result.update({
             "working_source_format": 2,
+            "provisional_concept_item_count": len(visible_provisional),
+            "omitted_provisional_concept_item_count": (
+                len(provisional_items) - len(visible_provisional)
+            ),
             "omitted_working_item_count": len(excluded_items),
             "omitted_working_connection_count": len(excluded_edges),
         })
@@ -300,6 +320,23 @@ def _source(
                 edge.model_dump(mode="json") for edge in excluded_edges
             ])
     return result
+
+
+def _author_working_context(working: dict) -> dict:
+    """Strip agent-proposed provisional notes from the author-source fingerprint."""
+    filtered = dict(working)
+    filtered["working_items"] = [
+        item for item in working.get("working_items", [])
+        if item.get("group") != _PROVISIONAL_CONCEPT_GROUP
+    ]
+    visible_ids = {item["id"] for item in filtered["working_items"]}
+    filtered["working_connections"] = [
+        edge for edge in working.get("working_connections", [])
+        if edge.get("source") in visible_ids and edge.get("target") in visible_ids
+    ]
+    filtered.pop("provisional_concept_item_count", None)
+    filtered.pop("omitted_provisional_concept_item_count", None)
+    return filtered
 
 
 # A bounded, source-referenced projection of established narrative design rules.
@@ -456,7 +493,7 @@ def _user_working_context(store: CanvasStore, user: dict) -> dict:
 def _author_source_fingerprint(store: CanvasStore, user: dict) -> str:
     """Fingerprint only author-governed source: working material and accepted Identity."""
     return _digest({
-        "working_context": _user_working_context(store, user),
+        "working_context": _author_working_context(_user_working_context(store, user)),
         "accepted_story_identity": _accepted_story_design_context(store),
     })
 
@@ -708,6 +745,12 @@ def project_architecture_resume(store: CanvasStore) -> dict:
             }
             for item in working["working_items"] if item.get("content_is_excerpt")
         ],
+        "provisional_concept_item_count": working.get(
+            "provisional_concept_item_count", 0,
+        ),
+        "omitted_provisional_concept_item_count": working.get(
+            "omitted_provisional_concept_item_count", 0,
+        ),
         "vision_characters": len(working["vision"]),
     }
     for key in ("omitted_working_items_sha256", "omitted_working_connections_sha256"):
@@ -759,7 +802,7 @@ def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
             raise ValueError("write a Story Vision or a working idea first")
         accepted, guidance, design_context = _design_context_parts(store, context)
         source_sha = _digest({
-            "working_context": context,
+            "working_context": _author_working_context(context),
             "accepted_story_identity": accepted,
         })
         guidance_sha = _digest(guidance)

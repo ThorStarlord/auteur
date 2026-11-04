@@ -166,6 +166,84 @@ def test_architecture_request_labels_provisional_concepts_as_noncanonical(tmp_pa
     assert "not author commitments" in system
 
 
+def architecture_candidate():
+    return {
+        "schema_version": 2,
+        "summary": "A mystery about maps that erase memory.",
+        "nodes": [
+            {"id": "engine", "title": "Memory economy", "category": "engine",
+             "summary": "Knowledge costs memory."},
+            {"id": "genre", "title": "Literary mystery", "category": "genre",
+             "summary": "The inquiry governs."},
+        ],
+        "links": [{"id": "engine-genre", "source": "engine", "target": "genre",
+                   "function": "drives the inquiry"}],
+        "phases": [{"id": "opening", "title": "Opening", "order": 0,
+                    "narrative_function": "Establish the cost."}],
+    }
+
+
+def complete_first_architecture(store):
+    from auteur.beginner.studio_architecture import (
+        complete_architecture, prepare_architecture,
+    )
+    from auteur.host_agent import HostAgentRequest, build_host_agent_response
+
+    waiting = prepare_architecture(store)
+    request = HostAgentRequest(**waiting["request"])
+    reply = build_host_agent_response(
+        request, json.dumps(architecture_candidate()),
+        runtime="integration-test", model="UNAVAILABLE",
+    ).model_dump()
+    return complete_architecture(store, reply)
+
+
+def test_recording_provisional_concept_does_not_stale_author_architecture(tmp_path):
+    from auteur.beginner.studio_architecture import project_architecture
+
+    store = working_store(tmp_path)
+    complete_first_architecture(store)
+    assert project_architecture(store)["status"] == "ready"
+    record_provisional_concept(
+        store, concept(), expected_revision=store.load().revision,
+        command_id="concept-1",
+    )
+    projection = project_architecture(store)
+    assert projection["status"] == "ready"
+    assert projection["candidate"]["summary"] == architecture_candidate()["summary"]
+    resume = project_architecture_resume(CanvasStore(tmp_path, "story-one"))
+    assert resume["architecture_status"] == "ready"
+    assert resume["provisional_concepts"][0]["name"] == "Memory Cartography"
+
+
+def test_provisional_concept_does_not_displace_author_working_source(tmp_path):
+    from auteur.beginner.studio_architecture import prepare_architecture
+
+    store = working_store(tmp_path)
+    for index in range(25):
+        store.apply(
+            "create-item", expected_revision=store.load().revision,
+            command_id=f"author-item-{index}",
+            payload={"item": {
+                "id": f"author-item-{index}", "kind": "note",
+                "title": f"Author note {index}", "content": f"Author note {index}.",
+            }, "position": {"x": 30 + index, "y": 70 + index}},
+        )
+    record_provisional_concept(
+        store, concept(), expected_revision=store.load().revision,
+        command_id="concept-1",
+    )
+    waiting = prepare_architecture(store)
+    working = json.loads(waiting["request"]["user"])["working_context"]
+    items = working["working_items"]
+    author_items = [item for item in items if item.get("group") != "provisional-concepts"]
+    concept_items = [item for item in items if item.get("group") == "provisional-concepts"]
+    assert len(author_items) == 24
+    assert len(concept_items) == 1
+    assert working["omitted_working_item_count"] == 1
+    assert working["provisional_concept_item_count"] == 1
+
+
 def test_record_concept_cli_writes_only_working_notes(tmp_path, capsys):
     store = working_store(tmp_path)
     source = tmp_path / "concept.json"
