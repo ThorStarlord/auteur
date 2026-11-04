@@ -33,6 +33,10 @@ from .persistence import BeginnerConcurrencyError, _FilesystemLock
 from .studio_architecture_review import (
     build_architecture_review, candidate_diff as _candidate_diff,
 )
+from .studio_concepts import (
+    ProvisionalNarrativeConcept, list_provisional_concepts,
+    record_provisional_concept,
+)
 from .studio_ontology_context import build_relevant_ontology_context
 from .studio_store import CanvasStore
 
@@ -495,6 +499,9 @@ Working item content can be just the first 1,000 characters of a longer
 scene, and working items/connections can be omitted by context limits.
 Use working_source_format, content_is_excerpt, content_characters and
 omitted_working_* counts to distinguish visible evidence from missing text.
+Working items in group "provisional-concepts" are project-scoped agent proposals,
+not shared ontology definitions and not author commitments. Reuse them for this
+story provisionally; never present them as accepted general vocabulary.
 A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
 For manuscript-first input, cite working item IDs in relevant summaries and
 open questions. Separate observed prose from alternative interpretations;
@@ -643,10 +650,6 @@ def project_architecture(store: CanvasStore) -> dict:
 
 
 def _provisional_concepts(store: CanvasStore) -> list[dict]:
-    try:
-        from .studio_concepts import list_provisional_concepts
-    except ImportError:
-        return []
     return [
         concept.model_dump(mode="json")
         for concept in list_provisional_concepts(store)
@@ -909,6 +912,13 @@ def main(argv: list[str] | None = None) -> int:
     prepare.add_argument("--instruction", default="", help="Optional revision request")
     submit = actions.add_parser("complete-file", help="Validate candidate JSON written by host agent")
     submit.add_argument("--candidate", required=True, help="Path to raw candidate JSON file")
+    record = actions.add_parser(
+        "record-concept", help="Record a provisional project-level narrative concept",
+    )
+    record.add_argument(
+        "--concept", required=True, help="Path to ProvisionalNarrativeConcept JSON",
+    )
+    record.add_argument("--command-id", default=None, help="Optional idempotency id")
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     if args.action == "prepare":
@@ -923,6 +933,22 @@ def main(argv: list[str] | None = None) -> int:
         candidate_text = Path(args.candidate).read_text(encoding="utf-8")
         response = build_host_agent_response(request, candidate_text)
         result = complete_architecture(store, response.model_dump())
+    elif args.action == "record-concept":
+        raw = json.loads(Path(args.concept).read_text(encoding="utf-8"))
+        concept = ProvisionalNarrativeConcept.model_validate(raw)
+        command_id = args.command_id or "concept-" + _digest(raw)[:16]
+        canvas = store.load()
+        updated = record_provisional_concept(
+            store, concept, expected_revision=canvas.revision,
+            command_id=command_id,
+        )
+        result = {
+            "status": "provisional",
+            "authority": "working_noncanonical",
+            "canvas_id": store.canvas_id,
+            "canvas_revision": updated.revision,
+            "concept": concept.model_dump(mode="json"),
+        }
     else:
         result = project_architecture(store)
     print(json.dumps(result, indent=2, ensure_ascii=False))
