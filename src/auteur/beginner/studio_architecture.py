@@ -30,7 +30,15 @@ from auteur.host_agent import (
     write_host_agent_response,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
+from .studio_architecture_review import build_architecture_review, candidate_diff
+from .studio_concepts import (
+    ProvisionalNarrativeConcept, list_provisional_concepts,
+    record_provisional_concept,
+)
+from .studio_ontology_context import build_relevant_ontology_context
 from .studio_store import CanvasStore
+
+_candidate_diff = candidate_diff
 
 
 def _digest(value: object) -> str:
@@ -231,6 +239,10 @@ def _candidate(store: CanvasStore) -> dict | None:
     return _read(_root(store) / "current.json")
 
 
+_PROVISIONAL_CONCEPT_GROUP = "provisional-concepts"
+_MAX_PROVISIONAL_CONCEPT_ITEMS = 16
+
+
 def _source(
     store: CanvasStore, *, previous: dict | None = None, source_format: int = 2,
 ) -> dict:
@@ -238,17 +250,26 @@ def _source(
 
     Format 1 reproduces the exact historical projection for in-flight requests.
     Format 2 adds provenance metadata and content fingerprints for freshness;
-    fingerprints never stand in for unavailable prose.
+    fingerprints never stand in for unavailable prose. Provisional concept notes
+    are agent proposals, so they do not displace author working material.
     """
     if source_format not in (1, 2):
         raise ValueError("unsupported Studio working-source format")
     canvas = store.load()
-    all_items = [item for item in canvas.items if item.id != "story-vision"]
+    all_items = [
+        item for item in canvas.items
+        if item.id != "story-vision" and item.group != _PROVISIONAL_CONCEPT_GROUP
+    ]
+    provisional_items = [
+        item for item in canvas.items if item.group == _PROVISIONAL_CONCEPT_GROUP
+    ]
     selected = all_items[:24]
+    visible_provisional = provisional_items[:_MAX_PROVISIONAL_CONCEPT_ITEMS]
     selected_ids = {item.id for item in selected}
+    visible_ids = selected_ids | {item.id for item in visible_provisional}
     vision = next((item.content for item in canvas.items if item.id == "story-vision"), "")
-    items = []
-    for item in selected:
+
+    def project_item(item) -> dict:
         entry = {"id": item.id, "kind": item.kind, "title": item.title,
                  "group": item.group, "content": item.content[:1000]}
         if source_format == 2:
@@ -258,10 +279,13 @@ def _source(
                 entry["full_content_sha256"] = hashlib.sha256(
                     item.content.encode("utf-8")
                 ).hexdigest()
-        items.append(entry)
+        return entry
+
+    items = [project_item(item) for item in selected]
+    items.extend(project_item(item) for item in visible_provisional)
     included = [
         edge for edge in canvas.connections
-        if edge.source in selected_ids and edge.target in selected_ids
+        if edge.source in visible_ids and edge.target in visible_ids
     ][:80]
     result = {
         "vision": vision,
@@ -280,6 +304,10 @@ def _source(
         ]
         result.update({
             "working_source_format": 2,
+            "provisional_concept_item_count": len(visible_provisional),
+            "omitted_provisional_concept_item_count": (
+                len(provisional_items) - len(visible_provisional)
+            ),
             "omitted_working_item_count": len(excluded_items),
             "omitted_working_connection_count": len(excluded_edges),
         })
@@ -292,6 +320,23 @@ def _source(
                 edge.model_dump(mode="json") for edge in excluded_edges
             ])
     return result
+
+
+def _author_working_context(working: dict) -> dict:
+    """Strip agent-proposed provisional notes from the author-source fingerprint."""
+    filtered = dict(working)
+    filtered["working_items"] = [
+        item for item in working.get("working_items", [])
+        if item.get("group") != _PROVISIONAL_CONCEPT_GROUP
+    ]
+    visible_ids = {item["id"] for item in filtered["working_items"]}
+    filtered["working_connections"] = [
+        edge for edge in working.get("working_connections", [])
+        if edge.get("source") in visible_ids and edge.get("target") in visible_ids
+    ]
+    filtered.pop("provisional_concept_item_count", None)
+    filtered.pop("omitted_provisional_concept_item_count", None)
+    return filtered
 
 
 # A bounded, source-referenced projection of established narrative design rules.
@@ -391,8 +436,8 @@ def _accepted_story_design_context(store: CanvasStore) -> dict | None:
     return context
 
 
-def _narrative_design_context(store: CanvasStore) -> dict:
-    """Compose the same small, auditable ontology guidance on develop and revise."""
+def _guidance_fields() -> dict:
+    """Derived interpretive guidance; never author intent or accepted canon."""
     return {
         "kind": "source_referenced_narrative_design_guidance",
         "authority": "derived_guidance_not_author_intent",
@@ -405,7 +450,6 @@ def _narrative_design_context(store: CanvasStore) -> dict:
             "causal_distribution": [value.value for value in CausalDistributionPreference],
             "engine_hierarchy": [value.value for value in EngineHierarchyPreference],
         },
-        "accepted_story_identity": _accepted_story_design_context(store),
         "unknown_policy": (
             "No accepted Identity or omitted preference means UNKNOWN, not an "
             "implicit focused/maximalist/causal default. The agent may propose "
@@ -415,35 +459,105 @@ def _narrative_design_context(store: CanvasStore) -> dict:
     }
 
 
-def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
-    """Preserve the original digest for pre-context request/artifact reopens."""
-    user = json.loads(request_user)
+def _legacy_narrative_design_context(store: CanvasStore) -> dict:
+    """Exact pre-ontology-context shape, for historical request packets."""
+    context = _guidance_fields()
+    context["accepted_story_identity"] = _accepted_story_design_context(store)
+    return context
+
+
+def _design_context_parts(
+    store: CanvasStore, working: dict | None = None,
+) -> tuple[dict | None, dict, dict]:
+    """Return accepted Identity, derived guidance, and the packet projection."""
+    accepted = _accepted_story_design_context(store)
+    working = working if working is not None else _source(store)
+    guidance = _guidance_fields()
+    guidance["ontology_context"] = build_relevant_ontology_context(
+        working.get("vision", ""), accepted,
+    )
+    return accepted, guidance, {**guidance, "accepted_story_identity": accepted}
+
+
+def _narrative_design_context(store: CanvasStore) -> dict:
+    """Compose the same small, auditable ontology guidance on develop and revise."""
+    return _design_context_parts(store)[2]
+
+
+def _user_working_context(store: CanvasStore, user: dict) -> dict:
     previous = user["working_context"]["previous_candidate"]
     source_format = 2 if user["working_context"].get("working_source_format") == 2 else 1
-    working = _source(store, previous=previous, source_format=source_format)
+    return _source(store, previous=previous, source_format=source_format)
+
+
+def _author_source_fingerprint(store: CanvasStore, user: dict) -> str:
+    """Fingerprint only author-governed source: working material and accepted Identity."""
+    return _digest({
+        "working_context": _author_working_context(_user_working_context(store, user)),
+        "accepted_story_identity": _accepted_story_design_context(store),
+    })
+
+
+def _design_guidance_fingerprint(store: CanvasStore, request_user: str) -> str:
+    """Fingerprint only derived interpretive guidance, excluding accepted Identity."""
+    user = json.loads(request_user)
+    _, guidance, _ = _design_context_parts(store, _user_working_context(store, user))
+    return _digest(guidance)
+
+
+def _source_fingerprint(store: CanvasStore, request_user: str) -> str:
+    """Preserve historical digests while exposing the new author-source fingerprint."""
+    user = json.loads(request_user)
+    working = _user_working_context(store, user)
+    if user.get("freshness_format") == 2:
+        return _author_source_fingerprint(store, user)
     if "narrative_design_context" not in user:
         return _digest(working)
+    design_context = user["narrative_design_context"]
+    current_design = (
+        _narrative_design_context(store)
+        if "ontology_context" in design_context
+        else _legacy_narrative_design_context(store)
+    )
     return _digest({
         "working_context": working,
-        "narrative_design_context": _narrative_design_context(store),
+        "narrative_design_context": current_design,
     })
 
 
 _SYSTEM = """You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.
 Read narrative_design_context in the user request BEFORE composing an architecture.
-Its source-linked ontology principles are design guidance, not invented author
-commitments. The accepted_story_identity, when present, is authoritative;
+Its ontology_context contains the shared definitions and relationship directions
+you must use for narrative concepts; those meanings are not author commitments.
+Its source-linked design principles are guidance, not invented author choices.
+The accepted_story_identity, when present, is authoritative;
 the current Story Vision and previous candidate are working material.
 Working item content can be just the first 1,000 characters of a longer
 scene, and working items/connections can be omitted by context limits.
 Use working_source_format, content_is_excerpt, content_characters and
 omitted_working_* counts to distinguish visible evidence from missing text.
+Working items in group "provisional-concepts" are project-scoped agent proposals,
+not shared ontology definitions and not author commitments. Reuse them for this
+story provisionally; never present them as accepted general vocabulary.
 A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
 For manuscript-first input, cite working item IDs in relevant summaries and
 open questions. Separate observed prose from alternative interpretations;
 never assert missing passages, motives or outcomes from a truncated excerpt.
 If working intent conflicts with accepted Identity, surface the tension as
 an unresolved proposal; never silently change the accepted story.
+
+A first architecture must be a COMPLETE abstract proposal built directly from
+the Story Vision. Create it without an interview, questionnaire or blocking
+author answers. Cover the governing audience emotional
+experience and its progression, genre roles and interactions, functional trope
+choices, renewable narrative mechanisms and causal organization, abstract
+structural progression, and the meaningful relationships among those systems.
+Name consequential provisional choices instead of hiding them as certainty.
+A revision must reconsider every materially affected emotion, genre, trope
+function, engine and structural phase and preserve unrelated author
+decisions and accepted constraints. Explain coordinated consequences, not
+isolated label changes, and distinguish necessary changes from optional ideas.
+Do not invent concrete scenes, chapter numbers or plot events to fill gaps.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -517,37 +631,30 @@ All material is a noncanonical proposal; never accept Identity, Structure or pro
 
 
 
-def _candidate_diff(previous: dict, proposed: dict) -> dict:
-    """Explain a revision without confusing proposal changes with accepted-story impact."""
-    categories: dict[str, dict] = {}
-    for field, key in (
-        ("nodes", "id"), ("links", "id"), ("phases", "id"),
-        ("emotion_targets", "id"), ("complex_emotions", "id"),
-        ("genre_contracts", "genre_node_id"), ("genre_interactions", "id"),
-    ):
-        old = {entry[key]: entry for entry in previous.get(field, [])}
-        new = {entry[key]: entry for entry in proposed.get(field, [])}
-        categories[field] = {
-            "added": sorted(new.keys() - old.keys()),
-            "removed": sorted(old.keys() - new.keys()),
-            "changed": sorted(k for k in new.keys() & old.keys() if new[k] != old[k]),
-        }
-    categories["summary_changed"] = previous.get("summary") != proposed.get("summary")
-    categories["note"] = (
-        "Working architecture proposal only. Accepted Identity, Structure, Book, "
-        "relations and prose remain unchanged. Any real downstream impact needs "
-        "the existing source-backed impact/revision workflows."
-    )
-    return categories
-
-def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
-    """A saved working architecture stays readable after its input intent changes."""
-    if not current:
-        return False
+def _current_candidate_freshness(store: CanvasStore, current: dict) -> str:
+    """Distinguish author-source change from an interpretive-guidance change."""
     request = load_host_agent_request(
         _root(store) / "requests" / current["request_sha256"] / "request.json"
     )
-    return _source_fingerprint(store, request.user) != current["source_sha256"]
+    settings = request.settings
+    if settings.get("freshness_format") == 2:
+        user = json.loads(request.user)
+        if _author_source_fingerprint(store, user) != current["source_sha256"]:
+            return "stale"
+        expected_guidance = current.get(
+            "design_guidance_sha256", settings.get("design_guidance_sha256"),
+        )
+        if expected_guidance and _digest(_design_context_parts(
+            store, _user_working_context(store, user),
+        )[1]) != expected_guidance:
+            return "guidance_changed"
+        return "ready"
+    return "stale" if _source_fingerprint(store, request.user) != current["source_sha256"] else "ready"
+
+
+def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
+    """Only author-source drift blocks downstream realization; guidance drift does not."""
+    return bool(current) and _current_candidate_freshness(store, current) == "stale"
 
 
 def project_architecture(store: CanvasStore) -> dict:
@@ -562,14 +669,123 @@ def project_architecture(store: CanvasStore) -> dict:
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
     review = _read(_root(store) / "requests" / req.request_sha256 / "review.json") if pending else None
-    stale = _current_candidate_is_stale(store, current) if current and not pending else False
+    if review:
+        status = "review_ready"
+    elif pending:
+        status = "awaiting_host_agent"
+    elif current:
+        status = _current_candidate_freshness(store, current)
+    else:
+        status = "not_started"
     return {
-        "status": "review_ready" if review else "awaiting_host_agent" if pending
-                  else "stale" if stale else "ready" if current else "not_started",
+        "status": status,
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
         "review": review,
+    }
+
+
+def _provisional_concepts(store: CanvasStore) -> list[dict]:
+    return [
+        concept.model_dump(mode="json")
+        for concept in list_provisional_concepts(store)
+    ]
+
+
+def _resume_ontology_guidance(
+    store: CanvasStore, request_sha256: str | None, vision: str,
+    accepted_identity: dict | None,
+) -> dict:
+    if request_sha256:
+        request = load_host_agent_request(
+            _root(store) / "requests" / request_sha256 / "request.json"
+        )
+        captured = json.loads(request.user).get(
+            "narrative_design_context", {},
+        ).get("ontology_context")
+        if captured:
+            return {**captured, "origin": "request", "request_sha256": request_sha256}
+        current = build_relevant_ontology_context(vision, accepted_identity)
+        return {
+            **current,
+            "origin": "current_derived_not_original_request",
+            "request_sha256": request_sha256,
+        }
+    current = build_relevant_ontology_context(vision, accepted_identity)
+    return {**current, "origin": "current_derived", "request_sha256": None}
+
+
+def project_architecture_resume(store: CanvasStore) -> dict:
+    """Read-only packet a fresh coding agent can use without chat history."""
+    canvas = store.load()
+    projection = project_architecture(store)
+    current = _candidate(store)
+    vision = next(
+        (item.content for item in canvas.items if item.id == "story-vision"), "",
+    )
+    working = _source(
+        store,
+        previous=current["candidate"] if current else None,
+        source_format=2,
+    )
+    accepted = _accepted_story_design_context(store)
+    source_visibility = {
+        "working_item_count": len(working["working_items"]),
+        "omitted_working_item_count": working.get("omitted_working_item_count", 0),
+        "omitted_working_connection_count": working.get(
+            "omitted_working_connection_count", 0,
+        ),
+        "truncated_items": [
+            {
+                "id": item["id"],
+                "content_characters": item.get("content_characters"),
+                "content_is_excerpt": item.get("content_is_excerpt", False),
+                "full_content_sha256": item.get("full_content_sha256"),
+            }
+            for item in working["working_items"] if item.get("content_is_excerpt")
+        ],
+        "provisional_concept_item_count": working.get(
+            "provisional_concept_item_count", 0,
+        ),
+        "omitted_provisional_concept_item_count": working.get(
+            "omitted_provisional_concept_item_count", 0,
+        ),
+        "vision_characters": len(working["vision"]),
+    }
+    for key in ("omitted_working_items_sha256", "omitted_working_connections_sha256"):
+        if key in working:
+            source_visibility[key] = working[key]
+    guidance_sha = (
+        current["request_sha256"] if current
+        else projection["review"]["request_sha256"] if projection["review"]
+        else projection["request"]["request_sha256"] if projection["request"]
+        else None
+    )
+    pending_sha = (
+        projection["review"]["request_sha256"] if projection["review"]
+        else projection["request"]["request_sha256"] if projection["request"]
+        else None
+    )
+    candidate = projection["candidate"]
+    return {
+        "kind": "studio_architecture_resume",
+        "authority": "working_noncanonical",
+        "canvas_id": store.canvas_id,
+        "canvas_revision": canvas.revision,
+        "story_vision": vision,
+        "architecture": candidate,
+        "architecture_status": projection["status"],
+        "candidate_request_sha256": projection["candidate_request_sha256"],
+        "pending_request_sha256": pending_sha,
+        "pending_review": projection["review"],
+        "open_questions": candidate.get("open_questions", []) if candidate else [],
+        "ontology_guidance": _resume_ontology_guidance(
+            store, guidance_sha, vision, accepted,
+        ),
+        "accepted_story_identity": accepted,
+        "source_visibility": source_visibility,
+        "provisional_concepts": _provisional_concepts(store),
     }
 
 
@@ -584,14 +800,21 @@ def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
         context = _source(store, previous=previous)
         if not context["vision"].strip() and not context["working_items"]:
             raise ValueError("write a Story Vision or a working idea first")
-        design_context = _narrative_design_context(store)
+        accepted, guidance, design_context = _design_context_parts(store, context)
         source_sha = _digest({
-            "working_context": context,
-            "narrative_design_context": design_context,
+            "working_context": _author_working_context(context),
+            "accepted_story_identity": accepted,
         })
-        settings = {"canvas_id": store.canvas_id, "source_sha256": source_sha,
-                    "operation": "revise" if instruction.strip() else "develop"}
+        guidance_sha = _digest(guidance)
+        settings = {
+            "canvas_id": store.canvas_id,
+            "source_sha256": source_sha,
+            "design_guidance_sha256": guidance_sha,
+            "freshness_format": 2,
+            "operation": "revise" if instruction.strip() else "develop",
+        }
         user = json.dumps({
+            "freshness_format": 2,
             "working_context": context,
             "narrative_design_context": design_context,
             "revision_instruction": instruction,
@@ -626,24 +849,49 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             response.text, context={"new_host_agent_response": True}
         )
         instruction = json.loads(request.user)["revision_instruction"]
-        if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
+        settings = request.settings
+        if settings.get("freshness_format") == 2:
+            user = json.loads(request.user)
+            author_changed = _author_source_fingerprint(store, user) != settings["source_sha256"]
+            guidance_changed = (
+                _digest(_design_context_parts(
+                    store, _user_working_context(store, user),
+                )[1]) != settings["design_guidance_sha256"]
+            )
+        else:
+            author_changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
+            guidance_changed = False
+        if author_changed:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
                 "the author's source vision or working story changed; response retained as stale evidence"
             )
+        if guidance_changed:
+            write_host_agent_response(base / "stale_response.json", response)
+            raise BeginnerConcurrencyError(
+                "the narrative design guidance changed; response retained as stale evidence"
+            )
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
+        record = {
+            "request_sha256": sha,
+            "source_sha256": settings["source_sha256"],
+            "candidate": candidate,
+        }
+        if settings.get("freshness_format") == 2:
+            record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
-            _atomic_json_write(base / "review.json", {
-                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
-                "prior_request_sha256": current["request_sha256"],
-                "candidate": candidate, "changes": _candidate_diff(current["candidate"], candidate),
-            })
+            accepted_identity = json.loads(request.user)[
+                "narrative_design_context"
+            ].get("accepted_story_identity")
+            record.update(build_architecture_review(
+                current["candidate"], candidate, instruction,
+                accepted_identity=accepted_identity,
+            ))
+            record["prior_request_sha256"] = current["request_sha256"]
+            _atomic_json_write(base / "review.json", record)
         else:
-            _atomic_json_write(_root(store) / "current.json", {
-                "request_sha256": sha, "source_sha256": request.settings["source_sha256"],
-                "candidate": candidate,
-            })
+            _atomic_json_write(_root(store) / "current.json", record)
     return project_architecture(store)
 
 
@@ -665,14 +913,29 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
             request = load_host_agent_request(
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
-            if _source_fingerprint(store, request.user) != request.settings["source_sha256"]:
+            settings = request.settings
+            if settings.get("freshness_format") == 2:
+                user = json.loads(request.user)
+                changed = (
+                    _author_source_fingerprint(store, user) != settings["source_sha256"]
+                    or _digest(_design_context_parts(
+                        store, _user_working_context(store, user),
+                    )[1]) != settings["design_guidance_sha256"]
+                )
+            else:
+                changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
+            if changed:
                 raise BeginnerConcurrencyError(
                     "working context changed: story vision or design context changed; review again"
                 )
-            _atomic_json_write(_root(store) / "current.json", {
-                "request_sha256": request_sha256, "source_sha256": review["source_sha256"],
+            record = {
+                "request_sha256": request_sha256,
+                "source_sha256": review["source_sha256"],
                 "candidate": review["candidate"],
-            })
+            }
+            if "design_guidance_sha256" in review:
+                record["design_guidance_sha256"] = review["design_guidance_sha256"]
+            _atomic_json_write(_root(store) / "current.json", record)
         elif not current:
             raise ValueError("there is no current working architecture to revise")
     return project_architecture(store)
@@ -685,14 +948,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--canvas", required=True, help="Canvas id from Studio URL")
     actions = parser.add_subparsers(dest="action", required=True)
     actions.add_parser("show", help="Show current proposal or exact host-agent request")
+    actions.add_parser(
+        "resume", help="Emit a read-only working re-entry packet for a new coding agent",
+    )
     prepare = actions.add_parser("prepare", help="Prepare a new architecture request")
     prepare.add_argument("--instruction", default="", help="Optional revision request")
     submit = actions.add_parser("complete-file", help="Validate candidate JSON written by host agent")
     submit.add_argument("--candidate", required=True, help="Path to raw candidate JSON file")
+    record = actions.add_parser(
+        "record-concept", help="Record a provisional project-level narrative concept",
+    )
+    record.add_argument(
+        "--concept", required=True, help="Path to ProvisionalNarrativeConcept JSON",
+    )
+    record.add_argument("--command-id", default=None, help="Optional idempotency id")
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     if args.action == "prepare":
         result = prepare_architecture(store, args.instruction)
+    elif args.action == "resume":
+        result = project_architecture_resume(store)
     elif args.action == "complete-file":
         pending = project_architecture(store)
         if pending["status"] != "awaiting_host_agent" or not pending["request"]:
@@ -701,6 +976,22 @@ def main(argv: list[str] | None = None) -> int:
         candidate_text = Path(args.candidate).read_text(encoding="utf-8")
         response = build_host_agent_response(request, candidate_text)
         result = complete_architecture(store, response.model_dump())
+    elif args.action == "record-concept":
+        raw = json.loads(Path(args.concept).read_text(encoding="utf-8"))
+        concept = ProvisionalNarrativeConcept.model_validate(raw)
+        command_id = args.command_id or "concept-" + _digest(raw)[:16]
+        canvas = store.load()
+        updated = record_provisional_concept(
+            store, concept, expected_revision=canvas.revision,
+            command_id=command_id,
+        )
+        result = {
+            "status": "provisional",
+            "authority": "working_noncanonical",
+            "canvas_id": store.canvas_id,
+            "canvas_revision": updated.revision,
+            "concept": concept.model_dump(mode="json"),
+        }
     else:
         result = project_architecture(store)
     print(json.dumps(result, indent=2, ensure_ascii=False))

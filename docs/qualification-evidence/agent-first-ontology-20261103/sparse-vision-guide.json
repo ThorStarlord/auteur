@@ -1,0 +1,43 @@
+{
+  "request_sha256": "38360e093b3722405bba70eed257d14d7ef64d031a834076704ba8d13a687c82",
+  "settings": {
+    "canvas_id": "sparse-story",
+    "source_sha256": "e52a0151029749b8ad7a1cb49acbe76c547560b1df6af18bcf93a10913c7a44f",
+    "design_guidance_sha256": "bd5bf1c7e075936ed39818a9fc9fc196380ea9ecbd5aae479b5fd3ba9967f71c",
+    "freshness_format": 2,
+    "operation": "develop"
+  },
+  "status": "awaiting_host_agent",
+  "vision": "A quiet story about two sisters learning to trust each other again after a fire destroyed their family home. Intimate, reflective, not grimdark; no explicit violence on the page.",
+  "selection": {
+    "foundational_concepts": [
+      "Theme",
+      "Conflict",
+      "Arc",
+      "Setup",
+      "Payoff",
+      "Revelation",
+      "Reversal",
+      "Goal",
+      "Beat",
+      "Symbol",
+      "Relationship",
+      "Character"
+    ],
+    "genre_extensions": [],
+    "not_story_intent": "These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.",
+    "rationale": "Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown."
+  },
+  "working_item_count": 24,
+  "omitted_working_item_count": 1,
+  "truncated_item": {
+    "content": "After the fire, the sisters met in the ruined kitchen and argued about a kettle. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "content_characters": 1181,
+    "content_is_excerpt": true,
+    "full_content_sha256": "1ee546ebc8f4f1a64927756239768a1fc5f12054261212393c236b08ba5da112",
+    "group": "",
+    "id": "working-scene-0",
+    "kind": "scene",
+    "title": "Manuscript source 0"
+  }
+}

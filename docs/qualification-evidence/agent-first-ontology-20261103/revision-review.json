@@ -1,0 +1,394 @@
+{
+  "authority": "working_architecture_comparison_not_story_impact",
+  "requested_change": "Make wonder dominate fear while preserving mystery, the founding crime, and the partial-record ending. Keep the intimate cost but let it sharpen wonder rather than replace it.",
+  "changes": {
+    "nodes": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "dread_progression",
+        "intimate_horror",
+        "wonder_promise"
+      ]
+    },
+    "links": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "phases": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "archive_revelation",
+        "choice_of_maps",
+        "first_erasure",
+        "strange_coast"
+      ]
+    },
+    "emotion_targets": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "dread",
+        "revelation_surprise",
+        "wonder"
+      ]
+    },
+    "complex_emotions": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "moral_dread",
+        "uneasy_wonder"
+      ]
+    },
+    "genre_contracts": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "fantasy",
+        "horror",
+        "literary_mystery"
+      ]
+    },
+    "genre_interactions": {
+      "added": [
+        "fantasy_amplifies_mystery"
+      ],
+      "removed": [],
+      "changed": [
+        "horror_pressures_mystery",
+        "mystery_horror_converge"
+      ]
+    },
+    "summary_changed": true,
+    "note": "Working architecture proposal only. Accepted Identity, Structure, Book, relations and prose remain unchanged. Any real downstream impact needs the existing source-backed impact/revision workflows."
+  },
+  "changed_components": [
+    {
+      "kind": "summary",
+      "id": "summary",
+      "title": "Governing summary",
+      "change": "changed",
+      "before": "A literary mystery in which every accurate map purchases knowledge with an intimate memory, forcing a surveyor to decide whether her city should remember a massacre or keep the lie that holds it together. Wonder at the coast's strangeness becomes dread as the cost turns personal, then an earned, conditional hope about chosen remembrance.",
+      "after": "A literary mystery in which every accurate map purchases knowledge with an intimate memory, but wonder at the coast and at the act of discovery remains the governing experience. The surveyor must choose what her city remembers; fear and grief shadow wonder without displacing it, and the ending offers a partial, chosen hope rather than a clean restoration.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "dread_progression",
+      "title": "Dread progression",
+      "change": "changed",
+      "before": "As the cost becomes personal, the reader's desire for the truth becomes entangled with fear of what it will erase.",
+      "after": "Fear shadows wonder, sharpening attention without taking over the experience.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "intimate_horror",
+      "title": "Intimate horror",
+      "change": "changed",
+      "before": "The horror is the quiet loss of a shared reference, a name, or a face rather than visible violence.",
+      "after": "Loss appears as a shadow on wonder rather than as a spectacular threat.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "wonder_promise",
+      "title": "Wonder promise",
+      "change": "changed",
+      "before": "The coast and the maps are presented as strange and beautiful, inviting the reader to want the survey to succeed.",
+      "after": "Wonder governs the story promise and survives every discovered cost.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "archive_revelation",
+      "title": "Archive revelation",
+      "change": "changed",
+      "before": "Reveal the founding crime and the Guild's complicity. | Reader experience: Moral dread and anger; the truth is larger than the surveyor. | Transition: A perfect map becomes possible, and with it a city-wide erasure.",
+      "after": "Expand wonder into historical awe while revealing complicity. | Reader experience: Wonder at the archive scale, crossed by moral anger. | Transition: A perfect map becomes possible, and with it a city-wide erasure.",
+      "changed_fields": [
+        "narrative_function",
+        "reader_experience"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "choice_of_maps",
+      "title": "Choice of maps",
+      "change": "changed",
+      "before": "Resolve the choice through a partial, chosen remembrance. | Reader experience: Earned, conditional hope through grief. | Transition: The city keeps a record that is honest about what it cannot restore.",
+      "after": "Resolve through a wonder that accepts loss. | Reader experience: Wonder survives grief; hope is chosen and partial. | Transition: The city keeps a record that is honest about what it cannot restore.",
+      "changed_fields": [
+        "narrative_function",
+        "reader_experience"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "first_erasure",
+      "title": "First erasure",
+      "change": "changed",
+      "before": "Turn wonder into dread by making the cost personal. | Reader experience: Dread becomes personal. | Transition: The missing memory points to the founding archive.",
+      "after": "Deepen wonder by showing that knowledge has a price. | Reader experience: Wonder persists through the first cost; fear is a shadow, not the center. | Transition: The missing memory points to the founding archive.",
+      "changed_fields": [
+        "aesthetic",
+        "narrative_function",
+        "reader_experience"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "strange_coast",
+      "title": "Strange coast",
+      "change": "changed",
+      "before": "Establish wonder and the map's promise. | Reader experience: Wonder and curiosity; the reader wants the survey to succeed. | Transition: A first memory is found missing.",
+      "after": "Establish wonder as the story governing promise. | Reader experience: Wonder dominates; curiosity is the governing pleasure. | Transition: A first memory is found missing.",
+      "changed_fields": [
+        "narrative_function",
+        "reader_experience"
+      ]
+    },
+    {
+      "kind": "emotion_target",
+      "id": "dread",
+      "title": "fear · contrasting",
+      "change": "changed",
+      "before": "Mounting dread as each accurate map costs an intimate memory. | Elicited by: A familiar person or place becomes slightly less remembered.",
+      "after": "Fear as a pressure that sharpens wonder rather than a force that replaces it. | Elicited by: A familiar person or place becomes slightly less remembered.",
+      "changed_fields": [
+        "intended_effect",
+        "role"
+      ]
+    },
+    {
+      "kind": "emotion_target",
+      "id": "revelation_surprise",
+      "title": "surprise · supporting",
+      "change": "changed",
+      "before": "Surprise when a familiar record turns out to be a chosen omission. | Elicited by: An archive fragment contradicts the official history.",
+      "after": "Surprise when a familiar record turns out to be a chosen omission. | Elicited by: An archive fragment contradicts the official history.",
+      "changed_fields": [
+        "role"
+      ]
+    },
+    {
+      "kind": "emotion_target",
+      "id": "wonder",
+      "title": "joy · primary",
+      "change": "changed",
+      "before": "Wonder at the coast's strange maps and the beauty of accurate knowledge. | Elicited by: A survey reveals a coastline more intricate than the city believed.",
+      "after": "Dominant wonder at the coast, at accurate knowledge, and at the strangeness of what a map can hold. | Elicited by: A survey reveals a coastline more intricate than the city believed, even as the cost becomes visible.",
+      "changed_fields": [
+        "eliciting_condition",
+        "intended_effect"
+      ]
+    },
+    {
+      "kind": "complex_emotion",
+      "id": "moral_dread",
+      "title": "Moral dread",
+      "change": "changed",
+      "before": "The reader recognizes that good intentions are doing harm. (fear, anger)",
+      "after": "Moral anger and fear cross the wonder of uncovering the archive. (fear, anger)",
+      "changed_fields": [
+        "context"
+      ]
+    },
+    {
+      "kind": "complex_emotion",
+      "id": "uneasy_wonder",
+      "title": "Uneasy wonder",
+      "change": "changed",
+      "before": "The coast is beautiful and the beauty is purchased with loss. (joy, fear)",
+      "after": "Wonder remains dominant while fear reveals what the wonder costs. (joy, fear)",
+      "changed_fields": [
+        "context"
+      ]
+    },
+    {
+      "kind": "genre_contract",
+      "id": "fantasy",
+      "title": "fantasy",
+      "change": "changed",
+      "before": "Role: supporting; engine: The map's rules generate new uses, limits, and costs for every act of knowledge.; structure: Rule discovery, application, unintended cost, revised rule.",
+      "after": "Role: supporting; engine: The map rules make every act of knowledge an occasion for wonder, even when it costs a memory.; structure: Rule discovery, wondrous application, unintended cost, revised rule.",
+      "changed_fields": [
+        "narrative_engine",
+        "structural_pattern"
+      ]
+    },
+    {
+      "kind": "genre_contract",
+      "id": "horror",
+      "title": "horror",
+      "change": "changed",
+      "before": "Role: tertiary; engine: Every act of knowledge produces an intimate loss that the story refuses to make spectacular.; structure: Ordinary moment, small absence, dawning recognition, restrained consequence.",
+      "after": "Role: local; engine: Loss shadows wonder without displacing it; the story refuses to make the erasure spectacular.; structure: Wondrous moment, small absence, dawning recognition, restrained consequence.",
+      "changed_fields": [
+        "narrative_engine",
+        "role",
+        "structural_pattern",
+        "trope_functions"
+      ]
+    },
+    {
+      "kind": "genre_contract",
+      "id": "literary_mystery",
+      "title": "literary_mystery",
+      "change": "changed",
+      "before": "Role: governing; engine: Each answer changes what the surveyor must conceal or reveal, and the archive answers only through records that were themselves made by erasure.; structure: Question, partial answer, intimate cost, deeper question, final choice.",
+      "after": "Role: governing; engine: Each answer changes what the surveyor must conceal or reveal, and every archive record is also an occasion for wonder at how the city was made.; structure: Wonder, question, partial answer, intimate cost, deeper wonder, final choice.",
+      "changed_fields": [
+        "narrative_engine",
+        "payoff_expectations",
+        "structural_pattern",
+        "trope_functions"
+      ]
+    },
+    {
+      "kind": "genre_interaction",
+      "id": "fantasy_amplifies_mystery",
+      "title": "fantasy reinforces literary_mystery",
+      "change": "added",
+      "before": "(not present)",
+      "after": "The map rules turn discovery into a wondrous craft, so mystery feels expansive rather than merely procedural.",
+      "changed_fields": []
+    },
+    {
+      "kind": "genre_interaction",
+      "id": "horror_pressures_mystery",
+      "title": "horror contrasts literary_mystery",
+      "change": "changed",
+      "before": "The horror keeps the investigation from becoming a clean triumph.",
+      "after": "The intimate cost contrasts with wonder, making the reader feel both at once rather than replacing delight with dread.",
+      "changed_fields": [
+        "kind",
+        "mechanism"
+      ]
+    },
+    {
+      "kind": "genre_interaction",
+      "id": "mystery_horror_converge",
+      "title": "literary_mystery converges horror",
+      "change": "changed",
+      "before": "The final choice is both a solution and an act of intimate loss.",
+      "after": "The final choice is both a solution and an act of intimate loss, held inside a wonder that refuses to disappear.",
+      "changed_fields": [
+        "mechanism"
+      ]
+    }
+  ],
+  "preserved": {
+    "ids": {
+      "nodes": [
+        "complicity",
+        "cost_escalation",
+        "earned_hope",
+        "fantasy",
+        "founding_archive",
+        "guild_authority",
+        "horror",
+        "implicated_investigator",
+        "incomplete_archive",
+        "literary_mystery",
+        "luminous_cartography",
+        "magical_map",
+        "memory_economy",
+        "memory_ethics",
+        "truth_mercy_dilemma"
+      ],
+      "links": [
+        "archive_raises_dilemma",
+        "complicity_questions",
+        "cost_raises_dilemma",
+        "dilemma_produces_hope",
+        "dread_pays",
+        "engine_drives_cost",
+        "engine_feeds_archive",
+        "ethics_questions",
+        "fantasy_constrains_mystery",
+        "guild_controls_archive",
+        "hope_answers",
+        "horror_pressures_mystery",
+        "implicated_investigator_pressures",
+        "incomplete_archive_hides",
+        "intimate_horror_renders",
+        "magical_map_instantiates",
+        "mystery_enables_fantasy",
+        "wonder_grounds"
+      ],
+      "phases": [],
+      "emotion_targets": [
+        "anger",
+        "grief",
+        "hope"
+      ],
+      "complex_emotions": [
+        "hope_through_grief"
+      ],
+      "genre_contracts": [],
+      "genre_interactions": [
+        "fantasy_constrains_mystery",
+        "mystery_enables_fantasy"
+      ]
+    },
+    "counts": {
+      "nodes": 15,
+      "links": 18,
+      "phases": 0,
+      "emotion_targets": 3,
+      "complex_emotions": 1,
+      "genre_contracts": 0,
+      "genre_interactions": 2
+    },
+    "author_declared_emotion_targets": [
+      {
+        "id": "hope",
+        "emotion": "joy",
+        "role": "supporting",
+        "status": "preserved"
+      }
+    ],
+    "author_declared_emotion_changes": [
+      {
+        "id": "wonder",
+        "before": "primary",
+        "after": "primary",
+        "changed_fields": [
+          "eliciting_condition",
+          "intended_effect"
+        ],
+        "status": "changed"
+      },
+      {
+        "id": "dread",
+        "before": "supporting",
+        "after": "contrasting",
+        "changed_fields": [
+          "intended_effect",
+          "role"
+        ],
+        "status": "changed"
+      }
+    ],
+    "accepted_constraints": [],
+    "accepted_not_this": []
+  },
+  "proposed_rationale": {
+    "status": "provided",
+    "source": "candidate.summary",
+    "text": "A literary mystery in which every accurate map purchases knowledge with an intimate memory, but wonder at the coast and at the act of discovery remains the governing experience. The surveyor must choose what her city remembers; fear and grief shadow wonder without displacing it, and the ending offers a partial, chosen hope rather than a clean restoration."
+  },
+  "note": "This is a review of a noncanonical working proposal. It does not change accepted Identity, Structure, Realization, Expression or shared ontology."
+}

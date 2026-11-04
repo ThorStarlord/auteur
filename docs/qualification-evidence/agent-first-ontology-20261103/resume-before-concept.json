@@ -1,0 +1,1090 @@
+{
+  "kind": "studio_architecture_resume",
+  "authority": "working_noncanonical",
+  "canvas_id": "e2e-story",
+  "canvas_revision": 1,
+  "story_vision": "A coastal city lives on maps drawn by the Cartographers Guild. Every accurate map erases one memory from the person who supplied the survey. A young surveyor discovers that the Guild is using the city founding archive to make a perfect map that will erase the shared memory of a massacre. She must choose between a truthful map that frees the city from a comforting lie and a merciful map that preserves belonging. Intended experience: wonder at the strangeness of the coast, mounting dread as the cost becomes personal, and earned hope about chosen remembrance. Genre: a literary mystery with fantasy and horror passages. No explicit violence on the page; the tone is intimate and reflective, not grimdark. Themes: memory, complicity, and the ethics of knowledge.",
+  "architecture": {
+    "schema_version": 2,
+    "summary": "A literary mystery in which every accurate map purchases knowledge with an intimate memory, but wonder at the coast and at the act of discovery remains the governing experience. The surveyor must choose what her city remembers; fear and grief shadow wonder without displacing it, and the ending offers a partial, chosen hope rather than a clean restoration.",
+    "nodes": [
+      {
+        "id": "literary_mystery",
+        "title": "Literary mystery",
+        "category": "genre",
+        "summary": "The governing genre: an inquiry into a founding crime told through documents, surveys, and intimate consequence rather than action set pieces.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "fantasy",
+        "title": "Fantasy",
+        "category": "genre",
+        "summary": "A secondary genre: the map is a real magical instrument whose rules make memory transfer possible and costly.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "horror",
+        "title": "Horror",
+        "category": "genre",
+        "summary": "A local genre: the intimate erosion of memory produces dread without graphic violence.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "memory_economy",
+        "title": "Memory economy",
+        "category": "engine",
+        "summary": "Every accurate survey transfers a memory out of a person and into the map, so knowledge is always paid for by someone.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "guild_authority",
+        "title": "Guild authority",
+        "category": "thread",
+        "summary": "The Cartographers Guild controls which maps exist and therefore which memories the city can afford to keep.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "founding_archive",
+        "title": "Founding archive",
+        "category": "thread",
+        "summary": "The archive holds surveys that could expose the massacre and the Guild's role in concealing it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "truth_mercy_dilemma",
+        "title": "Truth and mercy dilemma",
+        "category": "structure",
+        "summary": "The story repeatedly forces a choice between an accurate record that wounds and a merciful omission that protects belonging.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "cost_escalation",
+        "title": "Escalating intimate cost",
+        "category": "structure",
+        "summary": "Each act of discovery costs a more personal memory, moving the mystery from civic history into the surveyor's own identity.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "incomplete_archive",
+        "title": "The incomplete archive",
+        "category": "trope",
+        "summary": "A record is missing, altered, or written by the person investigating it, so the mystery is also a problem of memory.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "implicated_investigator",
+        "title": "The implicated investigator",
+        "category": "trope",
+        "summary": "The surveyor's own work and family history are entangled with the crime, preventing a clean outsider position.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "magical_map",
+        "title": "The magical map",
+        "category": "trope",
+        "summary": "The map is an object with rules: accuracy costs memory, and a perfect map costs a perfect memory.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "intimate_horror",
+        "title": "Intimate horror",
+        "category": "trope",
+        "summary": "Loss appears as a shadow on wonder rather than as a spectacular threat.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "wonder_promise",
+        "title": "Wonder promise",
+        "category": "reader_experience",
+        "summary": "Wonder governs the story promise and survives every discovered cost.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "dread_progression",
+        "title": "Dread progression",
+        "category": "reader_experience",
+        "summary": "Fear shadows wonder, sharpening attention without taking over the experience.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "earned_hope",
+        "title": "Earned hope",
+        "category": "reader_experience",
+        "summary": "Hope is available only through a chosen, partial remembrance that acknowledges loss rather than denying it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "luminous_cartography",
+        "title": "Luminous cartography",
+        "category": "aesthetic",
+        "summary": "Precise, sensory map-making imagery makes the coast feel desirable and the erasures feel like vandalism.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "memory_ethics",
+        "title": "Ethics of memory",
+        "category": "theme",
+        "summary": "The story asks what a community owes its dead, its living, and its comforting stories.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "complicity",
+        "title": "Complicity",
+        "category": "theme",
+        "summary": "Knowing is not innocence: the surveyor's craft is part of the system that erases.",
+        "scope": "whole_story",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "mystery_enables_fantasy",
+        "source": "literary_mystery",
+        "target": "fantasy",
+        "function": "turns the magical map into evidence and a source of clues"
+      },
+      {
+        "id": "fantasy_constrains_mystery",
+        "source": "fantasy",
+        "target": "literary_mystery",
+        "function": "limits solutions to the map's memory rules"
+      },
+      {
+        "id": "horror_pressures_mystery",
+        "source": "horror",
+        "target": "literary_mystery",
+        "function": "makes each answer intimate and costly"
+      },
+      {
+        "id": "engine_drives_cost",
+        "source": "memory_economy",
+        "target": "cost_escalation",
+        "function": "turns every discovery into a personal loss"
+      },
+      {
+        "id": "engine_feeds_archive",
+        "source": "memory_economy",
+        "target": "founding_archive",
+        "function": "explains how the city's records were made and hidden"
+      },
+      {
+        "id": "guild_controls_archive",
+        "source": "guild_authority",
+        "target": "founding_archive",
+        "function": "decides which surveys survive"
+      },
+      {
+        "id": "archive_raises_dilemma",
+        "source": "founding_archive",
+        "target": "truth_mercy_dilemma",
+        "function": "supplies the evidence that makes the choice unavoidable"
+      },
+      {
+        "id": "cost_raises_dilemma",
+        "source": "cost_escalation",
+        "target": "truth_mercy_dilemma",
+        "function": "makes truth personally expensive"
+      },
+      {
+        "id": "dilemma_produces_hope",
+        "source": "truth_mercy_dilemma",
+        "target": "earned_hope",
+        "function": "makes hope conditional on a chosen remembrance"
+      },
+      {
+        "id": "incomplete_archive_hides",
+        "source": "incomplete_archive",
+        "target": "founding_archive",
+        "function": "keeps the historical record incomplete"
+      },
+      {
+        "id": "implicated_investigator_pressures",
+        "source": "implicated_investigator",
+        "target": "cost_escalation",
+        "function": "makes the investigation threaten the surveyor's own past"
+      },
+      {
+        "id": "magical_map_instantiates",
+        "source": "magical_map",
+        "target": "memory_economy",
+        "function": "gives the memory economy a concrete instrument"
+      },
+      {
+        "id": "intimate_horror_renders",
+        "source": "intimate_horror",
+        "target": "dread_progression",
+        "function": "renders loss without graphic violence"
+      },
+      {
+        "id": "wonder_grounds",
+        "source": "wonder_promise",
+        "target": "luminous_cartography",
+        "function": "makes the coast desirable before its cost is clear"
+      },
+      {
+        "id": "dread_pays",
+        "source": "dread_progression",
+        "target": "cost_escalation",
+        "function": "tracks the escalation of intimate loss"
+      },
+      {
+        "id": "ethics_questions",
+        "source": "memory_ethics",
+        "target": "truth_mercy_dilemma",
+        "function": "frames the choice as an ethical question"
+      },
+      {
+        "id": "complicity_questions",
+        "source": "complicity",
+        "target": "implicated_investigator",
+        "function": "makes the investigator part of the system she exposes"
+      },
+      {
+        "id": "hope_answers",
+        "source": "earned_hope",
+        "target": "memory_ethics",
+        "function": "offers a partial answer without resolving the theme"
+      }
+    ],
+    "phases": [
+      {
+        "id": "strange_coast",
+        "title": "Strange coast",
+        "order": 0,
+        "scope": "whole_story",
+        "genres": [
+          {
+            "genre": "literary_mystery",
+            "role": "governing"
+          },
+          {
+            "genre": "fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "horror",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "literary_mystery",
+            "basic_emotions": [
+              "joy",
+              "surprise"
+            ],
+            "trope_functions": [
+              "The incomplete archive"
+            ],
+            "structural_function": "Establish the inquiry and the city's dependence on accurate maps."
+          },
+          {
+            "genre_node_id": "fantasy",
+            "basic_emotions": [
+              "joy",
+              "surprise"
+            ],
+            "trope_functions": [
+              "The magical map"
+            ],
+            "structural_function": "Establish the map's rules through use, not exposition."
+          },
+          {
+            "genre_node_id": "horror",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "Intimate horror"
+            ],
+            "structural_function": "Seed unease without unveiling the cost."
+          }
+        ],
+        "reader_experience": "Wonder dominates; curiosity is the governing pleasure.",
+        "aesthetic": "Luminous cartography.",
+        "narrative_function": "Establish wonder as the story governing promise.",
+        "transition": "A first memory is found missing.",
+        "parallel_with": []
+      },
+      {
+        "id": "first_erasure",
+        "title": "First erasure",
+        "order": 1,
+        "scope": "whole_story",
+        "genres": [
+          {
+            "genre": "literary_mystery",
+            "role": "governing"
+          },
+          {
+            "genre": "fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "horror",
+            "role": "locally_dominant"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "literary_mystery",
+            "basic_emotions": [
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "The implicated investigator"
+            ],
+            "structural_function": "Make the investigation personal."
+          },
+          {
+            "genre_node_id": "fantasy",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "The magical map"
+            ],
+            "structural_function": "Show a concrete memory cost."
+          },
+          {
+            "genre_node_id": "horror",
+            "basic_emotions": [
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "Intimate horror"
+            ],
+            "structural_function": "Turn the cost intimate."
+          }
+        ],
+        "reader_experience": "Wonder persists through the first cost; fear is a shadow, not the center.",
+        "aesthetic": "Luminous detail with one quiet absence.",
+        "narrative_function": "Deepen wonder by showing that knowledge has a price.",
+        "transition": "The missing memory points to the founding archive.",
+        "parallel_with": []
+      },
+      {
+        "id": "archive_revelation",
+        "title": "Archive revelation",
+        "order": 2,
+        "scope": "whole_story",
+        "genres": [
+          {
+            "genre": "literary_mystery",
+            "role": "governing"
+          },
+          {
+            "genre": "fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "horror",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "literary_mystery",
+            "basic_emotions": [
+              "surprise",
+              "anger"
+            ],
+            "trope_functions": [
+              "The incomplete archive",
+              "The implicated investigator"
+            ],
+            "structural_function": "Reveal the massacre and the Guild's complicity."
+          },
+          {
+            "genre_node_id": "fantasy",
+            "basic_emotions": [
+              "surprise"
+            ],
+            "trope_functions": [
+              "The magical map"
+            ],
+            "structural_function": "Reveal the scale of what a perfect map would erase."
+          },
+          {
+            "genre_node_id": "horror",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "The cost of knowledge"
+            ],
+            "structural_function": "Make the historical crime present through memory loss."
+          }
+        ],
+        "reader_experience": "Wonder at the archive scale, crossed by moral anger.",
+        "aesthetic": "Archive fragments, gaps, and contradictory records.",
+        "narrative_function": "Expand wonder into historical awe while revealing complicity.",
+        "transition": "A perfect map becomes possible, and with it a city-wide erasure.",
+        "parallel_with": []
+      },
+      {
+        "id": "choice_of_maps",
+        "title": "Choice of maps",
+        "order": 3,
+        "scope": "whole_story",
+        "genres": [
+          {
+            "genre": "literary_mystery",
+            "role": "governing"
+          },
+          {
+            "genre": "fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "horror",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "literary_mystery",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "The implicated investigator",
+              "The incomplete archive"
+            ],
+            "structural_function": "Force the surveyor to choose what record to leave."
+          },
+          {
+            "genre_node_id": "fantasy",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "The magical map"
+            ],
+            "structural_function": "Make the map's final use a moral act."
+          },
+          {
+            "genre_node_id": "horror",
+            "basic_emotions": [
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "Intimate horror"
+            ],
+            "structural_function": "Let the cost be acknowledged rather than reversed."
+          }
+        ],
+        "reader_experience": "Wonder survives grief; hope is chosen and partial.",
+        "aesthetic": "Modest repair; a record that admits its gaps.",
+        "narrative_function": "Resolve through a wonder that accepts loss.",
+        "transition": "The city keeps a record that is honest about what it cannot restore.",
+        "parallel_with": []
+      }
+    ],
+    "open_questions": [
+      "Whose memory should the final record preserve, and who decides?",
+      "Is the Guild lie ever defensible as mercy, or only as control?",
+      "Should the city founding crime be public knowledge or a private grief?",
+      "Should wonder survive the final record, or give way to something quieter?"
+    ],
+    "emotion_targets": [
+      {
+        "id": "wonder",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "Dominant wonder at the coast, at accurate knowledge, and at the strangeness of what a map can hold.",
+        "eliciting_condition": "A survey reveals a coastline more intricate than the city believed, even as the cost becomes visible.",
+        "aesthetic_strategy": "Luminous cartographic detail and patient description.",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "dread",
+        "emotion": "fear",
+        "role": "contrasting",
+        "intended_effect": "Fear as a pressure that sharpens wonder rather than a force that replaces it.",
+        "eliciting_condition": "A familiar person or place becomes slightly less remembered.",
+        "aesthetic_strategy": "Quiet omissions and repeated details that no longer match.",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "hope",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "Conditional hope that chosen, partial remembrance can honor both truth and belonging.",
+        "eliciting_condition": "A deliberate record preserves what matters without claiming completeness.",
+        "aesthetic_strategy": "Warm, modest images of repair.",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "grief",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "Grief for memories that cannot be recovered.",
+        "eliciting_condition": "A loss is acknowledged rather than reversed.",
+        "aesthetic_strategy": "Restrained elegy and concrete absence.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "anger",
+        "emotion": "anger",
+        "role": "contrasting",
+        "intended_effect": "Anger at the Guild's paternalism and at the city's convenience.",
+        "eliciting_condition": "A decision is made for others in the name of mercy.",
+        "aesthetic_strategy": "Dry documentary contrast with the cost borne by individuals.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "revelation_surprise",
+        "emotion": "surprise",
+        "role": "supporting",
+        "intended_effect": "Surprise when a familiar record turns out to be a chosen omission.",
+        "eliciting_condition": "An archive fragment contradicts the official history.",
+        "aesthetic_strategy": "Delayed disclosure and material evidence.",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "uneasy_wonder",
+        "title": "Uneasy wonder",
+        "basic_emotions": [
+          "joy",
+          "fear"
+        ],
+        "context": "Wonder remains dominant while fear reveals what the wonder costs."
+      },
+      {
+        "id": "hope_through_grief",
+        "title": "Hope through grief",
+        "basic_emotions": [
+          "joy",
+          "sadness"
+        ],
+        "context": "A partial record makes room for both mourning and continuing life."
+      },
+      {
+        "id": "moral_dread",
+        "title": "Moral dread",
+        "basic_emotions": [
+          "fear",
+          "anger"
+        ],
+        "context": "Moral anger and fear cross the wonder of uncovering the archive."
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "literary_mystery",
+        "role": "governing",
+        "emotion_target_ids": [
+          "wonder",
+          "dread",
+          "grief"
+        ],
+        "complex_emotion_ids": [
+          "uneasy_wonder",
+          "hope_through_grief"
+        ],
+        "trope_functions": [
+          "The incomplete archive",
+          "The implicated investigator",
+          "The wonder of unwinding a lie"
+        ],
+        "narrative_engine": "Each answer changes what the surveyor must conceal or reveal, and every archive record is also an occasion for wonder at how the city was made.",
+        "structural_pattern": "Wonder, question, partial answer, intimate cost, deeper wonder, final choice.",
+        "aesthetic_strategies": [
+          "Luminous cartography",
+          "Quiet omission"
+        ],
+        "payoff_expectations": [
+          "The founding story is revealed as a chosen record that can still inspire wonder rather than only shame."
+        ]
+      },
+      {
+        "genre_node_id": "fantasy",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "wonder",
+          "revelation_surprise"
+        ],
+        "complex_emotion_ids": [
+          "uneasy_wonder"
+        ],
+        "trope_functions": [
+          "The magical map"
+        ],
+        "narrative_engine": "The map rules make every act of knowledge an occasion for wonder, even when it costs a memory.",
+        "structural_pattern": "Rule discovery, wondrous application, unintended cost, revised rule.",
+        "aesthetic_strategies": [
+          "Precise magical rules rendered as craft."
+        ],
+        "payoff_expectations": [
+          "The reader understands the map's cost without needing a system treatise."
+        ]
+      },
+      {
+        "genre_node_id": "horror",
+        "role": "local",
+        "emotion_target_ids": [
+          "dread",
+          "grief"
+        ],
+        "complex_emotion_ids": [
+          "moral_dread"
+        ],
+        "trope_functions": [
+          "Intimate horror as a shadow on wonder",
+          "The cost of knowledge"
+        ],
+        "narrative_engine": "Loss shadows wonder without displacing it; the story refuses to make the erasure spectacular.",
+        "structural_pattern": "Wondrous moment, small absence, dawning recognition, restrained consequence.",
+        "aesthetic_strategies": [
+          "Intimate sensory detail with no graphic violence."
+        ],
+        "payoff_expectations": [
+          "Dread accumulates through recognition rather than shock."
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "mystery_enables_fantasy",
+        "source_genre_id": "literary_mystery",
+        "target_genre_id": "fantasy",
+        "kind": "enables",
+        "mechanism": "The inquiry gives the magical map a use as evidence, so its rules matter to the solution.",
+        "risk": "The fantasy could become a puzzle device that drains the human cost."
+      },
+      {
+        "id": "fantasy_constrains_mystery",
+        "source_genre_id": "fantasy",
+        "target_genre_id": "literary_mystery",
+        "kind": "constrains",
+        "mechanism": "Every solution must obey the map's memory rules, preventing arbitrary detective work.",
+        "risk": "Too many rules could turn the mystery into a manual."
+      },
+      {
+        "id": "horror_pressures_mystery",
+        "source_genre_id": "horror",
+        "target_genre_id": "literary_mystery",
+        "kind": "contrasts",
+        "mechanism": "The intimate cost contrasts with wonder, making the reader feel both at once rather than replacing delight with dread.",
+        "risk": "The dread could overpower the pleasure of discovery."
+      },
+      {
+        "id": "mystery_horror_converge",
+        "source_genre_id": "literary_mystery",
+        "target_genre_id": "horror",
+        "kind": "converges",
+        "mechanism": "The final choice is both a solution and an act of intimate loss, held inside a wonder that refuses to disappear.",
+        "risk": "The convergence could feel like two endings rather than one."
+      },
+      {
+        "id": "fantasy_amplifies_mystery",
+        "source_genre_id": "fantasy",
+        "target_genre_id": "literary_mystery",
+        "kind": "reinforces",
+        "mechanism": "The map rules turn discovery into a wondrous craft, so mystery feels expansive rather than merely procedural.",
+        "risk": "Too much wonder could weaken the sense of consequence."
+      }
+    ]
+  },
+  "architecture_status": "ready",
+  "candidate_request_sha256": "a21de02d6b7622d43e50e7d9b1e1023b5d8f21c5441fa88a1652d608abfad52d",
+  "pending_request_sha256": null,
+  "pending_review": null,
+  "open_questions": [
+    "Whose memory should the final record preserve, and who decides?",
+    "Is the Guild lie ever defensible as mercy, or only as control?",
+    "Should the city founding crime be public knowledge or a private grief?",
+    "Should wonder survive the final record, or give way to something quieter?"
+  ],
+  "ontology_guidance": {
+    "authority": "derived_ontology_guidance",
+    "concepts": [
+      {
+        "definition": "A recurring abstract idea or concept explored throughout the narrative. Themes are not concrete entities but intellectual or emotional explorations.",
+        "name": "Theme",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme influences multiple arcs",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme manifests through symbols",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Symbol"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "Opposition or challenge involving at least two forces with incompatible goals. Conflict creates narrative tension and drives progression.",
+        "name": "Conflict",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Conflict occurs within an arc",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-one",
+            "description": "Conflict resolves in payoff",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A progression over time from a starting state to an ending state. Arcs can track character development, story progression, or thematic exploration.",
+        "name": "Arc",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more beats",
+            "required": true,
+            "source_concept": "Arc",
+            "target_concept": "Beat"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc involves one or more characters",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc explores one or more themes",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Theme"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more conflicts",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The introduction of an element, promise, or mystery that requires later resolution. Setups create expectations that drive narrative forward.",
+        "name": "Setup",
+        "relationships": [
+          {
+            "cardinality": "one-to-one",
+            "description": "Setup requires corresponding payoff",
+            "required": true,
+            "source_concept": "Setup",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The resolution or delivery of something set up earlier in the narrative. Payoffs satisfy expectations created by setups.",
+        "name": "Payoff",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Payoff resolves a setup",
+            "required": true,
+            "source_concept": "Payoff",
+            "target_concept": "Setup"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The disclosure of information previously unknown to the audience or characters. Revelations change understanding and can reframe entire narratives.",
+        "name": "Revelation",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Revelation occurs as a beat",
+            "required": false,
+            "source_concept": "Revelation",
+            "target_concept": "Beat"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An unexpected change that inverts the direction or expected outcome of an arc. Reversals violate established patterns and create surprise.",
+        "name": "Reversal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Reversal affects an arc's trajectory",
+            "required": false,
+            "source_concept": "Reversal",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A desired outcome that an entity (typically a character) wants to achieve. Goals create motivation and can generate conflicts.",
+        "name": "Goal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal is owned by a character",
+            "required": true,
+            "source_concept": "Goal",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal pursuit creates conflict",
+            "required": false,
+            "source_concept": "Goal",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A discrete, identifiable moment in the narrative. Beats are atomic narrative units that combine to form scenes and arcs.",
+        "name": "Beat",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Beat belongs to an arc",
+            "required": true,
+            "source_concept": "Beat",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An object, image, or action that carries meaning beyond its literal interpretation. Symbols represent abstract concepts through concrete forms.",
+        "name": "Symbol",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Symbol represents themes",
+            "required": false,
+            "source_concept": "Symbol",
+            "target_concept": "Theme"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A connection between narrative entities (typically characters) that affects how they interact. Relationships have dynamics, stakes, and evolution.",
+        "name": "Relationship",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Relationship connects characters",
+            "required": true,
+            "source_concept": "Relationship",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An entity capable of agency within the narrative. Characters have identities, beliefs, goals, and can participate in relationships and arcs.",
+        "name": "Character",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Character pursues one or more goals",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Goal"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Character can appear in multiple arcs",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Character engages in relationships with other entities",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Relationship"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A piece of information, object, or observation that provides evidence toward solving the mystery. Clues can be misleading or definitively point toward the solution.",
+        "genre_extension": "mystery",
+        "name": "Clue",
+        "relationships": [
+          {
+            "cardinality": "many-to-one",
+            "description": "Clue provides evidence about the mystery problem",
+            "required": true,
+            "source_concept": "Clue",
+            "target_concept": "MysteryProblem"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Character discovers or receives the clue",
+            "required": true,
+            "source_concept": "Clue",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:mystery_ontology.yaml"
+      },
+      {
+        "definition": "A narrative arc centered on the protagonist's investigation, discovery process, and gradual accumulation of understanding about the mystery problem.",
+        "genre_extension": "mystery",
+        "name": "InvestigativeArc",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Investigative arc includes discovery of clues",
+            "required": true,
+            "source_concept": "InvestigativeArc",
+            "target_concept": "Clue"
+          },
+          {
+            "cardinality": "many-to-one",
+            "description": "Investigation targets the central mystery",
+            "required": true,
+            "source_concept": "InvestigativeArc",
+            "target_concept": "MysteryProblem"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Characters engage in investigation",
+            "required": true,
+            "source_concept": "InvestigativeArc",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:mystery_ontology.yaml"
+      },
+      {
+        "definition": "A central puzzle or unknown that drives the narrative forward. The mystery problem is what the protagonist must solve, discover, or understand.",
+        "genre_extension": "mystery",
+        "name": "MysteryProblem",
+        "relationships": [
+          {
+            "cardinality": "many-to-one",
+            "description": "Mystery problem is solved through revelations",
+            "required": true,
+            "source_concept": "MysteryProblem",
+            "target_concept": "Revelation"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Characters investigate or are affected by the mystery problem",
+            "required": true,
+            "source_concept": "MysteryProblem",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:mystery_ontology.yaml"
+      },
+      {
+        "definition": "A misleading clue, false lead, or misdirection that initially appears to point toward a solution but does not. Red herrings complicate investigation and can deceive readers.",
+        "genre_extension": "mystery",
+        "name": "RedHerring",
+        "relationships": [
+          {
+            "cardinality": "one-to-one",
+            "description": "Red herring appears to be a clue but is misleading",
+            "required": false,
+            "source_concept": "RedHerring",
+            "target_concept": "Clue"
+          },
+          {
+            "cardinality": "one-to-one",
+            "description": "Red herring is revealed as false",
+            "required": false,
+            "source_concept": "RedHerring",
+            "target_concept": "Revelation"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:mystery_ontology.yaml"
+      }
+    ],
+    "kind": "relevant_narrative_ontology_context",
+    "selection": {
+      "foundational_concepts": [
+        "Theme",
+        "Conflict",
+        "Arc",
+        "Setup",
+        "Payoff",
+        "Revelation",
+        "Reversal",
+        "Goal",
+        "Beat",
+        "Symbol",
+        "Relationship",
+        "Character"
+      ],
+      "genre_extensions": [
+        {
+          "genre": "mystery",
+          "reason": "The Story Vision explicitly names this installed genre.",
+          "source": "story_vision"
+        }
+      ],
+      "not_story_intent": "These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.",
+      "rationale": "Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown."
+    },
+    "source_refs": [
+      "auteur.data.ontology:base_ontology.yaml",
+      "auteur.data.ontology:mystery_ontology.yaml"
+    ],
+    "origin": "request",
+    "request_sha256": "a21de02d6b7622d43e50e7d9b1e1023b5d8f21c5441fa88a1652d608abfad52d"
+  },
+  "accepted_story_identity": null,
+  "source_visibility": {
+    "working_item_count": 0,
+    "omitted_working_item_count": 0,
+    "omitted_working_connection_count": 0,
+    "truncated_items": [],
+    "vision_characters": 764
+  },
+  "provisional_concepts": []
+}

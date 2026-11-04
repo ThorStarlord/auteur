@@ -189,6 +189,12 @@
         state.candidatePositions[node.id] = { x: 40 + (i % cols) * 188, y: 40 + Math.floor(i / cols) * 100 };
       });
     }
+    var readerRoot = $("architecture-reader");
+    readerRoot.hidden = !state.architecture;
+    if (state.architecture && window.AuteurStudioArchitectureReader) {
+      window.AuteurStudioArchitectureReader.render(
+        readerRoot, window.AuteurStudioArchitectureReader.project(state.architecture));
+    }
     $("architecture-handoff").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
     $("architecture-review").hidden = !state.architectureReview;
@@ -196,25 +202,59 @@
     if (state.architectureReview) {
       var review = state.architectureReview;
       $("architecture-review-summary").textContent = review.candidate.summary;
-      ["nodes", "links", "phases", "emotion_targets", "complex_emotions",
-        "genre_contracts", "genre_interactions"].forEach(function (kind) {
-        ["added", "removed", "changed"].forEach(function (verb) {
-          var ids = (review.changes[kind] || {})[verb] || [];
-          if (!ids.length) return;
-          var li = document.createElement("li");
-          li.textContent = kind + " " + verb + ": " + ids.join(", ");
-          $("architecture-diff").appendChild(li);
+      var appendReviewLine = function (line, className) {
+        var li = document.createElement("li");
+        li.textContent = line;
+        if (className) li.className = className;
+        $("architecture-diff").appendChild(li);
+      };
+      if (review.requested_change) {
+        appendReviewLine("Requested change: " + review.requested_change, "review-requested-change");
+      }
+      if (review.proposed_rationale) {
+        appendReviewLine(review.proposed_rationale.status === "provided"
+          ? "Agent's stated rationale: " + review.proposed_rationale.text
+          : "Agent rationale: not provided (none invented).", "review-rationale");
+      }
+      if (Array.isArray(review.changed_components) && review.changed_components.length) {
+        review.changed_components.forEach(function (component) {
+          appendReviewLine(component.kind.replace(/_/g, " ") + " - " + component.title +
+            ": " + component.before + " -> " + component.after, "review-change");
         });
-      });
-      if (review.changes.summary_changed) {
-        var summary = document.createElement("li");
-        summary.textContent = "Governing summary changed"; $("architecture-diff").appendChild(summary);
+      } else {
+        ["nodes", "links", "phases", "emotion_targets", "complex_emotions",
+          "genre_contracts", "genre_interactions"].forEach(function (kind) {
+          ["added", "removed", "changed"].forEach(function (verb) {
+            var ids = (review.changes[kind] || {})[verb] || [];
+            if (!ids.length) return;
+            appendReviewLine(kind + " " + verb + ": " + ids.join(", "));
+          });
+        });
+        if (review.changes.summary_changed) {
+          appendReviewLine("Governing summary changed");
+        }
+      }
+      if (review.preserved) {
+        var authorTargets = review.preserved.author_declared_emotion_targets || [];
+        if (authorTargets.length) {
+          appendReviewLine("Preserved author-declared emotions: " +
+            authorTargets.map(function (target) {
+              return target.id + " (" + target.emotion + ", " + target.role + ")";
+            }).join("; "), "review-preserved");
+        }
+        var constraints = review.preserved.accepted_constraints || [];
+        if (constraints.length) {
+          appendReviewLine("Preserved accepted constraints: " + constraints.join("; "),
+            "review-preserved");
+        }
       }
     }
     $("architecture-status").textContent = projection.status === "review_ready"
       ? "A revised proposal is ready for review. Current working architecture is unchanged."
       : projection.status === "awaiting_host_agent"
       ? "Awaiting the active coding agent. Prior working proposal remains available if present."
+      : projection.status === "guidance_changed"
+      ? "Narrative design guidance changed; review or regenerate. Your Story Vision is unchanged."
       : projection.status === "stale"
       ? "Working architecture is outdated relative to your Story Vision. Regenerate or revise before developing concrete story material."
       : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."

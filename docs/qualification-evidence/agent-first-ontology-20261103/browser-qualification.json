@@ -1,0 +1,29 @@
+{
+  "desktop": {
+    "reader_has_title": true,
+    "reader_has_working_proposal": true,
+    "reader_has_emotion": true,
+    "reader_has_genre": true,
+    "reader_has_mechanism": true,
+    "status": "Agent proposal ready \u00b7 working, not accepted story.",
+    "reader_before_viewport": true,
+    "heading_count": 8,
+    "console_errors": []
+  },
+  "mobile": {
+    "visible": true,
+    "scrollWidth": 388,
+    "clientWidth": 388,
+    "bodyOverflow": 0
+  },
+  "pending": {
+    "reader_hidden": true,
+    "status": "Awaiting the active coding agent. Prior working proposal remains available if present.",
+    "false_ready_claim": false
+  },
+  "graph": {
+    "viewport_visible": true,
+    "full_view_visible": true
+  },
+  "console_errors_after": []
+}

@@ -1,0 +1,74 @@
+{
+  "python": {
+    "baseline_focused": {
+      "tests": "32",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "8.105"
+    },
+    "changed_code_focused": {
+      "tests": "73",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "16.324"
+    },
+    "beginner_wide": {
+      "tests": "620",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "1",
+      "time": "88.583"
+    },
+    "full_suite": {
+      "tests": "5701",
+      "failures": "15",
+      "errors": "0",
+      "skipped": "2",
+      "time": "1399.481"
+    }
+  },
+  "full_suite_failures": [
+    "tests.test_book_comparison::test_cli_compare_success",
+    "tests.test_book_recomposition::test_cli_recompose_success",
+    "tests.test_cli_formatters::test_format_audit_with_diagnostics",
+    "tests.test_dashboard_author_attention::test_author_attention_prioritizes_existing_artifact_states_without_writes",
+    "tests.test_dashboard_author_attention::test_dashboard_adds_author_attention_without_changing_project_files",
+    "tests.test_expression_composition::test_reconciliation_cli_creates_and_shows_report",
+    "tests.test_guided_author_workspace::test_workspace_payload_is_read_only_and_reuses_author_attention",
+    "tests.test_guided_author_workspace::test_workspace_server_is_loopback_get_only_and_does_not_mutate_project",
+    "tests.test_series_productization::test_continuity_review_cli_is_read_only_and_progressively_discloses_detail",
+    "tests.test_series_productization::test_series_focus_cli_is_author_readable_and_hides_internal_ids_by_default",
+    "tests.test_series_repeated_map_focus::test_cli_books_2_3_4_probe_surface_journey",
+    "tests.test_series_repeated_map_focus::test_cli_repeated_focus_uses_real_service_and_explicit_seed",
+    "tests.test_series_repeated_map_focus::test_format_repeated_focus_uses_current_book_noncanonical_language",
+    "tests.test_story_discovery::test_story_discovery_rejects_custom_genre_before_llm_call",
+    "tests.test_story_state_manager::test_grouped_report_shows_layer_headers"
+  ],
+  "baseline_reproduction": {
+    "worktree": "origin/main @ 74539efe1a521f1ca74390dcf64664e6b4362caf",
+    "result": "All 15 full-suite failures reproduced identically on the baseline worktree."
+  },
+  "node": {
+    "architecture_reader_plus_full_architecture": {
+      "tests": 13,
+      "pass": 13,
+      "fail": 0
+    },
+    "studio_suite_excluding_known_baseline_failure": {
+      "tests": 126,
+      "pass": 126,
+      "fail": 0
+    },
+    "known_baseline_failure": {
+      "file": "tests/test_studio_quick_draft_session_freshness.mjs",
+      "result": "2 failures on branch and on origin/main baseline; unrelated to changed files."
+    }
+  },
+  "verification_stack": {
+    "command": "python scripts/check.py --skip-pytest --ruff-paths <changed paths>",
+    "result": "passed",
+    "notes": "validate-repo.py, validate-release-scope.py, verify_vendored_contract.py and Ruff passed; only pre-existing non-critical repo-validation warnings were printed."
+  }
+}
