@@ -105,17 +105,17 @@ No new production JS, HTTP handlers, persistence files, ontology fields, accepte
 
 **Interfaces:**
 - Export resolveAnchor(candidate, requestSha, anchor) -> null | {kind,id,sourceRef,title,meaning,authority,components,relationships}.
-- Export recordedRelations(candidate, anchors) -> Array<{kind,id,sourceRef,from,to,label,detail,authority}>.
+- Export recordedRelations(candidate, anchors) -> Array<{kind,id,sourceRef,from,to,label,detail,authority}>. With one node anchor, return its **direct recorded** incident links/explicit contract references; with two node anchors, return only recorded relations **between those anchors** (no inferred or transitive edges). A selected relationship anchor returns that exact relationship.
 - Anchors have the exact shape {kind, id}, with kind in node | link | genre_interaction | emotion_target | genre_contract | phase. The genre contract id is the actual genre_node_id.
-- sourceRef is derived from the actual field owner, e.g. nodes/<id> or genre_contracts/<genre_node_id> within the exact candidate request SHA; it is **not** a new canonical URI.
+- sourceRef is an **actual array location** in the immutable captured candidate, e.g. nodes/3, links/7, genre_contracts/1, located by the stable record ID/key and bound to the exact candidate request SHA. Carry the stable ID separately. Do not invent paths such as nodes/<id> that the candidate JSON cannot resolve; sourceRef is **not** a new canonical URI.
 
 - [ ] **Step 1: Write failing pure tests.** Implement test names:
   ~~~javascript
   test('node and link anchors remain distinct and source-bound', () => {
     const engine = resolveAnchor(candidate, sha, {kind:'node', id: engineId});
     const link = resolveAnchor(candidate, sha, {kind:'link', id: linkId});
-    assert.equal(engine.sourceRef, 'nodes/' + engineId);
-    assert.equal(link.sourceRef, 'links/' + linkId);
+    assert.equal(engine.sourceRef, 'nodes/' + candidate.nodes.findIndex(n => n.id === engineId));
+    assert.equal(link.sourceRef, 'links/' + candidate.links.findIndex(l => l.id === linkId));
     assert.equal(engine.authority, 'working_proposal');
   });
 
@@ -123,7 +123,7 @@ No new production JS, HTTP handlers, persistence files, ontology fields, accepte
     assert.deepEqual(recordedRelations(candidate, [unlinkedA, unlinkedB]), []);
   });
   ~~~
-  Also test real genre_contracts/genre_interactions/phase/emotion ID lookup, missing/stale IDs, duplicates, reversed edge direction, and that same-name trope_functions are not unified.
+  Also test real genre_contracts/genre_interactions/phase/emotion ID lookup, missing/stale IDs, duplicates, reversed edge direction, identical-looking titles with distinct IDs, and that same-name trope_functions are not unified.
 - [ ] **Step 2: Run to observe RED.**
   ~~~bash
   node --test docs/prototypes/agent-interactive-graph/model.test.mjs
