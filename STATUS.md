@@ -1,7 +1,7 @@
 # Auteur — Current Repository Status
 
 **Last reconciled:** 2026-11-04
-**Agent-first Narrative Architecture implementation baseline:** `feat/agent-first-ontology-grounded-architecture-20261103` — implemented and verified for its authorized scope; not release-qualified.
+**Agent-first Narrative Architecture implementation baseline:** [PR #510](https://github.com/ThorStarlord/auteur/pull/510) — implemented and verified for its authorized scope; not release-qualified.
 **Main reviewed for this reconciliation:** `94e52a06fea6e56e52b6fad6c3c5d35fdfddfced` (S2 correction-integrity PR #500; development integration, not host-agent or release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)

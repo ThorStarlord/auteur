@@ -4,6 +4,7 @@
 **Executor:** Inline coding agent, no implementation/research/review/testing subagents
 **Plan:** [Agent-First, Ontology-Grounded Narrative Architecture](../superpowers/plans/2026-11-03-agent-first-ontology-grounded-narrative-architecture.md)
 **Spec:** [Approved design brief](../superpowers/specs/2026-11-03-agent-first-ontology-grounded-narrative-architecture-design.md)
+**Implementation PR:** [#510](https://github.com/ThorStarlord/auteur/pull/510)
 **Disposition:** **IMPLEMENTED FOR THE AUTHORIZED SCOPE; FOCUSED AND BEGINNER-WIDE TESTS PASS; FULL SUITE HAS 15 KNOWN BASELINE FAILURES; AUTHENTIC INLINE HOST-AGENT JOURNEYS AND A REAL CHROMIUM UI CHECK WERE OBSERVED.** This is not human-author qualification, literary-quality qualification, release qualification, or installed-artifact qualification.
 
 The prior revision of this file recorded a blocked execution caused by `CHECKOUT_UNAVAILABLE` in a different runtime. That blocker did not reproduce in this local checkout: the executor could read and write the same disposable project files as the Auteur CLI. The prior blocked receipt remains in Git history.
