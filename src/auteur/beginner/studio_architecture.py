@@ -642,6 +642,107 @@ def project_architecture(store: CanvasStore) -> dict:
     }
 
 
+def _provisional_concepts(store: CanvasStore) -> list[dict]:
+    try:
+        from .studio_concepts import list_provisional_concepts
+    except ImportError:
+        return []
+    return [
+        concept.model_dump(mode="json")
+        for concept in list_provisional_concepts(store)
+    ]
+
+
+def _resume_ontology_guidance(
+    store: CanvasStore, request_sha256: str | None, vision: str,
+    accepted_identity: dict | None,
+) -> dict:
+    if request_sha256:
+        request = load_host_agent_request(
+            _root(store) / "requests" / request_sha256 / "request.json"
+        )
+        captured = json.loads(request.user).get(
+            "narrative_design_context", {},
+        ).get("ontology_context")
+        if captured:
+            return {**captured, "origin": "request", "request_sha256": request_sha256}
+        current = build_relevant_ontology_context(vision, accepted_identity)
+        return {
+            **current,
+            "origin": "current_derived_not_original_request",
+            "request_sha256": request_sha256,
+        }
+    current = build_relevant_ontology_context(vision, accepted_identity)
+    return {**current, "origin": "current_derived", "request_sha256": None}
+
+
+def project_architecture_resume(store: CanvasStore) -> dict:
+    """Read-only packet a fresh coding agent can use without chat history."""
+    canvas = store.load()
+    projection = project_architecture(store)
+    current = _candidate(store)
+    vision = next(
+        (item.content for item in canvas.items if item.id == "story-vision"), "",
+    )
+    working = _source(
+        store,
+        previous=current["candidate"] if current else None,
+        source_format=2,
+    )
+    accepted = _accepted_story_design_context(store)
+    source_visibility = {
+        "working_item_count": len(working["working_items"]),
+        "omitted_working_item_count": working.get("omitted_working_item_count", 0),
+        "omitted_working_connection_count": working.get(
+            "omitted_working_connection_count", 0,
+        ),
+        "truncated_items": [
+            {
+                "id": item["id"],
+                "content_characters": item.get("content_characters"),
+                "content_is_excerpt": item.get("content_is_excerpt", False),
+                "full_content_sha256": item.get("full_content_sha256"),
+            }
+            for item in working["working_items"] if item.get("content_is_excerpt")
+        ],
+        "vision_characters": len(working["vision"]),
+    }
+    for key in ("omitted_working_items_sha256", "omitted_working_connections_sha256"):
+        if key in working:
+            source_visibility[key] = working[key]
+    guidance_sha = (
+        current["request_sha256"] if current
+        else projection["review"]["request_sha256"] if projection["review"]
+        else projection["request"]["request_sha256"] if projection["request"]
+        else None
+    )
+    pending_sha = (
+        projection["review"]["request_sha256"] if projection["review"]
+        else projection["request"]["request_sha256"] if projection["request"]
+        else None
+    )
+    candidate = projection["candidate"]
+    return {
+        "kind": "studio_architecture_resume",
+        "authority": "working_noncanonical",
+        "canvas_id": store.canvas_id,
+        "canvas_revision": canvas.revision,
+        "story_vision": vision,
+        "architecture": candidate,
+        "architecture_status": projection["status"],
+        "candidate_request_sha256": projection["candidate_request_sha256"],
+        "pending_request_sha256": pending_sha,
+        "pending_review": projection["review"],
+        "open_questions": candidate.get("open_questions", []) if candidate else [],
+        "ontology_guidance": _resume_ontology_guidance(
+            store, guidance_sha, vision, accepted,
+        ),
+        "accepted_story_identity": accepted,
+        "source_visibility": source_visibility,
+        "provisional_concepts": _provisional_concepts(store),
+    }
+
+
 def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("revision instruction must be text under 4000 characters")
@@ -801,6 +902,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--canvas", required=True, help="Canvas id from Studio URL")
     actions = parser.add_subparsers(dest="action", required=True)
     actions.add_parser("show", help="Show current proposal or exact host-agent request")
+    actions.add_parser(
+        "resume", help="Emit a read-only working re-entry packet for a new coding agent",
+    )
     prepare = actions.add_parser("prepare", help="Prepare a new architecture request")
     prepare.add_argument("--instruction", default="", help="Optional revision request")
     submit = actions.add_parser("complete-file", help="Validate candidate JSON written by host agent")
@@ -809,6 +913,8 @@ def main(argv: list[str] | None = None) -> int:
     store = CanvasStore(Path(args.project), args.canvas)
     if args.action == "prepare":
         result = prepare_architecture(store, args.instruction)
+    elif args.action == "resume":
+        result = project_architecture_resume(store)
     elif args.action == "complete-file":
         pending = project_architecture(store)
         if pending["status"] != "awaiting_host_agent" or not pending["request"]:
