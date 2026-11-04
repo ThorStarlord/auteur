@@ -1,9 +1,9 @@
 # Agent-First, Ontology-Grounded Narrative Architecture — Execution Evidence
 
-**Execution date:** 2026-11-04 (America/Argentina/Buenos_Aires)  
-**Executor:** Inline coding agent, no implementation/research/review/testing subagents  
-**Plan:** [Agent-First, Ontology-Grounded Narrative Architecture](../superpowers/plans/2026-11-03-agent-first-ontology-grounded-narrative-architecture.md)  
-**Spec:** [Approved design brief](../superpowers/specs/2026-11-03-agent-first-ontology-grounded-narrative-architecture-design.md)  
+**Execution date:** 2026-11-04 (America/Argentina/Buenos_Aires)
+**Executor:** Inline coding agent, no implementation/research/review/testing subagents
+**Plan:** [Agent-First, Ontology-Grounded Narrative Architecture](../superpowers/plans/2026-11-03-agent-first-ontology-grounded-narrative-architecture.md)
+**Spec:** [Approved design brief](../superpowers/specs/2026-11-03-agent-first-ontology-grounded-narrative-architecture-design.md)
 **Disposition:** **IMPLEMENTED FOR THE AUTHORIZED SCOPE; FOCUSED AND BEGINNER-WIDE TESTS PASS; FULL SUITE HAS 15 KNOWN BASELINE FAILURES; AUTHENTIC INLINE HOST-AGENT JOURNEYS AND A REAL CHROMIUM UI CHECK WERE OBSERVED.** This is not human-author qualification, literary-quality qualification, release qualification, or installed-artifact qualification.
 
 The prior revision of this file recorded a blocked execution caused by `CHECKOUT_UNAVAILABLE` in a different runtime. That blocker did not reproduce in this local checkout: the executor could read and write the same disposable project files as the Auteur CLI. The prior blocked receipt remains in Git history.
@@ -206,6 +206,7 @@ Exact counts and failure IDs: [test-summary.json](../qualification-evidence/agen
 - **Automated browser check only.** The Chromium run verified layout order, mobile width, pending-state honesty, and graph fallback. It was not a manual keyboard-only or screen-reader audit.
 - **Known baseline failures remain.** The full suite is not green because of 15 pre-existing failures; no attempt was made to fix unrelated owners.
 - **No release qualification.** No frozen candidate SHA, installed-wheel test, cross-platform release matrix, publication, or release-ready claim was produced.
+- **Local interpreter only.** Validation used Python 3.14.3 on Windows; the hosted L1 workflow targets Python 3.12 but is `workflow_dispatch` and was not run. Cross-version and cross-platform behavior was not qualified here.
 - **Provisional concept promotion is still manual.** The recorded concept is usable for this project but has not entered the shared ontology and should not be presented as an accepted general definition.
 
 ## 9. Ruling and next steps

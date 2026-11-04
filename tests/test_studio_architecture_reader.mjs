@@ -192,4 +192,3 @@ test('reader render handles an empty projection with an honest message', () => {
   assert.match(text, /No working architecture/);
   assert.doesNotMatch(text, /undefined/);
 });
-
