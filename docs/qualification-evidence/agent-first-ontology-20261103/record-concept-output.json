@@ -1,0 +1,29 @@
+{
+  "status": "provisional",
+  "authority": "working_noncanonical",
+  "canvas_id": "e2e-story",
+  "canvas_revision": 2,
+  "concept": {
+    "name": "Memory Cartography",
+    "definition": "A craft in which an accurate survey transfers one autobiographical memory from its source into the finished map, so the map becomes both a record of place and an archive of what someone paid to know it.",
+    "motivating_story_use": "Makes accurate knowledge carry an intimate, distributable cost that the Guild can hoard, trade, or conceal.",
+    "why_existing_concepts_insufficient": "Setup and Payoff describe narrative structure, and Conflict describes opposition, but neither expresses a reusable object or practice whose truth is purchased with autobiographical loss and whose ownership can become political.",
+    "related_concepts": [
+      "Setup",
+      "Payoff",
+      "Theme",
+      "Conflict"
+    ],
+    "proposed_relations": [
+      "Memory Cartography specializes Setup by making the price of knowledge concrete before its payoff.",
+      "Memory Cartography creates tension with Theme when memory is treated as identity rather than information.",
+      "Memory Cartography gives Conflict an owned instrument: whoever controls the maps controls which memories remain public."
+    ],
+    "compatibility_concerns": [
+      "Do not imply that every setting permits supernatural memory transfer.",
+      "Do not treat the erased memory as simply recoverable; the story's cost depends on irreversibility.",
+      "The concept is project-scoped until a separate ontology review accepts a general definition."
+    ],
+    "status": "provisional"
+  }
+}

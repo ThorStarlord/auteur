@@ -1,11 +1,28 @@
 # Auteur — Current Repository Status
 
-**Last reconciled:** 2026-10-28
+**Last reconciled:** 2026-11-04
+**Agent-first Narrative Architecture implementation baseline:** `feat/agent-first-ontology-grounded-architecture-20261103` — implemented and verified for its authorized scope; not release-qualified.
 **Main reviewed for this reconciliation:** `94e52a06fea6e56e52b6fad6c3c5d35fdfddfced` (S2 correction-integrity PR #500; development integration, not host-agent or release qualification)
 **Product-use evidence baseline:** `4122321fe09d1959278fdd087fc29f85e2f3a9d2` (PR #436 merge)
 **Latest published release:** `v0.37.1` (`pyproject.toml` `1.0.0` is not publication evidence)
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
+
+## 2026-11-04 Agent-First, Ontology-Grounded Narrative Architecture
+
+The approved 2026-11-03 design and plan are implemented in the existing Studio Architecture owners:
+
+- new requests carry bounded, source-referenced ontology definitions and relationship directions from `OntologyLoader`, including an installed genre only when the Vision or accepted Identity explicitly names it;
+- author-source freshness (`source_sha256`) is separate from derived guidance freshness (`design_guidance_sha256`), with an explicit `guidance_changed` status and historical packet compatibility;
+- the existing request contract now requires a complete first proposal without an interview and holistic revision across materially affected systems;
+- revision review shows changed meanings, preserved author-declared emotions and accepted constraints, and the candidate's own stated rationale without inventing causality;
+- a text-first readable architecture view precedes the optional graph, and the existing graph/Full Architecture surfaces remain;
+- `project_architecture_resume` plus a `resume` CLI action recover the working Vision, architecture, status, request SHA, exact ontology guidance, accepted Identity when present, source visibility and provisional concepts without conversation memory;
+- provisional project concepts are recorded as `CanvasStore` working notes in a `provisional-concepts` group, reusable across sessions without entering the shared ontology or staling author-source freshness.
+
+**Verification:** 73 changed-code focused tests, 620 beginner-wide tests (1 skipped), 126 Node Studio tests excluding one known baseline failure, and a real Chromium desktop/mobile/pending/graph check passed. The full Python suite collected 5,701: 5,684 passed, 15 failed, 2 skipped, 0 errors; all 15 failure IDs reproduced identically on the `origin/main @ 74539efe` baseline and are not regressions. Exact receipts and the evidence ceiling are in [the execution evidence](docs/reviews/2026-11-03-agent-first-architecture-evidence.md).
+
+**Evidence ceiling:** the host-agent requests were answered inline by the same coding agent, not an independent second model; fresh-process resume was verified, but independent-agent continuation and human author comprehension/quality remain unobserved. This is not release qualification. F2/X3 status and the next-product-selection posture do not change.
 
 ## 2026-10-25 Studio integration — explicit owner-directed development exception
 

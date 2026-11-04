@@ -1,0 +1,243 @@
+{
+  "schema_version": 2,
+  "summary": "An intimate, low-scale architecture about two sisters rebuilding trust after a fire. The proposal deliberately leaves genre, setting, cast, and concrete events unknown. It offers a relational engine of unequal need and practical care, a structure of small reparations, and an emotional progression from guarded grief to a partial, earned trust.",
+  "nodes": [
+    {
+      "id": "repair_engine",
+      "title": "Repair engine",
+      "category": "engine",
+      "summary": "Every offer of help is also a risk of reopening the injury, so repair advances through small, reversible acts rather than a single reconciliation.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "asymmetric_need",
+      "title": "Asymmetric need",
+      "category": "thread",
+      "summary": "The sisters need different things from the relationship, so care cannot be symmetrical and trust must be negotiated.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "shared_work",
+      "title": "Shared work",
+      "category": "structure",
+      "summary": "Practical cooperation gives the sisters evidence about each other that conversation alone cannot supply.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "small_reparation",
+      "title": "Small reparation",
+      "category": "trope",
+      "summary": "A modest, repeatable act of care matters more than a grand apology.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "memory_of_fire",
+      "title": "Memory of the fire",
+      "category": "theme",
+      "summary": "The fire is a shared history whose meaning each sister has organized differently.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "practical_care",
+      "title": "Practical care",
+      "category": "theme",
+      "summary": "Love becomes credible through ordinary maintenance rather than declarations.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "guarded_grief",
+      "title": "Guarded grief",
+      "category": "reader_experience",
+      "summary": "The reader feels grief held at a distance, with relief and wariness arriving together.",
+      "scope": "whole_story",
+      "parent_id": null
+    },
+    {
+      "id": "earned_trust",
+      "title": "Earned trust",
+      "category": "reader_experience",
+      "summary": "Trust becomes believable because it is built from repeated, imperfect evidence.",
+      "scope": "whole_story",
+      "parent_id": null
+    }
+  ],
+  "links": [
+    {
+      "id": "repair_drives_guarded_grief",
+      "source": "repair_engine",
+      "target": "guarded_grief",
+      "function": "explains why small trust offers feel risky"
+    },
+    {
+      "id": "repair_makes_small_reparation",
+      "source": "repair_engine",
+      "target": "small_reparation",
+      "function": "makes repair concrete and reversible"
+    },
+    {
+      "id": "need_pressures_repair",
+      "source": "asymmetric_need",
+      "target": "repair_engine",
+      "function": "keeps the sisters' needs unequal"
+    },
+    {
+      "id": "work_earns_trust",
+      "source": "shared_work",
+      "target": "earned_trust",
+      "function": "turns cooperation into evidence of trust"
+    },
+    {
+      "id": "fire_grounds_grief",
+      "source": "memory_of_fire",
+      "target": "guarded_grief",
+      "function": "gives the guardedness a shared history"
+    },
+    {
+      "id": "care_structures_work",
+      "source": "practical_care",
+      "target": "shared_work",
+      "function": "gives care a repeatable form"
+    },
+    {
+      "id": "reparation_builds_care",
+      "source": "small_reparation",
+      "target": "practical_care",
+      "function": "turns gestures into habits"
+    }
+  ],
+  "phases": [
+    {
+      "id": "aftermath",
+      "title": "Aftermath",
+      "order": 0,
+      "scope": "whole_story",
+      "genres": [],
+      "genre_activations": [],
+      "reader_experience": "Wariness mixed with relief.",
+      "aesthetic": "Ordinary domestic detail with one conspicuous absence.",
+      "narrative_function": "Establish guarded contact and unequal need.",
+      "transition": "A practical task requires cooperation.",
+      "parallel_with": []
+    },
+    {
+      "id": "guarded_contact",
+      "title": "Guarded contact",
+      "order": 1,
+      "scope": "whole_story",
+      "genres": [],
+      "genre_activations": [],
+      "reader_experience": "Guarded hope.",
+      "aesthetic": "Careful distance and unfinished gestures.",
+      "narrative_function": "Test small offers of help without demanding reconciliation.",
+      "transition": "Shared work makes avoidance harder.",
+      "parallel_with": []
+    },
+    {
+      "id": "shared_work",
+      "title": "Shared work",
+      "order": 2,
+      "scope": "whole_story",
+      "genres": [],
+      "genre_activations": [],
+      "reader_experience": "Earned relief.",
+      "aesthetic": "Competence, repetition, and practical texture.",
+      "narrative_function": "Let cooperation produce evidence that trust is possible.",
+      "transition": "A remembered detail about the fire changes each sister's interpretation.",
+      "parallel_with": []
+    },
+    {
+      "id": "earned_trust",
+      "title": "Earned trust",
+      "order": 3,
+      "scope": "whole_story",
+      "genres": [],
+      "genre_activations": [],
+      "reader_experience": "Earned trust with grief.",
+      "aesthetic": "Modest warmth that does not erase loss.",
+      "narrative_function": "Let trust be partial, chosen, and still vulnerable.",
+      "transition": "The sisters choose a modest ongoing practice of care.",
+      "parallel_with": []
+    }
+  ],
+  "open_questions": [
+    "What genre and setting should frame the story? The Vision does not establish one.",
+    "What exactly did each sister lose in the fire, and do they disagree about what happened?",
+    "Which sister wants repair, and which one resists it?",
+    "Should trust remain partial at the ending, or should the story imagine a durable reconciliation?"
+  ],
+  "emotion_targets": [
+    {
+      "id": "trust",
+      "emotion": "joy",
+      "role": "primary",
+      "intended_effect": "Earned trust that feels modest, specific, and still vulnerable.",
+      "eliciting_condition": "A sister keeps a small promise after it would have been easier to withdraw.",
+      "aesthetic_strategy": "Concrete domestic detail and restrained warmth.",
+      "provenance": "author_declared"
+    },
+    {
+      "id": "grief",
+      "emotion": "sadness",
+      "role": "supporting",
+      "intended_effect": "Grief for the home and former relationship that cannot be restored.",
+      "eliciting_condition": "A familiar routine is performed without the person or place that gave it meaning.",
+      "aesthetic_strategy": "Elegiac attention to ordinary objects.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "wariness",
+      "emotion": "fear",
+      "role": "supporting",
+      "intended_effect": "Wariness that trust might be punished again.",
+      "eliciting_condition": "An offer of help could become a new debt or accusation.",
+      "aesthetic_strategy": "Hesitation, distance, and unfinished gestures.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "anger",
+      "emotion": "anger",
+      "role": "contrasting",
+      "intended_effect": "Anger at old injuries that were never acknowledged.",
+      "eliciting_condition": "One sister's version of the past erases the other's loss.",
+      "aesthetic_strategy": "Sharp, specific disagreement inside an otherwise quiet scene.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "small_surprise",
+      "emotion": "surprise",
+      "role": "local",
+      "intended_effect": "Surprise when an ordinary act of care lands more meaningfully than expected.",
+      "eliciting_condition": "A small kindness is offered without a demand attached.",
+      "aesthetic_strategy": "A plain gesture that the other sister notices but cannot immediately answer.",
+      "provenance": "agent_proposed"
+    }
+  ],
+  "complex_emotions": [
+    {
+      "id": "guarded_hope",
+      "title": "Guarded hope",
+      "basic_emotions": [
+        "joy",
+        "fear"
+      ],
+      "context": "Relief and fear arrive together when trust is offered."
+    },
+    {
+      "id": "trust_through_grief",
+      "title": "Trust through grief",
+      "basic_emotions": [
+        "joy",
+        "sadness"
+      ],
+      "context": "A partial repair makes room for both continuing care and acknowledged loss."
+    }
+  ],
+  "genre_contracts": [],
+  "genre_interactions": []
+}

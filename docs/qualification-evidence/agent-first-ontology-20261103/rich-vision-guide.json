@@ -1,0 +1,13 @@
+{
+  "request_sha256": "c6269dc2e1953498ced08c1e32fa10b4d7bf05274e72c6214bd8b1f5074b5d66",
+  "candidate_id": "studio-e6a7af38c0095650b777c06c",
+  "settings": {
+    "canvas_id": "e2e-story",
+    "source_sha256": "6ec3e250ba15fea5c47725a8083f9f231a8628235b5a79012fd642069a18baf0",
+    "design_guidance_sha256": "df6d5adc303abb96c19f65f5f9e3330e0802d1fc1c7cb6db04d42e15af1160b0",
+    "freshness_format": 2,
+    "operation": "develop"
+  },
+  "status": "awaiting_host_agent",
+  "vision": "A coastal city lives on maps drawn by the Cartographers Guild. Every accurate map erases one memory from the person who supplied the survey. A young surveyor discovers that the Guild is using the city founding archive to make a perfect map that will erase the shared memory of a massacre. She must choose between a truthful map that frees the city from a comforting lie and a merciful map that preserves belonging. Intended experience: wonder at the strangeness of the coast, mounting dread as the cost becomes personal, and earned hope about chosen remembrance. Genre: a literary mystery with fantasy and horror passages. No explicit violence on the page; the tone is intimate and reflective, not grimdark. Themes: memory, complicity, and the ethics of knowledge."
+}
