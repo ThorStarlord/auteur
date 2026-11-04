@@ -20,13 +20,15 @@ from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
 
 
-def working_store(tmp_path):
+def working_store(
+    tmp_path, vision="A long fantasy: awe, mystery, romance, local horror, and hope.",
+):
     store = CanvasStore(tmp_path, "story-one")
     store.create()
     store.apply("create-item", expected_revision=0, command_id="vision-created",
                 payload={"item": {
                     "id": "story-vision", "kind": "note", "title": "Story Vision",
-                    "content": "A long fantasy: awe, mystery, romance, local horror, and hope.",
+                    "content": vision,
                 }, "position": {"x": 20, "y": 50}})
     return store
 
@@ -718,6 +720,85 @@ def emotion_first_candidate():
         ],
         "open_questions": ["How much progression is public versus private?"],
     }
+
+
+def test_first_generation_request_requires_complete_proposal_without_interview(tmp_path):
+    store = working_store(
+        tmp_path,
+        "A coastal mystery about a cartographer whose maps erase memories. "
+        "Wonder, unease, and earned hope.",
+    )
+    waiting = prepare_architecture(store)
+    system = " ".join(waiting["request"]["system"].split())
+    assert "COMPLETE abstract proposal" in system
+    assert "without an interview" in system
+    assert "emotional experience and its progression" in system
+    assert "functional trope" in system
+    assert "renewable narrative mechanisms" in system
+    assert "materially affected" in system
+    assert "preserve unrelated author decisions" in system
+    assert "Do not fabricate genre commitments" in system
+    user = json.loads(waiting["request"]["user"])
+    assert user["revision_instruction"] == ""
+    assert user["working_context"]["previous_candidate"] is None
+
+
+def test_revision_request_carries_instruction_prior_candidate_and_holistic_rule(tmp_path):
+    store = working_store(tmp_path)
+    first = prepare_architecture(store)
+    baseline = complete_architecture(store, response(first, emotion_first_candidate()))
+    revision = prepare_architecture(
+        store, "Make wonder the dominant experience while preserving mystery.",
+    )
+    user = json.loads(revision["request"]["user"])
+    assert user["revision_instruction"] == (
+        "Make wonder the dominant experience while preserving mystery."
+    )
+    assert user["working_context"]["previous_candidate"] == baseline["candidate"]
+    system = " ".join(revision["request"]["system"].split())
+    assert "coordinated consequences" in system
+    assert "not isolated label changes" in system
+    assert revision["candidate"] == baseline["candidate"]
+
+
+def test_sparse_vision_request_keeps_genre_unknown_without_questionnaire(tmp_path):
+    store = working_store(
+        tmp_path, "A quiet story about two sisters learning to trust each other again.",
+    )
+    waiting = prepare_architecture(store)
+    user = json.loads(waiting["request"]["user"])
+    guidance = user["narrative_design_context"]
+    assert guidance["ontology_context"]["selection"]["genre_extensions"] == []
+    system = " ".join(waiting["request"]["system"].split())
+    assert "Do not fabricate genre commitments" in system
+    assert "question" in system.lower()
+    assert "A proposal never waits for answers" in system
+
+
+def test_conflicting_accepted_identity_is_visible_and_not_silently_rewritten(tmp_path):
+    from auteur.identity import StoryIdentity
+
+    store = working_store(
+        tmp_path, "A story where the protagonist discovers literal magic on page one.",
+    )
+    identity = StoryIdentity.model_validate({
+        "title": "No magic allowed",
+        "core_answer": "A community survives through practical care.",
+        "central_engine": {
+            "want": "Protect the town", "resistance": "A failing bridge",
+            "conflict": "Scarcity against solidarity", "stakes": "Shelter",
+            "change": "Shared maintenance",
+        },
+        "hard_constraints": ["The story contains no supernatural events"],
+    })
+    identity.to_yaml(tmp_path / "story_identity.yaml")
+    waiting = prepare_architecture(store)
+    user = json.loads(waiting["request"]["user"])
+    accepted = user["narrative_design_context"]["accepted_story_identity"]
+    assert accepted["hard_constraints"] == ["The story contains no supernatural events"]
+    system = " ".join(waiting["request"]["system"].split())
+    assert "surface the tension as an unresolved proposal" in system
+    assert "never silently change the accepted story" in system
 
 
 def test_v2_emotion_first_architecture_and_legacy_v1_remain_readable():

@@ -499,6 +499,19 @@ never assert missing passages, motives or outcomes from a truncated excerpt.
 If working intent conflicts with accepted Identity, surface the tension as
 an unresolved proposal; never silently change the accepted story.
 
+A first architecture must be a COMPLETE abstract proposal built directly from
+the Story Vision. Create it without an interview, questionnaire or blocking
+author answers. Cover the governing audience emotional
+experience and its progression, genre roles and interactions, functional trope
+choices, renewable narrative mechanisms and causal organization, abstract
+structural progression, and the meaningful relationships among those systems.
+Name consequential provisional choices instead of hiding them as certainty.
+A revision must reconsider every materially affected emotion, genre, trope
+function, engine and structural phase and preserve unrelated author
+decisions and accepted constraints. Explain coordinated consequences, not
+isolated label changes, and distinguish necessary changes from optional ideas.
+Do not invent concrete scenes, chapter numbers or plot events to fill gaps.
+
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
 a primary engine with subordinate layers, or an ensemble of co-governing
