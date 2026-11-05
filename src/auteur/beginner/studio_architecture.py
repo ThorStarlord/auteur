@@ -31,6 +31,7 @@ from auteur.host_agent import (
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
 from .studio_architecture_review import build_architecture_review, candidate_diff
+from .studio_architecture_graph_intent import GraphIntent, resolve_graph_intent
 from .studio_concepts import (
     ProvisionalNarrativeConcept, list_provisional_concepts,
     record_provisional_concept,
@@ -789,11 +790,28 @@ def project_architecture_resume(store: CanvasStore) -> dict:
     }
 
 
-def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
+def prepare_architecture(store: CanvasStore, instruction: str = "", graph_intent: dict | None = None) -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("revision instruction must be text under 4000 characters")
     with _FilesystemLock(store._path(".canvas.lock")):
         current = _candidate(store)
+        resolved_graph_intent = None
+        if graph_intent is not None:
+            typed_intent = GraphIntent.model_validate(graph_intent)
+            if typed_intent.operation != "revise":
+                raise ValueError("only an explicit Revise action may prepare a working architecture")
+            if typed_intent.canvas_id != store.canvas_id:
+                raise ValueError("graph intent belongs to another canvas")
+            if typed_intent.author_text != instruction:
+                raise ValueError("graph intent author text must exactly match the revision instruction")
+            if not current or _current_candidate_freshness(store, current) != "ready":
+                raise BeginnerConcurrencyError("graph-selected architecture source or guidance is stale")
+            active_pointer = _read(_root(store) / "latest_request.json")
+            if active_pointer and active_pointer.get("request_sha256") != current["request_sha256"]:
+                raise BeginnerConcurrencyError("an outstanding architecture request supersedes this graph context")
+            resolved_graph_intent = resolve_graph_intent(
+                current["candidate"], current["request_sha256"], typed_intent,
+            )
         if instruction.strip() and not current:
             raise ValueError("nothing to revise; develop an initial architecture first")
         previous = current["candidate"] if instruction.strip() and current else None
@@ -818,6 +836,7 @@ def prepare_architecture(store: CanvasStore, instruction: str = "") -> dict:
             "working_context": context,
             "narrative_design_context": design_context,
             "revision_instruction": instruction,
+            **({"graph_intent": resolved_graph_intent} if resolved_graph_intent else {}),
         }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
@@ -889,6 +908,9 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 accepted_identity=accepted_identity,
             ))
             record["prior_request_sha256"] = current["request_sha256"]
+            submitted_intent = json.loads(request.user).get("graph_intent")
+            if submitted_intent:
+                record["graph_intent_receipt"] = submitted_intent
             _atomic_json_write(base / "review.json", record)
         else:
             _atomic_json_write(_root(store) / "current.json", record)

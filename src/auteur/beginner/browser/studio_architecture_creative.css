@@ -1,0 +1,24 @@
+/* Opt-in graph-driven author inquiry. Never changes the standard Studio graph. */
+.architecture-creative-graph { margin-block: 1rem; padding: .75rem; border: 1px solid color-mix(in srgb,currentColor 18%,transparent); border-radius: .75rem; }
+.architecture-creative-graph > summary { cursor: pointer; font-weight: 650; }
+.architecture-creative-graph > p { max-width: 70ch; font-size: .9rem; }
+.architecture-creative-workbench { display: grid; grid-template-columns: minmax(12rem,1fr) minmax(12rem,1fr) minmax(18rem,2fr); gap: .9rem; align-items: start; }
+.architecture-creative-workbench > section { min-width: 0; border: 1px solid color-mix(in srgb,currentColor 15%,transparent); border-radius: .65rem; padding: .75rem; }
+.architecture-creative-workbench button { display: inline-block; max-width: 100%; white-space: normal; margin: .2rem; padding: .32rem .5rem; }
+.architecture-creative-workbench button:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+.architecture-relationship-index > div { max-height: 18rem; overflow-y: auto; }
+.architecture-relationship-index > div button { display: block; width: calc(100% - .4rem); text-align: left; }
+.architecture-relationship-index input { display: block; width: 100%; max-width: 100%; margin-block: .4rem; }
+.architecture-component-actions { max-height: 24rem; overflow-y: auto; }
+.architecture-creative-agent-panel textarea { width: 100%; min-height: 4.5rem; margin-block: .3rem .65rem; }
+.architecture-creative-agent-panel > p[role=status] { padding: .4rem .1rem; }
+.architecture-creative-agent-panel > div[aria-label='Creative actions'] { display: flex; flex-wrap: wrap; gap: .25rem; }
+.architecture-creative-agent-panel [aria-pressed=true] { font-weight: 700; text-decoration: underline; }
+.creative-anchor-chip { display: inline-block; margin: .15rem; padding: .15rem .45rem; border: 1px solid currentColor; border-radius: 1rem; font-size: .85rem; overflow-wrap: anywhere; }
+#edges path[data-architecture-link-id],#edges path[data-genre-interaction-id] { cursor: pointer; }
+@media (max-width: 840px) { .architecture-creative-workbench { grid-template-columns: minmax(0,1fr); } .architecture-relationship-index > div { max-height: 12rem; } }
+@media (prefers-reduced-motion: reduce) { .architecture-creative-graph * { scroll-behavior: auto!important; transition: none!important; } }
+
+/* The full-size node layer otherwise intercepts edge clicks; actual buttons still receive input. */
+#nodes { pointer-events: none; }
+#nodes .node { pointer-events: auto; }

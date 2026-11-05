@@ -6,6 +6,7 @@
   <title>Auteur — Living Story Studio (prototype)</title>
   <link rel="stylesheet" href="/studio.css">
   <link rel="stylesheet" href="/studio_architecture_revision.css">
+  <link rel="stylesheet" href="/studio_architecture_creative.css">
 </head>
 <body>
   <header class="topbar">
@@ -94,6 +95,15 @@
           <button id="architecture-revise" type="button">Request a revised candidate</button>
         </details>
         <span id="architecture-status" role="status" aria-live="polite">No agent architecture requested.</span>
+        <details id="architecture-creative-graph" class="architecture-creative-graph" hidden>
+          <summary>Explore graph with coding agent (experimental)</summary>
+          <p>Choose a recorded node, relationship or component. Inspect and Trace remain local; creative inquiries prepare a request but never silently run a model or revise the working story.</p>
+          <div class="architecture-creative-workbench">
+            <section id="architecture-relationship-index" class="architecture-relationship-index" aria-label="Recorded narrative relationships"></section>
+            <section id="architecture-component-actions" class="architecture-component-actions" aria-label="Selected narrative components"></section>
+            <section id="architecture-creative-agent-panel" class="architecture-creative-agent-panel" aria-label="Graph-grounded coding agent inquiry"></section>
+          </div>
+        </details>
         <section id="architecture-review" class="architecture-review" hidden aria-label="Review working architecture changes">
           <strong>Proposed architecture revision — review before applying</strong>
           <p id="architecture-review-summary"></p>
@@ -352,6 +362,11 @@
   <script src="/studio_full_architecture.js" defer></script>
   <script src="/studio_full_architecture_controller.js" defer></script>
   <script src="/studio_architecture_reader.js" defer></script>
+  <script src="/studio_architecture_graph_actions.js" defer></script>
+  <script src="/studio_architecture_graph_selection.js" defer></script>
+  <script src="/studio_architecture_agent_bridge.js" defer></script>
+  <script src="/studio_architecture_creative_panel.js" defer></script>
+  <script src="/studio_architecture_creative_feedback.js" defer></script>
   <script src="/studio_architecture_revision_bridge.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>

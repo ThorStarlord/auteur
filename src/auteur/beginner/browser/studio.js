@@ -25,6 +25,92 @@
     }
     return revisionReviewBridge;
   }
+  var graphSelectionController=null, creativePanel=null, creativeAgentBridge=null;
+  var creativeFeedbackController=null, lastCreativeReviewSha=null;
+  function ensureCreativeGraph() {
+    var disclosure=$("architecture-creative-graph");
+    if (!disclosure) return;
+    disclosure.hidden=!(state.architecture && state.architecture.schema_version===2);
+    if (!state.architecture || graphSelectionController) return;
+    if (!window.AuteurStudioGraphActions || !window.AuteurStudioGraphSelection ||
+        !window.AuteurStudioAgentBridge || !window.AuteurStudioCreativePanel ||
+        !window.AuteurStudioCreativeFeedback) return;
+    var actions=window.AuteurStudioGraphActions;
+    creativeAgentBridge=window.AuteurStudioAgentBridge.createArchitectureAgentBridge({
+      canvasId:function(){return remote.canvasId;},
+      readProjection:function(){return {candidate_request_sha256:state.architectureRequestSha};},
+      onInquiryResult:function(projection){
+        if (!creativePanel) return;
+        if (projection.result) creativePanel.setInquiryResult(projection);
+        else creativePanel.setStatus(projection);
+        if (creativeFeedbackController && projection.result)
+          creativeFeedbackController.onInquiry(projection,state.architectureRequestSha);
+      }
+    });
+    creativePanel=window.AuteurStudioCreativePanel.createCreativePanel({
+      root:$("architecture-creative-agent-panel"),
+      onAction:function(payload){
+        if (payload.operation==="inspect" || payload.operation==="trace") {
+          creativePanel.setLocalInspection(actions.projectGraphSelection(state.architecture,payload.anchors));
+          return;
+        }
+        creativePanel.setStatus({status:"preparing"});
+        creativeAgentBridge.prepareInquiry(payload).catch(function(error){
+          creativePanel.setStatus({status:"error"});
+          status("Graph inquiry not prepared: "+error.message);
+        });
+      },
+      onRevise:function(payload){
+        var graphIntent={
+          version:1,canvas_id:remote.canvasId,operation:"revise",
+          expected_candidate_request_sha256:state.architectureRequestSha,
+          anchors:payload.anchors.map(function(a){
+            var ref={kind:a.kind,id:a.id};
+            if(a.field)ref.field=a.field;
+            if(a.reference)ref.reference={field:a.reference.field,
+              target_kind:a.reference.target_kind,target_id:a.reference.target_id};
+            return ref;
+          }),
+          author_text:payload.authorText
+        };
+        requestArchitecture(payload.authorText,graphIntent);
+      },
+      onClear:function(){if(graphSelectionController) graphSelectionController.clear();},
+      onComplete:function(payload){
+        creativeAgentBridge.completeInquiry(payload).catch(function(error){
+          creativePanel.setStatus({status:"error"});
+          status("Inquiry response rejected: "+error.message);
+        });
+      }
+    });
+    graphSelectionController=window.AuteurStudioGraphSelection.createGraphSelectionController({
+      getCandidate:function(){return state.architecture;},
+      getRequestSha:function(){return state.architectureRequestSha;},
+      graphRoot:$("edges"),indexRoot:$("architecture-relationship-index"),
+      inspectorRoot:$("architecture-component-actions"),
+      onSelect:function(anchors){
+        if (!anchors.length){creativePanel.setSelection([],[]);return;}
+        try {
+          var projection=actions.projectGraphSelection(state.architecture,anchors);
+          creativePanel.setSelection(projection.anchors,
+            actions.availableGraphActions(state.architecture,anchors));
+          disclosure.open=true;
+        } catch(error) {status("Graph selection unavailable: "+error.message);}
+      }
+    });
+    creativeFeedbackController=window.AuteurStudioCreativeFeedback.createCreativeFeedbackController({
+      getCandidate:function(){return state.architecture;},
+      getCanvasId:function(){return remote.canvasId;},
+      selectGraphFocus:function(anchor){
+        if(graphSelectionController)graphSelectionController.select(anchor);
+      },
+      openHybridReview:function(anchor){
+        if(ensureRevisionReviewBridge() && revisionReviewBridge.focusRevision)
+          revisionReviewBridge.focusRevision(anchor);
+      },
+      renderInquiry:function(){disclosure.open=true;}
+    });
+  }
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
   state.workspace = "architecture"; state.lastRealizationView = "create";
@@ -277,6 +363,13 @@
       state.selectedCandidate = null;
     }
     render(); rememberFocus();
+    ensureCreativeGraph();
+    if (graphSelectionController) graphSelectionController.onCandidateChange();
+    if (creativeFeedbackController && projection.status==="review_ready" &&
+        projection.review && projection.review.request_sha256!==lastCreativeReviewSha) {
+      lastCreativeReviewSha=projection.review.request_sha256;
+      creativeFeedbackController.onReviewReady(projection);
+    } else if (projection.status!=="review_ready") lastCreativeReviewSha=null;
   }
   function loadArchitecture() {
     var canvasId = remote.canvasId;
@@ -297,7 +390,7 @@
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
   }
-  function requestArchitecture(instruction) {
+  function requestArchitecture(instruction, graphIntent) {
     if (!remote.ready || remote.failed) { status("Save the working canvas before requesting architecture."); return; }
     if (!$("scene-panel").hidden) captureScene();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
@@ -307,7 +400,8 @@
       if (remote.failed) throw new Error("The working canvas did not save; no agent request was created.");
       return fetch(architectureUrl() + "/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ instruction: instruction || "" })
+        body: JSON.stringify(Object.assign({instruction:instruction||""},
+          graphIntent ? {graph_intent:graphIntent} : {}))
       }).then(apiJson);
     }).then(function (projection) {
       applyArchitectureProjection(projection, false);
@@ -365,6 +459,8 @@
       button.setAttribute("aria-pressed", String(button.dataset.itemId === id));
     });
     drawEdges(); renderUnfolding(); rememberFocus();
+    if (graphSelectionController && state.architecture)
+      graphSelectionController.select({kind:"node",id:id});
   }
 
   function focusRelatedArchitecture() {
@@ -605,6 +701,10 @@
   }
   function activateCanvas(canvasId) {
     if (revisionReviewBridge) revisionReviewBridge.update(null, null);
+    if (graphSelectionController) graphSelectionController.clear();
+    if (creativePanel) creativePanel.reset();
+    if (creativeAgentBridge) creativeAgentBridge.reset();
+    lastCreativeReviewSha=null;
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {
@@ -1148,6 +1248,12 @@
         var title = document.createElementNS(svgNS, "title");
         title.textContent = (edge.function || "Related") + ": " + fromNode.title + " → " + toNode.title;
         path.appendChild(title); svg.appendChild(path);
+        if (window.AuteurStudioGraphSelection) {
+          var linkHit=path.cloneNode(false);
+          linkHit.removeAttribute("marker-end");linkHit.setAttribute("stroke","transparent");
+          linkHit.setAttribute("stroke-width","22");linkHit.setAttribute("pointer-events","stroke");
+          linkHit.setAttribute("aria-hidden","true");svg.appendChild(linkHit);
+        }
         if (highlighted && edge.function) {
           var verb = document.createElementNS(svgNS, "text");
           verb.setAttribute("x", String(curve.control.x));
@@ -1198,6 +1304,12 @@
         var label = document.createElementNS(svgNS, "title");
         label.textContent = edge.kind.replace(/_/g, " ") + ": " + a.title + " → " + b.title + ". " + edge.mechanism;
         path.appendChild(label); svg.appendChild(path);
+        if (window.AuteurStudioGraphSelection) {
+          var genreHit=path.cloneNode(false);
+          genreHit.removeAttribute("marker-end");genreHit.setAttribute("stroke","transparent");
+          genreHit.setAttribute("stroke-width","22");genreHit.setAttribute("pointer-events","stroke");
+          genreHit.setAttribute("aria-hidden","true");svg.appendChild(genreHit);
+        }
         if (highlighted) {
           var text = document.createElementNS(svgNS, "text");
           text.setAttribute("x", String(curve.control.x));
