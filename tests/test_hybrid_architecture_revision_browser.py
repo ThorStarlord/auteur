@@ -17,8 +17,8 @@ EVIDENCE = ROOT / 'docs/qualification-evidence/agent-first-ontology-20261103'
 
 def _source_bundle():
     sources = []
-    for name in ('compare.mjs', 'layout.mjs', 'view.mjs'):
-        source = (BASE / name).read_text(encoding='utf-8')
+    for name in ('studio_architecture_revision_compare.mjs', 'studio_architecture_revision_view.mjs'):
+        source = (ROOT / 'src/auteur/beginner/browser' / name).read_text(encoding='utf-8')
         source = re.sub(r'^import .*?;\s*$', '', source, flags=re.MULTILINE)
         source = re.sub(r'^export \{[^}]*\};\s*$', '', source, flags=re.MULTILINE)
         source = source.replace('export function ', 'function ').replace('export const ', 'const ')
