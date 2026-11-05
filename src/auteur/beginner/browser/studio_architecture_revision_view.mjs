@@ -60,7 +60,7 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
     const graph=side==='before'?layout.beforeGraph:layout.afterGraph;
     const box=make('section',undefined,'architecture-side','side-'+side);box.dataset.side=side;
     append(box,make('h3',side==='before'?'Before — current working architecture':'After — un-applied agent proposal'));
-    append(box,make('p',side==='before'?'Request '+comparison.beforeRequestSha:'Request '+comparison.afterRequestSha+' (synthetic in this research fixture)'));
+    append(box,make('p',side==='before'?'Request '+comparison.beforeRequestSha:'Request '+comparison.afterRequestSha));
     const scroll=make('div',undefined,'graph-scroll');const canvas=make('div',undefined,'graph-canvas');
     const width=Math.max(600,...Object.values(layout.positionsByNodeId).map(p=>p.x+180));
     canvas.style.width=width+'px';canvas.style.height=Math.max(150,layout.rows*112+48)+'px';
