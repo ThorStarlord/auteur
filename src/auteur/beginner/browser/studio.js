@@ -14,6 +14,17 @@
   state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
   state.fullArchitectureEvidence = null;
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
+  var revisionReviewBridge = null;
+  function ensureRevisionReviewBridge() {
+    if (!revisionReviewBridge && window.AuteurStudioRevisionBridge) {
+      revisionReviewBridge = window.AuteurStudioRevisionBridge.create({
+        disclosure: $("architecture-visual-review"),
+        root: $("architecture-visual-review-root"),
+        getCanvasId: function () { return remote.canvasId; }
+      });
+    }
+    return revisionReviewBridge;
+  }
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
   state.workspace = "architecture"; state.lastRealizationView = "create";
@@ -178,6 +189,7 @@
         (!old.key || architectureFacetEntries(old.facet).some(function (e) { return e.key === old.key; }));
     });
     state.architectureRequestSha = projection.candidate_request_sha256;
+    if (ensureRevisionReviewBridge()) revisionReviewBridge.update(projection, remote.canvasId);
     state.candidatePositions = {};
     if (state.architecture) {
       var categories = ["reader_experience", "aesthetic", "genre", "engine", "trope", "structure", "theme", "thread"];
@@ -592,6 +604,7 @@
     });
   }
   function activateCanvas(canvasId) {
+    if (revisionReviewBridge) revisionReviewBridge.update(null, null);
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {
