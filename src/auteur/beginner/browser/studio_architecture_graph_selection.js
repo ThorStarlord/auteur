@@ -42,7 +42,7 @@
    Object.keys(record).filter(k=>k!=='id'&&k!=='genre_node_id').forEach(field=>{
     const b=make('button',labelledField(field));b.type='button';b.dataset.componentField=field;
     b.title=typeof record[field]==='string'?record[field].slice(0,350):'Inspect recorded component';
-    b.addEventListener('click',()=>select({kind:a.kind,id:a.id,field},{append:false}));
+    b.addEventListener('click',event=>select({kind:a.kind,id:a.id,field},{append:event.shiftKey||event.ctrlKey}));
     inspectorRoot.append(b);
    });
   }
@@ -70,7 +70,7 @@
      reference:{field:'parent_id',target_kind:'node',target_id:owner.parent_id},text:owner.id+' child of '+owner.parent_id});});
    items.filter(item=>item.text.toLowerCase().includes(value)).slice(0,250).forEach(item=>{
     const b=make('button',item.text);b.type='button';b.dataset.graphRelationKind=item.kind;b.dataset.graphRelationId=item.id;
-    b.addEventListener('click',()=>select(item));list.append(b);
+    b.addEventListener('click',event=>select(item,{append:event.shiftKey||event.ctrlKey}));list.append(b);
    });
    if(!list.children.length)list.append(make('p','No recorded relations match this filter.'));
    if(focus)filter.focus();
