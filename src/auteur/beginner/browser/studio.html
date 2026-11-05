@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Auteur — Living Story Studio (prototype)</title>
   <link rel="stylesheet" href="/studio.css">
+  <link rel="stylesheet" href="/studio_architecture_revision.css">
 </head>
 <body>
   <header class="topbar">
@@ -97,6 +98,11 @@
           <strong>Proposed architecture revision — review before applying</strong>
           <p id="architecture-review-summary"></p>
           <ul id="architecture-diff"></ul>
+          <details id="architecture-visual-review" hidden>
+            <summary>Compare visually (experimental · working architecture only)</summary>
+            <p>The two candidate versions remain separate until you explicitly apply the complete working revision. Inspecting changes does not call an agent or accept story meaning.</p>
+            <div id="architecture-visual-review-root" aria-label="Hybrid architecture revision comparison"></div>
+          </details>
           <p>These differences affect only working architecture. Accepted story artifacts never change here.</p>
           <button id="architecture-apply" type="button">Apply to working architecture</button>
         </section>
@@ -346,6 +352,7 @@
   <script src="/studio_full_architecture.js" defer></script>
   <script src="/studio_full_architecture_controller.js" defer></script>
   <script src="/studio_architecture_reader.js" defer></script>
+  <script src="/studio_architecture_revision_bridge.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
 </html>
