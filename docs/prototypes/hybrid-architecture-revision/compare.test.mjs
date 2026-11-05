@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {compareArchitectureRevision} from './compare.mjs';
+const SHA='a'.repeat(64), NEXT='b'.repeat(64);
+const original=()=>({schema_version:2,summary:'Dread and mystery',nodes:[
+{id:'memory',title:'Memory Economy',category:'engine',summary:'Curiosity costs memories',scope:'whole_story',parent_id:null},
+{id:'wonder',title:'Wonder',category:'reader_experience',summary:'Awe',scope:'whole_story',parent_id:null}],
+links:[{id:'cost_link',source:'memory',target:'wonder',function:'pressures'}],
+emotion_targets:[{id:'awe',emotion:'joy',role:'primary',intended_effect:'Surprise',eliciting_condition:'Discovery',aesthetic_strategy:'Beauty',provenance:'author_declared'}],
+complex_emotions:[{id:'uneasy_wonder',title:'Uneasy wonder',basic_emotions:['joy','fear'],context:'Mixed awe'}],
+genre_contracts:[{genre_node_id:'mystery',role:'governing',emotion_target_ids:['awe'],complex_emotion_ids:['uneasy_wonder'],trope_functions:['Clue'],narrative_engine:'Questions',structural_pattern:'Escalation',aesthetic_strategies:[],payoff_expectations:['Discovery']}],
+genre_interactions:[],phases:[{id:'opening',title:'Opening',order:0,scope:'whole_story',genres:[],genre_activations:[{genre_node_id:'mystery',basic_emotions:['joy'],trope_functions:['Clue'],structural_function:'Tease'}],reader_experience:'Awe',aesthetic:'Coast',narrative_function:'Reveal',transition:null,parallel_with:[]}],open_questions:[]});
+const compare=(before,after,other={})=>compareArchitectureRevision({before,after,beforeRequestSha:SHA,afterRequestSha:NEXT,expectedPriorSha:SHA,...other});
+const find=(v,kind,id)=>v.items.find(x=>x.kind===kind&&x.id===id);
+test('semantic-only change retains identity and exposes the full changed field',()=>{const a=original(),b=structuredClone(a);b.nodes[0].summary='Discoveries can restore collective memory';const v=compare(a,b);const n=find(v,'node','memory');assert.equal(n.change,'changed');assert.deepEqual(n.changedFields.map(f=>f.field),['summary']);assert.equal(n.beforeSourceRef,'nodes/0');assert.equal(n.afterSourceRef,'nodes/0');assert.equal(n.beforeRecord.summary,'Curiosity costs memories');assert.equal(n.afterRecord.summary,b.nodes[0].summary)});
+test('redirected link exposes both endpoints on one stable identity',()=>{const a=original(),b=structuredClone(a);b.links[0].target='memory';const x=find(compare(a,b),'link','cost_link');assert.equal(x.change,'changed');assert.equal(x.changedFields[0].field,'target');assert.equal(x.beforeRecord.target,'wonder');assert.equal(x.afterRecord.target,'memory')});
+test('array reorder changes the exact source locations but not record semantics',()=>{const a=original(),b=structuredClone(a);b.nodes.reverse();const v=compare(a,b);assert.equal(find(v,'node','memory').change,'unchanged');assert.equal(find(v,'node','memory').afterSourceRef,'nodes/1');assert.equal(find(v,'node','wonder').beforeSourceRef,'nodes/1');});
+test('genre contract identity comes from genre_node_id',()=>{const a=original(),b=structuredClone(a);b.genre_contracts[0].narrative_engine='Generous curiosity';const x=find(compare(a,b),'genre_contract','mystery');assert.equal(x.change,'changed');assert.equal(x.afterSourceRef,'genre_contracts/0');});
+test('nested structural component values are compared without flattening away data',()=>{const a=original(),b=structuredClone(a);b.phases[0].genre_activations[0].structural_function='Raise stakes';const x=find(compare(a,b),'phase','opening');assert.deepEqual(x.changedFields.map(f=>f.field),['genre_activations']);assert.deepEqual(x.changedFields[0].afterValue,b.phases[0].genre_activations);});
+test('removed author declared emotional commitment is not reported as preserved',()=>{const a=original(),b=structuredClone(a);b.emotion_targets=[];const v=compare(a,b);assert.equal(find(v,'emotion_target','awe').change,'removed');assert.match(v.summary.authorDeclaredWarnings.join(' '),/awe/);});
+test('no-op revision and summary-only revision show no invented graph changes',()=>{const a=original(),b=structuredClone(a);assert.equal(compare(a,b).summary.changed,0);b.summary='Wonder dominates';const v=compare(a,b);assert.equal(find(v,'summary','summary').change,'changed');assert.equal(find(v,'node','memory').change,'unchanged')});
+test('same-name entities do not merge',()=>{const a=original(),b=structuredClone(a);b.nodes[1].title='Memory Economy';const v=compare(a,b);assert.equal(v.items.filter(x=>x.kind==='node').length,2)});
+test('baseline SHA mismatch and malformed source fail closed',()=>{const a=original();assert.throws(()=>compare(a,a,{expectedPriorSha:'c'.repeat(64)}),/baseline|request/i);assert.throws(()=>compare({...a,schema_version:1},a),/schema|candidate/i)});
