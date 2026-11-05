@@ -21,7 +21,7 @@ The author selected hybrid before/after review and explicitly authorized impleme
 | --- | --- | --- |
 | Node comparison, layout and view tests | 21 passed | Local new-module mirror; not full Auteur source tree |
 | Node promoted comparator/view and lazy bridge tests | 6 passed | Local code and contract tests, including opt-in/load/invalidation |
-| Combined Node tests | **27 passed** | `node --test docs/prototypes/hybrid-architecture-revision/*.test.mjs tests/test_studio_architecture_revision_*.mjs` |
+| Combined Node tests | **28 passed** | `node --test docs/prototypes/hybrid-architecture-revision/*.test.mjs tests/test_studio_architecture_revision_*.mjs` |
 | Real Chromium DOM journey | **1 passed** | Scripts injected on `about:blank`; local URL navigation blocked by admin policy |
 | Python server/lifecycle test | Syntax compiled; not executed | No full checkout or installed Auteur package |
 | Served Studio / end-to-end host-agent interaction | **Not verified** | GitHub is accessible only via connected app; container cannot clone and browser blocks local URL navigation |
@@ -33,6 +33,10 @@ The full repository tests, native browser serving, response-to-review flow and h
 ## Baseline comparison and uncertainty
 
 The existing Studio offers an actual working revision, a textual changed-component review and its current architecture graph. The hybrid adds mechanically inspectable exact typed before/after field values, matched node positions, and a focused local view even when graph topology does not change. The human value of those surfaces remains unmeasured. In particular, the design must not imply that a change in JSON guarantees improved narrative coherence or accepted-constraint compliance.
+
+## Final review and correction
+
+A source review caught a misleading label in the shared visual graph: the After panel called every agent revision synthetic, even inside live Studio. A new test reproduced the defect (RED) and the correction passed the complete 28-test Node suite (GREEN). The standalone prototype remains explicitly labeled as a recorded baseline with a synthetic After fixture, while live reviews do not claim synthetic provenance. No independent fresh-context reviewer was available; this was a same-agent read-only self-review, and its limitations are retained in the integration gate.
 
 ## Rulings made autonomously
 
