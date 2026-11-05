@@ -121,6 +121,8 @@ No permanent new branching/version graph is required. Persist only what is neces
 
 ## 8. Layout, component UX, accessibility and performance
 
+**Runtime convention:** New Studio browser .js files follow the existing IIFE/window-global pattern used by studio_architecture_reader.js and its Node vm tests; preserve defer load order and the server _BROWSER_ASSETS allowlist. Only the already-existing hybrid review .mjs modules use native ESM lazy import. Do not accidentally require Node ESM interpretation for a new .js asset.
+
 - Graph edge selection: give actual recorded directed SVG paths a generous **transparent hit target** without stealing pan/zoom. Expose exact same actions through keyboard-operable linear relationship index and inspector; no SVG-only discovery.
 - Component selection: select meaningful field rows inside inspector, not new draggable component nodes. Display compact source-backed values and expand for long text.
 - Side panel: remains visible during graph navigation, provides selected anchors, source authority, tailored actions, exact editable author text, status and agent results. Clear focus without deleting recorded agent responses.
