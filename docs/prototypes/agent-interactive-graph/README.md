@@ -64,3 +64,19 @@ The recorded rich candidate contains `memory_economy` (node `nodes/3`), emotion 
 - The prototype reads only the loaded fixture. It does not call a model, write `CanvasStore`, use `localStorage`, change ontology, accept story meaning, or mutate the current Studio.
 - The draft is labeled `prepared_not_executed` and `noncanonical_intent_draft`. It is copyable/editable text, not a `HostAgentRequest`.
 - Automated DOM and browser checks do not establish human author comprehension or literary quality.
+
+## Evaluation outcome
+
+The completed inquiry recommends **B1 — Question-First Semantic Inspector** as the smallest credible direction, with **no production integration now**: the automated and simulated-author evidence supports a source-precision improvement, but not a proven author-effectiveness improvement. B2 adds component density without demonstrated consequential advantage over B1. The current Studio remains stronger for actually executing a revision.
+
+Full task matrix, tradeoffs, test results, and the future production boundary are in the [prototype assessment](../../research/2026-11-04-agent-interactive-graph-prototype-assessment.md).
+
+Verification used in this inquiry:
+
+```bash
+node --test docs/prototypes/agent-interactive-graph/model.test.mjs
+node --test docs/prototypes/agent-interactive-graph/view.test.mjs
+python -m pytest tests/test_agent_interactive_graph_browser.py -q
+```
+
+The prototype is an isolated evaluation artifact. It is not released, not production-integrated, and not a substitute for the active coding agent.
