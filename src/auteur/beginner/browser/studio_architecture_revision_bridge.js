@@ -13,7 +13,7 @@
       return {compareArchitectureRevision:compare.compareArchitectureRevision,
         mountRevisionReview:view.mountRevisionReview};
     });
-    let snapshot=null, viewer=null, generation=0;
+    let snapshot=null, viewer=null, generation=0, pendingFocus=null;
     function dispose() {
       generation += 1;
       if (viewer) {viewer.destroy();viewer=null;}
@@ -28,7 +28,7 @@
         && projection.review.prior_request_sha256===projection.candidate_request_sha256);
     }
     function update(projection, canvasId) {
-      dispose();
+      dispose();pendingFocus=null;
       snapshot=valid(projection)?{projection,canvasId}:null;
       disclosure.hidden=!snapshot;
       disclosure.open=false;
@@ -51,17 +51,25 @@
           acceptedConstraints:review.preserved?.accepted_constraints || [],
         });
         viewer=modules.mountRevisionReview(root,{comparison});
+        if (pendingFocus && viewer.selectFocus) viewer.selectFocus(pendingFocus);
       } catch(error) {
         if (token!==generation) return;
         root.textContent='Visual comparison unavailable: '+error.message+
           '. The existing textual revision review remains available.';
       }
     }
+    function focusRevision(anchor) {
+      if(!snapshot||!anchor||!anchor.kind||!anchor.id)return false;
+      pendingFocus={kind:anchor.kind,id:anchor.id};
+      if(viewer && viewer.selectFocus)viewer.selectFocus(pendingFocus);
+      else disclosure.open=true;
+      return true;
+    }
     disclosure.addEventListener('toggle', () => {
       if (disclosure.open) open();
       else dispose();
     });
-    return {update,destroy:()=>{dispose();snapshot=null;disclosure.hidden=true;}};
+    return {update,focusRevision,destroy:()=>{dispose();snapshot=null;disclosure.hidden=true;}};
   }
   global.AuteurStudioRevisionBridge={create};
 })(window);
