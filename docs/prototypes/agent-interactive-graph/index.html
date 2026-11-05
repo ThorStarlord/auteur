@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent-Interactive Narrative Graph — Prototype</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="prototype-page">
+    <header class="page-header">
+      <p class="eyebrow">AUTEUR · ISOLATED PROTOTYPE · NOT PRODUCTION</p>
+      <h1>Agent-Interactive Narrative Graph</h1>
+      <p class="lede">Inspect source-bound narrative entities and relationships, then prepare an editable instruction for the active coding agent. Nothing here is executed, saved or accepted.</p>
+      <div class="fixture-controls">
+        <label for="fixture-select">Source fixture</label>
+        <select id="fixture-select">
+          <option value="rich">Recorded rich candidate</option>
+          <option value="sparse">Recorded sparse candidate</option>
+          <option value="dense">Synthetic dense stress fixture</option>
+        </select>
+        <span id="fixture-status" role="status" aria-live="polite">Loading recorded fixture…</span>
+      </div>
+    </header>
+    <main id="experiment-root" aria-label="Agent-interactive graph experiment"></main>
+  </div>
+  <script type="module">
+    import {mountGraphExperiment} from './app.mjs';
+
+    const root = document.getElementById('experiment-root');
+    const select = document.getElementById('fixture-select');
+    const status = document.getElementById('fixture-status');
+    const fixtures = {
+      rich: {
+        candidate: '../../qualification-evidence/agent-first-ontology-20261103/rich-vision-candidate.json',
+        request: '../../qualification-evidence/agent-first-ontology-20261103/rich-vision-request.json',
+        label: 'Recorded rich candidate',
+      },
+      sparse: {
+        candidate: '../../qualification-evidence/agent-first-ontology-20261103/sparse-vision-candidate.json',
+        request: '../../qualification-evidence/agent-first-ontology-20261103/sparse-vision-request.json',
+        label: 'Recorded sparse candidate',
+      },
+      dense: {
+        candidate: './fixtures/dense-synthetic.json',
+        requestSha: 'd'.repeat(64),
+        label: 'SYNTHETIC dense stress fixture — not recorded evidence',
+      },
+    };
+    let mounted = null;
+    let currentVariant = 'B1';
+
+    async function load(name) {
+      const fixture = fixtures[name];
+      if (!fixture) throw new Error('Unknown fixture.');
+      const candidate = await fetch(fixture.candidate).then(response => {
+        if (!response.ok) throw new Error(`Fixture HTTP ${response.status}.`);
+        return response.json();
+      });
+      let requestSha = fixture.requestSha;
+      if (fixture.request) {
+        const request = await fetch(fixture.request).then(response => {
+          if (!response.ok) throw new Error(`Request HTTP ${response.status}.`);
+          return response.json();
+        });
+        requestSha = request.request_sha256;
+      }
+      return {candidate, requestSha, label: fixture.label};
+    }
+
+    async function show(name) {
+      status.textContent = 'Loading fixture…';
+      if (mounted) {
+        mounted.destroy();
+        mounted = null;
+      }
+      try {
+        const loaded = await load(name);
+        mounted = mountGraphExperiment(root, {
+          candidate: loaded.candidate,
+          requestSha: loaded.requestSha,
+          variant: currentVariant,
+          fixtureLabel: loaded.label,
+          onVariantChange: value => { currentVariant = value; },
+        });
+        status.textContent = `Loaded ${loaded.label} · read-only fixture · prepared_not_executed`;
+      } catch (error) {
+        root.replaceChildren();
+        status.textContent = `Fixture unavailable: ${error.message}`;
+      }
+    }
+
+    select.addEventListener('change', () => show(select.value));
+    show('rich');
+  </script>
+</body>
+</html>
