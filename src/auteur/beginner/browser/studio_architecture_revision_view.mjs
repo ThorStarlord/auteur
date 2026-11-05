@@ -66,12 +66,19 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
     canvas.style.width=width+'px';canvas.style.height=Math.max(150,layout.rows*112+48)+'px';
     const svg=doc.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 '+width+' '+Math.max(150,layout.rows*112+48));
     svg.setAttribute('class','graph-edges');svg.setAttribute('aria-hidden','true');
+    const arrowId='revision-arrow-'+side;
+    const defs=doc.createElementNS('http://www.w3.org/2000/svg','defs');
+    const marker=doc.createElementNS('http://www.w3.org/2000/svg','marker');
+    for(const [k,v] of Object.entries({id:arrowId,markerWidth:8,markerHeight:8,refX:7,refY:4,orient:'auto'}))marker.setAttribute(k,String(v));
+    const arrow=doc.createElementNS('http://www.w3.org/2000/svg','path');
+    arrow.setAttribute('d','M 0 0 L 8 4 L 0 8 z');arrow.setAttribute('class','edge-arrowhead');
+    marker.appendChild(arrow);defs.appendChild(marker);svg.appendChild(defs);
     for(const e of graph.edges){
       const a=layout.positionsByNodeId[e.source],b=layout.positionsByNodeId[e.target];if(!a||!b)continue;
       const path=doc.createElementNS('http://www.w3.org/2000/svg','path');
       const sx=a.x+154,sy=a.y+26,tx=b.x,ty=b.y+26;
       path.setAttribute('d','M '+sx+' '+sy+' Q '+((sx+tx)/2)+' '+((sy+ty)/2-17)+' '+tx+' '+ty);
-      path.setAttribute('class','edge '+e.change);svg.appendChild(path);
+      path.setAttribute('class','edge '+e.change);path.setAttribute('marker-end','url(#'+arrowId+')');svg.appendChild(path);
     }
     append(canvas,svg);
     for(const n of graph.nodes){
