@@ -26,6 +26,8 @@ The approved 2026-11-03 design and plan are implemented in the existing Studio A
 
 ## 2026-11-04 Agent-Interactive Narrative Graph — prototype evaluation
 
+**Prototype PR:** [#512](https://github.com/ThorStarlord/auteur/pull/512) — isolated evaluation only; not production integration.
+
 An isolated prototype compared the current Studio with two source-bound interaction variants:
 
 - **B1 — Question-First Semantic Inspector:** select a real candidate anchor, inspect exact `kind/ID`/sourceRef, inspect recorded relations, see explicit “No recorded relation”, and prepare an editable `prepared_not_executed` agent-instruction draft.
