@@ -58,7 +58,16 @@
     list('Creative hypotheses',response.hypotheses,x=>x.title+': '+x.description);
     list('Uncertainties',response.uncertainties,x=>x);
   }
-  updateSubmit();return {setSelection,setStatus,setInquiryResult,setAuthorText:text=>{instruction.value=text},
+  function setLocalInspection(projection){
+    status.textContent='Local source inspection only — no host-agent request sent.';
+    result.replaceChildren();result.append(make('h4','Recorded source information'));
+    for(const anchor of projection.anchors||[])result.append(make('p',anchor.kind+':'+anchor.id+' · '+anchor.sourceRef));
+    if(projection.missingRelation)result.append(make('p','No recorded relation between the selected elements.'));
+    const list=make('ul');for(const relation of projection.recordedRelations||[]){
+      list.append(make('li',relation.kind+' · '+(relation.id||relation.field)+' · '+relation.sourceRef));
+    }result.append(list);
+  }
+  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,setAuthorText:text=>{instruction.value=text},
     setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }
