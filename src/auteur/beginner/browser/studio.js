@@ -225,8 +225,8 @@
       }
       if (review.proposed_rationale) {
         appendReviewLine(review.proposed_rationale.status === "provided"
-          ? "Agent's stated rationale: " + review.proposed_rationale.text
-          : "Agent rationale: not provided (none invented).", "review-rationale");
+          ? "Revised architecture summary (not causal rationale): " + review.proposed_rationale.text
+          : "Revised architecture summary: not provided (none invented).", "review-rationale");
       }
       if (Array.isArray(review.changed_components) && review.changed_components.length) {
         review.changed_components.forEach(function (component) {
@@ -249,14 +249,14 @@
       if (review.preserved) {
         var authorTargets = review.preserved.author_declared_emotion_targets || [];
         if (authorTargets.length) {
-          appendReviewLine("Preserved author-declared emotions: " +
+          appendReviewLine("Unchanged author-declared emotion fields: " +
             authorTargets.map(function (target) {
               return target.id + " (" + target.emotion + ", " + target.role + ")";
             }).join("; "), "review-preserved");
         }
         var constraints = review.preserved.accepted_constraints || [];
         if (constraints.length) {
-          appendReviewLine("Preserved accepted constraints: " + constraints.join("; "),
+          appendReviewLine("Accepted constraints to check (not verified): " + constraints.join("; "),
             "review-preserved");
         }
       }
