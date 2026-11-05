@@ -1,0 +1,1501 @@
+{
+  "_fixture": {
+    "label": "SYNTHETIC STRESS FIXTURE — NOT RECORDED EVIDENCE",
+    "synthetic": true
+  },
+  "schema_version": 2,
+  "summary": "Synthetic high-density candidate used only to test bounded focus, source identity and missing-relation honesty.",
+  "nodes": [
+    {
+      "id": "genre_00",
+      "title": "Stress genre 0",
+      "category": "genre",
+      "summary": "Synthetic genre role 0 for density stress."
+    },
+    {
+      "id": "genre_01",
+      "title": "Stress genre 1",
+      "category": "genre",
+      "summary": "Synthetic genre role 1 for density stress."
+    },
+    {
+      "id": "genre_02",
+      "title": "Stress genre 2",
+      "category": "genre",
+      "summary": "Synthetic genre role 2 for density stress."
+    },
+    {
+      "id": "genre_03",
+      "title": "Stress genre 3",
+      "category": "genre",
+      "summary": "Synthetic genre role 3 for density stress."
+    },
+    {
+      "id": "genre_04",
+      "title": "Stress genre 4",
+      "category": "genre",
+      "summary": "Synthetic genre role 4 for density stress."
+    },
+    {
+      "id": "genre_05",
+      "title": "Stress genre 5",
+      "category": "genre",
+      "summary": "Synthetic genre role 5 for density stress."
+    },
+    {
+      "id": "genre_06",
+      "title": "Stress genre 6",
+      "category": "genre",
+      "summary": "Synthetic genre role 6 for density stress."
+    },
+    {
+      "id": "genre_07",
+      "title": "Stress genre 7",
+      "category": "genre",
+      "summary": "Synthetic genre role 7 for density stress."
+    },
+    {
+      "id": "genre_08",
+      "title": "Stress genre 8",
+      "category": "genre",
+      "summary": "Synthetic genre role 8 for density stress."
+    },
+    {
+      "id": "genre_09",
+      "title": "Stress genre 9",
+      "category": "genre",
+      "summary": "Synthetic genre role 9 for density stress."
+    },
+    {
+      "id": "engine_00",
+      "title": "Stress engine 0",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 0."
+    },
+    {
+      "id": "engine_01",
+      "title": "Stress engine 1",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 1."
+    },
+    {
+      "id": "engine_02",
+      "title": "Stress engine 2",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 2."
+    },
+    {
+      "id": "engine_03",
+      "title": "Stress engine 3",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 3."
+    },
+    {
+      "id": "engine_04",
+      "title": "Stress engine 4",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 4."
+    },
+    {
+      "id": "engine_05",
+      "title": "Stress engine 5",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 5."
+    },
+    {
+      "id": "engine_06",
+      "title": "Stress engine 6",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 6."
+    },
+    {
+      "id": "engine_07",
+      "title": "Stress engine 7",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 7."
+    },
+    {
+      "id": "engine_08",
+      "title": "Stress engine 8",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 8."
+    },
+    {
+      "id": "engine_09",
+      "title": "Stress engine 9",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 9."
+    },
+    {
+      "id": "engine_10",
+      "title": "Stress engine 10",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 10."
+    },
+    {
+      "id": "engine_11",
+      "title": "Stress engine 11",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 11."
+    },
+    {
+      "id": "engine_12",
+      "title": "Stress engine 12",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 12."
+    },
+    {
+      "id": "engine_13",
+      "title": "Stress engine 13",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 13."
+    },
+    {
+      "id": "engine_14",
+      "title": "Stress engine 14",
+      "category": "engine",
+      "summary": "Synthetic renewable engine 14."
+    },
+    {
+      "id": "theme_00",
+      "title": "Stress theme 0",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 0."
+    },
+    {
+      "id": "theme_01",
+      "title": "Stress theme 1",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 1."
+    },
+    {
+      "id": "theme_02",
+      "title": "Stress theme 2",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 2."
+    },
+    {
+      "id": "theme_03",
+      "title": "Stress theme 3",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 3."
+    },
+    {
+      "id": "theme_04",
+      "title": "Stress theme 4",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 4."
+    },
+    {
+      "id": "theme_05",
+      "title": "Stress theme 5",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 5."
+    },
+    {
+      "id": "theme_06",
+      "title": "Stress theme 6",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 6."
+    },
+    {
+      "id": "theme_07",
+      "title": "Stress theme 7",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 7."
+    },
+    {
+      "id": "theme_08",
+      "title": "Stress theme 8",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 8."
+    },
+    {
+      "id": "theme_09",
+      "title": "Stress theme 9",
+      "category": "theme",
+      "summary": "Synthetic thematic pressure 9."
+    },
+    {
+      "id": "trope_00",
+      "title": "Stress trope 0",
+      "category": "trope",
+      "summary": "Synthetic functional trope 0."
+    },
+    {
+      "id": "trope_01",
+      "title": "Stress trope 1",
+      "category": "trope",
+      "summary": "Synthetic functional trope 1."
+    },
+    {
+      "id": "trope_02",
+      "title": "Stress trope 2",
+      "category": "trope",
+      "summary": "Synthetic functional trope 2."
+    },
+    {
+      "id": "trope_03",
+      "title": "Stress trope 3",
+      "category": "trope",
+      "summary": "Synthetic functional trope 3."
+    },
+    {
+      "id": "trope_04",
+      "title": "Stress trope 4",
+      "category": "trope",
+      "summary": "Synthetic functional trope 4."
+    },
+    {
+      "id": "trope_05",
+      "title": "Stress trope 5",
+      "category": "trope",
+      "summary": "Synthetic functional trope 5."
+    },
+    {
+      "id": "trope_06",
+      "title": "Stress trope 6",
+      "category": "trope",
+      "summary": "Synthetic functional trope 6."
+    },
+    {
+      "id": "trope_07",
+      "title": "Stress trope 7",
+      "category": "trope",
+      "summary": "Synthetic functional trope 7."
+    },
+    {
+      "id": "trope_08",
+      "title": "Stress trope 8",
+      "category": "trope",
+      "summary": "Synthetic functional trope 8."
+    },
+    {
+      "id": "trope_09",
+      "title": "Stress trope 9",
+      "category": "trope",
+      "summary": "Synthetic functional trope 9."
+    },
+    {
+      "id": "structure_00",
+      "title": "Stress structure 0",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 0."
+    },
+    {
+      "id": "structure_01",
+      "title": "Stress structure 1",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 1."
+    },
+    {
+      "id": "structure_02",
+      "title": "Stress structure 2",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 2."
+    },
+    {
+      "id": "structure_03",
+      "title": "Stress structure 3",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 3."
+    },
+    {
+      "id": "structure_04",
+      "title": "Stress structure 4",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 4."
+    },
+    {
+      "id": "structure_05",
+      "title": "Stress structure 5",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 5."
+    },
+    {
+      "id": "structure_06",
+      "title": "Stress structure 6",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 6."
+    },
+    {
+      "id": "structure_07",
+      "title": "Stress structure 7",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 7."
+    },
+    {
+      "id": "structure_08",
+      "title": "Stress structure 8",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 8."
+    },
+    {
+      "id": "structure_09",
+      "title": "Stress structure 9",
+      "category": "structure",
+      "summary": "Synthetic structural phase device 9."
+    },
+    {
+      "id": "reader_00",
+      "title": "Stress reader experience 0",
+      "category": "reader_experience",
+      "summary": "Synthetic reader effect 0."
+    },
+    {
+      "id": "reader_01",
+      "title": "Stress reader experience 1",
+      "category": "reader_experience",
+      "summary": "Synthetic reader effect 1."
+    },
+    {
+      "id": "reader_02",
+      "title": "Stress reader experience 2",
+      "category": "reader_experience",
+      "summary": "Synthetic reader effect 2."
+    },
+    {
+      "id": "reader_03",
+      "title": "Stress reader experience 3",
+      "category": "reader_experience",
+      "summary": "Synthetic reader effect 3."
+    },
+    {
+      "id": "reader_04",
+      "title": "Stress reader experience 4",
+      "category": "reader_experience",
+      "summary": "Synthetic reader effect 4."
+    }
+  ],
+  "links": [
+    {
+      "id": "stress_link_000",
+      "source": "engine_00",
+      "target": "genre_00",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_001",
+      "source": "engine_01",
+      "target": "genre_01",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_002",
+      "source": "engine_02",
+      "target": "genre_02",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_003",
+      "source": "engine_03",
+      "target": "genre_03",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_004",
+      "source": "engine_04",
+      "target": "genre_04",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_005",
+      "source": "engine_05",
+      "target": "genre_05",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_006",
+      "source": "engine_06",
+      "target": "genre_06",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_007",
+      "source": "engine_07",
+      "target": "genre_07",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_008",
+      "source": "engine_08",
+      "target": "genre_08",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_009",
+      "source": "engine_09",
+      "target": "genre_09",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_010",
+      "source": "engine_10",
+      "target": "genre_00",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_011",
+      "source": "engine_11",
+      "target": "genre_01",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_012",
+      "source": "engine_12",
+      "target": "genre_02",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_013",
+      "source": "engine_13",
+      "target": "genre_03",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_014",
+      "source": "engine_14",
+      "target": "genre_04",
+      "function": "drives the genre structure"
+    },
+    {
+      "id": "stress_link_015",
+      "source": "genre_00",
+      "target": "structure_00",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_016",
+      "source": "genre_01",
+      "target": "structure_01",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_017",
+      "source": "genre_02",
+      "target": "structure_02",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_018",
+      "source": "genre_03",
+      "target": "structure_03",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_019",
+      "source": "genre_04",
+      "target": "structure_04",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_020",
+      "source": "genre_05",
+      "target": "structure_05",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_021",
+      "source": "genre_06",
+      "target": "structure_06",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_022",
+      "source": "genre_07",
+      "target": "structure_07",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_023",
+      "source": "genre_08",
+      "target": "structure_08",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_024",
+      "source": "genre_09",
+      "target": "structure_09",
+      "function": "organizes structural progression"
+    },
+    {
+      "id": "stress_link_025",
+      "source": "theme_00",
+      "target": "engine_00",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_026",
+      "source": "theme_01",
+      "target": "engine_01",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_027",
+      "source": "theme_02",
+      "target": "engine_02",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_028",
+      "source": "theme_03",
+      "target": "engine_03",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_029",
+      "source": "theme_04",
+      "target": "engine_04",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_030",
+      "source": "theme_05",
+      "target": "engine_05",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_031",
+      "source": "theme_06",
+      "target": "engine_06",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_032",
+      "source": "theme_07",
+      "target": "engine_07",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_033",
+      "source": "theme_08",
+      "target": "engine_08",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_034",
+      "source": "theme_09",
+      "target": "engine_09",
+      "function": "gives the engine thematic pressure"
+    },
+    {
+      "id": "stress_link_035",
+      "source": "trope_00",
+      "target": "reader_00",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_036",
+      "source": "trope_01",
+      "target": "reader_01",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_037",
+      "source": "trope_02",
+      "target": "reader_02",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_038",
+      "source": "trope_03",
+      "target": "reader_03",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_039",
+      "source": "trope_04",
+      "target": "reader_04",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_040",
+      "source": "trope_05",
+      "target": "reader_00",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_041",
+      "source": "trope_06",
+      "target": "reader_01",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_042",
+      "source": "trope_07",
+      "target": "reader_02",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_043",
+      "source": "trope_08",
+      "target": "reader_03",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_044",
+      "source": "trope_09",
+      "target": "reader_04",
+      "function": "shapes the reader experience"
+    },
+    {
+      "id": "stress_link_045",
+      "source": "structure_00",
+      "target": "reader_00",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_046",
+      "source": "structure_01",
+      "target": "reader_01",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_047",
+      "source": "structure_02",
+      "target": "reader_02",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_048",
+      "source": "structure_03",
+      "target": "reader_03",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_049",
+      "source": "structure_04",
+      "target": "reader_04",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_050",
+      "source": "structure_05",
+      "target": "reader_00",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_051",
+      "source": "structure_06",
+      "target": "reader_01",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_052",
+      "source": "structure_07",
+      "target": "reader_02",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_053",
+      "source": "structure_08",
+      "target": "reader_03",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_054",
+      "source": "structure_09",
+      "target": "reader_04",
+      "function": "produces a reader effect"
+    },
+    {
+      "id": "stress_link_055",
+      "source": "engine_00",
+      "target": "theme_03",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_056",
+      "source": "engine_01",
+      "target": "theme_04",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_057",
+      "source": "engine_02",
+      "target": "theme_05",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_058",
+      "source": "engine_03",
+      "target": "theme_06",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_059",
+      "source": "engine_04",
+      "target": "theme_07",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_060",
+      "source": "engine_05",
+      "target": "theme_08",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_061",
+      "source": "engine_06",
+      "target": "theme_09",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_062",
+      "source": "engine_07",
+      "target": "theme_00",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_063",
+      "source": "engine_08",
+      "target": "theme_01",
+      "function": "forces thematic consequence"
+    },
+    {
+      "id": "stress_link_064",
+      "source": "engine_09",
+      "target": "theme_02",
+      "function": "forces thematic consequence"
+    }
+  ],
+  "emotion_targets": [
+    {
+      "id": "emotion_00",
+      "emotion": "joy",
+      "role": "primary",
+      "intended_effect": "Synthetic intended reader effect 0.",
+      "eliciting_condition": "Synthetic eliciting condition 0.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 0.",
+      "provenance": "author_declared"
+    },
+    {
+      "id": "emotion_01",
+      "emotion": "sadness",
+      "role": "supporting",
+      "intended_effect": "Synthetic intended reader effect 1.",
+      "eliciting_condition": "Synthetic eliciting condition 1.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 1.",
+      "provenance": "author_declared"
+    },
+    {
+      "id": "emotion_02",
+      "emotion": "fear",
+      "role": "contrasting",
+      "intended_effect": "Synthetic intended reader effect 2.",
+      "eliciting_condition": "Synthetic eliciting condition 2.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 2.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emotion_03",
+      "emotion": "anger",
+      "role": "local",
+      "intended_effect": "Synthetic intended reader effect 3.",
+      "eliciting_condition": "Synthetic eliciting condition 3.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 3.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emotion_04",
+      "emotion": "disgust",
+      "role": "primary",
+      "intended_effect": "Synthetic intended reader effect 4.",
+      "eliciting_condition": "Synthetic eliciting condition 4.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 4.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emotion_05",
+      "emotion": "surprise",
+      "role": "supporting",
+      "intended_effect": "Synthetic intended reader effect 5.",
+      "eliciting_condition": "Synthetic eliciting condition 5.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 5.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emotion_06",
+      "emotion": "joy",
+      "role": "contrasting",
+      "intended_effect": "Synthetic intended reader effect 6.",
+      "eliciting_condition": "Synthetic eliciting condition 6.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 6.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emotion_07",
+      "emotion": "sadness",
+      "role": "local",
+      "intended_effect": "Synthetic intended reader effect 7.",
+      "eliciting_condition": "Synthetic eliciting condition 7.",
+      "aesthetic_strategy": "Synthetic aesthetic strategy 7.",
+      "provenance": "agent_proposed"
+    }
+  ],
+  "complex_emotions": [
+    {
+      "id": "complex_00",
+      "title": "Synthetic complex emotion 0",
+      "basic_emotions": [
+        "joy",
+        "fear"
+      ],
+      "context": "Synthetic complex context 0."
+    },
+    {
+      "id": "complex_01",
+      "title": "Synthetic complex emotion 1",
+      "basic_emotions": [
+        "sadness",
+        "anger"
+      ],
+      "context": "Synthetic complex context 1."
+    },
+    {
+      "id": "complex_02",
+      "title": "Synthetic complex emotion 2",
+      "basic_emotions": [
+        "fear",
+        "disgust"
+      ],
+      "context": "Synthetic complex context 2."
+    },
+    {
+      "id": "complex_03",
+      "title": "Synthetic complex emotion 3",
+      "basic_emotions": [
+        "anger",
+        "surprise"
+      ],
+      "context": "Synthetic complex context 3."
+    }
+  ],
+  "genre_contracts": [
+    {
+      "genre_node_id": "genre_00",
+      "role": "governing",
+      "emotion_target_ids": [
+        "emotion_00"
+      ],
+      "complex_emotion_ids": [
+        "complex_00"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 0"
+      ],
+      "narrative_engine": "Synthetic genre engine 0 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 0.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 0."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 0."
+      ]
+    },
+    {
+      "genre_node_id": "genre_01",
+      "role": "supporting",
+      "emotion_target_ids": [
+        "emotion_01"
+      ],
+      "complex_emotion_ids": [
+        "complex_01"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 1"
+      ],
+      "narrative_engine": "Synthetic genre engine 1 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 1.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 1."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 1."
+      ]
+    },
+    {
+      "genre_node_id": "genre_02",
+      "role": "tertiary",
+      "emotion_target_ids": [
+        "emotion_02"
+      ],
+      "complex_emotion_ids": [
+        "complex_02"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 2"
+      ],
+      "narrative_engine": "Synthetic genre engine 2 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 2.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 2."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 2."
+      ]
+    },
+    {
+      "genre_node_id": "genre_03",
+      "role": "local",
+      "emotion_target_ids": [
+        "emotion_03"
+      ],
+      "complex_emotion_ids": [
+        "complex_03"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 3"
+      ],
+      "narrative_engine": "Synthetic genre engine 3 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 3.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 3."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 3."
+      ]
+    },
+    {
+      "genre_node_id": "genre_04",
+      "role": "governing",
+      "emotion_target_ids": [
+        "emotion_04"
+      ],
+      "complex_emotion_ids": [
+        "complex_00"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 4"
+      ],
+      "narrative_engine": "Synthetic genre engine 4 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 4.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 4."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 4."
+      ]
+    },
+    {
+      "genre_node_id": "genre_05",
+      "role": "supporting",
+      "emotion_target_ids": [
+        "emotion_05"
+      ],
+      "complex_emotion_ids": [
+        "complex_01"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 5"
+      ],
+      "narrative_engine": "Synthetic genre engine 5 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 5.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 5."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 5."
+      ]
+    },
+    {
+      "genre_node_id": "genre_06",
+      "role": "tertiary",
+      "emotion_target_ids": [
+        "emotion_06"
+      ],
+      "complex_emotion_ids": [
+        "complex_02"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 6"
+      ],
+      "narrative_engine": "Synthetic genre engine 6 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 6.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 6."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 6."
+      ]
+    },
+    {
+      "genre_node_id": "genre_07",
+      "role": "local",
+      "emotion_target_ids": [
+        "emotion_07"
+      ],
+      "complex_emotion_ids": [
+        "complex_03"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 7"
+      ],
+      "narrative_engine": "Synthetic genre engine 7 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 7.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 7."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 7."
+      ]
+    },
+    {
+      "genre_node_id": "genre_08",
+      "role": "governing",
+      "emotion_target_ids": [
+        "emotion_00"
+      ],
+      "complex_emotion_ids": [
+        "complex_00"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 8"
+      ],
+      "narrative_engine": "Synthetic genre engine 8 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 8.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 8."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 8."
+      ]
+    },
+    {
+      "genre_node_id": "genre_09",
+      "role": "supporting",
+      "emotion_target_ids": [
+        "emotion_01"
+      ],
+      "complex_emotion_ids": [
+        "complex_01"
+      ],
+      "trope_functions": [
+        "Synthetic trope function 9"
+      ],
+      "narrative_engine": "Synthetic genre engine 9 keeps pressure renewable.",
+      "structural_pattern": "Synthetic structural pattern 9.",
+      "aesthetic_strategies": [
+        "Synthetic aesthetic 9."
+      ],
+      "payoff_expectations": [
+        "Synthetic payoff expectation 9."
+      ]
+    }
+  ],
+  "genre_interactions": [
+    {
+      "id": "stress_interaction_000",
+      "source_genre_id": "genre_00",
+      "target_genre_id": "genre_01",
+      "kind": "reinforces",
+      "mechanism": "Synthetic interaction mechanism 0.",
+      "risk": "Synthetic interaction risk 0."
+    },
+    {
+      "id": "stress_interaction_001",
+      "source_genre_id": "genre_01",
+      "target_genre_id": "genre_02",
+      "kind": "enables",
+      "mechanism": "Synthetic interaction mechanism 1.",
+      "risk": "Synthetic interaction risk 1."
+    },
+    {
+      "id": "stress_interaction_002",
+      "source_genre_id": "genre_02",
+      "target_genre_id": "genre_03",
+      "kind": "constrains",
+      "mechanism": "Synthetic interaction mechanism 2.",
+      "risk": "Synthetic interaction risk 2."
+    },
+    {
+      "id": "stress_interaction_003",
+      "source_genre_id": "genre_03",
+      "target_genre_id": "genre_04",
+      "kind": "contrasts",
+      "mechanism": "Synthetic interaction mechanism 3.",
+      "risk": "Synthetic interaction risk 3."
+    },
+    {
+      "id": "stress_interaction_004",
+      "source_genre_id": "genre_04",
+      "target_genre_id": "genre_05",
+      "kind": "creates_tension",
+      "mechanism": "Synthetic interaction mechanism 4.",
+      "risk": "Synthetic interaction risk 4."
+    },
+    {
+      "id": "stress_interaction_005",
+      "source_genre_id": "genre_05",
+      "target_genre_id": "genre_06",
+      "kind": "converges",
+      "mechanism": "Synthetic interaction mechanism 5.",
+      "risk": "Synthetic interaction risk 5."
+    },
+    {
+      "id": "stress_interaction_006",
+      "source_genre_id": "genre_06",
+      "target_genre_id": "genre_07",
+      "kind": "reinforces",
+      "mechanism": "Synthetic interaction mechanism 6.",
+      "risk": "Synthetic interaction risk 6."
+    },
+    {
+      "id": "stress_interaction_007",
+      "source_genre_id": "genre_07",
+      "target_genre_id": "genre_08",
+      "kind": "enables",
+      "mechanism": "Synthetic interaction mechanism 7.",
+      "risk": "Synthetic interaction risk 7."
+    },
+    {
+      "id": "stress_interaction_008",
+      "source_genre_id": "genre_08",
+      "target_genre_id": "genre_09",
+      "kind": "constrains",
+      "mechanism": "Synthetic interaction mechanism 8.",
+      "risk": "Synthetic interaction risk 8."
+    },
+    {
+      "id": "stress_interaction_009",
+      "source_genre_id": "genre_09",
+      "target_genre_id": "genre_00",
+      "kind": "contrasts",
+      "mechanism": "Synthetic interaction mechanism 9.",
+      "risk": "Synthetic interaction risk 9."
+    },
+    {
+      "id": "stress_interaction_010",
+      "source_genre_id": "genre_00",
+      "target_genre_id": "genre_01",
+      "kind": "creates_tension",
+      "mechanism": "Synthetic interaction mechanism 10.",
+      "risk": "Synthetic interaction risk 10."
+    },
+    {
+      "id": "stress_interaction_011",
+      "source_genre_id": "genre_01",
+      "target_genre_id": "genre_02",
+      "kind": "converges",
+      "mechanism": "Synthetic interaction mechanism 11.",
+      "risk": "Synthetic interaction risk 11."
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase_00",
+      "title": "Stress phase 0",
+      "order": 0,
+      "genres": [
+        {
+          "genre": "genre_00",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_00",
+          "basic_emotions": [
+            "joy"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 0"
+          ],
+          "structural_function": "Synthetic phase function 0."
+        },
+        {
+          "genre_node_id": "genre_01",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 0b"
+          ],
+          "structural_function": "Synthetic secondary phase function 0."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 0.",
+      "aesthetic": "Synthetic aesthetic 0.",
+      "narrative_function": "Synthetic narrative function 0.",
+      "transition": "Synthetic transition 0.",
+      "parallel_with": [
+        "phase_01"
+      ]
+    },
+    {
+      "id": "phase_01",
+      "title": "Stress phase 1",
+      "order": 1,
+      "genres": [
+        {
+          "genre": "genre_01",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_01",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 1"
+          ],
+          "structural_function": "Synthetic phase function 1."
+        },
+        {
+          "genre_node_id": "genre_02",
+          "basic_emotions": [
+            "fear"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 1b"
+          ],
+          "structural_function": "Synthetic secondary phase function 1."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 1.",
+      "aesthetic": "Synthetic aesthetic 1.",
+      "narrative_function": "Synthetic narrative function 1.",
+      "transition": "Synthetic transition 1.",
+      "parallel_with": [
+        "phase_02"
+      ]
+    },
+    {
+      "id": "phase_02",
+      "title": "Stress phase 2",
+      "order": 2,
+      "genres": [
+        {
+          "genre": "genre_02",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_02",
+          "basic_emotions": [
+            "fear"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 2"
+          ],
+          "structural_function": "Synthetic phase function 2."
+        },
+        {
+          "genre_node_id": "genre_03",
+          "basic_emotions": [
+            "anger"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 2b"
+          ],
+          "structural_function": "Synthetic secondary phase function 2."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 2.",
+      "aesthetic": "Synthetic aesthetic 2.",
+      "narrative_function": "Synthetic narrative function 2.",
+      "transition": "Synthetic transition 2.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase_03",
+      "title": "Stress phase 3",
+      "order": 3,
+      "genres": [
+        {
+          "genre": "genre_03",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_03",
+          "basic_emotions": [
+            "anger"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 3"
+          ],
+          "structural_function": "Synthetic phase function 3."
+        },
+        {
+          "genre_node_id": "genre_04",
+          "basic_emotions": [
+            "disgust"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 3b"
+          ],
+          "structural_function": "Synthetic secondary phase function 3."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 3.",
+      "aesthetic": "Synthetic aesthetic 3.",
+      "narrative_function": "Synthetic narrative function 3.",
+      "transition": "Synthetic transition 3.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase_04",
+      "title": "Stress phase 4",
+      "order": 4,
+      "genres": [
+        {
+          "genre": "genre_04",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_04",
+          "basic_emotions": [
+            "disgust"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 4"
+          ],
+          "structural_function": "Synthetic phase function 4."
+        },
+        {
+          "genre_node_id": "genre_05",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 4b"
+          ],
+          "structural_function": "Synthetic secondary phase function 4."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 4.",
+      "aesthetic": "Synthetic aesthetic 4.",
+      "narrative_function": "Synthetic narrative function 4.",
+      "transition": "Synthetic transition 4.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase_05",
+      "title": "Stress phase 5",
+      "order": 5,
+      "genres": [
+        {
+          "genre": "genre_05",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_05",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 5"
+          ],
+          "structural_function": "Synthetic phase function 5."
+        },
+        {
+          "genre_node_id": "genre_06",
+          "basic_emotions": [
+            "joy"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 5b"
+          ],
+          "structural_function": "Synthetic secondary phase function 5."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 5.",
+      "aesthetic": "Synthetic aesthetic 5.",
+      "narrative_function": "Synthetic narrative function 5.",
+      "transition": "Synthetic transition 5.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase_06",
+      "title": "Stress phase 6",
+      "order": 6,
+      "genres": [
+        {
+          "genre": "genre_06",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_06",
+          "basic_emotions": [
+            "joy"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 6"
+          ],
+          "structural_function": "Synthetic phase function 6."
+        },
+        {
+          "genre_node_id": "genre_07",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 6b"
+          ],
+          "structural_function": "Synthetic secondary phase function 6."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 6.",
+      "aesthetic": "Synthetic aesthetic 6.",
+      "narrative_function": "Synthetic narrative function 6.",
+      "transition": "Synthetic transition 6.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase_07",
+      "title": "Stress phase 7",
+      "order": 7,
+      "genres": [
+        {
+          "genre": "genre_07",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre_07",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 7"
+          ],
+          "structural_function": "Synthetic phase function 7."
+        },
+        {
+          "genre_node_id": "genre_08",
+          "basic_emotions": [
+            "fear"
+          ],
+          "trope_functions": [
+            "Synthetic phase trope 7b"
+          ],
+          "structural_function": "Synthetic secondary phase function 7."
+        }
+      ],
+      "reader_experience": "Synthetic reader experience 7.",
+      "aesthetic": "Synthetic aesthetic 7.",
+      "narrative_function": "Synthetic narrative function 7.",
+      "transition": "Synthetic transition 7.",
+      "parallel_with": []
+    }
+  ],
+  "open_questions": [
+    "Synthetic open question 0?",
+    "Synthetic open question 1?",
+    "Synthetic open question 2?",
+    "Synthetic open question 3?",
+    "Synthetic open question 4?"
+  ]
+}

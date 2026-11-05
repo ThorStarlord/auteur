@@ -12,6 +12,10 @@ const sparse = JSON.parse(readFileSync(
   new URL('../../qualification-evidence/agent-first-ontology-20261103/sparse-vision-candidate.json', import.meta.url),
   'utf8',
 ));
+const dense = JSON.parse(readFileSync(
+  new URL('./fixtures/dense-synthetic.json', import.meta.url),
+  'utf8',
+));
 const appSource = readFileSync(new URL('./app.mjs', import.meta.url), 'utf8');
 
 class El {
@@ -76,10 +80,12 @@ function mount(fixture = candidate, variant = 'B1') {
   const copied = [];
   const api = mountGraphExperiment(root, {
     candidate: fixture,
-    requestSha: fixture === sparse ? 'b'.repeat(64) : RICH_SHA,
+    requestSha: fixture === sparse ? 'b'.repeat(64) : fixture === dense ? 'd'.repeat(64) : RICH_SHA,
     variant,
     document,
-    fixtureLabel: fixture === sparse ? 'Recorded sparse candidate' : 'Recorded rich candidate',
+    fixtureLabel: fixture === sparse ? 'Recorded sparse candidate'
+      : fixture === dense ? 'SYNTHETIC dense stress fixture — not recorded evidence'
+      : 'Recorded rich candidate',
     onCopy: value => copied.push(value),
   });
   return {root, api, copied};
@@ -184,4 +190,66 @@ test('B1 source never uses innerHTML, fetch or localStorage', () => {
   assert.doesNotMatch(appSource, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
   assert.doesNotMatch(appSource, /\bfetch\s*\(|XMLHttpRequest|localStorage|sessionStorage/);
   assert.match(appSource, /textContent/);
+});
+
+test('B2 exposes component groups and preserves selection across variants', () => {
+  const {root} = mount(candidate, 'B2');
+  assert.match(textOf(byId(root, 'variant-label')), /B2/);
+  const engine = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'node' && item.dataset.anchorId === 'memory_economy')[0];
+  const wonder = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'emotion_target' && item.dataset.anchorId === 'wonder')[0];
+  click(engine);
+  click(wonder);
+  const grid = byId(root, 'component-grid');
+  assert.ok(grid);
+  assert.equal(grid.children.length, 2);
+  assert.match(textOf(grid), /Emotional/);
+  assert.match(textOf(grid), /Causal/);
+  assert.match(textOf(byId(root, 'context-count')), /2 anchor/i);
+  assert.match(textOf(byId(root, 'relation-empty')), /No recorded relation/i);
+  click(byId(root, 'variant-b1'));
+  assert.match(textOf(byId(root, 'variant-label')), /B1/);
+  assert.equal(byId(root, 'component-grid'), null);
+  assert.match(textOf(byId(root, 'selection-trail')), /Memory economy/);
+  assert.match(textOf(byId(root, 'selection-trail')), /wonder|joy/i);
+  click(byId(root, 'variant-b2'));
+  assert.equal(byId(root, 'component-grid').children.length, 2);
+});
+
+test('B2 multi-anchor draft preserves source IDs and prepared status', () => {
+  const {root} = mount(candidate, 'B2');
+  const engine = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'node' && item.dataset.anchorId === 'memory_economy')[0];
+  const wonder = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'emotion_target' && item.dataset.anchorId === 'wonder')[0];
+  click(engine);
+  click(wonder);
+  setInput(byId(root, 'author-intention'),
+    'How would strengthening the engine affect wonder and mystery?');
+  click(byId(root, 'prepare-draft'));
+  assert.match(byId(root, 'draft-status').textContent, /prepared_not_executed/);
+  const draft = byId(root, 'draft-output').value;
+  assert.match(draft, /memory_economy/);
+  assert.match(draft, /emotion_targets\/0/);
+  assert.match(draft, /prepared_not_executed/);
+});
+
+test('B2 dense synthetic fixture bounds focus and labels synthetic origin', () => {
+  const {root} = mount(dense, 'B2');
+  assert.match(textOf(byId(root, 'fixture-label')), /SYNTHETIC/);
+  assert.match(textOf(byId(root, 'source-status')), /SYNTHETIC STRESS FIXTURE/);
+  assert.match(textOf(byId(root, 'anchor-count')), /anchors in this fixture/);
+  const engine = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'node' && item.dataset.anchorId === 'engine_00')[0];
+  assert.ok(engine);
+  click(engine);
+  const cards = all(root, item => item.className === 'component-card');
+  assert.equal(cards.length, 1);
+  assert.match(textOf(cards[0]), /Stress engine 0/);
+  assert.equal(all(root, item => item.className === 'component-card').length <= 1, true);
+  const emotion = all(root, item => item.dataset
+    && item.dataset.anchorKind === 'emotion_target' && item.dataset.anchorId === 'emotion_00')[0];
+  click(emotion);
+  assert.match(textOf(byId(root, 'relation-empty')), /No recorded relation/i);
 });

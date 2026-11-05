@@ -57,6 +57,7 @@ export function mountGraphExperiment(root, options = {}) {
     copyStatus: '',
     filter: '',
   };
+  const onVariantChange = options.onVariantChange || null;
   const copy = options.onCopy || (typeof navigator !== 'undefined' && navigator.clipboard
     ? value => navigator.clipboard.writeText(value)
     : null);
@@ -226,11 +227,13 @@ export function mountGraphExperiment(root, options = {}) {
       state.variant = 'B1';
       state.focusedRelation = null;
       render();
+      if (onVariantChange) onVariantChange(state.variant);
     }, {id: 'variant-b1', className: state.variant === 'B1' ? 'active' : '', focusKey: 'variant-b1'}));
     switcher.appendChild(button('B2 — Component workbench', () => {
       state.variant = 'B2';
       state.focusedRelation = null;
       render();
+      if (onVariantChange) onVariantChange(state.variant);
     }, {id: 'variant-b2', className: state.variant === 'B2' ? 'active' : '', focusKey: 'variant-b2'}));
     section.appendChild(switcher);
     section.appendChild(button(stale() ? 'Source is stale' : 'Simulate stale source', () => {
@@ -248,7 +251,7 @@ export function mountGraphExperiment(root, options = {}) {
   }
 
   function renderAnchorIndex() {
-    const aside = node('aside', 'anchor-panel');
+    const aside = node('aside', 'anchor-panel', undefined, 'anchor-index');
     aside.appendChild(node('h2', '', 'Entities and relationships'));
     aside.appendChild(node('p', 'muted', 'Select 1–3 anchors. This index mirrors the source candidate; it is not a new graph.'));
     const filter = node('input', 'anchor-filter', undefined, 'anchor-filter');
@@ -265,7 +268,7 @@ export function mountGraphExperiment(root, options = {}) {
     const needle = state.filter.trim().toLowerCase();
     const visible = anchors.filter(item => !needle
       || `${item.title} ${item.kind} ${item.id}`.toLowerCase().includes(needle));
-    aside.appendChild(node('p', 'muted', `${anchors.length} anchors in this fixture; ${visible.length} shown.`));
+    aside.appendChild(node('p', 'muted', `${anchors.length} anchors in this fixture; ${visible.length} shown.`, 'anchor-count'));
     for (const group of GROUP_ORDER) {
       const members = visible.filter(item => item.group === group);
       if (!members.length) continue;

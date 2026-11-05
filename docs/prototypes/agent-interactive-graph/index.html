@@ -48,6 +48,7 @@
       },
     };
     let mounted = null;
+    let currentVariant = 'B1';
 
     async function load(name) {
       const fixture = fixtures[name];
@@ -78,8 +79,9 @@
         mounted = mountGraphExperiment(root, {
           candidate: loaded.candidate,
           requestSha: loaded.requestSha,
-          variant: 'B1',
+          variant: currentVariant,
           fixtureLabel: loaded.label,
+          onVariantChange: value => { currentVariant = value; },
         });
         status.textContent = `Loaded ${loaded.label} · read-only fixture · prepared_not_executed`;
       } catch (error) {
