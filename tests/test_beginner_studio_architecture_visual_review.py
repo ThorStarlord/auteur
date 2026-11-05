@@ -63,8 +63,10 @@ def test_old_review_cannot_apply_after_another_revision(tmp_path):
     _complete(store, before)
     pending = _complete(store, copy.deepcopy(before), "Propose a revision without changing meaning.")
     assert pending["status"] == "review_ready"
+    newer = prepare_architecture(store, "A different subsequent revision request.")
+    assert newer["status"] == "awaiting_host_agent"
     with pytest.raises(BeginnerConcurrencyError):
-        apply_architecture_review(store, "f" * 64)
+        apply_architecture_review(store, pending["review"]["request_sha256"])
 
 
 def test_optional_revision_browser_assets_are_served(tmp_path):
