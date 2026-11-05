@@ -24,6 +24,20 @@ The approved 2026-11-03 design and plan are implemented in the existing Studio A
 
 **Evidence ceiling:** the host-agent requests were answered inline by the same coding agent, not an independent second model; fresh-process resume was verified, but independent-agent continuation and human author comprehension/quality remain unobserved. This is not release qualification. F2/X3 status and the next-product-selection posture do not change.
 
+## 2026-11-04 Agent-Interactive Narrative Graph — prototype evaluation
+
+An isolated prototype compared the current Studio with two source-bound interaction variants:
+
+- **B1 — Question-First Semantic Inspector:** select a real candidate anchor, inspect exact `kind/ID`/sourceRef, inspect recorded relations, see explicit “No recorded relation”, and prepare an editable `prepared_not_executed` agent-instruction draft.
+- **B2 — Component-Aware Intent Workbench:** the same source model plus grouped emotional, causal, structural, genre and thematic components for up to three anchors.
+- The dense synthetic fixture (60 nodes, 65 links, 10 genre contracts, 8 phases) is visibly labeled synthetic and is used only for bounded-focus stress.
+
+**Evidence:** 22 pure model tests, 9 DOM/view tests, 36 combined with the existing architecture-reader regressions, and 3 real Chromium served-browser tests passed. The current Studio baseline was exercised in Chromium with the same recorded rich candidate: readable reader, 18-node graph, inspector with recorded relationship prose and emotional facets, and a real `studio_architecture` revision request. The Studio reader/inspector did not expose exact candidate sourceRefs; its request carried the instruction and previous candidate but no selected-anchor field. B1/B2 added exact sourceRefs, pair-level missing-relation honesty, and an anchor-bound draft; B2 added component density but no demonstrated consequential advantage over B1. No DOM action called `fetch`, wrote `localStorage`, used `innerHTML`, or mutated story state.
+
+**Decision:** **B1 is the smallest credible direction; NO PRODUCTION INTEGRATION NOW; INSUFFICIENT EVIDENCE FOR AN AUTHOR-EFFECTIVENESS CLAIM.** The current Studio remains stronger for actually executing a revision. A future production integration requires a separate approved design, server-validated anchor IDs at prepare time, reuse of the existing host-agent workflow, and a real author study. Full matrix and limits: [prototype assessment](docs/research/2026-11-04-agent-interactive-graph-prototype-assessment.md).
+
+This prototype changed only `docs/prototypes/agent-interactive-graph/`, `docs/research/`, and one browser test; no production Studio JS/CSS/HTML, server route, schema, CanvasStore or ontology file changed.
+
 ## 2026-10-25 Studio integration — explicit owner-directed development exception
 
 Seven pull requests were merged into `main` in this integration round:
