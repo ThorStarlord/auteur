@@ -38,7 +38,7 @@ The production modules are `src/auteur/beginner/browser/studio_architecture_revi
 
 ## Verification and evidence limits
 
-In the implementing environment, the repository was accessible through the connected GitHub tools but not as a local clone; the container cannot resolve `github.com`. A local mirror of the new JS modules and a minimal comparison fixture produced **27 passing Node tests** and **one passing real Chromium inline-DOM interaction test**. Chromium navigation to localhost and file/data URLs is blocked in that environment. That browser test is therefore **not** proof that the live Studio server, asset routing or host-agent lifecycle has passed.
+In the implementing environment, the repository was accessible through the connected GitHub tools but not as a local clone; the container cannot resolve `github.com`. A local mirror of the new JS modules and a minimal comparison fixture produced **28 passing Node tests** and **one passing real Chromium inline-DOM interaction test**. Chromium navigation to localhost and file/data URLs is blocked in that environment. That browser test is therefore **not** proof that the live Studio server, asset routing or host-agent lifecycle has passed.
 
 The repository also contains `tests/test_beginner_studio_architecture_visual_review.py`, intended to validate the real server, stored baseline/proposal, and apply boundaries in a full local checkout. It was syntax-checked but could not be executed against the complete Auteur Python package here. Nor was a human-author study performed.
 
