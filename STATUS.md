@@ -8,6 +8,14 @@
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
+## 2026-11-05 Hybrid Narrative Architecture Revision Review — experimental development integration
+
+**Implementation PR:** [#514](https://github.com/ThorStarlord/auteur/pull/514) — opt-in experimental review, **not a default interface or qualified release**. The author selected a hybrid design and delegated the experimental implementation decision; no author-effectiveness study was available to justify default promotion.
+
+New read-only review surfaces are a readable semantic-difference summary, synchronized Before/After working ArchitectureCandidate v2 graph snapshots, and focused per-entity/relationship differences. Compare typed stable identities with exact per-version source references and full recorded field changes; no invented causality, new ontology, persistence owner, or story acceptance. The existing `review_ready` and `apply_architecture_review` lifecycle, text review and explicit whole-working-revision Apply action remain authoritative.
+
+**Evidence:** 28 Node tests passed against the local new-module mirror, plus one real Chromium inline-DOM interaction test. Python package/lifecycle test is committed and syntax-compiled but **not executed**; the full Auteur checkout, served Studio browser journey, host-agent execution and human author study were unavailable. No GitHub Actions status was returned for the feature-branch head at the time of the review. Release/default qualification remains **open**. A self-review corrected an inaccurate synthetic-fixture label in the live view (test RED then GREEN).
+
 ## 2026-11-04 Agent-First, Ontology-Grounded Narrative Architecture
 
 The approved 2026-11-03 design and plan are implemented in the existing Studio Architecture owners:
