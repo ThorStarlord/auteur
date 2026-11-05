@@ -34,7 +34,7 @@
     updateMenu();updateSubmit();
   }
   submit.addEventListener('click',()=>{if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
-    const authorText=instruction.value;if(!authorText.trim()){status.textContent='Describe your creative intention first.';return}
+    const authorText=instruction.value;if(!authorText.trim()&&!['inspect','trace'].includes(operation)){status.textContent='Describe your creative intention first.';return}
     const payload={operation,anchors:anchors.slice(),authorText};
     if(operation==='revise')onRevise(payload);
     else if(onAction)onAction(payload);
