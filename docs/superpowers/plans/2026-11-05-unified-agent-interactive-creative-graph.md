@@ -28,6 +28,8 @@
 - Source model and field-level/JSON support do not prove literary causation or preservation of all accepted constraints.
 - Keyboard, touch and 390px navigation must provide equivalent textual interaction to the spatial graph. Use safe DOM text, not untrusted HTML interpolation.
 - Tests and evidence must distinguish pure Node, Python host lifecycle, actual served Chromium, independent agent execution and real author observation; success in one does not substitute for another.
+- Studio uses the IIFE/window-global pattern for ordinary .js assets (see studio_architecture_reader.js and Node vm.runInNewContext tests); new .js modules must match that pattern and the server asset allowlist. Existing hybrid .mjs modules remain lazy-loaded ESM, not a model to copy into .js accidentally.
+- Preserve Auteur's local-first, **single-author** architecture. Do not add cloud or collaborative state.
 
 ## Review Focus — five adversarial input classes
 
