@@ -418,6 +418,10 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_full_architecture.js": "studio_full_architecture.js",
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",
+        "/studio_architecture_revision_bridge.js": "studio_architecture_revision_bridge.js",
+        "/studio_architecture_revision_compare.mjs": "studio_architecture_revision_compare.mjs",
+        "/studio_architecture_revision_view.mjs": "studio_architecture_revision_view.mjs",
+        "/studio_architecture_revision.css": "studio_architecture_revision.css",
         "/studio.css": "studio.css",
     }
 
