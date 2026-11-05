@@ -19,7 +19,7 @@ The author selected hybrid before/after review and explicitly authorized impleme
 
 | Gate | Observed result | Evidence ceiling |
 | --- | --- | --- |
-| Node comparison, layout and view tests | 21 passed | Local new-module mirror; not full Auteur source tree |
+| Node comparison, layout and view tests | 22 passed | Local new-module mirror; not full Auteur source tree |
 | Node promoted comparator/view and lazy bridge tests | 6 passed | Local code and contract tests, including opt-in/load/invalidation |
 | Combined Node tests | **28 passed** | `node --test docs/prototypes/hybrid-architecture-revision/*.test.mjs tests/test_studio_architecture_revision_*.mjs` |
 | Real Chromium DOM journey | **1 passed** | Scripts injected on `about:blank`; local URL navigation blocked by admin policy |
