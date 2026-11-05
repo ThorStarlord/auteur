@@ -56,6 +56,9 @@ from .studio_full_evidence import project_legacy_genre_evidence
 from .studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
+from .studio_architecture_inquiry import (
+    complete_architecture_inquiry, prepare_architecture_inquiry, project_architecture_inquiry,
+)
 from .studio_mentor import complete_mentor, prepare_mentor, project_mentor
 from .studio_realization import (
     apply_realization_review, complete_realization, prepare_realization, project_realization,
@@ -419,6 +422,12 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",
         "/studio_architecture_revision_bridge.js": "studio_architecture_revision_bridge.js",
+        "/studio_architecture_graph_actions.js": "studio_architecture_graph_actions.js",
+        "/studio_architecture_graph_selection.js": "studio_architecture_graph_selection.js",
+        "/studio_architecture_agent_bridge.js": "studio_architecture_agent_bridge.js",
+        "/studio_architecture_creative_panel.js": "studio_architecture_creative_panel.js",
+        "/studio_architecture_creative_feedback.js": "studio_architecture_creative_feedback.js",
+        "/studio_architecture_creative.css": "studio_architecture_creative.css",
         "/studio_architecture_revision_compare.mjs": "studio_architecture_revision_compare.mjs",
         "/studio_architecture_revision_view.mjs": "studio_architecture_revision_view.mjs",
         "/studio_architecture_revision.css": "studio_architecture_revision.css",
@@ -596,6 +605,15 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:] == ["architecture", "inquiry"]):
+                try:
+                    self._send_json(200, project_architecture_inquiry(
+                        CanvasStore(self.project_root, parts[4])
+                    ))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5:] == ["architecture", "full-evidence"]):
                 # Read-only, exact candidate-scoped legacy source provenance. No genre
                 # registry fallback, no automatic pack applicability or story acceptance.
@@ -702,13 +720,28 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:7] == ["architecture", "inquiry"]
+                    and parts[7] in {"prepare", "host-agent-response"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[7] == "prepare":
+                        self._send_json(202, prepare_architecture_inquiry(store, payload))
+                    else:
+                        self._send_json(200, complete_architecture_inquiry(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5] == "architecture" and parts[6] in {"prepare", "host-agent-response", "apply"}):
                 payload = self._read_json()
                 store = CanvasStore(self.project_root, parts[4])
                 try:
                     if parts[6] == "prepare":
-                        result = prepare_architecture(store, payload.get("instruction", ""))
+                        result = prepare_architecture(
+                            store, payload.get("instruction", ""), payload.get("graph_intent")
+                        )
                         self._send_json(202, result)
                     elif parts[6] == "apply":
                         self._send_json(200, apply_architecture_review(
