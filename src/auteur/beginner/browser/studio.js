@@ -14,6 +14,17 @@
   state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
   state.fullArchitectureEvidence = null;
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
+  var revisionReviewBridge = null;
+  function ensureRevisionReviewBridge() {
+    if (!revisionReviewBridge && window.AuteurStudioRevisionBridge) {
+      revisionReviewBridge = window.AuteurStudioRevisionBridge.create({
+        disclosure: $("architecture-visual-review"),
+        root: $("architecture-visual-review-root"),
+        getCanvasId: function () { return remote.canvasId; }
+      });
+    }
+    return revisionReviewBridge;
+  }
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
   state.workspace = "architecture"; state.lastRealizationView = "create";
@@ -178,6 +189,7 @@
         (!old.key || architectureFacetEntries(old.facet).some(function (e) { return e.key === old.key; }));
     });
     state.architectureRequestSha = projection.candidate_request_sha256;
+    if (ensureRevisionReviewBridge()) revisionReviewBridge.update(projection, remote.canvasId);
     state.candidatePositions = {};
     if (state.architecture) {
       var categories = ["reader_experience", "aesthetic", "genre", "engine", "trope", "structure", "theme", "thread"];
@@ -213,8 +225,8 @@
       }
       if (review.proposed_rationale) {
         appendReviewLine(review.proposed_rationale.status === "provided"
-          ? "Agent's stated rationale: " + review.proposed_rationale.text
-          : "Agent rationale: not provided (none invented).", "review-rationale");
+          ? "Revised architecture summary (not causal rationale): " + review.proposed_rationale.text
+          : "Revised architecture summary: not provided (none invented).", "review-rationale");
       }
       if (Array.isArray(review.changed_components) && review.changed_components.length) {
         review.changed_components.forEach(function (component) {
@@ -237,14 +249,14 @@
       if (review.preserved) {
         var authorTargets = review.preserved.author_declared_emotion_targets || [];
         if (authorTargets.length) {
-          appendReviewLine("Preserved author-declared emotions: " +
+          appendReviewLine("Unchanged author-declared emotion fields: " +
             authorTargets.map(function (target) {
               return target.id + " (" + target.emotion + ", " + target.role + ")";
             }).join("; "), "review-preserved");
         }
         var constraints = review.preserved.accepted_constraints || [];
         if (constraints.length) {
-          appendReviewLine("Preserved accepted constraints: " + constraints.join("; "),
+          appendReviewLine("Accepted constraints to check (not verified): " + constraints.join("; "),
             "review-preserved");
         }
       }
@@ -592,6 +604,7 @@
     });
   }
   function activateCanvas(canvasId) {
+    if (revisionReviewBridge) revisionReviewBridge.update(null, null);
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {

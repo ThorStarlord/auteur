@@ -1,0 +1,80 @@
+#architecture-visual-review-root{color-scheme:light dark;font:15px/1.55 system-ui,sans-serif;--bg:#fbfaf7;--ink:#252d31;--muted:#53636a;--panel:#fff;--line:#ccd5d9;--accent:#2c5c85;--change:#855e16;--add:#236a51;--remove:#9a3e46}
+#architecture-visual-review-root *{box-sizing:border-box}
+#architecture-visual-review-root{margin:0;background:var(--bg);color:var(--ink)}
+#architecture-visual-review-root{max-width:1500px;margin:0 auto;padding:20px}
+#architecture-visual-review-root h1,#architecture-visual-review-root h2,#architecture-visual-review-root h3,#architecture-visual-review-root h4{line-height:1.2}
+#architecture-visual-review-root h2{font-size:1.2rem;margin:0 0 12px}
+#architecture-visual-review-root h3{font-size:1rem}
+#architecture-visual-review-root p{margin:.65rem 0}
+#architecture-visual-review-root button,#architecture-visual-review-root select,#architecture-visual-review-root input{font:inherit}
+#architecture-visual-review-root button{cursor:pointer}
+#architecture-visual-review-root button:focus-visible,#architecture-visual-review-root input:focus-visible,#architecture-visual-review-root select:focus-visible,#architecture-visual-review-root summary:focus-visible{outline:3px solid #207da0;outline-offset:2px}
+#architecture-visual-review-root button:disabled{cursor:not-allowed}
+#architecture-visual-review-root nav.mode-menu{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 20px}
+#architecture-visual-review-root .mode-button,#architecture-visual-review-root .layer-button,#architecture-visual-review-root .focus-back{padding:8px 12px;border:1px solid #b8cbd5;background:var(--panel);border-radius:8px;color:inherit}
+#architecture-visual-review-root .mode-button[aria-pressed="true"],#architecture-visual-review-root .layer-button[aria-pressed="true"]{background:#d8e9f1;border-color:#446f91;color:#1b4057}
+#architecture-visual-review-root .eyebrow{font-size:.75rem;letter-spacing:.12em;font-weight:800;color:#47627d}
+#architecture-visual-review-root .summary,#architecture-visual-review-root .change-index,#architecture-visual-review-root .comparison,#architecture-visual-review-root .focus-pane{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:14px 0;padding:18px}
+#architecture-visual-review-root .note{font-size:.86rem;color:var(--muted)}
+#architecture-visual-review-root .warning{border-left:3px solid var(--remove);background:#fff0eb;color:#682b2b;padding:8px 12px}
+#architecture-visual-review-root .requirements{padding:5px 0}
+#architecture-visual-review-root .summary-count{font-weight:700}
+#architecture-visual-review-root .change-index{min-width:0}
+#architecture-visual-review-root .index-search{width:min(420px,100%);border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel);color:var(--ink)}
+#architecture-visual-review-root .change-list{list-style:none;padding:0;margin:12px 0;max-height:390px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:6px}
+#architecture-visual-review-root .change-row{min-width:0}
+#architecture-visual-review-root .change-action{width:100%;text-align:left;padding:8px 10px;border:1px solid var(--line);background:var(--panel);border-radius:6px;color:var(--ink)}
+#architecture-visual-review-root .change-action:hover{background:#edf6f9}
+#architecture-visual-review-root .graph-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#architecture-visual-review-root .architecture-side{min-width:0;max-width:100%;border:1px solid var(--line);padding:12px;border-radius:10px}
+#architecture-visual-review-root .architecture-side h3{margin-top:0}
+#architecture-visual-review-root .architecture-side>p{overflow-wrap:anywhere;font-size:.8rem;color:var(--muted)}
+#architecture-visual-review-root .graph-scroll{overflow:auto;max-width:100%;height:min(480px,55vh);border:1px solid var(--line);border-radius:9px;background:linear-gradient(90deg,#f3f6f6 1px,transparent 1px),linear-gradient(#f3f6f6 1px,transparent 1px),#fafcff;background-size:28px 28px}
+#architecture-visual-review-root .graph-canvas{position:relative;min-height:130px}
+#architecture-visual-review-root .graph-edges{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+#architecture-visual-review-root .edge{fill:none;stroke:#64748b;stroke-width:1.7;stroke-dasharray:5 4}
+#architecture-visual-review-root .edge.changed{stroke:#a46c12;stroke-width:2.5}
+#architecture-visual-review-root .edge.added{stroke:#27775a}
+#architecture-visual-review-root .edge.removed{stroke:#b13d4f}
+#architecture-visual-review-root .architecture-node{position:absolute;width:154px;min-height:54px;border-radius:9px;border:1px solid #a1b7c1;background:#fff;color:#233743;text-align:center;padding:6px;box-shadow:0 1px 2px #0001;overflow-wrap:anywhere}
+#architecture-visual-review-root .architecture-node.changed{border:2px solid #b87f1b;background:#fff6e7}
+#architecture-visual-review-root .architecture-node.added{border:2px solid #397d64;background:#effaf5}
+#architecture-visual-review-root .architecture-node.removed{border:2px dashed #b65b62;background:#fff3f3}
+#architecture-visual-review-root .architecture-node.is-selected{outline:3px solid #3489a6}
+#architecture-visual-review-root .relationship-index{margin-top:10px}
+#architecture-visual-review-root .relationship-index ul{max-height:180px;overflow-y:auto}
+#architecture-visual-review-root .relationship-index button{border:0;background:none;text-align:left;text-decoration:underline;color:#205a7a}
+#architecture-visual-review-root .mobile-control{display:none}
+#architecture-visual-review-root .field-delta{border-left:3px solid #ad8235;padding-left:12px;margin:12px 0;min-width:0}
+#architecture-visual-review-root .field-delta pre,#architecture-visual-review-root .raw-record pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.4 ui-monospace,monospace;background:#f3f6f6;color:#1d343d;padding:10px;border-radius:5px}
+#architecture-visual-review-root .local-overlay{margin:14px 0;padding:12px;background:#f6f9f9;border-radius:10px}
+#architecture-visual-review-root .layer-controls{display:flex;gap:8px}
+#architecture-visual-review-root .overlay-visual{max-width:100%;overflow:auto}
+#architecture-visual-review-root .overlay-visual svg{min-width:540px;max-width:100%;height:auto}
+#architecture-visual-review-root .overlay-edge{stroke-width:2}
+#architecture-visual-review-root .overlay-edge.before{stroke:#b26f34;stroke-dasharray:6 4}
+#architecture-visual-review-root .overlay-edge.after{stroke:#267c80}
+#architecture-visual-review-root .overlay-node{fill:#fff;stroke:#809dac;stroke-width:2}
+#architecture-visual-review-root .overlay-visual text{fill:#294252;font:12px system-ui}
+#architecture-visual-review-root .focus-back{margin:5px 0}
+#architecture-visual-review-root .label{font-weight:700}
+@media (max-width:650px){#architecture-visual-review-root{padding:10px}
+#architecture-visual-review-root .summary,#architecture-visual-review-root .change-index,#architecture-visual-review-root .comparison,#architecture-visual-review-root .focus-pane{padding:12px}
+#architecture-visual-review-root .graph-pair{display:block}
+#architecture-visual-review-root .mobile-control{display:inline-block;margin-left:8px;padding:5px}
+#architecture-visual-review-root .graph-pair[data-mobile-side="before"] [data-side="after"],#architecture-visual-review-root .graph-pair[data-mobile-side="after"] [data-side="before"],#architecture-visual-review-root .graph-pair[data-mobile-side="differences"] .architecture-side{display:none}
+#architecture-visual-review-root .architecture-side{width:100%}
+#architecture-visual-review-root .mode-menu{gap:5px}
+#architecture-visual-review-root .mode-button{padding:6px 8px}
+#architecture-visual-review-root .graph-scroll{height:320px}}
+@media (prefers-reduced-motion:reduce){#architecture-visual-review-root *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media (prefers-color-scheme:dark){#architecture-visual-review-root{--bg:#141d23;--ink:#e6eef1;--panel:#202c33;--line:#465762;--muted:#afbec7}
+#architecture-visual-review-root .architecture-node,#architecture-visual-review-root .field-delta pre,#architecture-visual-review-root .raw-record pre{background:#283d47;color:#ebf3f8}
+#architecture-visual-review-root .graph-scroll{background:#172732}
+#architecture-visual-review-root .warning{background:#553434;color:#ffe8e1}
+#architecture-visual-review-root .mode-button[aria-pressed="true"],#architecture-visual-review-root .layer-button[aria-pressed="true"]{background:#294b60;color:#fff}
+#architecture-visual-review-root .change-action:hover{background:#334852}
+#architecture-visual-review-root .local-overlay{background:#25343d}
+#architecture-visual-review-root .overlay-node{fill:#223844}
+#architecture-visual-review-root .overlay-visual text{fill:#f1f5f8}}
+#architecture-visual-review-root .edge-arrowhead{fill:#64748b}

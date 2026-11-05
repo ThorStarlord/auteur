@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {compareArchitectureRevision,unionGraphLayout,focusedGraphDiff} from '../src/auteur/beginner/browser/studio_architecture_revision_compare.mjs';
+const sha='a'.repeat(64),newSha='b'.repeat(64);
+const c=()=>({schema_version:2,summary:'Promise',nodes:[{id:'engine',title:'Engine',category:'engine',summary:'Cost'},{id:'awe',title:'Awe',category:'theme',summary:'Beauty'}],links:[{id:'cost',source:'engine',target:'awe',function:'creates pressure'}],emotion_targets:[],complex_emotions:[],genre_contracts:[],genre_interactions:[],phases:[],open_questions:[]});
+test('promoted Studio compare uses stable per-version refs and no title pairing',()=>{const a=c(),b=structuredClone(a);b.nodes.reverse();b.nodes[1].summary='New cost';const result=compareArchitectureRevision({before:a,after:b,beforeRequestSha:sha,afterRequestSha:newSha,expectedPriorSha:sha});const x=result.items.find(i=>i.key==='node:engine');assert.equal(x.change,'changed');assert.equal(x.beforeSourceRef,'nodes/0');assert.equal(x.afterSourceRef,'nodes/1');const layout=unionGraphLayout(result);assert.deepEqual(layout.beforeGraph.nodes.find(n=>n.id==='engine').position,layout.afterGraph.nodes.find(n=>n.id==='engine').position);assert.equal(focusedGraphDiff(result,{kind:'node',id:'engine'}).beforeNeighborhood.edges.length,1)});
