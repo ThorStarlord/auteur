@@ -18,3 +18,7 @@
 #edges path[data-architecture-link-id],#edges path[data-genre-interaction-id] { cursor: pointer; }
 @media (max-width: 840px) { .architecture-creative-workbench { grid-template-columns: minmax(0,1fr); } .architecture-relationship-index > div { max-height: 12rem; } }
 @media (prefers-reduced-motion: reduce) { .architecture-creative-graph * { scroll-behavior: auto!important; transition: none!important; } }
+
+/* The full-size node layer otherwise intercepts edge clicks; actual buttons still receive input. */
+#nodes { pointer-events: none; }
+#nodes .node { pointer-events: auto; }
