@@ -208,6 +208,33 @@ def project_mentor(store: CanvasStore) -> dict:
             "author_reply": payload.get("author_reply", "") if fresh else ""}
 
 
+def _fresh_prior_exchange(store: CanvasStore, focus_id: str, focus_kind: str, source_sha256: str) -> dict | None:
+    """The latest completed advice for this focus, carried only while its source is still current.
+
+    A follow-up's author reply refers to something; without this, the reply cannot be resolved from the
+    request itself. Advice from a changed source is stale and is not presented as present reasoning.
+    """
+    latest = _read(_root(store) / "latest_request.json")
+    if latest is None:
+        return None
+    sha = latest.get("request_sha256")
+    if not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{64}", sha):
+        return None
+    base = _root(store) / "requests" / sha
+    request = load_host_agent_request(base / "request.json")
+    if request.settings.get("focus_id") != focus_id or request.settings.get("focus_kind") != focus_kind:
+        return None
+    if request.settings.get("source_sha256") != source_sha256:
+        return None
+    completed = _read(base / "response.json")
+    if completed is None:
+        return None
+    prior_user = json.loads(request.user)
+    return {"mentor_purpose": prior_user.get("mentor_purpose"),
+            "author_reply": prior_user.get("author_reply", ""),
+            "advice": completed["advice"]}
+
+
 def prepare_mentor(store: CanvasStore, focus_id: str, focus_kind: str,
                    purpose: str = "explore", author_reply: str = "") -> dict:
     if purpose not in {"learn", "explore", "question", "challenge", "followup"}:
@@ -217,8 +244,10 @@ def prepare_mentor(store: CanvasStore, focus_id: str, focus_kind: str,
     with _FilesystemLock(store._path(".canvas.lock")):
         snapshot = _context(store, focus_id, focus_kind)
         context = snapshot["context"]
+        prior = _fresh_prior_exchange(store, focus_id, focus_kind, snapshot["source_sha256"])
         user = json.dumps({"mentor_purpose": purpose, "author_reply": author_reply,
-                           "working_context": context, "allowed_source_refs": snapshot["allowed_refs"]},
+                           "working_context": context, "allowed_source_refs": snapshot["allowed_refs"],
+                           "prior_exchange": prior},
                           ensure_ascii=False, sort_keys=True)
         settings = {"canvas_id": store.canvas_id, "focus_id": focus_id,
                     "focus_kind": focus_kind, "source_sha256": snapshot["source_sha256"]}

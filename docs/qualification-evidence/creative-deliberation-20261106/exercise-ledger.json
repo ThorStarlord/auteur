@@ -1,0 +1,528 @@
+{
+  "schema": "auteur_creative_deliberation_exercise_ledger_v1",
+  "date": "2026-11-06",
+  "coordinator_label": "same-agent coordinator (the coding agent in this session)",
+  "independence_labels": {
+    "fresh_context_subagent": "Task tool subagent with no shared conversation context; used for short reads/judgements; long creative generation through the subagent channel failed repeatedly and was not used as evidence",
+    "same_agent_execution": "answers produced by the coordinator against the packet content",
+    "fixture_admitted_recorded_candidate": "docs/qualification-evidence/agent-first-ontology-20261103/rich-vision-candidate.json re-admitted through prepare->response->complete",
+    "simulated_author": "the coordinator wrote the author questions and selections"
+  },
+  "before_fix": {
+    "baseline_candidate_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+    "inquiries": [
+      {
+        "request_sha256": "3c1728520bd9ba556859067b3bd6830a1f99f0510cb154b2f7c8eb3ff7af724d",
+        "operation": "explain",
+        "status": "not_completed",
+        "created_at": "2026-11-06T03:29:03.859013+00:00"
+      },
+      {
+        "request_sha256": "a43ef9519cfd852edb2f46b02beffc75db8e9430d1d003a8b6483d8a2cba4cdb",
+        "created_at": "2026-11-06T03:29:55.809823+00:00",
+        "operation": "explain",
+        "author_question": "I want to understand what the memory economy is doing for the reader, not only how the mechanism works. Why does it matter that every accurate map costs someone a memory? What does it make possible emotionally and structurally that a conventional mystery about a hidden massacre could not? Please explain its narrative function in the wonder-to-dread movement.\n",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "baseline_candidate_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+        "status": "completed",
+        "alternatives": [],
+        "recorded_observation_ids": [
+          "memory_economy",
+          "engine_drives_cost",
+          "engine_feeds_archive"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/3",
+          "links/3",
+          "links/4"
+        ]
+      },
+      {
+        "request_sha256": "b712e75f226ad2d6e5a5f530d4a1630ce23c3320035751e92a0ad9f251710903",
+        "created_at": "2026-11-06T04:46:38.579551+00:00",
+        "operation": "challenge",
+        "author_question": "Where is this relation weakest as creative design? The candidate says the truth-mercy dilemma produces earned hope conditional on a chosen remembrance. Does that resolve the dilemma too cheaply, or does it leave a real tension the reader must carry? Challenge the assumption that a partial remembrance can count as hope without denying the loss.",
+        "anchors": [
+          {
+            "kind": "link",
+            "id": "dilemma_produces_hope"
+          }
+        ],
+        "baseline_candidate_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+        "status": "completed",
+        "alternatives": [
+          {
+            "id": null,
+            "title": "Third-option compromise",
+            "divergence_axis": null
+          },
+          {
+            "id": null,
+            "title": "Agency locus of hope",
+            "divergence_axis": null
+          }
+        ],
+        "recorded_observation_ids": [
+          "truth_mercy_dilemma",
+          "earned_hope",
+          "dilemma_produces_hope"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/6",
+          "nodes/14",
+          "links/8"
+        ]
+      },
+      {
+        "request_sha256": "d2b423b466482b5741c2ba5167f4796be0ddde1028e660a25077df1ac19639be",
+        "created_at": "2026-11-06T04:55:38.067877+00:00",
+        "operation": "explore",
+        "author_question": "Keep the wonder-to-dread arc and the conditional hope. Give me materially different causal mechanisms by which the memory cost could be borne, shifted or returned. Do not give me different names for the same cost: each alternative should change who pays, how the cost is paid, or whether it can be recovered, and say what that changes for the reader.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "baseline_candidate_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+        "status": "completed",
+        "alternatives": [
+          {
+            "id": null,
+            "title": "Communal ledger",
+            "divergence_axis": null
+          },
+          {
+            "id": null,
+            "title": "Delegated cost",
+            "divergence_axis": null
+          },
+          {
+            "id": null,
+            "title": "Restorable cost",
+            "divergence_axis": null
+          }
+        ],
+        "recorded_observation_ids": [
+          "memory_economy",
+          "engine_drives_cost",
+          "magical_map_instantiates"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/3",
+          "links/3",
+          "links/11"
+        ]
+      },
+      {
+        "request_sha256": "e822d53b0a192155a266a1a21e8944fc86d35f51ae4ee9baa00693badfb585bc",
+        "created_at": "2026-11-06T04:57:03.438135+00:00",
+        "operation": "explore",
+        "author_question": "Take the restorable-cost alternative from my last question, where memories taken can be returned by a later survey. What must remain unresolved for the earned hope in the choice of maps to still feel earned rather than repaid? Name the one recorded field I would have to revise first.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "earned_hope"
+          }
+        ],
+        "baseline_candidate_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+        "status": "completed",
+        "alternatives": [],
+        "recorded_observation_ids": [
+          "earned_hope",
+          "choice_of_maps",
+          "dilemma_produces_hope"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/14",
+          "phases/3",
+          "links/8"
+        ]
+      }
+    ],
+    "revisions": [
+      {
+        "request_sha256": "6ca6a3386f7657b90b04fc41e99ea1eca7320d32edec981b99b6900326fdea1c",
+        "requested_change": "Adopt the communal-ledger direction for the memory economy: each accurate survey draws a small memory from several consenting residents rather than from one person, so the cost is shared and rotated. Keep the wonder-to-dread arc and the conditional hope. Reconsider every affected emotion, genre contract, phase and relation together rather than only relabelling the memory economy. The investigator must still be pulled into the cost by some other route.",
+        "prior_request_sha256": "5a9898c408ac5fad93a64edbe5f4d90194f884112065515b02abd04e4dbc3100",
+        "graph_intent_anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy",
+            "sourceRef": "nodes/3"
+          },
+          {
+            "kind": "link",
+            "id": "engine_drives_cost",
+            "sourceRef": "links/3"
+          },
+          {
+            "kind": "node",
+            "id": "cost_escalation",
+            "sourceRef": "nodes/7"
+          }
+        ],
+        "selected_creative_alternative": null,
+        "changed_components": [
+          {
+            "kind": "summary",
+            "id": "summary",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "node",
+            "id": "cost_escalation",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "node",
+            "id": "memory_economy",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "link",
+            "id": "investigator_pays_by_proxy",
+            "change": "added",
+            "changed_fields": []
+          },
+          {
+            "kind": "link",
+            "id": "engine_drives_cost",
+            "change": "changed",
+            "changed_fields": [
+              "function"
+            ]
+          },
+          {
+            "kind": "phase",
+            "id": "first_erasure",
+            "change": "changed",
+            "changed_fields": [
+              "narrative_function",
+              "transition"
+            ]
+          },
+          {
+            "kind": "emotion_target",
+            "id": "dread",
+            "change": "changed",
+            "changed_fields": [
+              "eliciting_condition",
+              "intended_effect"
+            ]
+          },
+          {
+            "kind": "genre_contract",
+            "id": "literary_mystery",
+            "change": "changed",
+            "changed_fields": [
+              "narrative_engine"
+            ]
+          }
+        ],
+        "author_declared_emotion_changes": [
+          "dread"
+        ],
+        "author_declared_emotion_targets_preserved": [
+          "wonder",
+          "hope"
+        ],
+        "accepted_constraints": [],
+        "revision_packet_contains_prior_exchanges": false,
+        "revision_packet_contains_graph_intent": true
+      }
+    ],
+    "observed_failures": [
+      "follow-up inquiry packet contained none of the prior alternatives (9/9 deterministic markers absent)",
+      "fresh-context reader returned NOT-FOUND for the referenced alternative",
+      "mentor follow-up packet contained no prior advice",
+      "revision packet carried no explored alternative; provenance receipt held anchors only",
+      "resume packet contained no inquiry, mentor or alternative content",
+      "realization focus accepted architecture node IDs only (emotion_target and link rejected with HTTP 400)",
+      "explore alternatives judged PARTLY-RENAMED by a fresh-context critical reviewer"
+    ]
+  },
+  "after_fix_final_run": {
+    "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+    "inquiries": [
+      {
+        "request_sha256": "320ed551c3c98318eafbc6478a5ff06d72d729a57fd5551e945a8377743a6e0b",
+        "created_at": "2026-11-06T06:14:31.090178+00:00",
+        "operation": "explore",
+        "author_question": "Keep the wonder-to-dread arc and the conditional hope. Give me materially different causal mechanisms by which the memory cost could be borne, shifted or returned. Do not give me different names for the same cost: each alternative should change who pays, how the cost is paid, or whether it can be recovered, and say what that changes for the reader.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "status": "completed",
+        "alternatives": [
+          {
+            "id": "h1",
+            "title": "Communal ledger",
+            "divergence_axis": "social_scale"
+          },
+          {
+            "id": "h2",
+            "title": "Restorable cost",
+            "divergence_axis": "causal_engine"
+          },
+          {
+            "id": "h3",
+            "title": "Concealed cost",
+            "divergence_axis": "reader_emotion"
+          }
+        ],
+        "recorded_observation_ids": [
+          "memory_economy",
+          "engine_drives_cost",
+          "magical_map_instantiates"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/3",
+          "links/3",
+          "links/11"
+        ]
+      },
+      {
+        "request_sha256": "470a4de3f773efc4215f6d61664a3c33093b05c121b81ee3f9874f65d197422b",
+        "created_at": "2026-11-06T06:14:27.382629+00:00",
+        "operation": "explain",
+        "author_question": "I want to understand what the memory economy is doing for the reader, not only how the mechanism works. Why does it matter that every accurate map costs someone a memory? What does it make possible emotionally and structurally that a conventional mystery about a hidden massacre could not? Please explain its narrative function in the wonder-to-dread movement.\n",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "status": "completed",
+        "alternatives": [],
+        "recorded_observation_ids": [
+          "memory_economy",
+          "engine_drives_cost",
+          "engine_feeds_archive"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/3",
+          "links/3",
+          "links/4"
+        ]
+      },
+      {
+        "request_sha256": "65401fdda9dc644095f294440d7e3fe58783ad4ff6b4fffd30401899563280db",
+        "created_at": "2026-11-06T06:14:32.967390+00:00",
+        "operation": "explore",
+        "author_question": "Take the restorable-cost alternative from my last question, where memories taken can be returned by a later survey. What must remain unresolved for the earned hope in the choice of maps to still feel earned rather than repaid? Name the one recorded field I would have to revise first.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "earned_hope"
+          }
+        ],
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "status": "completed",
+        "alternatives": [
+          {
+            "id": "h1",
+            "title": "Partial repayment",
+            "divergence_axis": "causal_engine"
+          },
+          {
+            "id": "h2",
+            "title": "Irreversible record, contested keeper",
+            "divergence_axis": "character_agency"
+          }
+        ],
+        "recorded_observation_ids": [
+          "earned_hope",
+          "choice_of_maps",
+          "dilemma_produces_hope"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/14",
+          "phases/3",
+          "links/8"
+        ]
+      },
+      {
+        "request_sha256": "c149e676be714b80fa789e9cfcbb3dad0a4b7e6146c9af05fd382c296d3840d7",
+        "created_at": "2026-11-06T06:14:29.214854+00:00",
+        "operation": "challenge",
+        "author_question": "Where is this relation weakest as creative design? The candidate says the truth-mercy dilemma produces earned hope conditional on a chosen remembrance. Does that resolve the dilemma too cheaply, or does it leave a real tension the reader must carry? Challenge the assumption that a partial remembrance can count as hope without denying the loss.",
+        "anchors": [
+          {
+            "kind": "link",
+            "id": "dilemma_produces_hope"
+          }
+        ],
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "status": "completed",
+        "alternatives": [
+          {
+            "id": "h1",
+            "title": "Third-option compromise",
+            "divergence_axis": null
+          },
+          {
+            "id": "h2",
+            "title": "Agency locus of hope",
+            "divergence_axis": null
+          }
+        ],
+        "recorded_observation_ids": [
+          "truth_mercy_dilemma",
+          "earned_hope",
+          "dilemma_produces_hope"
+        ],
+        "validated_observation_sourceRefs": [
+          "nodes/6",
+          "nodes/14",
+          "links/8"
+        ]
+      }
+    ],
+    "revisions": [
+      {
+        "request_sha256": "7701924e2b3249fca168bb6e77c0649cd5349c16dad77f6f6c15ac404d98b3fd",
+        "requested_change": "Adopt the communal-ledger direction for the memory economy: each accurate survey draws a small memory from several consenting residents rather than from one person, so the cost is shared and rotated. Keep the wonder-to-dread arc and the conditional hope. Reconsider every affected emotion, genre contract, phase and relation together rather than only relabelling the memory economy. The investigator must still be pulled into the cost by some other route.",
+        "prior_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "graph_intent_anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy",
+            "sourceRef": "nodes/3"
+          },
+          {
+            "kind": "link",
+            "id": "engine_drives_cost",
+            "sourceRef": "links/3"
+          },
+          {
+            "kind": "node",
+            "id": "cost_escalation",
+            "sourceRef": "nodes/7"
+          }
+        ],
+        "selected_creative_alternative": {
+          "author_question": "Keep the wonder-to-dread arc and the conditional hope. Give me materially different causal mechanisms by which the memory cost could be borne, shifted or returned. Do not give me different names for the same cost: each alternative should change who pays, how the cost is paid, or whether it can be recovered, and say what that changes for the reader.",
+          "authority": "noncanonical_creative_alternative",
+          "description": "Each survey draws a small memory from several consenting residents instead of one person, so the cost is spread across the community. Change: how many people bear the cost. Reader effect: dread becomes civic and collective, and the investigator's personal stake must come from another route, because cost_escalation no longer lands on one person.",
+          "divergence_axis": "social_scale",
+          "hypothesis_id": "h1",
+          "inquiry_request_sha256": "320ed551c3c98318eafbc6478a5ff06d72d729a57fd5551e945a8377743a6e0b",
+          "operation": "explore",
+          "title": "Communal ledger"
+        },
+        "changed_components": [
+          {
+            "kind": "summary",
+            "id": "summary",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "node",
+            "id": "cost_escalation",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "node",
+            "id": "memory_economy",
+            "change": "changed",
+            "changed_fields": [
+              "summary"
+            ]
+          },
+          {
+            "kind": "link",
+            "id": "investigator_pays_by_proxy",
+            "change": "added",
+            "changed_fields": []
+          },
+          {
+            "kind": "link",
+            "id": "engine_drives_cost",
+            "change": "changed",
+            "changed_fields": [
+              "function"
+            ]
+          },
+          {
+            "kind": "phase",
+            "id": "first_erasure",
+            "change": "changed",
+            "changed_fields": [
+              "narrative_function",
+              "transition"
+            ]
+          },
+          {
+            "kind": "emotion_target",
+            "id": "dread",
+            "change": "changed",
+            "changed_fields": [
+              "eliciting_condition",
+              "intended_effect"
+            ]
+          },
+          {
+            "kind": "genre_contract",
+            "id": "literary_mystery",
+            "change": "changed",
+            "changed_fields": [
+              "narrative_engine"
+            ]
+          }
+        ],
+        "author_declared_emotion_changes": [
+          "dread"
+        ],
+        "author_declared_emotion_targets_preserved": [
+          "wonder",
+          "hope"
+        ],
+        "accepted_constraints": [],
+        "revision_packet_contains_prior_exchanges": false,
+        "revision_packet_contains_graph_intent": true
+      }
+    ],
+    "resume_lineage_operations": [
+      "explore",
+      "explore",
+      "challenge",
+      "explain"
+    ],
+    "resume_adopted_alternative": "Communal ledger (social_scale), inquiry explore h1",
+    "resume_mentor_prior_advice_while_followup_pending": [
+      "Restorable survey debt",
+      "Chosen payers under the Guild"
+    ],
+    "realization_checks": {
+      "emotion_target_focus": "HTTP 400 realization focus must contain distinct existing architecture IDs",
+      "recorded_link_focus": "HTTP 400 realization focus must contain distinct existing architecture IDs",
+      "node_focus": "HTTP 202 awaiting_host_agent"
+    }
+  }
+}

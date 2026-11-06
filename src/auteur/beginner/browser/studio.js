@@ -31,7 +31,8 @@
     var disclosure=$("architecture-creative-graph");
     if (!disclosure) return;
     disclosure.hidden=!(state.architecture && state.architecture.schema_version===2);
-    if (!state.architecture || graphSelectionController) return;
+    if (!state.architecture) return;
+    if (graphSelectionController) { syncInquiryHistory(); return; }
     if (!window.AuteurStudioGraphActions || !window.AuteurStudioGraphSelection ||
         !window.AuteurStudioAgentBridge || !window.AuteurStudioCreativePanel ||
         !window.AuteurStudioCreativeFeedback) return;
@@ -61,19 +62,11 @@
         });
       },
       onRevise:function(payload){
-        var graphIntent={
-          version:1,canvas_id:remote.canvasId,operation:"revise",
-          expected_candidate_request_sha256:state.architectureRequestSha,
-          anchors:payload.anchors.map(function(a){
-            var ref={kind:a.kind,id:a.id};
-            if(a.field)ref.field=a.field;
-            if(a.reference)ref.reference={field:a.reference.field,
-              target_kind:a.reference.target_kind,target_id:a.reference.target_id};
-            return ref;
-          }),
-          author_text:payload.authorText
-        };
-        requestArchitecture(payload.authorText,graphIntent);
+        requestArchitecture(payload.authorText,buildRevisionIntent(payload.anchors,payload.authorText));
+      },
+      onUseAlternative:function(payload){
+        requestArchitecture(payload.authorText,buildRevisionIntent(payload.anchors,payload.authorText),
+          payload.selectedAlternative);
       },
       onClear:function(){if(graphSelectionController) graphSelectionController.clear();},
       onComplete:function(payload){
@@ -110,6 +103,34 @@
       },
       renderInquiry:function(){disclosure.open=true;}
     });
+    syncInquiryHistory();
+  }
+  var inquiryLoadedCanvas = null;
+  // Shows this canvas's earlier exchanges once per canvas, without selecting graph focus.
+  function syncInquiryHistory() {
+    var canvasId = remote.canvasId;
+    if (!creativePanel || !canvasId || inquiryLoadedCanvas === canvasId) return;
+    inquiryLoadedCanvas = canvasId;
+    fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/architecture/inquiry")
+      .then(apiJson).then(function (projection) {
+        if (remote.canvasId !== canvasId || !creativePanel) return;
+        if (projection.result) creativePanel.setInquiryResult(projection);
+        else creativePanel.setStatus(projection);
+      }).catch(function () {});
+  }
+  function buildRevisionIntent(anchors, authorText) {
+    return {
+      version: 1, canvas_id: remote.canvasId, operation: "revise",
+      expected_candidate_request_sha256: state.architectureRequestSha,
+      anchors: anchors.map(function (a) {
+        var ref = {kind: a.kind, id: a.id};
+        if (a.field) ref.field = a.field;
+        if (a.reference) ref.reference = {field: a.reference.field,
+          target_kind: a.reference.target_kind, target_id: a.reference.target_id};
+        return ref;
+      }),
+      author_text: authorText
+    };
   }
   state.architectureRequestSha = null; state.architectureReview = null;
   state.architectureSourceStatus = "not_started";
@@ -390,7 +411,7 @@
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
   }
-  function requestArchitecture(instruction, graphIntent) {
+  function requestArchitecture(instruction, graphIntent, selectedAlternative) {
     if (!remote.ready || remote.failed) { status("Save the working canvas before requesting architecture."); return; }
     if (!$("scene-panel").hidden) captureScene();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
@@ -401,7 +422,10 @@
       return fetch(architectureUrl() + "/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify(Object.assign({instruction:instruction||""},
-          graphIntent ? {graph_intent:graphIntent} : {}))
+          graphIntent ? {graph_intent:graphIntent} : {},
+          selectedAlternative ? {selected_alternative:{
+            inquiry_request_sha256:selectedAlternative.inquiryRequestSha256,
+            hypothesis_id:selectedAlternative.hypothesisId}} : {}))
       }).then(apiJson);
     }).then(function (projection) {
       applyArchitectureProjection(projection, false);

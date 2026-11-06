@@ -8,6 +8,14 @@
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
+## 2026-11-06 Connected Creative Thread — bounded creative-deliberation continuity (experimental)
+
+Authentic exercise and evaluation: [docs/research/2026-11-06-connected-creative-thread-evaluation.md](docs/research/2026-11-06-connected-creative-thread-evaluation.md); evidence: [docs/qualification-evidence/creative-deliberation-20261106/](docs/qualification-evidence/creative-deliberation-20261106/).
+
+Implemented in existing owners: inquiries carry the same-baseline prior exchanges and stable alternative IDs; explore requires two or more alternatives with distinct declared `divergence_axis`; an inquiry alternative can be explicitly adopted into the existing holistic revision with fail-closed provenance; fresh resume recovers the deliberation lineage and adopted alternative; Mentor follow-ups carry fresh prior advice; the inquiry has a host-agent CLI bridge.
+
+**Evidence ceiling:** 106 focused Python and 181 Studio Node tests (179 pass; the 2 failures reproduce at HEAD as a known baseline). The beginner-studio Python set passed 829 with 1 skip. Served Chromium journey tests use a labelled fixture answer. Long creative generation through the subagent channel failed in this environment, so creative responses are same-agent coordinator output, plus one blind fresh-context critique. **Not established:** human author usefulness, independent full-journey execution, realization of emotional or relational focus (still node-only), narrative-impact explanation of a pending revision, and any release or default qualification. Disclosure of only the first ten canvas items to the Mentor is a verified limitation pending an owner decision.
+
 ## 2026-11-05 Hybrid Narrative Architecture Revision Review — experimental development integration
 
 **Implementation PR:** [#514](https://github.com/ThorStarlord/auteur/pull/514) — opt-in experimental review, **not a default interface or qualified release**. The author selected a hybrid design and delegated the experimental implementation decision; no author-effectiveness study was available to justify default promotion.

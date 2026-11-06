@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "analysis": "The memory economy matters because it makes accuracy stop being neutral. Every accurate survey moves a memory out of a person and into the map, so wonder at accuracy is always paid for by someone. The story invites the reader to want the survey to succeed, which implicates the reader in the loss. The first missing memory is the hinge that turns the wonder of the strange coast into dread by making the cost personal.\n\nA conventional mystery treats the massacre as a past crime and the solution as a gain. Here the same mechanism explains how the archive was made and hidden, so the evidence of the crime is itself a costly product. Emotionally, curiosity and fear fuse, so the wish for truth becomes entangled with fear of what it will erase, and dread grows from recognition rather than shock. Structurally, the cost climbs from civic history into the identity of the surveyor, forcing a choice between an accurate record that wounds and a merciful omission that protects belonging. The final choice is both a solution and an intimate loss, which is where mystery and horror converge.\n\nThese are interpretations of a working, noncanonical node, not graph proof or accepted canon. Dread also needs aesthetic choices such as quiet omissions and repeated details.\n\nThe memory economy carries the story from wonder to dread. The magical map is its concrete instrument: each accurate survey moves a memory out of a person and into the map, so accuracy is never free. The strange coast that first delights the reader is produced by the same acts that take intimate memories, so the wish for a successful survey and the fear of what it erases rise together. A conventional mystery about a hidden massacre offers suspense about whether the truth will be found. Here finding the truth is itself the harm, so every clue advances both the investigation and the loss. The phase plan stages this through strange coast, first erasure (where the cost turns personal), archive revelation, and choice of maps. The same engine explains how the archive was made and hidden, tying the method of the mystery to the crime.\n\nThe trade-offs are real. Rules that are too elaborate could turn the fantasy into a puzzle device that drains human cost, or make the story read like a manual. Dread can also overpower the pleasure of discovery. The final choice of maps offers only conditional hope, through a chosen and partial remembrance that admits loss. These readings interpret recorded links and intended effects, not observed reader response.\n\nIn this reading, the memory economy changes what the reader feels about knowing. At first every accurate survey feels like a gift, and the luminous coast invites wonder. Then the reader learns each discovery is paid for by a person who forgets something, and knowing begins to feel like loss. A conventional mystery about a hidden massacre asks only who did it and what was hidden. This mechanism asks what each answer will cost, so the desire for truth becomes tangled with fear of what truth will erase. The author should keep the price small, personal, and quiet, shown through a familiar person or place that slips from memory. Watch three things. The rules of the map must be learned through use, not explained, or the mystery becomes a manual. The fantasy must not become a puzzle device that drains the human cost. And dread must not crowd out the pleasure of discovery, or the reader stops wanting answers.",
+  "recorded_observations": [
+    {
+      "kind": "node",
+      "id": "memory_economy",
+      "claim": "Recorded summary: every accurate survey transfers a memory out of a person and into the map, so knowledge is always paid for by someone."
+    },
+    {
+      "kind": "link",
+      "id": "engine_drives_cost",
+      "claim": "Recorded function: memory_economy -> cost_escalation, turns every discovery into a personal loss."
+    },
+    {
+      "kind": "link",
+      "id": "engine_feeds_archive",
+      "claim": "Recorded function: memory_economy -> founding_archive, explains how the city's records were made and hidden."
+    }
+  ],
+  "hypotheses": [],
+  "uncertainties": [
+    "The candidate does not record how the memory cost is distributed across characters or whether it is ever shared.",
+    "The reader-experience effects are interpretations of recorded intended effects, not observed reader responses."
+  ]
+}

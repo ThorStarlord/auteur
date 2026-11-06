@@ -1,0 +1,7 @@
+Independent critical review (fresh-context subagent, blind to coordinator notes; input: responses/explore-before.json only; reply recorded verbatim)
+
+VERDICT: PARTLY-RENAMED. Communal ledger and delegated cost are the weakest pair: both vary only the allocation of the same survey cost, so they are two settings of one dial, even though the analysis claims all three change different variables. Restorable cost is a genuinely distinct reversibility mechanism.
+
+Check first whether the wonder-to-dread arc still produces dread under restorable cost, since a debt the reader knows can be repaid may drain the cost that drives the horror.
+
+Consequence recorded in the change set: the explore contract now requires each alternative to declare a distinct divergence_axis from the Studio Mentor vocabulary. Declared axes are structural evidence of differentiation, not proof that the axes are causally independent; the critical reviewer remains the backstop for that judgement.

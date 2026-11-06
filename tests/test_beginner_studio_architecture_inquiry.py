@@ -28,7 +28,7 @@ def seeded_store(tmp_path):
     return store
 
 
-def intent(store, operation="explore", anchors=None):
+def intent(store, operation="explain", anchors=None):
     projection = project_architecture(store)
     return {
         "version": 1,

@@ -1,6 +1,6 @@
 /* Persistent contextual creative-agent panel; requests are explicit and source-labeled. */
 (function(global){'use strict';
- function createCreativePanel({root,onAction,onRevise,onClear,onComplete}={}){
+ function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative}={}){
   if(!root||typeof onAction!=='function'||typeof onRevise!=='function')throw Error('Creative panel requires callbacks');
   const doc=root.ownerDocument||document,make=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e};
   let anchors=[],actions=[],operation='explore';
@@ -17,9 +17,10 @@
   const responseLabel=make('label','Paste signed host-agent response JSON to validate the inquiry');
   const response=make('textarea');response.setAttribute('aria-label','Host-agent inquiry response');response.rows=4;
   const complete=make('button','Validate inquiry response');complete.type='button';
+  const history=make('section');history.setAttribute('aria-label','Earlier creative exchanges');
   const result=make('section');result.setAttribute('aria-label','Inquiry result');
   const clear=make('button','Clear graph selection');clear.type='button';
-  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,result,clear);
+  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,result,clear);
   const agentOperations=new Set(['explain','challenge','explore','compare','connect_to_ask']);
   function updateSubmit(){const isRevision=operation==='revise';submit.textContent=isRevision?'Request holistic revision':
     agentOperations.has(operation)?'Ask coding agent (no revision)':operation==='trace'?'Trace recorded relationships':'Inspect recorded source';}
@@ -41,6 +42,24 @@
   });
   complete.addEventListener('click',()=>{try{if(onComplete)onComplete(JSON.parse(response.value));}catch(error){status.textContent='Response JSON could not be read: '+error.message;}});
   clear.addEventListener('click',()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();if(onClear)onClear();});
+  function chooseAlternative(hypothesisId,inquirySha){
+    if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
+    const authorText=instruction.value;
+    if(!authorText.trim()){status.textContent='Write what you want to develop from '+hypothesisId+' first.';return}
+    if(onUseAlternative)onUseAlternative({anchors:anchors.slice(),authorText,
+      selectedAlternative:{inquiryRequestSha256:inquirySha,hypothesisId:hypothesisId}});
+  }
+  function renderHistory(entries){history.replaceChildren();
+    if(!Array.isArray(entries)||!entries.length)return;
+    history.append(make('h4','Earlier exchanges for this source (noncanonical)'));
+    for(const entry of entries.slice(0,8)){
+      const box=make('div');box.dataset.exchangeSha=entry.request_sha256||'';
+      box.append(make('strong',(entry.operation||'inquiry')+' · '+(entry.author_question||'')));
+      const alternatives=(entry.hypotheses||[]).map(h=>(h.id||'')+' '+h.title).join('; ');
+      if(alternatives)box.append(make('p','Alternatives: '+alternatives));
+      history.append(box);
+    }
+  }
   function setStatus(projection){const value=typeof projection==='string'?{status:projection}:projection||{};
     const s=value.status||'not_started';status.textContent=s==='awaiting_host_agent'?
       'Host-agent request prepared, not executed. Copy the packet to your active coding agent.':
@@ -48,6 +67,7 @@
       s==='stale'||s==='guidance_changed'?'Source context changed. This inquiry is historical; prepare a new request.':
       s==='error'? 'Inquiry error; no new architecture was applied.': 'Inquiry status: '+s+'.';
     packet.value=value.request?JSON.stringify(value.request,null,2):'';
+    renderHistory(value.history);
   }
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     if(!response)return;
@@ -55,7 +75,15 @@
     const list=(title,items,render)=>{const hd=make('h5',title);result.append(hd);const ul=make('ul');
       for(const item of items||[]){ul.append(make('li',render(item)))}result.append(ul)};
     list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')');
-    list('Creative hypotheses',response.hypotheses,x=>x.title+': '+x.description);
+    result.append(make('h5','Creative alternatives (noncanonical)'));
+    const alternatives=make('ul');result.append(alternatives);
+    (response.hypotheses||[]).forEach((x,index)=>{const id=x.id||('h'+(index+1));
+      const varies=x.divergence_axis?' (varies '+x.divergence_axis.replace(/_/g,' ')+')':'';
+      const item=make('li',id+' · '+x.title+varies+': '+x.description);alternatives.append(item);
+      if(onUseAlternative&&value.status==='ready'&&value.request_sha256){
+        const use=make('button','Use '+id+' as revision basis');use.type='button';use.dataset.alternativeId=id;
+        use.addEventListener('click',()=>chooseAlternative(id,value.request_sha256));item.append(use);
+      }});
     list('Uncertainties',response.uncertainties,x=>x);
   }
   function setLocalInspection(projection){
@@ -68,7 +96,7 @@
     }result.append(list);
   }
   updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,setAuthorText:text=>{instruction.value=text},
-    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
+    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }
  global.AuteurStudioCreativePanel={createCreativePanel};

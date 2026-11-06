@@ -1,0 +1,195 @@
+{
+  "kind": "studio_architecture_resume",
+  "authority": "working_noncanonical",
+  "canvas_id": "memory-economy",
+  "architecture_status": "ready",
+  "candidate_request_sha256": "7701924e2b3249fca168bb6e77c0649cd5349c16dad77f6f6c15ac404d98b3fd",
+  "pending_request_sha256": null,
+  "adopted_creative_alternative": {
+    "author_question": "Keep the wonder-to-dread arc and the conditional hope. Give me materially different causal mechanisms by which the memory cost could be borne, shifted or returned. Do not give me different names for the same cost: each alternative should change who pays, how the cost is paid, or whether it can be recovered, and say what that changes for the reader.",
+    "authority": "noncanonical_creative_alternative",
+    "description": "Each survey draws a small memory from several consenting residents instead of one person, so the cost is spread across the community. Change: how many people bear the cost. Reader effect: dread becomes civic and collective, and the investigator's personal stake must come from another route, because cost_escalation no longer lands on one person.",
+    "divergence_axis": "social_scale",
+    "hypothesis_id": "h1",
+    "inquiry_request_sha256": "320ed551c3c98318eafbc6478a5ff06d72d729a57fd5551e945a8377743a6e0b",
+    "operation": "explore",
+    "title": "Communal ledger"
+  },
+  "creative_deliberation": {
+    "authority": "noncanonical_working_deliberation",
+    "inquiry_history": [],
+    "superseded_inquiry_history": [
+      {
+        "request_sha256": "65401fdda9dc644095f294440d7e3fe58783ad4ff6b4fffd30401899563280db",
+        "created_at": "2026-11-06T06:14:32.967390+00:00",
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "operation": "explore",
+        "author_question": "Take the restorable-cost alternative from my last question, where memories taken can be returned by a later survey. What must remain unresolved for the earned hope in the choice of maps to still feel earned rather than repaid? Name the one recorded field I would have to revise first.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "earned_hope"
+          }
+        ],
+        "analysis": "The referent is resolved from this request: prior_exchanges holds the earlier explore answer, whose Restorable cost alternative lets a memory taken be returned by a later survey recorded as a debt. For the earned hope in the choice of maps to still feel earned rather than repaid, the reader must keep at least one loss that no later survey returns, and the debt mechanism should not be legible before the choice is made. The recorded earned_hope summary says hope is available only through a chosen, partial remembrance. Under restorable cost that sentence holds only if the partial remembrance is itself the irreversible loss. The two alternatives below change different causal variables: one changes what is recoverable, the other changes who decides what the record keeps.",
+        "hypotheses": [
+          {
+            "id": "h1",
+            "title": "Partial repayment",
+            "description": "Only some taken memories can be returned, and the returnable ones are chosen by the Guild. Hope then comes from partial repayment, while the reader keeps one loss that no survey returns. Change: what is recoverable. Risk: repayment becomes the real resolution, so the choice of maps reads as bookkeeping.",
+            "divergence_axis": "causal_engine"
+          },
+          {
+            "id": "h2",
+            "title": "Irreversible record, contested keeper",
+            "description": "Memories stay irreversible, and hope depends on who keeps the record that names the loss. Change: who decides what the record preserves, not whether loss can be undone. Risk: hope rests on a governance question the candidate leaves open, so the earned quality depends on an unrecorded decision.",
+            "divergence_axis": "character_agency"
+          }
+        ],
+        "uncertainties": [
+          "Whether a reader would feel repaid rather than earned is not established by any recorded field; this is interpretation.",
+          "The candidate does not record who decides what the final record keeps, so the second alternative depends on an unrecorded fact."
+        ]
+      },
+      {
+        "request_sha256": "320ed551c3c98318eafbc6478a5ff06d72d729a57fd5551e945a8377743a6e0b",
+        "created_at": "2026-11-06T06:14:31.090178+00:00",
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "operation": "explore",
+        "author_question": "Keep the wonder-to-dread arc and the conditional hope. Give me materially different causal mechanisms by which the memory cost could be borne, shifted or returned. Do not give me different names for the same cost: each alternative should change who pays, how the cost is paid, or whether it can be recovered, and say what that changes for the reader.",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "analysis": "Three alternatives, each changing a different causal variable while keeping the wonder-to-dread arc. The recorded memory_economy node says every accurate survey transfers a memory out of a person, and engine_drives_cost says that engine turns every discovery into a personal loss. The first alternative changes how many people bear the cost. The second changes whether the cost can be recovered, which changes the engine itself. The third changes what the reader knows and when, not who pays or whether the loss is recoverable. These are working hypotheses, not recorded story facts.",
+        "hypotheses": [
+          {
+            "id": "h1",
+            "title": "Communal ledger",
+            "description": "Each survey draws a small memory from several consenting residents instead of one person, so the cost is spread across the community. Change: how many people bear the cost. Reader effect: dread becomes civic and collective, and the investigator's personal stake must come from another route, because cost_escalation no longer lands on one person.",
+            "divergence_axis": "social_scale"
+          },
+          {
+            "id": "h2",
+            "title": "Restorable cost",
+            "description": "Every memory taken is recorded by the map as a debt that a later survey can repay. Change: whether the loss can be recovered at all, which changes the engine itself. Reader effect: hope can come from repayment, which directly threatens the recorded earned_hope node and the choice_of_maps phase, so both would have to be revised together.",
+            "divergence_axis": "causal_engine"
+          },
+          {
+            "id": "h3",
+            "title": "Concealed cost",
+            "description": "The memory cost is paid but never announced in the city. The reader infers it only from gaps in the archive and from names that stop appearing. Change: what the reader knows and when, not who pays or whether the loss is recoverable. Reader effect: dread arises from inference rather than recognition, which changes the pacing of the first erasure.",
+            "divergence_axis": "reader_emotion"
+          }
+        ],
+        "uncertainties": [
+          "The candidate does not record who currently pays for the Guild's surveys, so each alternative changes an unrecorded fact.",
+          "None of these alternatives is in the recorded candidate. Their emotional and structural effects are interpretations and must be tested against drafted material before any reader claim is made."
+        ]
+      },
+      {
+        "request_sha256": "c149e676be714b80fa789e9cfcbb3dad0a4b7e6146c9af05fd382c296d3840d7",
+        "created_at": "2026-11-06T06:14:29.214854+00:00",
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "operation": "challenge",
+        "author_question": "Where is this relation weakest as creative design? The candidate says the truth-mercy dilemma produces earned hope conditional on a chosen remembrance. Does that resolve the dilemma too cheaply, or does it leave a real tension the reader must carry? Challenge the assumption that a partial remembrance can count as hope without denying the loss.",
+        "anchors": [
+          {
+            "kind": "link",
+            "id": "dilemma_produces_hope"
+          }
+        ],
+        "analysis": "The weakest point is that the recorded resolution may be a third option that dodges the dilemma rather than resolving it. truth_mercy_dilemma records that the story forces a choice between an accurate record that wounds and a merciful omission that protects belonging. earned_hope records that hope is available only through a chosen, partial remembrance. The choice_of_maps phase then resolves the choice through that same partial, chosen remembrance. A partial record that is honest about what it cannot restore is easy to read as satisfying both horns at once: it is accurate enough to count as truth and merciful enough to protect belonging. If the reader sees that compromise as available on demand, the dilemma loses its cost, and the hope that follows is earned by an elegant compromise rather than by a loss the story has made irreversible.\n\nThe candidate leaves the decisive question open. Its own open questions ask whose memory the final record should preserve, who decides, and whether the Guild's lie is ever defensible as mercy or only as control. The relation dilemma_produces_hope records that the dilemma makes hope conditional on a chosen remembrance, but it does not record who mak",
+        "hypotheses": [
+          {
+            "id": "h1",
+            "title": "Third-option compromise",
+            "description": "The partial, honest record may satisfy both horns of the dilemma at once, so the reader experiences a compromise rather than a cost. A stronger version would make the omission itself carry a recorded loss that the final record cannot undo.",
+            "divergence_axis": null
+          },
+          {
+            "id": "h2",
+            "title": "Agency locus of hope",
+            "description": "If the surveyor alone chooses the remembrance, hope is one protagonist's mercy; if the city chooses through its records, hope is communal. The recorded open question about who decides is the variable that separates these two endings.",
+            "divergence_axis": null
+          }
+        ],
+        "uncertainties": [
+          "The candidate does not record who makes the choice of remembrance, so the relation cannot yet be assessed for whether hope is individual or communal.",
+          "The candidate does not record which plot act earns hope; the eliciting condition describes a documentary stance rather than an event.",
+          "Whether a reader would experience the resolution as a compromise or as a cost is not established by any recorded field; this is an interpretation."
+        ]
+      },
+      {
+        "request_sha256": "470a4de3f773efc4215f6d61664a3c33093b05c121b81ee3f9874f65d197422b",
+        "created_at": "2026-11-06T06:14:27.382629+00:00",
+        "baseline_candidate_request_sha256": "44a4f5873733f36888040f0ff8d40dcf1bfc8029c85cd191837a9abae0f302a2",
+        "operation": "explain",
+        "author_question": "I want to understand what the memory economy is doing for the reader, not only how the mechanism works. Why does it matter that every accurate map costs someone a memory? What does it make possible emotionally and structurally that a conventional mystery about a hidden massacre could not? Please explain its narrative function in the wonder-to-dread movement.\n",
+        "anchors": [
+          {
+            "kind": "node",
+            "id": "memory_economy"
+          }
+        ],
+        "analysis": "The memory economy matters because it makes accuracy stop being neutral. Every accurate survey moves a memory out of a person and into the map, so wonder at accuracy is always paid for by someone. The story invites the reader to want the survey to succeed, which implicates the reader in the loss. The first missing memory is the hinge that turns the wonder of the strange coast into dread by making the cost personal.\n\nA conventional mystery treats the massacre as a past crime and the solution as a gain. Here the same mechanism explains how the archive was made and hidden, so the evidence of the crime is itself a costly product. Emotionally, curiosity and fear fuse, so the wish for truth becomes entangled with fear of what it will erase, and dread grows from recognition rather than shock. Structurally, the cost climbs from civic history into the identity of the surveyor, forcing a choice between an accurate record that wounds and a merciful omission that protects belonging. The final choice is both a solution and an intimate loss, which is where mystery and horror converge.\n\nThese are interpretations of a working, noncanonical node, not graph proof or accepted canon. Dread also needs ",
+        "hypotheses": [],
+        "uncertainties": [
+          "The candidate does not record how the memory cost is distributed across characters or whether it is ever shared.",
+          "The reader-experience effects are interpretations of recorded intended effects, not observed reader responses."
+        ]
+      }
+    ],
+    "mentor_advice": null,
+    "mentor_prior_advice": {
+      "advice": {
+        "author_reply_interpretation": "You asked for two mechanisms that differ causally, not in wording, so the directions below vary the engine's recovery and the engine's allocation.",
+        "challenge": null,
+        "challenge_basis": "conditional_hypothesis",
+        "directions": [
+          {
+            "consequence": "Discovery stops being purely destructive, so the wonder at the coast survives longer, but the dread that depends on permanence weakens and the earned hope can come from repayment.",
+            "distinguishing_factor": "Changes whether the cost can be recovered, which no other direction changes.",
+            "divergence_axis": "causal_engine",
+            "id": "restorable-debt",
+            "mechanism": "Each transferred memory is recorded by the map as a debt that a later survey can repay, so the engine becomes an economy of restitution rather than of irreversible loss.",
+            "source_refs": [],
+            "source_status": "agent_hypothesis",
+            "title": "Restorable survey debt",
+            "tradeoff": "The recorded earned_hope summary depends on a partial remembrance that cannot be restored, so this direction would have to revise that node and the choice of maps together."
+          },
+          {
+            "consequence": "The complicity theme moves from the surveyor's own past into the Guild's selection practice, and the dread becomes class-structured rather than universal.",
+            "distinguishing_factor": "Changes who pays and why, while keeping the cost irreversible.",
+            "divergence_axis": "social_scale",
+            "id": "chosen-payers",
+            "mechanism": "The Guild selects who gives a memory for each survey, so the cost lands on people with the least political standing and the selection itself is institutional.",
+            "source_refs": [
+              "nodes/memory_economy",
+              "nodes/implicated_investigator"
+            ],
+            "source_status": "source_bound_proposal",
+            "title": "Chosen payers under the Guild",
+            "tradeoff": "It can displace the founding massacre behind a social critique, so the mystery's central question may need a separate anchor."
+          }
+        ],
+        "explanation": "Both keep the recorded engine that every accurate survey transfers a memory out of a person. They differ in what the engine does after the transfer and in who the transfer falls on, which the recorded candidate does not yet specify.",
+        "focus_id": "memory_economy",
+        "kind": "explore",
+        "limitation": "These are working hypotheses. The candidate does not record who currently pays, so both directions change an unrecorded fact.",
+        "question": "Which of these preserves the reader's sense that knowledge is costly, and which turns the cost into something the reader can manage?",
+        "schema_version": 1,
+        "source_refs": [
+          "nodes/memory_economy",
+          "nodes/cost_escalation"
+        ],
+        "summary": "Two causally different ways the memory cost could work. One changes the causal engine by making loss recoverable; the other changes social scale by making the payers chosen rather than random."
+      },
+      "author_reply": "I want two genuinely different ways the memory cost could work, not renamings of one idea.",
+      "mentor_purpose": "explore"
+    }
+  },
+  "note": "Trimmed from the final-run fresh resume packet (architecture omitted; sizes recorded in ledger)."
+}

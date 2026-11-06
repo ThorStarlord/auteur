@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "analysis": "Three alternatives, each changing a different causal variable while keeping the wonder-to-dread arc. The recorded memory_economy node says every accurate survey transfers a memory out of a person, and engine_drives_cost says that engine turns every discovery into a personal loss. The first alternative changes how many people bear the cost. The second changes whether the cost can be recovered, which changes the engine itself. The third changes what the reader knows and when, not who pays or whether the loss is recoverable. These are working hypotheses, not recorded story facts.",
+  "recorded_observations": [
+    {"kind": "node", "id": "memory_economy", "claim": "Recorded summary: each accurate survey transfers a memory out of a person and into the map, so knowledge is always paid for by someone. The record does not say who the payers are."},
+    {"kind": "link", "id": "engine_drives_cost", "claim": "Recorded function: memory_economy -> cost_escalation, turns every discovery into a personal loss. Personal allocation is therefore the recorded default."},
+    {"kind": "link", "id": "magical_map_instantiates", "claim": "Recorded function: magical_map -> memory_economy, gives the memory economy a concrete instrument. The rules of the instrument are where allocation, recovery or disclosure could be changed."}
+  ],
+  "hypotheses": [
+    {"title": "Communal ledger", "divergence_axis": "social_scale", "description": "Each survey draws a small memory from several consenting residents instead of one person, so the cost is spread across the community. Change: how many people bear the cost. Reader effect: dread becomes civic and collective, and the investigator's personal stake must come from another route, because cost_escalation no longer lands on one person."},
+    {"title": "Restorable cost", "divergence_axis": "causal_engine", "description": "Every memory taken is recorded by the map as a debt that a later survey can repay. Change: whether the loss can be recovered at all, which changes the engine itself. Reader effect: hope can come from repayment, which directly threatens the recorded earned_hope node and the choice_of_maps phase, so both would have to be revised together."},
+    {"title": "Concealed cost", "divergence_axis": "reader_emotion", "description": "The memory cost is paid but never announced in the city. The reader infers it only from gaps in the archive and from names that stop appearing. Change: what the reader knows and when, not who pays or whether the loss is recoverable. Reader effect: dread arises from inference rather than recognition, which changes the pacing of the first erasure."}
+  ],
+  "uncertainties": [
+    "The candidate does not record who currently pays for the Guild's surveys, so each alternative changes an unrecorded fact.",
+    "None of these alternatives is in the recorded candidate. Their emotional and structural effects are interpretations and must be tested against drafted material before any reader claim is made."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "focus_id": "memory_economy",
+  "kind": "explore",
+  "summary": "Two causally different ways the memory cost could work. One changes the causal engine by making loss recoverable; the other changes social scale by making the payers chosen rather than random.",
+  "explanation": "Both keep the recorded engine that every accurate survey transfers a memory out of a person. They differ in what the engine does after the transfer and in who the transfer falls on, which the recorded candidate does not yet specify.",
+  "question": "Which of these preserves the reader's sense that knowledge is costly, and which turns the cost into something the reader can manage?",
+  "challenge": null,
+  "challenge_basis": "conditional_hypothesis",
+  "author_reply_interpretation": "You asked for two mechanisms that differ causally, not in wording, so the directions below vary the engine's recovery and the engine's allocation.",
+  "directions": [
+    {
+      "id": "restorable-debt",
+      "title": "Restorable survey debt",
+      "mechanism": "Each transferred memory is recorded by the map as a debt that a later survey can repay, so the engine becomes an economy of restitution rather than of irreversible loss.",
+      "consequence": "Discovery stops being purely destructive, so the wonder at the coast survives longer, but the dread that depends on permanence weakens and the earned hope can come from repayment.",
+      "tradeoff": "The recorded earned_hope summary depends on a partial remembrance that cannot be restored, so this direction would have to revise that node and the choice of maps together.",
+      "distinguishing_factor": "Changes whether the cost can be recovered, which no other direction changes.",
+      "divergence_axis": "causal_engine",
+      "source_status": "agent_hypothesis",
+      "source_refs": []
+    },
+    {
+      "id": "chosen-payers",
+      "title": "Chosen payers under the Guild",
+      "mechanism": "The Guild selects who gives a memory for each survey, so the cost lands on people with the least political standing and the selection itself is institutional.",
+      "consequence": "The complicity theme moves from the surveyor's own past into the Guild's selection practice, and the dread becomes class-structured rather than universal.",
+      "tradeoff": "It can displace the founding massacre behind a social critique, so the mystery's central question may need a separate anchor.",
+      "distinguishing_factor": "Changes who pays and why, while keeping the cost irreversible.",
+      "divergence_axis": "social_scale",
+      "source_status": "source_bound_proposal",
+      "source_refs": ["nodes/memory_economy", "nodes/implicated_investigator"]
+    }
+  ],
+  "source_refs": ["nodes/memory_economy", "nodes/cost_escalation"],
+  "limitation": "These are working hypotheses. The candidate does not record who currently pays, so both directions change an unrecorded fact."
+}
