@@ -74,7 +74,8 @@
           creativePanel.setStatus({status:"error"});
           status("Inquiry response rejected: "+error.message);
         });
-      }
+      },
+      onRealize:function(payload){requestRealization("",payload.anchors);}
     });
     graphSelectionController=window.AuteurStudioGraphSelection.createGraphSelectionController({
       getCandidate:function(){return state.architecture;},
@@ -133,6 +134,174 @@
         status("Could not refresh creative inquiry; retry after refresh: " + error.message);
       });
   }
+  // A source-bound review inquiry is strictly noncanonical and never applies the revision.
+  var activeImpactReviewSha = null;
+  function prepareImpactInquiry() {
+    var review=state.architectureReview, baseline=state.architectureRequestSha,
+      canvasId=remote.canvasId, question=$("architecture-impact-question").value.trim();
+    if(!review||!baseline||!question){
+      $("architecture-impact-status").textContent="Select a pending revision and write a question first.";return;
+    }
+    var reviewSha=review.request_sha256;
+    $("architecture-impact-status").textContent="Preparing a read-only coding-agent critique...";
+    fetch(architectureUrl()+"/inquiry/prepare",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({version:1,canvas_id:canvasId,target:"pending_review",
+        operation:"challenge",expected_candidate_request_sha256:baseline,
+        anchors:[],author_text:question})
+    }).then(apiJson).then(function(projection){
+      if(canvasId!==remote.canvasId||baseline!==state.architectureRequestSha||
+         !state.architectureReview||state.architectureReview.request_sha256!==reviewSha)return;
+      $("architecture-impact-request").value=projection.request?JSON.stringify(projection.request,null,2):"";
+      $("architecture-impact-status").textContent="Request prepared. Copy it to your active coding agent; no model has been called.";
+    }).catch(function(error){
+      $("architecture-impact-status").textContent="Critique not prepared: "+error.message;
+    });
+  }
+  function completeImpactInquiry(){
+    var review=state.architectureReview,canvasId=remote.canvasId;
+    if(!review){$("architecture-impact-status").textContent="The review is no longer pending.";return;}
+    var reviewSha=review.request_sha256,payload;
+    try{payload=JSON.parse($("architecture-impact-response").value);}
+    catch(error){$("architecture-impact-status").textContent="Paste a valid signed response JSON.";return;}
+    fetch(architectureUrl()+"/inquiry/host-agent-response",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+    }).then(apiJson).then(function(projection){
+      if(canvasId!==remote.canvasId||!state.architectureReview||
+         state.architectureReview.request_sha256!==reviewSha)return;
+      var root=$("architecture-impact-result");root.replaceChildren();
+      var result=projection.result;
+      if(projection.status!=="ready"||!result){
+        $("architecture-impact-status").textContent="Critique became unavailable or stale.";return;
+      }
+      var heading=document.createElement("strong");heading.textContent="Agent interpretation (not deterministic proof)";
+      var paragraph=document.createElement("p");paragraph.textContent=result.analysis||"";
+      root.append(heading,paragraph);
+      for(const uncertainty of result.uncertainties||[]){
+        var note=document.createElement("p");note.textContent="Uncertainty: "+uncertainty;root.append(note);
+      }
+      $("architecture-impact-status").textContent="Read-only critique validated. The revision remains unapplied.";
+    }).catch(function(error){
+      $("architecture-impact-status").textContent="Critique rejected: "+error.message;
+    });
+  }
+
+  // Intention actions reuse the existing atomic working-document command, never canon acceptance.
+  var intentionMutationPending=false;
+  function commitIntentionMutation(change){
+    if(intentionMutationPending||!remote.ready||remote.failed){
+      $("studio-intention-statusline").textContent="Save or recover the working canvas before changing intentions.";return;
+    }
+    if(unfoldingController&&unfoldingController.hasUnsavedWorkingDrafts()){
+      $("studio-intention-statusline").textContent="Save your working draft before changing intentions.";return;
+    }
+    if(!$("scene-panel").hidden)captureScene();
+    if(remote.timer!==null){clearTimeout(remote.timer);remote.timer=null;queueSave();}
+    else if(hasUnsavedChanges())queueSave();
+    intentionMutationPending=true;
+    var canvasId=remote.canvasId;
+    Promise.resolve(remote.queue).then(function(){
+      if(remote.failed||remote.canvasId!==canvasId)throw Error("Working canvas changed or failed to save.");
+      var message=change();
+      render();
+      return Promise.resolve(queueSave()).then(function(){
+        if(remote.failed)throw Error("Working canvas save failed; export your notes before recovery.");
+        return message;
+      });
+    }).then(function(message){
+      $("studio-intention-statusline").textContent=message;
+    }).catch(function(error){
+      $("studio-intention-statusline").textContent="Intention not safely saved: "+error.message;
+    }).finally(function(){
+      intentionMutationPending=false;renderIntentionManager();
+    });
+  }
+  function createIntention(){
+    var title=$("studio-intention-title").value.trim();
+    var directive=$("studio-intention-directive").value.trim();
+    var kind=$("studio-intention-initial-status").value;
+    if(!title||!directive||title.length>120||directive.length>2000||
+       !["active","provisional"].includes(kind)){
+      $("studio-intention-statusline").textContent="Give the intention a title and an author-written directive.";return;
+    }
+    if(state.items.length>=200){
+      $("studio-intention-statusline").textContent="Working canvas item limit reached.";return;
+    }
+    commitIntentionMutation(function(){
+      var item={id:id("intention"),kind:"note",title:title,content:directive,
+        group:"Creative intentions",intention_status:kind};
+      state.items.push(item);state.positions[item.id]=availablePosition();
+      $("studio-intention-title").value="";$("studio-intention-directive").value="";
+      return "Intention recorded as "+kind+". This does not accept story canon.";
+    });
+  }
+  function renderIntentionManager(){
+    var root=$("studio-intentions-list");if(!root)return;
+    root.replaceChildren();
+    var items=state.items.filter(function(i){return !!i.intention_status;});
+    if(!items.length){var empty=document.createElement("p");
+      empty.textContent="No continuing creative intentions recorded.";root.append(empty);return;}
+    function addButton(host,label,change){
+      var b=document.createElement("button");b.type="button";b.textContent=label;
+      b.disabled=intentionMutationPending;b.addEventListener("click",function(){commitIntentionMutation(change);});
+      host.append(b);return b;
+    }
+    items.forEach(function(item){
+      var row=document.createElement("section");row.className="architecture-revise";
+      var heading=document.createElement("strong");heading.textContent=item.title+" · "+item.intention_status;
+      var directive=document.createElement("p");directive.textContent=item.content;
+      row.append(heading,directive);
+      if(item.proposal_origin){
+        var origin=document.createElement("small");
+        origin.textContent="Origin: "+item.proposal_origin.source_kind+" / "+item.proposal_origin.source_ref+
+          " (noncanonical)";row.append(origin);
+      }
+      var successor=state.connections.find(function(edge){
+        return edge.label==="supersedes-intention"&&edge.target===item.id;
+      });
+      if(successor){var newer=state.items.find(function(i){return i.id===successor.source;});
+        var note=document.createElement("p");
+        note.textContent="Replaced by: "+(newer?newer.title:successor.source);row.append(note);}
+      if(item.intention_status==="provisional")addButton(row,"Activate",function(){
+        item.intention_status="active";return "Intention activated: "+item.title;
+      });
+      if(item.intention_status==="active")addButton(row,"Make provisional",function(){
+        item.intention_status="provisional";return "Intention made provisional: "+item.title;
+      });
+      if(item.intention_status==="active"||item.intention_status==="provisional"){
+        addButton(row,"Withdraw",function(){
+          item.intention_status="withdrawn";return "Intention withdrawn: "+item.title;
+        });
+        var reveal=document.createElement("button");reveal.type="button";
+        reveal.textContent="Replace with successor";row.append(reveal);
+        var form=document.createElement("div");form.hidden=true;
+        var title=document.createElement("input");title.maxLength=120;
+        title.setAttribute("aria-label","Successor title for "+item.title);title.value=item.title;
+        var text=document.createElement("textarea");text.rows=3;text.maxLength=2000;
+        text.setAttribute("aria-label","Successor directive for "+item.title);text.value=item.content;
+        var submit=document.createElement("button");submit.type="button";submit.textContent="Confirm replacement";
+        reveal.addEventListener("click",function(){form.hidden=!form.hidden;});
+        submit.addEventListener("click",function(){
+          var newTitle=title.value.trim(),newDirective=text.value.trim();
+          if(!newTitle||!newDirective||newTitle.length>120||newDirective.length>2000){
+            $("studio-intention-statusline").textContent="Write a successor title and directive.";return;}
+          if(state.items.length>=200||state.connections.length>=500){
+            $("studio-intention-statusline").textContent="Working canvas capacity reached.";return;}
+          commitIntentionMutation(function(){
+            var next={id:id("intention"),kind:"note",title:newTitle,content:newDirective,
+              group:"Creative intentions",intention_status:"active"};
+            state.items.push(next);state.positions[next.id]=availablePosition();
+            state.connections.push({id:id("edge"),source:next.id,target:item.id,label:"supersedes-intention"});
+            item.intention_status="superseded";
+            return "New active direction replaces "+item.title+"; the previous direction remains historical.";
+          });
+        });
+        form.append(title,text,submit);row.append(form);
+      }
+      root.append(row);
+    });
+  }
+
   function buildRevisionIntent(anchors, authorText) {
     return {
       version: 1, canvas_id: remote.canvasId, operation: "revise",
@@ -332,6 +501,14 @@
     $("architecture-handoff").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
     $("architecture-review").hidden = !state.architectureReview;
+    var impactSha = state.architectureReview && state.architectureReview.request_sha256;
+    if (impactSha !== activeImpactReviewSha) {
+      activeImpactReviewSha = impactSha || null;
+      $("architecture-impact-request").value = "";
+      $("architecture-impact-response").value = "";
+      $("architecture-impact-result").replaceChildren();
+      $("architecture-impact-status").textContent = "No critique requested for this revision.";
+    }
     $("architecture-diff").replaceChildren();
     if (state.architectureReview) {
       var review = state.architectureReview;
@@ -558,6 +735,10 @@
       : projection.status === "ready"
       ? "Working concrete story proposal ready. Not accepted."
       : "Develop concrete characters, locations, plots or events from the architecture.";
+    var coverage=projection.creative_anchor_coverage;
+    if(coverage&&coverage.uncited&&coverage.uncited.length)
+      $("realization-status").textContent += " Uncited selected meanings: "+coverage.uncited.join(", ")+
+        ". A citation is not proof of narrative effectiveness.";
     if (openGraph && state.realization) {
       state.workspace = "realization"; state.view = "realization_candidates";
       state.lastRealizationView = "realization_candidates";
@@ -584,12 +765,19 @@
       $("realization-status").textContent = "Cannot load Story Realization: " + error.message;
     });
   }
-  function requestRealization(instruction) {
+  function requestRealization(instruction, typedAnchors) {
     if (!remote.ready || remote.failed) { status("Save your working canvas before generating."); return; }
     if (!$("scene-panel").hidden) captureScene();
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
     else if (hasUnsavedChanges()) queueSave();
-    var focus = candidateNode(state.selectedCandidate) ? [state.selectedCandidate] : [];
+    var focus = typedAnchors && typedAnchors.length ? [] :
+      candidateNode(state.selectedCandidate) ? [state.selectedCandidate] : [];
+    var anchors = (typedAnchors || []).map(function(a){
+      var next={kind:a.kind,id:a.id};
+      if(a.field)next.field=a.field;
+      if(a.reference)next.reference=a.reference;
+      return next;
+    });
     var canvasId = remote.canvasId;
     $("realization-status").textContent = "Preparing exact, source-bound realization request...";
     Promise.resolve(remote.queue).then(function () {
@@ -597,7 +785,8 @@
       if (remote.failed) throw new Error("Working changes were not saved.");
       return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/realization/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({focus_ids: focus, instruction: instruction || ""})
+        body: JSON.stringify(Object.assign({focus_ids: focus, instruction: instruction || ""},
+          anchors.length ? {anchors:anchors} : {}))
       }).then(apiJson);
     }).then(function (projection) {
       if (remote.canvasId !== canvasId) return;
@@ -2272,7 +2461,7 @@
     }
     drawEdges(); renderStudioExplanation(); renderUnfolding();
     renderInspector(); renderOutline(); showVision(); transform();
-    renderFullArchitectureStudio();
+    renderFullArchitectureStudio(); renderIntentionManager();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -2714,6 +2903,9 @@
     requestArchitecture(intent);
   });
   $("architecture-complete").addEventListener("click", submitArchitecture);
+  $("studio-intention-add").addEventListener("click",createIntention);
+  $("architecture-impact-prepare").addEventListener("click",prepareImpactInquiry);
+  $("architecture-impact-complete").addEventListener("click",completeImpactInquiry);
   $("realization-develop").addEventListener("click", function () { requestRealization(""); });
   $("realization-refresh").addEventListener("click", checkRealizationResult);
   $("realization-revise").addEventListener("click", function () {
