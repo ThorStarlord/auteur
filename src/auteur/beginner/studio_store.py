@@ -141,6 +141,29 @@ class WorkingCanvas(BaseModel):
         ]
         if len(origins) != len(set(origins)):
             raise ValueError("duplicate adopted proposal origin")
+        # Supersession uses a typed, acyclic canvas relationship rather than
+        # a second intention-history store. Every predecessor has at most one
+        # successor, and both endpoints must be intentions on this canvas.
+        intentions = {item.id: item for item in self.items if item.intention_status is not None}
+        successors: dict[str, str] = {}
+        for edge in self.connections:
+            if edge.label != "supersedes-intention":
+                continue
+            if edge.source not in intentions or edge.target not in intentions:
+                raise ValueError("intention successor must link two existing intentions")
+            if intentions[edge.target].intention_status != "superseded":
+                raise ValueError("a replaced intention must have superseded status")
+            if edge.target in successors:
+                raise ValueError("an intention cannot have competing successors")
+            successors[edge.target] = edge.source
+        for start in successors:
+            visited: set[str] = set()
+            cursor = start
+            while cursor in successors:
+                if cursor in visited:
+                    raise ValueError("cyclic intention supersession")
+                visited.add(cursor)
+                cursor = successors[cursor]
         return self
 
 

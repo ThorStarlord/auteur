@@ -635,11 +635,14 @@ omitted_working_* counts to distinguish visible evidence from missing text.
 Working items in group "provisional-concepts" are project-scoped agent proposals,
 not shared ontology definitions and not author commitments. Reuse them for this
 story provisionally; never present them as accepted general vocabulary.
-creative_intentions are the author's own continuing creative directions. They are
-working and noncanonical: active and provisional intentions direct the current
-design work, while superseded and withdrawn intentions are history and must not be
-treated as current direction. An intention never authorizes accepting canon,
-rewriting accepted Identity, or inventing concrete story facts.
+creative_intentions are author-directed working intentions, not canon.
+Active intentions are current working commitments: preserve them, or explain a
+substantive artistic conflict and propose a compatible alternative or explicit
+reconsideration. Provisional intentions are possibilities to explore, not binding
+requirements. Superseded and withdrawn intentions are history, not current direction.
+The author alone can change intention status; never override a commitment silently.
+An intention never authorizes accepting canon, rewriting accepted Identity, or
+inventing concrete story facts.
 A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
 For manuscript-first input, cite working item IDs in relevant summaries and
 open questions. Separate observed prose from alternative interpretations;
