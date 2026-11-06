@@ -23,6 +23,7 @@ from .studio_store import CanvasStore
 from .studio_architecture import (
     _candidate as architecture_current, _current_candidate_is_stale, _digest, _read, _source,
 )
+from .studio_architecture_graph_intent import GraphAnchor, resolve_anchors
 
 
 class RealizationElement(BaseModel):
@@ -34,6 +35,8 @@ class RealizationElement(BaseModel):
     description: str = Field(min_length=1, max_length=2000)
     scope: str = Field(default="whole_story", max_length=100)
     architecture_refs: list[str] = Field(min_length=1, max_length=12)
+    # Optional citation of supplied creative anchors (emotional targets, relationships, components).
+    anchor_refs: list[str] = Field(default_factory=list, max_length=12)
 
 
 class RealizationLink(BaseModel):
@@ -92,6 +95,13 @@ means whole-story development. For each selected focus, make its causal or
 thematic function visible in a concrete element description: show what it
 causes, constrains, enables, or changes in characters' actions or conflicts.
 Do not merely attach a focus ID to an unrelated element to satisfy validation.
+creative_anchors, when present, are the author's selected architectural meanings:
+an emotional target, a recorded relationship or one recorded component. Treat each
+as design guidance for concrete possibilities and cite its ref in anchor_refs when
+an element expresses it. Never claim an anchor's meaning is already a realized event,
+an accepted story fact, or a reason to invent a particular plot. An anchor does not
+replace architecture_refs: every concrete element still references existing
+architecture node IDs.
 If an abstract focus has multiple plausible realizations, offer them as
 provisional alternatives or open questions, not accepted story facts.
 Keep link function labels within 120 characters.
@@ -101,8 +111,9 @@ in architecture_feedback as proposed changes, not silent accepted edits.
 Do not revise the architecture proposal yourself. Preserve stable IDs in a revision.
 Return ONLY JSON {schema_version:1,summary,elements,links,
 architecture_feedback,open_questions}.
-element:{id,kind,title,description,scope,architecture_refs};
+element:{id,kind,title,description,scope,architecture_refs,anchor_refs};
 kind: character/location/faction/world_system/plot_arc/event/scene.
+anchor_refs must use only the ref values supplied in creative_anchors.
 link:{id,source,target,function}; endpoints must be realization element IDs.
 architecture_feedback:{id,architecture_node_id,observation,proposed_change}.
 All elements are working proposals. Never accept story Identity, Structure,
@@ -117,9 +128,25 @@ def _current(store: CanvasStore) -> dict | None:
     return _read(_root(store) / "current.json")
 
 
+def _anchor_ref(anchor: dict) -> str:
+    ref = f"{anchor['kind']}:{anchor['id']}"
+    if anchor.get("field"):
+        ref += "@" + anchor["field"]
+    if anchor.get("reference"):
+        record = anchor["reference"]
+        ref += f"@{record['field']}:{record['target_kind']}:{record['target_id']}"
+    return ref
+
+
+def _anchor_views(candidate: dict, anchors: list[dict]) -> list[dict]:
+    """Validated typed anchors resolved to current source locations, each with a citable ref."""
+    typed = [GraphAnchor.model_validate(anchor) for anchor in anchors]
+    return [{**resolved, "ref": _anchor_ref(resolved)} for resolved in resolve_anchors(candidate, typed)]
+
+
 def _source_snapshot(
     store: CanvasStore, focus_ids: list[str], previous: dict | None,
-    *, source_format: int = 2,
+    *, source_format: int = 2, anchors: list[dict] | None = None,
 ) -> dict:
     architecture = architecture_current(store)
     if not architecture:
@@ -140,6 +167,8 @@ def _source_snapshot(
         "working_items": visible_items,
         "previous_realization": previous,
     }
+    if anchors:
+        result["creative_anchors"] = anchors
     if source_format == 2:
         dropped_items = working["working_items"][12:]
         omitted = working["omitted_working_item_count"] + len(dropped_items)
@@ -194,6 +223,7 @@ def project_realization(store: CanvasStore) -> dict:
             latest = _source_snapshot(
                 store, original["focus_ids"], original["previous_realization"],
                 source_format=_source_format(original),
+                anchors=original.get("creative_anchors"),
             )
             stale = _digest(latest) != current["source_sha256"]
         except ValueError:
@@ -209,20 +239,28 @@ def project_realization(store: CanvasStore) -> dict:
 
 
 def prepare_realization(
-    store: CanvasStore, focus_ids: list[str] | None = None, instruction: str = ""
+    store: CanvasStore, focus_ids: list[str] | None = None, instruction: str = "",
+    anchors: list[dict] | None = None,
 ) -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("realization instruction must be text under 4000 characters")
     if not isinstance(focus_ids or [], list):
         raise ValueError("focus_ids must be a list of architecture identifiers")
+    if anchors is not None and (not isinstance(anchors, list) or not 1 <= len(anchors) <= 3):
+        raise ValueError("creative anchors must contain one to three typed anchors")
     with _FilesystemLock(store._path(".canvas.lock")):
-        if _current_candidate_is_stale(store, architecture_current(store)):
+        architecture = architecture_current(store)
+        if _current_candidate_is_stale(store, architecture):
             raise ValueError("narrative architecture is stale; develop or revise it before realization")
         current = _current(store)
         if instruction.strip() and not current:
             raise ValueError("no existing realization candidate to revise")
         previous = current["candidate"] if instruction.strip() and current else None
-        context = _source_snapshot(store, focus_ids or [], previous)
+        anchor_views = (
+            _anchor_views(architecture["candidate"], anchors)
+            if anchors and architecture else None
+        )
+        context = _source_snapshot(store, focus_ids or [], previous, anchors=anchor_views)
         sha = _digest(context)
         user = json.dumps({"source": context, "revision_instruction": instruction},
                           sort_keys=True, ensure_ascii=False)
@@ -246,6 +284,9 @@ def _assert_refs(proposal: RealizationCandidate, source: dict) -> None:
     covered = {ref for item in proposal.elements for ref in item.architecture_refs}
     if not set(source["focus_ids"]).issubset(covered):
         raise ValueError("realization elements must cover each selected architecture focus")
+    anchor_keys = {anchor["ref"] for anchor in source.get("creative_anchors", [])}
+    if any(ref not in anchor_keys for item in proposal.elements for ref in item.anchor_refs):
+        raise ValueError("realization elements may only cite supplied creative anchors")
     if any(x.architecture_node_id not in valid for x in proposal.architecture_feedback):
         raise ValueError("architecture feedback must reference an existing architecture node")
 
@@ -272,6 +313,7 @@ def complete_realization(store: CanvasStore, payload: dict) -> dict:
         source = _source_snapshot(
             store, original_source["focus_ids"], previous,
             source_format=_source_format(original_source),
+            anchors=original_source.get("creative_anchors"),
         )
         if _digest(source) != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
@@ -314,6 +356,7 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
         if _digest(_source_snapshot(
             store, source["focus_ids"], current["candidate"],
             source_format=_source_format(source),
+            anchors=source.get("creative_anchors"),
         )) != request.settings["source_sha256"]:
             raise BeginnerConcurrencyError("architecture or working source changed; review again")
         _atomic_json_write(_root(store) / "current.json", {
@@ -321,6 +364,20 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
             "candidate": review["candidate"],
         })
     return project_realization(store)
+
+
+def _parse_anchor_arg(text: str) -> dict:
+    kind, separator, rest = text.partition(":")
+    if not separator or not rest:
+        raise ValueError("anchor must be kind:id, kind:id@field or kind:id@ref:field:target_kind:target_id")
+    if "@" not in rest:
+        return {"kind": kind, "id": rest}
+    identifier, _, spec = rest.partition("@")
+    if spec.startswith("ref:"):
+        _, field, target_kind, target_id = spec.split(":", 3)
+        return {"kind": kind, "id": identifier,
+                "reference": {"field": field, "target_kind": target_kind, "target_id": target_id}}
+    return {"kind": kind, "id": identifier, "field": spec}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -332,13 +389,16 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("show")
     prepare = commands.add_parser("prepare")
     prepare.add_argument("--focus", action="append", default=[])
+    prepare.add_argument("--anchor", action="append", default=[],
+                         help="Typed creative anchor, e.g. emotion_target:dread or link:id")
     prepare.add_argument("--instruction", default="")
     finish = commands.add_parser("complete-file")
     finish.add_argument("--candidate", required=True)
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     if args.command == "prepare":
-        result = prepare_realization(store, args.focus, args.instruction)
+        anchors = [_parse_anchor_arg(item) for item in args.anchor] if args.anchor else None
+        result = prepare_realization(store, args.focus, args.instruction, anchors)
     elif args.command == "complete-file":
         pending = project_realization(store)
         if pending["status"] != "awaiting_host_agent" or not pending["request"]:

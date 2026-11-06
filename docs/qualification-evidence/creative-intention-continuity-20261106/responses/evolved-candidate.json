@@ -1,0 +1,722 @@
+{
+  "complex_emotions": [
+    {
+      "basic_emotions": [
+        "joy",
+        "fear"
+      ],
+      "context": "The coast is beautiful and the beauty is purchased with loss.",
+      "id": "uneasy_wonder",
+      "title": "Uneasy wonder"
+    },
+    {
+      "basic_emotions": [
+        "joy",
+        "sadness"
+      ],
+      "context": "A partial record makes room for both mourning and continuing life.",
+      "id": "hope_through_grief",
+      "title": "Hope through grief"
+    },
+    {
+      "basic_emotions": [
+        "fear",
+        "anger"
+      ],
+      "context": "The reader recognizes that good intentions are doing harm.",
+      "id": "moral_dread",
+      "title": "Moral dread"
+    }
+  ],
+  "emotion_targets": [
+    {
+      "aesthetic_strategy": "Luminous cartographic detail and patient description.",
+      "eliciting_condition": "A survey reveals a coastline more intricate than the city believed.",
+      "emotion": "joy",
+      "id": "wonder",
+      "intended_effect": "Wonder at the coast's strange maps and the beauty of accurate knowledge.",
+      "provenance": "author_declared",
+      "role": "primary"
+    },
+    {
+      "aesthetic_strategy": "Quiet omissions and repeated details that no longer match.",
+      "eliciting_condition": "A household discovers it owes a renewal it was never told about.",
+      "emotion": "fear",
+      "id": "dread",
+      "intended_effect": "Mounting dread as an unrenewed memory becomes an obligation the family cannot refuse.",
+      "provenance": "author_declared",
+      "role": "supporting"
+    },
+    {
+      "aesthetic_strategy": "Warm, modest images of repair.",
+      "eliciting_condition": "A deliberate record preserves what matters without claiming completeness.",
+      "emotion": "joy",
+      "id": "hope",
+      "intended_effect": "Conditional hope that chosen, partial remembrance can honor both truth and belonging.",
+      "provenance": "author_declared",
+      "role": "supporting"
+    },
+    {
+      "aesthetic_strategy": "Restrained elegy and concrete absence.",
+      "eliciting_condition": "A loss is acknowledged rather than reversed.",
+      "emotion": "sadness",
+      "id": "grief",
+      "intended_effect": "Grief for memories that cannot be recovered.",
+      "provenance": "agent_proposed",
+      "role": "supporting"
+    },
+    {
+      "aesthetic_strategy": "Dry documentary contrast with the cost borne by individuals.",
+      "eliciting_condition": "A decision is made for others in the name of mercy.",
+      "emotion": "anger",
+      "id": "anger",
+      "intended_effect": "Anger at the Guild's paternalism and at the city's convenience.",
+      "provenance": "agent_proposed",
+      "role": "contrasting"
+    },
+    {
+      "aesthetic_strategy": "Delayed disclosure and material evidence.",
+      "eliciting_condition": "An archive fragment contradicts the official history.",
+      "emotion": "surprise",
+      "id": "revelation_surprise",
+      "intended_effect": "Surprise when a familiar record turns out to be a chosen omission.",
+      "provenance": "agent_proposed",
+      "role": "local"
+    }
+  ],
+  "genre_contracts": [
+    {
+      "aesthetic_strategies": [
+        "Luminous cartography",
+        "Quiet omission"
+      ],
+      "complex_emotion_ids": [
+        "uneasy_wonder",
+        "hope_through_grief"
+      ],
+      "emotion_target_ids": [
+        "wonder",
+        "dread",
+        "grief"
+      ],
+      "genre_node_id": "literary_mystery",
+      "narrative_engine": "Each answer changes what the surveyor must conceal or reveal, and the archive answers only through records that were themselves made by erasure.",
+      "payoff_expectations": [
+        "The city's founding story is revealed as a chosen record, not a neutral fact."
+      ],
+      "role": "governing",
+      "structural_pattern": "Question, partial answer, intimate cost, deeper question, final choice.",
+      "trope_functions": [
+        "The incomplete archive",
+        "The implicated investigator"
+      ]
+    },
+    {
+      "aesthetic_strategies": [
+        "Precise magical rules rendered as craft."
+      ],
+      "complex_emotion_ids": [
+        "uneasy_wonder"
+      ],
+      "emotion_target_ids": [
+        "wonder",
+        "revelation_surprise"
+      ],
+      "genre_node_id": "fantasy",
+      "narrative_engine": "The map's rules generate new uses, limits, and costs for every act of knowledge.",
+      "payoff_expectations": [
+        "The reader understands the map's cost without needing a system treatise."
+      ],
+      "role": "supporting",
+      "structural_pattern": "Rule discovery, application, unintended cost, revised rule.",
+      "trope_functions": [
+        "The magical map"
+      ]
+    },
+    {
+      "aesthetic_strategies": [
+        "Intimate sensory detail with no graphic violence."
+      ],
+      "complex_emotion_ids": [
+        "moral_dread"
+      ],
+      "emotion_target_ids": [
+        "dread",
+        "grief"
+      ],
+      "genre_node_id": "horror",
+      "narrative_engine": "Every act of knowledge produces an intimate loss that the story refuses to make spectacular.",
+      "payoff_expectations": [
+        "Dread accumulates through recognition rather than shock."
+      ],
+      "role": "tertiary",
+      "structural_pattern": "Ordinary moment, small absence, dawning recognition, restrained consequence.",
+      "trope_functions": [
+        "Intimate horror",
+        "The cost of knowledge"
+      ]
+    }
+  ],
+  "genre_interactions": [
+    {
+      "id": "mystery_enables_fantasy",
+      "kind": "enables",
+      "mechanism": "The inquiry gives the magical map a use as evidence, so its rules matter to the solution.",
+      "risk": "The fantasy could become a puzzle device that drains the human cost.",
+      "source_genre_id": "literary_mystery",
+      "target_genre_id": "fantasy"
+    },
+    {
+      "id": "fantasy_constrains_mystery",
+      "kind": "constrains",
+      "mechanism": "Every solution must obey the map's memory rules, preventing arbitrary detective work.",
+      "risk": "Too many rules could turn the mystery into a manual.",
+      "source_genre_id": "fantasy",
+      "target_genre_id": "literary_mystery"
+    },
+    {
+      "id": "horror_pressures_mystery",
+      "kind": "creates_tension",
+      "mechanism": "The horror keeps the investigation from becoming a clean triumph.",
+      "risk": "The dread could overpower the pleasure of discovery.",
+      "source_genre_id": "horror",
+      "target_genre_id": "literary_mystery"
+    },
+    {
+      "id": "mystery_horror_converge",
+      "kind": "converges",
+      "mechanism": "The final choice is both a solution and an act of intimate loss.",
+      "risk": "The convergence could feel like two endings rather than one.",
+      "source_genre_id": "literary_mystery",
+      "target_genre_id": "horror"
+    }
+  ],
+  "links": [
+    {
+      "function": "turns the magical map into evidence and a source of clues",
+      "id": "mystery_enables_fantasy",
+      "source": "literary_mystery",
+      "target": "fantasy"
+    },
+    {
+      "function": "limits solutions to the map's memory rules",
+      "id": "fantasy_constrains_mystery",
+      "source": "fantasy",
+      "target": "literary_mystery"
+    },
+    {
+      "function": "makes each answer intimate and costly",
+      "id": "horror_pressures_mystery",
+      "source": "horror",
+      "target": "literary_mystery"
+    },
+    {
+      "function": "turns each discovery into a renewable or inherited debt",
+      "id": "engine_drives_cost",
+      "source": "memory_economy",
+      "target": "cost_escalation"
+    },
+    {
+      "function": "explains how the city's records were made and hidden",
+      "id": "engine_feeds_archive",
+      "source": "memory_economy",
+      "target": "founding_archive"
+    },
+    {
+      "function": "decides which surveys survive",
+      "id": "guild_controls_archive",
+      "source": "guild_authority",
+      "target": "founding_archive"
+    },
+    {
+      "function": "supplies the evidence that makes the choice unavoidable",
+      "id": "archive_raises_dilemma",
+      "source": "founding_archive",
+      "target": "truth_mercy_dilemma"
+    },
+    {
+      "function": "makes truth personally expensive",
+      "id": "cost_raises_dilemma",
+      "source": "cost_escalation",
+      "target": "truth_mercy_dilemma"
+    },
+    {
+      "function": "makes hope conditional on a chosen remembrance",
+      "id": "dilemma_produces_hope",
+      "source": "truth_mercy_dilemma",
+      "target": "earned_hope"
+    },
+    {
+      "function": "keeps the historical record incomplete",
+      "id": "incomplete_archive_hides",
+      "source": "incomplete_archive",
+      "target": "founding_archive"
+    },
+    {
+      "function": "makes the investigation threaten the surveyor's own past",
+      "id": "implicated_investigator_pressures",
+      "source": "implicated_investigator",
+      "target": "cost_escalation"
+    },
+    {
+      "function": "gives the memory economy a concrete instrument",
+      "id": "magical_map_instantiates",
+      "source": "magical_map",
+      "target": "memory_economy"
+    },
+    {
+      "function": "renders loss without graphic violence",
+      "id": "intimate_horror_renders",
+      "source": "intimate_horror",
+      "target": "dread_progression"
+    },
+    {
+      "function": "makes the coast desirable before its cost is clear",
+      "id": "wonder_grounds",
+      "source": "wonder_promise",
+      "target": "luminous_cartography"
+    },
+    {
+      "function": "tracks the escalation of intimate loss",
+      "id": "dread_pays",
+      "source": "dread_progression",
+      "target": "cost_escalation"
+    },
+    {
+      "function": "frames the choice as an ethical question",
+      "id": "ethics_questions",
+      "source": "memory_ethics",
+      "target": "truth_mercy_dilemma"
+    },
+    {
+      "function": "makes the investigator part of the system she exposes",
+      "id": "complicity_questions",
+      "source": "complicity",
+      "target": "implicated_investigator"
+    },
+    {
+      "function": "offers a partial answer without resolving the theme",
+      "id": "hope_answers",
+      "source": "earned_hope",
+      "target": "memory_ethics"
+    },
+    {
+      "function": "transfers an unrenewed memory debt to the next generation",
+      "id": "debt_binds_family",
+      "source": "cost_escalation",
+      "target": "renewal_obligation"
+    },
+    {
+      "id": "guild_permits_renewal",
+      "source": "guild_authority",
+      "target": "renewal_obligation",
+      "function": "makes renewal a licensed act rather than a private choice"
+    }
+  ],
+  "nodes": [
+    {
+      "category": "genre",
+      "id": "literary_mystery",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The governing genre: an inquiry into a founding crime told through documents, surveys, and intimate consequence rather than action set pieces.",
+      "title": "Literary mystery"
+    },
+    {
+      "category": "genre",
+      "id": "fantasy",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "A secondary genre: the map is a real magical instrument whose rules make memory transfer possible and costly.",
+      "title": "Fantasy"
+    },
+    {
+      "category": "genre",
+      "id": "horror",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "A local genre: the intimate erosion of memory produces dread without graphic violence.",
+      "title": "Horror"
+    },
+    {
+      "category": "engine",
+      "id": "memory_economy",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "Every accurate survey takes a memory that returns only if the same resident renews the survey each season; otherwise the debt passes to the family line.",
+      "title": "Memory economy"
+    },
+    {
+      "category": "thread",
+      "id": "guild_authority",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The Cartographers Guild decides which maps exist and who is permitted to renew a memory debt; that permission is contested because renewal changes which records survive.",
+      "title": "Guild authority"
+    },
+    {
+      "category": "thread",
+      "id": "founding_archive",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The archive holds surveys that could expose the massacre and the Guild's role in concealing it.",
+      "title": "Founding archive"
+    },
+    {
+      "category": "structure",
+      "id": "truth_mercy_dilemma",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The story repeatedly forces a choice between an accurate record that wounds and a merciful omission that protects belonging.",
+      "title": "Truth and mercy dilemma"
+    },
+    {
+      "category": "structure",
+      "id": "cost_escalation",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "Each discovery costs a memory whose repayment depends on a future renewal, so the loss moves from civic history into an obligation inherited by the household.",
+      "title": "Escalating intimate cost"
+    },
+    {
+      "category": "trope",
+      "id": "incomplete_archive",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "A record is missing, altered, or written by the person investigating it, so the mystery is also a problem of memory.",
+      "title": "The incomplete archive"
+    },
+    {
+      "category": "trope",
+      "id": "implicated_investigator",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The surveyor's own work and family history are entangled with the crime, preventing a clean outsider position.",
+      "title": "The implicated investigator"
+    },
+    {
+      "category": "trope",
+      "id": "magical_map",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The map is an object with rules: accuracy costs memory, and a perfect map costs a perfect memory.",
+      "title": "The magical map"
+    },
+    {
+      "category": "trope",
+      "id": "intimate_horror",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The horror is the quiet loss of a shared reference, a name, or a face rather than visible violence.",
+      "title": "Intimate horror"
+    },
+    {
+      "category": "reader_experience",
+      "id": "wonder_promise",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The coast and the maps are presented as strange and beautiful, inviting the reader to want the survey to succeed.",
+      "title": "Wonder promise"
+    },
+    {
+      "category": "reader_experience",
+      "id": "dread_progression",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "As the cost becomes personal, the reader's desire for the truth becomes entangled with fear of what it will erase.",
+      "title": "Dread progression"
+    },
+    {
+      "category": "reader_experience",
+      "id": "earned_hope",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "Hope is available only when someone chooses to renew a debt they could refuse, accepting a partial remembrance rather than a clean restoration.",
+      "title": "Earned hope"
+    },
+    {
+      "category": "aesthetic",
+      "id": "luminous_cartography",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "Precise, sensory map-making imagery makes the coast feel desirable and the erasures feel like vandalism.",
+      "title": "Luminous cartography"
+    },
+    {
+      "category": "theme",
+      "id": "memory_ethics",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "The story asks what a community owes its dead, its living, and its comforting stories.",
+      "title": "Ethics of memory"
+    },
+    {
+      "category": "theme",
+      "id": "complicity",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "Knowing is not innocence: the surveyor's craft is part of the system that erases.",
+      "title": "Complicity"
+    },
+    {
+      "category": "structure",
+      "id": "renewal_obligation",
+      "parent_id": null,
+      "scope": "whole_story",
+      "summary": "A debt of memory passes to the family when renewal is refused or forbidden; Guild permission, not willingness alone, determines whether a family may pay.",
+      "title": "Renewal obligation"
+    }
+  ],
+  "open_questions": [
+    "Whose memory should the final record preserve, and who decides?",
+    "Is the Guild's lie ever defensible as mercy, or only as control?",
+    "Should the city's founding crime be public knowledge or a private grief?",
+    "How much of the surveyor's own past may the story erase before she is no longer the same person?",
+    "Who may renew a memory on another person's behalf, and at what cost?",
+    "Is a returned memory the same memory, or a reconstruction the family accepts?",
+    "Can a family appeal a Guild refusal to renew?"
+  ],
+  "phases": [
+    {
+      "aesthetic": "Luminous cartography.",
+      "genre_activations": [
+        {
+          "basic_emotions": [
+            "joy",
+            "surprise"
+          ],
+          "genre_node_id": "literary_mystery",
+          "structural_function": "Establish the inquiry and the city's dependence on accurate maps.",
+          "trope_functions": [
+            "The incomplete archive"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "joy",
+            "surprise"
+          ],
+          "genre_node_id": "fantasy",
+          "structural_function": "Establish the map's rules through use, not exposition.",
+          "trope_functions": [
+            "The magical map"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "fear"
+          ],
+          "genre_node_id": "horror",
+          "structural_function": "Seed unease without unveiling the cost.",
+          "trope_functions": [
+            "Intimate horror"
+          ]
+        }
+      ],
+      "genres": [
+        {
+          "genre": "literary_mystery",
+          "role": "governing"
+        },
+        {
+          "genre": "fantasy",
+          "role": "supporting"
+        },
+        {
+          "genre": "horror",
+          "role": "background"
+        }
+      ],
+      "id": "strange_coast",
+      "narrative_function": "Establish wonder and the map's promise.",
+      "order": 0,
+      "parallel_with": [],
+      "reader_experience": "Wonder and curiosity; the reader wants the survey to succeed.",
+      "scope": "whole_story",
+      "title": "Strange coast",
+      "transition": "A first memory is found missing."
+    },
+    {
+      "aesthetic": "Quiet omission and intimate detail.",
+      "genre_activations": [
+        {
+          "basic_emotions": [
+            "fear",
+            "sadness"
+          ],
+          "genre_node_id": "literary_mystery",
+          "structural_function": "Make the investigation personal.",
+          "trope_functions": [
+            "The implicated investigator"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "fear"
+          ],
+          "genre_node_id": "fantasy",
+          "structural_function": "Show a concrete memory cost.",
+          "trope_functions": [
+            "The magical map"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "fear",
+            "sadness"
+          ],
+          "genre_node_id": "horror",
+          "structural_function": "Turn the cost intimate.",
+          "trope_functions": [
+            "Intimate horror"
+          ]
+        }
+      ],
+      "genres": [
+        {
+          "genre": "literary_mystery",
+          "role": "governing"
+        },
+        {
+          "genre": "fantasy",
+          "role": "supporting"
+        },
+        {
+          "genre": "horror",
+          "role": "locally_dominant"
+        }
+      ],
+      "id": "first_erasure",
+      "narrative_function": "Turn wonder into dread by revealing that the cost is renewable and inheritable, then making the surveyor's own household a debtor.",
+      "order": 1,
+      "parallel_with": [],
+      "reader_experience": "Dread becomes personal.",
+      "scope": "whole_story",
+      "title": "First erasure",
+      "transition": "The surveyor finds her family's renewal clause in the archive's margins."
+    },
+    {
+      "aesthetic": "Archive fragments, gaps, and contradictory records.",
+      "genre_activations": [
+        {
+          "basic_emotions": [
+            "surprise",
+            "anger"
+          ],
+          "genre_node_id": "literary_mystery",
+          "structural_function": "Reveal the massacre and the Guild's complicity.",
+          "trope_functions": [
+            "The incomplete archive",
+            "The implicated investigator"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "surprise"
+          ],
+          "genre_node_id": "fantasy",
+          "structural_function": "Reveal the scale of what a perfect map would erase.",
+          "trope_functions": [
+            "The magical map"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "fear",
+            "anger"
+          ],
+          "genre_node_id": "horror",
+          "structural_function": "Make the historical crime present through memory loss.",
+          "trope_functions": [
+            "The cost of knowledge"
+          ]
+        }
+      ],
+      "genres": [
+        {
+          "genre": "literary_mystery",
+          "role": "governing"
+        },
+        {
+          "genre": "fantasy",
+          "role": "supporting"
+        },
+        {
+          "genre": "horror",
+          "role": "supporting"
+        }
+      ],
+      "id": "archive_revelation",
+      "narrative_function": "Reveal the founding crime and the Guild's complicity.",
+      "order": 2,
+      "parallel_with": [],
+      "reader_experience": "Moral dread and anger; the truth is larger than the surveyor.",
+      "scope": "whole_story",
+      "title": "Archive revelation",
+      "transition": "A perfect map becomes possible, and with it a city-wide erasure."
+    },
+    {
+      "aesthetic": "Modest repair; a record that admits its gaps.",
+      "genre_activations": [
+        {
+          "basic_emotions": [
+            "joy",
+            "sadness"
+          ],
+          "genre_node_id": "literary_mystery",
+          "structural_function": "Force the surveyor to choose what record to leave.",
+          "trope_functions": [
+            "The implicated investigator",
+            "The incomplete archive"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "joy",
+            "fear"
+          ],
+          "genre_node_id": "fantasy",
+          "structural_function": "Make the map's final use a moral act.",
+          "trope_functions": [
+            "The magical map"
+          ]
+        },
+        {
+          "basic_emotions": [
+            "fear",
+            "sadness"
+          ],
+          "genre_node_id": "horror",
+          "structural_function": "Let the cost be acknowledged rather than reversed.",
+          "trope_functions": [
+            "Intimate horror"
+          ]
+        }
+      ],
+      "genres": [
+        {
+          "genre": "literary_mystery",
+          "role": "governing"
+        },
+        {
+          "genre": "fantasy",
+          "role": "supporting"
+        },
+        {
+          "genre": "horror",
+          "role": "supporting"
+        }
+      ],
+      "id": "choice_of_maps",
+      "narrative_function": "Resolve the choice through a partial, chosen remembrance.",
+      "order": 3,
+      "parallel_with": [],
+      "reader_experience": "Earned, conditional hope through grief.",
+      "scope": "whole_story",
+      "title": "Choice of maps",
+      "transition": "The city keeps a record that is honest about what it cannot restore."
+    }
+  ],
+  "schema_version": 2,
+  "summary": "A literary mystery in which every accurate map takes a memory that returns only through a licensed renewal, so knowledge is a debt that can be inherited and a permission that can be refused. Wonder at the coast becomes dread as the cost moves through the surveyor's family line; hope depends on a renewal someone could refuse or be denied."
+}

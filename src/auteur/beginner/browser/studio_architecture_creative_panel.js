@@ -18,9 +18,10 @@
   const response=make('textarea');response.setAttribute('aria-label','Host-agent inquiry response');response.rows=4;
   const complete=make('button','Validate inquiry response');complete.type='button';
   const history=make('section');history.setAttribute('aria-label','Earlier creative exchanges');
+  const lineage=make('section');lineage.setAttribute('aria-label','Superseded creative exchanges');
   const result=make('section');result.setAttribute('aria-label','Inquiry result');
   const clear=make('button','Clear graph selection');clear.type='button';
-  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,result,clear);
+  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
   const agentOperations=new Set(['explain','challenge','explore','compare','connect_to_ask']);
   function updateSubmit(){const isRevision=operation==='revise';submit.textContent=isRevision?'Request holistic revision':
     agentOperations.has(operation)?'Ask coding agent (no revision)':operation==='trace'?'Trace recorded relationships':'Inspect recorded source';}
@@ -60,14 +61,27 @@
       history.append(box);
     }
   }
+  function renderLineage(entries){lineage.replaceChildren();
+    if(!Array.isArray(entries)||!entries.length)return;
+    lineage.append(make('h4','Earlier exchanges on a superseded architecture (historical; not selectable)'));
+    for(const entry of entries.slice(0,8)){
+      const box=make('div');box.dataset.supersededExchangeSha=entry.request_sha256||'';
+      box.append(make('strong',(entry.operation||'inquiry')+' · '+(entry.author_question||'')));
+      const alternatives=(entry.hypotheses||[]).map(h=>(h.id||'')+' '+h.title).join('; ');
+      if(alternatives)box.append(make('p','Alternatives: '+alternatives));
+      lineage.append(box);
+    }
+  }
   function setStatus(projection){const value=typeof projection==='string'?{status:projection}:projection||{};
     const s=value.status||'not_started';status.textContent=s==='awaiting_host_agent'?
       'Host-agent request prepared, not executed. Copy the packet to your active coding agent.':
       s==='ready'?'Validated inquiry response received. No architecture revision or story acceptance.':
+      s==='refreshing'?'Architecture source changed. Reloading this source’s exchanges.':
       s==='stale'||s==='guidance_changed'?'Source context changed. This inquiry is historical; prepare a new request.':
       s==='error'? 'Inquiry error; no new architecture was applied.': 'Inquiry status: '+s+'.';
     packet.value=value.request?JSON.stringify(value.request,null,2):'';
     renderHistory(value.history);
+    renderLineage(value.superseded_history);
   }
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     if(!response)return;
@@ -95,7 +109,8 @@
       list.append(make('li',relation.kind+' · '+(relation.id||relation.field)+' · '+relation.sourceRef));
     }result.append(list);
   }
-  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,setAuthorText:text=>{instruction.value=text},
+  function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
+  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setAuthorText:text=>{instruction.value=text},
     setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }

@@ -105,12 +105,19 @@
     });
     syncInquiryHistory();
   }
-  var inquiryLoadedCanvas = null;
-  // Shows this canvas's earlier exchanges once per canvas, without selecting graph focus.
+  var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null;
+  // Refreshes this source's exchanges when the canvas OR the architecture baseline changes.
+  // A stale baseline must never keep offering alternatives that the server will reject.
   function syncInquiryHistory() {
-    var canvasId = remote.canvasId;
-    if (!creativePanel || !canvasId || inquiryLoadedCanvas === canvasId) return;
-    inquiryLoadedCanvas = canvasId;
+    var canvasId = remote.canvasId, baseline = state.architectureRequestSha || null;
+    if (!creativePanel || !canvasId) return;
+    if (inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
+    var changedBaseline = inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline !== baseline;
+    inquiryLoadedCanvas = canvasId; inquiryLoadedBaseline = baseline;
+    if (changedBaseline) {
+      if (creativePanel.invalidateResult) creativePanel.invalidateResult();
+      creativePanel.setStatus({status: "refreshing"});
+    }
     fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/architecture/inquiry")
       .then(apiJson).then(function (projection) {
         if (remote.canvasId !== canvasId || !creativePanel) return;

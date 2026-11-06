@@ -1,0 +1,392 @@
+{
+  "schema": "auteur_creative_intention_journey_ledger_v1",
+  "date": "2026-11-06",
+  "canvas_id": "connected-thread",
+  "evidence_classes": {
+    "real_code_execution": "HTTP contracts served by auteur.beginner.server plus library CLI for intentions and resume",
+    "fixture_admission": "docs/qualification-evidence/agent-first-ontology-20261103/rich-vision-candidate.json re-admitted through prepare/complete",
+    "same_agent_creative_output": "explore, follow-up, impact, revision and realization answers were composed by the coordinating agent",
+    "simulated_author": "questions and selections were written by the coordinating agent; no human author participated",
+    "fresh_context_critics": "separate task contexts; verified recovery, divergence critique and scene critique"
+  },
+  "current_candidate_request_sha256": "0319ff3452d79fc67e8f3204a9493c40d5a2a408ec9489677fb53113b9d0f249",
+  "canvas_revision": 3,
+  "intentions": [
+    {
+      "id": "renewal-debt",
+      "title": "Renewal-bound restorative discovery",
+      "status": "withdrawn",
+      "directive": "Discovery should become restorative through chosen renewal: keep the wonder-to-dread movement, but let hope depend on someone renewing a debt they could refuse.",
+      "provenance": {
+        "request_sha": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+        "source_ref": "h1",
+        "source_kind": "creative_alternative",
+        "focus_id": "memory_economy"
+      }
+    }
+  ],
+  "inquiries": [
+    {
+      "request_sha256": "21a4694f8ab15b4dd21985b25c937ac6693e767b108877852e0466136c6c8c0b",
+      "created_at": "2026-11-06T19:03:13.408649+00:00",
+      "target": "current",
+      "operation": "explain",
+      "author_question": "Take the renewal-bound debt alternative: a memory returns only if the same resident renews the survey each season. What must the story keep unresolved so that inherited debt reads as a tragic obligation rather than a simple punishment?",
+      "anchors": [
+        {
+          "kind": "emotion_target",
+          "id": "dread"
+        }
+      ],
+      "baseline_candidate_request_sha256": "9545740aa06f502cc1ac3a688131cc66d3fa3e1c3206502e48f0277a5cfcc66a",
+      "review_request_sha256": null,
+      "hypotheses": [],
+      "observations": [
+        {
+          "kind": "emotion_target",
+          "id": "dread",
+          "sourceRef": "emotion_targets/1",
+          "observed_in": "current_architecture"
+        },
+        {
+          "kind": "node",
+          "id": "cost_escalation",
+          "sourceRef": "nodes/7",
+          "observed_in": "current_architecture"
+        },
+        {
+          "kind": "node",
+          "id": "truth_mercy_dilemma",
+          "sourceRef": "nodes/6",
+          "observed_in": "current_architecture"
+        }
+      ]
+    },
+    {
+      "request_sha256": "492d3192299ca20e73ff96007b02b0eefeecf0ada59ec6406fb8ca080bab8745",
+      "created_at": "2026-11-06T19:06:03.259085+00:00",
+      "target": "pending_review",
+      "operation": "challenge",
+      "author_question": "Does this revision strengthen the intended emotional experience, or does it introduce new problems? Consider the wonder-to-dread movement, the conditional hope, and whether inherited debt makes the truth-mercy dilemma clearer or merely punishes a family. Do not apply the revision.",
+      "anchors": [],
+      "baseline_candidate_request_sha256": "9545740aa06f502cc1ac3a688131cc66d3fa3e1c3206502e48f0277a5cfcc66a",
+      "review_request_sha256": "73b95d1b511660895e0e33af70f9c3496e4fc859090b5fd1628d9e920a2eabf9",
+      "hypotheses": [
+        {
+          "id": "h1",
+          "title": "Inheritance as theme",
+          "divergence_axis": null
+        }
+      ],
+      "observations": [
+        {
+          "kind": "node",
+          "id": "renewal_obligation",
+          "sourceRef": "nodes/18",
+          "observed_in": "proposed_revision"
+        },
+        {
+          "kind": "emotion_target",
+          "id": "dread",
+          "sourceRef": "emotion_targets/1",
+          "observed_in": "proposed_revision"
+        },
+        {
+          "kind": "node",
+          "id": "earned_hope",
+          "sourceRef": "nodes/14",
+          "observed_in": "proposed_revision"
+        },
+        {
+          "kind": "link",
+          "id": "debt_binds_family",
+          "sourceRef": "links/18",
+          "observed_in": "proposed_revision"
+        }
+      ]
+    },
+    {
+      "request_sha256": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+      "created_at": "2026-11-06T19:01:45.854389+00:00",
+      "target": "current",
+      "operation": "explore",
+      "author_question": "Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name.",
+      "anchors": [
+        {
+          "kind": "link",
+          "id": "engine_drives_cost"
+        }
+      ],
+      "baseline_candidate_request_sha256": "9545740aa06f502cc1ac3a688131cc66d3fa3e1c3206502e48f0277a5cfcc66a",
+      "review_request_sha256": null,
+      "hypotheses": [
+        {
+          "id": "h1",
+          "title": "Renewal-bound debt",
+          "divergence_axis": "causal_engine"
+        },
+        {
+          "id": "h2",
+          "title": "Consent ledger",
+          "divergence_axis": "social_scale"
+        },
+        {
+          "id": "h3",
+          "title": "Concealed cost",
+          "divergence_axis": "reader_emotion"
+        }
+      ],
+      "observations": [
+        {
+          "kind": "node",
+          "id": "memory_economy",
+          "sourceRef": "nodes/3",
+          "observed_in": "current_architecture"
+        },
+        {
+          "kind": "link",
+          "id": "engine_drives_cost",
+          "sourceRef": "links/3",
+          "observed_in": "current_architecture"
+        },
+        {
+          "kind": "link",
+          "id": "magical_map_instantiates",
+          "sourceRef": "links/11",
+          "observed_in": "current_architecture"
+        }
+      ]
+    }
+  ],
+  "revisions": [
+    {
+      "request_sha256": "0319ff3452d79fc67e8f3204a9493c40d5a2a408ec9489677fb53113b9d0f249",
+      "requested_change": "Make the Guild authority explicit about renewal: the Guild decides who is permitted to renew a memory debt, and that permission is contested. Keep the renewal-bound direction and the conditional hope. Change only what that decision affects.",
+      "prior_request_sha256": "9f75e4ac96a90c611dd34684249675410d9cfe8087b3051dc1e4b1e67b9c7acf",
+      "selected_creative_alternative": null,
+      "changed_components": [],
+      "author_declared_emotion_changes": [],
+      "graph_intent_anchors": [
+        {
+          "kind": "node",
+          "id": "renewal_obligation"
+        }
+      ]
+    },
+    {
+      "request_sha256": "73b95d1b511660895e0e33af70f9c3496e4fc859090b5fd1628d9e920a2eabf9",
+      "requested_change": "Adopt the renewal-bound debt direction: a memory returns only when the same resident renews the survey each season, and the debt otherwise passes to the family line. Reconsider every affected emotion, relation, phase and genre contract together. Keep the wonder-to-dread movement and the conditional hope.",
+      "prior_request_sha256": "9545740aa06f502cc1ac3a688131cc66d3fa3e1c3206502e48f0277a5cfcc66a",
+      "selected_creative_alternative": {
+        "author_question": "Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name.",
+        "authority": "noncanonical_creative_alternative",
+        "description": "A memory is returned only if the same resident renews the survey each season. If they cannot, the debt passes to their family line. Operating rule: recovery is conditional and renewable. Consequence: dread shifts from sudden erasure to an obligation that children inherit, and hope depends on someone choosing to renew rather than on a single act of mercy.",
+        "divergence_axis": "causal_engine",
+        "hypothesis_id": "h1",
+        "inquiry_request_sha256": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+        "operation": "explore",
+        "title": "Renewal-bound debt"
+      },
+      "changed_components": [
+        {
+          "kind": "summary",
+          "id": "summary",
+          "change": "changed"
+        },
+        {
+          "kind": "node",
+          "id": "renewal_obligation",
+          "change": "added"
+        },
+        {
+          "kind": "node",
+          "id": "cost_escalation",
+          "change": "changed"
+        },
+        {
+          "kind": "node",
+          "id": "earned_hope",
+          "change": "changed"
+        },
+        {
+          "kind": "node",
+          "id": "memory_economy",
+          "change": "changed"
+        },
+        {
+          "kind": "link",
+          "id": "debt_binds_family",
+          "change": "added"
+        },
+        {
+          "kind": "link",
+          "id": "engine_drives_cost",
+          "change": "changed"
+        },
+        {
+          "kind": "phase",
+          "id": "first_erasure",
+          "change": "changed"
+        },
+        {
+          "kind": "emotion_target",
+          "id": "dread",
+          "change": "changed"
+        }
+      ],
+      "author_declared_emotion_changes": [
+        "dread"
+      ],
+      "graph_intent_anchors": [
+        {
+          "kind": "node",
+          "id": "memory_economy"
+        },
+        {
+          "kind": "link",
+          "id": "engine_drives_cost"
+        },
+        {
+          "kind": "emotion_target",
+          "id": "dread"
+        }
+      ]
+    },
+    {
+      "request_sha256": "9f75e4ac96a90c611dd34684249675410d9cfe8087b3051dc1e4b1e67b9c7acf",
+      "requested_change": "Make the Guild authority explicit about renewal: the Guild decides who is permitted to renew a memory debt, and that permission is contested. Keep the renewal-bound direction and the conditional hope. Change only what that decision affects.",
+      "prior_request_sha256": "73b95d1b511660895e0e33af70f9c3496e4fc859090b5fd1628d9e920a2eabf9",
+      "selected_creative_alternative": null,
+      "changed_components": [
+        {
+          "kind": "summary",
+          "id": "summary",
+          "change": "changed"
+        },
+        {
+          "kind": "node",
+          "id": "guild_authority",
+          "change": "changed"
+        },
+        {
+          "kind": "node",
+          "id": "renewal_obligation",
+          "change": "changed"
+        },
+        {
+          "kind": "link",
+          "id": "guild_permits_renewal",
+          "change": "added"
+        }
+      ],
+      "author_declared_emotion_changes": [],
+      "graph_intent_anchors": [
+        {
+          "kind": "node",
+          "id": "guild_authority"
+        },
+        {
+          "kind": "node",
+          "id": "renewal_obligation"
+        }
+      ]
+    }
+  ],
+  "realization": {
+    "request_sha256": "0962459db6c77ef00d1174a8a9f1fc7dcef734918f6e202e7a8e2851607e6e1b",
+    "summary": "A scene possibility in which the surveyor learns that her family owes a renewal she was never told about.",
+    "elements": [
+      {
+        "id": "scene_renewal_notice",
+        "architecture_refs": [
+          "memory_economy",
+          "renewal_obligation"
+        ],
+        "anchor_refs": [
+          "emotion_target:dread",
+          "link:engine_drives_cost"
+        ]
+      },
+      {
+        "id": "arc_renewal_choice",
+        "architecture_refs": [
+          "cost_escalation",
+          "truth_mercy_dilemma"
+        ],
+        "anchor_refs": [
+          "link:engine_drives_cost"
+        ]
+      }
+    ]
+  },
+  "recovery": {
+    "architecture_status": "ready",
+    "adopted_creative_alternative": {
+      "adopted_in_request_sha256": "73b95d1b511660895e0e33af70f9c3496e4fc859090b5fd1628d9e920a2eabf9",
+      "author_question": "Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name.",
+      "authority": "noncanonical_creative_alternative",
+      "description": "A memory is returned only if the same resident renews the survey each season. If they cannot, the debt passes to their family line. Operating rule: recovery is conditional and renewable. Consequence: dread shifts from sudden erasure to an obligation that children inherit, and hope depends on someone choosing to renew rather than on a single act of mercy.",
+      "divergence_axis": "causal_engine",
+      "hypothesis_id": "h1",
+      "inquiry_request_sha256": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+      "operation": "explore",
+      "title": "Renewal-bound debt"
+    },
+    "creative_adoption_lineage": [
+      {
+        "adopted_in_request_sha256": "73b95d1b511660895e0e33af70f9c3496e4fc859090b5fd1628d9e920a2eabf9",
+        "author_question": "Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name.",
+        "authority": "noncanonical_creative_alternative",
+        "description": "A memory is returned only if the same resident renews the survey each season. If they cannot, the debt passes to their family line. Operating rule: recovery is conditional and renewable. Consequence: dread shifts from sudden erasure to an obligation that children inherit, and hope depends on someone choosing to renew rather than on a single act of mercy.",
+        "divergence_axis": "causal_engine",
+        "hypothesis_id": "h1",
+        "inquiry_request_sha256": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+        "operation": "explore",
+        "title": "Renewal-bound debt"
+      }
+    ],
+    "intentions": [
+      {
+        "id": "renewal-debt",
+        "title": "Renewal-bound restorative discovery",
+        "status": "withdrawn",
+        "directive": "Discovery should become restorative through chosen renewal: keep the wonder-to-dread movement, but let hope depend on someone renewing a debt they could refuse.",
+        "source_ref": "canvas/items/renewal-debt",
+        "authority": "author_directed_working_intention",
+        "provenance": {
+          "request_sha": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e",
+          "source_ref": "h1",
+          "source_kind": "creative_alternative",
+          "focus_id": "memory_economy"
+        }
+      }
+    ],
+    "current_baseline_history_count": 0,
+    "superseded_history": [
+      {
+        "target": "pending_review",
+        "operation": "challenge",
+        "author_question": "Does this revision strengthen the intended emotional experience, or does it introduce new problems? Consider the wonder-to-dread movement, the conditional hope, and whether inherited debt makes the truth-mercy dilemma clearer or merely punishes a family. Do not apply the revision.",
+        "hypotheses": [
+          "h1 Inheritance as theme"
+        ]
+      },
+      {
+        "target": "current",
+        "operation": "explain",
+        "author_question": "Take the renewal-bound debt alternative: a memory returns only if the same resident renews the survey each season. What must the story keep unresolved so that inherited debt reads as a tragic obligation rather than a simple punishment?",
+        "hypotheses": []
+      },
+      {
+        "target": "current",
+        "operation": "explore",
+        "author_question": "Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name.",
+        "hypotheses": [
+          "h1 Renewal-bound debt",
+          "h2 Consent ledger",
+          "h3 Concealed cost"
+        ]
+      }
+    ]
+  }
+}

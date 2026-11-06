@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "analysis": "Recorded change: the proposal adds renewal_obligation, changes memory_economy and cost_escalation, redirects engine_drives_cost to a renewable-or-inherited loss, adds debt_binds_family, and changes the dread target's eliciting condition to a household discovering an unannounced renewal. Recorded change also moves earned_hope from partial remembrance to a renewal someone could refuse. Reasoned consequence: the wonder-to-dread movement is preserved but its engine becomes generational. Dread no longer arrives only as a personal erasure; it arrives as a bill the family did not know it owed, which keeps the intimacy while widening the cost beyond the surveyor. The truth-mercy dilemma becomes clearer rather than merely harsher, because a renewal can be refused: mercy is now an act with a price someone else could be asked to pay. Author decision: the review context records that the author adopted Renewal-bound debt (causal_engine, h1) from the earlier exploration. Speculative possibility: readers may experience inheritance as punishment rather than tragic obligation if the story reveals the clause too early or lets a single family absorb every consequence. That risk is not established by any recorded field and needs drafted scenes to test. The proposal does not modify the applied baseline; it remains an un-applied working revision.",
+  "recorded_observations": [
+    {"kind": "node", "id": "renewal_obligation", "claim": "Recorded in the proposed revision: an unrenewed memory debt passes to the family when the original contributor cannot renew."},
+    {"kind": "emotion_target", "id": "dread", "claim": "Recorded change in the proposal: dread is elicited by a household discovering a renewal it was never told about."},
+    {"kind": "node", "id": "earned_hope", "claim": "Recorded change in the proposal: hope depends on someone choosing to renew a debt they could refuse, not on a clean restoration."},
+    {"kind": "link", "id": "debt_binds_family", "claim": "Recorded addition in the proposal: cost_escalation to renewal_obligation, transferring an unrenewed debt to the next generation."}
+  ],
+  "hypotheses": [
+    {"title": "Inheritance as theme", "description": "If the debt is inherited rather than only personal, the story's theme shifts from what a community owes its dead to what a household owes for a choice it did not make. That is a different thematic centre, not merely a stronger version of the old one."}
+  ],
+  "uncertainties": [
+    "Whether the wider cost weakens the intimate horror cannot be decided from the candidate; it needs drafted scenes.",
+    "The proposal adds an open question about who may renew on another person's behalf, and the answer would change the dilemma's fairness.",
+    "Reader experience remains an interpretation of intended effects, not an observed response."
+  ]
+}

@@ -15,7 +15,9 @@ from pathlib import Path
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
-from .studio_architecture_graph_intent import GraphIntent, GraphAnchor, resolve_graph_intent
+from .studio_architecture_graph_intent import (
+    GraphIntent, GraphAnchor, resolve_graph_intent, resolve_intent_views,
+)
 
 _SYSTEM = """You are the active Auteur narrative-architecture inquiry agent.
 Reason about the author's exact question using the existing working architecture,
@@ -45,11 +47,14 @@ _OPERATION_GUIDANCE = {
     ),
     "explore": (
         "Operation explore: propose at least two materially different alternatives. Each alternative must change "
-        "a causal variable while keeping the author's stated commitments. Give each hypothesis a distinct title, a "
-        "description that names the causal variable it changes, and a divergence_axis from causal_engine, "
-        "character_agency, reader_emotion, social_scale, structure, theme or genre_relation. Each alternative must "
-        "declare a different divergence_axis: two alternatives that change the same variable, such as who bears a "
-        "single cost, are one idea. Changes of wording, tone or decoration are not alternatives."
+        "a causal variable while keeping the author's stated commitments. Give each hypothesis a distinct title and "
+        "a description that states what changes, how it operates, and what the reader would experience differently. "
+        "Name the dimension it varies with divergence_axis, one of causal_engine, character_agency, reader_emotion, "
+        "social_scale, structure, theme or genre_relation. The axis is a reasoning aid: several alternatives may vary "
+        "the same dimension when their operating rules and consequences genuinely differ, so differences in mechanism "
+        "matter more than the label. For each alternative, state how the story's decisive choice changes: who faces "
+        "it, what it costs, and what the reader must weigh. Changes of wording, tone or decoration are not "
+        "alternatives, and an alternative that merely reallocates the same cost under another name is one idea."
     ),
     "compare": (
         "Operation compare: contrast the selected elements by narrative function, causal role and reader effect. "
@@ -60,6 +65,16 @@ _OPERATION_GUIDANCE = {
         "exists. Propose possible relations as labeled hypotheses; never present a possible relation as recorded."
     ),
 }
+
+_PENDING_REVIEW_GUIDANCE = (
+    "Operation target pending_review: review_context contains the applied baseline and the proposed, "
+    "un-applied revision. Examine the proposal itself; do not describe it as applied, accepted or "
+    "already true of the baseline. Label each point as one of recorded_change (deterministic "
+    "comparison of the two candidates), reasoned_consequence (your interpretation supported by "
+    "recorded narrative mechanisms), speculative_possibility (a future effect that needs creative "
+    "development), or author_decision (an explicit author selection shown in the review context). "
+    "Never modify or apply the proposal."
+)
 
 _MAX_PRIOR_IN_REQUEST = 3
 _MAX_HISTORY_PROJECTED = 8
@@ -132,6 +147,7 @@ def _exchange_view(result: dict, request_created_at: str, request_sha: str) -> d
         "request_sha256": request_sha,
         "created_at": request_created_at,
         "baseline_candidate_request_sha256": result.get("baseline_candidate_request_sha256"),
+        "target": intent.get("target", "current"),
         "operation": intent.get("operation"),
         "author_question": intent.get("author_text", ""),
         "anchors": anchors,
@@ -164,11 +180,16 @@ def _all_completed_exchanges(store) -> list[dict]:
 
 
 def _completed_exchanges(store, baseline_sha: str | None) -> list[dict]:
-    """Completed inquiries for exactly this baseline, oldest first. Never crosses a changed baseline."""
+    """Completed inquiries for exactly this applied baseline, oldest first.
+
+    Pending-review inquiries examine a proposal rather than this baseline, so they never become
+    prompt context here; once the revision is applied they remain historical lineage.
+    """
     if not baseline_sha:
         return []
     return [view for view in _all_completed_exchanges(store)
-            if view['baseline_candidate_request_sha256'] == baseline_sha]
+            if view['baseline_candidate_request_sha256'] == baseline_sha
+            and view.get('target', 'current') == 'current']
 
 
 def _history_for(store, baseline_sha: str | None) -> list[dict]:
@@ -208,21 +229,56 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
         if not current:raise ValueError('no current working architecture')
         if arch._current_candidate_freshness(store,current)!='ready':
             raise arch.BeginnerConcurrencyError('architecture source or guidance is stale')
-        resolved=resolve_graph_intent(current['candidate'],current['request_sha256'],intent)
+        review=None
+        proposed=current['candidate']
+        if intent.target=='pending_review':
+            if intent.expected_candidate_request_sha256 != current['request_sha256']:
+                raise ValueError('current candidate request SHA mismatch')
+            projection=arch.project_architecture(store)
+            review=projection.get('review')
+            if projection.get('status')!='review_ready' or not review:
+                raise ValueError('no pending architecture revision to examine')
+            proposed=review['candidate']
+            resolved={'version':1,'target':'pending_review','operation':intent.operation,
+                'canvas_id':intent.canvas_id,
+                'expected_candidate_request_sha256':current['request_sha256'],
+                'review_request_sha256':review['request_sha256'],
+                'author_text':intent.author_text,
+                **resolve_intent_views(proposed,intent.anchors)}
+        else:
+            resolved=resolve_graph_intent(current['candidate'],current['request_sha256'],intent)
         context=arch._source(store,previous=current['candidate'])
         _,guidance,design_context=arch._design_context_parts(store,context)
         prior=_completed_exchanges(store,current['request_sha256'])[-_MAX_PRIOR_IN_REQUEST:]
-        user=json.dumps({
+        payload={
             'operation':'architecture_inquiry','author_question':intent.author_text,
-            'graph_intent':resolved,'working_candidate':current['candidate'],
+            'graph_intent':resolved,'working_candidate':proposed,
             'narrative_design_context':design_context,'prior_exchanges':prior,
-        },ensure_ascii=False,sort_keys=True)
+        }
+        if review:
+            payload['review_context']={
+                'request_sha256':review['request_sha256'],
+                'requested_change':review.get('requested_change',''),
+                'baseline_candidate':current['candidate'],
+                'proposed_candidate':proposed,
+                'changes':review.get('changes'),
+                'changed_components':review.get('changed_components'),
+                'selected_creative_alternative':review.get('selected_creative_alternative'),
+                'preserved':review.get('preserved'),
+                'authority':'pending_unapplied_working_revision',
+            }
+        user=json.dumps(payload,ensure_ascii=False,sort_keys=True)
         system=_SYSTEM+'\n'+_OPERATION_GUIDANCE[intent.operation]
+        if review:
+            system+='\n'+_PENDING_REVIEW_GUIDANCE
         settings={'operation':'inquire','canvas_id':store.canvas_id,
             'baseline_candidate_request_sha256':current['request_sha256'],
             'source_sha256':current['source_sha256'],
             'design_guidance_sha256':current.get('design_guidance_sha256'),
-            'freshness_format':2,'inquiry_schema_version':1}
+            'freshness_format':2,'inquiry_schema_version':1,
+            'inquiry_target':intent.target}
+        if review:
+            settings['review_request_sha256']=review['request_sha256']
         request=build_request(candidate_id='studio-inquiry-'+arch._digest({'settings':settings,'user':user})[:24],
             role='studio_architecture_inquiry',system=system,user=user,settings=settings)
         base=_inquiry_root(store)
@@ -237,15 +293,23 @@ def _live_matches(store,current,request,arch) -> bool:
     if arch._current_candidate_freshness(store,current)!='ready':return False
     if current.get('source_sha256')!=request.settings.get('source_sha256'):return False
     if current.get('design_guidance_sha256')!=request.settings.get('design_guidance_sha256'):return False
+    if request.settings.get('inquiry_target')=='pending_review':
+        review=arch.project_architecture(store).get('review') or {}
+        if review.get('request_sha256')!=request.settings.get('review_request_sha256'):
+            return False
     return True
 
 
 def project_architecture_inquiry(store)->dict:
     arch,_,load_request,_,_,_,_=_helpers()
     current=arch._candidate(store)
-    history=_history_for(store,current['request_sha256'] if current else None)
+    baseline=current['request_sha256'] if current else None
+    history=_history_for(store,baseline)
+    lineage=superseded_history(store,baseline)
     base=_inquiry_root(store);pointer=arch._read(base/'latest_request.json')
-    if not pointer:return {'status':'not_started','request':None,'result':None,'history':history}
+    if not pointer:
+        return {'status':'not_started','request':None,'result':None,'history':history,
+                'superseded_history':lineage}
     import re
     sha=pointer.get('request_sha256','')
     if not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{64}',sha):
@@ -261,6 +325,7 @@ def project_architecture_inquiry(store)->dict:
             'request_sha256':sha,
             'baseline_candidate_request_sha256':request.settings['baseline_candidate_request_sha256'],
             'history':history,
+            'superseded_history':lineage,
             'authority':'noncanonical_inquiry_not_working_architecture'}
 
 
@@ -283,32 +348,49 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
             write_response(folder/'stale_response.json',response)
             raise arch.BeginnerConcurrencyError('inquiry baseline or design context changed; retained stale response')
         result=ArchitectureInquiryResult.model_validate_json(response.text)
-        operation=json.loads(request.user)['graph_intent']['operation']
+        submitted=json.loads(request.user)
+        operation=submitted['graph_intent']['operation']
+        review=None
+        target_candidate=current['candidate']
+        target_sha=current['request_sha256']
+        if request.settings.get('inquiry_target')=='pending_review':
+            review=arch.project_architecture(store).get('review') or {}
+            if review.get('request_sha256')!=request.settings.get('review_request_sha256'):
+                raise arch.BeginnerConcurrencyError('pending revision changed; inquiry result retained as historical')
+            target_candidate=review['candidate']
+            target_sha=review['request_sha256']
         if operation=='explore':
             if len(result.hypotheses)<2:
                 raise ValueError('explore requires at least two alternative hypotheses; ask explain or challenge for a single reading')
             titles=[_normalized_title(h.title) for h in result.hypotheses]
             if len(set(titles))!=len(titles):
                 raise ValueError('explore alternatives must have distinct titles')
-            axes=[h.divergence_axis for h in result.hypotheses]
-            if any(axis is None for axis in axes) or len(set(axes))!=len(axes):
-                raise ValueError('explore alternatives must each declare a distinct divergence_axis: each must change a different causal variable')
+            # The axis is a descriptive reasoning aid: several alternatives may vary the same dimension
+            # when their operating rules and consequences differ. Identical descriptions are never distinct.
+            descriptions=[_normalized_title(h.description) for h in result.hypotheses]
+            if len(set(descriptions))!=len(descriptions):
+                raise ValueError('explore alternatives must have distinct descriptions')
+            if any(h.divergence_axis is None for h in result.hypotheses):
+                raise ValueError('explore alternatives must each name the dimension they vary as divergence_axis')
         # Verify recorded-observation anchors exist. Source address is computed server-side,
         # while the agent's proposed causal interpretation remains explicitly unverified.
         validated_observations=[]
         for obs in result.recorded_observations:
             an=GraphAnchor(kind=obs.kind,id=obs.id)
             one=GraphIntent(canvas_id=store.canvas_id,operation='explain',
-                expected_candidate_request_sha256=current['request_sha256'],
+                expected_candidate_request_sha256=target_sha,
                 author_text='Verify inquiry observation identity.',anchors=[an])
-            resolved=resolve_graph_intent(current['candidate'],current['request_sha256'],one)
+            resolved=resolve_graph_intent(target_candidate,target_sha,one)
             validated_observations.append({'kind':obs.kind,'id':obs.id,'claim':obs.claim,
                 'sourceRef':resolved['anchors'][0]['sourceRef'],
+                'observed_in':'proposed_revision' if review else 'current_architecture',
                 'interpretation_status':'agent_claim_not_causal_proof'})
         saved={**result.model_dump(mode='json'),'recorded_observations':validated_observations,
             'hypotheses':_with_ids([h.model_dump(mode='json') for h in result.hypotheses]),
             'authority':'noncanonical_inquiry','baseline_candidate_request_sha256':current['request_sha256'],
-            'intent':json.loads(request.user)['graph_intent']}
+            'review_request_sha256':review['request_sha256'] if review else None,
+            'inquiry_target':request.settings.get('inquiry_target','current'),
+            'intent':submitted['graph_intent']}
         write_response(folder/'response.json',response)
         atomic_write(folder/'result.json',saved)
     return project_architecture_inquiry(store)
@@ -328,7 +410,9 @@ def main(argv: list[str] | None = None) -> int:
     prepare = commands.add_parser("prepare")
     prepare.add_argument("--op", required=True,
                          choices=("explain", "challenge", "explore", "compare", "connect_to_ask"))
-    prepare.add_argument("--anchor", action="append", required=True,
+    prepare.add_argument("--target", choices=("current", "pending_review"), default="current",
+                         help="Examine the applied architecture or the pending un-applied revision")
+    prepare.add_argument("--anchor", action="append", default=[],
                          help="kind:id, kind:id@field, or kind:id@ref:field:target_kind:target_id")
     prepare.add_argument("--text-file", type=Path, required=True)
     complete = commands.add_parser("complete-file")
@@ -340,6 +424,7 @@ def main(argv: list[str] | None = None) -> int:
         current = arch.project_architecture(store)
         intent = {
             "version": 1, "canvas_id": store.canvas_id, "operation": args.op,
+            "target": args.target,
             "expected_candidate_request_sha256": current["candidate_request_sha256"],
             "anchors": [_parse_anchor(item) for item in args.anchor], "author_text": text,
         }

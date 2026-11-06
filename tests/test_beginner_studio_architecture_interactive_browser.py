@@ -177,3 +177,48 @@ def test_selected_alternative_reaches_the_revision_request_and_nothing_is_applie
     projection = project_architecture(store)
     assert projection["status"] == "awaiting_host_agent"
     assert projection["candidate"]["summary"].startswith("Recurring allocation")
+
+
+def test_applying_a_revision_replaces_stale_alternatives_with_visible_lineage(tmp_path, browser):
+    from auteur.beginner.studio_architecture import (
+        complete_architecture, prepare_architecture, project_architecture,
+    )
+
+    store = _seeded_thread(tmp_path)
+    inquiry_sha = _simulated_exploration(store)
+    pending = prepare_architecture(
+        store, "Adopt expiring claims.",
+        selected_alternative={"inquiry_request_sha256": inquiry_sha, "hypothesis_id": "h2"},
+    )
+    revised = json.loads(json.dumps(project_architecture(store)["candidate"]))
+    revised["summary"] = "Recurring allocation renews claims only by community consent."
+    complete_architecture(store, build_host_agent_response(
+        HostAgentRequest(**pending["request"]), json.dumps(revised),
+        runtime="browser-test", model="fixture",
+    ).model_dump())
+
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=creative-thread")
+        page.locator('#nodes .node.candidate[data-item-id="allocation_engine"]').click()
+        page.locator('[data-alternative-id="h2"]').wait_for()
+        page.locator("#architecture-apply").click()
+        # The applied revision is a new baseline: stale alternatives must disappear.
+        page.wait_for_function(
+            "() => document.querySelectorAll('[data-alternative-id]').length === 0")
+        page.wait_for_function(
+            "() => document.querySelector('[aria-label=\"Superseded creative exchanges\"]')"
+            ".textContent.includes('What other mechanisms could drive the allocation?')")
+        panel_status = page.locator('#architecture-creative-agent-panel [role="status"]').inner_text()
+        assert "historical" in panel_status
+        assert errors == []
+    finally:
+        page.close()
+        server.stop()
+    assert project_architecture(store)["candidate"]["summary"].startswith(
+        "Recurring allocation renews claims only by community consent."
+    )

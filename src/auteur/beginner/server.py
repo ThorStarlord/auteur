@@ -692,7 +692,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 try:
                     if parts[6] == "prepare":
                         result = prepare_realization(
-                            store, payload.get("focus_ids", []), payload.get("instruction", "")
+                            store, payload.get("focus_ids"), payload.get("instruction", ""),
+                            payload.get("anchors"),
                         )
                         self._send_json(202, result)
                     elif parts[6] == "apply":

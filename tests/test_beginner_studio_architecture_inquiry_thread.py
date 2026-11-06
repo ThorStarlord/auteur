@@ -39,8 +39,10 @@ def _hypothesis(title, axis, description="A distinct causal mechanism."):
 
 def _pair():
     return [
-        _hypothesis("Restorative knowledge", "causal_engine"),
-        _hypothesis("Consolation without knowledge", "reader_emotion"),
+        _hypothesis("Restorative knowledge", "causal_engine",
+                    "Discovery restores shared understanding for the district."),
+        _hypothesis("Consolation without knowledge", "reader_emotion",
+                    "The community keeps comfort instead of the record of the loss."),
     ]
 
 
@@ -77,15 +79,30 @@ def test_explore_rejects_relabelled_duplicate_alternatives(tmp_path):
     assert project_architecture_inquiry(store)["status"] == "awaiting_host_agent"
 
 
-def test_explore_rejects_alternatives_that_change_the_same_causal_variable(tmp_path):
+def test_explore_accepts_same_axis_when_operating_rules_and_consequences_genuinely_differ(tmp_path):
     store = seeded_store(tmp_path)
     pending = prepare_architecture_inquiry(store, intent(store, operation="explore"))
-    same_dial = _result([
-        _hypothesis("Communal ledger", "social_scale"),
-        _hypothesis("Delegated cost", "social_scale"),
+    completed = complete_architecture_inquiry(store, packet(pending, _result([
+        {"title": "Renewal-bound debt", "divergence_axis": "causal_engine",
+         "description": "A memory is returned only if the same resident renews the survey each season."},
+        {"title": "Fixed tithe per survey", "divergence_axis": "causal_engine",
+         "description": "Every survey takes a fixed, non-recoverable share of memories from the whole district."},
+    ])))
+    assert completed["status"] == "ready"
+    assert [h["divergence_axis"] for h in completed["result"]["hypotheses"]] == ["causal_engine", "causal_engine"]
+
+
+def test_explore_rejects_identical_descriptions_even_under_distinct_titles(tmp_path):
+    store = seeded_store(tmp_path)
+    pending = prepare_architecture_inquiry(store, intent(store, operation="explore"))
+    same_words = _result([
+        {"title": "Restorative knowledge", "divergence_axis": "causal_engine",
+         "description": "Discovery restores shared understanding for the whole district."},
+        {"title": "Consolation without knowledge", "divergence_axis": "reader_emotion",
+         "description": "  discovery restores  shared understanding for the whole DISTRICT. "},
     ])
-    with pytest.raises(ValueError, match="distinct divergence_axis"):
-        complete_architecture_inquiry(store, packet(pending, same_dial))
+    with pytest.raises(ValueError, match="distinct descriptions"):
+        complete_architecture_inquiry(store, packet(pending, same_words))
     assert project_architecture_inquiry(store)["status"] == "awaiting_host_agent"
 
 
@@ -93,10 +110,11 @@ def test_explore_requires_each_alternative_to_declare_its_divergence_axis(tmp_pa
     store = seeded_store(tmp_path)
     pending = prepare_architecture_inquiry(store, intent(store, operation="explore"))
     undeclared = _result([
-        {"title": "Restorative knowledge", "description": "A distinct causal mechanism."},
-        _hypothesis("Consolation without knowledge", "reader_emotion"),
+        {"title": "Restorative knowledge", "description": "Discovery restores shared understanding."},
+        _hypothesis("Consolation without knowledge", "reader_emotion",
+                    "The community keeps comfort instead of the record of the loss."),
     ])
-    with pytest.raises(ValueError, match="distinct divergence_axis"):
+    with pytest.raises(ValueError, match="divergence_axis"):
         complete_architecture_inquiry(store, packet(pending, undeclared))
 
 

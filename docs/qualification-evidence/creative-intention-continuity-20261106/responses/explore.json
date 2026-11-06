@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "analysis": "Three mechanisms keep the recorded wonder-to-dread movement while changing different things about how the cost works. The recorded link engine_drives_cost turns every discovery into a personal loss, and the magical_map_instantiates link says the map is the instrument. The alternatives differ in recovery conditions, consent and disclosure, not in labels. They are interpretations of a working proposal, not recorded story facts.",
+  "recorded_observations": [
+    {
+      "kind": "node",
+      "id": "memory_economy",
+      "claim": "Recorded summary: every accurate survey transfers a memory out of a person into the map, so knowledge is always paid for by someone."
+    },
+    {
+      "kind": "link",
+      "id": "engine_drives_cost",
+      "claim": "Recorded function: memory_economy to cost_escalation, turns every discovery into a personal loss."
+    },
+    {
+      "kind": "link",
+      "id": "magical_map_instantiates",
+      "claim": "Recorded function: magical_map to memory_economy, gives the economy a concrete instrument whose rules can be varied."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Renewal-bound debt",
+      "divergence_axis": "causal_engine",
+      "description": "A memory is returned only if the same resident renews the survey each season. If they cannot, the debt passes to their family line. Operating rule: recovery is conditional and renewable. Consequence: dread shifts from sudden erasure to an obligation that children inherit, and hope depends on someone choosing to renew rather than on a single act of mercy."
+    },
+    {
+      "title": "Consent ledger",
+      "divergence_axis": "social_scale",
+      "description": "Each contributor must consent per survey, and a refusal is recorded and honoured, so the archive grows thin exactly where people refused. Operating rule: the payer decides each time. Consequence: dread becomes civic and uneven, and the mystery must work around honest gaps rather than a single hidden crime."
+    },
+    {
+      "title": "Concealed cost",
+      "divergence_axis": "reader_emotion",
+      "description": "The cost is paid but never announced in the city; the reader infers it from names that stop appearing and from records that do not add up. Operating rule: disclosure, not allocation. Consequence: dread comes from inference, so the first erasure lands as a pattern the reader notices before the surveyor does."
+    }
+  ],
+  "uncertainties": [
+    "The candidate does not record who currently pays for the Guild's surveys, so each alternative changes an unrecorded fact.",
+    "Reader effects are interpretations of intended effects and must be tested against drafted material."
+  ]
+}

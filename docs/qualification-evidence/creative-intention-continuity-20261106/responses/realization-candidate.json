@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "summary": "A scene possibility in which the surveyor learns that her family owes a renewal she was never told about.",
+  "elements": [
+    {
+      "id": "scene_renewal_notice",
+      "kind": "scene",
+      "title": "The renewal notice in the archive margin",
+      "description": "While checking a map against the founding archive, the surveyor finds a renewal clause naming her grandmother. The clause is not a punishment and not a revelation: it is a dated obligation she can either renew, at the cost of a memory she has not yet chosen, or let pass to the next household. The scene stages dread through bureaucratic detail and the ordinary way a family discusses what it can afford to remember.",
+      "scope": "whole_story",
+      "architecture_refs": ["memory_economy", "renewal_obligation"],
+      "anchor_refs": ["emotion_target:dread", "link:engine_drives_cost"]
+    },
+    {
+      "id": "arc_renewal_choice",
+      "kind": "plot_arc",
+      "title": "The debt that can be refused",
+      "description": "Across the middle of the book, the surveyor's household rehearses whether to renew. Each attempt to settle the obligation produces a small, concrete loss, and the family's disagreement shows the truth-mercy dilemma as a household argument rather than a civic one.",
+      "scope": "whole_story",
+      "architecture_refs": ["cost_escalation", "truth_mercy_dilemma"],
+      "anchor_refs": ["link:engine_drives_cost"]
+    }
+  ],
+  "links": [
+    {
+      "id": "notice_leads_to_council",
+      "source": "scene_renewal_notice",
+      "target": "arc_renewal_choice",
+      "function": "turns the discovery of the clause into a recurring household decision"
+    }
+  ],
+  "architecture_feedback": [],
+  "open_questions": [
+    "Who in the household is allowed to renew on the surveyor's behalf?",
+    "Does the story show a renewal that succeeds without a cost the family regrets?"
+  ]
+}

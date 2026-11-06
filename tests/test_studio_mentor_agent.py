@@ -171,9 +171,13 @@ def test_disclosed_working_sources_are_the_only_citable_canvas_sources(tmp_path)
     snapshot = _context(store, "hero", "working")
     seen = snapshot["context"]["working_ideas"]
     assert len(seen) == 10
+    assert seen[0]["id"] == "hero" and seen[0]["selection_reason"] == "focus"
+    assert snapshot["context"]["omitted_working_item_count"] == 4
     assert "canvas/items/hero" in snapshot["allowed_refs"]
     assert "canvas/items/story-vision" in snapshot["allowed_refs"]
-    assert "canvas/items/extra-12" not in snapshot["allowed_refs"]
+    # Relevance-first disclosure: the newest kept material is visible, the oldest is reported omitted.
+    assert "canvas/items/extra-12" in snapshot["allowed_refs"]
+    assert "canvas/items/extra-0" not in snapshot["allowed_refs"]
     assert len([r for r in snapshot["allowed_refs"] if r.startswith("canvas/items/")]) == 11
 
 
