@@ -1,6 +1,6 @@
 /* Persistent contextual creative-agent panel; requests are explicit and source-labeled. */
 (function(global){'use strict';
- function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative}={}){
+ function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative,onRealize}={}){
   if(!root||typeof onAction!=='function'||typeof onRevise!=='function')throw Error('Creative panel requires callbacks');
   const doc=root.ownerDocument||document,make=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e};
   let anchors=[],actions=[],operation='explore';
@@ -21,7 +21,9 @@
   const lineage=make('section');lineage.setAttribute('aria-label','Superseded creative exchanges');
   const result=make('section');result.setAttribute('aria-label','Inquiry result');
   const clear=make('button','Clear graph selection');clear.type='button';
-  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
+  const realize=make('button','Develop Story Realization from this meaning');realize.type='button';
+  realize.hidden=typeof onRealize!=='function';realize.disabled=true;
+  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,realize,clear);
   const agentOperations=new Set(['explain','challenge','explore','compare','connect_to_ask']);
   function updateSubmit(){const isRevision=operation==='revise';submit.textContent=isRevision?'Request holistic revision':
     agentOperations.has(operation)?'Ask coding agent (no revision)':operation==='trace'?'Trace recorded relationships':'Inspect recorded source';}
@@ -30,6 +32,7 @@
     b.setAttribute('aria-pressed',String(operation===a.operation));b.title=a.description||'';
     b.addEventListener('click',()=>choose(a.operation));menu.append(b);}}
   function setSelection(next,available){anchors=next.slice();actions=(available||[]).slice();
+    realize.disabled=!anchors.length;
     chips.replaceChildren();for(const a of anchors){const item=make('span',a.kind+' · '+a.id+(a.field?' / '+a.field:''));
       item.title=a.sourceRef||'Source reference will be verified on the server';item.className='creative-anchor-chip';chips.append(item)}
     if(!actions.some(a=>a.operation===operation))operation=actions.find(a=>agentOperations.has(a.operation))?.operation||actions[0]?.operation||'explore';
@@ -42,7 +45,8 @@
     else if(onAction)onAction(payload);
   });
   complete.addEventListener('click',()=>{try{if(onComplete)onComplete(JSON.parse(response.value));}catch(error){status.textContent='Response JSON could not be read: '+error.message;}});
-  clear.addEventListener('click',()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();if(onClear)onClear();});
+  realize.addEventListener('click',()=>{if(anchors.length&&onRealize)onRealize({anchors:anchors.slice()});});
+  clear.addEventListener('click',()=>{anchors=[];actions=[];realize.disabled=true;chips.replaceChildren();menu.replaceChildren();if(onClear)onClear();});
   function chooseAlternative(hypothesisId,inquirySha){
     if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;
@@ -111,7 +115,7 @@
   }
   function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
   updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setAuthorText:text=>{instruction.value=text},
-    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
+    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];realize.disabled=true;chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();lineage.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }
  global.AuteurStudioCreativePanel={createCreativePanel};
