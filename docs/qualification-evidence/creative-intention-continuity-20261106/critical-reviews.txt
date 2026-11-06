@@ -1,0 +1,15 @@
+Independent fresh-context reviews (recorded verbatim; each reviewer read only the named artifact)
+
+1) Explore-alternative divergence review — input: responses/explore.json
+
+VERDICT: PARTLY-RENAMED. Weakest pair is concealed cost against the recorded mechanism: it hides the same transfer instead of changing who pays or how recovery works. The most important unexamined consequence is that every variant recasts the surveyor from solver of one hidden crime into administrator or beneficiary of an inherited system, shifting the climax and moral question with no hypothesis tracing that.
+
+2) Realization-scene review — input: responses/realization-candidate.json
+
+VERDICT: CONCRETE-AND-GROUNDED. The scene uses dread and the engine-drives-cost link as tonal and causal guidance, not as established events; the anchors inform staging rather than being narrated as prior occurrences. First risk to check: the bureaucratic renewal notice may read as worldbuilding exposition rather than genuine dread, so verify the clause's domestic cost lands before the archive detail does.
+
+3) Fresh-agent recovery — input: recovery-brief.txt only (no conversation history)
+
+The working direction is a literary mystery where accurate maps cost memories returned only through licensed, refusable renewal, turning coastal wonder into inherited dread and conditional hope. Of the listed author-directed intentions, renewal-debt is the only one and is withdrawn, so it is historical, not current authority; no current authoritative intention is recorded. Adopted: h1 Renewal-bound debt, from the superseded-baseline "current/explore" exchange (inquiry a886b8c972b3, request 73b95d1b5116). Valid next: resolve an open question, such as who may renew on another's behalf. Invalid: applying the pending_review/challenge revision, which is explicitly not to be applied.
+
+Note on review 3: the packet contained no pending revision at that point, so the stated invalid action was over-cautious rather than wrong; the recovered direction, statuses and provenance were all correct. This is comprehension evidence, not a human usability result.

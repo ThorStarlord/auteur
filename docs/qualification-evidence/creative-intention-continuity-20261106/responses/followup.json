@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "analysis": "The referent is present in this request: the earlier explore answer lists h1 Renewal-bound debt, whose operating rule is that a memory returns only if the same resident renews each season, with the debt passing to the family line otherwise. To keep inherited debt tragic rather than punitive, three questions must stay unresolved on the page. First, whether anyone can renew on another person's behalf, and at what cost to their own record. Second, whether a refusal is honoured when the refusal itself endangers the household. Third, whether a returned memory is the same memory or a reconstruction that the family accepts as true. If the story answers all three early, the debt becomes a rule to be obeyed and the dread turns into punishment. If it keeps them contested, dread stays inside the family's own reasoning about obligation.",
+  "recorded_observations": [
+    {"kind": "emotion_target", "id": "dread", "claim": "Recorded intended effect: mounting dread as each accurate map costs an intimate memory; elicited by a familiar person or place becoming slightly less remembered."},
+    {"kind": "node", "id": "cost_escalation", "claim": "Recorded summary: each act of discovery costs a more personal memory, moving the mystery into the surveyor's identity. Inheritance would extend that movement across generations."},
+    {"kind": "node", "id": "truth_mercy_dilemma", "claim": "Recorded dilemma: an accurate record that wounds against a merciful omission that protects belonging. Renewal conditions determine which horn a family actually faces."}
+  ],
+  "hypotheses": [],
+  "uncertainties": [
+    "The candidate does not record whether memories can be renewed, transferred or reconstructed, so the answer depends on an unrecorded rule.",
+    "Whether readers experience inherited obligation as tragic or punitive is not established by any recorded field."
+  ]
+}

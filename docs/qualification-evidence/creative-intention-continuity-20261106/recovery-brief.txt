@@ -1,0 +1,31 @@
+RECOVERY BRIEF (read-only packet from python -m auteur.beginner.studio_architecture resume)
+architecture_status: ready
+candidate_request_sha256: 0319ff3452d79fc67e8f3204a9493c40d5a2a408ec9489677fb53113b9d0f249
+pending_request_sha256: None
+
+CURRENT WORKING ARCHITECTURE SUMMARY:
+A literary mystery in which every accurate map takes a memory that returns only through a licensed renewal, so knowledge is a debt that can be inherited and a permission that can be refused. Wonder at the coast becomes dread as the cost moves through the surveyor's family line; hope depends on a renewal someone could refuse or be denied.
+
+OPEN QUESTIONS:
+- Whose memory should the final record preserve, and who decides?
+- Is the Guild's lie ever defensible as mercy, or only as control?
+- Should the city's founding crime be public knowledge or a private grief?
+- How much of the surveyor's own past may the story erase before she is no longer the same person?
+- Who may renew a memory on another person's behalf, and at what cost?
+- Is a returned memory the same memory, or a reconstruction the family accepts?
+- Can a family appeal a Guild refusal to renew?
+
+AUTHOR-DIRECTED CREATIVE INTENTIONS (status is current authority):
+- renewal-debt [withdrawn] Renewal-bound restorative discovery: Discovery should become restorative through chosen renewal: keep the wonder-to-dread movement, but let hope depend on someone renewing a debt they could refuse. (source canvas/items/renewal-debt; provenance {"request_sha": "a886b8c972b3032c65a232d333a31f652a0d5e09a6528cd32a32d2b9bd6f433e", "source_ref": "h1", "source_kind": "creative_alternative", "focus_id": "memory_economy"})
+
+ADOPTED CREATIVE DECISIONS (lineage, newest first):
+- h1 Renewal-bound debt adopted in request 73b95d1b5116 from inquiry a886b8c972b3 operation explore
+
+EARLIER EXCHANGES ON SUPERSEDED BASELINES (historical, not current prompt context):
+- [pending_review/challenge] Does this revision strengthen the intended emotional experience, or does it introduce new problems? Consider the wonder-to-dread movement, the conditional hope, and whether inherited debt makes the truth-mercy dilemma clearer or merely punishes a family. Do not apply the revision. :: h1 Inheritance as theme
+- [current/explain] Take the renewal-bound debt alternative: a memory returns only if the same resident renews the survey each season. What must the story keep unresolved so that inherited debt reads as a tragic obligation rather than a simple punishment? ::
+- [current/explore] Keep the wonder-to-dread movement and the conditional hope. The recorded relation says the memory economy turns every discovery into a personal loss. Give me materially different mechanisms by which that cost could be borne or returned, each changing its operating rules and consequences rather than its name. :: h1 Renewal-bound debt, h2 Consent ledger, h3 Concealed cost
+
+CURRENT-BASELINE EXCHANGES:
+0
+MENTOR ADVICE PRESENT: False

@@ -8,6 +8,14 @@
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
+## 2026-11-06 Creative intention continuity and narrative realization (experimental)
+
+Assessment: [docs/research/2026-11-06-creative-intention-continuity-assessment.md](docs/research/2026-11-06-creative-intention-continuity-assessment.md); evidence: [docs/qualification-evidence/creative-intention-continuity-20261106/](docs/qualification-evidence/creative-intention-continuity-20261106/).
+
+Built on the existing owners: adoption lineage across the revision chain; author-directed continuing intentions on the working canvas (provisional/active/superseded/withdrawn) with provenance, disclosed in architecture and Mentor packets and recovered by resume; intentions bind in-flight requests but do not invalidate the applied architecture; explore no longer requires pairwise-distinct axes and rejects identical descriptions; browser inquiry state refreshes on baseline change and shows superseded lineage; Mentor disclosure is bounded and relevance-first; typed Realization anchors carry emotional/relational meaning; pending-review inquiries can examine an un-applied revision without applying it.
+
+**Evidence ceiling:** 182 focused Python tests and 863 beginner-wide tests passed (1 skipped) on the final code; Studio Node 181/183 with 2 failures reproduced at HEAD `0d7e06e3` as a known Quick Draft baseline. The connected journey used a fixture-admitted architecture, coordinator-authored creative answers and simulated author decisions, plus three fresh-context critics (divergence, scene grounding, recovery). **Not established:** human author usefulness, independent full-journey generation, intention-management UI, supersession pointers between intentions, and release/default qualification. The deterministic divergence rule cannot detect semantic renamings; the critic remains necessary.
+
 ## 2026-11-06 Connected Creative Thread — bounded creative-deliberation continuity (experimental)
 
 Authentic exercise and evaluation: [docs/research/2026-11-06-connected-creative-thread-evaluation.md](docs/research/2026-11-06-connected-creative-thread-evaluation.md); evidence: [docs/qualification-evidence/creative-deliberation-20261106/](docs/qualification-evidence/creative-deliberation-20261106/).
