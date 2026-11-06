@@ -105,7 +105,7 @@
     });
     syncInquiryHistory();
   }
-  var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null;
+  var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null, inquiryRefreshGeneration = 0;
   // Refreshes this source's exchanges when the canvas OR the architecture baseline changes.
   // A stale baseline must never keep offering alternatives that the server will reject.
   function syncInquiryHistory() {
@@ -114,16 +114,24 @@
     if (inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
     var changedBaseline = inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline !== baseline;
     inquiryLoadedCanvas = canvasId; inquiryLoadedBaseline = baseline;
+    var requestGeneration = ++inquiryRefreshGeneration;
     if (changedBaseline) {
       if (creativePanel.invalidateResult) creativePanel.invalidateResult();
       creativePanel.setStatus({status: "refreshing"});
     }
     fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/architecture/inquiry")
       .then(apiJson).then(function (projection) {
-        if (remote.canvasId !== canvasId || !creativePanel) return;
+        if (remote.canvasId !== canvasId || state.architectureRequestSha !== baseline ||
+            requestGeneration !== inquiryRefreshGeneration || !creativePanel) return;
         if (projection.result) creativePanel.setInquiryResult(projection);
         else creativePanel.setStatus(projection);
-      }).catch(function () {});
+      }).catch(function (error) {
+        if (remote.canvasId !== canvasId || state.architectureRequestSha !== baseline ||
+            requestGeneration !== inquiryRefreshGeneration) return;
+        inquiryLoadedCanvas = null; inquiryLoadedBaseline = null;
+        if (creativePanel) creativePanel.setStatus({status:"error"});
+        status("Could not refresh creative inquiry; retry after refresh: " + error.message);
+      });
   }
   function buildRevisionIntent(anchors, authorText) {
     return {

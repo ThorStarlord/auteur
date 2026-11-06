@@ -21,7 +21,8 @@ from auteur.host_agent import (
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
 from .studio_store import CanvasStore
 from .studio_architecture import (
-    _candidate as architecture_current, _current_candidate_is_stale, _digest, _read, _source,
+    _bounded_intention_guidance, _candidate as architecture_current,
+    _current_candidate_is_stale, _digest, _read, _source,
 )
 from .studio_architecture_graph_intent import GraphAnchor, resolve_anchors
 
@@ -104,6 +105,12 @@ replace architecture_refs: every concrete element still references existing
 architecture node IDs.
 If an abstract focus has multiple plausible realizations, offer them as
 provisional alternatives or open questions, not accepted story facts.
+creative_intentions, when present, are noncanonical author-directed guidance.
+Preserve active intentions or openly explain any artistic conflict and propose
+a compatible option; an author must explicitly approve a replacement. Treat
+provisional intentions as possibilities, not obligations. Superseded and withdrawn
+intentions are historical, never binding. Do not equate an intention with accepted
+Story Identity or invent facts to satisfy it.
 Keep link function labels within 120 characters.
 Do not assume a specific realization has already been accepted or exists in canon.
 If concrete discoveries suggest changing the governing architecture, put them
@@ -147,6 +154,7 @@ def _anchor_views(candidate: dict, anchors: list[dict]) -> list[dict]:
 def _source_snapshot(
     store: CanvasStore, focus_ids: list[str], previous: dict | None,
     *, source_format: int = 2, anchors: list[dict] | None = None,
+    include_intentions: bool = False,
 ) -> dict:
     architecture = architecture_current(store)
     if not architecture:
@@ -169,6 +177,17 @@ def _source_snapshot(
     }
     if anchors:
         result["creative_anchors"] = anchors
+    if include_intentions:
+        focus = tuple(focus_ids) + tuple(
+            anchor.get("id", "") for anchor in (anchors or [])
+        )
+        guidance = _bounded_intention_guidance(
+            store, statuses=("active", "provisional"), focus_ids=focus,
+            max_items=8, max_characters=4800,
+        )
+        result["intention_context_version"] = 1
+        result["creative_intentions"] = guidance["items"]
+        result["omitted_creative_intention_count"] = guidance["omitted_count"]
     if source_format == 2:
         dropped_items = working["working_items"][12:]
         omitted = working["omitted_working_item_count"] + len(dropped_items)
@@ -201,6 +220,23 @@ def _diff(old: dict, new: dict) -> dict:
     return result
 
 
+def _anchor_coverage(candidate: dict, source: dict) -> dict | None:
+    """Citation coverage is not evidence that the narrative mechanism succeeds."""
+    selected = [row["ref"] for row in source.get("creative_anchors", [])]
+    if not selected:
+        return None
+    used = {
+        ref for element in candidate.get("elements", [])
+        for ref in element.get("anchor_refs", [])
+    }
+    return {
+        "selected": selected,
+        "cited": [ref for ref in selected if ref in used],
+        "uncited": [ref for ref in selected if ref not in used],
+        "authority": "citation_coverage_not_narrative_quality",
+    }
+
+
 def project_realization(store: CanvasStore) -> dict:
     store.load()
     pointer = _read(_root(store) / "latest_request.json")
@@ -224,10 +260,19 @@ def project_realization(store: CanvasStore) -> dict:
                 store, original["focus_ids"], original["previous_realization"],
                 source_format=_source_format(original),
                 anchors=original.get("creative_anchors"),
+                include_intentions=original.get("intention_context_version") == 1,
             )
             stale = _digest(latest) != current["source_sha256"]
         except ValueError:
             stale = True
+    coverage = None
+    represented = review if review else current
+    if represented:
+        source_request = load_host_agent_request(
+            _root(store) / "requests" / represented["request_sha256"] / "request.json"
+        )
+        original = json.loads(source_request.user)["source"]
+        coverage = _anchor_coverage(represented["candidate"], original)
     return {
         "status": "review_ready" if review else "awaiting_host_agent" if pending
                   else "stale" if stale else "ready" if current else "not_started",
@@ -235,6 +280,7 @@ def project_realization(store: CanvasStore) -> dict:
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
         "review": review,
+        "creative_anchor_coverage": coverage,
     }
 
 
@@ -260,7 +306,10 @@ def prepare_realization(
             _anchor_views(architecture["candidate"], anchors)
             if anchors and architecture else None
         )
-        context = _source_snapshot(store, focus_ids or [], previous, anchors=anchor_views)
+        context = _source_snapshot(
+            store, focus_ids or [], previous, anchors=anchor_views,
+            include_intentions=True,
+        )
         sha = _digest(context)
         user = json.dumps({"source": context, "revision_instruction": instruction},
                           sort_keys=True, ensure_ascii=False)
@@ -314,6 +363,7 @@ def complete_realization(store: CanvasStore, payload: dict) -> dict:
             store, original_source["focus_ids"], previous,
             source_format=_source_format(original_source),
             anchors=original_source.get("creative_anchors"),
+            include_intentions=original_source.get("intention_context_version") == 1,
         )
         if _digest(source) != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
@@ -357,6 +407,7 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
             store, source["focus_ids"], current["candidate"],
             source_format=_source_format(source),
             anchors=source.get("creative_anchors"),
+            include_intentions=source.get("intention_context_version") == 1,
         )) != request.settings["source_sha256"]:
             raise BeginnerConcurrencyError("architecture or working source changed; review again")
         _atomic_json_write(_root(store) / "current.json", {
