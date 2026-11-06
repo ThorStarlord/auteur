@@ -72,9 +72,12 @@ def test_browser_can_keep_withdraw_and_supersede_author_intentions(tmp_path):
         assert new["status"] == "active"
         assert project_architecture(store)["status"] == "ready"
     finally:
-        if page: page.close()
-        if browser: browser.close()
-        if playwright: playwright.stop()
+        if page:
+            page.close()
+        if browser:
+            browser.close()
+        if playwright:
+            playwright.stop()
         server.stop()
 
 
@@ -122,7 +125,10 @@ def test_browser_prepares_and_validates_read_only_pending_review_critique(tmp_pa
         assert project_architecture(store)["status"] == "review_ready"
         assert project_architecture(store)["candidate"]["summary"] == first["summary"]
     finally:
-        if page: page.close()
-        if browser: browser.close()
-        if playwright: playwright.stop()
+        if page:
+            page.close()
+        if browser:
+            browser.close()
+        if playwright:
+            playwright.stop()
         server.stop()

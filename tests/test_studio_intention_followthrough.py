@@ -143,6 +143,6 @@ def test_intention_successor_graph_is_atomic_unique_and_acyclic():
             [("next", "old"), ("old", "next")],
         )
     with pytest.raises(ValueError, match="two existing intentions"):
-        canvas([("old", "superseded")], [("missing", "old")])
+        canvas([("old", "superseded"), ("ordinary", None)], [("ordinary", "old")])
     with pytest.raises(ValueError, match="superseded status"):
         canvas([("old", "active"), ("next", "active")], [("next", "old")])
