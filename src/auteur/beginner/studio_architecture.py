@@ -249,6 +249,33 @@ def _candidate(store: CanvasStore) -> dict | None:
 
 _PROVISIONAL_CONCEPT_GROUP = "provisional-concepts"
 _MAX_PROVISIONAL_CONCEPT_ITEMS = 16
+_INTENTION_DIRECTIVE_LIMIT = 2000
+
+
+def _intention_view(item, *, excerpt: bool = False) -> dict:
+    """Author-directed continuing intention; working authority, never accepted canon."""
+    entry = {
+        "id": item.id,
+        "title": item.title,
+        "status": item.intention_status,
+        "directive": item.content[:_INTENTION_DIRECTIVE_LIMIT] if excerpt else item.content,
+        "source_ref": "canvas/items/" + item.id,
+        "authority": "author_directed_working_intention",
+    }
+    if excerpt:
+        entry["directive_characters"] = len(item.content)
+        entry["directive_is_excerpt"] = len(item.content) > _INTENTION_DIRECTIVE_LIMIT
+    if item.proposal_origin is not None:
+        entry["provenance"] = item.proposal_origin.model_dump(mode="json")
+    return entry
+
+
+def _creative_intentions(store: CanvasStore) -> list[dict]:
+    return [
+        _intention_view(item)
+        for item in store.load().items
+        if item.intention_status is not None
+    ]
 
 
 def _source(
@@ -264,9 +291,13 @@ def _source(
     if source_format not in (1, 2):
         raise ValueError("unsupported Studio working-source format")
     canvas = store.load()
+    intention_items = [
+        item for item in canvas.items if item.intention_status is not None
+    ]
     all_items = [
         item for item in canvas.items
         if item.id != "story-vision" and item.group != _PROVISIONAL_CONCEPT_GROUP
+        and item.intention_status is None
     ]
     provisional_items = [
         item for item in canvas.items if item.group == _PROVISIONAL_CONCEPT_GROUP
@@ -327,12 +358,29 @@ def _source(
             result["omitted_working_connections_sha256"] = _digest([
                 edge.model_dump(mode="json") for edge in excluded_edges
             ])
+        if intention_items:
+            # Author-directed intentions are always disclosed with their current status, never
+            # silently filtered by recency. They bind in-flight requests through intention_sha256
+            # without invalidating the applied candidate.
+            result["creative_intentions"] = [
+                _intention_view(item, excerpt=True) for item in intention_items
+            ]
     return result
 
 
+def _intention_fingerprint(store: CanvasStore) -> str:
+    """Author-directed intentions bind in-flight requests without invalidating the applied candidate.
+
+    An intention is guidance for the next revision, not evidence that the current architecture is wrong,
+    so it never blocks realization. A pending request built while intentions differed is still stale.
+    """
+    return _digest(_creative_intentions(store))
+
+
 def _author_working_context(working: dict) -> dict:
-    """Strip agent-proposed provisional notes from the author-source fingerprint."""
+    """Strip agent-proposed provisional notes and continuing intentions from the author-source fingerprint."""
     filtered = dict(working)
+    filtered.pop("creative_intentions", None)
     filtered["working_items"] = [
         item for item in working.get("working_items", [])
         if item.get("group") != _PROVISIONAL_CONCEPT_GROUP
@@ -547,6 +595,11 @@ omitted_working_* counts to distinguish visible evidence from missing text.
 Working items in group "provisional-concepts" are project-scoped agent proposals,
 not shared ontology definitions and not author commitments. Reuse them for this
 story provisionally; never present them as accepted general vocabulary.
+creative_intentions are the author's own continuing creative directions. They are
+working and noncanonical: active and provisional intentions direct the current
+design work, while superseded and withdrawn intentions are history and must not be
+treated as current direction. An intention never authorizes accepting canon,
+rewriting accepted Identity, or inventing concrete story facts.
 A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
 For manuscript-first input, cite working item IDs in relevant summaries and
 open questions. Separate observed prose from alternative interpretations;
@@ -728,6 +781,37 @@ def _resume_ontology_guidance(
     return {**current, "origin": "current_derived", "request_sha256": None}
 
 
+def _adoption_lineage(store: CanvasStore, current: dict | None) -> list[dict]:
+    """Every alternative an author adopted along the current revision chain, newest first.
+
+    Each applied revision records its prior request SHA, so the decisions that produced the current
+    working architecture are recoverable without a second store. A later unrelated revision therefore
+    does not erase the visibility of an earlier adopted direction.
+    """
+    if not current:
+        return []
+    rows: list[dict] = []
+    sha = current.get("request_sha256")
+    seen: set[str] = set()
+    for _ in range(40):
+        if not isinstance(sha, str) or sha in seen:
+            break
+        seen.add(sha)
+        folder = _root(store) / "requests" / sha
+        try:
+            request = load_host_agent_request(folder / "request.json")
+        except (FileNotFoundError, ValueError):
+            break
+        submitted = json.loads(request.user).get("selected_creative_alternative")
+        if submitted:
+            rows.append({"adopted_in_request_sha256": sha, **submitted})
+        review = _read(folder / "review.json")
+        if not review or not review.get("prior_request_sha256"):
+            break
+        sha = review["prior_request_sha256"]
+    return rows
+
+
 def project_architecture_resume(store: CanvasStore) -> dict:
     """Read-only packet a fresh coding agent can use without chat history."""
     canvas = store.load()
@@ -781,7 +865,7 @@ def project_architecture_resume(store: CanvasStore) -> dict:
     )
     candidate = projection["candidate"]
     # Local imports avoid a circular module import: these owners import this module.
-    from .studio_architecture_inquiry import project_architecture_inquiry, superseded_history
+    from .studio_architecture_inquiry import project_architecture_inquiry
     from .studio_mentor import project_mentor
 
     inquiry = project_architecture_inquiry(store)
@@ -789,9 +873,7 @@ def project_architecture_resume(store: CanvasStore) -> dict:
     creative_deliberation = {
         "authority": "noncanonical_working_deliberation",
         "inquiry_history": inquiry.get("history", []),
-        "superseded_inquiry_history": superseded_history(
-            store, current["request_sha256"] if current else None,
-        ),
+        "superseded_inquiry_history": inquiry.get("superseded_history", []),
         "mentor_advice": (
             {
                 "focus_id": mentor["focus_id"],
@@ -807,12 +889,7 @@ def project_architecture_resume(store: CanvasStore) -> dict:
             if mentor.get("status") == "awaiting_host_agent" and mentor.get("request") else None
         ),
     }
-    adopted = (
-        json.loads(load_host_agent_request(
-            _root(store) / "requests" / current["request_sha256"] / "request.json"
-        ).user).get("selected_creative_alternative")
-        if current else None
-    )
+    adoption_lineage = _adoption_lineage(store, current)
     return {
         "kind": "studio_architecture_resume",
         "authority": "working_noncanonical",
@@ -832,7 +909,10 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         "source_visibility": source_visibility,
         "provisional_concepts": _provisional_concepts(store),
         "creative_deliberation": creative_deliberation,
-        "adopted_creative_alternative": adopted,
+        # Most recent adoption along the current revision chain; earlier ones remain in the lineage.
+        "adopted_creative_alternative": adoption_lineage[0] if adoption_lineage else None,
+        "creative_adoption_lineage": adoption_lineage,
+        "creative_intentions": _creative_intentions(store),
     }
 
 
@@ -887,6 +967,8 @@ def prepare_architecture(
             typed_intent = GraphIntent.model_validate(graph_intent)
             if typed_intent.operation != "revise":
                 raise ValueError("only an explicit Revise action may prepare a working architecture")
+            if typed_intent.target != "current":
+                raise ValueError("a revision must target the current working architecture")
             if typed_intent.canvas_id != store.canvas_id:
                 raise ValueError("graph intent belongs to another canvas")
             if typed_intent.author_text != instruction:
@@ -915,6 +997,7 @@ def prepare_architecture(
             "canvas_id": store.canvas_id,
             "source_sha256": source_sha,
             "design_guidance_sha256": guidance_sha,
+            "intention_sha256": _intention_fingerprint(store),
             "freshness_format": 2,
             "operation": "revise" if instruction.strip() else "develop",
         }
@@ -978,6 +1061,11 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             raise BeginnerConcurrencyError(
                 "the narrative design guidance changed; response retained as stale evidence"
             )
+        if settings.get("intention_sha256") and _intention_fingerprint(store) != settings["intention_sha256"]:
+            write_host_agent_response(base / "stale_response.json", response)
+            raise BeginnerConcurrencyError(
+                "the author's creative intentions changed; response retained as stale evidence"
+            )
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
         record = {
@@ -1033,12 +1121,16 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
                     or _digest(_design_context_parts(
                         store, _user_working_context(store, user),
                     )[1]) != settings["design_guidance_sha256"]
+                    or (
+                        settings.get("intention_sha256")
+                        and _intention_fingerprint(store) != settings["intention_sha256"]
+                    )
                 )
             else:
                 changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
             if changed:
                 raise BeginnerConcurrencyError(
-                    "working context changed: story vision or design context changed; review again"
+                    "working context changed: story vision, intentions or design context changed; review again"
                 )
             record = {
                 "request_sha256": request_sha256,
@@ -1051,6 +1143,16 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
         elif not current:
             raise ValueError("there is no current working architecture to revise")
     return project_architecture(store)
+
+
+def _free_position(canvas) -> dict:
+    taken = {(round(point.x), round(point.y)) for point in canvas.positions.values()}
+    for row in range(6):
+        for column in range(5):
+            slot = (40 + column * 260, 40 + row * 170)
+            if slot not in taken:
+                return {"x": slot[0], "y": slot[1]}
+    return {"x": 40, "y": 40}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1074,6 +1176,27 @@ def main(argv: list[str] | None = None) -> int:
         "--concept", required=True, help="Path to ProvisionalNarrativeConcept JSON",
     )
     record.add_argument("--command-id", default=None, help="Optional idempotency id")
+    keep = actions.add_parser(
+        "keep-intention", help="Record an author-directed continuing creative intention",
+    )
+    keep.add_argument("--id", default=None, help="Stable intention id; derived when omitted")
+    keep.add_argument("--title", required=True)
+    keep.add_argument("--directive-file", required=True, help="Author-written directive text")
+    keep.add_argument("--status", choices=("provisional", "active"), default="active")
+    keep.add_argument("--from-request", default=None,
+                      help="Request SHA of the adopted alternative this intention continues")
+    keep.add_argument("--source-ref", default=None,
+                      help="Recorded source reference inside that request, e.g. h2")
+    keep.add_argument("--focus-id", default=None)
+    revise = actions.add_parser(
+        "set-intention-status", help="Keep, supersede or withdraw an author-directed intention",
+    )
+    revise.add_argument("--id", required=True)
+    revise.add_argument(
+        "--status", required=True,
+        choices=("provisional", "active", "superseded", "withdrawn"),
+    )
+    actions.add_parser("intentions", help="Show author-directed creative intentions and status")
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     if args.action == "prepare":
@@ -1103,6 +1226,67 @@ def main(argv: list[str] | None = None) -> int:
             "canvas_id": store.canvas_id,
             "canvas_revision": updated.revision,
             "concept": concept.model_dump(mode="json"),
+        }
+    elif args.action == "keep-intention":
+        directive = Path(args.directive_file).read_text(encoding="utf-8").strip()
+        item = {
+            "id": args.id or "intention-" + _digest({"title": args.title, "directive": directive})[:12],
+            "kind": "note",
+            "title": args.title,
+            "group": "Creative intentions",
+            "content": directive,
+            "intention_status": args.status,
+        }
+        if args.from_request:
+            if not re.fullmatch(r"[0-9a-f]{64}", args.from_request):
+                raise ValueError("from-request must be a 64-character request SHA")
+            item["proposal_origin"] = {
+                "request_sha": args.from_request,
+                "source_ref": args.source_ref or "selected_alternative",
+                "source_kind": "creative_alternative",
+                "focus_id": args.focus_id or "architecture",
+            }
+        canvas = store.load()
+        command_id = "intention-" + _digest(item)[:16]
+        updated = store.apply(
+            "create-item", expected_revision=canvas.revision,
+            command_id=command_id, payload={"item": item, "position": _free_position(canvas)},
+        )
+        result = {
+            "status": "recorded",
+            "authority": "author_directed_working_intention",
+            "canvas_id": store.canvas_id,
+            "canvas_revision": updated.revision,
+            "intention": next(
+                entry for entry in _creative_intentions(store) if entry["id"] == item["id"]
+            ),
+        }
+    elif args.action == "set-intention-status":
+        canvas = store.load()
+        item = next((row for row in canvas.items if row.id == args.id), None)
+        if item is None or item.intention_status is None:
+            raise ValueError("creative intention not found")
+        updated_item = item.model_dump(mode="json")
+        updated_item["intention_status"] = args.status
+        command_id = "intention-status-" + _digest({"id": args.id, "status": args.status})[:16]
+        updated = store.apply(
+            "update-item", expected_revision=canvas.revision,
+            command_id=command_id, payload={"item": updated_item},
+        )
+        result = {
+            "status": args.status,
+            "authority": "author_directed_working_intention",
+            "canvas_id": store.canvas_id,
+            "canvas_revision": updated.revision,
+            "intention": next(
+                entry for entry in _creative_intentions(store) if entry["id"] == args.id
+            ),
+        }
+    elif args.action == "intentions":
+        result = {
+            "authority": "author_directed_working_intention",
+            "canvas_id": store.canvas_id,
+            "intentions": _creative_intentions(store),
         }
     else:
         result = project_architecture(store)

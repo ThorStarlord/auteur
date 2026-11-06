@@ -27,6 +27,7 @@ ArchitectureRole = Literal[
     "emotion", "trope", "structure", "genre", "premise", "theme", "conflict",
     "setting", "relationship", "other"
 ]
+CreativeIntentionStatus = Literal["provisional", "active", "superseded", "withdrawn"]
 
 
 class ProposalOrigin(BaseModel):
@@ -38,7 +39,7 @@ class ProposalOrigin(BaseModel):
     source_ref: str = Field(min_length=1, max_length=300, pattern=r"^[a-zA-Z0-9_./:-]+$")
     source_kind: Literal[
         "architecture_proposal", "genre_contract", "proposal_edge", "phase",
-        "host_agent_suggestion"
+        "host_agent_suggestion", "creative_alternative"
     ]
     focus_id: str = Field(min_length=1, max_length=120, pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$")
 
@@ -63,6 +64,15 @@ class CanvasItem(BaseModel):
     group: str = Field(default="", max_length=80)
     architecture_role: ArchitectureRole | None = None
     proposal_origin: ProposalOrigin | None = None
+    # Author-directed continuing creative intention. Working and noncanonical: never accepted story canon.
+    # A working note carries this field to distinguish present authority from superseded or withdrawn history.
+    intention_status: CreativeIntentionStatus | None = None
+
+    @model_validator(mode="after")
+    def valid_intention(self) -> "CanvasItem":
+        if self.intention_status is not None and not self.content.strip():
+            raise ValueError("a creative intention requires its author-directed directive text")
+        return self
 
 
 class CanvasConnection(BaseModel):

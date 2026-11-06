@@ -112,3 +112,12 @@ def test_completed_revision_stays_working_and_never_writes_story_identity(tmp_pa
     applied = apply_architecture_review(store, pending["request"]["request_sha256"])
     assert applied["candidate"]["summary"] == "Wonder carries more of the dread."
     assert not (store.project_root / "story_identity.yaml").exists()
+
+
+def test_revision_cannot_target_a_pending_review_proposal(tmp_path):
+    store = seeded_store(tmp_path)
+    intent = _intent(store)
+    intent["target"] = "pending_review"
+    with pytest.raises(ValueError, match="target the current working architecture"):
+        prepare_architecture(store, INSTRUCTION, intent)
+    assert project_architecture(store)["status"] == "ready"

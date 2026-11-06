@@ -19,7 +19,7 @@ from auteur.host_agent import (
     _atomic_json_write,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
-from .studio_architecture import _digest, _read, project_architecture
+from .studio_architecture import _digest, _intention_view, _read, project_architecture
 from .studio_store import CanvasStore
 
 
@@ -91,6 +91,9 @@ from candidate proposals, author working ideas, and your own hypotheses.
 Never claim accepted Identity exists: this Studio context has no accepted-Identity
 binding. Do not invent Genre Pack conventions or claim literary originality.
 Author statements are creative constraints to respect, not facts to overwrite.
+creative_intentions are the author's continuing directions: active and provisional
+ones are current, superseded and withdrawn ones are history and must not be treated
+as present direction.
 Offer meaningfully different causal mechanisms with concrete consequences,
 not lexical variations. One good direction is better than three redundant ones.
 Give useful constructive challenge only when warranted by source or intention;
@@ -105,7 +108,71 @@ def _root(store: CanvasStore) -> Path:
     return store.directory / "mentorship"
 
 
-def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
+_MENTOR_ITEM_LIMIT = 10
+_MENTOR_CONTENT_LIMIT = 700
+_MENTOR_TOTAL_CONTENT_LIMIT = 6000
+
+
+def _select_working_sources(canvas, *, focus_id: str, focus_kind: str, author_reply: str = "") -> dict:
+    """Bounded, deterministic, relevance-first disclosure of author working material.
+
+    Priority: the focused source, recorded relationships (canvas connections) and kept ideas whose
+    recorded origin is this focus, exact author references, recent kept ideas, then remaining material.
+    Newest first inside a priority. Every disclosed item records why it is present, and everything else
+    is reported as omitted rather than silently absent.
+    """
+    items = [
+        item for item in canvas.items
+        if item.id != "story-vision" and item.intention_status is None
+    ]
+    linked: set[str] = set()
+    if focus_kind == "working":
+        for edge in canvas.connections:
+            if edge.source == focus_id:
+                linked.add(edge.target)
+            elif edge.target == focus_id:
+                linked.add(edge.source)
+    reply = (author_reply or "").casefold()
+
+    def mentioned(item) -> bool:
+        title = item.title.strip().casefold()
+        return len(title) >= 6 and title in reply
+
+    def kept_for_focus(item) -> bool:
+        origin = item.proposal_origin
+        return bool(origin and origin.focus_id == focus_id)
+
+    ranked = []
+    for index, item in enumerate(items):
+        if focus_kind == "working" and item.id == focus_id:
+            rank, reason = 0, "focus"
+        elif kept_for_focus(item):
+            rank, reason = 1, "kept_for_focus"
+        elif item.id in linked:
+            rank, reason = 1, "recorded_relationship"
+        elif mentioned(item):
+            rank, reason = 2, "explicit_reference"
+        elif item.proposal_origin is not None:
+            rank, reason = 3, "recent_kept"
+        else:
+            rank, reason = 4, "other"
+        ranked.append((rank, -index, item, reason))
+    ranked.sort(key=lambda row: (row[0], row[1]))
+
+    selected, omitted, total = [], [], 0
+    for _rank, _order, item, reason in ranked:
+        content = item.content[:_MENTOR_CONTENT_LIMIT]
+        if len(selected) >= _MENTOR_ITEM_LIMIT or (
+            selected and total + len(content) > _MENTOR_TOTAL_CONTENT_LIMIT
+        ):
+            omitted.append(item)
+            continue
+        total += len(content)
+        selected.append((item, reason, content))
+    return {"selected": selected, "omitted": omitted}
+
+
+def _context(store: CanvasStore, focus_id: str, focus_kind: str, author_reply: str = "") -> dict:
     if focus_kind not in {"working", "candidate"}:
         raise ValueError("focus_kind must be working or candidate")
     if not isinstance(focus_id, str) or not re.fullmatch(r"[a-zA-Z0-9_.:-]{1,120}", focus_id):
@@ -130,13 +197,20 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
                  "details": chosen["summary"][:1000], "authority": "agent_candidate"}
     vision_item = next((i for i in canvas.items if i.id == "story-vision"), None)
     vision = vision_item.content if vision_item else ""
-    selected_working = [i for i in canvas.items if i.id != "story-vision"][:10]
-    working = [{"id": i.id, "title": i.title, "content": i.content[:360],
-                "authority": "author_working", "source_ref": "canvas/items/" + i.id}
-               for i in selected_working]
+    disclosure = _select_working_sources(
+        canvas, focus_id=focus_id, focus_kind=focus_kind, author_reply=author_reply,
+    )
+    working = [
+        {"id": item.id, "title": item.title, "content": content,
+         "authority": "author_working", "source_ref": "canvas/items/" + item.id,
+         "selection_reason": reason,
+         "content_characters": len(item.content),
+         "content_is_excerpt": len(item.content) > len(content)}
+        for item, reason, content in disclosure["selected"]
+    ]
     # Only cite material actually sent to the host: an undisclosed item ID is
     # not evidence for its content, even when that ID exists elsewhere on canvas.
-    allowed_refs = {"canvas/items/" + i.id for i in selected_working}
+    allowed_refs = {"canvas/items/" + row["id"] for row in working}
     if vision_item:
         allowed_refs.add("canvas/items/story-vision")
     if focus_kind == "working":
@@ -172,7 +246,13 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str) -> dict:
                "candidate_request_sha256": request_sha if candidate_ready else None,
                "candidate_status": architecture["status"], "focus_kind": focus_kind,
                "focus": focus, "author_story_vision": vision[:1600],
-               "working_ideas": working, "proposed_relations": related,
+               "creative_intentions": [
+                   _intention_view(item, excerpt=True) for item in canvas.items
+                   if item.intention_status is not None
+               ],
+               "working_ideas": working,
+               "omitted_working_item_count": len(disclosure["omitted"]),
+               "proposed_relations": related,
                "proposed_questions": questions,
                "accepted_identity_status": "not_bound",
                "genre_evidence_status": "not_evaluated"}
@@ -192,8 +272,10 @@ def project_mentor(store: CanvasStore) -> dict:
     payload = json.loads(request.user)
     result = _read(_root(store) / "requests" / sha / "response.json")
     try:
-        fresh = _context(store, request.settings["focus_id"],
-                         request.settings["focus_kind"])["source_sha256"] == request.settings["source_sha256"]
+        fresh = _context(
+            store, request.settings["focus_id"], request.settings["focus_kind"],
+            payload.get("author_reply", ""),
+        )["source_sha256"] == request.settings["source_sha256"]
     except ValueError:
         fresh = False
     return {"status": "stale" if not fresh else "ready" if result else "awaiting_host_agent",
@@ -242,7 +324,7 @@ def prepare_mentor(store: CanvasStore, focus_id: str, focus_kind: str,
     if not isinstance(author_reply, str) or len(author_reply) > 2000:
         raise ValueError("mentor author reply must contain at most 2000 characters")
     with _FilesystemLock(store._path(".canvas.lock")):
-        snapshot = _context(store, focus_id, focus_kind)
+        snapshot = _context(store, focus_id, focus_kind, author_reply)
         context = snapshot["context"]
         prior = _fresh_prior_exchange(store, focus_id, focus_kind, snapshot["source_sha256"])
         user = json.dumps({"mentor_purpose": purpose, "author_reply": author_reply,
@@ -279,7 +361,10 @@ def complete_mentor(store: CanvasStore, payload: dict) -> dict:
         advice = MentorAdvice.model_validate_json(response.text, strict=True)
         if advice.focus_id != request.settings["focus_id"]:
             raise ValueError("mentor response focus does not match request")
-        context = _context(store, request.settings["focus_id"], request.settings["focus_kind"])
+        context = _context(
+            store, request.settings["focus_id"], request.settings["focus_kind"],
+            json.loads(request.user).get("author_reply", ""),
+        )
         if context["source_sha256"] != request.settings["source_sha256"]:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError("story changed; mentor advice retained as stale evidence")

@@ -112,3 +112,28 @@ test('bridge sends the selected alternative as a server-validated snake_case fie
   await bridge.prepareRevision({anchors:[{kind:'node',id:'memory_economy'}],authorText:'Plain revision.'});
   assert.equal('selected_alternative' in calls[1].payload,false,'legacy revision payload is unchanged');
 });
+
+test('superseded exchanges are shown as historical lineage with no selectable alternatives',()=>{
+  const s=setupPanel();
+  const superseded=[{request_sha256:'f'.repeat(64),operation:'explore',
+    author_question:'What other mechanisms could drive the allocation?',
+    hypotheses:[{id:'h1',title:'Rotating stewardship'},{id:'h2',title:'Expiring claims'}]}];
+  s.panel.setStatus({status:'stale',history:[],superseded_history:superseded});
+  const lineage=walk(s.root,n=>n.attrs?.['aria-label']==='Superseded creative exchanges')[0];
+  assert.match(JSON.stringify(lineage),/superseded architecture/);
+  assert.match(JSON.stringify(lineage),/What other mechanisms could drive the allocation\?/);
+  assert.match(JSON.stringify(lineage),/h2 Expiring claims/);
+  assert.equal(walk(s.root,n=>n.dataset?.alternativeId).length,0,'historical alternatives are never selectable');
+});
+
+test('invalidating a stale result clears alternatives but keeps the author text',()=>{
+  const s=setupPanel();
+  s.panel.setInquiryResult(readyInquiry);
+  s.panel.setAuthorText('Adopt expiring claims.');
+  assert.equal(walk(s.root,n=>n.dataset?.alternativeId).length,2);
+  s.panel.invalidateResult();
+  assert.equal(walk(s.root,n=>n.dataset?.alternativeId).length,0);
+  assert.equal(s.panel.getAuthorText(),'Adopt expiring claims.');
+  const lineage=walk(s.root,n=>n.attrs?.['aria-label']==='Superseded creative exchanges')[0];
+  assert.equal(lineage.children.length,0);
+});

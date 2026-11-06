@@ -60,14 +60,18 @@ class GraphIntent(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
     version: Literal[1] = 1
     canvas_id: str = Field(min_length=1,max_length=160)
+    # current: the applied working architecture. pending_review: the un-applied revision proposal.
+    target: Literal['current','pending_review'] = 'current'
     operation: GraphOperation
     expected_candidate_request_sha256: str = Field(pattern=r'^[0-9a-f]{64}$')
-    anchors: list[GraphAnchor] = Field(min_length=1,max_length=3)
+    anchors: list[GraphAnchor] = Field(default_factory=list,max_length=3)
     author_text: str = Field(min_length=1,max_length=4000)
 
     @model_validator(mode='after')
     def check_intent(self):
         if not self.author_text.strip(): raise ValueError('author_text must not be blank')
+        if not self.anchors and self.target != 'pending_review':
+            raise ValueError('at least one graph anchor is required')
         if self.operation == 'connect_to_ask' and len(self.anchors) != 2:
             raise ValueError('connect_to_ask requires exactly two anchors')
         if self.operation == 'compare' and len(self.anchors) < 2:
@@ -141,13 +145,15 @@ def _between(candidate: dict, anchors:list[dict]) -> dict:
             relations.append(entry)
     return {'status':'recorded' if relations else 'no_recorded_relation','relations':relations}
 
-def resolve_graph_intent(candidate:dict,actual_candidate_request_sha256:str,intent:GraphIntent|dict) -> dict:
-    if not isinstance(intent,GraphIntent):intent=GraphIntent.model_validate(intent)
-    if intent.expected_candidate_request_sha256 != actual_candidate_request_sha256:
-        raise ValueError('current candidate request SHA mismatch')
+def resolve_anchors(candidate: dict, anchors: list[GraphAnchor]) -> list[dict]:
+    """Resolve validated typed anchors against one current candidate; pure and reusable.
+
+    Story Realization uses the same resolution so an emotional or relational anchor keeps one
+    source identity across graph inquiry, revision and concrete development.
+    """
     if candidate.get('schema_version')!=2:raise ValueError('ArchitectureCandidate v2 required')
-    anchors=[]
-    for anchor in intent.anchors:
+    resolved_list=[]
+    for anchor in anchors:
         coll,_=COLLECTIONS[anchor.kind]
         indexed=_index(candidate,anchor.kind)
         match=indexed.get(anchor.id)
@@ -170,8 +176,25 @@ def resolve_graph_intent(candidate:dict,actual_candidate_request_sha256:str,inte
                 raise ValueError('reference target not found in candidate')
             resolved['reference']={'kind':'recorded_reference','field':ref.field,
                 'target_kind':ref.target_kind,'target_id':ref.target_id}
-        anchors.append(resolved)
-    return dict(version=1,operation=intent.operation,canvas_id=intent.canvas_id,
+        resolved_list.append(resolved)
+    return resolved_list
+
+
+def resolve_intent_views(candidate: dict, anchors: list[GraphAnchor]) -> dict:
+    """Resolve anchors and their recorded relations against one candidate (current or proposed)."""
+    resolved = resolve_anchors(candidate, anchors)
+    return {"anchors": resolved,
+            "recorded_relations": _recorded_relations(candidate, resolved),
+            "between": _between(candidate, resolved)}
+
+
+def resolve_graph_intent(candidate:dict,actual_candidate_request_sha256:str,intent:GraphIntent|dict) -> dict:
+    if not isinstance(intent,GraphIntent):intent=GraphIntent.model_validate(intent)
+    if intent.expected_candidate_request_sha256 != actual_candidate_request_sha256:
+        raise ValueError('current candidate request SHA mismatch')
+    if candidate.get('schema_version')!=2:raise ValueError('ArchitectureCandidate v2 required')
+    anchors=resolve_anchors(candidate,intent.anchors)
+    return dict(version=1,target=intent.target,operation=intent.operation,canvas_id=intent.canvas_id,
         expected_candidate_request_sha256=intent.expected_candidate_request_sha256,
         author_text=intent.author_text,anchors=anchors,
         recorded_relations=_recorded_relations(candidate,anchors),between=_between(candidate,anchors))
