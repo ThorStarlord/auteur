@@ -106,3 +106,43 @@ def test_intention_disclosure_is_bounded_but_resume_preserves_all(tmp_path, caps
     assert sum(len(item["directive"]) for item in context["items"]) <= 6000
     from auteur.beginner.studio_architecture import project_architecture_resume
     assert len(project_architecture_resume(store)["creative_intentions"]) == 15
+
+
+def test_intention_successor_graph_is_atomic_unique_and_acyclic():
+    from auteur.beginner.studio_store import WorkingCanvas
+
+    def canvas(items, links):
+        return WorkingCanvas(
+            canvas_id="successor-check",
+            items=[
+                {"id": name, "kind": "note", "title": name, "content": "A real directive.",
+                 "intention_status": status}
+                for name, status in items
+            ],
+            positions={name: {"x": 10 + 40 * i, "y": 20}
+                       for i, (name, _) in enumerate(items)},
+            connections=[
+                {"id": "edge-%s" % i, "source": source, "target": target,
+                 "label": "supersedes-intention"}
+                for i, (source, target) in enumerate(links)
+            ],
+        )
+
+    accepted = canvas(
+        [("old", "superseded"), ("next", "active")], [("next", "old")],
+    )
+    assert accepted.connections[0].target == "old"
+    with pytest.raises(ValueError, match="competing successors"):
+        canvas(
+            [("old", "superseded"), ("next", "active"), ("other", "active")],
+            [("next", "old"), ("other", "old")],
+        )
+    with pytest.raises(ValueError, match="cyclic intention supersession"):
+        canvas(
+            [("old", "superseded"), ("next", "superseded")],
+            [("next", "old"), ("old", "next")],
+        )
+    with pytest.raises(ValueError, match="two existing intentions"):
+        canvas([("old", "superseded")], [("missing", "old")])
+    with pytest.raises(ValueError, match="superseded status"):
+        canvas([("old", "active"), ("next", "active")], [("next", "old")])
