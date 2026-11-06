@@ -94,7 +94,7 @@ def test_author_attention_prioritizes_existing_artifact_states_without_writes(tm
     assert [item["priority"] for item in attention] == sorted(item["priority"] for item in attention)
     assert attention[0]["kind"] == "tutor_session"
     assert attention[0]["state"] == "stale"
-    assert attention[0]["authority_status"] == "LOCAL / NONCANONICAL"
+    assert attention[0]["authority_status"] == "ADVICE ONLY / NOT PART OF STORY YET"
     assert any(
         item["kind"] == "structure_proposal"
         and item["artifact_id"] == "unselected"
@@ -121,7 +121,7 @@ def test_dashboard_adds_author_attention_without_changing_project_files(tmp_path
     assert data["author_attention"]
     assert "## Author Attention" in rendered
     assert rendered.index("## Author Attention") < rendered.index("## Recommended Actions")
-    assert "LOCAL / NONCANONICAL" in rendered
+    assert "ADVICE ONLY / NOT PART OF STORY YET" in rendered
     assert _snapshot(project) == before
 
 

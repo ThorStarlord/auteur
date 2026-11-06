@@ -917,7 +917,7 @@ def test_format_repeated_focus_uses_current_book_noncanonical_language(
         assert option.label in output
         assert option.summary in output
         assert option.tradeoff in output
-    assert "This is a planning choice, not Book 4 canon." in output
+    assert "This is a planning choice, not part of accepted Book 4 yet." in output
     assert (
         "Choosing an option records what you want to explore next. You can "
         "change or develop it before accepting a Book 4 direction."
@@ -1004,7 +1004,7 @@ def test_cli_repeated_focus_uses_real_service_and_explicit_seed(
 
     output = capsys.readouterr().out
     assert "Series Focus: Book 4" in output
-    assert "This is a planning choice, not Book 4 canon." in output
+    assert "This is a planning choice, not part of accepted Book 4 yet." in output
     assert "Publish verified testimony" in output
     assert "Book 2 canon" not in output
     proposal_id = next(
@@ -1758,7 +1758,7 @@ def test_cli_books_2_3_4_probe_surface_journey(
     )
     focus4_out = capsys.readouterr().out
     assert "Series Focus: Book 4" in focus4_out
-    assert "This is a planning choice, not Book 4 canon." in focus4_out
+    assert "This is a planning choice, not part of accepted Book 4 yet." in focus4_out
 
     assert service4.load_accepted_book_direction(4) is None
     assert service4.load_canonical_state() == state4_before
