@@ -75,7 +75,11 @@
           status("Inquiry response rejected: "+error.message);
         });
       },
-      onRealize:function(payload){requestRealization("",payload.anchors);}
+      onRealize:function(payload){
+        // The selection is copied into the typed request. Reveal its handoff.
+        switchWorkspace("realization");
+        requestRealization("",payload.anchors);
+      }
     });
     graphSelectionController=window.AuteurStudioGraphSelection.createGraphSelectionController({
       getCandidate:function(){return state.architecture;},
