@@ -19,7 +19,9 @@ from auteur.host_agent import (
     _atomic_json_write,
 )
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
-from .studio_architecture import _digest, _intention_view, _read, project_architecture
+from .studio_architecture import (
+    _bounded_intention_guidance, _digest, _read, project_architecture,
+)
 from .studio_store import CanvasStore
 
 
@@ -211,6 +213,10 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str, author_reply: s
     # Only cite material actually sent to the host: an undisclosed item ID is
     # not evidence for its content, even when that ID exists elsewhere on canvas.
     allowed_refs = {"canvas/items/" + row["id"] for row in working}
+    intentions = _bounded_intention_guidance(
+        store, focus_ids=(focus_id,), max_items=8, max_characters=4800,
+    )
+    allowed_refs.update(entry["source_ref"] for entry in intentions["items"])
     if vision_item:
         allowed_refs.add("canvas/items/story-vision")
     if focus_kind == "working":
@@ -246,10 +252,8 @@ def _context(store: CanvasStore, focus_id: str, focus_kind: str, author_reply: s
                "candidate_request_sha256": request_sha if candidate_ready else None,
                "candidate_status": architecture["status"], "focus_kind": focus_kind,
                "focus": focus, "author_story_vision": vision[:1600],
-               "creative_intentions": [
-                   _intention_view(item, excerpt=True) for item in canvas.items
-                   if item.intention_status is not None
-               ],
+               "creative_intentions": intentions["items"],
+               "omitted_creative_intention_count": intentions["omitted_count"],
                "working_ideas": working,
                "omitted_working_item_count": len(disclosure["omitted"]),
                "proposed_relations": related,
