@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "analysis": "The referent is resolved from this request: prior_exchanges holds the earlier explore answer, whose Restorable cost alternative lets a memory taken be returned by a later survey recorded as a debt. For the earned hope in the choice of maps to still feel earned rather than repaid, the reader must keep at least one loss that no later survey returns, and the debt mechanism should not be legible before the choice is made. The recorded earned_hope summary says hope is available only through a chosen, partial remembrance. Under restorable cost that sentence holds only if the partial remembrance is itself the irreversible loss. The two alternatives below change different causal variables: one changes what is recoverable, the other changes who decides what the record keeps.",
+  "recorded_observations": [
+    {"kind": "node", "id": "earned_hope", "claim": "Recorded summary: hope is available only through a chosen, partial remembrance that acknowledges loss rather than denying it. A restorable-cost mechanism would falsify this sentence unless the partial remembrance is itself irreversible."},
+    {"kind": "phase", "id": "choice_of_maps", "claim": "Recorded narrative function: resolve the choice through a partial, chosen remembrance. This phase must change with any restorable-cost variant."},
+    {"kind": "link", "id": "dilemma_produces_hope", "claim": "Recorded function: makes hope conditional on a chosen remembrance. The relation does not record who makes the choice."}
+  ],
+  "hypotheses": [
+    {"title": "Partial repayment", "divergence_axis": "causal_engine", "description": "Only some taken memories can be returned, and the returnable ones are chosen by the Guild. Hope then comes from partial repayment, while the reader keeps one loss that no survey returns. Change: what is recoverable. Risk: repayment becomes the real resolution, so the choice of maps reads as bookkeeping."},
+    {"title": "Irreversible record, contested keeper", "divergence_axis": "character_agency", "description": "Memories stay irreversible, and hope depends on who keeps the record that names the loss. Change: who decides what the record preserves, not whether loss can be undone. Risk: hope rests on a governance question the candidate leaves open, so the earned quality depends on an unrecorded decision."}
+  ],
+  "uncertainties": [
+    "Whether a reader would feel repaid rather than earned is not established by any recorded field; this is interpretation.",
+    "The candidate does not record who decides what the final record keeps, so the second alternative depends on an unrecorded fact."
+  ]
+}

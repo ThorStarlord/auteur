@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "analysis": "Important provenance note: this request packet does not contain the earlier answer or the restorable-cost alternative. The author's referent was not resolvable from the request. This reply restates the alternative from the prior conversation turn, which is conversation memory and not packet evidence. Restorable cost means a memory taken can be returned by a later survey recorded as a debt, so hope would come from repayment. For the earned hope in the choice of maps to still feel earned rather than repaid, at least one loss must remain irreversible for the reader, and the reader should not learn the debt mechanism before the choice is made. The recorded earned_hope summary says hope is available only through a chosen, partial remembrance. Under restorable cost that sentence stops holding unless the partial remembrance is itself the irreversible loss. The first field to revise is therefore earned_hope, and choice_of_maps and dilemma_produces_hope would need the same revision together.",
+  "recorded_observations": [
+    {"kind": "node", "id": "earned_hope", "claim": "Recorded summary: hope is available only through a chosen, partial remembrance that acknowledges loss rather than denying it. This is the sentence a restorable-cost mechanism would falsify."},
+    {"kind": "phase", "id": "choice_of_maps", "claim": "Recorded narrative function: resolve the choice through a partial, chosen remembrance."},
+    {"kind": "link", "id": "dilemma_produces_hope", "claim": "Recorded function: makes hope conditional on a chosen remembrance; a restorable-cost variant would change this relation as well."}
+  ],
+  "hypotheses": [],
+  "uncertainties": [
+    "The request packet did not contain the prior answer; this reply depends on conversation memory that the product does not carry between requests.",
+    "Whether a reader would feel repaid rather than earned is not established by any recorded field; this is interpretation."
+  ]
+}

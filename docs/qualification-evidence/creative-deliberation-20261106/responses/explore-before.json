@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "analysis": "Three mechanisms change different variables while keeping the wonder-to-dread arc. Each one answers the question of who pays, how the payment is made, and whether it can be recovered. The recorded memory_economy node says every accurate survey transfers a memory out of a person, and the engine_drives_cost link says that engine turns every discovery into a personal loss. The alternatives below keep the engine and vary its allocation or reversibility. They are working hypotheses, not recorded story facts.",
+  "recorded_observations": [
+    {"kind": "node", "id": "memory_economy", "claim": "Recorded summary: each accurate survey transfers a memory out of a person and into the map, so knowledge is always paid for by someone. The record does not say who the payers are."},
+    {"kind": "link", "id": "engine_drives_cost", "claim": "Recorded function: memory_economy -> cost_escalation, turns every discovery into a personal loss. Personal allocation is therefore the recorded default."},
+    {"kind": "link", "id": "magical_map_instantiates", "claim": "Recorded function: magical_map -> memory_economy, gives the memory economy a concrete instrument. The rules of the instrument are where allocation or recovery could be changed."}
+  ],
+  "hypotheses": [
+    {"title": "Communal ledger", "description": "Each survey draws a small memory from several consenting residents instead of one person, so the cost is shared and rotated. Change: the loss is distributed, so no single protagonist bears it and dread moves from personal to civic. Reader effect: the horror becomes bureaucratic and collective, and cost_escalation weakens unless the investigator's own past is pulled back in by another route."},
+    {"title": "Delegated cost", "description": "The Guild pays for surveys by selecting people with the least political standing, who have already lost records, so the cost concentrates on one social group by institutional choice rather than by chance. Change: who pays, and why. Reader effect: complicity deepens because the surveyor benefits from a selection system, and dread becomes class-structured. The risk is that the founding massacre recedes behind a social critique."},
+    {"title": "Restorable cost", "description": "Every memory taken can be returned by a later survey that the map records as a debt, so the economy becomes one of restitution. Change: whether the cost can be recovered. Reader effect: hope can come from repayment rather than from a chosen partial remembrance. This directly threatens the recorded earned_hope node and choice_of_maps phase, so it would require those to be revised together rather than edited alone."}
+  ],
+  "uncertainties": [
+    "The candidate does not record who currently pays for the Guild's surveys, so each alternative changes an unrecorded fact.",
+    "None of these alternatives is in the recorded candidate. Their emotional and structural effects are interpretations and must be tested against drafted material before any reader claim is made."
+  ]
+}
