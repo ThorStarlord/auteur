@@ -740,7 +740,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 try:
                     if parts[6] == "prepare":
                         result = prepare_architecture(
-                            store, payload.get("instruction", ""), payload.get("graph_intent")
+                            store, payload.get("instruction", ""), payload.get("graph_intent"),
+                            payload.get("selected_alternative"),
                         )
                         self._send_json(202, result)
                     elif parts[6] == "apply":

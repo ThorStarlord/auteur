@@ -25,9 +25,14 @@
     const result=await post(url('/inquiry/host-agent-response'),response);
     if(token===generation&&onInquiryResult)onInquiryResult(result);return result;
   }
-  async function prepareRevision({anchors,authorText}){
+  async function prepareRevision({anchors,authorText,selectedAlternative}){
     const intent=graphIntent({anchors,operation:'revise',authorText}),token=++generation;
-    const result=await post(url('/prepare'),{instruction:authorText,graph_intent:intent});
+    const body={instruction:authorText,graph_intent:intent};
+    if(selectedAlternative){
+      if(!selectedAlternative.inquiryRequestSha256||!selectedAlternative.hypothesisId)throw Error('Selected alternative needs its inquiry and ID');
+      body.selected_alternative={inquiry_request_sha256:selectedAlternative.inquiryRequestSha256,hypothesis_id:selectedAlternative.hypothesisId};
+    }
+    const result=await post(url('/prepare'),body);
     if(token===generation&&onRevisionProjection)onRevisionProjection(result);return result;
   }
   async function refresh(){const token=++generation;const response=await fetch(url('/inquiry'));const result=await response.json();

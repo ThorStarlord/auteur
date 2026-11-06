@@ -64,11 +64,13 @@ def test_architecture_link_direction_and_reciprocity_in_studio(tmp_path, browser
     page.on("pageerror", lambda error: errors.append(str(error)))
     try:
         page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=edge-probe")
-        page.locator('[data-architecture-link-id="a-to-b"]').wait_for()
-        paths = page.locator("#edges [data-architecture-link-id]")
+        # Each recorded edge has a visible stroke plus an aria-hidden transparent hit target (PR #517).
+        visible = ':not([aria-hidden="true"])'
+        page.locator('#edges [data-architecture-link-id="a-to-b"]' + visible).wait_for()
+        paths = page.locator("#edges [data-architecture-link-id]" + visible)
         assert paths.count() == 4
         by_id = {
-            edge_id: page.locator(f'[data-architecture-link-id="{edge_id}"]')
+            edge_id: page.locator(f'#edges [data-architecture-link-id="{edge_id}"]' + visible)
             for edge_id in ("a-to-b", "b-to-a", "c-to-a", "d-to-c")
         }
         for path in by_id.values():

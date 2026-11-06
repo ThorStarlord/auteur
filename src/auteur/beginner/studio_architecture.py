@@ -222,6 +222,13 @@ class ArchitectureCandidate(BaseModel):
         return self
 
 
+class SelectedCreativeAlternative(BaseModel):
+    """Author-chosen alternative from a completed read-only inquiry; noncanonical working context only."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    inquiry_request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    hypothesis_id: str = Field(pattern=r"^h[1-9][0-9]{0,2}$")
+
+
 def _root(store: CanvasStore) -> Path:
     return store.directory / "architecture"
 
@@ -559,6 +566,10 @@ function, engine and structural phase and preserve unrelated author
 decisions and accepted constraints. Explain coordinated consequences, not
 isolated label changes, and distinguish necessary changes from optional ideas.
 Do not invent concrete scenes, chapter numbers or plot events to fill gaps.
+If selected_creative_alternative is present, the author chose that noncanonical
+alternative from an earlier read-only inquiry about this exact baseline. Develop
+it coherently across every materially affected element, keep unrelated author
+decisions and accepted constraints, and never present it as accepted canon.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -769,6 +780,39 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         else None
     )
     candidate = projection["candidate"]
+    # Local imports avoid a circular module import: these owners import this module.
+    from .studio_architecture_inquiry import project_architecture_inquiry, superseded_history
+    from .studio_mentor import project_mentor
+
+    inquiry = project_architecture_inquiry(store)
+    mentor = project_mentor(store)
+    creative_deliberation = {
+        "authority": "noncanonical_working_deliberation",
+        "inquiry_history": inquiry.get("history", []),
+        "superseded_inquiry_history": superseded_history(
+            store, current["request_sha256"] if current else None,
+        ),
+        "mentor_advice": (
+            {
+                "focus_id": mentor["focus_id"],
+                "focus_kind": mentor["focus_kind"],
+                "author_reply": mentor.get("author_reply", ""),
+                "advice": mentor["advice"],
+            }
+            if mentor.get("status") == "ready" else None
+        ),
+        # While a follow-up is pending, the completed advice it replies to is carried only in that request.
+        "mentor_prior_advice": (
+            json.loads(mentor["request"]["user"]).get("prior_exchange")
+            if mentor.get("status") == "awaiting_host_agent" and mentor.get("request") else None
+        ),
+    }
+    adopted = (
+        json.loads(load_host_agent_request(
+            _root(store) / "requests" / current["request_sha256"] / "request.json"
+        ).user).get("selected_creative_alternative")
+        if current else None
+    )
     return {
         "kind": "studio_architecture_resume",
         "authority": "working_noncanonical",
@@ -787,14 +831,57 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         "accepted_story_identity": accepted,
         "source_visibility": source_visibility,
         "provisional_concepts": _provisional_concepts(store),
+        "creative_deliberation": creative_deliberation,
+        "adopted_creative_alternative": adopted,
     }
 
 
-def prepare_architecture(store: CanvasStore, instruction: str = "", graph_intent: dict | None = None) -> dict:
+def _selected_alternative_context(store: CanvasStore, current: dict, selection: SelectedCreativeAlternative) -> dict:
+    """Resolve an author-chosen inquiry alternative against the exact current baseline; never by title."""
+    inquiry = _read(
+        _root(store) / "inquiries" / "requests" / selection.inquiry_request_sha256 / "result.json"
+    )
+    if inquiry is None:
+        raise ValueError("selected inquiry not found")
+    if inquiry.get("baseline_candidate_request_sha256") != current["request_sha256"]:
+        raise BeginnerConcurrencyError("selected inquiry belongs to a superseded architecture baseline")
+    alternatives = [
+        {"id": row.get("id") or f"h{index}", "title": row["title"], "description": row["description"],
+         "divergence_axis": row.get("divergence_axis")}
+        for index, row in enumerate(inquiry.get("hypotheses") or [], start=1)
+    ]
+    match = next((row for row in alternatives if row["id"] == selection.hypothesis_id), None)
+    if match is None:
+        raise ValueError("selected alternative not found in the selected inquiry")
+    intent = inquiry.get("intent") or {}
+    return {
+        "inquiry_request_sha256": selection.inquiry_request_sha256,
+        "hypothesis_id": match["id"],
+        "title": match["title"],
+        "description": match["description"],
+        "divergence_axis": match["divergence_axis"],
+        "operation": intent.get("operation"),
+        "author_question": intent.get("author_text", ""),
+        "authority": "noncanonical_creative_alternative",
+    }
+
+
+def prepare_architecture(
+    store: CanvasStore, instruction: str = "", graph_intent: dict | None = None,
+    selected_alternative: dict | None = None,
+) -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("revision instruction must be text under 4000 characters")
     with _FilesystemLock(store._path(".canvas.lock")):
         current = _candidate(store)
+        selected_context = None
+        if selected_alternative is not None:
+            if not instruction.strip():
+                raise ValueError("a selected alternative requires a revision instruction")
+            selection = SelectedCreativeAlternative.model_validate(selected_alternative)
+            if not current or _current_candidate_freshness(store, current) != "ready":
+                raise BeginnerConcurrencyError("selected alternative source or guidance is stale")
+            selected_context = _selected_alternative_context(store, current, selection)
         resolved_graph_intent = None
         if graph_intent is not None:
             typed_intent = GraphIntent.model_validate(graph_intent)
@@ -837,6 +924,7 @@ def prepare_architecture(store: CanvasStore, instruction: str = "", graph_intent
             "narrative_design_context": design_context,
             "revision_instruction": instruction,
             **({"graph_intent": resolved_graph_intent} if resolved_graph_intent else {}),
+            **({"selected_creative_alternative": selected_context} if selected_context else {}),
         }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
@@ -908,9 +996,11 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 accepted_identity=accepted_identity,
             ))
             record["prior_request_sha256"] = current["request_sha256"]
-            submitted_intent = json.loads(request.user).get("graph_intent")
-            if submitted_intent:
-                record["graph_intent_receipt"] = submitted_intent
+            submitted = json.loads(request.user)
+            if submitted.get("graph_intent"):
+                record["graph_intent_receipt"] = submitted["graph_intent"]
+            if submitted.get("selected_creative_alternative"):
+                record["selected_creative_alternative"] = submitted["selected_creative_alternative"]
             _atomic_json_write(base / "review.json", record)
         else:
             _atomic_json_write(_root(store) / "current.json", record)
