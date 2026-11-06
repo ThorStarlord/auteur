@@ -95,6 +95,19 @@
           <button id="architecture-revise" type="button">Request a revised candidate</button>
         </details>
         <span id="architecture-status" role="status" aria-live="polite">No agent architecture requested.</span>
+        <details id="studio-creative-intentions" class="architecture-revise" aria-label="Author-directed continuing intentions">
+          <summary>Continuing creative intentions (working)</summary>
+          <p>Keep creative directions across revisions. Active intentions guide new work; provisional ideas are optional. Historical directions never become story canon.</p>
+          <div id="studio-intentions-list" aria-label="Recorded creative intentions"></div>
+          <label for="studio-intention-title">New intention title</label>
+          <input id="studio-intention-title" maxlength="120" placeholder="Restorative discovery">
+          <label for="studio-intention-directive">What should the agent preserve or explore?</label>
+          <textarea id="studio-intention-directive" rows="3" maxlength="2000" placeholder="Preserve the possibility of restorative discovery, including in darker scenes."></textarea>
+          <label for="studio-intention-initial-status">Intention status</label>
+          <select id="studio-intention-initial-status"><option value="active">Active commitment</option><option value="provisional">Provisional idea</option></select>
+          <button id="studio-intention-add" type="button">Keep this intention</button>
+          <p id="studio-intention-statusline" role="status" aria-live="polite"></p>
+        </details>
         <details id="architecture-creative-graph" class="architecture-creative-graph" hidden>
           <summary>Explore graph with coding agent (experimental)</summary>
           <p>Choose a recorded node, relationship or component. Inspect and Trace remain local; creative inquiries prepare a request but never silently run a model or revise the working story.</p>
@@ -108,6 +121,19 @@
           <strong>Proposed architecture revision — review before applying</strong>
           <p id="architecture-review-summary"></p>
           <ul id="architecture-diff"></ul>
+          <details id="architecture-impact-inquiry" aria-label="Creative critique of pending revision">
+            <summary>Ask about this proposed revision (read-only)</summary>
+            <label for="architecture-impact-question">What creative consequence concerns you?</label>
+            <textarea id="architecture-impact-question" rows="3" maxlength="4000">Does this revision strengthen the intended reader experience? Identify what changed, possible consequences, artistic risks, and any active intention in tension.</textarea>
+            <button id="architecture-impact-prepare" type="button">Prepare coding-agent critique</button>
+            <p id="architecture-impact-status" role="status" aria-live="polite">No critique requested.</p>
+            <label for="architecture-impact-request">Prepared host-agent request (copy to your agent; not executed)</label>
+            <textarea id="architecture-impact-request" rows="4" readonly></textarea>
+            <label for="architecture-impact-response">Host-agent response JSON</label>
+            <textarea id="architecture-impact-response" rows="3"></textarea>
+            <button id="architecture-impact-complete" type="button">Validate critique response</button>
+            <section id="architecture-impact-result" aria-label="Grounded creative critique" aria-live="polite"></section>
+          </details>
           <details id="architecture-visual-review" hidden>
             <summary>Compare visually (experimental · working architecture only)</summary>
             <p>The two candidate versions remain separate until you explicitly apply the complete working revision. Inspecting changes does not call an agent or accept story meaning.</p>

@@ -271,10 +271,19 @@ def _intention_view(item, *, excerpt: bool = False) -> dict:
 
 
 def _creative_intentions(store: CanvasStore) -> list[dict]:
+    """Full intentions with durable successor references for fresh-agent recovery."""
+    canvas = store.load()
+    items = {item.id: item for item in canvas.items if item.intention_status is not None}
+    successors = {
+        edge.target: edge.source for edge in canvas.connections
+        if edge.label == "supersedes-intention"
+        and edge.source in items and edge.target in items
+    }
     return [
-        _intention_view(item)
-        for item in store.load().items
-        if item.intention_status is not None
+        {**_intention_view(item), **(
+            {"superseded_by": successors[item.id]} if item.id in successors else {}
+        )}
+        for item in canvas.items if item.id in items
     ]
 
 
