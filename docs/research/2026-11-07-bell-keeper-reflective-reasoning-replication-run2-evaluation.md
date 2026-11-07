@@ -62,8 +62,8 @@ The deviation lowers confidence in a controlled reading. It does not make the wo
 **Stage 3 gate.** The decision was recorded before Stage 3 was sent, on the basis of the "universal again" inference. The reviewer agrees Stage 3 was warranted but calls that the narrowest of the unrepaired errors. It says the variation-replaces-the-alteration reading and the Setup equivocation were stronger candidates and were not cited. The coordinator keeps that disagreement on record.
 
 **Did Stage 3 change reasoning or only labels?** Both, and the reviewer separates them.
-- *Changed reasoning:* "universal again" was withdrawn with an argument (an unregistered promise cannot ring, so any gated system needs an ungated base). Mechanism A was redesigned under an explicit conditional on what "judgment" means. Mechanism B was demoted to a labelled premise-changing alternative, and a faithful alternative, B′, was added.
-- *Labels or new errors:* "the exemption moves to where registration begins" (`stage3-response.md` line 101) was tagged *entailed*, which is an overclaim. The valid entailment is narrower: a registration gate must leave some promises unjudged by construction, including the registration duty itself. It does not follow that the secret alteration relocates there. C3 could sit on top of the gate, which is the reviewer's point (reviewer §3B). The variation-replaces-C3 reading survives inside that label. The Setup equivocation was partly relabelled ("a promise can be modelled as a Setup," line 25) but its condition was not stated. Several items restate earlier findings in new labels.
+- *Changed reasoning:* Stage 3 withdrew "universal again" by recognizing that an unregistered promise does not ring under the proposed gate. That is a genuine, narrower correction; its added assertion that any gated system *needs an ungated base* is not entailed. Mechanism A was redesigned under an explicit conditional on what "judgment" means. Mechanism B was demoted to a labelled premise-changing alternative, and a faithful alternative, B′, was added.
+- *Labels or new errors:* "the exemption moves to where registration begins" (`stage3-response.md` line 101) was tagged *entailed*, which is an overclaim. **The warranted consequence is conditional:** if a promise is unregistered, forgetting it does not trigger a bell under the proposed registration rule. Voluntary registration alone establishes neither the existence of unregistered promises nor a duty to register. If a duty to register is separately introduced and treated as a promise, it still rings only if that duty is registered or an explicit exception modifies the gate. No universal ringing, necessary ungated base, or relocation of C3 follows; the original secret alteration may coexist with the registration gate. The variation-replaces-C3 reading survives inside the worker's label. The Setup equivocation was partly relabelled ("a promise can be modelled as a Setup," line 25) but its condition was not stated. Several items restate earlier findings in new labels.
 
 ### C. Authorial fidelity
 
@@ -95,7 +95,7 @@ Reviewer and coordinator agree on these:
 
 - **Strong first-pass performance:** partly. Target errors avoided; secondary errors present.
 - **General-challenge correction:** yes, for several real errors, including the most important fidelity issue.
-- **Explicit-guidance-dependent correction:** yes, narrowly: the regress withdrawal and the redesign of A.
+- **Explicit-guidance-dependent correction:** partial: the worker withdrew the unsupported "universal again" conclusion and redesigned A, but its ungated-base necessity and relocation inferences were still unwarranted.
 - **Logical improvement without creative improvement:** not supported. Creative improvement also occurred.
 - **Persistent failure:** partly. The Setup equivocation, the variation-replaces-the-alteration reading, and the claim that the Vision states the internal conflict survived Stage 3 (§3B).
 - **Invalid or compromised exercise:** not invalid. Isolation was incomplete (§2).
@@ -125,14 +125,7 @@ These are observations from this run, not implementation requests.
 
 ## 7. Smallest next responsibility
 
-The run cannot be cleanly interpreted, because the worker inherited repository context. The smallest next step is a decision about isolation, not a product change:
-
-1. Decide whether a clean-context repetition is worth running. Only that would show whether the observed corrections depend on the injected context.
-2. If yes, the execution path must start the worker outside the repository. The Agent-tool path used here cannot do that, so the owner needs to name an alternative execution route.
-
-**Qualification (reconciliation, §8.8).** The paragraph above treated the run as uninterpretable without a clean-context repetition. That overstated it. The findings concern ordinary operation, and the isolation deviation prevents only a causal attribution to the packet alone. A clean-context repetition is needed only for a decision that depends on that attribution. A decision about agent-facing guidance would itself reach agents through inherited repository context, so it needs ordinary-operation evidence instead.
-
-No ontology, Studio, or prompt change is recommended from this run.
+**Current disposition (reconciled in §8.8–§8.10):** The run supplies meaningful evidence of ordinary repository-agent behavior, although inherited context prevents strict clean-context qualification or attribution of improvements to the experiment packet alone. No further bell-keeper run, isolation investigation, ontology change, Studio change, or agent-facing prompt change is an automatic next step. Preserve the existing implementation. Reconsider a bounded ordinary-operation comparison only when a concrete decision about adopting the candidate reasoning check requires additional evidence.
 
 ## 8. Cross-run reconciliation: run 1 and run 2
 
@@ -147,14 +140,15 @@ No ontology, Studio, or prompt change is recommended from this run.
 5. §3C: the counterfactual's relation to C3 is recorded as asserted, not examined.
 6. §3E (new): the ring-versus-judgment reading is recorded as an adopted choice, not an entailment.
 7. §6: the Setup error is recorded as recurring in Stages 1–3, not all four.
-8. §7: the clean-context prerequisite is qualified.
+8. §7: the superseded clean-context prerequisite is replaced with the reconciled no-change disposition.
+9. §3B, §4, §8.2–§8.11: a further semantic review distinguishes the valid registration-gate conditional from unsupported existence, duty-to-register, ungated-base, or secret-alteration-relocation claims; a future comparison is conditional on an actual adoption decision.
 
 No raw worker output, reviewer report, prompt file, receipt, hash, or manifest entry was changed.
 
 ### 8.2 What both runs establish
 
 - Both first passes were substantive and did not declare the conflict absent. Run 1: "The Vision states the stakes (trust, belonging) but not either party's goal" (S1 line 16). Run 2: "The conflict has two layers" (S1 line 7). Both kept forgetting possible under registration (run 1 S1 line 69; run 2 S1 line 64).
-- Both made consequential first-pass errors. Run 1: "The keeper maintains the system, so the discovery implicates the protagonist's own role" (S1 line 32), retracted in Stage 2 (item 6). Run 2: "the system is universal again" (S1 line 60), withdrawn in Stage 3 (item 2) with an argument.
+- Both made consequential first-pass errors. Run 1: "The keeper maintains the system, so the discovery implicates the protagonist's own role" (S1 line 32), retracted in Stage 2 (item 6). Run 2: "the system is universal again" (S1 line 60), withdrawn in Stage 3 (item 2) with a partly correct argument that also introduced an unnecessary ungated-base requirement.
 - A general, unhinted challenge produced real corrections in both: run 1 Stage 2 items 1–7, 9 and 11; run 2 Stage 2 items 1–13. Run 2's item 10 overcorrected on collective forgetting, and Stage 3 reversed it (S3 lines 48–50).
 - Both Stage 4 revisions were more causally specific, and both contain inconsistencies their workers did not check (§8.6).
 - Neither run supports a claim that the ontology, the packet, or repository context caused any improvement.
@@ -170,7 +164,7 @@ No raw worker output, reviewer report, prompt file, receipt, hash, or manifest e
 ### 8.4 Recurring reasoning weaknesses
 
 1. **Premise drift under a counterfactual or in a summary.** Run 1 reopens secrecy (S1 line 105). Run 2 replaces C3 with the registration rule (S1 line 56) and relocates the alteration (S1 line 46). General challenge partly recovered both. Run 2's replacement was not recovered even under explicit guidance. This is supported as a recurring tendency, on small numbers.
-2. **Unsupported necessity or overclaim.** Run 1: "keeper maintains the system" (S1 line 32). Run 2: "universal again" (S1 line 60); "holds by definition" (S2 line 31); "the exemption moves" tagged *entailed* (S3 line 101); "conflicts with C3" (S4 line 66), hardened from Stage 3's conditional.
+2. **Unsupported necessity or overclaim.** Run 1: "keeper maintains the system" (S1 line 32). Run 2: "universal again" (S1 line 60); "holds by definition" (S2 line 31); "any gated system needs an ungated base" (S3 line 19); "the exemption moves" tagged *entailed* (S3 line 101); "conflicts with C3" (S4 line 66), hardened from Stage 3's conditional.
 3. **Revision introduces inconsistency that is not re-checked.** Run 1 S4: "five elements" lists three (line 13); "the bells still ring" (line 10) against "the ring sounds silently" (line 43); the keeper summons (line 9) against "cannot summon alone" (line 73). Run 2 S4: R5 "A struck tone is the system's only judgment" (line 11) against R7's hand strike, which "is not judgment" (line 13), unless "struck tone" means system strikes only; a plausibility gap between witnessed breaches and praised silence (lines 42, 61); and "for generations" (line 10) against a predecessor who lifted the pins (line 59).
 4. **Relabelling without changed inference.** Run 2 Stage 3 items 6, 7, 11, 13 and 14 restate earlier findings with new labels (reviewer §3B).
 
@@ -178,7 +172,7 @@ No raw worker output, reviewer report, prompt file, receipt, hash, or manifest e
 
 | Category | Run 1 | Run 2 |
 |---|---|---|
-| Real inference corrected | "I also equated 'judgment' with ringing" (S2 line 7); keeper role (S2 line 22) | "The causal paraphrase was wrong" (S2 line 7); base rules (S2 line 17); "universal again" withdrawn with an argument (S3 line 19) |
+| Real inference corrected | "I also equated 'judgment' with ringing" (S2 line 7); keeper role (S2 line 22) | "The causal paraphrase was wrong" (S2 line 7); base rules (S2 line 17); "universal again" withdrawn (S3 line 19), but the argument introduced an unsupported ungated-base necessity |
 | Wording softened only | Irony attributions made conditional (S2 lines 30–31) | "Setup obligation" softened to "payoff target" (S2 line 11), with the equivocation left intact |
 | Invented or misjudged error | "Scope was called 'decisive'" is a phantom correction (S2 line 33) | Collective-forgetting overcorrection (S2 line 25), reversed in S3 lines 48–50 |
 | New error during correction | Counts and cross-references in S4 (lines 10, 13, 43, 73) | "Exemption moves (entailed)" (S3 line 101); "conflicts with C3" (S4 line 66) |
@@ -194,7 +188,7 @@ The correction fed the redesign in both runs. Run 1's judgment-as-summons follow
 ### 8.7 Effect and limits of general challenge and explicit guidance
 
 - **General challenge.** Produced real corrections in both runs without naming historical mistakes. It repaired structural overreach: judgment-as-ringing, the keeper's role, and the dependency claim in run 1; the causal paraphrase, base rules, and Mechanism B's fidelity in run 2. It did not repair the premise and entailment errors that matter most: run 2's replacement and "holds by definition", and run 1's secrecy checklist. It introduced errors in two places: run 1's phantom "decisive" correction, and run 2's collective-forgetting overcorrection.
-- **Explicit guidance (run 2 only).** Repaired the regress (S3 line 19) and redesigned Mechanism A under a stated condition. It required cited premises, and the worker complied in form. It did not prevent the mislabelled entailment (S3 line 101), did not state the Setup condition, and produced a hardened conditional in Stage 4 (line 66). Labels changed more reliably than inferences.
+- **Explicit guidance (run 2 only).** Retracted "universal again" (S3 line 19) and redesigned Mechanism A under a stated condition, but the proposed explanation also asserted without warrant that a gated system needs an ungated base. Under the voluntary gate, a forgotten *unregistered* promise is silent if one exists; the hypothetical establishes neither that any such promises exist nor that registration itself is obligatory. The worker cited premises in form but did not prevent the mislabelled entailment relocating C3 (S3 line 101), did not state the Setup condition, and produced a hardened conditional in Stage 4 (line 66). Labels changed more reliably than inferences.
 
 ### 8.8 Ordinary operation and strict clean-context qualification
 
@@ -203,7 +197,7 @@ Strict clean-context qualification is not met by run 2. The repository `CLAUDE.m
 ### 8.9 Smallest missing capability
 
 - **A. Concepts available, inconsistently applied: best supported.** The Setup relation and the premise-changing label are in the sources (`base_ontology.yaml` lines 270–271; the assessment's "Author constraint vs premise-changing alternative" row, "Conceptually sufficient"). Both runs applied them inconsistently.
-- **B. Guidance insufficient at the point of inference: partly supported.** Run 2's explicit distinctions fixed the regress but left a mislabelled entailment and an unstated Setup condition. One guided run cannot separate this from weak guidance text.
+- **B. Guidance insufficient at the point of inference: partly supported.** Run 2's explicit distinctions retracted the false universal-ringing claim but added an unnecessary ungated-base premise, left a mislabelled entailment relocating C3, and did not state the Setup condition. One guided run cannot separate this from weak guidance text.
 - **C. Context not delivered: not supported as the main explanation.** The Vision, the four sources, and an explicit instruction to preserve premises were delivered in Stage 1. The replacement error occurred with C3 in the prompt. Untested: the other contracts that `narrative-architecture.md` refers to were not supplied.
 - **D. Distinction not representable: not supported.** Entailment versus compatibility, premise-changing labels, and Setup as a relation are expressible in existing semantics. No instance shows loss. The behavioural errors are not promoted to D.
 
@@ -220,11 +214,11 @@ The errors in §8.4 map to steps 1–5. The method would have caught several at 
 
 ### 8.10 Smallest next responsibility
 
-One owner decision: whether the candidate consequential-inference check merits a single controlled comparison (a guided arm against an unguided first pass) under ordinary repository operation. The default is no change. No ontology, Studio, prompt, or harness change is recommended from either run.
+**Default: preserve the current implementation and close this evidence-reconciliation responsibility.** Neither an ontology extension nor an agent-facing reasoning-method change is yet warranted; another bell-keeper repetition or clean-context qualification is not an automatic prerequisite. Only when a concrete decision to adopt the candidate consequential-inference check is under consideration should a small guided-versus-unguided comparison be commissioned. Use an unfamiliar Story Vision (not the already-exposed bell-keeper case), equivalent author constraints and repository access, and separate worker contexts. Assess premise fidelity, valid necessity/conditional reasoning, internal rule consistency, *and* whether guidance preserves creative divergence and narrative quality. Do not mandate the check or expand the benchmark in advance.
 
 ### 8.11 What remains uncertain
 
-- Whether run 2's Stage 3 guidance caused the regress withdrawal. There is one run and no control.
+- Whether run 2's Stage 3 guidance caused the withdrawal of "universal again"; the same answer introduced a different unsupported necessity claim. There is one guided run and no control.
 - Whether the Setup reading in lines 270–271 matches the author's intent. The relation is an author choice.
 - Whether "the system" in C3 includes the naming rite. This decides whether Mechanism B is a premise change.
 - The reviewer shares the worker's model family and had the assessment's diagnoses. Its judgments are one reviewer's.
