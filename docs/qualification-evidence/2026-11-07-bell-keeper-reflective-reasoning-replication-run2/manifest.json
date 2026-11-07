@@ -1,0 +1,81 @@
+{
+  "generated_by": "coordinator script over run-2 raw artifacts",
+  "artifacts": {
+    "receipts.md": {
+      "sha256": "b3cca575dc0c644963041d3bebfeb93f83fd82f330a100a3ffcb1193c539dfec",
+      "bytes": 3100
+    },
+    "reviewer-brief.md": {
+      "sha256": "287699fbe11ad2ce0d99b3926abdff9d9a27d15a92ce541e439871f0dcb2e61e",
+      "bytes": 7332
+    },
+    "reviewer-report.md": {
+      "sha256": "dbb99ff198c82eeb1407ad9f409541541d1ad305e9a55aa3efde944f04f83532",
+      "bytes": 16384
+    },
+    "stage1-packet-block.txt": {
+      "sha256": "3db4dc2d3038a78b6546cf38f08868dcc617921c68d2ee453accfb80fed54e2f",
+      "bytes": 1972
+    },
+    "stage1-prompt-as-delivered.txt": {
+      "sha256": "6280c74a99482fc29c19b9aff8a041a3b8702db60c1327bb7aaab7d20675f96c",
+      "bytes": 2308
+    },
+    "stage1-response.md": {
+      "sha256": "16256726e91841f07dffec1ac5c8a450d8971156ab3cc087e28a0ef7afad59d6",
+      "bytes": 11939
+    },
+    "stage2-packet-block.txt": {
+      "sha256": "75418d457e9b0cb17e0b1812511ee8b4a4805d36d82625a36628714e421f8f96",
+      "bytes": 577
+    },
+    "stage2-prompt-as-delivered.txt": {
+      "sha256": "44807d7717413c7e2f6f5ee75f433493a59412fc89b680aed609ba5ee8c676f7",
+      "bytes": 683
+    },
+    "stage2-response.md": {
+      "sha256": "e8dbf8ce881164ada169c1e13e5185f5189086b3aae7c4470cceeb39c845c606",
+      "bytes": 7404
+    },
+    "stage3-gate-decision.md": {
+      "sha256": "e5aae4b096e321fa60e1d0f60782741494c0d1a252547203fe9c32099d7bba8b",
+      "bytes": 1195
+    },
+    "stage3-packet-block.txt": {
+      "sha256": "7b2bf3d98837d988789f20db4ed875ab30d88a67f5d81bb7719fb9506b3ee284",
+      "bytes": 1271
+    },
+    "stage3-prompt-as-delivered.txt": {
+      "sha256": "96a20b8fc916f28ef09223d3c0b25f68722ae2e15291df66211b67541c65b1dc",
+      "bytes": 1377
+    },
+    "stage3-response.md": {
+      "sha256": "9b3265cf09f5fb4b730808294d4a0420c575b5ae272727702a019cb57ef6e6ca",
+      "bytes": 10394
+    },
+    "stage4-packet-block.txt": {
+      "sha256": "0e6500930d74ac48d7bc04d6cacf183044a22de154a2466c5365d43a99f37200",
+      "bytes": 939
+    },
+    "stage4-prompt-as-delivered.txt": {
+      "sha256": "e98e4f1d9efecc20fe7f5d4e648d4fd19fd6121fb828c656e7fdebfff9a3e0d9",
+      "bytes": 1045
+    },
+    "stage4-response.md": {
+      "sha256": "f9a459399c73316a575f64cabbada22aa395d223eb85331b0116d8b8d85a2acf",
+      "bytes": 8122
+    }
+  },
+  "worker_snapshot_git_blobs": {
+    "data/ontology/base_ontology.yaml": "cabfe043efc2e7005e6cef707eba6e3158c8a240",
+    "docs/narrative-architecture.md": "b676d5c7e3879c7baebe0b7f7b8be2d0e21a0a8a",
+    "docs/emotional-trajectory-contract.md": "b6ffeca74054c41d153305f31268866fd8192893",
+    "src/auteur/beginner/studio_ontology_context.py": "1b143d937dae370ce91b35ec608dc0e8a04d8df6"
+  },
+  "origin_main_blobs_for_same_paths": {
+    "data/ontology/base_ontology.yaml": "cabfe043efc2e7005e6cef707eba6e3158c8a240",
+    "docs/narrative-architecture.md": "b676d5c7e3879c7baebe0b7f7b8be2d0e21a0a8a",
+    "docs/emotional-trajectory-contract.md": "b6ffeca74054c41d153305f31268866fd8192893",
+    "src/auteur/beginner/studio_ontology_context.py": "1b143d937dae370ce91b35ec608dc0e8a04d8df6"
+  }
+}
