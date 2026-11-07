@@ -47,14 +47,14 @@ You are conducting a small, read-only Narrative Architecture exercise in Auteur.
 
 First inspect:
 
-- data/ontology/base_ontology.yaml
-- docs/narrative-architecture.md
-- docs/emotional-trajectory-contract.md
-- src/auteur/beginner/studio_ontology_context.py
+- `data/ontology/base_ontology.yaml`
+- `docs/narrative-architecture.md`
+- `docs/emotional-trajectory-contract.md`
+- `src/auteur/beginner/studio_ontology_context.py`
 
 Apply relevant narrative concepts to the following working Story Vision.
 
-Story Vision
+**Story Vision**
 
 A beautiful cliffside city has an ancient system of bells that ring whenever someone forgets an important promise.
 
@@ -68,7 +68,7 @@ The intended reader experience combines:
 - Growing unease about institutional injustice.
 - Hope earned through collective action rather than an effortless individual victory.
 
-Your tasks
+**Your tasks**
 
 1. Diagnose the current Narrative Architecture. Explain its central conflict, causal structure, emotional potential, strengths, weaknesses, and unresolved questions.
 2. Propose two meaningfully different narrative mechanisms that could develop the premise into a sustainable story. Explain how each works, what pressures it generates, and how it supports the intended reader experience.
@@ -103,15 +103,15 @@ Preserve useful creative possibilities. Do not weaken a sound proposal merely to
 ```text
 Reconsider the remaining disputed conclusions using the following distinctions.
 
-Epistemic warrant
+**Epistemic warrant**
 
-- An entailed conclusion follows from the established premises.
-- A compatible possibility can be true without being required by those premises.
-- An unsupported assumption introduces a rule or condition not yet established.
-- An underdetermined proposition cannot be resolved from the available information.
-- An incompatible claim conflicts with a fixed premise or a consequence genuinely established by it.
+- An **entailed conclusion** follows from the established premises.
+- A **compatible possibility** can be true without being required by those premises.
+- An **unsupported assumption** introduces a rule or condition not yet established.
+- An **underdetermined proposition** cannot be resolved from the available information.
+- An **incompatible claim** conflicts with a fixed premise or a consequence genuinely established by it.
 
-Authorial authority
+**Authorial authority**
 
 - An explicit constraint in the current Story Vision must be preserved in proposals intended to remain faithful to that Vision.
 - An agent-generated explanation is a hypothesis or creative proposal, not an accepted story fact.
