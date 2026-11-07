@@ -137,3 +137,24 @@ test('invalidating a stale result clears alternatives but keeps the author text'
   const lineage=walk(s.root,n=>n.attrs?.['aria-label']==='Superseded creative exchanges')[0];
   assert.equal(lineage.children.length,0);
 });
+
+test('realization action forwards a selected typed relationship without revising architecture',()=>{
+  const document={createElement(tag){return element(tag,this)}},window={};
+  runInNewContext(panelSource,{window,document});
+  const root=document.createElement('section'),realized=[];
+  const panel=window.AuteurStudioCreativePanel.createCreativePanel({
+    root,onAction:()=>{},onRevise:()=>{},onClear:()=>{},
+    onRealize:payload=>realized.push(payload),
+  });
+  panel.setSelection([{kind:'link',id:'engine_drives_cost',sourceRef:'links/3'}],[
+    {operation:'explain',label:'Explain',description:'Explain a relationship'},
+  ]);
+  const buttons=walk(root,n=>n.tag==='button'&&n.textContent==='Develop Story Realization from this meaning');
+  assert.equal(buttons.length,1);
+  assert.equal(buttons[0].disabled,false);
+  buttons[0].dispatch('click');
+  assert.equal(realized.length,1);
+  assert.equal(realized[0].anchors[0].kind,'link');
+  assert.equal(realized[0].anchors[0].id,'engine_drives_cost');
+  assert.equal(walk(root,n=>n.dataset?.creativeSubmit==='true').length,1);
+});
