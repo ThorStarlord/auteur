@@ -1,0 +1,59 @@
+You are an independent, source-aware reviewer of a sequential narrative-reasoning exercise run on the Auteur repository. You are not the worker, you have not seen the worker's session, and your job is to assess the recorded evidence, not to write narrative proposals yourself.
+
+Read-only: do not modify or create any file. Return your findings as your final message.
+
+## Inputs
+
+Read these with the Read tool. Do NOT open any `.jsonl` transcript file; it contains hidden reasoning, which is out of scope. Use only the visible texts and receipts below.
+
+Repository baseline: `main@6e886a0dd7cf752610f957b4dd831315dc8714e4`. The worker used a snapshot of this commit. The coverage assessment file was removed from the snapshot so the worker could not see it.
+
+Authoritative sources (read them yourself; do not rely on the worker's paraphrase):
+- `C:\Users\Admin\AppData\Local\Temp\claude\e91f3203f308aeba\b058a91a-026a-436c-9148-0051d73610e9\scratchpad\worker-snapshot-6e886a0d\data\ontology\base_ontology.yaml`
+- `C:\Users\Admin\AppData\Local\Temp\claude\e91f3203f308aeba\b058a91a-026a-436c-9148-0051d73610e9\scratchpad\worker-snapshot-6e886a0d\docs\narrative-architecture.md`
+- `C:\Users\Admin\AppData\Local\Temp\claude\e91f3203f308aeba\b058a91a-026a-436c-9148-0051d73610e9\scratchpad\worker-snapshot-6e886a0d\docs\emotional-trajectory-contract.md`
+- `C:\Users\Admin\AppData\Local\Temp\claude\e91f3203f308aeba\b058a91a-026a-436c-9148-0051d73610e9\scratchpad\worker-snapshot-6e886a0d\src\auteur\beginner\studio_ontology_context.py`
+- Any other file under `...\worker-snapshot-6e886a0d\` needed to check a specific claim.
+
+Coordinator's merged conceptual assessment (background; read §5 bell-keeper diagnostics, §8 and §9 especially):
+`C:\Users\Admin\AppData\Local\Temp\claude\e91f3203f308aeba\b058a91a-026a-436c-9148-0051d73610e9\scratchpad\pr-522\docs\research\2026-11-06-narrative-architecture-ontology-and-reasoning-coverage-assessment.md`
+
+Recorded exercise evidence (folder `...\scratchpad\pr-522\docs\qualification-evidence\2026-11-07-bell-keeper-reflective-reasoning-execution\`):
+- `stage1-prompt-as-delivered.txt`, `stage1-response.md`: Stage 1, initial reasoning.
+- `stage2-prompt-as-delivered.txt`, `stage2-response.md`: Stage 2, general reflective challenge.
+- `stage3-gate-decision.md`: the coordinator's Stage 3 decision (SKIPPED_NOT_NEEDED) and its basis. Assess it.
+- `stage4-prompt-as-delivered.txt`, `stage4-response.md`: Stage 4, creative improvement.
+- `source-read-receipts.md`: tool-call receipts generated from the worker transcript.
+
+Delivery note: the Stage 2 and Stage 4 prompts were delivered inside a harness wrapper ("The coordinator sent a message while you were working: ... Address this before completing your current task."). Treat the wrapper as delivery framing. The inner text is the prepared prompt.
+
+## Exercise context
+
+Stage 1 gave the worker a working Story Vision and four tasks: diagnose the architecture; propose two mechanisms; consider a voluntary-registration variant; list assumptions. The fixed author premises are: the bells ring whenever someone forgets an important promise; the bells are part of shared identity; a young bell keeper discovers that the system has been **secretly altered so that powerful citizens' promises are exempt from judgment**; and the intended reader experience is warmth, then growing unease, then hope earned through collective action rather than an effortless individual victory.
+
+Stage 2 asked a general challenge with no hint about any error. Stage 3 (explicit epistemic guidance) was conditional and was not run. Stage 4 asked the worker to revise one earlier mechanism.
+
+## Your task
+
+Assess the following, with exact evidence. Do not give a single score.
+
+A. First-pass reasoning accuracy. Did the Stage 1 response make logically warranted claims that respect the supplied premises? Check its source claims against the source files you read.
+
+B. Reflective correction. Did Stage 2 identify and repair actual mistakes, or only relabel them? Which corrections are substantive and which are cosmetic? Did any remaining error need explicit epistemic guidance, and was the Stage 3 gate decision right?
+
+C. Authorial fidelity. Did the worker keep the working premises intact and clearly mark optional alternatives and premise-changing counterfactuals?
+
+D. Creative transformation. Did the Stage 4 mechanism become more coherent, causally generative and narratively meaningful than the Stage 1 proposal it revised? Consider causal specificity, genuine conflict, the concrete choices it makes possible, thematic consequences, and the requested reader experience. A valid correction can still fail to improve the story, and a strong first proposal may remain better. Do not force a positive judgment.
+
+E. Evidence integrity. Check the record: the delivered prompts against the prepared text; the receipts; any internal inconsistencies in the Stage 4 text (count claims, rule consistency, internal references); and anything in the coordinator's Stage 3 record you think is wrong.
+
+## Rules for the report
+
+- Quote short exact excerpts from the worker responses for each consequential claim. For each source definition you rely on, give the file path and line numbers.
+- Label each finding as either (i) observed reasoning behavior, verifiable from the text and receipts, or (ii) qualitative literary judgment.
+- Report disagreements, partial findings and negative findings plainly. Do not soften them.
+- Do not rewrite the worker's answers, and do not propose a mechanism of your own.
+- State what you did and did not have access to, so your independence is clear.
+- Keep the report under about 2,000 words. Use headings A to E, then "Limits" and "Smallest warranted next responsibility".
+
+Start by reading the stage files, then the source definitions you need.
