@@ -428,6 +428,22 @@ Adapt the three knowledge-graph objectives without creating a second canonical s
 
 **Hard boundaries:** no silent StoryIdentity/Structure/Realization/Expression acceptance; no new global story-state owner, agent runtime or provider dependence; no inference of fictional causality from artifact dependency graphs; no objective creative-quality scores; no new F3/X4 frontier selection by roadmap inclusion. [STATUS](../STATUS.md) continues to govern the unresolved F2/X3 and S2 host-execution evidence. Schema tests and synthetic proposals cannot establish human literary quality or a qualified live agent journey.
 
+## CANDIDATE — Generative Long-Form and Series-Scale Narrative Architecture (2026-11-07)
+**State:** OWNER-ENDORSED STRATEGIC PRIORITY / CANDIDATE INQUIRY; **not** a selected NOW implementation program.  
+**Design source:** [Generative Long-Form Narrative Architecture — Ontology and Development Direction](research/2026-11-07-generative-long-form-narrative-architecture-strategy.md).
+
+**Differentiating product question:** can the active coding agent invent, coordinate, critically examine and revise a compelling Narrative Architecture for very long stories and multi-Book Series—not merely generate good scenes/prose or recall distant continuity facts?
+
+Five interconnected ontology-and-reasoning inquiry families: **composition** of multiple narrative engines; **transformation** of the Series while preserving a recognizable creative identity; **coordination across horizons** of Book functions, arcs and long-delayed promises; **generativity and renewal** rather than episode-padding; and **reflective creative regulation** of strategies, inferences and scope of revision. Reuse base ontology, Premise Fitness, Structure Engine, SeriesIdentity, Studio Architecture, theme/character/emotion contracts and long-horizon history/Map/Focus evidence before considering new types.
+
+**Owner-endorsed development priority:** (1) qualify the existing conceptual foundation and any specific gaps; (2) improve the coding agent's effective creative reasoning through warranted concepts and methods; (3) develop Studio for intelligible, holistic, long-horizon architectural inspection/revision; (4) use Realization and Expression as tests and feedback for whether the design generates compelling stories. These priorities are complementary, not an automatic four-phase implementation queue or a block on useful downstream work.
+
+**Planning choice that remains open:** extensive upfront Book-by-Book detail versus progressive/adaptive design. The advisory default is **deep whole-Series architectural foresight with progressively committed detail**, without conflating remote-Book elaboration with accepted authority. The author may choose either mode or a combination; none is inferred merely from Series length. Macro arcs are optional Series/Structure organizations, not new canonical scopes.
+
+**First candidate responsibility:** a bounded Generative Long-Form Narrative Architecture **semantic-and-reasoning coverage assessment**; distinguish formal ontology gaps, craft knowledge, agent method problems, context delivery, and UX before changing contracts. No automatic large-series experiment, graph database, base-ontology extension, schema migration or prompt change follows.
+
+**Existing boundaries remain:** the selected F2/X3 operational frontier is not closed by this strategy; the long-horizon continuity campaign remains in prospective native evidence incubation with its separate reopening gate. User endorsement of this strategic direction does not retroactively authorize that campaign's deferred extraction, generic ontology, scale or Guided Review V2 work.
+
 ## SHIPPED — Bounded Episode 1 Direction
 **State:** `SHIPPED` in the roadmap sense (implemented/merged); qualification and human-validation follow-ups remain open under issue #218 and `STATUS.md`.
 
