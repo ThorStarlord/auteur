@@ -7,7 +7,7 @@
 
 ## 1. Prepared inputs
 
-- The execution packet (`…-execution-packet-NOT-RUN.md`, PR #522) defined four worker prompts, a conditional Stage 3 gate, and a reviewer brief. It is preserved unchanged as a historical record.
+- The execution packet (`…-execution-packet-NOT-RUN.md`, PR #522) defined four worker prompts, a conditional Stage 3 gate, and a reviewer brief. This execution work did not modify it; it remains a historical record.
 - The merged coverage assessment (PR #521) supplied the conceptual background and the three historical error categories. These were given to the reviewer only, never to the worker.
 - The worker's permitted sources were four files: `base_ontology.yaml`, `narrative-architecture.md`, `emotional-trajectory-contract.md`, `studio_ontology_context.py`.
 

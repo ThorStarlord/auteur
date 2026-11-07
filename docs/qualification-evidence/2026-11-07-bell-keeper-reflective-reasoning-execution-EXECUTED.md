@@ -2,7 +2,7 @@
 
 **Status: EXECUTED — with one protocol deviation (Stage 3 not run).** This record is evidence of what ran. It is **not** a qualification pass, and it makes no general claim about agent or creative competence.
 
-This record supersedes the `NOT-RUN` status of the packet and the boundary report for this run only. Those two historical documents are **unchanged** and remain the record of the earlier blocked environment.
+This record supersedes the `NOT-RUN` status of the packet and the boundary report for this run only. This execution work did not modify those two historical documents; they remain the record of the earlier blocked environment.
 
 Raw artifacts for this run: [`2026-11-07-bell-keeper-reflective-reasoning-execution/`](2026-11-07-bell-keeper-reflective-reasoning-execution/). The concise evaluation is in [`docs/research/2026-11-07-bell-keeper-reflective-reasoning-probe-execution-evaluation.md`](../research/2026-11-07-bell-keeper-reflective-reasoning-probe-execution-evaluation.md).
 
