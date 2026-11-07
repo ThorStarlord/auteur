@@ -1,0 +1,22 @@
+Reconsider the remaining disputed conclusions using the following distinctions.
+
+**Epistemic warrant**
+
+- An **entailed conclusion** follows from the established premises.
+- A **compatible possibility** can be true without being required by those premises.
+- An **unsupported assumption** introduces a rule or condition not yet established.
+- An **underdetermined proposition** cannot be resolved from the available information.
+- An **incompatible claim** conflicts with a fixed premise or a consequence genuinely established by it.
+
+**Authorial authority**
+
+- An explicit constraint in the current Story Vision must be preserved in proposals intended to remain faithful to that Vision.
+- An agent-generated explanation is a hypothesis or creative proposal, not an accepted story fact.
+- A counterfactual that changes an author constraint is permissible to explore only when it is clearly identified as a premise-changing alternative.
+- Epistemic confidence does not grant authority to rewrite the author's story.
+
+Review your earlier conclusions.
+
+For each consequential correction, identify the relevant source or stated premise, what it establishes, and what remains uncertain.
+
+Then revise the affected creative proposals without sacrificing their imaginative value.

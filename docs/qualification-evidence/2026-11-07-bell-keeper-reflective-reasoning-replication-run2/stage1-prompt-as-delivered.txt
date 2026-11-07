@@ -1,0 +1,40 @@
+Working root for this task: C:/Users/Admin/AppData/Local/Temp/claude/e91f3203f308aeba/8875ee13-62af-474c-9f09-67e4f6b05c3a/scratchpad/auteur-source-snapshot
+Read-only. Use only files under the working root; do not read, list or search any other path. Relative paths below are relative to the working root. Do not modify any file.
+
+---
+
+You are conducting a small, read-only Narrative Architecture exercise in Auteur.
+
+First inspect:
+
+- `data/ontology/base_ontology.yaml`
+- `docs/narrative-architecture.md`
+- `docs/emotional-trajectory-contract.md`
+- `src/auteur/beginner/studio_ontology_context.py`
+
+Apply relevant narrative concepts to the following working Story Vision.
+
+**Story Vision**
+
+A beautiful cliffside city has an ancient system of bells that ring whenever someone forgets an important promise.
+
+The bells are part of the city's shared identity. They connect everyday rituals, communal responsibility, public trust, and the feeling that people belong to something larger than themselves.
+
+A young bell keeper discovers that the system has been secretly altered so that powerful citizens' promises are exempt from judgment.
+
+The intended reader experience combines:
+
+- Warmth and belonging in a beautiful, habitable community.
+- Growing unease about institutional injustice.
+- Hope earned through collective action rather than an effortless individual victory.
+
+**Your tasks**
+
+1. Diagnose the current Narrative Architecture. Explain its central conflict, causal structure, emotional potential, strengths, weaknesses, and unresolved questions.
+2. Propose two meaningfully different narrative mechanisms that could develop the premise into a sustainable story. Explain how each works, what pressures it generates, and how it supports the intended reader experience.
+3. Consider this hypothetical variation: citizens must voluntarily register their promises before those promises are subject to the bell system. Explain what follows for the operation of the bells, the possibility of forgetting, and the story's conflicts.
+4. Identify any important assumptions your analysis relies upon and any story rules that remain unspecified.
+
+Preserve the author's working premises. Treat new mechanisms as proposals, not established facts.
+
+Provide your conclusions with concise source-grounded explanations.
