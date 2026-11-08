@@ -2,10 +2,10 @@
 
 **Date:** 2026-11-07  
 **Repository:** ThorStarlord/auteur  
-**Pinned main / assessment baseline:** \`18c8bfd7361e6fc5f964e6d76018c052bfedd9a6\` (PR #526 merged)  
+**Pinned main / assessment baseline:** `18c8bfd7361e6fc5f964e6d76018c052bfedd9a6` (PR #526 merged)  
 **Status:** **BLOCKED_AT_AUTHENTIC_AGENT_EXECUTION — NO WORKER RUN, NO CREATIVE OUTPUT, NO QUALIFICATION**  
 **Authority:** Experimental/noncanonical setup and execution-boundary record only. This does not accept fictional story material, change ontology/product, execute a reviewer, or select an implementation.  
-**Source mission:** User's pasted “Auteur — Authentic 12-Book Generative Narrative Architecture Construction Exercise”, SHA-256 of original UTF-8 file: \`0e67cee354f1f0b972c59689e258a428d478c7246ade5e42d6a3cecd4a2bc924\`. This record deliberately supplies only **Stage 1** to any future worker so later counterfactual/reviewer information is not seen in advance.
+**Source mission:** User's pasted “Auteur — Authentic 12-Book Generative Narrative Architecture Construction Exercise”, SHA-256 of original UTF-8 file: `0e67cee354f1f0b972c59689e258a428d478c7246ade5e42d6a3cecd4a2bc924`. This record deliberately supplies only **Stage 1** to any future worker so later counterfactual/reviewer information is not seen in advance.
 
 ## 1. Execution boundary and observed attempts
 
@@ -14,9 +14,9 @@ The mission requires a **genuinely executing coding agent** and prohibits a coor
 **Observed setup:**
 
 - Current repository main was verified at the pinned SHA above. A new documentation-only evidence branch was created from this exact commit.
-- The accessible local container has \`git\`, \`python3\` and \`node\`, but no \`codex\`, \`claude\`, \`opencode\`, \`aider\`, \`gemini\`, \`amp\`, \`goose\`, \`ollama\`, \`lmstudio\`, or \`gh\` executable in PATH. The presence of an SDK is not a running coding agent.
+- The accessible local container has `git`, `python3` and `node`, but no `codex`, `claude`, `opencode`, `aider`, `gemini`, `amp`, `goose`, `ollama`, `lmstudio`, or `gh` executable in PATH. The presence of an SDK is not a running coding agent.
 - The connected GitHub connector provides repository, issue, branch, PR and file operations, but no direct independent coding-agent session launcher in the available tool set.
-- An attempted GitHub \`create_issue\` **with \`assignees: ["copilot-swe-agent[bot]"]\`** to launch a Stage 1 worker returned **HTTP 422**, with error \`assignees copilot cannot be assigned to this issue\`. The creation was rejected; no issue or agent run was created by the attempted call.
+- An attempted GitHub `create_issue` **with `assignees: ["copilot-swe-agent[bot]"]`** to launch a Stage 1 worker returned **HTTP 422**, with error `assignees copilot cannot be assigned to this issue`. The creation was rejected; no issue or agent run was created by the attempted call.
 - No worker prompt was successfully delivered to an independent coding agent. No model identity, genuine worker read receipts, worker response, Stage 1 PR or creative artifact exists.
 - No existing private author project or canonical fictional data was opened or modified.
 
@@ -105,16 +105,16 @@ These blob SHAs were queried through the GitHub connector at the pinned main. **
 
 | Source at baseline | GitHub blob SHA |
 | --- | --- |
-| \`docs/research/2026-11-07-generative-long-form-narrative-architecture-strategy.md\` | \`375d42a2ff83757a05e4dfe2b9cabe5a541e2899\` |
-| \`docs/research/2026-11-07-generative-long-form-narrative-architecture-coverage-assessment.md\` | \`8ac6c7bea2c945edd0e3721a54538a9af3a372d7\` |
-| \`docs/narrative-architecture.md\` | \`b676d5c7e3879c7baebe0b7f7b8be2d0e21a0a8a\` |
-| \`data/ontology/base_ontology.yaml\` | \`cabfe043efc2e7005e6cef707eba6e3158c8a240\` |
-| \`docs/premise-fitness.md\` | \`5062d4ee5b2207d37135d4d4d384bb948aabd010\` |
-| \`docs/structure-engine-v1.md\` | \`4498dfe731ab856bd1eff3d07082093cd7de26c9\` |
-| \`docs/adr/012-series-engine-v1.md\` | \`402ab29e46ddf51f14beab6ef4d8c1e049c81cbc\` |
-| \`src/auteur/series/models.py\` | \`753241598602fa7cb68d42144da3f990ae55b5c1\` |
-| \`src/auteur/beginner/studio_architecture.py\` | \`62b9f1b865fa88b9c4cc862c92a6fc35b1d7d088\` |
-| \`docs/reasoning-architecture.md\` | \`e23868a652d0426a9ce0c8957d445a859b1bf4a3\` |
+| `docs/research/2026-11-07-generative-long-form-narrative-architecture-strategy.md` | `375d42a2ff83757a05e4dfe2b9cabe5a541e2899` |
+| `docs/research/2026-11-07-generative-long-form-narrative-architecture-coverage-assessment.md` | `8ac6c7bea2c945edd0e3721a54538a9af3a372d7` |
+| `docs/narrative-architecture.md` | `b676d5c7e3879c7baebe0b7f7b8be2d0e21a0a8a` |
+| `data/ontology/base_ontology.yaml` | `cabfe043efc2e7005e6cef707eba6e3158c8a240` |
+| `docs/premise-fitness.md` | `5062d4ee5b2207d37135d4d4d384bb948aabd010` |
+| `docs/structure-engine-v1.md` | `4498dfe731ab856bd1eff3d07082093cd7de26c9` |
+| `docs/adr/012-series-engine-v1.md` | `402ab29e46ddf51f14beab6ef4d8c1e049c81cbc` |
+| `src/auteur/series/models.py` | `753241598602fa7cb68d42144da3f990ae55b5c1` |
+| `src/auteur/beginner/studio_architecture.py` | `62b9f1b865fa88b9c4cc862c92a6fc35b1d7d088` |
+| `docs/reasoning-architecture.md` | `e23868a652d0426a9ce0c8957d445a859b1bf4a3` |
 
 The worker must record actual reads separately. If the worker operates at a later main SHA, it must record the new base and any changed source blobs; do not silently reuse this manifest as current.
 
