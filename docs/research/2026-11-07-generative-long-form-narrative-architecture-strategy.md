@@ -315,3 +315,7 @@ The governing distinctions are:
 1. A larger ontology is not creative intelligence; the capability is using warranted narrative relationships to invent, compare and transform meaningful possibilities.
 2. A long series is not many outlines and not perpetual postponement; it is a changing system of renewable causes, earned consequences and coordinated promises.
 3. Deep long-range intention is compatible with adaptive discovery; **architectural foresight is not the same as irreversible detail**.
+
+## Research follow-up — coverage assessment (2026-11-07)
+
+The [Generative Long-Form Narrative Architecture coverage assessment](2026-11-07-generative-long-form-narrative-architecture-coverage-assessment.md) examines existing concepts, representations, agent-facing delivery, authentic bounded evidence, and the smallest warranted next responsibility at `main@2dbd1d2077b2d03b16ee6570db10d5c37d223aaf`. Its findings are advisory; this pointer does not change the owner-endorsed priority, accept the proposed planning-mode default, amend the ontology, or authorize implementation.
