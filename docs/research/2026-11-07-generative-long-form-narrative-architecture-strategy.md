@@ -319,3 +319,9 @@ The governing distinctions are:
 ## Research follow-up — coverage assessment (2026-11-07)
 
 The [Generative Long-Form Narrative Architecture coverage assessment](2026-11-07-generative-long-form-narrative-architecture-coverage-assessment.md) examines existing concepts, representations, agent-facing delivery, authentic bounded evidence, and the smallest warranted next responsibility at `main@2dbd1d2077b2d03b16ee6570db10d5c37d223aaf`. Its findings are advisory; this pointer does not change the owner-endorsed priority, accept the proposed planning-mode default, amend the ontology, or authorize implementation.
+
+## Research follow-up — Wandering Islands scope and learning reconciliation (2026-11-10)
+
+The [Wandering Islands cross-stage retrospective](2026-11-10-wandering-islands-creative-scope-drift-reconciliation.md) reviews the **draft, noncanonical** twelve-Book research sequence in PRs #528–#540. It documents an observed transition from architecture construction and counterfactual renewal toward one Book 11 contact sequence, extended prose, model-reader feedback, and a sentence-level correction. It distinguishes that **research scope drift** from the unproven hypotheses of premature convergence, provisional commitment accumulation, and session-level task-selection failure.
+
+The findings reinforce the existing Priority 4 boundary: Realization and Expression can test architectural mechanisms, but locally successful prose iteration does not qualify long-form Architecture and does not automatically warrant the next prose task. Before continuing this research line, compare a proposed local task's **decision value for the original Series Architecture capability** with returning to architectural alternatives and the lowest correct owning layer. This is advisory continuation guidance, **not** a mandatory workflow, changed product thesis, ontology/schema decision, authorization for further experiments, or acceptance of the fictional proposal.
