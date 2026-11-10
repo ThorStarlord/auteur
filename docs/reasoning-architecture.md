@@ -286,11 +286,13 @@ provides one bounded motivation, not proof of a universal agent defect.
 The first read-only capability is
 `auteur.reasoning.responsibility_frame`. It accepts a **caller-supplied**
 source-bound decision frame and returns an advisory review of declared gaps.
-A narrow `mission_continuation` review checks whether a selected local
-responsibility has a stated goal contribution and decision value, whether a
-mission-level alternative is represented, and whether the choice is explicitly
-compared with that alternative. It can suggest a **question** to reopen the
-decision frame; it does not invent a qualified action or choose the winner.
+A narrow `mission_continuation` review checks whether a selected
+responsibility has a stated goal contribution and decision value. Selecting
+local work requires either comparing a represented mission-level alternative
+**or explaining why none is currently material**. Selecting mission-level work
+also requires comparing any represented local alternative. It can suggest a
+**question** to reopen the decision frame; it does not invent a qualified
+action or choose the winner.
 
 Use `python -m auteur.reasoning.responsibility_frame PATH_TO_FRAME.json`
 to inspect an explicitly recorded JSON frame, or call
