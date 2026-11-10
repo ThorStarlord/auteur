@@ -191,6 +191,18 @@ For example, already-authorized behavior-preserving maintenance may continue
 while a product-direction lane waits for human or external evidence. Do not
 manufacture the missing evidence merely to keep implementation moving.
 
+At a **consequential creative-research handoff**, distinguish a local
+experiment's recommendation from selection of the next mission-level
+responsibility. Revisit the source-bound governing objective; consider whether
+returning to whole-Architecture research could have greater decision value
+than the locally promising continuation, or explain why it is not currently
+material. Preserve an explicit comparison without presuming global work always
+wins. The optional, read-only
+\`python -m auteur.reasoning.responsibility_frame FRAME.json\` helper checks
+declared decision-frame omissions (see \`docs/reasoning-architecture.md\`);
+its report does not rank options, authorize work, or impose a gate on routine
+bounded tasks.
+
 For incremental maintainability programs, repository size or file length alone
 is not sufficient admission evidence for another refactor. Continue
 decomposition only when another concrete existing responsibility can be
