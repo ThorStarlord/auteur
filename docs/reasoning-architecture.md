@@ -284,18 +284,18 @@ provides one bounded motivation, not proof of a universal agent defect.
 | **Selection / Authority** | Which option is recommended, and which authority can authorize execution or accept narrative changes | A recommendation is neither authorization nor author acceptance |
 
 The first read-only capability is
-\`auteur.reasoning.responsibility_frame\`. It accepts a **caller-supplied**
+`auteur.reasoning.responsibility_frame`. It accepts a **caller-supplied**
 source-bound decision frame and returns an advisory review of declared gaps.
-A narrow \`mission_continuation\` review checks whether a selected local
+A narrow `mission_continuation` review checks whether a selected local
 responsibility has a stated goal contribution and decision value, whether a
 mission-level alternative is represented, and whether the choice is explicitly
 compared with that alternative. It can suggest a **question** to reopen the
 decision frame; it does not invent a qualified action or choose the winner.
 
-Use \`python -m auteur.reasoning.responsibility_frame PATH_TO_FRAME.json\`
+Use `python -m auteur.reasoning.responsibility_frame PATH_TO_FRAME.json`
 to inspect an explicitly recorded JSON frame, or call
-\`review_responsibility_frame(ResponsibilityFrame.model_validate(payload))\`.
-Outputs are derived and non-authorizing. \`bounded_task\` reviews do **not**
+`review_responsibility_frame(ResponsibilityFrame.model_validate(payload))`.
+Outputs are derived and non-authorizing. `bounded_task` reviews do **not**
 require a mission-level comparison simply to perform a small local action.
 
 **Epistemic limits:** This reviewer verifies *declared* option references and
@@ -303,7 +303,7 @@ the presence of comparative reasoning, not semantic truth. A superficial
 rationale can satisfy its structural checks. It cannot infer every missing
 option from free text, verify external source revisions, establish actual agent
 attention, estimate optimal creative value, or resolve protected author choices.
-\`no_declared_gaps\` is not a quality pass; \`decision_warrant_gaps\` is not proof
+`no_declared_gaps` is not a quality pass; `decision_warrant_gaps` is not proof
 the chosen local action was wrong. A bounded regression on the preserved Stage
 4G choice-set pattern qualifies only the specific observable omission. A fresh
 agent-level follow-up is needed to establish changed autonomous behavior.
