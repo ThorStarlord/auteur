@@ -108,12 +108,20 @@ This provenance file's own final blob is recorded in the final report after the 
 
 ## 8. Post-creation verification
 
-*This section is completed after the preservation commit and draft PR creation; it does not alter the derivative or any frozen artifact.*
+*This section was completed after the preservation commit and draft PR creation; it does not alter the derivative or any frozen artifact.*
 
-- **Correction commit:** to be recorded after commit.
-- **Final branch head:** to be recorded after commit.
-- **Draft PR:** to be recorded after creation.
-- **Diff verification:** to be recorded after `git diff --name-status` and `gh pr view`.
+- **Correction commit:** `318ff5189a2a87ad5bb66ca6323f038cbf78392e`.
+- **Draft PR:** [#540](https://github.com/ThorStarlord/auteur/pull/540), `OPEN`, `isDraft: true`.
+- **PR base:** `research/wandering-islands-stage4i-independent-reader-completion-20261110`.
+- **PR head:** `research/wandering-islands-stage4j-targeted-literary-correction-20261110`.
+- **Verified PR head at creation:** `318ff5189a2a87ad5bb66ca6323f038cbf78392e`.
+- **Diff:** `git diff --name-status 2fd983282c26ae29d0ab6131214e178a56f8a880..HEAD` shows only the three new Stage 4J files. `gh pr view 540` reports exactly those three added files.
+- **Frozen-artifact verification:** the original manuscript remains blob `483478814c2f7222143cd9df3cc942ed43aa157a`; the fresh-reader response remains blob `2c32c219810bb55d9fcdaadb03cf8de4d63aaf9a`; the reconciliation remains `f53ccae3c1abad6613981834763ec70a222512c6`; the handoff remains `82f6ca486387b9982724659f24b766a27cb3ae78`.
+- **Derivative blob at HEAD:** `b72a69a7ef6fb1bb0edbe130ee39f00cff3f1ee4`.
+- **Authorial-direction blob at HEAD:** `98e51fff08455d018eeb37bb520769cf80ef76ba`.
+- **Provenance blob before this post-creation update:** `042fe163ac86ffe586a90bf8462e4d60c44ea062`. The final provenance blob after this update is recorded in the final report, because a file cannot contain its own post-write hash.
+- **Parent PR #539:** verified `OPEN`, `isDraft: true`, head `2fd983282c26ae29d0ab6131214e178a56f8a880`; unchanged.
+- **Post-update note:** committing this verification creates a later branch head. The final head is recorded in the final report and in PR #540. No frozen artifact or derivative text is modified by this update.
 
 ---
 
