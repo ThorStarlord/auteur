@@ -198,8 +198,8 @@ returning to whole-Architecture research could have greater decision value
 than the locally promising continuation, or explain why it is not currently
 material. Preserve an explicit comparison without presuming global work always
 wins. The optional, read-only
-\`python -m auteur.reasoning.responsibility_frame FRAME.json\` helper checks
-declared decision-frame omissions (see \`docs/reasoning-architecture.md\`);
+`python -m auteur.reasoning.responsibility_frame FRAME.json` helper checks
+declared decision-frame omissions (see `docs/reasoning-architecture.md`);
 its report does not rank options, authorize work, or impose a gate on routine
 bounded tasks.
 
