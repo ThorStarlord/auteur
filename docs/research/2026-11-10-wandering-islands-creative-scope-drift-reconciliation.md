@@ -3,7 +3,7 @@
 **Date:** 2026-11-10  
 **Status:** Advisory, evidence-grounded research retrospective. **Not** a product qualification, accepted fictional architecture, authorial creative decision, ontology amendment, mandatory control procedure, or implementation authorization.  
 **Subject:** The 12-Book *Wandering Islands* experimental sequence, Stages 1–4J.  
-**Authority and evidence boundary:** The original Story Vision and successive outputs are noncanonical research. The experiment evidence is in stacked, open/draft/unmerged PRs [#528–#540](https://github.com/ThorStarlord/auteur/pull/540) as inspected on 2026-11-10. This retrospective is proposed independently against `main@83b60844dff7a01ceaf699d9a8b041399062881d`; it does not import those PR contents into accepted story artifacts or change their status.
+**Authority and evidence boundary:** The original Story Vision and successive outputs are noncanonical research. The experiment evidence is in stacked, open/draft/unmerged PRs #528–#540 (individually linked below), as inspected on 2026-11-10. This retrospective is proposed independently against `main@83b60844dff7a01ceaf699d9a8b041399062881d`; it does not import those PR contents into accepted story artifacts or change their status.
 
 ## 1. The decision this retrospective serves
 
