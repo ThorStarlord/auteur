@@ -86,6 +86,36 @@ def test_explicit_comparison_permits_warranted_local_choice_without_forcing_glob
     # Record completeness is deliberately not an empirical claim about the better choice.
 
 
+def test_explicit_nonmaterial_mission_reentry_is_not_forced():
+    payload = frame()
+    payload["mission_reentry_exclusion_rationale"] = (
+        "No Series-level alternative would change the decision before this bounded contact scene"
+    )
+    result, found = codes(payload)
+    assert found == set()
+    assert result.record_status == "no_declared_gaps"
+    # The reviewer cannot certify whether the exclusion rationale is truthful.
+
+
+def test_selected_mission_work_must_compare_represented_local_alternative():
+    payload = frame()
+    payload["options"].append({
+        "option_id": "e", "action": "Revisit the twelve-Book engine design", "level": "mission",
+        "objective_contribution": "Test cross-Book engine renewal",
+        "decision_value": "May change the overall architecture",
+    })
+    payload["selected_option_id"] = "e"
+    payload["comparisons"] = []
+    result, found = codes(payload)
+    assert found == {"local_alternative_uncompared"}
+    payload["comparisons"].append({
+        "alternative_id": "a", "rationale": "Architectural alternatives may be more informative than one more scene",
+    })
+    reviewed, found = codes(payload)
+    assert found == set()
+    assert reviewed.selected_option_id == "e"
+
+
 def test_bounded_local_work_requires_no_global_comparison():
     result, found = codes(frame(boundary="bounded_task"))
     assert found == set()
