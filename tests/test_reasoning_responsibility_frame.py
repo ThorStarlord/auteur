@@ -94,11 +94,12 @@ def test_bounded_local_work_requires_no_global_comparison():
 
 def test_unexplained_selection_is_visible_even_with_mission_comparison():
     payload = frame()
+    payload["options"].append({"option_id": "e", "action": "Revisit Series Architecture", "level": "mission"})
+    payload["comparisons"].append({"alternative_id": "e", "rationale": "Prose first, then Series review"})
     payload["selection_rationale"] = None
     payload["options"][0]["decision_value"] = None
-    result, found = codes(payload)
-    assert "selection_rationale_unstated" in found
-    assert "selected_decision_value_unstated" in found
+    _, found = codes(payload)
+    assert found == {"selection_rationale_unstated", "selected_decision_value_unstated"}
 
 
 @pytest.mark.parametrize("mutation", ["duplicate", "invalid_selected", "unknown_compared", "self_comparison"])
