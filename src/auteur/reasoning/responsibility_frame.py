@@ -59,6 +59,7 @@ class ResponsibilityFrame(BaseModel):
     selected_option_id: str = Field(min_length=1)
     selection_rationale: str | None = None
     comparisons: tuple[ComparativeWarrant, ...] = Field(default_factory=tuple, strict=False)
+    mission_reentry_exclusion_rationale: str | None = None
 
     @model_validator(mode="after")
     def validate_references(self) -> Self:
@@ -80,6 +81,7 @@ class ResponsibilityFrame(BaseModel):
 FindingCode = Literal[
     "mission_alternative_unrepresented",
     "mission_alternative_uncompared",
+    "local_alternative_uncompared",
     "selected_goal_link_unstated",
     "selected_decision_value_unstated",
     "selection_rationale_unstated",
@@ -132,20 +134,31 @@ def review_responsibility_frame(frame: ResponsibilityFrame) -> ResponsibilityFra
             add("selected_decision_value_unstated", "The selection does not say what outcome would change a mission-level judgment.")
         if selected.level == "local":
             mission_ids = {option.option_id for option in frame.options if option.level == "mission"}
-            if not mission_ids:
+            if not mission_ids and not (
+                frame.mission_reentry_exclusion_rationale and frame.mission_reentry_exclusion_rationale.strip()
+            ):
                 add(
                     "mission_alternative_unrepresented",
-                    "The frame promotes local work as the next mission task without considering a mission-level alternative.",
+                    "No mission-level alternative or reason to exclude one was recorded for the selected local work.",
                 )
                 question = (
                     "Would returning directly to the governing objective ("
                     + frame.governing_objective.statement
                     + ") offer more decision value than the selected local work?"
                 )
-            elif not mission_ids.intersection(comparison.alternative_id for comparison in frame.comparisons):
+            elif mission_ids and not mission_ids.intersection(comparison.alternative_id for comparison in frame.comparisons):
                 add(
                     "mission_alternative_uncompared",
                     "A mission-level alternative is represented but no explicit comparison with it is recorded.",
+                )
+        elif selected.level == "mission":
+            local_ids = {option.option_id for option in frame.options if option.level == "local"}
+            if local_ids and not local_ids.intersection(
+                comparison.alternative_id for comparison in frame.comparisons
+            ):
+                add(
+                    "local_alternative_uncompared",
+                    "Local alternatives were represented but not compared with the selected mission-level work.",
                 )
 
     return ResponsibilityFrameReview(
