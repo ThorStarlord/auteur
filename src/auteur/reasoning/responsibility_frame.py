@@ -55,10 +55,10 @@ class ResponsibilityFrame(BaseModel):
     governing_objective: GoverningObjective
     current_question: str = Field(min_length=1)
     decision_boundary: Literal["bounded_task", "mission_continuation"]
-    options: list[ResponsibilityOption] = Field(min_length=1)
+    options: tuple[ResponsibilityOption, ...] = Field(min_length=1, strict=False)
     selected_option_id: str = Field(min_length=1)
     selection_rationale: str | None = None
-    comparisons: list[ComparativeWarrant] = Field(default_factory=list)
+    comparisons: tuple[ComparativeWarrant, ...] = Field(default_factory=tuple, strict=False)
 
     @model_validator(mode="after")
     def validate_references(self) -> Self:
