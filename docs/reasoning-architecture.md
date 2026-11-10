@@ -262,6 +262,58 @@ stored as an unverified hypothesis or suggestion for review.
 14. A reasoning report never silently replaces a prior report.
 15. Failed reasoning runs leave no partial canonical mutation.
 
+## Responsibility-selection ontology (advisory agent control)
+
+A consequential next-task choice is itself an object of reasoning. This is an
+**operational decision ontology**, not a thirteenth narrative concept, a sixth
+semantic layer, a new canonical story owner, or a rule that global work always
+wins. It extends Reasoning Architecture's distinction between evidence,
+interpretation, recommendation, and authority to *choosing the next research
+responsibility*. The [Wandering Islands decision-frame audit](research/2026-11-10-wandering-islands-creative-scope-drift-reconciliation.md)
+provides one bounded motivation, not proof of a universal agent defect.
+
+| Concept | Meaning | Relationship |
+| --- | --- | --- |
+| **GoverningObjective** | Source-bound mission or product capability the decision should serve | Governs the comparison; identified by source reference and revision |
+| **CurrentQuestion** | The bounded question currently answered | May differ from the governing objective without contradicting it |
+| **DecisionBoundary** | Whether choosing *inside a bounded task* or promoting a recommendation into *mission continuation* | Determines whether a broader alternative needs reconsideration |
+| **ResponsibilityOption** | A candidate next action, including local investigation, mission-level re-entry, closure, or author choice | Considered within a decision frame; not automatically authorized |
+| **ObjectiveContribution** | Explicit claim about how an option advances the governing objective | Connects a local or broader action to the mission |
+| **DecisionValue** | What outcome would change a relevant judgment or subsequent action | Distinct from improving the latest artifact |
+| **ComparativeWarrant** | A stated reason for preferring the candidate over a named alternative | Makes the decision record inspectable; does not prove it is optimal |
+| **Selection / Authority** | Which option is recommended, and which authority can authorize execution or accept narrative changes | A recommendation is neither authorization nor author acceptance |
+
+The first read-only capability is
+\`auteur.reasoning.responsibility_frame\`. It accepts a **caller-supplied**
+source-bound decision frame and returns an advisory review of declared gaps.
+A narrow \`mission_continuation\` review checks whether a selected local
+responsibility has a stated goal contribution and decision value, whether a
+mission-level alternative is represented, and whether the choice is explicitly
+compared with that alternative. It can suggest a **question** to reopen the
+decision frame; it does not invent a qualified action or choose the winner.
+
+Use \`python -m auteur.reasoning.responsibility_frame PATH_TO_FRAME.json\`
+to inspect an explicitly recorded JSON frame, or call
+\`review_responsibility_frame(ResponsibilityFrame.model_validate(payload))\`.
+Outputs are derived and non-authorizing. \`bounded_task\` reviews do **not**
+require a mission-level comparison simply to perform a small local action.
+
+**Epistemic limits:** This reviewer verifies *declared* option references and
+the presence of comparative reasoning, not semantic truth. A superficial
+rationale can satisfy its structural checks. It cannot infer every missing
+option from free text, verify external source revisions, establish actual agent
+attention, estimate optimal creative value, or resolve protected author choices.
+\`no_declared_gaps\` is not a quality pass; \`decision_warrant_gaps\` is not proof
+the chosen local action was wrong. A bounded regression on the preserved Stage
+4G choice-set pattern qualifies only the specific observable omission. A fresh
+agent-level follow-up is needed to establish changed autonomous behavior.
+
+This capability must not become a mandatory step for routine tasks, an
+automatic task router, an expected-value score, a blocker enforced by a CLI
+exit status, or a replacement for the existing Reasoning/Provenance/Author
+Decision contracts. It helps a decision-maker *notice* a potentially
+incomplete frame at a consequential handoff while retaining adaptive judgment.
+
 ## Scope boundaries
 
 In scope:
