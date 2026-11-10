@@ -92,7 +92,11 @@ This provenance establishes one fresh-context model reading of the complete five
 
 *This section was added after the branch was pushed and the draft PR was opened; it does not alter the frozen response.*
 
-- **Evidence commit (reconciliation, provenance, instruction):** to be recorded after the commit.
-- **Final branch head:** to be recorded after the commit.
-- **Draft PR:** to be recorded after creation.
-- **Verification:** to be recorded after `gh pr view`.
+- **Evidence commit (reconciliation, provenance, instruction):** `f0ee874815634a6847f9a2ca5131874b72464c2d`.
+- **Draft PR:** [#539](https://github.com/ThorStarlord/auteur/pull/539), `OPEN`, `isDraft: true`.
+- **PR base:** `research/wandering-islands-stage4i-first-reader-20261110`.
+- **PR head:** `research/wandering-islands-stage4i-independent-reader-completion-20261110`.
+- **Verified PR head at creation:** `f0ee874815634a6847f9a2ca5131874b72464c2d`.
+- **Historical PR #538:** verified `OPEN`, `isDraft: true`, head `d86df3fa5d7d211d1bbf429711785f07ca317eca`, base `research/wandering-islands-stage4h-book11-realization-20261110`; unchanged.
+- **Frozen-response integrity:** `git ls-tree HEAD` reports blob `2c32c219810bb55d9fcdaadb03cf8de4d63aaf9a` for `stage4i-fresh-reader-initial-response.md`; the response commit remains `8d4806b873662e26f9153a3c57a9879fc0aa80d0`.
+- **Post-provenance-update note:** The provenance update itself creates a later branch head; the final head is recorded in the final report and the PR. It does not modify the frozen response.
