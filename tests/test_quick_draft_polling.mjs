@@ -13,7 +13,8 @@ const initMarker = '  if (document.readyState === "loading") {';
 assert.equal(source.split(initMarker).length, 2, 'browser init marker must be unique');
 const instrumented = source.replace(initMarker,
   '  window.__pollTest = { state, scheduleQuickDraftPoll, showWorkspace, ' +
-  'checkQuickDraftResult, renderQuickDraftProjection };\n' + initMarker);
+  'checkQuickDraftResult, renderQuickDraftProjection, loadQuickDraftSession, ' +
+  'startQuickDraft };\n' + initMarker);
 
 function fixture() {
   const elements = new Map();
@@ -34,6 +35,8 @@ function fixture() {
     addEventListener() {},
   };
   const window = {
+    location: { href: 'http://127.0.0.1/beginner.html' },
+    history: { pushState() {} },
     setTimeout(callback) {
       const id = ++nextTimer;
       timeouts.set(id, callback);
@@ -44,7 +47,7 @@ function fixture() {
   const fetch = (url) => new Promise((resolve, reject) => {
     requests.push({ url, resolve, reject });
   });
-  vm.runInNewContext(instrumented, { window, document, fetch });
+  vm.runInNewContext(instrumented, { window, document, fetch, URL });
   const control = window.__pollTest;
   control.state.quickDraftPending = true;
   control.state.quickDraftSessionId = 'session-a';
@@ -100,6 +103,46 @@ test('in-flight poll cannot render a hidden Quick Draft after workspace navigati
   assert.equal(f.timeouts.size, 0);
 });
 
+test('initial Quick Draft load cannot render after workspace navigation', async () => {
+  const f = fixture();
+  f.control.state.quickDraftPending = false;
+  const load = f.control.loadQuickDraftSession('session-a');
+  assert.equal(f.requests.length, 1);
+  f.control.showWorkspace();
+  f.requests[0].resolve(readyResponse());
+  await load;
+  assert.equal(f.element('quick-draft-result').hidden, true);
+  assert.equal(f.control.state.quickDraftPending, false);
+  assert.equal(f.timeouts.size, 0);
+});
+
+test('starting a new Quick Draft invalidates an in-flight initial load', async () => {
+  const f = fixture();
+  f.control.state.quickDraftPending = false;
+  f.element('new-story-premise').value = 'Premise';
+  f.element('quick-draft-first-scene').value = 'Opening';
+  const load = f.control.loadQuickDraftSession('session-a');
+  const started = f.control.startQuickDraft();
+  assert.equal(f.requests.length, 2);
+  f.requests[0].resolve(readyResponse());
+  await load;
+  assert.equal(f.element('quick-draft-result').hidden, true);
+  f.requests[1].resolve({
+    ok: true,
+    json: async () => ({
+      session_id: 'session-b',
+      draft: { status: 'awaiting_host_agent', accepted: false,
+        backend_request: { file: 'host_agent_request.json', request_sha256: 'a'.repeat(64) } },
+      draft_text: null,
+      scaffold: { inputs: { premise: 'Premise', first_scene_intent: 'Opening' } },
+    }),
+  });
+  await started;
+  assert.equal(f.control.state.quickDraftSessionId, 'session-b');
+  assert.equal(f.element('quick-draft-result').hidden, false);
+  assert.equal(f.element('quick-draft-host-controls').hidden, false);
+});
+
 test('manual Check for scene confirms when the host-agent response is still pending', async () => {
   const f = fixture();
   const manualCheck = f.control.checkQuickDraftResult();
@@ -152,6 +195,20 @@ test('hidden-tab responses are ignored and a visible retry can render Working pr
   assert.equal(f.element('quick-draft-editor').value, 'Unaccepted Working prose');
   assert.equal(f.control.state.quickDraftPending, false);
   assert.equal(f.timeouts.size, 0);
+});
+
+test('automatic polling stops after twelve pending checks', async () => {
+  const f = fixture();
+  f.control.scheduleQuickDraftPoll();
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    f.tick();
+    assert.equal(f.requests.length, attempt + 1);
+    f.requests[attempt].resolve(pendingResponse());
+    await settleMicrotasks();
+  }
+  assert.equal(f.timeouts.size, 0);
+  assert.match(f.element('quick-draft-handoff-status').textContent, /still waiting/i);
+  assert.equal(f.control.state.quickDraftPollAttempts, 12);
 });
 
 test('pending controls require a valid bound request, not merely a status label', () => {

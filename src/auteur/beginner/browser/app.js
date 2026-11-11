@@ -403,6 +403,7 @@
       $("quick-draft-first-scene").focus();
       return;
     }
+    clearQuickDraftPoll();
     state.quickDraftDiscoveriesVisible = false;
     state.quickDraftDiscoveries = [];
     state.quickDraftPremise = premise;
@@ -428,6 +429,8 @@
 
   function loadQuickDraftSession(sessionId, expectedGeneration) {
     if (!sessionId) return Promise.resolve(null);
+    var hasExpectedGeneration = expectedGeneration !== undefined;
+    var generation = hasExpectedGeneration ? expectedGeneration : state.quickDraftPollGeneration;
     $("home-status").textContent = "Loading your working scene…";
     return fetch(
       "/api/beginner/quick-draft/" + encodeURIComponent(sessionId),
@@ -435,9 +438,9 @@
     )
       .then(readJson)
       .then(function (projection) {
-        if (expectedGeneration !== undefined &&
-            (expectedGeneration !== state.quickDraftPollGeneration ||
-             state.quickDraftSessionId !== sessionId || !state.quickDraftPending ||
+        if (generation !== state.quickDraftPollGeneration) return null;
+        if (hasExpectedGeneration &&
+            (state.quickDraftSessionId !== sessionId || !state.quickDraftPending ||
              $("home-surface").hidden || document.hidden)) return null;
         if (projection.session_id !== sessionId) {
           throw new Error("Response belongs to another Quick Draft session");
@@ -448,8 +451,7 @@
         return projection;
       })
       .catch(function (error) {
-        if (expectedGeneration !== undefined &&
-            expectedGeneration !== state.quickDraftPollGeneration) return null;
+        if (generation !== state.quickDraftPollGeneration) return null;
         $("home-status").textContent = "Could not reopen Quick Draft: " + error.message;
         return null;
       });
