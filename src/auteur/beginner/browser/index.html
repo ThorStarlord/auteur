@@ -49,6 +49,15 @@
           <p>Exact request SHA-256: <code id="quick-draft-handoff-sha" class="handoff-identifier"></code></p>
           <p>Complete the matching host-agent request and reopen this Quick Draft. No story facts are accepted here.</p>
         </details>
+        <section id="quick-draft-host-controls" class="quick-draft-host-controls" aria-label="Pending coding-agent scene" hidden>
+          <p class="hint">The scene request is saved, but this browser cannot invoke the coding agent. Give the instructions below to the coding agent working in this project.</p>
+          <pre id="quick-draft-agent-instructions" aria-label="Instructions for your coding agent"></pre>
+          <div class="surface-actions">
+            <button id="quick-draft-copy-handoff" type="button">Copy agent instructions</button>
+            <button id="quick-draft-check-result" type="button">Check for scene</button>
+          </div>
+          <p id="quick-draft-handoff-status" class="hint" role="status" aria-live="polite"></p>
+        </section>
         <div class="surface-actions">
           <button id="quick-draft-save" type="button" class="continue-button">Save changes</button>
           <button id="quick-draft-discover" type="button">What did we discover?</button>
