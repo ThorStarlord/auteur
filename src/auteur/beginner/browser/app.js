@@ -33,6 +33,10 @@
     quickDraftDiscoveries: [],
     quickDraftDiscoveriesVisible: false,
     quickDraftDirty: false,
+    quickDraftPending: false,
+    quickDraftPollTimer: null,
+    quickDraftPollAttempts: 0,
+    quickDraftPollGeneration: 0,
   };
 
   function $(id) {
@@ -86,6 +90,8 @@
   }
 
   function showHome() {
+    clearQuickDraftPoll();
+    state.quickDraftPending = false;
     $("home-surface").hidden = false;
     $("app-shell").hidden = true;
     $("nav-toggle").hidden = true;
@@ -105,6 +111,8 @@
   }
 
   function showWorkspace() {
+    clearQuickDraftPoll();
+    state.quickDraftPending = false;
     $("home-surface").hidden = true;
     $("app-shell").hidden = false;
     $("nav-toggle").hidden = false;
@@ -213,8 +221,127 @@
       pending ? ".auteur/quick_draft/" + sessionId + "/host_agent_request.json" : "";
     $("quick-draft-handoff-sha").textContent = pending ? request.request_sha256 : "";
   }
+  function clearQuickDraftPoll() {
+    // A completed GET may resolve after navigation; invalidate it as well as timers.
+    state.quickDraftPollGeneration += 1;
+    if (state.quickDraftPollTimer !== null) {
+      window.clearTimeout(state.quickDraftPollTimer);
+      state.quickDraftPollTimer = null;
+    }
+  }
+
+  function quickDraftHostInstructions(sessionId) {
+    var path = $("quick-draft-handoff-file").textContent;
+    var sha = $("quick-draft-handoff-sha").textContent;
+    if (!state.quickDraftPending ||
+        path !== ".auteur/quick_draft/" + sessionId + "/host_agent_request.json" ||
+        !/^[a-f0-9]{64}$/.test(sha)) return "";
+    return "In the currently open Auteur project, complete the existing host-agent " +
+      "Quick Draft request at " + path + ".\n" +
+      "Expected request SHA-256 identifier: " + sha + ".\n\n" +
+      "1. Read the staged request using auteur.host_agent.load_host_agent_request. " +
+      "Verify its request_sha256 matches the identifier above; do not create a new session.\n" +
+      "2. Use the current coding-agent model to write one scene following the exact " +
+      "request's system and user instructions. Do not switch to a paid provider.\n" +
+      "3. Build the bound response with auteur.host_agent.build_host_agent_response " +
+      "and complete via auteur.quick_draft.complete_quick_draft_host_agent_response " +
+      "for session '" + sessionId + "'.\n" +
+      "4. Leave the story provisional/Working; do not accept canon.\n" +
+      "Return to the browser and choose 'Check for scene'.";
+  }
+
+  function scheduleQuickDraftPoll() {
+    if (!state.quickDraftPending || !state.quickDraftSessionId ||
+        state.quickDraftPollTimer !== null || state.quickDraftPollAttempts >= 12 ||
+        document.hidden || $("home-surface").hidden) return;
+    var sessionId = state.quickDraftSessionId;
+    var generation = state.quickDraftPollGeneration;
+    state.quickDraftPollTimer = window.setTimeout(function () {
+      state.quickDraftPollTimer = null;
+      if (generation !== state.quickDraftPollGeneration ||
+          !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+          $("home-surface").hidden || document.hidden) return;
+      state.quickDraftPollAttempts += 1;
+      fetch("/api/beginner/quick-draft/" + encodeURIComponent(sessionId), {
+        headers: { Accept: "application/json" }
+      }).then(readJson).then(function (projection) {
+        if (generation !== state.quickDraftPollGeneration ||
+            !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+            $("home-surface").hidden || document.hidden) return;
+        if (projection.session_id !== sessionId) {
+          $("quick-draft-handoff-status").textContent =
+            "Could not check this scene: response belongs to another session.";
+          return;
+        }
+        if ((projection.draft || {}).status === "awaiting_host_agent") {
+          if (state.quickDraftPollAttempts >= 12) {
+            $("quick-draft-handoff-status").textContent =
+              "Still waiting. Ask your coding agent to finish, then choose 'Check for scene'.";
+          } else {
+            scheduleQuickDraftPoll();
+          }
+        } else {
+          $("home-status").textContent = "";
+          renderQuickDraftProjection(projection);
+        }
+      }).catch(function (error) {
+        if (generation !== state.quickDraftPollGeneration ||
+            !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+            $("home-surface").hidden || document.hidden) return;
+        $("quick-draft-handoff-status").textContent =
+          "Could not check the scene: " + error.message + ". Try 'Check for scene' again.";
+        scheduleQuickDraftPoll();
+      });
+    }, 5000);
+  }
+
+  function copyQuickDraftHandoff() {
+    if (!state.quickDraftPending || !state.quickDraftSessionId) return;
+    var instructions = quickDraftHostInstructions(state.quickDraftSessionId);
+    if (!instructions) return;
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      $("quick-draft-handoff-status").textContent =
+        "Clipboard unavailable. Select and copy the instructions shown above.";
+      return;
+    }
+    return navigator.clipboard.writeText(instructions).then(function () {
+      $("quick-draft-handoff-status").textContent =
+        "Instructions copied. Give them to the coding agent working in this project.";
+    }).catch(function () {
+      $("quick-draft-handoff-status").textContent =
+        "Clipboard unavailable. Select and copy the instructions shown above.";
+    });
+  }
+
+  function checkQuickDraftResult() {
+    if (!state.quickDraftPending || !state.quickDraftSessionId) return Promise.resolve(null);
+    clearQuickDraftPoll();
+    state.quickDraftPollAttempts = 0;
+    var sessionId = state.quickDraftSessionId;
+    var generation = state.quickDraftPollGeneration;
+    $("quick-draft-handoff-status").textContent = "Checking for your working scene…";
+    return loadQuickDraftSession(sessionId, generation).then(function (projection) {
+      if (generation !== state.quickDraftPollGeneration ||
+          !state.quickDraftPending || state.quickDraftSessionId !== sessionId ||
+          $("home-surface").hidden || document.hidden) return projection;
+      if (!projection) {
+        $("quick-draft-handoff-status").textContent =
+          "Could not check the scene. Try again.";
+      } else if ((projection.draft || {}).status === "awaiting_host_agent") {
+        $("quick-draft-handoff-status").textContent =
+          "Still waiting. Ask your coding agent to finish, then choose 'Check for scene'.";
+        scheduleQuickDraftPoll();
+      }
+      return projection;
+    });
+  }
+
   function renderQuickDraftProjection(projection) {
     if (!projection) return;
+    if (state.quickDraftSessionId !== projection.session_id) {
+      clearQuickDraftPoll();
+      state.quickDraftPollAttempts = 0;
+    }
     state.quickDraftSessionId = projection.session_id;
     var inputs = (projection.scaffold || {}).inputs || {};
     state.quickDraftPremise = inputs.premise || state.quickDraftPremise;
@@ -226,6 +353,17 @@
     $("quick-draft-editor").value = projection.draft_text || "";
     var draft = projection.draft || {};
     renderQuickDraftHandoff(projection);
+    state.quickDraftPending = draft.status === "awaiting_host_agent" &&
+      !$("quick-draft-handoff").hidden;
+    $("quick-draft-host-controls").hidden = !state.quickDraftPending;
+    if (state.quickDraftPending) {
+      $("quick-draft-agent-instructions").textContent =
+        quickDraftHostInstructions(state.quickDraftSessionId);
+      scheduleQuickDraftPoll();
+    } else {
+      clearQuickDraftPoll();
+      $("quick-draft-handoff-status").textContent = "";
+    }
     var pending = draft.status === "awaiting_host_agent" || draft.status === "generating";
     $("quick-draft-editor").disabled = pending;
     $("quick-draft-save").disabled = pending;
@@ -288,7 +426,7 @@
       });
   }
 
-  function loadQuickDraftSession(sessionId) {
+  function loadQuickDraftSession(sessionId, expectedGeneration) {
     if (!sessionId) return Promise.resolve(null);
     $("home-status").textContent = "Loading your working scene…";
     return fetch(
@@ -297,12 +435,21 @@
     )
       .then(readJson)
       .then(function (projection) {
+        if (expectedGeneration !== undefined &&
+            (expectedGeneration !== state.quickDraftPollGeneration ||
+             state.quickDraftSessionId !== sessionId || !state.quickDraftPending ||
+             $("home-surface").hidden || document.hidden)) return null;
+        if (projection.session_id !== sessionId) {
+          throw new Error("Response belongs to another Quick Draft session");
+        }
         state.quickDraftDiscoveriesVisible = false;
         $("home-status").textContent = "";
         renderQuickDraftProjection(projection);
         return projection;
       })
       .catch(function (error) {
+        if (expectedGeneration !== undefined &&
+            expectedGeneration !== state.quickDraftPollGeneration) return null;
         $("home-status").textContent = "Could not reopen Quick Draft: " + error.message;
         return null;
       });
@@ -2293,6 +2440,11 @@
       createStoryFromHome();
     });
     $("quick-draft-start").addEventListener("click", startQuickDraft);
+    $("quick-draft-copy-handoff").addEventListener("click", copyQuickDraftHandoff);
+    $("quick-draft-check-result").addEventListener("click", checkQuickDraftResult);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) scheduleQuickDraftPoll();
+    });
     $("quick-draft-editor").addEventListener("input", function () {
       state.quickDraftDirty = true;
       state.quickDraftDiscoveriesVisible = false;
