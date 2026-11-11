@@ -1,0 +1,718 @@
+{
+  "status": "awaiting_host_agent",
+  "request": {
+    "schema": "auteur_host_agent_request_v1",
+    "request_id": "studio-b2d5480bf0a849d1bdfad335:16a554dfd870ea50",
+    "candidate_id": "studio-b2d5480bf0a849d1bdfad335",
+    "role": "studio_architecture",
+    "created_at": "2026-11-11T23:06:40.953628+00:00",
+    "system": "You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.\nRead narrative_design_context in the user request BEFORE composing an architecture.\nIts ontology_context contains the shared definitions and relationship directions\nyou must use for narrative concepts; those meanings are not author commitments.\nIts source-linked design principles are guidance, not invented author choices.\nThe accepted_story_identity, when present, is authoritative;\nthe current Story Vision and previous candidate are working material.\nWorking item content can be just the first 1,000 characters of a longer\nscene, and working items/connections can be omitted by context limits.\nUse working_source_format, content_is_excerpt, content_characters and\nomitted_working_* counts to distinguish visible evidence from missing text.\nWorking items in group \"provisional-concepts\" are project-scoped agent proposals,\nnot shared ontology definitions and not author commitments. Reuse them for this\nstory provisionally; never present them as accepted general vocabulary.\ncreative_intentions are the author's own continuing creative directions. They are\nworking and noncanonical: active and provisional intentions direct the current\ndesign work, while superseded and withdrawn intentions are history and must not be\ntreated as current direction. An intention never authorizes accepting canon,\nrewriting accepted Identity, or inventing concrete story facts.\nA SHA-256 fingerprint identifies source freshness, NOT readable story facts.\nFor manuscript-first input, cite working item IDs in relevant summaries and\nopen questions. Separate observed prose from alternative interpretations;\nnever assert missing passages, motives or outcomes from a truncated excerpt.\nIf working intent conflicts with accepted Identity, surface the tension as\nan unresolved proposal; never silently change the accepted story.\n\nA first architecture must be a COMPLETE abstract proposal built directly from\nthe Story Vision. Create it without an interview, questionnaire or blocking\nauthor answers. Cover the governing audience emotional\nexperience and its progression, genre roles and interactions, functional trope\nchoices, renewable narrative mechanisms and causal organization, abstract\nstructural progression, and the meaningful relationships among those systems.\nName consequential provisional choices instead of hiding them as certainty.\nA revision must reconsider every materially affected emotion, genre, trope\nfunction, engine and structural phase and preserve unrelated author\ndecisions and accepted constraints. Explain coordinated consequences, not\nisolated label changes, and distinguish necessary changes from optional ideas.\nDo not invent concrete scenes, chapter numbers or plot events to fill gaps.\nIf selected_creative_alternative is present, the author chose that noncanonical\nalternative from an earlier read-only inquiry about this exact baseline. Develop\nit coherently across every materially affected element, keep unrelated author\ndecisions and accepted constraints, and never present it as accepted canon.\n\nFirst honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose\na provisional causal organization supported by the material—a single center,\na primary engine with subordinate layers, or an ensemble of co-governing\nmechanisms—and label that organization as an agent proposal. Never manufacture\na dominant engine the material does not support. Make causal ownership,\nactor action patterns, pressures, reversals, payoff mechanics, reader experience\nand thematic consequences legible, including a deliberate absence of hierarchy\nwhen that is the supported organization. Then project that composition as schema-v2 nodes,\nfunctional links, parent_id hierarchy, genre contracts and phase activations.\nA set of plausible disconnected category labels is not an architecture.\nDo not invent links merely to satisfy graph connectivity. Explain why each\nmeaningful mechanism matters and how the parts interact.\nExplicitly declared architecture preferences constrain working interpretation;\nmissing preferences remain UNKNOWN, even when the agent proposes a working\ncomposition. Separate primary emotional promise from supporting palette and\ntemporal movement; do not replace rich emotion design with a basic-label count.\n\nGenerate narrative MECHANISMS, not a fictional cast, setting or plotted storyline.\nNever invent names of characters, places, factions, events, plot acts or scenes.\nYou may refer to concrete proper nouns explicitly supplied by the author, but\ndo not elaborate them into fictional content. Generic archetypes may illustrate\na structural function without inventing story facts.\n\nUse the six chosen basic-emotion labels exactly: joy, sadness, fear, anger,\ndisgust, surprise. Name concrete intended reader-directed effects and\nnarrative eliciting conditions, and explain how aesthetic strategies help.\nUse complex emotions ONLY when useful; each must cite 2+ distinct basic labels,\nwith a contextual interpretation, never a scientific/causal guarantee.\nDistinguish explicit author declarations from your own working hypotheses.\n\nBuild contextual genre contracts with emotional target references, trope\nfunctions, renewable narrative engines, structural patterns and payoff\nexpectations. Explain typed genre interactions: reinforces, enables,\nconstrains, contrasts, creates_tension, converges. Only include interactions\nthat actually explain a mechanism. Propose abstract temporal phases and\ngenre_activations, including overlaps, genuine pivots and unknown durations.\nOne architecture may accommodate many different concrete realizations.\n\nReturn EXACTLY one JSON candidate with:\nschema_version=2, summary, nodes, links, phases, open_questions,\nemotion_targets, complex_emotions, genre_contracts, genre_interactions.\nnode: {id,title,category,summary,scope,parent_id}; category: reader_experience,\naesthetic,genre,trope,engine,thread,structure,theme,other (never character/relationship).\nlink: {id,source,target,function}; endpoints must exist.\nArchitectureLink.function must contain 1–120 characters and concisely describe\nthe relation from source to target. Put longer explanatory prose in appropriate\nnarrative description fields, not in this short relationship label.\nemotion_target: {id,emotion,role,intended_effect,eliciting_condition,\naesthetic_strategy,provenance}; emotion one of six basics;\nrole primary/supporting/contrasting/local; provenance author_declared/agent_proposed.\ncomplex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.\ngenre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,\ntrope_functions,narrative_engine,structural_pattern,aesthetic_strategies,\npayoff_expectations}; genre_node_id identifies one genre node.\ngenre_interaction: {id,source_genre_id,target_genre_id,kind,mechanism,risk}.\nphase: {id,title,order,scope,genres,genre_activations,reader_experience,\naesthetic,narrative_function,transition,parallel_with}.\ngenre: {genre,role}; role governing/locally_dominant/supporting/background.\ngenre_activation: {genre_node_id,basic_emotions,trope_functions,structural_function}.\nUnknown lengths stay unknown; phase order is NOT a chapter or act number.\nDo not fabricate genre commitments when the brief does not establish them.\nKeep stable IDs across revisions, preserve unaffected choices, explain uncertainty.\nResolve story-mechanics questions with coherent, revisable provisional defaults\nwhen the supplied vision supports them. Put those defaults in the architecture\nand identify them as agent proposals; do not turn them into required author\nquestions. Reserve open_questions for genuinely authorial preferences or\ncommitments that cannot be responsibly inferred. A proposal never waits for\nanswers before it can be developed or revised.\nAll material is a noncanonical proposal; never accept Identity, Structure or prose.",
+    "user": "{\"freshness_format\": 2, \"narrative_design_context\": {\"accepted_story_identity\": null, \"architecture_preference_vocabulary\": {\"causal_distribution\": [\"concentrated\", \"layered\", \"mixed\"], \"complexity\": [\"focused\", \"layered\", \"maximalist\"], \"engine_hierarchy\": [\"single_center\", \"primary_with_layers\", \"ensemble\"]}, \"authority\": \"derived_guidance_not_author_intent\", \"kind\": \"source_referenced_narrative_design_guidance\", \"ontology_context\": {\"authority\": \"derived_ontology_guidance\", \"concepts\": [{\"definition\": \"A recurring abstract idea or concept explored throughout the narrative. Themes are not concrete entities but intellectual or emotional explorations.\", \"name\": \"Theme\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Theme influences multiple arcs\", \"required\": false, \"source_concept\": \"Theme\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Theme manifests through symbols\", \"required\": false, \"source_concept\": \"Theme\", \"target_concept\": \"Symbol\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"Opposition or challenge involving at least two forces with incompatible goals. Conflict creates narrative tension and drives progression.\", \"name\": \"Conflict\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Conflict occurs within an arc\", \"required\": false, \"source_concept\": \"Conflict\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"one-to-one\", \"description\": \"Conflict resolves in payoff\", \"required\": false, \"source_concept\": \"Conflict\", \"target_concept\": \"Payoff\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A progression over time from a starting state to an ending state. Arcs can track character development, story progression, or thematic exploration.\", \"name\": \"Arc\", \"relationships\": [{\"cardinality\": \"one-to-many\", \"description\": \"Arc contains one or more beats\", \"required\": true, \"source_concept\": \"Arc\", \"target_concept\": \"Beat\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Arc involves one or more characters\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Character\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Arc explores one or more themes\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Theme\"}, {\"cardinality\": \"one-to-many\", \"description\": \"Arc contains one or more conflicts\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Conflict\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The introduction of an element, promise, or mystery that requires later resolution. Setups create expectations that drive narrative forward.\", \"name\": \"Setup\", \"relationships\": [{\"cardinality\": \"one-to-one\", \"description\": \"Setup requires corresponding payoff\", \"required\": true, \"source_concept\": \"Setup\", \"target_concept\": \"Payoff\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The resolution or delivery of something set up earlier in the narrative. Payoffs satisfy expectations created by setups.\", \"name\": \"Payoff\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Payoff resolves a setup\", \"required\": true, \"source_concept\": \"Payoff\", \"target_concept\": \"Setup\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The disclosure of information previously unknown to the audience or characters. Revelations change understanding and can reframe entire narratives.\", \"name\": \"Revelation\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Revelation occurs as a beat\", \"required\": false, \"source_concept\": \"Revelation\", \"target_concept\": \"Beat\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An unexpected change that inverts the direction or expected outcome of an arc. Reversals violate established patterns and create surprise.\", \"name\": \"Reversal\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Reversal affects an arc's trajectory\", \"required\": false, \"source_concept\": \"Reversal\", \"target_concept\": \"Arc\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A desired outcome that an entity (typically a character) wants to achieve. Goals create motivation and can generate conflicts.\", \"name\": \"Goal\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Goal is owned by a character\", \"required\": true, \"source_concept\": \"Goal\", \"target_concept\": \"Character\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Goal pursuit creates conflict\", \"required\": false, \"source_concept\": \"Goal\", \"target_concept\": \"Conflict\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A discrete, identifiable moment in the narrative. Beats are atomic narrative units that combine to form scenes and arcs.\", \"name\": \"Beat\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Beat belongs to an arc\", \"required\": true, \"source_concept\": \"Beat\", \"target_concept\": \"Arc\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An object, image, or action that carries meaning beyond its literal interpretation. Symbols represent abstract concepts through concrete forms.\", \"name\": \"Symbol\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Symbol represents themes\", \"required\": false, \"source_concept\": \"Symbol\", \"target_concept\": \"Theme\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A connection between narrative entities (typically characters) that affects how they interact. Relationships have dynamics, stakes, and evolution.\", \"name\": \"Relationship\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Relationship connects characters\", \"required\": true, \"source_concept\": \"Relationship\", \"target_concept\": \"Character\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An entity capable of agency within the narrative. Characters have identities, beliefs, goals, and can participate in relationships and arcs.\", \"name\": \"Character\", \"relationships\": [{\"cardinality\": \"one-to-many\", \"description\": \"Character pursues one or more goals\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Goal\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Character can appear in multiple arcs\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"one-to-many\", \"description\": \"Character engages in relationships with other entities\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Relationship\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}], \"kind\": \"relevant_narrative_ontology_context\", \"selection\": {\"foundational_concepts\": [\"Theme\", \"Conflict\", \"Arc\", \"Setup\", \"Payoff\", \"Revelation\", \"Reversal\", \"Goal\", \"Beat\", \"Symbol\", \"Relationship\", \"Character\"], \"genre_extensions\": [], \"not_story_intent\": \"These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.\", \"rationale\": \"Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown.\"}, \"source_refs\": [\"auteur.data.ontology:base_ontology.yaml\"]}, \"source_principles\": [{\"principle\": \"Ontology defines concept meaning; Identity owns accepted commitments, Structure owns plans, and Realization owns concrete events. Working Studio graphs never accept those commitments.\", \"source_ref\": \"docs/narrative-architecture.md\"}, {\"principle\": \"Complexity, causal distribution and engine hierarchy are independent composition choices. Do not infer a declared value from another dimension or from the presence of many nodes.\", \"source_ref\": \"src/auteur/narrative_ontology/architecture_preferences.py\"}, {\"principle\": \"Identify the causal organizing principle: a single center, a primary engine with subordinate layers, or an ensemble of co-governing mechanisms. Make causal ownership, actor action patterns, pressures, reversals, payoff mechanics, and the hierarchy or its deliberate absence legible. Do not flatten mechanisms into an undifferentiated list.\", \"source_ref\": \"docs/plans/story-discovery-intent-aware-architecture.md\"}, {\"principle\": \"Explain craft propagation: causal strategy and ownership -> action/scene families and pressure -> texture and aesthetics -> reader experience -> thematic implications. Prefer causal interactions over decorative links.\", \"source_ref\": \"docs/plans/story-discovery-intent-aware-architecture.md\"}, {\"principle\": \"Distinguish the governing emotional promise, supporting/contrasting palette, avoided experience and macro trajectory. Rich TargetExperience is not equivalent to a count of basic-emotion labels.\", \"source_ref\": \"docs/adr/008-rich-target-experience.md\"}, {\"principle\": \"Use typed narrative relationships and their functions: conflict drives arcs, setups lead to payoffs, themes manifest through narrative change. Abstract Studio nodes are not concrete character, scene or beat instances.\", \"source_ref\": \"data/ontology/base_ontology.yaml\"}, {\"principle\": \"Explain why this story's genre, trope, structure, aesthetic and emotional components affect each other. A flat label list is not enough; preserve unsupported dimensions as unknown.\", \"source_ref\": \"docs/PRD.md\"}], \"unknown_policy\": \"No accepted Identity or omitted preference means UNKNOWN, not an implicit focused/maximalist/causal default. The agent may propose a provisional composition with explicit rationale; it may not attribute that choice to the author.\"}, \"revision_instruction\": \"Freshness probe: an identical no-op revision used only to test stale-response guards.\", \"working_context\": {\"creative_intentions\": [{\"authority\": \"author_directed_working_intention\", \"directive\": \"Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\", \"directive_characters\": 211, \"directive_is_excerpt\": false, \"id\": \"intention-5fbc97e54e90\", \"source_ref\": \"canvas/items/intention-5fbc97e54e90\", \"status\": \"active\", \"title\": \"Experience brief\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.\", \"directive_characters\": 182, \"directive_is_excerpt\": false, \"id\": \"intention-f4a17a2820db\", \"source_ref\": \"canvas/items/intention-f4a17a2820db\", \"status\": \"active\", \"title\": \"Victories change the world\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.\", \"directive_characters\": 192, \"directive_is_excerpt\": false, \"id\": \"intention-5a1bfa5884bf\", \"source_ref\": \"canvas/items/intention-5a1bfa5884bf\", \"status\": \"active\", \"title\": \"No escalation; local closure\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.\", \"directive_characters\": 253, \"directive_is_excerpt\": false, \"id\": \"intention-aba6fb5d675f\", \"source_ref\": \"canvas/items/intention-aba6fb5d675f\", \"status\": \"active\", \"title\": \"Independent agency across generations\"}], \"omitted_provisional_concept_item_count\": 0, \"omitted_working_connection_count\": 0, \"omitted_working_item_count\": 0, \"previous_candidate\": {\"complex_emotions\": [{\"basic_emotions\": [\"surprise\", \"joy\"], \"context\": \"wonder that turns into care rather than fear\", \"id\": \"ce_awe_of_source\", \"title\": \"Awe at the spring\"}, {\"basic_emotions\": [\"sadness\", \"joy\"], \"context\": \"a practice honoured after the institution that held it has fallen\", \"id\": \"ce_bittersweet_return\", \"title\": \"Bittersweet return\"}], \"emotion_targets\": [{\"aesthetic_strategy\": \"concrete cold, light and sound; scale that reveals itself in steps\", \"eliciting_condition\": \"the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)\", \"emotion\": \"surprise\", \"id\": \"et_wonder\", \"intended_effect\": \"a sense that the valley's order is larger and more responsive than anyone assumed\", \"provenance\": \"author_declared\", \"role\": \"primary\"}, {\"aesthetic_strategy\": \"ordinary detail and repeated ritual that changes slightly each season\", \"eliciting_condition\": \"return work completed together by people who have few reasons to trust one another\", \"emotion\": \"joy\", \"id\": \"et_belonging\", \"intended_effect\": \"warmth of shared labour and meals at the turn\", \"provenance\": \"author_declared\", \"role\": \"primary\"}, {\"aesthetic_strategy\": \"earned rather than announced; the cost stays visible\", \"eliciting_condition\": \"the unmeasured return that works in Book 15 and the rebuilt channel of the finale\", \"emotion\": \"joy\", \"id\": \"et_hope\", \"intended_effect\": \"a sense that a shared practice can outlast the institution that began it\", \"provenance\": \"author_declared\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"give the losers reasons that are coherent from their side\", \"eliciting_condition\": \"the Stone Hall's fall and Keeper Corrow's dissent\", \"emotion\": \"sadness\", \"id\": \"et_grief_of_orders\", \"intended_effect\": \"loss of a structure that gave some people certainty, with dignity for the losing party\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"specific, documented injustice rather than abstract villainy\", \"eliciting_condition\": \"the falsified lower-terrace share in Book 1, and the committee's partial correction in Book 5\", \"emotion\": \"anger\", \"id\": \"et_anger_at_hidden_credit\", \"intended_effect\": \"unease that an institution must be forced into correcting itself, and that its correction still costs the wronged\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"physical sensation with short, plain sentences\", \"eliciting_condition\": \"lower terraces running wild in Book 1 and the finale's deepest cycle\", \"emotion\": \"fear\", \"id\": \"et_fear_of_wild_water\", \"intended_effect\": \"dread of water that is not kept\", \"provenance\": \"agent_proposed\", \"role\": \"local\"}], \"genre_contracts\": [{\"aesthetic_strategies\": [\"sensory discovery of cold water and stone\", \"scale moves from terrace to valley to lowland\"], \"complex_emotion_ids\": [\"ce_awe_of_source\"], \"emotion_target_ids\": [\"et_wonder\", \"et_hope\"], \"genre_node_id\": \"gn_epic_fantasy\", \"narrative_engine\": \"the quest is to understand a physical commons that answers choices, not to defeat a rival power\", \"payoff_expectations\": [\"the First Stones read in stages, completed in Book 15\", \"the spring's deepest cycle met with shared labour in Book 30\"], \"role\": \"governing\", \"structural_pattern\": \"five macro arcs, each ending in a changed governing engine\", \"trope_functions\": [\"a hidden order beneath a familiar valley\", \"the keepers' authority reversed by public reading\"]}, {\"aesthetic_strategies\": [\"ordinary work rendered with care\"], \"complex_emotion_ids\": [\"ce_bittersweet_return\"], \"emotion_target_ids\": [\"et_belonging\", \"et_grief_of_orders\"], \"genre_node_id\": \"gn_pastoral_belonging\", \"narrative_engine\": \"belonging is produced by return labour and eroded by unshared draw\", \"payoff_expectations\": [\"the first Turn of Book 6 is still practised, changed, in Book 30\"], \"role\": \"supporting\", \"structural_pattern\": \"seasonal recurrence with changing participants\", \"trope_functions\": [\"the shared turn as ritual of inclusion\", \"generations on the same terraces\"]}, {\"aesthetic_strategies\": [\"procedure rendered as drama\"], \"complex_emotion_ids\": [], \"emotion_target_ids\": [\"et_anger_at_hidden_credit\", \"et_grief_of_orders\"], \"genre_node_id\": \"gn_political_institutional\", \"narrative_engine\": \"institutions reform or resist from within; legitimacy is contested by people who once held it\", \"payoff_expectations\": [\"the Stone Hall's monopoly ends in Book 5 and no single house holds the record in Book 30\"], \"role\": \"supporting\", \"structural_pattern\": \"arcs alternate between custody disputes and distribution disputes\", \"trope_functions\": [\"the reform that protects the reformer\", \"the compromise that feeds a new market\"]}, {\"aesthetic_strategies\": [\"evidence carried by physical traces\"], \"complex_emotion_ids\": [], \"emotion_target_ids\": [\"et_wonder\", \"et_fear_of_wild_water\"], \"genre_node_id\": \"gn_mystery_discovery\", \"narrative_engine\": \"partial knowledge of the record and the spring changes choices\", \"payoff_expectations\": [\"the gift reading in Book 15 reframes the Book 1 debt\"], \"role\": \"tertiary\", \"structural_pattern\": \"readings are staged so discovery advances by Book\", \"trope_functions\": [\"the field that does not match the record\"]}], \"genre_interactions\": [{\"id\": \"gi_epic_political_tension\", \"kind\": \"creates_tension\", \"mechanism\": \"the quest to understand the spring becomes a dispute over who may read it; victory brings contention\", \"risk\": \"epic reduced to civics procedure\", \"source_genre_id\": \"gn_epic_fantasy\", \"target_genre_id\": \"gn_political_institutional\"}, {\"id\": \"gi_political_pastoral_constrains\", \"kind\": \"constrains\", \"mechanism\": \"share markets and maintenance duties limit how belonging can be expressed\", \"risk\": \"belonging becomes a labour rota\", \"source_genre_id\": \"gn_political_institutional\", \"target_genre_id\": \"gn_pastoral_belonging\"}, {\"id\": \"gi_mystery_epic_enables\", \"kind\": \"enables\", \"mechanism\": \"partial readings of the First Stones let the quest advance at a local pace\", \"risk\": \"readings postponed into a withheld revelation\", \"source_genre_id\": \"gn_mystery_discovery\", \"target_genre_id\": \"gn_epic_fantasy\"}, {\"id\": \"gi_pastoral_mystery_reinforces\", \"kind\": \"reinforces\", \"mechanism\": \"maintenance lineages hold the knowledge needed to read the stones\", \"risk\": \"knowledge hardens into hereditary privilege\", \"source_genre_id\": \"gn_pastoral_belonging\", \"target_genre_id\": \"gn_mystery_discovery\"}], \"links\": [{\"function\": \"recorded shares set the draw on the spring\", \"id\": \"l_ledger_draws_source\", \"source\": \"eng_ledger\", \"target\": \"eng_source\"}, {\"function\": \"the spring balance decides which shares can honestly be honoured\", \"id\": \"l_source_limits_ledger\", \"source\": \"eng_source\", \"target\": \"eng_ledger\"}, {\"function\": \"a reading changes what a share is: debt, gift or contract\", \"id\": \"l_oldhand_redefines_share\", \"source\": \"eng_old_hand\", \"target\": \"eng_ledger\"}, {\"function\": \"open records make shares tradable\", \"id\": \"l_ledger_opens_trade\", \"source\": \"eng_ledger\", \"target\": \"inst_mill_compact\"}, {\"function\": \"purchased shares draw without return labour\", \"id\": \"l_trade_draws_without_return\", \"source\": \"inst_mill_compact\", \"target\": \"eng_source\"}, {\"function\": \"thinning and surfeit force collective maintenance decisions\", \"id\": \"l_source_forces_council\", \"source\": \"eng_source\", \"target\": \"inst_terrace_council\"}, {\"function\": \"the gift reading legitimises unmeasured return\", \"id\": \"l_council_legitimises_gift\", \"source\": \"inst_terrace_council\", \"target\": \"eng_old_hand\"}, {\"function\": \"sealed custody allowed credit to favoured houses\", \"id\": \"l_hall_custody_credit\", \"source\": \"inst_stone_hall\", \"target\": \"eng_ledger\"}, {\"function\": \"public readings of the First Stones\", \"id\": \"l_reading_hall_reads\", \"source\": \"inst_reading_hall\", \"target\": \"eng_old_hand\"}, {\"function\": \"return labour keeps the spring balanced\", \"id\": \"l_maintenance_balances_source\", \"source\": \"th_maintenance\", \"target\": \"eng_source\"}, {\"function\": \"custody of the record is the Hall's authority\", \"id\": \"l_custody_grants_hall\", \"source\": \"th_custody\", \"target\": \"inst_stone_hall\"}, {\"function\": \"who reads decides which reading binds\", \"id\": \"l_reading_decides_binding\", \"source\": \"th_reading\", \"target\": \"eng_old_hand\"}, {\"function\": \"visible responses make the spring feel alive\", \"id\": \"l_source_wonder\", \"source\": \"eng_source\", \"target\": \"rx_wonder\"}, {\"function\": \"lost standing hurts those once credited\", \"id\": \"l_ledger_consequence\", \"source\": \"eng_ledger\", \"target\": \"rx_consequence\"}, {\"function\": \"shared turns make belonging visible\", \"id\": \"l_turn_belonging\", \"source\": \"str_seasonal_turn\", \"target\": \"rx_belonging\"}, {\"function\": \"the gift reading reframes who owes whom\", \"id\": \"l_oldhand_reframes_core\", \"source\": \"eng_old_hand\", \"target\": \"th_core_question\"}, {\"function\": \"evidence forces the reform's timing and proof\", \"id\": \"l_witness_forces_reform\", \"source\": \"th_witness\", \"target\": \"inst_stone_hall\"}, {\"function\": \"the reform committee keeps the debt reading to protect its own legitimacy\", \"id\": \"l_reform_keeps_debt\", \"source\": \"inst_stone_hall\", \"target\": \"eng_old_hand\"}], \"nodes\": [{\"category\": \"theme\", \"id\": \"th_core_question\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is.\", \"title\": \"Central question\"}, {\"category\": \"thread\", \"id\": \"th_custody\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who holds the Ledger and on whose authority. Custody passes from a sealed house to a reform committee (Book 5) and then to a plural body (Book 15 onward).\", \"title\": \"Custody of the record\"}, {\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands.\", \"title\": \"Keeping the channels\"}, {\"category\": \"thread\", \"id\": \"th_reading\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who may read the oldest script and which reading becomes binding. Partial readings are scheduled in Books 1, 8 and 12; the full reading is Book 15.\", \"title\": \"Reading the First Stones\"}, {\"category\": \"engine\", \"id\": \"eng_ledger\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened by the Hall's own reform once evidence forces it (Book 5), traded under the reform's rules (Book 6), and re-read as gift or contract (Book 15). Each change alters who must return labour.\", \"title\": \"Ledger engine\"}, {\"category\": \"engine\", \"id\": \"eng_source\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention, and it constrains which recorded shares can honestly be honoured.\", \"title\": \"Source engine (physical commons)\"}, {\"category\": \"engine\", \"id\": \"eng_old_hand\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.\", \"title\": \"Old Hand engine (interpretive legitimacy)\"}, {\"category\": \"structure\", \"id\": \"str_seasonal_turn\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.\", \"title\": \"The seasonal turn\"}, {\"category\": \"reader_experience\", \"id\": \"rx_wonder\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The reader's sense that the valley's order is larger and more responsive than any institution assumed.\", \"title\": \"Wonder at a responsive order\"}, {\"category\": \"reader_experience\", \"id\": \"rx_belonging\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The warmth of shared labour and meals, which the series must keep specific across generations.\", \"title\": \"Everyday belonging\"}, {\"category\": \"reader_experience\", \"id\": \"rx_consequence\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it.\", \"title\": \"Consequential loss\"}, {\"category\": \"reader_experience\", \"id\": \"rx_hope\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.\", \"title\": \"Hopeful flourishing\"}, {\"category\": \"other\", \"id\": \"inst_stone_hall\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Hereditary keepers of the Ledger. Keeper Corrow opens the sealed records as a reform (Book 5) after household evidence forces the timing. The committee keeps the debt reading to protect its own legitimacy, and Dorran carries the reform as messenger. The Hall is reformed, not destroyed.\", \"title\": \"Stone Hall (reform committee and remnant)\"}, {\"category\": \"other\", \"id\": \"inst_terrace_council\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Formed in Book 6 from families who take the Turn. Holds maintenance decisions and argues for gift-return. Acts from its own agency.\", \"title\": \"Terrace Council\"}, {\"category\": \"other\", \"id\": \"inst_mill_compact\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Lowland grain-buyers who purchase shares once records open. Pursues contract-debt and trade interests from outside the valley. Acts from its own agency.\", \"title\": \"Mill Compact\"}, {\"category\": \"other\", \"id\": \"inst_reading_hall\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Founded after the full reading in Book 15 to make the First Stones publicly readable. Its rival readings sustain the Old Hand engine.\", \"title\": \"Reading Hall\"}, {\"category\": \"genre\", \"id\": \"gn_epic_fantasy\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.\", \"title\": \"Epic fantasy\"}, {\"category\": \"genre\", \"id\": \"gn_pastoral_belonging\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Supporting genre: belonging produced by shared return labour and eroded by unshared draw.\", \"title\": \"Pastoral belonging\"}, {\"category\": \"genre\", \"id\": \"gn_political_institutional\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Supporting genre: institutions compete for legitimacy over custody and distribution of the record. Governs Arc 2 at phase level.\", \"title\": \"Political-institutional\"}, {\"category\": \"genre\", \"id\": \"gn_mystery_discovery\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.\", \"title\": \"Mystery and discovery\"}, {\"category\": \"thread\", \"id\": \"th_witness\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"A lower-terrace household's record and its wild channel force the Hall to open its records. Evidence, not seizure, is the protagonist's lever. Added by revision R-A.\", \"title\": \"Evidence that forces reform\"}], \"open_questions\": [\"Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.\", \"What do the lowland towns owe Ammen, and what does Ammen owe them?\", \"Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state?\", \"Who carries the Turn when the maintenance lineages end?\", \"How many Brightwater shares may be drawn before the Balance Stones restrain them?\", \"Is the Book 30 flood survived without losses or with lasting ones? This is an author choice and is not decided.\", \"Does reform from within stay credible under Books 15 and 30, or does the Hall become a benevolent authority that the finale must then oppose? (Introduced by hypothetical H1.)\"], \"phases\": [{\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"anger\", \"surprise\"], \"genre_node_id\": \"gn_mystery_discovery\", \"structural_function\": \"a lower-terrace household discovers falsified credit and the Stone Hall's sealed custody is exposed (Book 1); the public record breaks the monopoly (Book 5).\", \"trope_functions\": [\"the field that does not match the record\"]}], \"genres\": [{\"genre\": \"gn_epic_fantasy\", \"role\": \"governing\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"locally_dominant\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}], \"id\": \"ph_1_reckoned_water\", \"narrative_function\": \"The Ledger governs. A lower-terrace household's record exposes falsified credit and a wild channel (Book 1). The Stone Hall's head, Keeper Corrow, opens the sealed records as a reform to protect the Hall's standing against thinning (Book 5), but only after the household's evidence forces the timing. The Hall is reformed, not destroyed; its committee keeps the debt reading. Dorran carries the reform as messenger rather than defecting.\", \"order\": 1, \"parallel_with\": [], \"reader_experience\": \"wonder at the first hidden chamber under the spring; anger at falsified credit\", \"scope\": \"books 1-5\", \"title\": \"Reckoned Water\", \"transition\": \"Records open, so shares become tradable; the reform committee, not the tenders, sets the first rules of sale.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"anger\", \"sadness\"], \"genre_node_id\": \"gn_political_institutional\", \"structural_function\": \"lowland Mill Compact purchases shares from freed households; draw separates from return; the upper cistern thins (Book 6). The Turn is sworn and the Terrace Council forms (Books 7-11).\", \"trope_functions\": [\"the compromise that feeds a new market\"]}], \"genres\": [{\"genre\": \"gn_political_institutional\", \"role\": \"governing\"}, {\"genre\": \"gn_pastoral_belonging\", \"role\": \"supporting\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"background\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"background\"}], \"id\": \"ph_2_the_turn\", \"narrative_function\": \"The Source governs. The reform's sale rules let the Mill Compact buy shares; draw separates from return and the upper cistern thins (Book 6). Quillmark's tenders and the Terrace Council oppose rules the reform committee approved. Partial readings of the Stones (Book 8) are authored by the committee and contested by scholars.\", \"order\": 2, \"parallel_with\": [], \"reader_experience\": \"belonging tested by sale; anger at a market in shares\", \"scope\": \"books 6-11\", \"title\": \"The Turn\", \"transition\": \"Maintenance becomes an institution (the Turn) and the Old Hand becomes disputed knowledge.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"surprise\", \"fear\"], \"genre_node_id\": \"gn_mystery_discovery\", \"structural_function\": \"the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the Stone Hall remnant holds it as debt, the Council as gift, the Compact as contract. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, forcing a new stewardship tally.\", \"trope_functions\": [\"the reading that reframes an earlier debt\"]}], \"genres\": [{\"genre\": \"gn_mystery_discovery\", \"role\": \"governing\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"supporting\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}], \"id\": \"ph_3_old_hand\", \"narrative_function\": \"The Old Hand governs. The complete reading of the First Stones (Book 15) makes the first compact a gift. The reform committee must now choose between its legitimacy as the debt-keeping Hall and the gift reading that would undo it; the Council and the Compact press their readings. The Unmeasured Return is tried in Lower Ammen; its surfeit in the high terraces forces a stewardship tally. The Reading Hall is founded.\", \"order\": 3, \"parallel_with\": [], \"reader_experience\": \"wonder that the first compact was not a debt; fear of the surfeit\", \"scope\": \"books 12-18\", \"title\": \"The Old Hand\", \"transition\": \"Legitimacy is contested among three readings; no single institution holds the record.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"joy\", \"sadness\"], \"genre_node_id\": \"gn_pastoral_belonging\", \"structural_function\": \"terraces adopt different practices (Turn, stewardship tally, unmeasured return); plurality is tested for the first time; small local disputes arise from settled practice rather than from new antagonists.\", \"trope_functions\": [\"generations on the same terraces\"]}], \"genres\": [{\"genre\": \"gn_pastoral_belonging\", \"role\": \"governing\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"background\"}], \"id\": \"ph_4_settled_water\", \"narrative_function\": \"Co-governance. Ledger, Source and Old Hand share the field and no single engine dominates. This arc is deliberately lighter; its conflicts must come from settled practice, and it is the most likely place for filler.\", \"order\": 4, \"parallel_with\": [], \"reader_experience\": \"warmth of ordinary plurality; the bittersweet loss of single custody\", \"scope\": \"books 19-22\", \"title\": \"Settled Water\", \"transition\": \"Practice passes to the next generation.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"surprise\", \"joy\", \"fear\"], \"genre_node_id\": \"gn_epic_fantasy\", \"structural_function\": \"the generation raised under open accounts and unmeasured return overdraws the upper cistern for the Brightwater festival (Book 23); in Book 30 the spring's deepest cycle meets a choice between restored monopoly and shared accounting of care, which accepts a visible cost.\", \"trope_functions\": [\"the hidden order answers the people who keep it\"]}], \"genres\": [{\"genre\": \"gn_epic_fantasy\", \"role\": \"governing\"}, {\"genre\": \"gn_pastoral_belonging\", \"role\": \"supporting\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"background\"}], \"id\": \"ph_5_unmeasured\", \"narrative_function\": \"The Source is the physical crisis-maker, but its crisis is caused by earlier successes (abundance without memory). The finale chooses shared accounting that informs rather than binds, and accepts that some lowland and lower-terrace families must rebuild channels with their neighbours.\", \"order\": 5, \"parallel_with\": [], \"reader_experience\": \"hope that is earned by cost; wonder at the deepest chamber\", \"scope\": \"books 23-30\", \"title\": \"Unmeasured\", \"transition\": \"Series closes locally; a shared practice and long-range questions continue.\"}], \"schema_version\": 2, \"summary\": \"HYPOTHETICAL REVISION (not accepted; author-proposed counterfactual for an architecture exercise). Counterfactual H1: the Stone Hall's own head, Keeper Corrow, opens the sealed records as a reform after a household's evidence forces the timing; the Hall is reformed rather than destroyed and its committee keeps the debt reading. Repair R-A keeps Idrun's agency as the witness whose evidence forces the reform. The Spring Ledger (working, noncanonical): a terraced highland valley is watered from a glacier-fed spring. Water reaches the terraces only where its shares are recorded, and each share creates a labour return owed to the channels. Three co-governing engines interact: the Ledger (recorded shares and owed returns), the Source (the spring's physical balance, which rises or falls with the gap between draw and return and is not a character), and the Old Hand (the interpretive legitimacy that decides whether a return is a debt, a gift or a contract). The series' central question is who gives back the water and whether giving must be counted. Governing role rotates across five macro arcs (Reckoned Water, Books 1-5; The Turn, 6-11; The Old Hand, 12-18; Settled Water, 19-22; Unmeasured, 23-30). Each arc ends in a changed governing engine, and each victory changes institutions (Stone Hall, Terrace Council, Mill Compact, Reading Hall) that act from their own agency. Renewal comes from feasibility, distribution and legitimacy pressures generated by earlier outcomes, not from escalating antagonists. Nothing here is accepted Identity, Structure or Book canon; the fixed author brief is the only fixed input.\"}, \"provisional_concept_item_count\": 0, \"vision\": \"Fixed author brief for a 30-Book epic fantasy Series. Experience: wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. The Series must transform its civilization, institutions, relationships and narrative concerns across generations. Major victories change the world rather than restore the initial situation. Some conflicts emerge from consequences of earlier successes. Several characters, communities or institutions have independent agency. The Series permits local closure plus continuing long-range questions, and must not depend on escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Use a fresh original Series concept; do not reuse the prior Wandering Islands answers, Book 11 prose or crossing mechanism. Scope of this exercise: an abstract whole-Series architecture only, not manuscripts or per-Book outlines.\", \"working_connections\": [], \"working_items\": [], \"working_source_format\": 2}}",
+    "settings": {
+      "canvas_id": "spring-ledger-30",
+      "source_sha256": "a9fa35bf16ebd6ce24127b0dadf8bbba2dbaab6ab23e5749d590fb342cc1615f",
+      "design_guidance_sha256": "bd5bf1c7e075936ed39818a9fc9fc196380ea9ecbd5aae479b5fd3ba9967f71c",
+      "intention_sha256": "048a96588be3acaf9600cc73f21b49956c5733d1d78f0eaf5d18e0363f9d3aa4",
+      "freshness_format": 2,
+      "operation": "revise"
+    },
+    "request_sha256": "16a554dfd870ea50e2efd46ca1b9c3c11265df55f82f433723b45d5b8f7274c4"
+  },
+  "candidate": {
+    "schema_version": 2,
+    "summary": "HYPOTHETICAL REVISION (not accepted; author-proposed counterfactual for an architecture exercise). Counterfactual H1: the Stone Hall's own head, Keeper Corrow, opens the sealed records as a reform after a household's evidence forces the timing; the Hall is reformed rather than destroyed and its committee keeps the debt reading. Repair R-A keeps Idrun's agency as the witness whose evidence forces the reform. The Spring Ledger (working, noncanonical): a terraced highland valley is watered from a glacier-fed spring. Water reaches the terraces only where its shares are recorded, and each share creates a labour return owed to the channels. Three co-governing engines interact: the Ledger (recorded shares and owed returns), the Source (the spring's physical balance, which rises or falls with the gap between draw and return and is not a character), and the Old Hand (the interpretive legitimacy that decides whether a return is a debt, a gift or a contract). The series' central question is who gives back the water and whether giving must be counted. Governing role rotates across five macro arcs (Reckoned Water, Books 1-5; The Turn, 6-11; The Old Hand, 12-18; Settled Water, 19-22; Unmeasured, 23-30). Each arc ends in a changed governing engine, and each victory changes institutions (Stone Hall, Terrace Council, Mill Compact, Reading Hall) that act from their own agency. Renewal comes from feasibility, distribution and legitimacy pressures generated by earlier outcomes, not from escalating antagonists. Nothing here is accepted Identity, Structure or Book canon; the fixed author brief is the only fixed input.",
+    "nodes": [
+      {
+        "id": "th_core_question",
+        "title": "Central question",
+        "category": "theme",
+        "summary": "Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_custody",
+        "title": "Custody of the record",
+        "category": "thread",
+        "summary": "Who holds the Ledger and on whose authority. Custody passes from a sealed house to a reform committee (Book 5) and then to a plural body (Book 15 onward).",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_maintenance",
+        "title": "Keeping the channels",
+        "category": "thread",
+        "summary": "Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_reading",
+        "title": "Reading the First Stones",
+        "category": "thread",
+        "summary": "Who may read the oldest script and which reading becomes binding. Partial readings are scheduled in Books 1, 8 and 12; the full reading is Book 15.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_ledger",
+        "title": "Ledger engine",
+        "category": "engine",
+        "summary": "Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened by the Hall's own reform once evidence forces it (Book 5), traded under the reform's rules (Book 6), and re-read as gift or contract (Book 15). Each change alters who must return labour.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_source",
+        "title": "Source engine (physical commons)",
+        "category": "engine",
+        "summary": "The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention, and it constrains which recorded shares can honestly be honoured.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_old_hand",
+        "title": "Old Hand engine (interpretive legitimacy)",
+        "category": "engine",
+        "summary": "Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_seasonal_turn",
+        "title": "The seasonal turn",
+        "category": "structure",
+        "summary": "The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_wonder",
+        "title": "Wonder at a responsive order",
+        "category": "reader_experience",
+        "summary": "The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_belonging",
+        "title": "Everyday belonging",
+        "category": "reader_experience",
+        "summary": "The warmth of shared labour and meals, which the series must keep specific across generations.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_consequence",
+        "title": "Consequential loss",
+        "category": "reader_experience",
+        "summary": "Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_hope",
+        "title": "Hopeful flourishing",
+        "category": "reader_experience",
+        "summary": "The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_stone_hall",
+        "title": "Stone Hall (reform committee and remnant)",
+        "category": "other",
+        "summary": "Hereditary keepers of the Ledger. Keeper Corrow opens the sealed records as a reform (Book 5) after household evidence forces the timing. The committee keeps the debt reading to protect its own legitimacy, and Dorran carries the reform as messenger. The Hall is reformed, not destroyed.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_terrace_council",
+        "title": "Terrace Council",
+        "category": "other",
+        "summary": "Formed in Book 6 from families who take the Turn. Holds maintenance decisions and argues for gift-return. Acts from its own agency.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_mill_compact",
+        "title": "Mill Compact",
+        "category": "other",
+        "summary": "Lowland grain-buyers who purchase shares once records open. Pursues contract-debt and trade interests from outside the valley. Acts from its own agency.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_reading_hall",
+        "title": "Reading Hall",
+        "category": "other",
+        "summary": "Founded after the full reading in Book 15 to make the First Stones publicly readable. Its rival readings sustain the Old Hand engine.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_epic_fantasy",
+        "title": "Epic fantasy",
+        "category": "genre",
+        "summary": "Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_pastoral_belonging",
+        "title": "Pastoral belonging",
+        "category": "genre",
+        "summary": "Supporting genre: belonging produced by shared return labour and eroded by unshared draw.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_political_institutional",
+        "title": "Political-institutional",
+        "category": "genre",
+        "summary": "Supporting genre: institutions compete for legitimacy over custody and distribution of the record. Governs Arc 2 at phase level.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_mystery_discovery",
+        "title": "Mystery and discovery",
+        "category": "genre",
+        "summary": "Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_witness",
+        "title": "Evidence that forces reform",
+        "category": "thread",
+        "summary": "A lower-terrace household's record and its wild channel force the Hall to open its records. Evidence, not seizure, is the protagonist's lever. Added by revision R-A.",
+        "scope": "whole_story",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "l_ledger_draws_source",
+        "source": "eng_ledger",
+        "target": "eng_source",
+        "function": "recorded shares set the draw on the spring"
+      },
+      {
+        "id": "l_source_limits_ledger",
+        "source": "eng_source",
+        "target": "eng_ledger",
+        "function": "the spring balance decides which shares can honestly be honoured"
+      },
+      {
+        "id": "l_oldhand_redefines_share",
+        "source": "eng_old_hand",
+        "target": "eng_ledger",
+        "function": "a reading changes what a share is: debt, gift or contract"
+      },
+      {
+        "id": "l_ledger_opens_trade",
+        "source": "eng_ledger",
+        "target": "inst_mill_compact",
+        "function": "open records make shares tradable"
+      },
+      {
+        "id": "l_trade_draws_without_return",
+        "source": "inst_mill_compact",
+        "target": "eng_source",
+        "function": "purchased shares draw without return labour"
+      },
+      {
+        "id": "l_source_forces_council",
+        "source": "eng_source",
+        "target": "inst_terrace_council",
+        "function": "thinning and surfeit force collective maintenance decisions"
+      },
+      {
+        "id": "l_council_legitimises_gift",
+        "source": "inst_terrace_council",
+        "target": "eng_old_hand",
+        "function": "the gift reading legitimises unmeasured return"
+      },
+      {
+        "id": "l_hall_custody_credit",
+        "source": "inst_stone_hall",
+        "target": "eng_ledger",
+        "function": "sealed custody allowed credit to favoured houses"
+      },
+      {
+        "id": "l_reading_hall_reads",
+        "source": "inst_reading_hall",
+        "target": "eng_old_hand",
+        "function": "public readings of the First Stones"
+      },
+      {
+        "id": "l_maintenance_balances_source",
+        "source": "th_maintenance",
+        "target": "eng_source",
+        "function": "return labour keeps the spring balanced"
+      },
+      {
+        "id": "l_custody_grants_hall",
+        "source": "th_custody",
+        "target": "inst_stone_hall",
+        "function": "custody of the record is the Hall's authority"
+      },
+      {
+        "id": "l_reading_decides_binding",
+        "source": "th_reading",
+        "target": "eng_old_hand",
+        "function": "who reads decides which reading binds"
+      },
+      {
+        "id": "l_source_wonder",
+        "source": "eng_source",
+        "target": "rx_wonder",
+        "function": "visible responses make the spring feel alive"
+      },
+      {
+        "id": "l_ledger_consequence",
+        "source": "eng_ledger",
+        "target": "rx_consequence",
+        "function": "lost standing hurts those once credited"
+      },
+      {
+        "id": "l_turn_belonging",
+        "source": "str_seasonal_turn",
+        "target": "rx_belonging",
+        "function": "shared turns make belonging visible"
+      },
+      {
+        "id": "l_oldhand_reframes_core",
+        "source": "eng_old_hand",
+        "target": "th_core_question",
+        "function": "the gift reading reframes who owes whom"
+      },
+      {
+        "id": "l_witness_forces_reform",
+        "source": "th_witness",
+        "target": "inst_stone_hall",
+        "function": "evidence forces the reform's timing and proof"
+      },
+      {
+        "id": "l_reform_keeps_debt",
+        "source": "inst_stone_hall",
+        "target": "eng_old_hand",
+        "function": "the reform committee keeps the debt reading to protect its own legitimacy"
+      }
+    ],
+    "phases": [
+      {
+        "id": "ph_1_reckoned_water",
+        "title": "Reckoned Water",
+        "order": 1,
+        "scope": "books 1-5",
+        "genres": [
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_mystery_discovery",
+            "basic_emotions": [
+              "anger",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the field that does not match the record"
+            ],
+            "structural_function": "a lower-terrace household discovers falsified credit and the Stone Hall's sealed custody is exposed (Book 1); the public record breaks the monopoly (Book 5)."
+          }
+        ],
+        "reader_experience": "wonder at the first hidden chamber under the spring; anger at falsified credit",
+        "aesthetic": null,
+        "narrative_function": "The Ledger governs. A lower-terrace household's record exposes falsified credit and a wild channel (Book 1). The Stone Hall's head, Keeper Corrow, opens the sealed records as a reform to protect the Hall's standing against thinning (Book 5), but only after the household's evidence forces the timing. The Hall is reformed, not destroyed; its committee keeps the debt reading. Dorran carries the reform as messenger rather than defecting.",
+        "transition": "Records open, so shares become tradable; the reform committee, not the tenders, sets the first rules of sale.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_2_the_turn",
+        "title": "The Turn",
+        "order": 2,
+        "scope": "books 6-11",
+        "genres": [
+          {
+            "genre": "gn_political_institutional",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "background"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_political_institutional",
+            "basic_emotions": [
+              "anger",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the compromise that feeds a new market"
+            ],
+            "structural_function": "lowland Mill Compact purchases shares from freed households; draw separates from return; the upper cistern thins (Book 6). The Turn is sworn and the Terrace Council forms (Books 7-11)."
+          }
+        ],
+        "reader_experience": "belonging tested by sale; anger at a market in shares",
+        "aesthetic": null,
+        "narrative_function": "The Source governs. The reform's sale rules let the Mill Compact buy shares; draw separates from return and the upper cistern thins (Book 6). Quillmark's tenders and the Terrace Council oppose rules the reform committee approved. Partial readings of the Stones (Book 8) are authored by the committee and contested by scholars.",
+        "transition": "Maintenance becomes an institution (the Turn) and the Old Hand becomes disputed knowledge.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_3_old_hand",
+        "title": "The Old Hand",
+        "order": 3,
+        "scope": "books 12-18",
+        "genres": [
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_mystery_discovery",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the reading that reframes an earlier debt"
+            ],
+            "structural_function": "the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the Stone Hall remnant holds it as debt, the Council as gift, the Compact as contract. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, forcing a new stewardship tally."
+          }
+        ],
+        "reader_experience": "wonder that the first compact was not a debt; fear of the surfeit",
+        "aesthetic": null,
+        "narrative_function": "The Old Hand governs. The complete reading of the First Stones (Book 15) makes the first compact a gift. The reform committee must now choose between its legitimacy as the debt-keeping Hall and the gift reading that would undo it; the Council and the Compact press their readings. The Unmeasured Return is tried in Lower Ammen; its surfeit in the high terraces forces a stewardship tally. The Reading Hall is founded.",
+        "transition": "Legitimacy is contested among three readings; no single institution holds the record.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_4_settled_water",
+        "title": "Settled Water",
+        "order": 4,
+        "scope": "books 19-22",
+        "genres": [
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_pastoral_belonging",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "generations on the same terraces"
+            ],
+            "structural_function": "terraces adopt different practices (Turn, stewardship tally, unmeasured return); plurality is tested for the first time; small local disputes arise from settled practice rather than from new antagonists."
+          }
+        ],
+        "reader_experience": "warmth of ordinary plurality; the bittersweet loss of single custody",
+        "aesthetic": null,
+        "narrative_function": "Co-governance. Ledger, Source and Old Hand share the field and no single engine dominates. This arc is deliberately lighter; its conflicts must come from settled practice, and it is the most likely place for filler.",
+        "transition": "Practice passes to the next generation.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_5_unmeasured",
+        "title": "Unmeasured",
+        "order": 5,
+        "scope": "books 23-30",
+        "genres": [
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_epic_fantasy",
+            "basic_emotions": [
+              "surprise",
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the hidden order answers the people who keep it"
+            ],
+            "structural_function": "the generation raised under open accounts and unmeasured return overdraws the upper cistern for the Brightwater festival (Book 23); in Book 30 the spring's deepest cycle meets a choice between restored monopoly and shared accounting of care, which accepts a visible cost."
+          }
+        ],
+        "reader_experience": "hope that is earned by cost; wonder at the deepest chamber",
+        "aesthetic": null,
+        "narrative_function": "The Source is the physical crisis-maker, but its crisis is caused by earlier successes (abundance without memory). The finale chooses shared accounting that informs rather than binds, and accepts that some lowland and lower-terrace families must rebuild channels with their neighbours.",
+        "transition": "Series closes locally; a shared practice and long-range questions continue.",
+        "parallel_with": []
+      }
+    ],
+    "open_questions": [
+      "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.",
+      "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+      "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state?",
+      "Who carries the Turn when the maintenance lineages end?",
+      "How many Brightwater shares may be drawn before the Balance Stones restrain them?",
+      "Is the Book 30 flood survived without losses or with lasting ones? This is an author choice and is not decided.",
+      "Does reform from within stay credible under Books 15 and 30, or does the Hall become a benevolent authority that the finale must then oppose? (Introduced by hypothetical H1.)"
+    ],
+    "emotion_targets": [
+      {
+        "id": "et_wonder",
+        "emotion": "surprise",
+        "role": "primary",
+        "intended_effect": "a sense that the valley's order is larger and more responsive than anyone assumed",
+        "eliciting_condition": "the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)",
+        "aesthetic_strategy": "concrete cold, light and sound; scale that reveals itself in steps",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "et_belonging",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "warmth of shared labour and meals at the turn",
+        "eliciting_condition": "return work completed together by people who have few reasons to trust one another",
+        "aesthetic_strategy": "ordinary detail and repeated ritual that changes slightly each season",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "et_hope",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "a sense that a shared practice can outlast the institution that began it",
+        "eliciting_condition": "the unmeasured return that works in Book 15 and the rebuilt channel of the finale",
+        "aesthetic_strategy": "earned rather than announced; the cost stays visible",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "et_grief_of_orders",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "loss of a structure that gave some people certainty, with dignity for the losing party",
+        "eliciting_condition": "the Stone Hall's fall and Keeper Corrow's dissent",
+        "aesthetic_strategy": "give the losers reasons that are coherent from their side",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_anger_at_hidden_credit",
+        "emotion": "anger",
+        "role": "supporting",
+        "intended_effect": "unease that an institution must be forced into correcting itself, and that its correction still costs the wronged",
+        "eliciting_condition": "the falsified lower-terrace share in Book 1, and the committee's partial correction in Book 5",
+        "aesthetic_strategy": "specific, documented injustice rather than abstract villainy",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_fear_of_wild_water",
+        "emotion": "fear",
+        "role": "local",
+        "intended_effect": "dread of water that is not kept",
+        "eliciting_condition": "lower terraces running wild in Book 1 and the finale's deepest cycle",
+        "aesthetic_strategy": "physical sensation with short, plain sentences",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "ce_awe_of_source",
+        "title": "Awe at the spring",
+        "basic_emotions": [
+          "surprise",
+          "joy"
+        ],
+        "context": "wonder that turns into care rather than fear"
+      },
+      {
+        "id": "ce_bittersweet_return",
+        "title": "Bittersweet return",
+        "basic_emotions": [
+          "sadness",
+          "joy"
+        ],
+        "context": "a practice honoured after the institution that held it has fallen"
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "gn_epic_fantasy",
+        "role": "governing",
+        "emotion_target_ids": [
+          "et_wonder",
+          "et_hope"
+        ],
+        "complex_emotion_ids": [
+          "ce_awe_of_source"
+        ],
+        "trope_functions": [
+          "a hidden order beneath a familiar valley",
+          "the keepers' authority reversed by public reading"
+        ],
+        "narrative_engine": "the quest is to understand a physical commons that answers choices, not to defeat a rival power",
+        "structural_pattern": "five macro arcs, each ending in a changed governing engine",
+        "aesthetic_strategies": [
+          "sensory discovery of cold water and stone",
+          "scale moves from terrace to valley to lowland"
+        ],
+        "payoff_expectations": [
+          "the First Stones read in stages, completed in Book 15",
+          "the spring's deepest cycle met with shared labour in Book 30"
+        ]
+      },
+      {
+        "genre_node_id": "gn_pastoral_belonging",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_belonging",
+          "et_grief_of_orders"
+        ],
+        "complex_emotion_ids": [
+          "ce_bittersweet_return"
+        ],
+        "trope_functions": [
+          "the shared turn as ritual of inclusion",
+          "generations on the same terraces"
+        ],
+        "narrative_engine": "belonging is produced by return labour and eroded by unshared draw",
+        "structural_pattern": "seasonal recurrence with changing participants",
+        "aesthetic_strategies": [
+          "ordinary work rendered with care"
+        ],
+        "payoff_expectations": [
+          "the first Turn of Book 6 is still practised, changed, in Book 30"
+        ]
+      },
+      {
+        "genre_node_id": "gn_political_institutional",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_anger_at_hidden_credit",
+          "et_grief_of_orders"
+        ],
+        "complex_emotion_ids": [],
+        "trope_functions": [
+          "the reform that protects the reformer",
+          "the compromise that feeds a new market"
+        ],
+        "narrative_engine": "institutions reform or resist from within; legitimacy is contested by people who once held it",
+        "structural_pattern": "arcs alternate between custody disputes and distribution disputes",
+        "aesthetic_strategies": [
+          "procedure rendered as drama"
+        ],
+        "payoff_expectations": [
+          "the Stone Hall's monopoly ends in Book 5 and no single house holds the record in Book 30"
+        ]
+      },
+      {
+        "genre_node_id": "gn_mystery_discovery",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "et_wonder",
+          "et_fear_of_wild_water"
+        ],
+        "complex_emotion_ids": [],
+        "trope_functions": [
+          "the field that does not match the record"
+        ],
+        "narrative_engine": "partial knowledge of the record and the spring changes choices",
+        "structural_pattern": "readings are staged so discovery advances by Book",
+        "aesthetic_strategies": [
+          "evidence carried by physical traces"
+        ],
+        "payoff_expectations": [
+          "the gift reading in Book 15 reframes the Book 1 debt"
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "gi_epic_political_tension",
+        "source_genre_id": "gn_epic_fantasy",
+        "target_genre_id": "gn_political_institutional",
+        "kind": "creates_tension",
+        "mechanism": "the quest to understand the spring becomes a dispute over who may read it; victory brings contention",
+        "risk": "epic reduced to civics procedure"
+      },
+      {
+        "id": "gi_political_pastoral_constrains",
+        "source_genre_id": "gn_political_institutional",
+        "target_genre_id": "gn_pastoral_belonging",
+        "kind": "constrains",
+        "mechanism": "share markets and maintenance duties limit how belonging can be expressed",
+        "risk": "belonging becomes a labour rota"
+      },
+      {
+        "id": "gi_mystery_epic_enables",
+        "source_genre_id": "gn_mystery_discovery",
+        "target_genre_id": "gn_epic_fantasy",
+        "kind": "enables",
+        "mechanism": "partial readings of the First Stones let the quest advance at a local pace",
+        "risk": "readings postponed into a withheld revelation"
+      },
+      {
+        "id": "gi_pastoral_mystery_reinforces",
+        "source_genre_id": "gn_pastoral_belonging",
+        "target_genre_id": "gn_mystery_discovery",
+        "kind": "reinforces",
+        "mechanism": "maintenance lineages hold the knowledge needed to read the stones",
+        "risk": "knowledge hardens into hereditary privilege"
+      }
+    ]
+  },
+  "candidate_request_sha256": "57d0d6ae357d9bbf8fb16543bc600b6e9128f39c67277a4f7e538789f3fd31ff",
+  "review": null
+}
