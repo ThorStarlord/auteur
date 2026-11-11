@@ -97,8 +97,12 @@ for (const surface of surfaces) {
 test('each authoring surface calls request detail rendering from the existing projection', () => {
   for (const surface of surfaces) {
     const source = readFileSync(new URL(surface.js, import.meta.url), 'utf8');
-    const after = source.slice(source.indexOf(surface.end),
-      source.indexOf(surface.end) + 700);
-    assert.match(after, /renderQuickDraftHandoff\(projection\);/);
+    const start = source.indexOf(surface.end);
+    assert.notEqual(start, -1, `${surface.label} renderer marker must exist`);
+    // Bound the check by the renderer's own function body. A fixed character
+    // window broke as soon as guard code was added above the render call.
+    const nextHelper = source.indexOf('\n  function ', start + surface.end.length);
+    const body = source.slice(start, nextHelper === -1 ? undefined : nextHelper);
+    assert.match(body, /renderQuickDraftHandoff\(projection\);/);
   }
 });
