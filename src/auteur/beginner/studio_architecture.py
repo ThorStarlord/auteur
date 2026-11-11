@@ -271,11 +271,52 @@ def _intention_view(item, *, excerpt: bool = False) -> dict:
 
 
 def _creative_intentions(store: CanvasStore) -> list[dict]:
+    """Full intentions with durable successor references for fresh-agent recovery."""
+    canvas = store.load()
+    items = {item.id: item for item in canvas.items if item.intention_status is not None}
+    successors = {
+        edge.target: edge.source for edge in canvas.connections
+        if edge.label == "supersedes-intention"
+        and edge.source in items and edge.target in items
+    }
     return [
-        _intention_view(item)
-        for item in store.load().items
-        if item.intention_status is not None
+        {**_intention_view(item), **(
+            {"superseded_by": successors[item.id]} if item.id in successors else {}
+        )}
+        for item in canvas.items if item.id in items
     ]
+
+
+def _bounded_intention_guidance(
+    store: CanvasStore, *, statuses: tuple[str, ...] = (
+        "active", "provisional", "superseded", "withdrawn"
+    ), focus_ids: tuple[str, ...] = (), max_items: int = 10,
+    max_characters: int = 6000,
+) -> dict:
+    """Bound agent-visible instructions; retain full historical records for resume."""
+    priority = {"active": 0, "provisional": 1, "superseded": 2, "withdrawn": 3}
+    candidates = [
+        (item, index) for index, item in enumerate(store.load().items)
+        if item.intention_status in statuses
+    ]
+    candidates.sort(key=lambda pair: (
+        0 if pair[0].proposal_origin is not None
+             and pair[0].proposal_origin.focus_id in focus_ids else 1,
+        priority[pair[0].intention_status], -pair[1],
+    ))
+    included, used = [], 0
+    for item, _ in candidates:
+        view = _intention_view(item, excerpt=True)
+        length = len(view["directive"])
+        if len(included) >= max_items or used + length > max_characters:
+            continue
+        included.append(view)
+        used += length
+    return {
+        "items": included,
+        "omitted_count": len(candidates) - len(included),
+        "status_scope": list(statuses),
+    }
 
 
 def _source(
@@ -359,12 +400,10 @@ def _source(
                 edge.model_dump(mode="json") for edge in excluded_edges
             ])
         if intention_items:
-            # Author-directed intentions are always disclosed with their current status, never
-            # silently filtered by recency. They bind in-flight requests through intention_sha256
-            # without invalidating the applied candidate.
-            result["creative_intentions"] = [
-                _intention_view(item, excerpt=True) for item in intention_items
-            ]
+            # The complete intention record remains available through resume.
+            guidance = _bounded_intention_guidance(store)
+            result["creative_intentions"] = guidance["items"]
+            result["omitted_creative_intention_count"] = guidance["omitted_count"]
     return result
 
 
@@ -381,6 +420,7 @@ def _author_working_context(working: dict) -> dict:
     """Strip agent-proposed provisional notes and continuing intentions from the author-source fingerprint."""
     filtered = dict(working)
     filtered.pop("creative_intentions", None)
+    filtered.pop("omitted_creative_intention_count", None)
     filtered["working_items"] = [
         item for item in working.get("working_items", [])
         if item.get("group") != _PROVISIONAL_CONCEPT_GROUP
@@ -595,11 +635,14 @@ omitted_working_* counts to distinguish visible evidence from missing text.
 Working items in group "provisional-concepts" are project-scoped agent proposals,
 not shared ontology definitions and not author commitments. Reuse them for this
 story provisionally; never present them as accepted general vocabulary.
-creative_intentions are the author's own continuing creative directions. They are
-working and noncanonical: active and provisional intentions direct the current
-design work, while superseded and withdrawn intentions are history and must not be
-treated as current direction. An intention never authorizes accepting canon,
-rewriting accepted Identity, or inventing concrete story facts.
+creative_intentions are author-directed working intentions, not canon.
+Active intentions are current working commitments: preserve them, or explain a
+substantive artistic conflict and propose a compatible alternative or explicit
+reconsideration. Provisional intentions are possibilities to explore, not binding
+requirements. Superseded and withdrawn intentions are history, not current direction.
+The author alone can change intention status; never override a commitment silently.
+An intention never authorizes accepting canon, rewriting accepted Identity, or
+inventing concrete story facts.
 A SHA-256 fingerprint identifies source freshness, NOT readable story facts.
 For manuscript-first input, cite working item IDs in relevant summaries and
 open questions. Separate observed prose from alternative interpretations;
@@ -1240,9 +1283,23 @@ def main(argv: list[str] | None = None) -> int:
         if args.from_request:
             if not re.fullmatch(r"[0-9a-f]{64}", args.from_request):
                 raise ValueError("from-request must be a 64-character request SHA")
+            # Provenance is a factual claim, not just a correctly formatted SHA.
+            from .studio_architecture_inquiry import _inquiry_root
+            inquiry = _read(
+                _inquiry_root(store) / "requests" / args.from_request / "result.json"
+            )
+            if not inquiry or (inquiry.get("intent") or {}).get("canvas_id") != store.canvas_id:
+                raise ValueError("intention origin inquiry not found on this canvas")
+            source_ref = args.source_ref
+            alternatives = inquiry.get("hypotheses") or []
+            if not source_ref or not any(
+                (row.get("id") or "h" + str(index)) == source_ref
+                for index, row in enumerate(alternatives, start=1)
+            ):
+                raise ValueError("intention origin must cite an existing inquiry hypothesis ID")
             item["proposal_origin"] = {
                 "request_sha": args.from_request,
-                "source_ref": args.source_ref or "selected_alternative",
+                "source_ref": source_ref,
                 "source_kind": "creative_alternative",
                 "focus_id": args.focus_id or "architecture",
             }

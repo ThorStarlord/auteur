@@ -8,6 +8,12 @@
 
 Short operational handoff only; history belongs in Git, PRs, issues, qualification, and evidence records. Read [MISSION.md](MISSION.md), [docs/narrative-architecture.md](docs/narrative-architecture.md), and [docs/product-evolution-roadmap.md](docs/product-evolution-roadmap.md).
 
+## 2026-11-06 Author intention experience follow-on (development branch only)
+
+A bounded implementation candidate exists on `feat/author-intention-experience-20261106`; see [development assessment](docs/research/2026-11-06-author-intention-experience-implementation.md) and [human walkthrough protocol](docs/qualification-evidence/author-intention-experience-20261106/human-walkthrough-protocol.md).
+
+The branch adds provenance checks, bounded intention disclosure, citable Mentor intention references, intention-aware Realization and anchor-citation coverage, inquiry refresh race protection, intention create/status/supersession UI on CanvasStore, pending-review inquiry access, and graph-selected Realization handoff. Tests are committed but **not run on a full checkout** in this execution environment (GitHub DNS unavailable). **No PR merge, human study, independent full creative journey, or release/default qualification is established for these changes.** Existing source L1/L2 policy must be satisfied before a code-bearing merge.
+
 ## 2026-11-06 Creative intention continuity and narrative realization (experimental)
 
 Assessment: [docs/research/2026-11-06-creative-intention-continuity-assessment.md](docs/research/2026-11-06-creative-intention-continuity-assessment.md); evidence: [docs/qualification-evidence/creative-intention-continuity-20261106/](docs/qualification-evidence/creative-intention-continuity-20261106/).
