@@ -122,9 +122,17 @@ def _component(
     }
 
 
+AUTHOR_DECLARED_LABEL_MEANING = (
+    "Source-origin claim: the author's own text names this emotion. The intended effect, "
+    "eliciting condition and aesthetic strategy are the agent's elaboration until the author "
+    "reviews them; the label is not author acceptance."
+)
+
+
 def _author_declared_preservation(
     previous: dict, proposed: dict, preserved_ids: dict[str, set[str]],
 ) -> tuple[list[dict], list[dict]]:
+    """Report every author-origin claim that is kept, changed, new, promoted, removed or relabelled."""
     previous_targets = {
         target.get("id"): target for target in previous.get("emotion_targets", [])
     }
@@ -134,6 +142,7 @@ def _author_declared_preservation(
     preserved: list[dict] = []
     changed: list[dict] = []
     for identifier, target in proposed_targets.items():
+        prior = previous_targets.get(identifier)
         if target.get("provenance") != "author_declared":
             continue
         if identifier in preserved_ids["emotion_targets"]:
@@ -143,13 +152,49 @@ def _author_declared_preservation(
                 "role": target.get("role"),
                 "status": "preserved",
             })
-        elif identifier in previous_targets:
+        elif prior is not None and prior.get("provenance") == "author_declared":
             changed.append({
                 "id": identifier,
-                "before": previous_targets[identifier].get("role"),
+                "before": prior.get("role"),
                 "after": target.get("role"),
-                "changed_fields": _changed_fields(previous_targets[identifier], target),
+                "changed_fields": _changed_fields(prior, target),
                 "status": "changed",
+            })
+        elif prior is not None:
+            changed.append({
+                "id": identifier,
+                "before": prior.get("role"),
+                "after": target.get("role"),
+                "changed_fields": _changed_fields(prior, target),
+                "status": "promoted_to_author_declared",
+            })
+        else:
+            changed.append({
+                "id": identifier,
+                "before": None,
+                "after": target.get("role"),
+                "changed_fields": [],
+                "status": "new_author_claim",
+            })
+    for identifier, prior in previous_targets.items():
+        if prior.get("provenance") != "author_declared":
+            continue
+        current = proposed_targets.get(identifier)
+        if current is None:
+            changed.append({
+                "id": identifier,
+                "before": prior.get("role"),
+                "after": None,
+                "changed_fields": [],
+                "status": "removed",
+            })
+        elif current.get("provenance") != "author_declared":
+            changed.append({
+                "id": identifier,
+                "before": prior.get("role"),
+                "after": current.get("role"),
+                "changed_fields": _changed_fields(prior, current),
+                "status": "label_removed",
             })
     return preserved, changed
 
@@ -227,6 +272,7 @@ def build_architecture_review(
             },
             "author_declared_emotion_targets": author_preserved,
             "author_declared_emotion_changes": author_changed,
+            "author_declared_label_meaning": AUTHOR_DECLARED_LABEL_MEANING,
             "accepted_constraints": accepted_constraints,
             "accepted_not_this": accepted_not_this,
         },

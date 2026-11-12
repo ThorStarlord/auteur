@@ -655,7 +655,10 @@ disgust, surprise. Name concrete intended reader-directed effects and
 narrative eliciting conditions, and explain how aesthetic strategies help.
 Use complex emotions ONLY when useful; each must cite 2+ distinct basic labels,
 with a contextual interpretation, never a scientific/causal guarantee.
-Distinguish explicit author declarations from your own working hypotheses.
+Distinguish explicit author declarations from your own working hypotheses. Label an emotion target
+author_declared only when its id names an emotion the author's Story Vision or working items state
+in their own words (every significant word of the id must appear there). Label every other target
+agent_proposed. Its elaboration is never author acceptance, and a label on an unsupported id is rejected.
 
 Build contextual genre contracts with emotional target references, trope
 functions, renewable narrative engines, structural patterns and payoff
@@ -676,7 +679,7 @@ the relation from source to target. Put longer explanatory prose in appropriate
 narrative description fields, not in this short relationship label.
 emotion_target: {id,emotion,role,intended_effect,eliciting_condition,
 aesthetic_strategy,provenance}; emotion one of six basics;
-role primary/supporting/contrasting/local; provenance author_declared/agent_proposed.
+role primary/supporting/contrasting/local; provenance author_declared (author-stated, see above)/agent_proposed.
 complex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.
 genre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,
 trope_functions,narrative_engine,structural_pattern,aesthetic_strategies,
@@ -1023,6 +1026,60 @@ def prepare_architecture(
     return project_architecture(store)
 
 
+_AUTHOR_TERM_STOPWORDS = frozenset({
+    "the", "and", "for", "with", "that", "this", "from", "into", "over", "its", "are", "was", "but",
+})
+
+
+def _author_visible_words(packet: dict) -> set[str]:
+    """Words of the author-supplied text this request actually showed the writer.
+
+    Agent-proposed provisional notes, the previous candidate and the revision instruction are excluded:
+    none of them is author-supplied material the writer can be shown to have been given.
+    """
+    context = packet["working_context"]
+    texts = [str(context.get("vision") or "")]
+    texts.extend(
+        str(item.get("content") or "")
+        for item in context.get("working_items", [])
+        if item.get("group") != _PROVISIONAL_CONCEPT_GROUP
+    )
+    return {word for text in texts for word in re.findall(r"[a-z]+", text.lower())}
+
+
+def _author_term_grounded(identifier: str, words: set[str]) -> bool:
+    """Every significant term of the emotion identifier must appear in the author-visible text."""
+    terms = [
+        part for part in re.split(r"[^a-z]+", identifier.lower())
+        if len(part) >= 3 and part not in _AUTHOR_TERM_STOPWORDS
+    ]
+    return bool(terms) and all(term in words for term in terms)
+
+
+def _validate_author_provenance(proposal: ArchitectureCandidate, packet: dict) -> None:
+    """Admit `author_declared` only where author text names the emotion, or the baseline already did.
+
+    An unchanged or already-declared baseline claim is preserved without re-proof; the review reports
+    any change to it. A new or promoted author claim must be named by author-visible text. The check
+    is lexical and deterministic: it establishes that the author's own words name the emotion, not that
+    the author accepted the agent's elaboration of it.
+    """
+    previous = packet["working_context"].get("previous_candidate") or {}
+    baseline_claims = {
+        target.get("id") for target in previous.get("emotion_targets", [])
+        if target.get("provenance") == "author_declared"
+    }
+    words = _author_visible_words(packet)
+    for target in proposal.emotion_targets:
+        if target.provenance != "author_declared" or target.id in baseline_claims:
+            continue
+        if not _author_term_grounded(target.id, words):
+            raise ValueError(
+                f"author_declared emotion target {target.id!r} is not named in the author's source "
+                "text shown in this request; label an agent interpretation agent_proposed"
+            )
+
+
 def complete_architecture(store: CanvasStore, payload: dict) -> dict:
     with _FilesystemLock(store._path(".canvas.lock")):
         pointer = _read(_root(store) / "latest_request.json")
@@ -1069,6 +1126,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             raise BeginnerConcurrencyError(
                 "the author's creative intentions changed; response retained as stale evidence"
             )
+        _validate_author_provenance(proposal, json.loads(request.user))
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
         record = {

@@ -1,0 +1,96 @@
+{
+  "book_status": "ready",
+  "freshness": "ready",
+  "semantic_impact": "clear",
+  "element_count": 83,
+  "typed_edge_count": 8,
+  "open_author_decision_count": 12,
+  "provenance_histogram": {
+    "agent_proposed": 21,
+    "derived": 8,
+    "unresolved": 49,
+    "hypothetical": 5
+  },
+  "sections_provenance": {
+    "1 question and pressure": [
+      "agent_proposed"
+    ],
+    "2 inherited conditions": [
+      "agent_proposed",
+      "derived",
+      "unresolved"
+    ],
+    "3 engines": [
+      "agent_proposed",
+      "unresolved"
+    ],
+    "4 agents": [
+      "agent_proposed",
+      "derived"
+    ],
+    "5 choice": [
+      "agent_proposed"
+    ],
+    "6 local resolution": [
+      "agent_proposed",
+      "unresolved"
+    ],
+    "7 Series consequences": [
+      "unresolved"
+    ],
+    "8 later possibilities": [
+      "unresolved"
+    ],
+    "9 assumptions": [
+      "agent_proposed",
+      "unresolved"
+    ],
+    "10 alternatives": [
+      "hypothetical"
+    ],
+    "11 unresolved and decisions": [
+      "unresolved"
+    ]
+  },
+  "source_identifiers_cited": 23,
+  "source_identifiers_in_series_nodes": 14,
+  "source_identifiers_typed_in_artifact": 14,
+  "source_identifiers_text_only": [
+    "et_belonging",
+    "et_cost_of_counting",
+    "l_conversion_sets_draw",
+    "l_lineage_right_on_draw",
+    "l_longreturn_needs_hands",
+    "ph_1_reckoned_water",
+    "ph_3_old_hand",
+    "ph_4_settled_water",
+    "ph_5_unmeasured"
+  ],
+  "candidate_chars": 41776,
+  "resume_chars": 87047,
+  "packet_chars": 20133,
+  "artifact_chars": 33657,
+  "audit_changed_by_step": {
+    "prepare": {
+      "added": [
+        ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/latest_request.json",
+        ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/4bc80d59b6f782eb038c3f5289c03451f8024194d097132256a4f23e9b062b23/request.json"
+      ],
+      "changed": [],
+      "removed": []
+    },
+    "complete": {
+      "added": [
+        ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json",
+        ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/4bc80d59b6f782eb038c3f5289c03451f8024194d097132256a4f23e9b062b23/response.json"
+      ],
+      "changed": [],
+      "removed": []
+    },
+    "resume": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    }
+  }
+}
