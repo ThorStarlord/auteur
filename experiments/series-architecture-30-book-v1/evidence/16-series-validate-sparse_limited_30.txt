@@ -1,0 +1,3 @@
+Error: invalid series identity: 1 validation error for SeriesIdentity
+  Value error, limited_series book_count must match book_plans [type=value_error, input_value={'title': 'The Spring Led...'lowland settlement'}}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error

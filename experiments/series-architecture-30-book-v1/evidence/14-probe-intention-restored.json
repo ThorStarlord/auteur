@@ -1,0 +1,14 @@
+{
+  "status": "active",
+  "authority": "author_directed_working_intention",
+  "canvas_id": "spring-ledger-30",
+  "canvas_revision": 7,
+  "intention": {
+    "id": "intention-f4a17a2820db",
+    "title": "Victories change the world",
+    "status": "active",
+    "directive": "Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.",
+    "source_ref": "canvas/items/intention-f4a17a2820db",
+    "authority": "author_directed_working_intention"
+  }
+}

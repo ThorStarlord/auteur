@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "H:\GithubRepositories\worktrees\auteur-series-architecture-30\src\auteur\beginner\studio_architecture.py", line 1298, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "H:\GithubRepositories\worktrees\auteur-series-architecture-30\src\auteur\beginner\studio_architecture.py", line 1213, in main
+    result = complete_architecture(store, response.model_dump())
+  File "H:\GithubRepositories\worktrees\auteur-series-architecture-30\src\auteur\beginner\studio_architecture.py", line 1066, in complete_architecture
+    raise BeginnerConcurrencyError(
+        "the author's creative intentions changed; response retained as stale evidence"
+    )
+auteur.beginner.persistence.BeginnerConcurrencyError: the author's creative intentions changed; response retained as stale evidence
