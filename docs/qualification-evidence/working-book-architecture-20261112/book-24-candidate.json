@@ -1,0 +1,1179 @@
+{
+  "schema_version": 1,
+  "book_number": 24,
+  "title": "The Uncounted Crew",
+  "function": {
+    "id": "fn-question",
+    "provenance": "agent_proposed",
+    "text": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who owes. Selection rationale (agent): among the candidates considered, the uncounted crew is the only one that develops the Book 23 belief locally, with a Book-length arc and closure; it uses all three engines without physics beyond P3 and P4; it puts a real choice and a real cost in a new-generation character; and its consequences bear on all three finale alternatives without favouring one.",
+    "refs": [
+      {
+        "kind": "series_node",
+        "id": "str_long_return"
+      },
+      {
+        "kind": "series_node",
+        "id": "th_hands_and_draw"
+      },
+      {
+        "kind": "series_node",
+        "id": "inst_lineage_crews"
+      },
+      {
+        "kind": "series_node",
+        "id": "th_maintenance"
+      },
+      {
+        "kind": "source_item",
+        "id": "book-24-source"
+      }
+    ],
+    "question": "Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?",
+    "pressure": "The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work."
+  },
+  "inherited": [
+    {
+      "id": "inh-date",
+      "provenance": "derived",
+      "text": "The Long Return's date is public: the Balance Stones publish it and limit Brightwater's draw. Book 24 is the first Book in which the valley knows how long it has, and training takes years, so the labour question cannot wait for Books 27 to 29.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_reading_hall"
+        },
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "inh-right-condition",
+      "provenance": "agent_proposed",
+      "text": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_maintenance"
+        },
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "inh-cohort-belief",
+      "provenance": "derived",
+      "text": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_maintenance"
+        },
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "inh-uneven-draw",
+      "provenance": "derived",
+      "text": "Hand-light houses have drawn less since the Book 20 conversion.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        },
+        {
+          "kind": "series_node",
+          "id": "rx_consequence"
+        },
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "inh-hesper",
+      "provenance": "derived",
+      "text": "Hesper led Brightwater and took a Council apprenticeship.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "inh-gift-reading",
+      "provenance": "derived",
+      "text": "The gift reading, 'water given; hands given back; nothing counted', belongs to the Old Hand. The Balance Stones are the Source's public measure, cut in Book 23 and published by the Reading Hall, and they do not depend on the Gate.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_old_hand"
+        },
+        {
+          "kind": "series_node",
+          "id": "str_unmeasured_return"
+        },
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_reading_hall"
+        }
+      ]
+    },
+    {
+      "id": "inh-gate-independence",
+      "provenance": "unresolved",
+      "text": "Book 24 does not depend on the Hollow Gate or the Gate Table. Their acceptance is author-reserved, so the function holds whether or not the author keeps them. The source states this without a provenance tag.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_hollow_gate"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_gate_table"
+        }
+      ]
+    }
+  ],
+  "engines": [
+    {
+      "id": "eng-old-hand-ledger",
+      "provenance": "unresolved",
+      "text": "Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_old_hand"
+        },
+        {
+          "kind": "series_node",
+          "id": "eng_ledger"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ],
+      "condition": "The cohort has inherited the gift reading as a slogan and kept only its last clause, 'nothing counted', which it hears as 'nothing owed'.",
+      "choice": "Asked by the Council to supply recorded apprentices, the cohort refuses to be entered in the stewardship tally.",
+      "consequence": "The Right's training condition cannot be shown in the form the Council expected.",
+      "changed_state": "The Council, the lineage and the cohort are each blocked, by their own reasons.",
+      "new_possibility": "Hesper forms a crew that will learn and work uncounted."
+    },
+    {
+      "id": "eng-ledger-source",
+      "provenance": "agent_proposed",
+      "text": "Ledger to Source: the hands-to-draw conversion credits only counted hands, so uncounted labour improves the balance but cannot restore its own households' draw.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_ledger"
+        },
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ],
+      "condition": "The hands-to-draw conversion credits only counted hands.",
+      "choice": "The cohort's young from hand-light houses work uncounted.",
+      "consequence": "Their labour improves the balance, but it cannot restore their own households' draw; their families stay cut while the best-handed houses keep their counted advantage.",
+      "changed_state": "The conversion's blind spot becomes visible: the record sees the hands counted, not the hands. (Agent, derived from the Book 20 mechanism.)",
+      "new_possibility": "Whether the conversion is a lasting settlement (open question 6) gains a concrete case."
+    },
+    {
+      "id": "eng-source-witness",
+      "provenance": "agent_proposed",
+      "text": "Source as witness: the Source responds to balance, not to intention or record. The Stones show the return in aggregate and cannot show whose hands did it. A badly laid section silts and must be relaid by lineage hands.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        },
+        {
+          "kind": "series_node",
+          "id": "str_lowfen_channel"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_reading_hall"
+        }
+      ],
+      "condition": "The Source responds to balance, not to intention or record.",
+      "choice": "The crew keeps a stretch of the Lowfen's thaw upkeep under Ysa Trant's instruction.",
+      "consequence": "The Balance Stones show the return, in aggregate. They cannot show whose hands. One badly laid section silts and must be relaid by lineage hands.",
+      "changed_state": "The valley sees that uncounted gift is real on the water and invisible on the record. Gift without skill also fails. This is a new physical assumption (P4).",
+      "new_possibility": "A record of capability, rather than of hands owed."
+    },
+    {
+      "id": "eng-record-form",
+      "provenance": "agent_proposed",
+      "text": "Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date. The craft-mark answers all three.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_ledger"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_custody"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ],
+      "condition": "The lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date.",
+      "choice": "The craft-mark.",
+      "consequence": "The condition is met in a form that records who can, not who owes.",
+      "changed_state": "The valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability).",
+      "new_possibility": "Any finale mechanism can draw on a public record of capability, and any of them can be undermined if that record is falsified."
+    }
+  ],
+  "agents": [
+    {
+      "id": "agent-hesper",
+      "provenance": "agent_proposed",
+      "text": "Hesper (named in the Book 24 source; see unk-character-sourcing) wants her generation's abundance to remain a freedom from counting. She does not want to inherit her grandmother's tally, does not convert to the Turn, and learns that the work is real while still refusing that it must be counted. The motive is designed to be judged against open question 10; whether it is independent of the author's preference is the author's decision.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ]
+    },
+    {
+      "id": "agent-steward",
+      "provenance": "derived",
+      "text": "The Council steward (Idrun in the source) wants the Turn humane. She needs trained hands before the date, fears gift without return, and knows what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        },
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    },
+    {
+      "id": "agent-lineages",
+      "provenance": "agent_proposed",
+      "text": "Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_maintenance"
+        }
+      ]
+    },
+    {
+      "id": "agent-hand-light",
+      "provenance": "derived",
+      "text": "Hand-light households have drawn less since Book 20. They need draw restored. Many would rather their children's labour were counted, because the count is how the conversion gives water back. Their reasons are coherent from their side.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ]
+    },
+    {
+      "id": "agent-best-handed",
+      "provenance": "derived",
+      "text": "The best-handed houses drew most of the surplus. Counting rewards those with hands, so they want labour counted.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ]
+    },
+    {
+      "id": "agent-reading-hall",
+      "provenance": "agent_proposed",
+      "text": "The Reading Hall publishes the Balance Stones and has no schedule authority. Asked to certify the crew from the Stones, it declines to attribute aggregate balance to named hands, because the Stones do not resolve local return (P3). Whether the Hall should keep any person-level record is not settled here.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_reading_hall"
+        },
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        }
+      ]
+    },
+    {
+      "id": "agent-stone-hall",
+      "provenance": "agent_proposed",
+      "text": "The Stone Hall remnant calls uncounted labour an unrecorded debt that will default, and offers to keep the apprentices' register. The valley declines.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_stone_hall"
+        }
+      ]
+    },
+    {
+      "id": "agent-mill-compact",
+      "provenance": "agent_proposed",
+      "text": "Oona Brisk and the Mill Compact (named in the source; see unk-character-sourcing) offer hired lowland labour if it is credited against the Compact's draw. The offer is neither accepted nor refused, because the Compact's settlement is author-reserved.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_mill_compact"
+        }
+      ]
+    }
+  ],
+  "choice": {
+    "id": "choice-craft-mark",
+    "provenance": "agent_proposed",
+    "text": "The setting: after the thaw the Balance Stones show the crew's return, and a silted section has cost one hand-light household a season on its terrace. The Council, through Idrun, offers to enter the crew in the stewardship tally retroactively. That would meet the Right's condition and, through the conversion, restore hand-light draw. Hesper chooses the craft-mark.",
+    "refs": [
+      {
+        "kind": "series_node",
+        "id": "th_hands_and_draw"
+      },
+      {
+        "kind": "series_node",
+        "id": "inst_lineage_crews"
+      }
+    ],
+    "options": [
+      {
+        "id": "opt-accept-count",
+        "provenance": "agent_proposed",
+        "text": "Accept the count: family draw is restored, but the cohort enters the tally it refused.",
+        "refs": []
+      },
+      {
+        "id": "opt-refuse",
+        "provenance": "agent_proposed",
+        "text": "Refuse: the gift stays pure, the families stay cut, and the lineage's condition stays unmet.",
+        "refs": []
+      },
+      {
+        "id": "opt-craft-mark",
+        "provenance": "agent_proposed",
+        "text": "A third path Hesper proposes: when a lineage hand judges that an apprentice can perform a named repair, teacher and learner each cut a mark on the channel stone where it was done. The mark records capability and place. It records no hours and no debt, and it does not touch draw.",
+        "refs": []
+      }
+    ],
+    "chosen_option_id": "opt-craft-mark",
+    "costs_kept_visible": [
+      {
+        "id": "cost-draw-stays-cut",
+        "provenance": "agent_proposed",
+        "text": "The craft-mark does not restore draw. The crew chooses it knowing that their own hand-light households stay cut this cycle.",
+        "refs": [
+          {
+            "kind": "series_node",
+            "id": "th_hands_and_draw"
+          }
+        ]
+      },
+      {
+        "id": "cost-counted-crewmates",
+        "provenance": "agent_proposed",
+        "text": "Several crewmates, including the one whose terrace silted, choose to be counted instead, for their families. Hesper respects that choice, and the cohort leaves the Book split between counted and uncounted youth.",
+        "refs": []
+      }
+    ],
+    "transformation": {
+      "id": "trans-hesper-idrun",
+      "provenance": "agent_proposed",
+      "text": "Hesper moves from 'abundance needs no work' to 'the work is real and the water sees it, but people need not count it'. The cohort moves from one belief to two practices. Idrun moves from keeping a tally that should be complete to accepting a record she does not hold. This is an emotionally consequential relationship across generations: the granddaughter sets evidence against an institution's record, and here the evidence is a craft-mark on the water, not a share-mark.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "rx_consequence"
+        },
+        {
+          "kind": "series_node",
+          "id": "rx_belonging"
+        }
+      ]
+    }
+  },
+  "local_resolution": [
+    {
+      "id": "res-craft-mark-provisional",
+      "provenance": "agent_proposed",
+      "text": "Ysa Trant accepts craft-marks as proof of training. The Council accepts them as meeting the Right's condition for one review cycle only. This does not settle the Right's revocability or its final condition.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ],
+      "closure": false
+    },
+    {
+      "id": "res-first-group",
+      "provenance": "agent_proposed",
+      "text": "A first group of outside-lineage hands is trained. The size is unstated, and the group does not close the Long Return's labour gap; it shows that the gap can be narrowed.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        }
+      ],
+      "closure": true
+    },
+    {
+      "id": "res-lowfen-upkeep",
+      "provenance": "unresolved",
+      "text": "The Lowfen upkeep holds through the thaw, apart from the silted section, which is relaid. The source gives this without a provenance tag.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_lowfen_channel"
+        }
+      ],
+      "closure": true
+    },
+    {
+      "id": "res-custody-declined",
+      "provenance": "unresolved",
+      "text": "The remnant's custody offer is declined. Oona's offer stands, neither accepted nor refused.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_stone_hall"
+        },
+        {
+          "kind": "series_node",
+          "id": "inst_mill_compact"
+        }
+      ],
+      "closure": true
+    },
+    {
+      "id": "res-closing-image",
+      "provenance": "unresolved",
+      "text": "The Book closes on the cohort's first craft-marks beside the lineage's old ones. The belonging is everyday and specific, and the wonder is quiet: the water registered what no ledger did.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "rx_belonging"
+        },
+        {
+          "kind": "series_node",
+          "id": "rx_wonder"
+        }
+      ],
+      "closure": true
+    }
+  ],
+  "series_consequences": [
+    {
+      "id": "cons-belief-plural",
+      "provenance": "unresolved",
+      "text": "The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_maintenance"
+        }
+      ],
+      "kind": "changes"
+    },
+    {
+      "id": "cons-capability-record",
+      "provenance": "unresolved",
+      "text": "A capability record exists, separate from the debt ledger, the tally and the Balance Stones. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour, and it does not change who is counted for draw.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_ledger"
+        },
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ],
+      "kind": "changes"
+    },
+    {
+      "id": "cons-conversion-blind-spot",
+      "provenance": "unresolved",
+      "text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ],
+      "kind": "changes"
+    },
+    {
+      "id": "cons-reading-hall",
+      "provenance": "unresolved",
+      "text": "The Reading Hall declines to attribute balance to persons while the Stones cannot resolve local return (P3). This matters to Alternative C's threshold and to Alternative B's deficit record, and it decides neither.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_reading_hall"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_c_ratified_trigger"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_b_allotted"
+        }
+      ],
+      "kind": "complicates"
+    },
+    {
+      "id": "cons-labour-readiness",
+      "provenance": "unresolved",
+      "text": "Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        }
+      ],
+      "kind": "changes"
+    },
+    {
+      "id": "cons-relationship",
+      "provenance": "unresolved",
+      "text": "Idrun and Hesper's relationship has changed. Continuity between them is now a matter of disagreement, not inheritance.",
+      "refs": [],
+      "kind": "changes"
+    },
+    {
+      "id": "cons-finale-open",
+      "provenance": "unresolved",
+      "text": "The three finale alternatives remain unselected. Book 24 neither chooses nor excludes any of them; each must reckon with the capability record.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "alt_a_reciprocal"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_b_allotted"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_c_ratified_trigger"
+        }
+      ],
+      "kind": "preserves"
+    }
+  ],
+  "later_possibilities": [
+    {
+      "id": "later-channel-skill",
+      "provenance": "unresolved",
+      "text": "The uncounted crew may become a carrier of channel skill when the lineages end. This is a possibility, not an answer.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ],
+      "kind": "enabled"
+    },
+    {
+      "id": "later-finale-capability",
+      "provenance": "unresolved",
+      "text": "A capability record is usable by any finale mechanism: pair-hands under A, rota assignment under B, the pre-drawn panel under C. It lowers some costs in each and chooses none.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "alt_a_reciprocal"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_b_allotted"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_c_ratified_trigger"
+        }
+      ],
+      "kind": "enabled"
+    },
+    {
+      "id": "later-books-25-26",
+      "provenance": "unresolved",
+      "text": "Books 25 and 26 receive two pressures: whether craft-marks can be falsified or favoured, and hand-light draw against the conversion, now with a concrete case.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ],
+      "kind": "enabled"
+    },
+    {
+      "id": "later-cohort-seat",
+      "provenance": "unresolved",
+      "text": "The cohort may claim standing in coordination, for example a Gate Table seat if the author keeps the Table.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_gate_table"
+        }
+      ],
+      "kind": "enabled"
+    },
+    {
+      "id": "later-oona-offer",
+      "provenance": "unresolved",
+      "text": "Oona's standing offer meets a valley with some hands of its own before the Book 27 to 29 bid.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_mill_compact"
+        }
+      ],
+      "kind": "enabled"
+    },
+    {
+      "id": "closed-idle-generation",
+      "provenance": "unresolved",
+      "text": "A uniformly idle Brightwater generation is closed: the cohort has shown both practices.",
+      "refs": [],
+      "kind": "closed"
+    },
+    {
+      "id": "closed-invisible-gift",
+      "provenance": "unresolved",
+      "text": "Uncounted gift as invisible to the spring is narrowed: the Balance Stones show it in aggregate.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        }
+      ],
+      "kind": "closed"
+    },
+    {
+      "id": "closed-ignored-right",
+      "provenance": "unresolved",
+      "text": "Quietly ignoring the Right's condition is closed: it has been tested and met provisionally.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ],
+      "kind": "closed"
+    },
+    {
+      "id": "closed-remnant-keeper",
+      "provenance": "unresolved",
+      "text": "The remnant as keeper of the labour record is closed: it offered and was declined.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_stone_hall"
+        }
+      ],
+      "kind": "closed"
+    },
+    {
+      "id": "closed-book30-surprise",
+      "provenance": "unresolved",
+      "text": "The labour gap as a Book 30 surprise is closed: it is named and partly worked from Book 24.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        }
+      ],
+      "kind": "closed"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "assume-p1",
+      "provenance": "agent_proposed",
+      "text": "The Special Draw Right has a review point in Book 24.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": "The pressure arises from the lineage's own count of the shortfall instead."
+    },
+    {
+      "id": "assume-p2",
+      "provenance": "agent_proposed",
+      "text": "The cohort reads 'nothing counted' as 'nothing owed'.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": "The belief comes from invisible lineage labour alone. The function survives this."
+    },
+    {
+      "id": "assume-p3",
+      "provenance": "unresolved",
+      "text": "Return labour shows on the Balance Stones in aggregate, without attribution. Agent-proposed in the source; it follows from eng_source, but the Stones' resolution of local return is not established.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p4",
+      "provenance": "unresolved",
+      "text": "Gift-hands without skill can damage a channel, through the silted section. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p5",
+      "provenance": "unresolved",
+      "text": "The craft-mark is a record of capability, cut by teacher and learner on the channel stone and held by no institution. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p6",
+      "provenance": "unresolved",
+      "text": "The Council accepts craft-marks for one review cycle only. This does not decide author-reserved choice 7. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p7",
+      "provenance": "unresolved",
+      "text": "The Reading Hall refuses attribution. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p8",
+      "provenance": "unresolved",
+      "text": "The remnant's custody offer and Oona's labour offer stand as described. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p9",
+      "provenance": "unresolved",
+      "text": "Hesper remains a Council apprentice after the Book. This is deliberately not a statement on reform from within. The source notes that the author may instead have her leave; that is an alternative, not a stated reversal.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    },
+    {
+      "id": "assume-p10",
+      "provenance": "unresolved",
+      "text": "The Lowfen upkeep is the crew's work site. Any channel the crew can work would serve. The surge route is author-reserved, and this Book neither designates nor excludes the Lowfen. Agent-proposed in the source; no reversal is stated.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ],
+      "reversal": null
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "alt-cistern",
+      "provenance": "hypothetical",
+      "text": "A discovery Book testing what the high cistern can store. Rich in wonder, but it would settle the unresolved physical fact on which Alternatives B and C depend, deciding the finale's feasibility by physics.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "alt_b_allotted"
+        },
+        {
+          "kind": "series_node",
+          "id": "alt_c_ratified_trigger"
+        }
+      ],
+      "title": "The cistern's measure",
+      "status": "hypothetical",
+      "rationale": "Rejected as a global redesign."
+    },
+    {
+      "id": "alt-stones-restraint",
+      "provenance": "hypothetical",
+      "text": "A dispute over how the Balance Stones' limit on Brightwater draw is shared. A strong L1 conflict, but it would rehearse 'counted but not owed' against 'owed' directly and largely repeat Conflict A.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        }
+      ],
+      "title": "Who bears the Stones' restraint",
+      "status": "hypothetical",
+      "rationale": "Rejected: it would pre-run Alternative A against Alternative B."
+    },
+    {
+      "id": "alt-threshold",
+      "provenance": "hypothetical",
+      "text": "An early fight over reading the Stones as a trigger. It would front-load Alternative C and make the Stones an authority by Book 24.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "alt_c_ratified_trigger"
+        }
+      ],
+      "title": "The threshold dispute",
+      "status": "hypothetical",
+      "rationale": "Rejected as finale-leaning."
+    },
+    {
+      "id": "alt-early-compact",
+      "provenance": "hypothetical",
+      "text": "Oona's bid brought forward. It would displace Books 27 to 29 and press on the author-reserved settlement.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_mill_compact"
+        }
+      ],
+      "title": "An early Compact move",
+      "status": "hypothetical",
+      "rationale": "Reduced to a standing offer."
+    },
+    {
+      "id": "alt-right-revocation",
+      "provenance": "hypothetical",
+      "text": "The Council revokes or confirms the Right. This decides author-reserved choice 7.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ],
+      "title": "The Right's revocation",
+      "status": "hypothetical",
+      "rationale": "Reduced to a one-cycle provisional acceptance."
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "unk-years",
+      "provenance": "unresolved",
+      "text": "The years between Book 24 and the Long Return, and how long a channel hand takes to train.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "str_long_return"
+        }
+      ]
+    },
+    {
+      "id": "unk-lineage-count",
+      "provenance": "unresolved",
+      "text": "The number of lineage hands and the size of the shortfall.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_lineage_crews"
+        }
+      ]
+    },
+    {
+      "id": "unk-stones-local-return",
+      "provenance": "unresolved",
+      "text": "Whether the Balance Stones can resolve local return at all (P3).",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "eng_source"
+        }
+      ]
+    },
+    {
+      "id": "unk-corrow",
+      "provenance": "unresolved",
+      "text": "Whether Corrow is alive in Book 24.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "inst_stone_hall"
+        }
+      ]
+    },
+    {
+      "id": "unk-sallow-house",
+      "provenance": "unresolved",
+      "text": "Whether the Sallow house is hand-light. This changes the personal cost of Hesper's choice.",
+      "refs": [
+        {
+          "kind": "series_node",
+          "id": "th_hands_and_draw"
+        }
+      ]
+    },
+    {
+      "id": "unk-apprenticeship-return",
+      "provenance": "unresolved",
+      "text": "What Hesper's apprenticeship involves, and what return labour consists of in normal seasons.",
+      "refs": []
+    },
+    {
+      "id": "unk-character-sourcing",
+      "provenance": "unresolved",
+      "text": "Named characters (Hesper, Idrun, Ysa Trant, Oona Brisk, Corrow) appear in the Book 24 source but in neither the Series candidate nor the author's visible text. Their sourcing is a product question (working-book design, gap G7). They are therefore carried as roles in the agents list, not as named agents.",
+      "refs": [
+        {
+          "kind": "source_item",
+          "id": "book-24-source"
+        }
+      ]
+    }
+  ],
+  "open_author_decisions": [
+    {
+      "id": "dec-conversion-settlement",
+      "provenance": "unresolved",
+      "text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+      "refs": [],
+      "series_question_index": 5,
+      "series_question_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5"
+    },
+    {
+      "id": "dec-right-revocable",
+      "provenance": "unresolved",
+      "text": "Whether the lineage Special Draw Right is revocable or permanent, and the training condition it carries. Book 24 reaches its review point.",
+      "refs": [],
+      "series_question_index": 4,
+      "series_question_sha256": "f92c6a7509c9a718f93e59aaa1274f4b51e88e1a0e7d05556fee76001a443eb9"
+    },
+    {
+      "id": "dec-finale-mechanism",
+      "provenance": "unresolved",
+      "text": "Which finale mechanism the author chooses. Book 24 selects none and records a capability record usable by all three.",
+      "refs": [],
+      "series_question_index": 2,
+      "series_question_sha256": "a3d8a93bf787bd2be63a7660f78ffdd44bf779ad61b60cad2da434e5d732d1d9"
+    },
+    {
+      "id": "dec-compact-settlement",
+      "provenance": "unresolved",
+      "text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+      "refs": [],
+      "series_question_index": 6,
+      "series_question_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46"
+    },
+    {
+      "id": "dec-surge-route",
+      "provenance": "unresolved",
+      "text": "Which channel takes the Long Return's surge. Book 24 neither designates nor excludes the Lowfen.",
+      "refs": [],
+      "series_question_index": 7,
+      "series_question_sha256": "45e67ed584bb451b078d5318111af7cd36035ecca2215456f81ce691bbe1cbeb"
+    },
+    {
+      "id": "dec-hesper-motive",
+      "provenance": "unresolved",
+      "text": "Whether Hesper's generational motive is independent of the author's preference for the Turn's sustainability.",
+      "refs": [],
+      "series_question_index": 9,
+      "series_question_sha256": "a07cb0bc96e204a1984f6fc17966867bfb96f5d64c7065b4894875a79eaf7b7f"
+    },
+    {
+      "id": "dec-reform-stance",
+      "provenance": "unresolved",
+      "text": "Whether reform from within remains the Series' stance. Book 24 keeps Hesper a Council apprentice, which is not a statement on it.",
+      "refs": [],
+      "series_question_index": 12,
+      "series_question_sha256": "2d05099da54a81099d11eef7b75d90e44260e666dd04f4958b01a1e3edddf812"
+    },
+    {
+      "id": "dec-plurality",
+      "provenance": "unresolved",
+      "text": "Whether any terrace keeps a measured ledger in Book 30, and whether plurality of practice is the intended end state.",
+      "refs": [],
+      "series_question_index": 13,
+      "series_question_sha256": "372661a6591a917e4895387424a5dd2b418ed0aa998214732edd32fe14fee7a4"
+    },
+    {
+      "id": "dec-gate-table",
+      "provenance": "unresolved",
+      "text": "Whether the Hollow Gate and the Gate Table are accepted parts of the world. Book 24 holds either way.",
+      "refs": [],
+      "series_question_index": 14,
+      "series_question_sha256": "fc83bf4ed418aec8df46fd0de885a3708ef946c957092c9b2da76cdda447cd57"
+    },
+    {
+      "id": "dec-threshold",
+      "provenance": "unresolved",
+      "text": "Whether a Balance Stones threshold exists for Alternative C, who reads it, and which body ratifies it. Book 24 neither sets nor reads a threshold.",
+      "refs": [],
+      "series_question_index": 8,
+      "series_question_sha256": "ffd4a8804740a202afb7bb850bdb66a3138c45474f53dc526942b3d9b0ec05e1"
+    },
+    {
+      "id": "dec-draw-cap",
+      "provenance": "unresolved",
+      "text": "How many Brightwater shares may be drawn before the Balance Stones restrain them. Book 24 leaves the cap to the author.",
+      "refs": [],
+      "series_question_index": 11,
+      "series_question_sha256": "f8adb9cf2c4aa951ccb31bab809c17513160284bf5b490bac574b08aa8b64127"
+    },
+    {
+      "id": "dec-cistern-storage",
+      "provenance": "unresolved",
+      "text": "What the high cistern can physically store above its tolerance. Not established; Alternatives B and C depend on it, and Book 24 does not settle it.",
+      "refs": [],
+      "series_question_index": 15,
+      "series_question_sha256": "0b6ed2b3f5a888e0ad6f95ed3891b3b3eace9faf42313844fb46d5f1e5a9a247"
+    }
+  ],
+  "typed_edges": [
+    {
+      "id": "edge-capability-hands",
+      "source": "eng-record-form",
+      "target": {
+        "kind": "series_node",
+        "id": "th_hands_and_draw"
+      },
+      "dependency": "pressures",
+      "function": "The craft-mark shows who can give return labour; it does not change who is counted for draw."
+    },
+    {
+      "id": "edge-capability-lineage",
+      "source": "eng-record-form",
+      "target": {
+        "kind": "series_node",
+        "id": "inst_lineage_crews"
+      },
+      "dependency": "pressures",
+      "function": "A record of outside-lineage repair tests the lineages' monopoly on repair skill."
+    },
+    {
+      "id": "edge-function-long-return",
+      "source": "fn-question",
+      "target": {
+        "kind": "series_node",
+        "id": "str_long_return"
+      },
+      "dependency": "pressures",
+      "function": "The Long Return's labour need is the pressure this Book develops."
+    },
+    {
+      "id": "edge-conversion-draw",
+      "source": "cons-conversion-blind-spot",
+      "target": {
+        "kind": "series_node",
+        "id": "th_hands_and_draw"
+      },
+      "dependency": "transforms",
+      "function": "The conversion's blind spot changes how hands become draw."
+    },
+    {
+      "id": "edge-crew-setup",
+      "source": "eng-old-hand-ledger",
+      "target": {
+        "kind": "series_node",
+        "id": "str_long_return"
+      },
+      "dependency": "sets_up",
+      "function": "Trained outside-lineage hands set up the Long Return's labour."
+    },
+    {
+      "id": "edge-reading-hall-threshold",
+      "source": "cons-reading-hall",
+      "target": {
+        "kind": "series_node",
+        "id": "alt_c_ratified_trigger"
+      },
+      "dependency": "pressures",
+      "function": "The Reading Hall's refusal complicates Alternative C's threshold."
+    },
+    {
+      "id": "edge-finale-open",
+      "source": "cons-finale-open",
+      "target": {
+        "kind": "series_node",
+        "id": "alt_a_reciprocal"
+      },
+      "dependency": "pressures",
+      "function": "Book 24 leaves Alternative A open and records what it must reckon with."
+    },
+    {
+      "id": "edge-remnant-register",
+      "source": "res-custody-declined",
+      "target": {
+        "kind": "series_node",
+        "id": "inst_stone_hall"
+      },
+      "dependency": "contradicts",
+      "function": "The valley declines the remnant's claim to keep the labour register."
+    }
+  ]
+}

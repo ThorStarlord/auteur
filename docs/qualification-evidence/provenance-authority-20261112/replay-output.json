@@ -1,0 +1,54 @@
+[
+  {
+    "request": "rich-vision-request.json",
+    "candidate": "rich-vision-candidate.json",
+    "role": "develop",
+    "author_declared_ids": [
+      "dread",
+      "hope",
+      "wonder"
+    ],
+    "verdict": "admitted"
+  },
+  {
+    "request": "revision-request.json",
+    "candidate": "rich-vision-revised-candidate.json",
+    "role": "revision of rich-vision",
+    "author_declared_ids": [
+      "dread",
+      "hope",
+      "wonder"
+    ],
+    "verdict": "admitted"
+  },
+  {
+    "request": "concept-revision-request.json",
+    "candidate": "concept-revision-candidate.json",
+    "role": "concept-aware revision",
+    "author_declared_ids": [
+      "dread",
+      "hope",
+      "wonder"
+    ],
+    "verdict": "admitted"
+  },
+  {
+    "request": "sparse-vision-request.json",
+    "candidate": "sparse-vision-candidate.json",
+    "role": "sparse develop",
+    "author_declared_ids": [
+      "trust"
+    ],
+    "verdict": "admitted"
+  }
+]
+[
+  {
+    "mutation": "promote agent_proposed 'grief' to author_declared",
+    "verdict": "rejected: author_declared emotion target 'grief' is not named in the author's source text shown in this request; label an agent interpretation agent_proposed"
+  },
+  {
+    "mutation": "add new author_declared awe (not in the recorded Vision)",
+    "verdict": "rejected: author_declared emotion target 'awe' is not named in the author's source text shown in this request; label an agent interpretation agent_proposed"
+  }
+]

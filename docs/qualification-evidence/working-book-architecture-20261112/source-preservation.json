@@ -1,0 +1,41 @@
+{
+  "source_sentences_60_plus_chars": 135,
+  "verbatim_first_80_chars_present_in_artifact": 16,
+  "verbatim_ratio": 0.119,
+  "capitalised_terms_in_source": 81,
+  "capitalised_terms_present_in_artifact": 75,
+  "capitalised_terms_absent": [
+    "Enabled",
+    "Information",
+    "Later",
+    "Status",
+    "Transformation",
+    "Uneven"
+  ],
+  "source_identifiers_cited": 23,
+  "source_identifiers_listed": [
+    "eng_old_hand",
+    "eng_source",
+    "et_belonging",
+    "et_cost_of_counting",
+    "inst_gate_table",
+    "inst_lineage_crews",
+    "inst_reading_hall",
+    "l_conversion_sets_draw",
+    "l_lineage_right_on_draw",
+    "l_longreturn_needs_hands",
+    "ph_1_reckoned_water",
+    "ph_3_old_hand",
+    "ph_4_settled_water",
+    "ph_5_unmeasured",
+    "rx_belonging",
+    "rx_consequence",
+    "rx_wonder",
+    "str_hollow_gate",
+    "str_long_return",
+    "str_lowfen_channel",
+    "str_unmeasured_return",
+    "th_hands_and_draw",
+    "th_maintenance"
+  ]
+}

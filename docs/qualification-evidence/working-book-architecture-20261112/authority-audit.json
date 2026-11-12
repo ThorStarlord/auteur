@@ -1,0 +1,23 @@
+{
+  "prepare": {
+    "added": [
+      ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/latest_request.json",
+      ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/4bc80d59b6f782eb038c3f5289c03451f8024194d097132256a4f23e9b062b23/request.json"
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "complete": {
+    "added": [
+      ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json",
+      ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/4bc80d59b6f782eb038c3f5289c03451f8024194d097132256a4f23e9b062b23/response.json"
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "resume": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  }
+}
