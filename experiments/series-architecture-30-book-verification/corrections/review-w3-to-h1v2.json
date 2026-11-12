@@ -1,0 +1,368 @@
+{
+  "authority": "working_architecture_comparison_not_story_impact",
+  "requested_change": "H1v2 corrections (verification experiment)",
+  "changes": {
+    "nodes": {
+      "added": [
+        "th_witness"
+      ],
+      "removed": [],
+      "changed": [
+        "eng_ledger",
+        "inst_reading_hall",
+        "inst_stone_hall",
+        "th_custody"
+      ]
+    },
+    "links": {
+      "added": [
+        "l_custody_passes_reading_hall",
+        "l_reform_keeps_debt",
+        "l_witness_forces_reform"
+      ],
+      "removed": [],
+      "changed": [
+        "l_custody_grants_hall"
+      ]
+    },
+    "phases": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "ph_1_reckoned_water",
+        "ph_2_the_turn",
+        "ph_3_old_hand",
+        "ph_4_settled_water"
+      ]
+    },
+    "emotion_targets": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "et_grief_of_orders"
+      ]
+    },
+    "complex_emotions": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "ce_bittersweet_return"
+      ]
+    },
+    "genre_contracts": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "gn_political_institutional"
+      ]
+    },
+    "genre_interactions": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "summary_changed": true,
+    "note": "Working architecture proposal only. Accepted Identity, Structure, Book, relations and prose remain unchanged. Any real downstream impact needs the existing source-backed impact/revision workflows."
+  },
+  "changed_components": [
+    {
+      "kind": "summary",
+      "id": "summary",
+      "title": "Governing summary",
+      "change": "changed",
+      "before": "The Spring Ledger, working construction W (noncanonical; not author-approved). Built on the original 30-Book architecture (PR #551), which it does not modify. It keeps the original identity, the three co-governing engines (Ledger, Source, Old Hand) and the five arcs. Books 1-15 keep the original's events. The working construction corrects one thing in them: Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. It also states two things the original left implicit: the Hollow Gate, and the status of the stewardship tally. Arc IV (Books 19-22) is constructed as two conflicts. The Counted Rota: a lineage's channel repair gives it a Special Draw Right, and hand-light share-holders have draw converted in proportion to the hands they cannot return. Two Practices, One Gate: the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table sets its schedule with no authority over the record. Book 23 inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30 is the Long Return, a deep-store pulse that needs channel labour and a gate routing, which are the two exports of Arc IV. Three finale mechanisms are held open for author choice: A (noncoercive mutual dependence), B (allotted binding rota under a bounded authority) and C (ratified trigger, the agent-proposed working direction for testing and not chosen). Whether shared accounting binds, the flood, the Compact's fate and the stance toward reform are not decided here. Also not decided: whether the Hollow Gate and the Gate Table are accepted parts of the world, and which body ratifies the instrument that Alternative C depends on.",
+      "after": "HYPOTHETICAL H1 PATH (not accepted; a counterfactual to the working construction). Under H1, Books 1-15 change in these ways. In Book 5 Keeper Corrow opens the records to public access, after a lower-terrace household's evidence forces the timing. The reform committee keeps physical custody of the Stones and the master record, and the debt reading, until Book 15. Dorran carries the reform as messenger and does not defect; his Book 1 status is not yet specified. Book 8's reading is authored by the committee, and the sale rules are the committee's. The Hall's sole custody, which the original says is never restored, is held by the committee from Book 5 to Book 15. The Book 15 transfer to the Reading Hall is asserted; its cause is not yet specified. The finale consequence (one public keeper in Book 30) is declared in the finale payoff. The custody-until-Book-15 structure comes from the revision instruction, not from the author-proposed premise; its sanction is not recorded. The Spring Ledger, working construction W (noncanonical; not author-approved). Built on the original 30-Book architecture (PR #551), which it does not modify. It keeps the original identity, the three co-governing engines (Ledger, Source, Old Hand) and the five arcs. Under H1, Books 1-15 change as stated above; the working construction's Books 1-15 are the original's. The working construction corrects one thing in them: Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. It also states two things the original left implicit: the Hollow Gate, and the status of the stewardship tally. Arc IV (Books 19-22) is constructed as two conflicts. The Counted Rota: a lineage's channel repair gives it a Special Draw Right, and hand-light share-holders have draw converted in proportion to the hands they cannot return. Two Practices, One Gate: the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table sets its schedule with no authority over the record. Book 23 inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30 is the Long Return, a deep-store pulse that needs channel labour and a gate routing, which are the two exports of Arc IV. Three finale mechanisms are held open for author choice: A (noncoercive mutual dependence), B (allotted binding rota under a bounded authority) and C (ratified trigger, the agent-proposed working direction for testing and not chosen). Whether shared accounting binds, the flood, the Compact's fate and the stance toward reform are not decided here. Also not decided: whether the Hollow Gate and the Gate Table are accepted parts of the world, and which body ratifies the instrument that Alternative C depends on.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "th_witness",
+      "title": "Evidence that forces reform",
+      "change": "added",
+      "before": "(not present)",
+      "after": "A lower-terrace household's evidence forces the timing of the Hall's own reform (Book 5). In the original path the same evidence, with a coalition from outside, forces the Hall to yield.",
+      "changed_fields": []
+    },
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "title": "Ledger engine",
+      "change": "changed",
+      "before": "Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour.",
+      "after": "Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access by the Hall's own reform once evidence forces it (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "inst_reading_hall",
+      "title": "Reading Hall",
+      "change": "changed",
+      "before": "Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+      "after": "Founded at Book 15 with the full reading, to make the First Stones publicly readable. Under H1 it takes physical custody of the Stones and the master record at Book 15. It publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "inst_stone_hall",
+      "title": "Stone Hall (reform committee; remnant from Book 15)",
+      "change": "changed",
+      "before": "Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+      "after": "Hereditary keepers of the Ledger. Keeper Corrow opens the records to public access in Book 5 after a lower-terrace household's evidence forces the timing. The reform committee keeps physical custody of the Stones and the master record, and the debt reading, until Book 15. At Book 15 custody passes to the Reading Hall, and the debt-keeping members become Corrow's remnant. The Hall is reformed, not destroyed. Typed as other because v2 has no institution category.",
+      "changed_fields": [
+        "summary",
+        "title"
+      ]
+    },
+    {
+      "kind": "node",
+      "id": "th_custody",
+      "title": "Custody of the record",
+      "change": "changed",
+      "before": "Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after the Reading Hall is founded.",
+      "after": "Who holds the Ledger and on whose authority. Public access to the credit record begins in Book 5. Physical custody of the Stones and the master record stays with the reform committee until Book 15, then passes to the Reading Hall.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "link",
+      "id": "l_custody_passes_reading_hall",
+      "title": "inst_reading_hall -> th_custody",
+      "change": "added",
+      "before": "(not present)",
+      "after": "custody of the master record passes to the Reading Hall at Book 15",
+      "changed_fields": []
+    },
+    {
+      "kind": "link",
+      "id": "l_reform_keeps_debt",
+      "title": "inst_stone_hall -> eng_old_hand",
+      "change": "added",
+      "before": "(not present)",
+      "after": "the committee keeps the debt reading until Book 15",
+      "changed_fields": []
+    },
+    {
+      "kind": "link",
+      "id": "l_witness_forces_reform",
+      "title": "th_witness -> inst_stone_hall",
+      "change": "added",
+      "before": "(not present)",
+      "after": "evidence forces the reform's timing and proof",
+      "changed_fields": []
+    },
+    {
+      "kind": "link",
+      "id": "l_custody_grants_hall",
+      "title": "th_custody -> inst_stone_hall",
+      "change": "changed",
+      "before": "custody of the record is the Hall's authority until Book 5",
+      "after": "custody of the record is the Hall's authority until Book 15",
+      "changed_fields": [
+        "function"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_1_reckoned_water",
+      "title": "Reckoned Water",
+      "change": "changed",
+      "before": "The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance. | Reader experience: wonder at the first hidden chamber under the spring; anger at falsified credit | Transition: Records open to public access, so shares become tradable and the spring shows its first recorded thinning.",
+      "after": "The Ledger governs. A lower-terrace household's evidence exposes falsified credit in the share-marks, and a lower terrace runs wild (Book 1). Keeper Corrow opens the records to public access as a reform that protects the Hall's standing against a thinning its own falsified credit helped cause (Book 5), but only after the household's evidence forces the timing. The Hall is reformed, not destroyed: its committee keeps custody and the debt reading. Dorran carries the reform as messenger rather than defecting. Book 1 reads the share-marks as evidence and does not read the script. | Reader experience: wonder at the first hidden chamber under the spring; anger at falsified credit | Transition: Records are public, so shares become tradable; the reform committee, not the tenders, sets the first rules of sale.",
+      "changed_fields": [
+        "genre_activations",
+        "narrative_function",
+        "transition"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_2_the_turn",
+      "title": "The Turn",
+      "change": "changed",
+      "before": "The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge. | Reader experience: belonging tested by sale; anger at a market in shares | Transition: Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+      "after": "The Source governs. The committee's sale rules let the Mill Compact buy shares. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Quillmark's tenders and the Terrace Council oppose rules that the committee approved. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) is authored by the committee and contested by scholars. | Reader experience: belonging tested by sale; anger at a market in shares | Transition: Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+      "changed_fields": [
+        "genre_activations",
+        "narrative_function"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_3_old_hand",
+      "title": "The Old Hand",
+      "change": "changed",
+      "before": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, so the high terraces are not surfeited. The Reading Hall is founded as a public institution with its own readings. | Reader experience: wonder that the first compact was not a debt; fear of the surfeit | Transition: Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.",
+      "after": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The complete reading (Book 15) makes the first compact a gift, and the committee's custody ends with it: custody passes to the Reading Hall, and the debt-keeping members become Corrow's remnant. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt. The Book 12 partial reading is made under the committee's custody. The Reading Hall is founded as a public institution with its own readings. | Reader experience: wonder that the first compact was not a debt; fear of the surfeit | Transition: Legitimacy is contested among three readings. The counted Turn and the gift practice run on the same Hollow Gate. Custody passes to the Reading Hall at Book 15, so the record has one public keeper while the readings stay plural.",
+      "changed_fields": [
+        "genre_activations",
+        "narrative_function",
+        "transition"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_4_settled_water",
+      "title": "Settled Water",
+      "change": "changed",
+      "before": "Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record. | Reader experience: warmth of shared repair; the cost of counting | Transition: Water is partly earned by hands. The Gate Table, the Special Draw Right and an ambiguous tally pass to the next generation.",
+      "after": "Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record. Under H1, Corrow's remnant (the debt reading) stands outside the Gate Table and argues for counting. | Reader experience: warmth of shared repair; the cost of counting | Transition: Water is partly earned by hands. The Gate Table, the Special Draw Right and an ambiguous tally pass to the next generation.",
+      "changed_fields": [
+        "narrative_function"
+      ]
+    },
+    {
+      "kind": "emotion_target",
+      "id": "et_grief_of_orders",
+      "title": "sadness · supporting",
+      "change": "changed",
+      "before": "loss of a structure that gave some people certainty, with dignity for the losing party | Elicited by: the Stone Hall's fall in Book 5 and Keeper Corrow's dissent",
+      "after": "loss of a structure that gave some people certainty, with dignity for the losing party | Elicited by: the committee's loss of custody at Book 15 and Keeper Corrow's remnant's dissent",
+      "changed_fields": [
+        "eliciting_condition"
+      ]
+    },
+    {
+      "kind": "complex_emotion",
+      "id": "ce_bittersweet_return",
+      "title": "Bittersweet return",
+      "change": "changed",
+      "before": "a practice honoured after the institution that held it has fallen (sadness, joy)",
+      "after": "a practice honoured after the institution that held it has lost custody of it (sadness, joy)",
+      "changed_fields": [
+        "context"
+      ]
+    },
+    {
+      "kind": "genre_contract",
+      "id": "gn_political_institutional",
+      "title": "gn_political_institutional",
+      "change": "changed",
+      "before": "Role: supporting; engine: institutions compete for legitimacy over who may keep and read the record, and over who sets the Gate schedule; structure: arcs alternate between custody disputes and distribution disputes",
+      "after": "Role: supporting; engine: institutions compete for legitimacy over who may keep and read the record, and over who sets the Gate schedule; structure: arcs alternate between custody disputes and distribution disputes",
+      "changed_fields": [
+        "payoff_expectations"
+      ]
+    }
+  ],
+  "preserved": {
+    "ids": {
+      "nodes": [
+        "alt_a_reciprocal",
+        "alt_b_allotted",
+        "alt_c_ratified_trigger",
+        "eng_old_hand",
+        "eng_source",
+        "gn_epic_fantasy",
+        "gn_mystery_discovery",
+        "gn_pastoral_belonging",
+        "gn_political_institutional",
+        "inst_gate_table",
+        "inst_lineage_crews",
+        "inst_mill_compact",
+        "inst_terrace_council",
+        "rx_belonging",
+        "rx_consequence",
+        "rx_hope",
+        "rx_wonder",
+        "str_declined_share",
+        "str_hollow_gate",
+        "str_long_return",
+        "str_lowfen_channel",
+        "str_measured_turn",
+        "str_seasonal_turn",
+        "str_unmeasured_return",
+        "th_core_question",
+        "th_hands_and_draw",
+        "th_maintenance",
+        "th_reading"
+      ],
+      "links": [
+        "l_alt_a_decouples",
+        "l_alt_b_bounds",
+        "l_alt_c_normal_is_a",
+        "l_alt_c_triggers_b",
+        "l_compact_hands_in_kind",
+        "l_conversion_sets_draw",
+        "l_council_legitimises_gift",
+        "l_declined_goes_wild",
+        "l_gate_sets_outflow",
+        "l_gate_table_sets",
+        "l_hall_custody_credit",
+        "l_ledger_consequence",
+        "l_ledger_draws_source",
+        "l_ledger_opens_trade",
+        "l_lineage_carries_repair",
+        "l_lineage_right_on_draw",
+        "l_longreturn_needs_gate",
+        "l_longreturn_needs_hands",
+        "l_lowfen_needs_hands",
+        "l_maintenance_balances_source",
+        "l_measured_holds_gate",
+        "l_oldhand_redefines_share",
+        "l_oldhand_reframes_core",
+        "l_reading_decides_binding",
+        "l_reading_hall_reads",
+        "l_reading_separate_schedule",
+        "l_source_forces_council",
+        "l_source_limits_ledger",
+        "l_source_wonder",
+        "l_tally_counts_hands",
+        "l_trade_draws_without_return",
+        "l_turn_belonging",
+        "l_unmeasured_needs_release"
+      ],
+      "phases": [
+        "ph_5_unmeasured"
+      ],
+      "emotion_targets": [
+        "et_anger_at_hidden_credit",
+        "et_belonging",
+        "et_cost_of_counting",
+        "et_fear_of_wild_water",
+        "et_hope",
+        "et_wonder"
+      ],
+      "complex_emotions": [
+        "ce_awe_of_source"
+      ],
+      "genre_contracts": [
+        "gn_epic_fantasy",
+        "gn_mystery_discovery",
+        "gn_pastoral_belonging"
+      ],
+      "genre_interactions": [
+        "gi_epic_political_tension",
+        "gi_mystery_epic_enables",
+        "gi_pastoral_mystery_reinforces",
+        "gi_pastoral_political_gate",
+        "gi_political_pastoral_constrains"
+      ]
+    },
+    "counts": {
+      "nodes": 28,
+      "links": 33,
+      "phases": 1,
+      "emotion_targets": 6,
+      "complex_emotions": 1,
+      "genre_contracts": 3,
+      "genre_interactions": 5
+    },
+    "author_declared_emotion_targets": [],
+    "author_declared_emotion_changes": [],
+    "accepted_constraints": [],
+    "accepted_not_this": []
+  },
+  "proposed_rationale": {
+    "status": "provided",
+    "source": "candidate.summary",
+    "text": "HYPOTHETICAL H1 PATH (not accepted; a counterfactual to the working construction). Under H1, Books 1-15 change in these ways. In Book 5 Keeper Corrow opens the records to public access, after a lower-terrace household's evidence forces the timing. The reform committee keeps physical custody of the Stones and the master record, and the debt reading, until Book 15. Dorran carries the reform as messenger and does not defect; his Book 1 status is not yet specified. Book 8's reading is authored by the committee, and the sale rules are the committee's. The Hall's sole custody, which the original says is never restored, is held by the committee from Book 5 to Book 15. The Book 15 transfer to the Reading Hall is asserted; its cause is not yet specified. The finale consequence (one public keeper in Book 30) is declared in the finale payoff. The custody-until-Book-15 structure comes from the revision instruction, not from the author-proposed premise; its sanction is not recorded. The Spring Ledger, working construction W (noncanonical; not author-approved). Built on the original 30-Book architecture (PR #551), which it does not modify. It keeps the original identity, the three co-governing engines (Ledger, Source, Old Hand) and the five arcs. Under H1, Books 1-15 change as stated above; the working construction's Books 1-15 are the original's. The working construction corrects one thing in them: Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. It also states two things the original left implicit: the Hollow Gate, and the status of the stewardship tally. Arc IV (Books 19-22) is constructed as two conflicts. The Counted Rota: a lineage's channel repair gives it a Special Draw Right, and hand-light share-holders have draw converted in proportion to the hands they cannot return. Two Practices, One Gate: the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table sets its schedule with no authority over the record. Book 23 inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30 is the Long Return, a deep-store pulse that needs channel labour and a gate routing, which are the two exports of Arc IV. Three finale mechanisms are held open for author choice: A (noncoercive mutual dependence), B (allotted binding rota under a bounded authority) and C (ratified trigger, the agent-proposed working direction for testing and not chosen). Whether shared accounting binds, the flood, the Compact's fate and the stance toward reform are not decided here. Also not decided: whether the Hollow Gate and the Gate Table are accepted parts of the world, and which body ratifies the instrument that Alternative C depends on."
+  },
+  "note": "This is a review of a noncanonical working proposal. It does not change accepted Identity, Structure, Realization, Expression or shared ontology."
+}

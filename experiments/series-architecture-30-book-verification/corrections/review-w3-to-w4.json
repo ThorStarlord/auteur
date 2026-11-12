@@ -1,0 +1,217 @@
+{
+  "authority": "working_architecture_comparison_not_story_impact",
+  "requested_change": "Round 2 corrections (verification experiment)",
+  "changes": {
+    "nodes": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "str_hollow_gate"
+      ]
+    },
+    "links": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "phases": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "ph_2_the_turn",
+        "ph_3_old_hand",
+        "ph_5_unmeasured"
+      ]
+    },
+    "emotion_targets": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "complex_emotions": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "genre_contracts": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "genre_interactions": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "summary_changed": false,
+    "note": "Working architecture proposal only. Accepted Identity, Structure, Book, relations and prose remain unchanged. Any real downstream impact needs the existing source-backed impact/revision workflows."
+  },
+  "changed_components": [
+    {
+      "kind": "node",
+      "id": "str_hollow_gate",
+      "title": "The Hollow Gate",
+      "change": "changed",
+      "before": "The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit, which the original defines as too much return, or stored water with no draw. The construction assumes that the trial's uncounted return labour fed the high channels beyond the Turn's count, so stored water rose with no draw to match it. Release draws the cistern down and cannot raise it. The schedule is the object of the Book 21 conflict.",
+      "after": "The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw and return, and surfeit is too much return, or stored water with no draw. The construction assumes that the trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern. The original does not name this mechanism, and the author may reject it. Release draws the cistern down and cannot raise it. The schedule is the object of the Book 21 conflict.",
+      "changed_fields": [
+        "summary"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_2_the_turn",
+      "title": "The Turn",
+      "change": "changed",
+      "before": "The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge. | Reader experience: belonging tested by sale; anger at a market in shares | Transition: Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+      "after": "The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge. | Reader experience: belonging tested by sale; anger at a market in shares | Transition: Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+      "changed_fields": [
+        "genre_activations"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_3_old_hand",
+      "title": "The Old Hand",
+      "change": "changed",
+      "before": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, so the high terraces are not surfeited. The Reading Hall is founded as a public institution with its own readings. | Reader experience: wonder that the first compact was not a debt; fear of the surfeit | Transition: Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.",
+      "after": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn's labour keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings. | Reader experience: wonder that the first compact was not a debt; fear of the surfeit | Transition: Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.",
+      "changed_fields": [
+        "narrative_function"
+      ]
+    },
+    {
+      "kind": "phase",
+      "id": "ph_5_unmeasured",
+      "title": "Unmeasured",
+      "change": "changed",
+      "before": "The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with grain-labour from the Compact. C is a ratified trigger that activates B's rule only when a published threshold is crossed. The original's three options map onto these: the single measured Turn is B without its guards, and the Compact's settlement is a clause of B or C. The original's adopted outcome is closest to A; its Compact settlement stays open. No option restores the Stone Hall's sole custody. | Reader experience: hope that is earned by cost; wonder at the deepest chamber | Transition: The series closes locally. A shared practice and the long-range questions continue.",
+      "after": "The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with grain-labour from the Compact. C is a ratified trigger that activates B's rule only when a published threshold is crossed. The original's three options map onto these: the single measured Turn is B without its guards, and the Compact's settlement is a clause of B or C. The original's adopted outcome is closest to A; its share-plot settlement is an open choice. No option restores the Stone Hall's sole custody. | Reader experience: hope that is earned by cost; wonder at the deepest chamber | Transition: The series closes locally. A shared practice and the long-range questions continue.",
+      "changed_fields": [
+        "narrative_function"
+      ]
+    }
+  ],
+  "preserved": {
+    "ids": {
+      "nodes": [
+        "alt_a_reciprocal",
+        "alt_b_allotted",
+        "alt_c_ratified_trigger",
+        "eng_ledger",
+        "eng_old_hand",
+        "eng_source",
+        "gn_epic_fantasy",
+        "gn_mystery_discovery",
+        "gn_pastoral_belonging",
+        "gn_political_institutional",
+        "inst_gate_table",
+        "inst_lineage_crews",
+        "inst_mill_compact",
+        "inst_reading_hall",
+        "inst_stone_hall",
+        "inst_terrace_council",
+        "rx_belonging",
+        "rx_consequence",
+        "rx_hope",
+        "rx_wonder",
+        "str_declined_share",
+        "str_long_return",
+        "str_lowfen_channel",
+        "str_measured_turn",
+        "str_seasonal_turn",
+        "str_unmeasured_return",
+        "th_core_question",
+        "th_custody",
+        "th_hands_and_draw",
+        "th_maintenance",
+        "th_reading"
+      ],
+      "links": [
+        "l_alt_a_decouples",
+        "l_alt_b_bounds",
+        "l_alt_c_normal_is_a",
+        "l_alt_c_triggers_b",
+        "l_compact_hands_in_kind",
+        "l_conversion_sets_draw",
+        "l_council_legitimises_gift",
+        "l_custody_grants_hall",
+        "l_declined_goes_wild",
+        "l_gate_sets_outflow",
+        "l_gate_table_sets",
+        "l_hall_custody_credit",
+        "l_ledger_consequence",
+        "l_ledger_draws_source",
+        "l_ledger_opens_trade",
+        "l_lineage_carries_repair",
+        "l_lineage_right_on_draw",
+        "l_longreturn_needs_gate",
+        "l_longreturn_needs_hands",
+        "l_lowfen_needs_hands",
+        "l_maintenance_balances_source",
+        "l_measured_holds_gate",
+        "l_oldhand_redefines_share",
+        "l_oldhand_reframes_core",
+        "l_reading_decides_binding",
+        "l_reading_hall_reads",
+        "l_reading_separate_schedule",
+        "l_source_forces_council",
+        "l_source_limits_ledger",
+        "l_source_wonder",
+        "l_tally_counts_hands",
+        "l_trade_draws_without_return",
+        "l_turn_belonging",
+        "l_unmeasured_needs_release"
+      ],
+      "phases": [
+        "ph_1_reckoned_water",
+        "ph_4_settled_water"
+      ],
+      "emotion_targets": [
+        "et_anger_at_hidden_credit",
+        "et_belonging",
+        "et_cost_of_counting",
+        "et_fear_of_wild_water",
+        "et_grief_of_orders",
+        "et_hope",
+        "et_wonder"
+      ],
+      "complex_emotions": [
+        "ce_awe_of_source",
+        "ce_bittersweet_return"
+      ],
+      "genre_contracts": [
+        "gn_epic_fantasy",
+        "gn_mystery_discovery",
+        "gn_pastoral_belonging",
+        "gn_political_institutional"
+      ],
+      "genre_interactions": [
+        "gi_epic_political_tension",
+        "gi_mystery_epic_enables",
+        "gi_pastoral_mystery_reinforces",
+        "gi_pastoral_political_gate",
+        "gi_political_pastoral_constrains"
+      ]
+    },
+    "counts": {
+      "nodes": 31,
+      "links": 34,
+      "phases": 2,
+      "emotion_targets": 7,
+      "complex_emotions": 2,
+      "genre_contracts": 4,
+      "genre_interactions": 5
+    },
+    "author_declared_emotion_targets": [],
+    "author_declared_emotion_changes": [],
+    "accepted_constraints": [],
+    "accepted_not_this": []
+  },
+  "proposed_rationale": {
+    "status": "provided",
+    "source": "candidate.summary",
+    "text": "The Spring Ledger, working construction W (noncanonical; not author-approved). Built on the original 30-Book architecture (PR #551), which it does not modify. It keeps the original identity, the three co-governing engines (Ledger, Source, Old Hand) and the five arcs. Books 1-15 keep the original's events. The working construction corrects one thing in them: Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. It also states two things the original left implicit: the Hollow Gate, and the status of the stewardship tally. Arc IV (Books 19-22) is constructed as two conflicts. The Counted Rota: a lineage's channel repair gives it a Special Draw Right, and hand-light share-holders have draw converted in proportion to the hands they cannot return. Two Practices, One Gate: the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table sets its schedule with no authority over the record. Book 23 inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30 is the Long Return, a deep-store pulse that needs channel labour and a gate routing, which are the two exports of Arc IV. Three finale mechanisms are held open for author choice: A (noncoercive mutual dependence), B (allotted binding rota under a bounded authority) and C (ratified trigger, the agent-proposed working direction for testing and not chosen). Whether shared accounting binds, the flood, the Compact's fate and the stance toward reform are not decided here. Also not decided: whether the Hollow Gate and the Gate Table are accepted parts of the world, and which body ratifies the instrument that Alternative C depends on."
+  },
+  "note": "This is a review of a noncanonical working proposal. It does not change accepted Identity, Structure, Realization, Expression or shared ontology."
+}
