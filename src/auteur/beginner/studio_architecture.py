@@ -192,6 +192,8 @@ class ArchitectureCandidate(BaseModel):
                for phase in self.phases for ref in phase.parallel_with):
             raise ValueError("phase parallel_with references missing or identical phase")
         if self.schema_version == 2:
+            # Architecture-only proposals carry mechanisms. Character and relationship instances belong to
+            # other operations, so the shared category type stays broader than this validator allows.
             forbidden = {"character", "relationship"}
             if any(node.category in forbidden for node in self.nodes):
                 raise ValueError("architecture-only proposals cannot instantiate characters or relationships")
@@ -643,9 +645,10 @@ temporal movement; do not replace rich emotion design with a basic-label count.
 
 Generate narrative MECHANISMS, not a fictional cast, setting or plotted storyline.
 Never invent names of characters, places, factions, events, plot acts or scenes.
-You may refer to concrete proper nouns explicitly supplied by the author, but
+You may refer to concrete proper nouns explicitly supplied by the author, and in a
+revision also proper nouns already present in the current working architecture, but
 do not elaborate them into fictional content. Generic archetypes may illustrate
-a structural function without inventing story facts.
+a structural function without inventing story facts. Never add new proper nouns.
 
 Use the six chosen basic-emotion labels exactly: joy, sadness, fear, anger,
 disgust, surprise. Name concrete intended reader-directed effects and
@@ -1155,6 +1158,31 @@ def _free_position(canvas) -> dict:
     return {"x": 40, "y": 40}
 
 
+def _apply_review_cli(store: CanvasStore, request_sha256: str) -> dict:
+    """Bridge wrapper for apply_architecture_review: explicit identity, one machine-readable outcome.
+
+    The existing apply function keeps every protection (latest-request pointer, completed review,
+    baseline identity, freshness of vision, intentions and design context, and the lock). This wrapper
+    only checks the identity is well formed and names an existing request, reports whether the
+    candidate was already applied, and turns refusals into a structured result. It writes working
+    state only, through the apply function. It never accepts canon and never selects a request.
+    """
+    refused = {"result": "rejected", "request_sha256": request_sha256, "authority": "working_only"}
+    if not isinstance(request_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", request_sha256):
+        return {"application": {**refused, "error": "request_sha256 must be a 64-character lowercase SHA-256"}}
+    if not (_root(store) / "requests" / request_sha256 / "request.json").exists():
+        return {"application": {**refused, "error": "no architecture request has this identity in this canvas"}}
+    already = (_candidate(store) or {}).get("request_sha256") == request_sha256
+    try:
+        projection = apply_architecture_review(store, request_sha256)
+    except (BeginnerConcurrencyError, ValueError) as exc:
+        return {"application": {**refused, "error": str(exc)}}
+    result = "already_applied" if already else "applied"
+    return {**projection, "application": {
+        "result": result, "request_sha256": request_sha256, "authority": "working_only",
+    }}
+
+
 def main(argv: list[str] | None = None) -> int:
     """Portable operator bridge: the active coding agent supplies raw candidate JSON."""
     parser = argparse.ArgumentParser(description="Auteur Studio host-agent architecture bridge")
@@ -1196,6 +1224,14 @@ def main(argv: list[str] | None = None) -> int:
         "--status", required=True,
         choices=("provisional", "active", "superseded", "withdrawn"),
     )
+    apply_review = actions.add_parser(
+        "apply-review",
+        help="Apply one completed, reviewed working revision, identified by its request SHA-256",
+    )
+    apply_review.add_argument(
+        "--request-sha256", required=True,
+        help="Exact reviewed request SHA-256. The latest request is never applied by default.",
+    )
     actions.add_parser("intentions", help="Show author-directed creative intentions and status")
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
@@ -1227,6 +1263,10 @@ def main(argv: list[str] | None = None) -> int:
             "canvas_revision": updated.revision,
             "concept": concept.model_dump(mode="json"),
         }
+    elif args.action == "apply-review":
+        outcome = _apply_review_cli(store, args.request_sha256)
+        print(json.dumps(outcome, indent=2, ensure_ascii=False))
+        return 0 if outcome["application"]["result"] in {"applied", "already_applied"} else 1
     elif args.action == "keep-intention":
         directive = Path(args.directive_file).read_text(encoding="utf-8").strip()
         item = {

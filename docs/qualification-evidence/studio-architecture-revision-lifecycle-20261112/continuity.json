@@ -1,0 +1,15 @@
+{
+  "added_nodes": [
+    "str_b24_capability_mark",
+    "str_b24_uncounted_crew"
+  ],
+  "engines_unchanged": true,
+  "governing_variable_summary_unchanged": true,
+  "finale_alternatives_unchanged": true,
+  "finale_alternatives_still_not_chosen": true,
+  "open_questions_unchanged": true,
+  "emotion_provenance_agent_proposed": true,
+  "no_author_declared_provenance": true,
+  "capability_record_present": true,
+  "verdict": "pass"
+}
