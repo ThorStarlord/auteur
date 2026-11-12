@@ -2,6 +2,7 @@
 """Verify that F2 author context reaches the Bard generation request."""
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 
 from auteur.bard import render_bard_prompt
@@ -14,7 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run_probe() -> dict[str, bool]:
     blueprint = StoryBlueprint.from_yaml(ROOT / "examples" / "sample_blueprint.yaml")
-    bible = StoryBible(ROOT / ".auteur" / "f2-prompt-probe-bible.json")
+    # The bible is scratch state. Keep it out of the checkout: a fixed path under
+    # ROOT/.auteur depends on another process having created that directory.
+    with tempfile.TemporaryDirectory() as scratch:
+        bible = StoryBible(Path(scratch) / "f2-prompt-probe-bible.json")
+        return _probe_prompt(blueprint, bible)
+
+
+def _probe_prompt(blueprint: StoryBlueprint, bible: StoryBible) -> dict[str, bool]:
     context = {
         "schema": "beginner_author_context_v1",
         "current_plan": {"chapter_index": 6, "role": "Converge the accepted Book", "authority": "planning_context"},
