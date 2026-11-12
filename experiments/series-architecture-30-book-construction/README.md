@@ -66,6 +66,10 @@ bash $EX/evidence/run_canvas.sh "$PROJ" h1final $EX/03-working-candidate-v2.json
 
 `run_canvas.sh` reads the four author-fixed intentions from PR #551's `evidence/intention-1..4.json`. The revision request's sha256 is printed by `prepare`, and `apply_review.py` takes it as its third argument.
 
+## Line endings
+
+The packet manifests record sha256 values taken on the Windows working copy, which uses CRLF line endings. Git stores these files with LF, so the stored bytes differ. To verify a packet hash, compare against the same working copy, or normalise line endings before hashing.
+
 ## Claim ceiling
 
 This exercise shows that the Studio candidate can hold a working, validated, freshness-checked Arc IV and finale, that its revisions are reviewable, and that independent reviewers can test some of its causal and semantic claims. It shows the product's gap: its preserved check compares identifiers, and a fresh agent's semantic repair was not reliable in one run. It does not show that Arc IV is good drama, that the three finale mechanisms work on the page, or that any author would accept any of it. See [06](06-validation-and-review.md) §5 and [07](07-synthesis.md).
