@@ -1,0 +1,344 @@
+{
+  "spike": "working-book-architecture-design-20261112",
+  "production_code": false,
+  "book24_source": {
+    "commit": "fa85b7f1c2fbfdf8d5b8b35f6ce64c27bf438e04",
+    "function_path": "experiments/spring-ledger-working-architecture/cold-start/output/book-24-function.corrected-2.md",
+    "candidate_path": "experiments/spring-ledger-working-architecture/cold-start/output/book-24-candidate.corrected-2.json"
+  },
+  "demonstration_a_preservation": {
+    "sections_present": 11,
+    "items_total": 74,
+    "structured_engine_blocks": 4,
+    "assumptions_with_reversal": 2,
+    "assumptions": 10,
+    "typed_edges": 8,
+    "typed_edge_targets_resolve": true,
+    "provenance_counts": {
+      "agent_proposed": 26,
+      "derived": 9,
+      "unlabelled": 27,
+      "hypothetical": 6,
+      "unresolved": 6
+    },
+    "unlabelled_items": [
+      "s2_07",
+      "s5_03",
+      "s5_04",
+      "s5_05",
+      "s5_07",
+      "s5_08",
+      "s6_03",
+      "s6_04",
+      "s6_05",
+      "s7_01",
+      "s7_02",
+      "s7_03",
+      "s7_04",
+      "s7_05",
+      "s7_06",
+      "s8_01",
+      "s8_02",
+      "s8_03",
+      "s8_04",
+      "s8_05",
+      "s8_06",
+      "s8_07",
+      "s8_08",
+      "s8_09",
+      "s8_10",
+      "s8_11",
+      "s8_12"
+    ],
+    "unresolved_refs": [],
+    "external_doc_refs": [
+      "01 §2.2",
+      "01 §2.3",
+      "01 §2.4",
+      "01 §3.2",
+      "01 §6",
+      "01 §7",
+      "01 §8.1",
+      "01 §8.10",
+      "01 §8.11",
+      "01 §8.4",
+      "01 §8.5",
+      "01 §8.6",
+      "01 §8.7"
+    ],
+    "per_section": {
+      "1": {
+        "items": 2,
+        "provenance": [
+          "agent_proposed",
+          "derived"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 1.0
+      },
+      "2": {
+        "items": 7,
+        "provenance": [
+          "agent_proposed",
+          "derived",
+          "unlabelled"
+        ],
+        "unlabelled": [
+          "s2_07"
+        ],
+        "verbatim_capture_ratio": 1.0
+      },
+      "3": {
+        "items": 4,
+        "provenance": [
+          "agent_proposed"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 1.0
+      },
+      "4": {
+        "items": 8,
+        "provenance": [
+          "agent_proposed",
+          "derived"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 1.0
+      },
+      "5": {
+        "items": 8,
+        "provenance": [
+          "agent_proposed",
+          "unlabelled"
+        ],
+        "unlabelled": [
+          "s5_03",
+          "s5_04",
+          "s5_05",
+          "s5_07",
+          "s5_08"
+        ],
+        "verbatim_capture_ratio": 1.0
+      },
+      "6": {
+        "items": 5,
+        "provenance": [
+          "agent_proposed",
+          "unlabelled"
+        ],
+        "unlabelled": [
+          "s6_03",
+          "s6_04",
+          "s6_05"
+        ],
+        "verbatim_capture_ratio": 1.0
+      },
+      "7": {
+        "items": 6,
+        "provenance": [
+          "unlabelled"
+        ],
+        "unlabelled": [
+          "s7_01",
+          "s7_02",
+          "s7_03",
+          "s7_04",
+          "s7_05",
+          "s7_06"
+        ],
+        "verbatim_capture_ratio": 1.0
+      },
+      "8": {
+        "items": 12,
+        "provenance": [
+          "unlabelled"
+        ],
+        "unlabelled": [
+          "s8_01",
+          "s8_02",
+          "s8_03",
+          "s8_04",
+          "s8_05",
+          "s8_06",
+          "s8_07",
+          "s8_08",
+          "s8_09",
+          "s8_10",
+          "s8_11",
+          "s8_12"
+        ],
+        "verbatim_capture_ratio": 1.0
+      },
+      "9": {
+        "items": 10,
+        "provenance": [
+          "agent_proposed"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 0.955
+      },
+      "10": {
+        "items": 6,
+        "provenance": [
+          "hypothetical"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 1.0
+      },
+      "11": {
+        "items": 6,
+        "provenance": [
+          "unresolved"
+        ],
+        "unlabelled": [],
+        "verbatim_capture_ratio": 1.0
+      }
+    },
+    "round_trip_equal": true,
+    "source_chars": 17113,
+    "artifact_json_chars": 31708
+  },
+  "demonstration_b_revision_trace": {
+    "changed_element": "str_b24_capability_mark",
+    "book_items_to_inspect": [
+      "s3_engine_04",
+      "s5_06",
+      "s5_07",
+      "s5_08",
+      "s6_01",
+      "s6_05",
+      "s7_02",
+      "s8_03",
+      "s8_04",
+      "P5",
+      "P6",
+      "P9"
+    ],
+    "book_items_to_inspect_count": 12,
+    "typed_direct_targets": [
+      "inst_lineage_crews",
+      "str_long_return",
+      "th_hands_and_draw"
+    ],
+    "typed_reach_targets": [
+      "inst_lineage_crews",
+      "str_long_return",
+      "th_hands_and_draw"
+    ],
+    "series_link_reach_count": 14,
+    "series_link_reach_includes_finale_alternatives": [],
+    "series_nodes_reachable_by_links": [
+      "eng_ledger",
+      "eng_old_hand",
+      "eng_source",
+      "inst_lineage_crews",
+      "inst_mill_compact",
+      "inst_terrace_council",
+      "rx_consequence",
+      "rx_wonder",
+      "str_b24_uncounted_crew",
+      "str_hollow_gate",
+      "str_long_return",
+      "th_core_question",
+      "th_hands_and_draw",
+      "th_maintenance"
+    ],
+    "author_reserved_references_in_affected_items": [
+      "01 §8.5",
+      "01 §8.7"
+    ],
+    "unaffected_book_items_count": 62
+  },
+  "demonstration_c_continuation": {
+    "packet_chars": 10055,
+    "full_book_artifact_chars": 31708,
+    "full_series_candidate_chars": 41189,
+    "packet_fraction_of_book_artifact": 0.317,
+    "packet_fraction_of_series_candidate": 0.244,
+    "constraint_ids": [
+      "alt_a_reciprocal",
+      "alt_b_allotted",
+      "alt_c_ratified_trigger",
+      "eng_source",
+      "inst_lineage_crews",
+      "str_b24_uncounted_crew",
+      "str_long_return",
+      "th_hands_and_draw",
+      "th_maintenance"
+    ],
+    "exported_item_ids": [
+      "s7_01",
+      "s7_02",
+      "s7_03",
+      "s7_04",
+      "s7_05",
+      "s7_06",
+      "s8_02",
+      "s8_03",
+      "s8_04",
+      "s8_05",
+      "s8_06",
+      "s8_07",
+      "s8_08",
+      "s8_09",
+      "s8_10",
+      "s8_11",
+      "s8_12"
+    ],
+    "packet_components_chars": {
+      "identity": 223,
+      "exported_pressures_and_consequences": 2813,
+      "provisional_assumptions": 1696,
+      "open_questions_and_author_decisions": 609,
+      "series_constraints": 4354,
+      "source_identity": 190
+    },
+    "revision_targets_total": 12,
+    "revision_targets_missing_from_packet": [
+      "s3_engine_04",
+      "s5_06",
+      "s5_07",
+      "s5_08",
+      "s6_01",
+      "s6_05"
+    ]
+  },
+  "demonstration_d_counterfactual": {
+    "rejected_element": "str_b24_capability_mark",
+    "series_unchanged_by_construction": true,
+    "items_needing_revision_after_rejection": [
+      "s3_engine_04",
+      "s5_06",
+      "s5_07",
+      "s5_08",
+      "s6_01",
+      "s6_05",
+      "s7_02",
+      "s8_03",
+      "s8_04",
+      "P5",
+      "P6",
+      "P9"
+    ],
+    "items_still_valid_without_revision": 62,
+    "typed_edges_surviving": 5,
+    "typed_edges_removed": 3,
+    "crew_items_intact": [
+      "P10",
+      "s10_06",
+      "s1_pressure_developed",
+      "s2_02",
+      "s2_03",
+      "s3_engine_01",
+      "s3_engine_03",
+      "s4_02",
+      "s4_06",
+      "s5_01",
+      "s5_02",
+      "s8_02"
+    ]
+  },
+  "authority_probe": {
+    "author_declared_accepted_from_agent_response": true
+  }
+}
