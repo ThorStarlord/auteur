@@ -368,6 +368,13 @@
               return target.id + " (" + target.emotion + ", " + target.role + ")";
             }).join("; "), "review-preserved");
         }
+        var authorChanges = review.preserved.author_declared_emotion_changes || [];
+        if (authorChanges.length) {
+          appendReviewLine("Author-origin emotion claims to review: " +
+            authorChanges.map(function (change) {
+              return change.id + " (" + change.status.replace(/_/g, " ") + ")";
+            }).join("; "), "review-author-claims");
+        }
         var constraints = review.preserved.accepted_constraints || [];
         if (constraints.length) {
           appendReviewLine("Accepted constraints to check (not verified): " + constraints.join("; "),

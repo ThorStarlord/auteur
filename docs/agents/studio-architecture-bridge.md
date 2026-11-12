@@ -57,7 +57,22 @@ A candidate is schema version 2 JSON. Its limits are part of the contract, and `
 
 - `summary` up to 3000 characters. `nodes` up to 80, each with a category, a summary of up to 2000 characters, and a `scope`. `links` up to 180, each with a `function` of up to 120 characters. `phases` up to 32, each with a `narrative_function` of up to 1000 characters. `open_questions` up to 16 strings.
 - There is no Book node. A Book's function is expressed in a phase narrative, a node summary, or an open question.
-- Emotion targets carry a `provenance`. Agent-written candidates must use `agent_proposed`.
+- Emotion targets carry a `provenance`: `author_declared` or `agent_proposed`. See *Provenance labels* below.
+
+## Provenance labels
+
+`author_declared` means the author's own visible text names the emotion. The label is a source-origin claim. It is not author acceptance: the intended effect, eliciting condition and aesthetic strategy of a target remain the agent's elaboration until the author reviews them.
+
+The bridge enforces the label mechanically, at `complete-file`:
+
+- A target may be `author_declared` only when every significant word of its `id` (three letters or more, not a function word) appears in the author-visible text of that request: the Story Vision and the non-concept working items the packet shows. Agent working notes, the previous candidate and the revision instruction do not count as author text.
+- A revision may keep an author claim that the baseline already carried, changed or unchanged, without that proof. This preserves historical claims.
+- Anything else labelled `author_declared` is rejected with `author_declared emotion target '<id>' is not named in the author's source text shown in this request`. Nothing is persisted. The same request stays open for a corrected response.
+- Use `agent_proposed` for every other target. Labelling an interpretation as `agent_proposed` is always admissible.
+
+The review reports every author-origin change under `preserved.author_declared_emotion_changes`, with a `status` of `new_author_claim`, `promoted_to_author_declared`, `changed`, `label_removed` or `removed`. Unchanged claims appear under `preserved.author_declared_emotion_targets`. A review never reports an author claim as preserved when it changed.
+
+Grounding is lexical. It establishes that the author's words name the emotion; it does not establish that the author endorsed the agent's elaboration, and it cannot tell whether a working item was typed by the author or by an earlier agent. Those limits are deliberate and are recorded in the provenance evidence.
 
 ## Scope of the authoring restrictions
 
