@@ -1,0 +1,13 @@
+WORKING, NONCANONICAL corrections after independent review of the first working construction (not author-approved). Keep the first construction's content except for the corrections below. Make only these changes:
+
+1. Summary: replace the claim that Books 1-15 are unchanged except for one correction. State that Books 1-15 keep the original's events, that one thing is corrected (Book 1 reads the share-marks as evidence; the first partial reading of the script is Book 8), and that the Hollow Gate and the status of the stewardship tally are stated explicitly.
+2. Hollow Gate: the Book 15 surfeit is the effect of the release the trial's schedule carried to the lower channels; the original does not name this mechanism, so say so.
+3. Maintenance lineages: the Special Draw Right is a working design, revocable by the Council; whether it stays revocable is open question 5.
+4. Finale mechanism B: hands are owed in proportion to draw; inside the rebuild window a shortfall is a deficit to repay, not a cut in water. Update the matching link.
+5. Finale mechanism C: the valley decides the rule before the threshold is crossed, not before the pulse is visible. Name the failure mode in which activation by the Reading Hall's reading is unchecked.
+6. The Balance Stones' role: under C the stones' reading can trigger binding, which changes the Book 23 function "informs but does not bind" unless ratified. Say so; do not hide it.
+7. Custody link: the Hall's custody of the record lasts until Book 5 (original path).
+8. Book 30 record payoff: keep the original's "no single institution holds the record in Book 30" and add that no single body holds both the record and the Gate schedule.
+9. Open questions: merge the lowland grain-labour question with the Gate Table reach question, and restore the question whether any terrace keeps a measured ledger in Book 30.
+
+Do not change the fixed brief, Books 1-15 beyond items 1-2, Arc IV's two conflicts, the three finale mechanisms, or any emotion target. Preserved-element check (required): for each element the review marks preserved, check whether its meaning remains valid under these corrections; repair any that is stale.
