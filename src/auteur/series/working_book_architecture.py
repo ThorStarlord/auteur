@@ -457,6 +457,8 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             "content_sha256": _digest(artifact_json),
             "authority": "working_noncanonical",
             "artifact": artifact_json,
+            # The Book's own source, verbatim, so recovery does not depend on the canvas item still existing.
+            "source_items": packet["author_source"]["book_source"],
         })
     return book_project(store, book_number)
 
@@ -543,6 +545,7 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         **_freshness(store, book_number, record),
         "packet": packet,
         "artifact": record["artifact"],
+        "verbatim_source": record.get("source_items", []),
     }
 
 

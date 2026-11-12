@@ -266,6 +266,9 @@ def test_fresh_process_resume_recovers_the_book_and_its_identity(tmp_path):
     assert [c["id"] for c in packet["series_constraints"]] == ["eng_ledger", "inst_gate", "str_long_return"]
     assert all(c["status"] == "present" for c in packet["series_constraints"])
     assert packet["open_author_decisions"][0]["reference_stale"] is False
+    assert recovered["verbatim_source"] == [{
+        "id": "book-2-source", "title": "Book 2 source", "group": "book-2", "content": BOOK_SOURCE,
+    }]
 
 
 def test_identical_response_is_idempotent_and_a_different_one_is_refused(tmp_path):
