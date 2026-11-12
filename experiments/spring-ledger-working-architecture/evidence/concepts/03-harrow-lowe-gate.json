@@ -1,0 +1,19 @@
+{
+  "name": "Harrow Lowe lower gate",
+  "definition": "The lower gate at Harrow Lowe, which passes lowland overflow beyond the orchard terrace. The original places the Mill Compact at it. The operating arrangement is an assumption: the Compact's factor keeps the gate under the Book 6 settlement.",
+  "motivating_story_use": "The lowland outlet that a Book 30 surge can use instead of the orchard terrace.",
+  "why_existing_concepts_insufficient": "The Hollow Gate is inside the valley, and the lowland towns have no arc, so nothing in the candidate can pass overflow to the lowland.",
+  "related_concepts": [
+    "Mill Compact",
+    "Orchard terrace",
+    "Lowland plots"
+  ],
+  "proposed_relations": [
+    "Passes overflow onward to the lowland plots when open"
+  ],
+  "compatibility_concerns": [
+    "Inherited from the original and absent from the candidate: it must be added before any use in a candidate",
+    "Its operation is an unestablished assumption"
+  ],
+  "status": "provisional"
+}
