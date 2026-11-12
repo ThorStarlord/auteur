@@ -1,0 +1,415 @@
+[
+  {
+    "action": "keep-intention --title Experience brief",
+    "args": [
+      "keep-intention",
+      "--title",
+      "Experience brief",
+      "--directive-file",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\directives\\1.txt"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "bae1295180777864c07f6f3e0e233996649f236ab211b27541cb1141f2cccd5a",
+    "summary": {
+      "status": "recorded",
+      "architecture_status": null
+    }
+  },
+  {
+    "action": "keep-intention --title Victories change the world",
+    "args": [
+      "keep-intention",
+      "--title",
+      "Victories change the world",
+      "--directive-file",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\directives\\2.txt"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "656a33549a1acf2ffd23c35cb93babe96b63241d6aa7ce4bcb0859ca6a68346f",
+    "summary": {
+      "status": "recorded",
+      "architecture_status": null
+    }
+  },
+  {
+    "action": "keep-intention --title No escalation; local closure",
+    "args": [
+      "keep-intention",
+      "--title",
+      "No escalation; local closure",
+      "--directive-file",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\directives\\3.txt"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "f4639c31d1a2f94d33b8675edef93e9fa0c467fa24504c690fef1edb65431b7e",
+    "summary": {
+      "status": "recorded",
+      "architecture_status": null
+    }
+  },
+  {
+    "action": "keep-intention --title Independent agency across generations",
+    "args": [
+      "keep-intention",
+      "--title",
+      "Independent agency across generations",
+      "--directive-file",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\directives\\4.txt"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "0b5a522f6a4b7577360e219c333c8595083354659c56e5fd9857ab1d4d048f0f",
+    "summary": {
+      "status": "recorded",
+      "architecture_status": null
+    }
+  },
+  {
+    "action": "resume",
+    "args": [
+      "resume"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "a8ae20e691ffa6b434d7a4c36905bc4e070c124bc283fe0247d63ae216697988",
+    "summary": {
+      "status": null,
+      "architecture_status": "not_started",
+      "pending_review": null
+    }
+  },
+  {
+    "action": "prepare",
+    "args": [
+      "prepare"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "a0acf8067c782676b28c63f0edf19df6909ba5943174314cfad718902cc4b677",
+    "summary": {
+      "status": "awaiting_host_agent",
+      "architecture_status": null
+    }
+  },
+  {
+    "action": "complete-file --candidate C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\w6.json",
+    "args": [
+      "complete-file",
+      "--candidate",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\w6.json"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "c3cf8ee6b6b9ea679bd95379d2438c351d8401f5b180d8b8e5863d570fb1c4f3",
+    "summary": {
+      "status": "ready",
+      "architecture_status": null,
+      "candidate_nodes": 32,
+      "candidate_request_sha256": "9543bd72f789de7fb42eb94a326e8df7954fba2f612ed538e7e704ff115af6b5"
+    }
+  },
+  {
+    "action": "resume",
+    "args": [
+      "resume"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "752ac524eef96021a4906852206cd6f94bfc89f86b7a58130731707cbfd78ada",
+    "summary": {
+      "status": null,
+      "architecture_status": "ready",
+      "live_nodes": 32,
+      "pending_review": null
+    }
+  },
+  {
+    "action": "prepare --instruction Add the Book 24 function as Book-scoped nodes, links and one agent-proposed emotion target, keeping every existing element unchanged. The capability record bears on who can return labour without changing who is counted for draw; the Reading Hall declines attribution because the Balance Stones do not resolve local return.",
+    "args": [
+      "prepare",
+      "--instruction",
+      "Add the Book 24 function as Book-scoped nodes, links and one agent-proposed emotion target, keeping every existing element unchanged. The capability record bears on who can return labour without changing who is counted for draw; the Reading Hall declines attribution because the Balance Stones do not resolve local return."
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "1b2f9a0980e68f55d275027ac2d355f946447da4bd7069bd8e7d474f429d55e5",
+    "summary": {
+      "status": "awaiting_host_agent",
+      "architecture_status": null,
+      "candidate_nodes": 32,
+      "candidate_request_sha256": "9543bd72f789de7fb42eb94a326e8df7954fba2f612ed538e7e704ff115af6b5"
+    }
+  },
+  {
+    "action": "complete-file --candidate C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\book24.json",
+    "args": [
+      "complete-file",
+      "--candidate",
+      "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\7ded406a-3eb4-467b-8607-1f94688c650e\\scratchpad\\lifecycle\\book24.json"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "90e9053a1d72bbecff1a9542caea4adce668097e4cba0d10ee9f8c11d18d87b7",
+    "summary": {
+      "status": "review_ready",
+      "architecture_status": null,
+      "candidate_nodes": 32,
+      "candidate_request_sha256": "9543bd72f789de7fb42eb94a326e8df7954fba2f612ed538e7e704ff115af6b5",
+      "review_request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+      "changes": {
+        "nodes": {
+          "added": 2,
+          "removed": 0,
+          "changed": 0
+        },
+        "links": {
+          "added": 8,
+          "removed": 0,
+          "changed": 0
+        },
+        "phases": {
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "emotion_targets": {
+          "added": 1,
+          "removed": 0,
+          "changed": 0
+        },
+        "summary_changed": true
+      }
+    }
+  },
+  {
+    "action": "show",
+    "args": [
+      "show"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "90e9053a1d72bbecff1a9542caea4adce668097e4cba0d10ee9f8c11d18d87b7",
+    "summary": {
+      "status": "review_ready",
+      "architecture_status": null,
+      "candidate_nodes": 32,
+      "candidate_request_sha256": "9543bd72f789de7fb42eb94a326e8df7954fba2f612ed538e7e704ff115af6b5",
+      "review_request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+      "changes": {
+        "nodes": {
+          "added": 2,
+          "removed": 0,
+          "changed": 0
+        },
+        "links": {
+          "added": 8,
+          "removed": 0,
+          "changed": 0
+        },
+        "phases": {
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "emotion_targets": {
+          "added": 1,
+          "removed": 0,
+          "changed": 0
+        },
+        "summary_changed": true
+      }
+    }
+  },
+  {
+    "action": "resume",
+    "args": [
+      "resume"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "77780f217802e7dc91f6c8d9b1ae7e875de0007246b5d820ff490f2a20b207dc",
+    "summary": {
+      "status": null,
+      "architecture_status": "review_ready",
+      "live_nodes": 32,
+      "pending_review": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74"
+    }
+  },
+  {
+    "action": "apply-review",
+    "args": [
+      "apply-review",
+      "--request-sha256",
+      "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "d25477360a8ca4833455713fc4d2584b158c3b57a9cba80b320a3bf741b2ac2b",
+    "summary": {
+      "status": "ready",
+      "architecture_status": null,
+      "candidate_nodes": 34,
+      "candidate_request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+      "application": {
+        "result": "applied",
+        "request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+        "authority": "working_only"
+      }
+    }
+  },
+  {
+    "action": "resume",
+    "args": [
+      "resume"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "07c3000d62576c353428c1f66787b556c5d93e240b762a3064d8f055725e2790",
+    "summary": {
+      "status": null,
+      "architecture_status": "ready",
+      "live_nodes": 34,
+      "pending_review": null
+    }
+  },
+  {
+    "action": "apply-review",
+    "args": [
+      "apply-review",
+      "--request-sha256",
+      "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "47d230e8731fd5146204088b24c5667e5db5d7bf9158965841fdb27493968f29",
+    "summary": {
+      "status": "ready",
+      "architecture_status": null,
+      "candidate_nodes": 34,
+      "candidate_request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+      "application": {
+        "result": "already_applied",
+        "request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+        "authority": "working_only"
+      }
+    }
+  },
+  {
+    "action": "prepare --instruction A later revision that supersedes the applied one.",
+    "args": [
+      "prepare",
+      "--instruction",
+      "A later revision that supersedes the applied one."
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "fb7f0203f19e67e79157342af3e620a5638466e50f50f8bb7caaed896f552916",
+    "summary": {
+      "status": "awaiting_host_agent",
+      "architecture_status": null,
+      "candidate_nodes": 34,
+      "candidate_request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74"
+    }
+  },
+  {
+    "action": "apply-review",
+    "args": [
+      "apply-review",
+      "--request-sha256",
+      "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74"
+    ],
+    "exit_code": 1,
+    "expected_exit": 1,
+    "stderr_tail": [],
+    "output_sha256": "3e6c3140cd876f43052214dc1306c3a51b934df6d621927f851af0a7f193e0a5",
+    "summary": {
+      "status": null,
+      "architecture_status": null,
+      "application": {
+        "result": "rejected",
+        "request_sha256": "0823d5039ac9027dbbfb9d8b468585d33fbaabbadf77d86e65fcf8f1b5fa7f74",
+        "authority": "working_only",
+        "error": "a newer architecture request superseded this review"
+      }
+    }
+  },
+  {
+    "action": "apply-review",
+    "args": [
+      "apply-review",
+      "--request-sha256",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "exit_code": 1,
+    "expected_exit": 1,
+    "stderr_tail": [],
+    "output_sha256": "abbc9e0059d6dead142274cd2ec521de76716d504932ecdccc4c99bd6b1a2694",
+    "summary": {
+      "status": null,
+      "architecture_status": null,
+      "application": {
+        "result": "rejected",
+        "request_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "authority": "working_only",
+        "error": "no architecture request has this identity in this canvas"
+      }
+    }
+  },
+  {
+    "action": "apply-review",
+    "args": [
+      "apply-review",
+      "--request-sha256",
+      "not-a-sha"
+    ],
+    "exit_code": 1,
+    "expected_exit": 1,
+    "stderr_tail": [],
+    "output_sha256": "f1e6b1e993fc2b0378f9b64a89eb0ca6206829ba65fa1246f321a33fa9b21d27",
+    "summary": {
+      "status": null,
+      "architecture_status": null,
+      "application": {
+        "result": "rejected",
+        "request_sha256": "not-a-sha",
+        "authority": "working_only",
+        "error": "request_sha256 must be a 64-character lowercase SHA-256"
+      }
+    }
+  },
+  {
+    "action": "resume",
+    "args": [
+      "resume"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "stderr_tail": [],
+    "output_sha256": "373e8120029f84063b34cb4ab9b913e22a2be9898317e798a589620c30ba039f",
+    "summary": {
+      "status": null,
+      "architecture_status": "awaiting_host_agent",
+      "live_nodes": 34,
+      "pending_review": null
+    }
+  }
+]

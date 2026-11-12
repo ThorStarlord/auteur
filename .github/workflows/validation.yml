@@ -47,8 +47,10 @@ jobs:
               focused+=("$path")
             fi
             if [[ "$path" == src/auteur/beginner/*.py ]]; then
+              # Browser modules (named *_browser.py) import playwright, which this L1 job does not install.
+              # They are excluded here and remain runnable where playwright and a browser are available.
               for beginner_test in tests/test_beginner_*.py; do
-                if [[ -f "$beginner_test" ]]; then
+                if [[ -f "$beginner_test" && "$beginner_test" != *_browser.py ]]; then
                   focused+=("$beginner_test")
                 fi
               done
