@@ -194,4 +194,4 @@ def test_story_discovery_rejects_custom_genre_before_llm_call(tmp_path):
     )
 
     assert result.is_success is False
-    assert "not supported" in result.error
+    assert "cannot be used directly" in result.error

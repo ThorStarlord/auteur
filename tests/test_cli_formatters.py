@@ -346,7 +346,7 @@ def test_format_audit_with_diagnostics():
     result = HandlerResult(exit_code=1, data=data)
     msg = format_audit(result)
     assert msg is not None
-    assert "Layer 6" in msg
+    assert "Characters & story elements" in msg
     assert "[ERROR] carriers.location_teleportation: Aldric teleported" in msg
     assert "Found 1 unresolved error(s), 0 unresolved warning(s)." in msg
     assert "Audit report written to" in msg
