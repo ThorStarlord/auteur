@@ -1,0 +1,21 @@
+{
+  "name": "Hollow Gate",
+  "definition": "The sluice that divides the high cistern's release between the upper and lower channels. Its schedule is set by the Gate Table from the gauge.",
+  "motivating_story_use": "Arc IV Conflict B (Books 21-22) and the Book 30 routing of the Long Return both need one physical point where two practices draw on the same outflow.",
+  "why_existing_concepts_insufficient": "The original names the cistern, the channels and the lower gate at Harrow Lowe, but not one point where a schedule splits release between them.",
+  "related_concepts": [
+    "High cistern",
+    "Lower channels",
+    "Gate Table",
+    "Balance Stones"
+  ],
+  "proposed_relations": [
+    "The Gate Table sets its schedule",
+    "Release through it draws the high cistern down"
+  ],
+  "compatibility_concerns": [
+    "Its acceptance as a world element is author-reserved",
+    "Its physics must not contradict the Source's balance rule"
+  ],
+  "status": "provisional"
+}

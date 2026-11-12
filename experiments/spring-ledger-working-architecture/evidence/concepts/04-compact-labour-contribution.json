@@ -1,0 +1,19 @@
+{
+  "name": "Compact grain-labour",
+  "definition": "The Mill Compact pays grain for hired lowland labour, capped at a fixed number per window. The contribution is owed only under a binding finale alternative, and it is voluntary otherwise.",
+  "motivating_story_use": "The only lever on lowland draw, which carries no return labour.",
+  "why_existing_concepts_insufficient": "Purchased draw owes no labour under the original's Book 6 settlement, so nothing currently ties the lowland to the valley's labour.",
+  "related_concepts": [
+    "Mill Compact",
+    "Long Rota",
+    "Ratified trigger"
+  ],
+  "proposed_relations": [
+    "Owed under Alternative B or C; voluntary under A"
+  ],
+  "compatibility_concerns": [
+    "The Compact's settlement is author-reserved",
+    "The cap is an illustrative value, not canon"
+  ],
+  "status": "provisional"
+}

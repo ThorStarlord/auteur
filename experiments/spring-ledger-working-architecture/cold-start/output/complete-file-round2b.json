@@ -1,0 +1,2197 @@
+{
+  "status": "review_ready",
+  "request": null,
+  "candidate": {
+    "schema_version": 2,
+    "summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+    "nodes": [
+      {
+        "id": "th_core_question",
+        "title": "Central question",
+        "category": "theme",
+        "summary": "Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is, and it is answered differently by each finale mechanism.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_hands_and_draw",
+        "title": "Hands and draw",
+        "category": "thread",
+        "summary": "Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_custody",
+        "title": "Custody of the record",
+        "category": "thread",
+        "summary": "Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after the Reading Hall is founded.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_maintenance",
+        "title": "Keeping the channels",
+        "category": "thread",
+        "summary": "Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_reading",
+        "title": "Reading the First Stones",
+        "category": "thread",
+        "summary": "Who may read the oldest script and which reading becomes binding. Book 1 reads the share-marks as evidence, not the script. Partial readings of the script are Books 8 and 12, and the full reading is Book 15.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_ledger",
+        "title": "Ledger engine",
+        "category": "engine",
+        "summary": "Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_source",
+        "title": "Source engine (physical commons)",
+        "category": "engine",
+        "summary": "The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention. Its deep-store pulse, the Long Return, is predicted from Book 23 and arrives in Book 30.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "eng_old_hand",
+        "title": "Old Hand engine (interpretive legitimacy)",
+        "category": "engine",
+        "summary": "Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_seasonal_turn",
+        "title": "The seasonal turn",
+        "category": "structure",
+        "summary": "The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_measured_turn",
+        "title": "The counted Turn (high terraces)",
+        "category": "structure",
+        "summary": "Labour matched to shares in the high terraces, run by the Council since the Turn in Book 6: each share returns labour by rota, and draw still follows shares. The counted Turn matches return to draw, which keeps the high cistern from surfeit. The stewardship tally, from Book 15, records that labour as a record of care for this practice; it does not hold the water.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_unmeasured_return",
+        "title": "The gift practice (Lower Ammen)",
+        "category": "structure",
+        "summary": "Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_hollow_gate",
+        "title": "The Hollow Gate",
+        "category": "structure",
+        "summary": "The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw and return, and surfeit is too much return, or stored water with no draw. The construction assumes that the trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern. The original does not name this mechanism, and the author may reject it. Release draws the cistern down and cannot raise it. The schedule is the object of the Book 21 conflict.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_lowfen_channel",
+        "title": "The Lowfen channel",
+        "category": "structure",
+        "summary": "The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_declined_share",
+        "title": "A declined share",
+        "category": "structure",
+        "summary": "A household's exit from the rota in Book 21. It forfeits its share, so its water goes wild and runs down the lowest Lowfen terrace. This is a physical cost of declining, not the act of a villain.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_long_return",
+        "title": "The Long Return (pulse)",
+        "category": "structure",
+        "summary": "A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to the valley.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_wonder",
+        "title": "Wonder at a responsive order",
+        "category": "reader_experience",
+        "summary": "The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_belonging",
+        "title": "Everyday belonging",
+        "category": "reader_experience",
+        "summary": "The warmth of shared labour and meals, which the series must keep specific across generations.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_consequence",
+        "title": "Consequential loss",
+        "category": "reader_experience",
+        "summary": "Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_hope",
+        "title": "Hopeful flourishing",
+        "category": "reader_experience",
+        "summary": "The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_stone_hall",
+        "title": "Stone Hall (Reckoners)",
+        "category": "other",
+        "summary": "Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_terrace_council",
+        "title": "Terrace Council",
+        "category": "other",
+        "summary": "Formed in Book 6 from families who take the Turn. Runs the counted Turn in the high terraces, keeps the stewardship tally from Book 15, and sets the Hollow Gate schedule until the Gate Table takes it in Book 22. Holds the gift reading as legitimate.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_mill_compact",
+        "title": "Mill Compact",
+        "category": "other",
+        "summary": "Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_reading_hall",
+        "title": "Reading Hall",
+        "category": "other",
+        "summary": "Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_lineage_crews",
+        "title": "Maintenance lineages",
+        "category": "other",
+        "summary": "Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Council. Whether it stays revocable is open question 5.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "inst_gate_table",
+        "title": "Gate Table",
+        "category": "other",
+        "summary": "A rotating inter-community body formed in Book 22 to set the Hollow Gate schedule from the gauge reading. Seats for each practice, and one seat drawn by lot from households without lineage craft. It holds power over the schedule only, with no authority over the record, the shares or any practice.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_epic_fantasy",
+        "title": "Epic fantasy",
+        "category": "genre",
+        "summary": "Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_pastoral_belonging",
+        "title": "Pastoral belonging",
+        "category": "genre",
+        "summary": "Supporting genre: belonging produced by shared return labour and eroded by unshared draw.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_political_institutional",
+        "title": "Political-institutional",
+        "category": "genre",
+        "summary": "Supporting genre: institutions compete for legitimacy over custody and distribution of the record and of the Gate schedule. Governs Arc 2 at phase level.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gn_mystery_discovery",
+        "title": "Mystery and discovery",
+        "category": "genre",
+        "summary": "Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "alt_a_reciprocal",
+        "title": "Finale Alternative A (not chosen)",
+        "category": "structure",
+        "summary": "Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlated shock, lowland draw left unhanded, and surveillance of the tally.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "alt_b_allotted",
+        "title": "Finale Alternative B (not chosen)",
+        "category": "structure",
+        "summary": "An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a deficit to repay, not a cut in water. Failure modes: standing power through schedule, and the Hall's custody returning under another name.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "alt_c_ratified_trigger",
+        "title": "Finale Alternative C (not chosen)",
+        "category": "structure",
+        "summary": "Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure modes: the threshold becomes an authority, activation by the Reading Hall's reading may be unchecked, ratification fails in calm years, and the gauge is disputed.",
+        "scope": "whole_story",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "l_ledger_draws_source",
+        "source": "eng_ledger",
+        "target": "eng_source",
+        "function": "recorded shares set the draw on the spring"
+      },
+      {
+        "id": "l_source_limits_ledger",
+        "source": "eng_source",
+        "target": "eng_ledger",
+        "function": "the spring balance decides which shares can honestly be honoured"
+      },
+      {
+        "id": "l_oldhand_redefines_share",
+        "source": "eng_old_hand",
+        "target": "eng_ledger",
+        "function": "a reading changes what a share is: debt, gift or contract"
+      },
+      {
+        "id": "l_ledger_opens_trade",
+        "source": "eng_ledger",
+        "target": "inst_mill_compact",
+        "function": "open records make shares tradable"
+      },
+      {
+        "id": "l_trade_draws_without_return",
+        "source": "inst_mill_compact",
+        "target": "eng_source",
+        "function": "purchased shares draw without return labour"
+      },
+      {
+        "id": "l_source_forces_council",
+        "source": "eng_source",
+        "target": "inst_terrace_council",
+        "function": "thinning and surfeit force collective maintenance decisions"
+      },
+      {
+        "id": "l_council_legitimises_gift",
+        "source": "inst_terrace_council",
+        "target": "eng_old_hand",
+        "function": "the gift reading legitimises unmeasured return"
+      },
+      {
+        "id": "l_hall_custody_credit",
+        "source": "inst_stone_hall",
+        "target": "eng_ledger",
+        "function": "sealed custody allowed credit to favoured houses"
+      },
+      {
+        "id": "l_reading_hall_reads",
+        "source": "inst_reading_hall",
+        "target": "eng_old_hand",
+        "function": "public readings of the First Stones"
+      },
+      {
+        "id": "l_maintenance_balances_source",
+        "source": "th_maintenance",
+        "target": "eng_source",
+        "function": "return labour keeps the spring balanced"
+      },
+      {
+        "id": "l_custody_grants_hall",
+        "source": "th_custody",
+        "target": "inst_stone_hall",
+        "function": "custody of the record is the Hall's authority until Book 5"
+      },
+      {
+        "id": "l_reading_decides_binding",
+        "source": "th_reading",
+        "target": "eng_old_hand",
+        "function": "who reads decides which reading binds"
+      },
+      {
+        "id": "l_source_wonder",
+        "source": "eng_source",
+        "target": "rx_wonder",
+        "function": "visible responses make the spring feel alive"
+      },
+      {
+        "id": "l_ledger_consequence",
+        "source": "eng_ledger",
+        "target": "rx_consequence",
+        "function": "lost standing hurts those once credited"
+      },
+      {
+        "id": "l_turn_belonging",
+        "source": "str_seasonal_turn",
+        "target": "rx_belonging",
+        "function": "shared turns make belonging visible"
+      },
+      {
+        "id": "l_oldhand_reframes_core",
+        "source": "eng_old_hand",
+        "target": "th_core_question",
+        "function": "the gift reading reframes who owes whom"
+      },
+      {
+        "id": "l_tally_counts_hands",
+        "source": "eng_ledger",
+        "target": "th_hands_and_draw",
+        "function": "from Book 20, draw is partly set by hands owed"
+      },
+      {
+        "id": "l_conversion_sets_draw",
+        "source": "th_hands_and_draw",
+        "target": "eng_ledger",
+        "function": "hands a household cannot return reduce its draw (Book 20)"
+      },
+      {
+        "id": "l_lineage_right_on_draw",
+        "source": "inst_lineage_crews",
+        "target": "eng_ledger",
+        "function": "the Special Draw Right gives skill a claim on draw"
+      },
+      {
+        "id": "l_lineage_carries_repair",
+        "source": "inst_lineage_crews",
+        "target": "th_maintenance",
+        "function": "lineage crews carry channel repair from Book 20"
+      },
+      {
+        "id": "l_lowfen_needs_hands",
+        "source": "str_lowfen_channel",
+        "target": "th_maintenance",
+        "function": "the Lowfen breaks in Book 19 and needs a rota's labour"
+      },
+      {
+        "id": "l_measured_holds_gate",
+        "source": "str_measured_turn",
+        "target": "str_hollow_gate",
+        "function": "the counted practice holds water back to protect the high cistern"
+      },
+      {
+        "id": "l_unmeasured_needs_release",
+        "source": "str_unmeasured_return",
+        "target": "str_hollow_gate",
+        "function": "the gift practice needs release at need for the lower channels"
+      },
+      {
+        "id": "l_gate_sets_outflow",
+        "source": "str_hollow_gate",
+        "target": "eng_source",
+        "function": "the Gate's schedule sets the release from the high cistern"
+      },
+      {
+        "id": "l_gate_table_sets",
+        "source": "inst_gate_table",
+        "target": "str_hollow_gate",
+        "function": "rotating seats set the schedule from the gauge (Book 22)"
+      },
+      {
+        "id": "l_reading_separate_schedule",
+        "source": "inst_reading_hall",
+        "target": "inst_gate_table",
+        "function": "the Reading Hall publishes the gauge; the Table keeps no record"
+      },
+      {
+        "id": "l_declined_goes_wild",
+        "source": "str_declined_share",
+        "target": "str_lowfen_channel",
+        "function": "a declined share runs wild down the lowest Lowfen terrace"
+      },
+      {
+        "id": "l_longreturn_needs_hands",
+        "source": "str_long_return",
+        "target": "th_maintenance",
+        "function": "the pulse needs channel labour before its date"
+      },
+      {
+        "id": "l_longreturn_needs_gate",
+        "source": "str_long_return",
+        "target": "str_hollow_gate",
+        "function": "the pulse must be routed through the Gate"
+      },
+      {
+        "id": "l_compact_hands_in_kind",
+        "source": "inst_mill_compact",
+        "target": "th_maintenance",
+        "function": "under B, purchased draw owes grain-labour to the rebuild"
+      },
+      {
+        "id": "l_alt_a_decouples",
+        "source": "alt_a_reciprocal",
+        "target": "th_hands_and_draw",
+        "function": "decouples draw from hands; care counted, nothing owed"
+      },
+      {
+        "id": "l_alt_b_bounds",
+        "source": "alt_b_allotted",
+        "target": "th_hands_and_draw",
+        "function": "hands are owed by draw; a shortfall is a deficit, not a cut, in the window"
+      },
+      {
+        "id": "l_alt_c_normal_is_a",
+        "source": "alt_c_ratified_trigger",
+        "target": "alt_a_reciprocal",
+        "function": "normal seasons follow the noncoercive arrangement"
+      },
+      {
+        "id": "l_alt_c_triggers_b",
+        "source": "alt_c_ratified_trigger",
+        "target": "alt_b_allotted",
+        "function": "activates the allotted rule only at a ratified threshold"
+      }
+    ],
+    "phases": [
+      {
+        "id": "ph_1_reckoned_water",
+        "title": "Reckoned Water",
+        "order": 1,
+        "scope": "books 1-5",
+        "genres": [
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_mystery_discovery",
+            "basic_emotions": [
+              "anger",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the field that does not match the record"
+            ],
+            "structural_function": "a lower-terrace household finds falsified credit in the share-marks (Book 1), and the public record breaks the Hall's monopoly (Book 5)."
+          }
+        ],
+        "reader_experience": "wonder at the first hidden chamber under the spring; anger at falsified credit",
+        "aesthetic": null,
+        "narrative_function": "The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance.",
+        "transition": "Records open to public access, so shares become tradable and the spring shows its first recorded thinning.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_2_the_turn",
+        "title": "The Turn",
+        "order": 2,
+        "scope": "books 6-11",
+        "genres": [
+          {
+            "genre": "gn_political_institutional",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "background"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_political_institutional",
+            "basic_emotions": [
+              "anger",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the compromise that feeds a new market"
+            ],
+            "structural_function": "Mill Compact purchases shares from freed households; draw separates from return and the high cistern thins (Book 6). The Turn is sworn and the Terrace Council forms, and the Council operates the Hollow Gate (Books 7-11)."
+          }
+        ],
+        "reader_experience": "belonging tested by sale; anger at a market in shares",
+        "aesthetic": null,
+        "narrative_function": "The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge.",
+        "transition": "Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_3_old_hand",
+        "title": "The Old Hand",
+        "order": 3,
+        "scope": "books 12-18",
+        "genres": [
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_mystery_discovery",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the reading that reframes an earlier debt"
+            ],
+            "structural_function": "the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the Stone Hall remnant holds it as debt, the Council as gift, and the Compact as contract. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, which forces the stewardship tally to count care, not debt."
+          }
+        ],
+        "reader_experience": "wonder that the first compact was not a debt; fear of the surfeit",
+        "aesthetic": null,
+        "narrative_function": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings.",
+        "transition": "Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_4_settled_water",
+        "title": "Settled Water",
+        "order": 4,
+        "scope": "books 19-22",
+        "genres": [
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_pastoral_belonging",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "generations on the same terraces",
+              "the shared gate"
+            ],
+            "structural_function": "Conflict A (Books 19-21): the Lowfen breaks and the few-hands share-holders cannot cover it. Lineage crews repair it for a Special Draw Right, draw is converted in proportion to unreturned hands, and one household declines and its share runs wild. Conflict B (Books 21-22): the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table is formed."
+          }
+        ],
+        "reader_experience": "warmth of shared repair; the cost of counting",
+        "aesthetic": null,
+        "narrative_function": "Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record.",
+        "transition": "Water is partly earned by hands. The Gate Table, the Special Draw Right and an ambiguous tally pass to the next generation.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_5_unmeasured",
+        "title": "Unmeasured",
+        "order": 5,
+        "scope": "books 23-30",
+        "genres": [
+          {
+            "genre": "gn_epic_fantasy",
+            "role": "governing"
+          },
+          {
+            "genre": "gn_pastoral_belonging",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_political_institutional",
+            "role": "supporting"
+          },
+          {
+            "genre": "gn_mystery_discovery",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gn_epic_fantasy",
+            "basic_emotions": [
+              "surprise",
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the hidden order answers the people who keep it"
+            ],
+            "structural_function": "Book 23: the Brightwater generation inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30: the Long Return's pulse needs channel labour and a routing through the Gate. The valley chooses among Alternatives A, B and C for who gives labour and who is counted for it."
+          }
+        ],
+        "reader_experience": "hope that is earned by cost; wonder at the deepest chamber",
+        "aesthetic": null,
+        "narrative_function": "The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with grain-labour from the Compact. C is a ratified trigger that activates B's rule only when a published threshold is crossed. The original's three options map onto these: the single measured Turn is B without its guards, and the Compact's settlement is a clause of B or C. The original's outcome is closest to A; its share-plot settlement is committed there; open here. No option restores the Stone Hall's sole custody.",
+        "transition": "The series closes locally. A shared practice and the long-range questions continue.",
+        "parallel_with": []
+      }
+    ],
+    "open_questions": [
+      "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.",
+      "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+      "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+      "Does the shared accounting of care bind, and in what form? Not decided.",
+      "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+      "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+      "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+      "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.",
+      "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+      "Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided.",
+      "How many Brightwater shares may be drawn before the Balance Stones restrain them?",
+      "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+      "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+      "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.",
+      "What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it."
+    ],
+    "emotion_targets": [
+      {
+        "id": "et_wonder",
+        "emotion": "surprise",
+        "role": "primary",
+        "intended_effect": "a sense that the valley's order is larger and more responsive than anyone assumed",
+        "eliciting_condition": "the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)",
+        "aesthetic_strategy": "concrete cold, light and sound; scale that reveals itself in steps",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_belonging",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "warmth of shared labour and meals at the turn",
+        "eliciting_condition": "return work completed together by people who have few reasons to trust one another",
+        "aesthetic_strategy": "ordinary detail and repeated ritual that changes slightly each season",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_hope",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "a sense that a shared practice can outlast the institution that began it",
+        "eliciting_condition": "the unmeasured return that works in Book 15, the Gate Table's first season in Book 22, and the Long Return's pulse routed through channels the valley rebuilt",
+        "aesthetic_strategy": "earned rather than announced; the cost stays visible",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_grief_of_orders",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "loss of a structure that gave some people certainty, with dignity for the losing party",
+        "eliciting_condition": "the Stone Hall's fall in Book 5 and Keeper Corrow's dissent",
+        "aesthetic_strategy": "give the losers reasons that are coherent from their side",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_anger_at_hidden_credit",
+        "emotion": "anger",
+        "role": "supporting",
+        "intended_effect": "outrage at credit falsified against the powerless",
+        "eliciting_condition": "the falsified lower-terrace share in Book 1",
+        "aesthetic_strategy": "specific, documented injustice rather than abstract villainy",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_fear_of_wild_water",
+        "emotion": "fear",
+        "role": "local",
+        "intended_effect": "dread of water that is not kept",
+        "eliciting_condition": "lower terraces running wild in Book 1, a household's declined share in Book 21, and the Long Return's routed pulse",
+        "aesthetic_strategy": "physical sensation with short, plain sentences",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_cost_of_counting",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "grief that a household's water is cut for hands it cannot return, with dignity for the family",
+        "eliciting_condition": "the hands-to-draw conversion adopted in Book 20 and a household's declined share in Book 21",
+        "aesthetic_strategy": "one named household and one season, rendered with its own reasons",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "ce_awe_of_source",
+        "title": "Awe at the spring",
+        "basic_emotions": [
+          "surprise",
+          "joy"
+        ],
+        "context": "wonder that turns into care rather than fear"
+      },
+      {
+        "id": "ce_bittersweet_return",
+        "title": "Bittersweet return",
+        "basic_emotions": [
+          "sadness",
+          "joy"
+        ],
+        "context": "a practice honoured after the institution that held it has fallen"
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "gn_epic_fantasy",
+        "role": "governing",
+        "emotion_target_ids": [
+          "et_wonder",
+          "et_hope"
+        ],
+        "complex_emotion_ids": [
+          "ce_awe_of_source"
+        ],
+        "trope_functions": [
+          "a hidden order beneath a familiar valley",
+          "the keepers' authority reversed by public reading"
+        ],
+        "narrative_engine": "the quest is to understand a physical commons that answers choices, not to defeat a rival power",
+        "structural_pattern": "five macro arcs, each ending in a changed governing engine",
+        "aesthetic_strategies": [
+          "sensory discovery of cold water and stone",
+          "scale moves from terrace to valley to lowland"
+        ],
+        "payoff_expectations": [
+          "the First Stones read in stages, completed in Book 15",
+          "the Long Return's pulse routed through channels the valley rebuilt and chose how to route"
+        ]
+      },
+      {
+        "genre_node_id": "gn_pastoral_belonging",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_belonging",
+          "et_grief_of_orders",
+          "et_cost_of_counting"
+        ],
+        "complex_emotion_ids": [
+          "ce_bittersweet_return"
+        ],
+        "trope_functions": [
+          "the shared turn as ritual of inclusion",
+          "generations on the same terraces",
+          "the shared gate"
+        ],
+        "narrative_engine": "belonging is produced by return labour and eroded by unshared draw",
+        "structural_pattern": "seasonal recurrence with changing participants",
+        "aesthetic_strategies": [
+          "ordinary work rendered with care"
+        ],
+        "payoff_expectations": [
+          "the first Turn of Book 6 is still practised, changed, in Book 30",
+          "a household's care is counted without being owed under A, or owed within a bounded window under B"
+        ]
+      },
+      {
+        "genre_node_id": "gn_political_institutional",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_anger_at_hidden_credit",
+          "et_grief_of_orders"
+        ],
+        "complex_emotion_ids": [],
+        "trope_functions": [
+          "the falsified record",
+          "the compromise that feeds a new monopoly"
+        ],
+        "narrative_engine": "institutions compete for legitimacy over who may keep and read the record, and over who sets the Gate schedule",
+        "structural_pattern": "arcs alternate between custody disputes and distribution disputes",
+        "aesthetic_strategies": [
+          "procedure rendered as drama"
+        ],
+        "payoff_expectations": [
+          "the Stone Hall's monopoly of the record ends in Book 5",
+          "in Book 30 no single institution holds the record, and no single body holds both the record and the Gate schedule"
+        ]
+      },
+      {
+        "genre_node_id": "gn_mystery_discovery",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "et_wonder",
+          "et_fear_of_wild_water"
+        ],
+        "complex_emotion_ids": [],
+        "trope_functions": [
+          "the field that does not match the record"
+        ],
+        "narrative_engine": "partial knowledge of the record and the spring changes choices",
+        "structural_pattern": "readings are staged so discovery advances by Book",
+        "aesthetic_strategies": [
+          "evidence carried by physical traces"
+        ],
+        "payoff_expectations": [
+          "the gift reading in Book 15 reframes the Book 1 debt"
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "gi_epic_political_tension",
+        "source_genre_id": "gn_epic_fantasy",
+        "target_genre_id": "gn_political_institutional",
+        "kind": "creates_tension",
+        "mechanism": "the quest to understand the spring becomes a dispute over who may read it; victory brings contention",
+        "risk": "epic reduced to civics procedure"
+      },
+      {
+        "id": "gi_political_pastoral_constrains",
+        "source_genre_id": "gn_political_institutional",
+        "target_genre_id": "gn_pastoral_belonging",
+        "kind": "constrains",
+        "mechanism": "share markets and maintenance duties limit how belonging can be expressed",
+        "risk": "belonging becomes a labour rota"
+      },
+      {
+        "id": "gi_mystery_epic_enables",
+        "source_genre_id": "gn_mystery_discovery",
+        "target_genre_id": "gn_epic_fantasy",
+        "kind": "enables",
+        "mechanism": "partial readings of the First Stones let the quest advance at a local pace",
+        "risk": "readings postponed into a withheld revelation"
+      },
+      {
+        "id": "gi_pastoral_mystery_reinforces",
+        "source_genre_id": "gn_pastoral_belonging",
+        "target_genre_id": "gn_mystery_discovery",
+        "kind": "reinforces",
+        "mechanism": "maintenance lineages hold the knowledge needed to read the stones",
+        "risk": "knowledge hardens into hereditary privilege"
+      },
+      {
+        "id": "gi_pastoral_political_gate",
+        "source_genre_id": "gn_pastoral_belonging",
+        "target_genre_id": "gn_political_institutional",
+        "kind": "creates_tension",
+        "mechanism": "two proven practices at one Gate force the question of whose practice sets the schedule",
+        "risk": "the Gate Table becomes a seat of power"
+      }
+    ]
+  },
+  "candidate_request_sha256": "0bcfee8625d51e6bf63f22ca30af19bda8d09c7b4ad775d83e3c8ed482565c23",
+  "review": {
+    "request_sha256": "e000e95646dc47ed1e66a3496a36675fd2b5f1f526d0498295693085090e921c",
+    "source_sha256": "5ec8f445417d83c72540b4fbd76f460a54756ec113c7e165bfaa81dd479a74e1",
+    "candidate": {
+      "schema_version": 2,
+      "summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate. Revision (agent-proposed, not author-approved): Book 24 is given a function as Book-scoped nodes, because the schema has no Book node and the Arc V phase narrative is at its 1000-character cap. The Brightwater cohort meets the Long Return's labour gap by working uncounted under lineage instruction, and the Special Draw Right's training condition is met for one review cycle by a public capability record. No finale alternative and no author-reserved choice is decided.",
+      "nodes": [
+        {
+          "id": "th_core_question",
+          "title": "Central question",
+          "category": "theme",
+          "summary": "Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is, and it is answered differently by each finale mechanism.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "th_hands_and_draw",
+          "title": "Hands and draw",
+          "category": "thread",
+          "summary": "Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "th_custody",
+          "title": "Custody of the record",
+          "category": "thread",
+          "summary": "Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after the Reading Hall is founded.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "th_maintenance",
+          "title": "Keeping the channels",
+          "category": "thread",
+          "summary": "Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "th_reading",
+          "title": "Reading the First Stones",
+          "category": "thread",
+          "summary": "Who may read the oldest script and which reading becomes binding. Book 1 reads the share-marks as evidence, not the script. Partial readings of the script are Books 8 and 12, and the full reading is Book 15.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "eng_ledger",
+          "title": "Ledger engine",
+          "category": "engine",
+          "summary": "Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "eng_source",
+          "title": "Source engine (physical commons)",
+          "category": "engine",
+          "summary": "The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention. Its deep-store pulse, the Long Return, is predicted from Book 23 and arrives in Book 30.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "eng_old_hand",
+          "title": "Old Hand engine (interpretive legitimacy)",
+          "category": "engine",
+          "summary": "Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_seasonal_turn",
+          "title": "The seasonal turn",
+          "category": "structure",
+          "summary": "The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_measured_turn",
+          "title": "The counted Turn (high terraces)",
+          "category": "structure",
+          "summary": "Labour matched to shares in the high terraces, run by the Council since the Turn in Book 6: each share returns labour by rota, and draw still follows shares. The counted Turn matches return to draw, which keeps the high cistern from surfeit. The stewardship tally, from Book 15, records that labour as a record of care for this practice; it does not hold the water.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_unmeasured_return",
+          "title": "The gift practice (Lower Ammen)",
+          "category": "structure",
+          "summary": "Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_hollow_gate",
+          "title": "The Hollow Gate",
+          "category": "structure",
+          "summary": "The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw and return, and surfeit is too much return, or stored water with no draw. The construction assumes that the trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern. The original does not name this mechanism, and the author may reject it. Release draws the cistern down and cannot raise it. The schedule is the object of the Book 21 conflict.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_lowfen_channel",
+          "title": "The Lowfen channel",
+          "category": "structure",
+          "summary": "The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_declined_share",
+          "title": "A declined share",
+          "category": "structure",
+          "summary": "A household's exit from the rota in Book 21. It forfeits its share, so its water goes wild and runs down the lowest Lowfen terrace. This is a physical cost of declining, not the act of a villain.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_long_return",
+          "title": "The Long Return (pulse)",
+          "category": "structure",
+          "summary": "A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to the valley.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "rx_wonder",
+          "title": "Wonder at a responsive order",
+          "category": "reader_experience",
+          "summary": "The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "rx_belonging",
+          "title": "Everyday belonging",
+          "category": "reader_experience",
+          "summary": "The warmth of shared labour and meals, which the series must keep specific across generations.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "rx_consequence",
+          "title": "Consequential loss",
+          "category": "reader_experience",
+          "summary": "Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "rx_hope",
+          "title": "Hopeful flourishing",
+          "category": "reader_experience",
+          "summary": "The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_stone_hall",
+          "title": "Stone Hall (Reckoners)",
+          "category": "other",
+          "summary": "Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_terrace_council",
+          "title": "Terrace Council",
+          "category": "other",
+          "summary": "Formed in Book 6 from families who take the Turn. Runs the counted Turn in the high terraces, keeps the stewardship tally from Book 15, and sets the Hollow Gate schedule until the Gate Table takes it in Book 22. Holds the gift reading as legitimate.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_mill_compact",
+          "title": "Mill Compact",
+          "category": "other",
+          "summary": "Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_reading_hall",
+          "title": "Reading Hall",
+          "category": "other",
+          "summary": "Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_lineage_crews",
+          "title": "Maintenance lineages",
+          "category": "other",
+          "summary": "Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Council. Whether it stays revocable is open question 5.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "inst_gate_table",
+          "title": "Gate Table",
+          "category": "other",
+          "summary": "A rotating inter-community body formed in Book 22 to set the Hollow Gate schedule from the gauge reading. Seats for each practice, and one seat drawn by lot from households without lineage craft. It holds power over the schedule only, with no authority over the record, the shares or any practice.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "gn_epic_fantasy",
+          "title": "Epic fantasy",
+          "category": "genre",
+          "summary": "Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "gn_pastoral_belonging",
+          "title": "Pastoral belonging",
+          "category": "genre",
+          "summary": "Supporting genre: belonging produced by shared return labour and eroded by unshared draw.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "gn_political_institutional",
+          "title": "Political-institutional",
+          "category": "genre",
+          "summary": "Supporting genre: institutions compete for legitimacy over custody and distribution of the record and of the Gate schedule. Governs Arc 2 at phase level.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "gn_mystery_discovery",
+          "title": "Mystery and discovery",
+          "category": "genre",
+          "summary": "Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "alt_a_reciprocal",
+          "title": "Finale Alternative A (not chosen)",
+          "category": "structure",
+          "summary": "Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlated shock, lowland draw left unhanded, and surveillance of the tally.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "alt_b_allotted",
+          "title": "Finale Alternative B (not chosen)",
+          "category": "structure",
+          "summary": "An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a deficit to repay, not a cut in water. Failure modes: standing power through schedule, and the Hall's custody returning under another name.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "alt_c_ratified_trigger",
+          "title": "Finale Alternative C (not chosen)",
+          "category": "structure",
+          "summary": "Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure modes: the threshold becomes an authority, activation by the Reading Hall's reading may be unchecked, ratification fails in calm years, and the gauge is disputed.",
+          "scope": "whole_story",
+          "parent_id": null
+        },
+        {
+          "id": "str_b24_uncounted_crew",
+          "title": "Book 24: the uncounted crew (agent-proposed)",
+          "category": "structure",
+          "summary": "Agent-proposed Book 24 function. Question: can a generation that refuses to be counted learn to give back the water before it is owed? Condition: the Balance Stones have published the Long Return's date (Book 23); the Special Draw Right is conditional on training outside apprentices (Book 20) and comes up for review (agent-proposed); the Brightwater cohort believes abundance needs no work, hearing the gift reading's 'nothing counted' as 'nothing owed'. Choice: asked to enter the stewardship tally as apprentices, the cohort refuses; Hesper Sallow forms a crew that learns and works the Lowfen thaw upkeep uncounted under Ysa Trant's instruction. Consequence: the Balance Stones show the return in aggregate but not by household; one badly laid section silts and costs a hand-light household a season, showing that gift without skill fails. The Council offers to count the crew retroactively, which would restore hand-light draw through the conversion. Hesper chooses a capability record instead (str_b24_capability_mark); several crewmates choose to be counted for their families. Changed state: the cohort splits into counted and uncounted practice; the conversion's blind spot (it credits counted hands only) is public; the Reading Hall declines to attribute Balance Stones readings to named hands; the Stone Hall remnant's offer to keep the register is declined; the Mill Compact's offer of hired lowland labour stands unanswered (settlement author-reserved). The labour gap narrows and is not closed. Does not depend on the Hollow Gate or Gate Table.",
+          "scope": "book 24",
+          "parent_id": "str_long_return"
+        },
+        {
+          "id": "str_b24_capability_mark",
+          "title": "Capability mark (agent-proposed, Book 24)",
+          "category": "structure",
+          "summary": "Agent-proposed record form. When a lineage hand judges that an apprentice can perform a named repair, teacher and learner each cut a mark on the channel stone where it was done. It records capability and place, not hours, debt or draw, and no institution holds it. It echoes Book 1's share-marks read as evidence and Book 22's separation of schedule from record. The Council accepts it as meeting the Special Draw Right's training condition for one review cycle only; this does not decide whether the Right is revocable or permanent or its final condition. Its cost: it restores no draw, so the uncounted crew's hand-light households stay cut. Later pressure: such marks can be falsified or favoured. Any finale mechanism may use it (pair-hands under A, rota assignment under B, the pre-drawn panel under C) without it choosing among them.",
+          "scope": "book 24",
+          "parent_id": "str_b24_uncounted_crew"
+        }
+      ],
+      "links": [
+        {
+          "id": "l_ledger_draws_source",
+          "source": "eng_ledger",
+          "target": "eng_source",
+          "function": "recorded shares set the draw on the spring"
+        },
+        {
+          "id": "l_source_limits_ledger",
+          "source": "eng_source",
+          "target": "eng_ledger",
+          "function": "the spring balance decides which shares can honestly be honoured"
+        },
+        {
+          "id": "l_oldhand_redefines_share",
+          "source": "eng_old_hand",
+          "target": "eng_ledger",
+          "function": "a reading changes what a share is: debt, gift or contract"
+        },
+        {
+          "id": "l_ledger_opens_trade",
+          "source": "eng_ledger",
+          "target": "inst_mill_compact",
+          "function": "open records make shares tradable"
+        },
+        {
+          "id": "l_trade_draws_without_return",
+          "source": "inst_mill_compact",
+          "target": "eng_source",
+          "function": "purchased shares draw without return labour"
+        },
+        {
+          "id": "l_source_forces_council",
+          "source": "eng_source",
+          "target": "inst_terrace_council",
+          "function": "thinning and surfeit force collective maintenance decisions"
+        },
+        {
+          "id": "l_council_legitimises_gift",
+          "source": "inst_terrace_council",
+          "target": "eng_old_hand",
+          "function": "the gift reading legitimises unmeasured return"
+        },
+        {
+          "id": "l_hall_custody_credit",
+          "source": "inst_stone_hall",
+          "target": "eng_ledger",
+          "function": "sealed custody allowed credit to favoured houses"
+        },
+        {
+          "id": "l_reading_hall_reads",
+          "source": "inst_reading_hall",
+          "target": "eng_old_hand",
+          "function": "public readings of the First Stones"
+        },
+        {
+          "id": "l_maintenance_balances_source",
+          "source": "th_maintenance",
+          "target": "eng_source",
+          "function": "return labour keeps the spring balanced"
+        },
+        {
+          "id": "l_custody_grants_hall",
+          "source": "th_custody",
+          "target": "inst_stone_hall",
+          "function": "custody of the record is the Hall's authority until Book 5"
+        },
+        {
+          "id": "l_reading_decides_binding",
+          "source": "th_reading",
+          "target": "eng_old_hand",
+          "function": "who reads decides which reading binds"
+        },
+        {
+          "id": "l_source_wonder",
+          "source": "eng_source",
+          "target": "rx_wonder",
+          "function": "visible responses make the spring feel alive"
+        },
+        {
+          "id": "l_ledger_consequence",
+          "source": "eng_ledger",
+          "target": "rx_consequence",
+          "function": "lost standing hurts those once credited"
+        },
+        {
+          "id": "l_turn_belonging",
+          "source": "str_seasonal_turn",
+          "target": "rx_belonging",
+          "function": "shared turns make belonging visible"
+        },
+        {
+          "id": "l_oldhand_reframes_core",
+          "source": "eng_old_hand",
+          "target": "th_core_question",
+          "function": "the gift reading reframes who owes whom"
+        },
+        {
+          "id": "l_tally_counts_hands",
+          "source": "eng_ledger",
+          "target": "th_hands_and_draw",
+          "function": "from Book 20, draw is partly set by hands owed"
+        },
+        {
+          "id": "l_conversion_sets_draw",
+          "source": "th_hands_and_draw",
+          "target": "eng_ledger",
+          "function": "hands a household cannot return reduce its draw (Book 20)"
+        },
+        {
+          "id": "l_lineage_right_on_draw",
+          "source": "inst_lineage_crews",
+          "target": "eng_ledger",
+          "function": "the Special Draw Right gives skill a claim on draw"
+        },
+        {
+          "id": "l_lineage_carries_repair",
+          "source": "inst_lineage_crews",
+          "target": "th_maintenance",
+          "function": "lineage crews carry channel repair from Book 20"
+        },
+        {
+          "id": "l_lowfen_needs_hands",
+          "source": "str_lowfen_channel",
+          "target": "th_maintenance",
+          "function": "the Lowfen breaks in Book 19 and needs a rota's labour"
+        },
+        {
+          "id": "l_measured_holds_gate",
+          "source": "str_measured_turn",
+          "target": "str_hollow_gate",
+          "function": "the counted practice holds water back to protect the high cistern"
+        },
+        {
+          "id": "l_unmeasured_needs_release",
+          "source": "str_unmeasured_return",
+          "target": "str_hollow_gate",
+          "function": "the gift practice needs release at need for the lower channels"
+        },
+        {
+          "id": "l_gate_sets_outflow",
+          "source": "str_hollow_gate",
+          "target": "eng_source",
+          "function": "the Gate's schedule sets the release from the high cistern"
+        },
+        {
+          "id": "l_gate_table_sets",
+          "source": "inst_gate_table",
+          "target": "str_hollow_gate",
+          "function": "rotating seats set the schedule from the gauge (Book 22)"
+        },
+        {
+          "id": "l_reading_separate_schedule",
+          "source": "inst_reading_hall",
+          "target": "inst_gate_table",
+          "function": "the Reading Hall publishes the gauge; the Table keeps no record"
+        },
+        {
+          "id": "l_declined_goes_wild",
+          "source": "str_declined_share",
+          "target": "str_lowfen_channel",
+          "function": "a declined share runs wild down the lowest Lowfen terrace"
+        },
+        {
+          "id": "l_longreturn_needs_hands",
+          "source": "str_long_return",
+          "target": "th_maintenance",
+          "function": "the pulse needs channel labour before its date"
+        },
+        {
+          "id": "l_longreturn_needs_gate",
+          "source": "str_long_return",
+          "target": "str_hollow_gate",
+          "function": "the pulse must be routed through the Gate"
+        },
+        {
+          "id": "l_compact_hands_in_kind",
+          "source": "inst_mill_compact",
+          "target": "th_maintenance",
+          "function": "under B, purchased draw owes grain-labour to the rebuild"
+        },
+        {
+          "id": "l_alt_a_decouples",
+          "source": "alt_a_reciprocal",
+          "target": "th_hands_and_draw",
+          "function": "decouples draw from hands; care counted, nothing owed"
+        },
+        {
+          "id": "l_alt_b_bounds",
+          "source": "alt_b_allotted",
+          "target": "th_hands_and_draw",
+          "function": "hands are owed by draw; a shortfall is a deficit, not a cut, in the window"
+        },
+        {
+          "id": "l_alt_c_normal_is_a",
+          "source": "alt_c_ratified_trigger",
+          "target": "alt_a_reciprocal",
+          "function": "normal seasons follow the noncoercive arrangement"
+        },
+        {
+          "id": "l_alt_c_triggers_b",
+          "source": "alt_c_ratified_trigger",
+          "target": "alt_b_allotted",
+          "function": "activates the allotted rule only at a ratified threshold"
+        },
+        {
+          "id": "l_b24_oldhand_refusal",
+          "source": "eng_old_hand",
+          "target": "str_b24_uncounted_crew",
+          "function": "'nothing counted' heard as 'nothing owed' drives the cohort's refusal of the tally"
+        },
+        {
+          "id": "l_b24_crew_maintenance",
+          "source": "str_b24_uncounted_crew",
+          "target": "th_maintenance",
+          "function": "the cohort gives uncounted return labour under lineage instruction"
+        },
+        {
+          "id": "l_b24_crew_gauge",
+          "source": "str_b24_uncounted_crew",
+          "target": "eng_source",
+          "function": "uncounted labour shows on the Balance Stones in aggregate, not by household"
+        },
+        {
+          "id": "l_b24_crew_conversion",
+          "source": "str_b24_uncounted_crew",
+          "target": "th_hands_and_draw",
+          "function": "uncounted hands cannot restore hand-light draw under the conversion"
+        },
+        {
+          "id": "l_b24_reading_hall_declines",
+          "source": "inst_reading_hall",
+          "target": "str_b24_uncounted_crew",
+          "function": "declines to attribute Balance Stones readings to named hands, which the Stones do not resolve"
+        },
+        {
+          "id": "l_b24_mark_right",
+          "source": "str_b24_capability_mark",
+          "target": "inst_lineage_crews",
+          "function": "meets the training condition for one review cycle, recording no hours or draw"
+        },
+        {
+          "id": "l_b24_mark_variable",
+          "source": "str_b24_capability_mark",
+          "target": "th_hands_and_draw",
+          "function": "bears on who can return labour; does not change who is counted for draw"
+        },
+        {
+          "id": "l_b24_mark_long_return",
+          "source": "str_b24_capability_mark",
+          "target": "str_long_return",
+          "function": "a public record of trained hands that any finale mechanism may use"
+        }
+      ],
+      "phases": [
+        {
+          "id": "ph_1_reckoned_water",
+          "title": "Reckoned Water",
+          "order": 1,
+          "scope": "books 1-5",
+          "genres": [
+            {
+              "genre": "gn_epic_fantasy",
+              "role": "governing"
+            },
+            {
+              "genre": "gn_mystery_discovery",
+              "role": "locally_dominant"
+            },
+            {
+              "genre": "gn_political_institutional",
+              "role": "supporting"
+            }
+          ],
+          "genre_activations": [
+            {
+              "genre_node_id": "gn_mystery_discovery",
+              "basic_emotions": [
+                "anger",
+                "surprise"
+              ],
+              "trope_functions": [
+                "the field that does not match the record"
+              ],
+              "structural_function": "a lower-terrace household finds falsified credit in the share-marks (Book 1), and the public record breaks the Hall's monopoly (Book 5)."
+            }
+          ],
+          "reader_experience": "wonder at the first hidden chamber under the spring; anger at falsified credit",
+          "aesthetic": null,
+          "narrative_function": "The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance.",
+          "transition": "Records open to public access, so shares become tradable and the spring shows its first recorded thinning.",
+          "parallel_with": []
+        },
+        {
+          "id": "ph_2_the_turn",
+          "title": "The Turn",
+          "order": 2,
+          "scope": "books 6-11",
+          "genres": [
+            {
+              "genre": "gn_political_institutional",
+              "role": "governing"
+            },
+            {
+              "genre": "gn_pastoral_belonging",
+              "role": "supporting"
+            },
+            {
+              "genre": "gn_mystery_discovery",
+              "role": "background"
+            },
+            {
+              "genre": "gn_epic_fantasy",
+              "role": "background"
+            }
+          ],
+          "genre_activations": [
+            {
+              "genre_node_id": "gn_political_institutional",
+              "basic_emotions": [
+                "anger",
+                "sadness"
+              ],
+              "trope_functions": [
+                "the compromise that feeds a new market"
+              ],
+              "structural_function": "Mill Compact purchases shares from freed households; draw separates from return and the high cistern thins (Book 6). The Turn is sworn and the Terrace Council forms, and the Council operates the Hollow Gate (Books 7-11)."
+            }
+          ],
+          "reader_experience": "belonging tested by sale; anger at a market in shares",
+          "aesthetic": null,
+          "narrative_function": "The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge.",
+          "transition": "Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.",
+          "parallel_with": []
+        },
+        {
+          "id": "ph_3_old_hand",
+          "title": "The Old Hand",
+          "order": 3,
+          "scope": "books 12-18",
+          "genres": [
+            {
+              "genre": "gn_mystery_discovery",
+              "role": "governing"
+            },
+            {
+              "genre": "gn_epic_fantasy",
+              "role": "supporting"
+            },
+            {
+              "genre": "gn_political_institutional",
+              "role": "supporting"
+            }
+          ],
+          "genre_activations": [
+            {
+              "genre_node_id": "gn_mystery_discovery",
+              "basic_emotions": [
+                "surprise",
+                "fear"
+              ],
+              "trope_functions": [
+                "the reading that reframes an earlier debt"
+              ],
+              "structural_function": "the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the Stone Hall remnant holds it as debt, the Council as gift, and the Compact as contract. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, which forces the stewardship tally to count care, not debt."
+            }
+          ],
+          "reader_experience": "wonder that the first compact was not a debt; fear of the surfeit",
+          "aesthetic": null,
+          "narrative_function": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings.",
+          "transition": "Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.",
+          "parallel_with": []
+        },
+        {
+          "id": "ph_4_settled_water",
+          "title": "Settled Water",
+          "order": 4,
+          "scope": "books 19-22",
+          "genres": [
+            {
+              "genre": "gn_pastoral_belonging",
+              "role": "governing"
+            },
+            {
+              "genre": "gn_political_institutional",
+              "role": "supporting"
+            },
+            {
+              "genre": "gn_epic_fantasy",
+              "role": "background"
+            }
+          ],
+          "genre_activations": [
+            {
+              "genre_node_id": "gn_pastoral_belonging",
+              "basic_emotions": [
+                "joy",
+                "sadness"
+              ],
+              "trope_functions": [
+                "generations on the same terraces",
+                "the shared gate"
+              ],
+              "structural_function": "Conflict A (Books 19-21): the Lowfen breaks and the few-hands share-holders cannot cover it. Lineage crews repair it for a Special Draw Right, draw is converted in proportion to unreturned hands, and one household declines and its share runs wild. Conflict B (Books 21-22): the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table is formed."
+            }
+          ],
+          "reader_experience": "warmth of shared repair; the cost of counting",
+          "aesthetic": null,
+          "narrative_function": "Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record.",
+          "transition": "Water is partly earned by hands. The Gate Table, the Special Draw Right and an ambiguous tally pass to the next generation.",
+          "parallel_with": []
+        },
+        {
+          "id": "ph_5_unmeasured",
+          "title": "Unmeasured",
+          "order": 5,
+          "scope": "books 23-30",
+          "genres": [
+            {
+              "genre": "gn_epic_fantasy",
+              "role": "governing"
+            },
+            {
+              "genre": "gn_pastoral_belonging",
+              "role": "supporting"
+            },
+            {
+              "genre": "gn_political_institutional",
+              "role": "supporting"
+            },
+            {
+              "genre": "gn_mystery_discovery",
+              "role": "background"
+            }
+          ],
+          "genre_activations": [
+            {
+              "genre_node_id": "gn_epic_fantasy",
+              "basic_emotions": [
+                "surprise",
+                "joy",
+                "fear"
+              ],
+              "trope_functions": [
+                "the hidden order answers the people who keep it"
+              ],
+              "structural_function": "Book 23: the Brightwater generation inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30: the Long Return's pulse needs channel labour and a routing through the Gate. The valley chooses among Alternatives A, B and C for who gives labour and who is counted for it."
+            }
+          ],
+          "reader_experience": "hope that is earned by cost; wonder at the deepest chamber",
+          "aesthetic": null,
+          "narrative_function": "The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with grain-labour from the Compact. C is a ratified trigger that activates B's rule only when a published threshold is crossed. The original's three options map onto these: the single measured Turn is B without its guards, and the Compact's settlement is a clause of B or C. The original's outcome is closest to A; its share-plot settlement is committed there; open here. No option restores the Stone Hall's sole custody.",
+          "transition": "The series closes locally. A shared practice and the long-range questions continue.",
+          "parallel_with": []
+        }
+      ],
+      "open_questions": [
+        "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.",
+        "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+        "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+        "Does the shared accounting of care bind, and in what form? Not decided.",
+        "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+        "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+        "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.",
+        "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+        "Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided.",
+        "How many Brightwater shares may be drawn before the Balance Stones restrain them?",
+        "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+        "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+        "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.",
+        "What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it."
+      ],
+      "emotion_targets": [
+        {
+          "id": "et_wonder",
+          "emotion": "surprise",
+          "role": "primary",
+          "intended_effect": "a sense that the valley's order is larger and more responsive than anyone assumed",
+          "eliciting_condition": "the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)",
+          "aesthetic_strategy": "concrete cold, light and sound; scale that reveals itself in steps",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_belonging",
+          "emotion": "joy",
+          "role": "primary",
+          "intended_effect": "warmth of shared labour and meals at the turn",
+          "eliciting_condition": "return work completed together by people who have few reasons to trust one another",
+          "aesthetic_strategy": "ordinary detail and repeated ritual that changes slightly each season",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_hope",
+          "emotion": "joy",
+          "role": "supporting",
+          "intended_effect": "a sense that a shared practice can outlast the institution that began it",
+          "eliciting_condition": "the unmeasured return that works in Book 15, the Gate Table's first season in Book 22, and the Long Return's pulse routed through channels the valley rebuilt",
+          "aesthetic_strategy": "earned rather than announced; the cost stays visible",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_grief_of_orders",
+          "emotion": "sadness",
+          "role": "supporting",
+          "intended_effect": "loss of a structure that gave some people certainty, with dignity for the losing party",
+          "eliciting_condition": "the Stone Hall's fall in Book 5 and Keeper Corrow's dissent",
+          "aesthetic_strategy": "give the losers reasons that are coherent from their side",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_anger_at_hidden_credit",
+          "emotion": "anger",
+          "role": "supporting",
+          "intended_effect": "outrage at credit falsified against the powerless",
+          "eliciting_condition": "the falsified lower-terrace share in Book 1",
+          "aesthetic_strategy": "specific, documented injustice rather than abstract villainy",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_fear_of_wild_water",
+          "emotion": "fear",
+          "role": "local",
+          "intended_effect": "dread of water that is not kept",
+          "eliciting_condition": "lower terraces running wild in Book 1, a household's declined share in Book 21, and the Long Return's routed pulse",
+          "aesthetic_strategy": "physical sensation with short, plain sentences",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_cost_of_counting",
+          "emotion": "sadness",
+          "role": "supporting",
+          "intended_effect": "grief that a household's water is cut for hands it cannot return, with dignity for the family",
+          "eliciting_condition": "the hands-to-draw conversion adopted in Book 20 and a household's declined share in Book 21",
+          "aesthetic_strategy": "one named household and one season, rendered with its own reasons",
+          "provenance": "agent_proposed"
+        },
+        {
+          "id": "et_b24_seen_by_water",
+          "emotion": "surprise",
+          "role": "local",
+          "intended_effect": "quiet wonder that the water registers labour no ledger recorded",
+          "eliciting_condition": "the public gauge showing the uncounted crew's return after the Book 24 thaw, beside the cost of the silted section",
+          "aesthetic_strategy": "a small public reading of the gauge, rendered plainly, with the cost in the same scene",
+          "provenance": "agent_proposed"
+        }
+      ],
+      "complex_emotions": [
+        {
+          "id": "ce_awe_of_source",
+          "title": "Awe at the spring",
+          "basic_emotions": [
+            "surprise",
+            "joy"
+          ],
+          "context": "wonder that turns into care rather than fear"
+        },
+        {
+          "id": "ce_bittersweet_return",
+          "title": "Bittersweet return",
+          "basic_emotions": [
+            "sadness",
+            "joy"
+          ],
+          "context": "a practice honoured after the institution that held it has fallen"
+        }
+      ],
+      "genre_contracts": [
+        {
+          "genre_node_id": "gn_epic_fantasy",
+          "role": "governing",
+          "emotion_target_ids": [
+            "et_wonder",
+            "et_hope"
+          ],
+          "complex_emotion_ids": [
+            "ce_awe_of_source"
+          ],
+          "trope_functions": [
+            "a hidden order beneath a familiar valley",
+            "the keepers' authority reversed by public reading"
+          ],
+          "narrative_engine": "the quest is to understand a physical commons that answers choices, not to defeat a rival power",
+          "structural_pattern": "five macro arcs, each ending in a changed governing engine",
+          "aesthetic_strategies": [
+            "sensory discovery of cold water and stone",
+            "scale moves from terrace to valley to lowland"
+          ],
+          "payoff_expectations": [
+            "the First Stones read in stages, completed in Book 15",
+            "the Long Return's pulse routed through channels the valley rebuilt and chose how to route"
+          ]
+        },
+        {
+          "genre_node_id": "gn_pastoral_belonging",
+          "role": "supporting",
+          "emotion_target_ids": [
+            "et_belonging",
+            "et_grief_of_orders",
+            "et_cost_of_counting"
+          ],
+          "complex_emotion_ids": [
+            "ce_bittersweet_return"
+          ],
+          "trope_functions": [
+            "the shared turn as ritual of inclusion",
+            "generations on the same terraces",
+            "the shared gate"
+          ],
+          "narrative_engine": "belonging is produced by return labour and eroded by unshared draw",
+          "structural_pattern": "seasonal recurrence with changing participants",
+          "aesthetic_strategies": [
+            "ordinary work rendered with care"
+          ],
+          "payoff_expectations": [
+            "the first Turn of Book 6 is still practised, changed, in Book 30",
+            "a household's care is counted without being owed under A, or owed within a bounded window under B"
+          ]
+        },
+        {
+          "genre_node_id": "gn_political_institutional",
+          "role": "supporting",
+          "emotion_target_ids": [
+            "et_anger_at_hidden_credit",
+            "et_grief_of_orders"
+          ],
+          "complex_emotion_ids": [],
+          "trope_functions": [
+            "the falsified record",
+            "the compromise that feeds a new monopoly"
+          ],
+          "narrative_engine": "institutions compete for legitimacy over who may keep and read the record, and over who sets the Gate schedule",
+          "structural_pattern": "arcs alternate between custody disputes and distribution disputes",
+          "aesthetic_strategies": [
+            "procedure rendered as drama"
+          ],
+          "payoff_expectations": [
+            "the Stone Hall's monopoly of the record ends in Book 5",
+            "in Book 30 no single institution holds the record, and no single body holds both the record and the Gate schedule"
+          ]
+        },
+        {
+          "genre_node_id": "gn_mystery_discovery",
+          "role": "tertiary",
+          "emotion_target_ids": [
+            "et_wonder",
+            "et_fear_of_wild_water"
+          ],
+          "complex_emotion_ids": [],
+          "trope_functions": [
+            "the field that does not match the record"
+          ],
+          "narrative_engine": "partial knowledge of the record and the spring changes choices",
+          "structural_pattern": "readings are staged so discovery advances by Book",
+          "aesthetic_strategies": [
+            "evidence carried by physical traces"
+          ],
+          "payoff_expectations": [
+            "the gift reading in Book 15 reframes the Book 1 debt"
+          ]
+        }
+      ],
+      "genre_interactions": [
+        {
+          "id": "gi_epic_political_tension",
+          "source_genre_id": "gn_epic_fantasy",
+          "target_genre_id": "gn_political_institutional",
+          "kind": "creates_tension",
+          "mechanism": "the quest to understand the spring becomes a dispute over who may read it; victory brings contention",
+          "risk": "epic reduced to civics procedure"
+        },
+        {
+          "id": "gi_political_pastoral_constrains",
+          "source_genre_id": "gn_political_institutional",
+          "target_genre_id": "gn_pastoral_belonging",
+          "kind": "constrains",
+          "mechanism": "share markets and maintenance duties limit how belonging can be expressed",
+          "risk": "belonging becomes a labour rota"
+        },
+        {
+          "id": "gi_mystery_epic_enables",
+          "source_genre_id": "gn_mystery_discovery",
+          "target_genre_id": "gn_epic_fantasy",
+          "kind": "enables",
+          "mechanism": "partial readings of the First Stones let the quest advance at a local pace",
+          "risk": "readings postponed into a withheld revelation"
+        },
+        {
+          "id": "gi_pastoral_mystery_reinforces",
+          "source_genre_id": "gn_pastoral_belonging",
+          "target_genre_id": "gn_mystery_discovery",
+          "kind": "reinforces",
+          "mechanism": "maintenance lineages hold the knowledge needed to read the stones",
+          "risk": "knowledge hardens into hereditary privilege"
+        },
+        {
+          "id": "gi_pastoral_political_gate",
+          "source_genre_id": "gn_pastoral_belonging",
+          "target_genre_id": "gn_political_institutional",
+          "kind": "creates_tension",
+          "mechanism": "two proven practices at one Gate force the question of whose practice sets the schedule",
+          "risk": "the Gate Table becomes a seat of power"
+        }
+      ]
+    },
+    "design_guidance_sha256": "bd5bf1c7e075936ed39818a9fc9fc196380ea9ecbd5aae479b5fd3ba9967f71c",
+    "authority": "working_architecture_comparison_not_story_impact",
+    "requested_change": "Book 24 revision, final correction: the public gauge is the Book 23 Balance Stones; all Book 24 references corrected per critique. Add the Book 24 function as Book-scoped nodes, links and one agent-proposed emotion target, keeping every existing element unchanged.",
+    "changes": {
+      "nodes": {
+        "added": [
+          "str_b24_capability_mark",
+          "str_b24_uncounted_crew"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "links": {
+        "added": [
+          "l_b24_crew_conversion",
+          "l_b24_crew_gauge",
+          "l_b24_crew_maintenance",
+          "l_b24_mark_long_return",
+          "l_b24_mark_right",
+          "l_b24_mark_variable",
+          "l_b24_oldhand_refusal",
+          "l_b24_reading_hall_declines"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "phases": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "emotion_targets": {
+        "added": [
+          "et_b24_seen_by_water"
+        ],
+        "removed": [],
+        "changed": []
+      },
+      "complex_emotions": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "genre_contracts": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "genre_interactions": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "summary_changed": true,
+      "note": "Working architecture proposal only. Accepted Identity, Structure, Book, relations and prose remain unchanged. Any real downstream impact needs the existing source-backed impact/revision workflows."
+    },
+    "changed_components": [
+      {
+        "kind": "summary",
+        "id": "summary",
+        "title": "Governing summary",
+        "change": "changed",
+        "before": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+        "after": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate. Revision (agent-proposed, not author-approved): Book 24 is given a function as Book-scoped nodes, because the schema has no Book node and the Arc V phase narrative is at its 1000-character cap. The Brightwater cohort meets the Long Return's labour gap by working uncounted under lineage instruction, and the Special Draw Right's training condition is met for one review cycle by a public capability record. No finale alternative and no author-reserved choice is decided.",
+        "changed_fields": [
+          "summary"
+        ]
+      },
+      {
+        "kind": "node",
+        "id": "str_b24_capability_mark",
+        "title": "Capability mark (agent-proposed, Book 24)",
+        "change": "added",
+        "before": "(not present)",
+        "after": "Agent-proposed record form. When a lineage hand judges that an apprentice can perform a named repair, teacher and learner each cut a mark on the channel stone where it was done. It records capability and place, not hours, debt or draw, and no institution holds it. It echoes Book 1's share-marks read as evidence and Book 22's separation of schedule from record. The Council accepts it as meeting the Special Draw Right's training condition for one review cycle only; this does not decide whether the Right is revocable or permanent or its final condition. Its cost: it restores no draw, so the uncounted crew's hand-light households stay cut. Later pressure: such marks can be falsified or favoured. Any finale mechanism may use it (pair-hands under A, rota assignment under B, the pre-drawn panel under C) without it choosing among them.",
+        "changed_fields": []
+      },
+      {
+        "kind": "node",
+        "id": "str_b24_uncounted_crew",
+        "title": "Book 24: the uncounted crew (agent-proposed)",
+        "change": "added",
+        "before": "(not present)",
+        "after": "Agent-proposed Book 24 function. Question: can a generation that refuses to be counted learn to give back the water before it is owed? Condition: the Balance Stones have published the Long Return's date (Book 23); the Special Draw Right is conditional on training outside apprentices (Book 20) and comes up for review (agent-proposed); the Brightwater cohort believes abundance needs no work, hearing the gift reading's 'nothing counted' as 'nothing owed'. Choice: asked to enter the stewardship tally as apprentices, the cohort refuses; Hesper Sallow forms a crew that learns and works the Lowfen thaw upkeep uncounted under Ysa Trant's instruction. Consequence: the Balance Stones show the return in aggregate but not by household; one badly laid section silts and costs a hand-light household a season, showing that gift without skill fails. The Council offers to count the crew retroactively, which would restore hand-light draw through the conversion. Hesper chooses a capability record instead (str_b24_capability_mark); several crewmates choose to be counted for their families. Changed state: the cohort splits into counted and uncounted practice; the conversion's blind spot (it credits counted hands only) is public; the Reading Hall declines to attribute Balance Stones readings to named hands; the Stone Hall remnant's offer to keep the register is declined; the Mill Compact's offer of hired lowland labour stands unanswered (settlement author-reserved). The labour gap narrows and is not closed. Does not depend on the Hollow Gate or Gate Table.",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_crew_conversion",
+        "title": "str_b24_uncounted_crew -> th_hands_and_draw",
+        "change": "added",
+        "before": "(not present)",
+        "after": "uncounted hands cannot restore hand-light draw under the conversion",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_crew_gauge",
+        "title": "str_b24_uncounted_crew -> eng_source",
+        "change": "added",
+        "before": "(not present)",
+        "after": "uncounted labour shows on the Balance Stones in aggregate, not by household",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_crew_maintenance",
+        "title": "str_b24_uncounted_crew -> th_maintenance",
+        "change": "added",
+        "before": "(not present)",
+        "after": "the cohort gives uncounted return labour under lineage instruction",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_mark_long_return",
+        "title": "str_b24_capability_mark -> str_long_return",
+        "change": "added",
+        "before": "(not present)",
+        "after": "a public record of trained hands that any finale mechanism may use",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_mark_right",
+        "title": "str_b24_capability_mark -> inst_lineage_crews",
+        "change": "added",
+        "before": "(not present)",
+        "after": "meets the training condition for one review cycle, recording no hours or draw",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_mark_variable",
+        "title": "str_b24_capability_mark -> th_hands_and_draw",
+        "change": "added",
+        "before": "(not present)",
+        "after": "bears on who can return labour; does not change who is counted for draw",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_oldhand_refusal",
+        "title": "eng_old_hand -> str_b24_uncounted_crew",
+        "change": "added",
+        "before": "(not present)",
+        "after": "'nothing counted' heard as 'nothing owed' drives the cohort's refusal of the tally",
+        "changed_fields": []
+      },
+      {
+        "kind": "link",
+        "id": "l_b24_reading_hall_declines",
+        "title": "inst_reading_hall -> str_b24_uncounted_crew",
+        "change": "added",
+        "before": "(not present)",
+        "after": "declines to attribute Balance Stones readings to named hands, which the Stones do not resolve",
+        "changed_fields": []
+      },
+      {
+        "kind": "emotion_target",
+        "id": "et_b24_seen_by_water",
+        "title": "surprise · local",
+        "change": "added",
+        "before": "(not present)",
+        "after": "quiet wonder that the water registers labour no ledger recorded | Elicited by: the public gauge showing the uncounted crew's return after the Book 24 thaw, beside the cost of the silted section",
+        "changed_fields": []
+      }
+    ],
+    "preserved": {
+      "ids": {
+        "nodes": [
+          "alt_a_reciprocal",
+          "alt_b_allotted",
+          "alt_c_ratified_trigger",
+          "eng_ledger",
+          "eng_old_hand",
+          "eng_source",
+          "gn_epic_fantasy",
+          "gn_mystery_discovery",
+          "gn_pastoral_belonging",
+          "gn_political_institutional",
+          "inst_gate_table",
+          "inst_lineage_crews",
+          "inst_mill_compact",
+          "inst_reading_hall",
+          "inst_stone_hall",
+          "inst_terrace_council",
+          "rx_belonging",
+          "rx_consequence",
+          "rx_hope",
+          "rx_wonder",
+          "str_declined_share",
+          "str_hollow_gate",
+          "str_long_return",
+          "str_lowfen_channel",
+          "str_measured_turn",
+          "str_seasonal_turn",
+          "str_unmeasured_return",
+          "th_core_question",
+          "th_custody",
+          "th_hands_and_draw",
+          "th_maintenance",
+          "th_reading"
+        ],
+        "links": [
+          "l_alt_a_decouples",
+          "l_alt_b_bounds",
+          "l_alt_c_normal_is_a",
+          "l_alt_c_triggers_b",
+          "l_compact_hands_in_kind",
+          "l_conversion_sets_draw",
+          "l_council_legitimises_gift",
+          "l_custody_grants_hall",
+          "l_declined_goes_wild",
+          "l_gate_sets_outflow",
+          "l_gate_table_sets",
+          "l_hall_custody_credit",
+          "l_ledger_consequence",
+          "l_ledger_draws_source",
+          "l_ledger_opens_trade",
+          "l_lineage_carries_repair",
+          "l_lineage_right_on_draw",
+          "l_longreturn_needs_gate",
+          "l_longreturn_needs_hands",
+          "l_lowfen_needs_hands",
+          "l_maintenance_balances_source",
+          "l_measured_holds_gate",
+          "l_oldhand_redefines_share",
+          "l_oldhand_reframes_core",
+          "l_reading_decides_binding",
+          "l_reading_hall_reads",
+          "l_reading_separate_schedule",
+          "l_source_forces_council",
+          "l_source_limits_ledger",
+          "l_source_wonder",
+          "l_tally_counts_hands",
+          "l_trade_draws_without_return",
+          "l_turn_belonging",
+          "l_unmeasured_needs_release"
+        ],
+        "phases": [
+          "ph_1_reckoned_water",
+          "ph_2_the_turn",
+          "ph_3_old_hand",
+          "ph_4_settled_water",
+          "ph_5_unmeasured"
+        ],
+        "emotion_targets": [
+          "et_anger_at_hidden_credit",
+          "et_belonging",
+          "et_cost_of_counting",
+          "et_fear_of_wild_water",
+          "et_grief_of_orders",
+          "et_hope",
+          "et_wonder"
+        ],
+        "complex_emotions": [
+          "ce_awe_of_source",
+          "ce_bittersweet_return"
+        ],
+        "genre_contracts": [
+          "gn_epic_fantasy",
+          "gn_mystery_discovery",
+          "gn_pastoral_belonging",
+          "gn_political_institutional"
+        ],
+        "genre_interactions": [
+          "gi_epic_political_tension",
+          "gi_mystery_epic_enables",
+          "gi_pastoral_mystery_reinforces",
+          "gi_pastoral_political_gate",
+          "gi_political_pastoral_constrains"
+        ]
+      },
+      "counts": {
+        "nodes": 32,
+        "links": 34,
+        "phases": 5,
+        "emotion_targets": 7,
+        "complex_emotions": 2,
+        "genre_contracts": 4,
+        "genre_interactions": 5
+      },
+      "author_declared_emotion_targets": [],
+      "author_declared_emotion_changes": [],
+      "accepted_constraints": [],
+      "accepted_not_this": []
+    },
+    "proposed_rationale": {
+      "status": "provided",
+      "source": "candidate.summary",
+      "text": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate. Revision (agent-proposed, not author-approved): Book 24 is given a function as Book-scoped nodes, because the schema has no Book node and the Arc V phase narrative is at its 1000-character cap. The Brightwater cohort meets the Long Return's labour gap by working uncounted under lineage instruction, and the Special Draw Right's training condition is met for one review cycle by a public capability record. No finale alternative and no author-reserved choice is decided."
+    },
+    "note": "This is a review of a noncanonical working proposal. It does not change accepted Identity, Structure, Realization, Expression or shared ontology.",
+    "prior_request_sha256": "0bcfee8625d51e6bf63f22ca30af19bda8d09c7b4ad775d83e3c8ed482565c23"
+  }
+}
