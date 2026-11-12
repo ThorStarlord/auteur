@@ -89,3 +89,28 @@ These restrictions keep an architecture-only proposal to mechanisms, so that inv
 - `record-concept --concept <file.json>` records one provisional concept. Its `status` must be `provisional`. It is working material, not shared ontology.
 - `keep-intention --title <text> --directive-file <file>` records an author-directed intention. Use it only for a directive the author has given. Do not invent intentions. `set-intention-status` is an author action.
 - `intentions` lists the author's intentions and their status.
+
+## Working Book architecture (develop and resume)
+
+A Working Book Architecture holds one Book's detailed function. It references the canvas's working Series architecture and never writes it, accepted Identity, or accepted Book Direction. Its records live under `architecture/books/<n>/` in the canvas. This section covers develop and resume. Revision, withdrawal and apply are not available yet.
+
+    PYTHONPATH=<repo>/src PYTHONUTF8=1 python -m auteur.series.working_book_architecture --project <project> --canvas <canvas> <action> --book <n> [--candidate FILE]
+
+1. **Prepare.** `book-prepare --book <n>` opens a develop request. It needs a current Series working architecture and at least one working item in group `book-<n>` (the Book's source). The request carries the full text of that source, the Story Vision, the creative intentions, and the Series architecture with its open questions indexed and hashed.
+2. **Complete.** `book-complete-file --book <n> --candidate <file.json>` validates one schema-v1 JSON object against the pending request and stores it. Every reference must resolve against the Series revision the request was built on. An open-question reference carries the question's index and the SHA-256 of its text. The command never accepts anything.
+3. **Resume.** `book-resume --book <n>` is read-only. It returns the freshness status, the Series constraints the Book references, the exports (consequences, possibilities, assumptions with reversals, alternatives by title), the open author decisions, the unresolved items, and the stored artifact.
+
+Refusals:
+
+| Message begins with | Meaning |
+|---|---|
+| `develop and complete the Series working architecture first` | No current Series architecture. Develop it through the Studio lifecycle first. |
+| `record Book <n>'s source` | No working item in group `book-<n>`. |
+| `Book <n> already has a working architecture` | Revision is not available in this increment. |
+| `the Series architecture or the Book's source changed after this request` | The request is stale. The response is kept as `stale_response.json` as evidence. Prepare again. |
+| `provenance '<value>' cannot be written by an agent` | `author_fixed`, `accepted` and `unlabelled` are never valid in an agent's response. |
+| `<kind> reference '<id>' does not resolve` | A reference names something absent from the Series revision, the artifact, or the visible source. |
+
+Provenance inside the Book: `derived` (based on the cited source), `agent_proposed` (the agent's reversible inference), `hypothetical` (considered and not taken), `unresolved` (the source gives no information or no attribution). An `agent_proposed` assumption must state a reversal. If the source gives none, record the assumption as `unresolved` with no reversal rather than inventing one.
+
+Named agents need a `name_source` that is a visible source item or a Series node. Names that appear only in prose are not structured as named agents; record them as an unresolved item instead.
