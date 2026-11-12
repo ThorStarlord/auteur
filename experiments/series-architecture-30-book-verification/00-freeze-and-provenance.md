@@ -62,3 +62,4 @@ The construction files at `aaae0eaa` match the recorded hashes, so the artifacts
 
 - The packets renumber the source files. Internal links in the causal construction still point at the original names (`02-finale-alternatives.md`, `05-consistency-record.md`), so some cross-references in the packet are stale. Stage A's reviewer noticed this and read the references as pointing to the renumbered files. Nothing in the content depends on the links.
 - The packet files were built from committed source content (`git show aaae0eaa:…`) and written with LF line endings. Their hashes are the packet's own hashes, not the source files'.
+- `evidence/manifest.json` hashes the bytes of the files as they stood in the working copy, which uses CRLF line endings on this Windows machine. Git stores these files with LF, so the committed blobs hash differently. To verify a manifest entry, compare against the working copy, or normalise line endings before hashing.
