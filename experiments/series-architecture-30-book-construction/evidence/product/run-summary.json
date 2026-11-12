@@ -1,0 +1,116 @@
+{
+  "w1-construction-revision": {
+    "status": "review_ready",
+    "request_sha256": "ced4cf554eb707318f2f9eede0c59378e4f59943564616ab97017c581b064afd",
+    "prior_request_sha256": "99fa8d572e9716e7b491f2b8a7ef32ec61bff05c2eabb35d2c0263991b4c76ab",
+    "changed_components": 58,
+    "changed_by_kind": {
+      "summary": 1,
+      "node": 24,
+      "link": 18,
+      "phase": 5,
+      "emotion_target": 6,
+      "genre_contract": 3,
+      "genre_interaction": 1
+    },
+    "preserved_by_kind": {
+      "nodes": 8,
+      "links": 16,
+      "phases": 0,
+      "emotion_targets": 1,
+      "complex_emotions": 2,
+      "genre_contracts": 1,
+      "genre_interactions": 4
+    },
+    "proposed_rationale_source": "candidate.summary"
+  },
+  "w2-construction-revision": {
+    "status": "review_ready",
+    "request_sha256": "4da24905839011546905809432335c625892cefab3918d72ff89bc3937d8318d",
+    "prior_request_sha256": "ced4cf554eb707318f2f9eede0c59378e4f59943564616ab97017c581b064afd",
+    "changed_components": 8,
+    "changed_by_kind": {
+      "summary": 1,
+      "node": 4,
+      "link": 2,
+      "genre_contract": 1
+    },
+    "preserved_by_kind": {
+      "nodes": 28,
+      "links": 32,
+      "phases": 5,
+      "emotion_targets": 7,
+      "complex_emotions": 2,
+      "genre_contracts": 3,
+      "genre_interactions": 5
+    },
+    "proposed_rationale_source": "candidate.summary"
+  },
+  "h1-v1-revision-from-w1": {
+    "status": "review_ready",
+    "request_sha256": "4cf7edd603607af107b0523ccd7538750142683a271dbde5ce0a57d9b696f90e",
+    "prior_request_sha256": "fda32b2e224f1115218aa5cf0edf3f133f669dea6059b424f924fc65210d1fc3",
+    "changed_components": 15,
+    "changed_by_kind": {
+      "summary": 1,
+      "node": 4,
+      "link": 3,
+      "phase": 4,
+      "emotion_target": 1,
+      "complex_emotion": 1,
+      "genre_contract": 1
+    },
+    "preserved_by_kind": {
+      "nodes": 29,
+      "links": 34,
+      "phases": 1,
+      "emotion_targets": 6,
+      "complex_emotions": 1,
+      "genre_contracts": 3,
+      "genre_interactions": 5
+    },
+    "proposed_rationale_source": "candidate.summary"
+  },
+  "h1-final-revision-from-w2": {
+    "status": "review_ready",
+    "request_sha256": "3cde1775c86f4c4605343bcd5e33914678de55ab226a8901271780d7f78596e3",
+    "prior_request_sha256": "19a7e9b695c0e38e3ac2d727f3295975db28f26e9f1904cf8ab181c2dc46c00f",
+    "changed_components": 17,
+    "changed_by_kind": {
+      "summary": 1,
+      "node": 5,
+      "link": 4,
+      "phase": 4,
+      "emotion_target": 1,
+      "complex_emotion": 1,
+      "genre_contract": 1
+    },
+    "preserved_by_kind": {
+      "nodes": 28,
+      "links": 33,
+      "phases": 1,
+      "emotion_targets": 6,
+      "complex_emotions": 1,
+      "genre_contracts": 3,
+      "genre_interactions": 5
+    },
+    "proposed_rationale_source": "candidate.summary"
+  },
+  "w1-run-baseline": {
+    "status": "ready"
+  },
+  "h1v1-run-baseline": {
+    "status": "ready"
+  },
+  "h1final-run-baseline": {
+    "status": "ready"
+  },
+  "blindtest-run-baseline": {
+    "status": "ready"
+  },
+  "blindtest-revision": {
+    "status": "refused by complete-file: genre_contracts.3.role 'background' is not a GenreContract role (governing|supporting|tertiary|local)",
+    "response": "evidence/blindtest/blind-host-response-raw.json",
+    "diagnostic_only": "one enum value (background -> tertiary) corrected in a scratch copy for content reading; not submitted, not applied"
+  }
+}

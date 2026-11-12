@@ -1,0 +1,229 @@
+{
+  "schema_version": 2,
+  "summary": "The Spring Ledger (working, noncanonical), revised for hypothetical counterfactual H1 (author-proposed, not an accepted amendment). In Book 5 Keeper Anselm Corrow, head of the Stone Hall, opens the sealed record as a self-protective reform against the spring's thinning; a lower-terrace household's evidence forces the timing; the Hall is reformed rather than dissolved, its committee keeps the debt reading, and Dorran carries the reform outward as messenger without defecting. The three co-governing engines (Ledger, Source, Old Hand) and the five macro arcs (Reckoned Water 1-5, The Turn 6-11, The Old Hand 12-18, Settled Water 19-22, Unmeasured 23-30) are kept. The rotating governing role is an agent proposal; the author has declared no engine hierarchy, so it remains UNKNOWN. The Stone Hall is now a reforming actor rather than a remnant: thinning presses it, household evidence sets the reform's timing, the reform opens the Ledger and writes its recording rules, the committee's debt reading gives the Mill Compact debts to buy and sets whose return labour is owed, and the Book 15 gift reading reframes the debt the committee has held since Book 5. Preserved unchanged: the fixed brief, the ledger-source, old-hand-ledger-source and openness-trade-source loops, the Arc II trade mechanism, the Book 15 gift reading, and the wonder, belonging, hope and fear targets, each checked for semantic validity under H1. Revised: the Arc I phase, the Ledger and Stone Hall nodes, the custody thread, the anger and grief targets, the political-institutional contract, and the Arc II and III phases. Provisional agent defaults, not author decisions: the reform ends sole custody without by itself repaying the falsified share; the reform is self-protective rather than repentant; the committee's debt reading is one reading among several, not a monopoly. The mystery genre contract role 'tertiary' was normalised to 'background' to match the genre role vocabulary. Witness-led repair R-A is named in the revision instruction but its text is not in the request file; it is applied only as the lower-terrace household's evidence serving as the checkable witness that sets the reform's timing, and the coordinator should verify it against the review. Nothing here is accepted Identity, Structure or Book canon.",
+  "nodes": [
+    {"id": "th_core_question", "title": "Central question", "category": "theme", "summary": "Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is.", "scope": "whole_story", "parent_id": null},
+    {"id": "th_custody", "title": "Custody of the record", "category": "thread", "summary": "Who holds the Ledger and on whose authority. Sealed hereditary custody is the Stone Hall's source of legitimacy until its own Book 5 reform opens the record; afterwards custody is contested among the reformed committee and the institutions that later form, and no single house holds it alone.", "scope": "whole_story", "parent_id": null},
+    {"id": "th_maintenance", "title": "Keeping the channels", "category": "thread", "summary": "Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands.", "scope": "whole_story", "parent_id": null},
+    {"id": "th_reading", "title": "Reading the First Stones", "category": "thread", "summary": "Who may read the oldest script and which reading becomes binding. Partial readings are scheduled in Books 1, 8 and 12; the full reading is Book 15. From Book 5 the reformed committee's debt reading is one of the readings in contention.", "scope": "whole_story", "parent_id": null},
+    {"id": "eng_ledger", "title": "Ledger engine", "category": "engine", "summary": "Recorded shares set the draw. Credit can be falsified or favoured under sealed custody (Book 1); the Stone Hall's own reform opens the record and sets how shares are recorded (Book 5), timed by household evidence; shares are traded (Book 6) and re-read as gift or contract (Book 15). Each change alters who must return labour.", "scope": "whole_story", "parent_id": null},
+    {"id": "eng_source", "title": "Source engine (physical commons)", "category": "engine", "summary": "The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention, and it constrains which recorded shares can honestly be honoured.", "scope": "whole_story", "parent_id": null},
+    {"id": "eng_old_hand", "title": "Old Hand engine (interpretive legitimacy)", "category": "engine", "summary": "Readings of the First Stones change what a share is: debt (the reformed Stone Hall committee, from Book 5), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.", "scope": "whole_story", "parent_id": null},
+    {"id": "str_seasonal_turn", "title": "The seasonal turn", "category": "structure", "summary": "The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.", "scope": "whole_story", "parent_id": null},
+    {"id": "rx_wonder", "title": "Wonder at a responsive order", "category": "reader_experience", "summary": "The reader's sense that the valley's order is larger and more responsive than any institution assumed.", "scope": "whole_story", "parent_id": null},
+    {"id": "rx_belonging", "title": "Everyday belonging", "category": "reader_experience", "summary": "The warmth of shared labour and meals, which the series must keep specific across generations.", "scope": "whole_story", "parent_id": null},
+    {"id": "rx_consequence", "title": "Consequential loss", "category": "reader_experience", "summary": "Grief and anger that follow from changed standing: the once-credited Hall keeps its standing only by surrendering sole custody, and those once uncounted gain standing.", "scope": "whole_story", "parent_id": null},
+    {"id": "rx_hope", "title": "Hopeful flourishing", "category": "reader_experience", "summary": "The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.", "scope": "whole_story", "parent_id": null},
+    {"id": "inst_stone_hall", "title": "Stone Hall (Reckoners), reformed in Book 5", "category": "other", "summary": "Hereditary keepers of the Ledger, acting from their own agency. Under Keeper Anselm Corrow the Hall opens its sealed record in Book 5 as a self-protective reform against the spring's thinning, not as repentance. The Hall is reformed rather than dissolved, and its committee keeps the debt reading. Dorran carries the reform outward as messenger and does not defect, so the Hall stays continuous rather than splitting into a remnant. Typed as other because v2 has no institution category.", "scope": "whole_story", "parent_id": null},
+    {"id": "inst_terrace_council", "title": "Terrace Council", "category": "other", "summary": "Formed in Book 6 from families who take the Turn. Holds maintenance decisions and argues for gift-return against the committee's debt reading. Acts from its own agency.", "scope": "whole_story", "parent_id": null},
+    {"id": "inst_mill_compact", "title": "Mill Compact", "category": "other", "summary": "Lowland grain-buyers who purchase shares once records open. They buy under the committee's debt reading and read the same shares as contract, pursuing contract-debt and trade interests from outside the valley. Acts from its own agency.", "scope": "whole_story", "parent_id": null},
+    {"id": "inst_reading_hall", "title": "Reading Hall", "category": "other", "summary": "Founded after the full reading in Book 15 to make the First Stones publicly readable. Its rival readings sustain the Old Hand engine.", "scope": "whole_story", "parent_id": null},
+    {"id": "gn_epic_fantasy", "title": "Epic fantasy", "category": "genre", "summary": "Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.", "scope": "whole_story", "parent_id": null},
+    {"id": "gn_pastoral_belonging", "title": "Pastoral belonging", "category": "genre", "summary": "Supporting genre: belonging produced by shared return labour and eroded by unshared draw.", "scope": "whole_story", "parent_id": null},
+    {"id": "gn_political_institutional", "title": "Political-institutional", "category": "genre", "summary": "Supporting genre: institutions compete for legitimacy over custody, distribution and reading of the record. Governs Arc 2 at phase level.", "scope": "whole_story", "parent_id": null},
+    {"id": "gn_mystery_discovery", "title": "Mystery and discovery", "category": "genre", "summary": "Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.", "scope": "whole_story", "parent_id": null}
+  ],
+  "links": [
+    {"id": "l_ledger_draws_source", "source": "eng_ledger", "target": "eng_source", "function": "recorded shares set the draw on the spring"},
+    {"id": "l_source_limits_ledger", "source": "eng_source", "target": "eng_ledger", "function": "the spring balance decides which shares can honestly be honoured"},
+    {"id": "l_oldhand_redefines_share", "source": "eng_old_hand", "target": "eng_ledger", "function": "a reading changes what a share is: debt, gift or contract"},
+    {"id": "l_ledger_opens_trade", "source": "eng_ledger", "target": "inst_mill_compact", "function": "open records make shares tradable"},
+    {"id": "l_trade_draws_without_return", "source": "inst_mill_compact", "target": "eng_source", "function": "purchased shares draw without return labour"},
+    {"id": "l_source_forces_council", "source": "eng_source", "target": "inst_terrace_council", "function": "thinning and surfeit force collective maintenance decisions"},
+    {"id": "l_council_legitimises_gift", "source": "inst_terrace_council", "target": "eng_old_hand", "function": "the gift reading legitimises unmeasured return"},
+    {"id": "l_hall_custody_credit", "source": "inst_stone_hall", "target": "eng_ledger", "function": "sealed custody let favoured credit stand until Book 5"},
+    {"id": "l_reading_hall_reads", "source": "inst_reading_hall", "target": "eng_old_hand", "function": "public readings of the First Stones"},
+    {"id": "l_maintenance_balances_source", "source": "th_maintenance", "target": "eng_source", "function": "return labour keeps the spring balanced"},
+    {"id": "l_custody_grants_hall", "source": "th_custody", "target": "inst_stone_hall", "function": "custody grants the Hall authority until its own reform opens the record"},
+    {"id": "l_reading_decides_binding", "source": "th_reading", "target": "eng_old_hand", "function": "who reads decides which reading binds"},
+    {"id": "l_source_wonder", "source": "eng_source", "target": "rx_wonder", "function": "visible responses make the spring feel alive"},
+    {"id": "l_ledger_consequence", "source": "eng_ledger", "target": "rx_consequence", "function": "credit exposed and reformed; the once-credited lose sole custody"},
+    {"id": "l_turn_belonging", "source": "str_seasonal_turn", "target": "rx_belonging", "function": "shared turns make belonging visible"},
+    {"id": "l_oldhand_reframes_core", "source": "eng_old_hand", "target": "th_core_question", "function": "the gift reading reframes who owes whom"},
+    {"id": "l_thinning_pressures_hall", "source": "eng_source", "target": "inst_stone_hall", "function": "thinning threatens the Hall's standing and presses its reform"},
+    {"id": "l_evidence_forces_reform", "source": "eng_ledger", "target": "inst_stone_hall", "function": "household evidence of falsified credit forces the reform's timing"},
+    {"id": "l_reform_opens_ledger", "source": "inst_stone_hall", "target": "eng_ledger", "function": "the Hall's reform opens the sealed record and sets its recording rules"},
+    {"id": "l_hall_debt_reading", "source": "inst_stone_hall", "target": "eng_old_hand", "function": "the reformed committee keeps the debt reading as one contested reading"},
+    {"id": "l_debt_reading_enables_trade", "source": "inst_stone_hall", "target": "inst_mill_compact", "function": "the committee's debt reading gives the Compact saleable debts to buy"},
+    {"id": "l_recording_rules_owe_labour", "source": "inst_stone_hall", "target": "th_maintenance", "function": "the committee's recording rules decide whose return labour is owed"},
+    {"id": "l_reform_costs_standing", "source": "inst_stone_hall", "target": "rx_consequence", "function": "the reform keeps standing but costs sole custody, feeding grief"},
+    {"id": "l_gift_reframes_hall_debt", "source": "eng_old_hand", "target": "inst_stone_hall", "function": "the full reading reframes the debt the committee has held since Book 5"}
+  ],
+  "phases": [
+    {
+      "id": "ph_1_reckoned_water",
+      "title": "Reckoned Water",
+      "order": 1,
+      "scope": "books 1-5",
+      "genres": [
+        {"genre": "gn_epic_fantasy", "role": "governing"},
+        {"genre": "gn_mystery_discovery", "role": "locally_dominant"},
+        {"genre": "gn_political_institutional", "role": "supporting"}
+      ],
+      "genre_activations": [
+        {"genre_node_id": "gn_mystery_discovery", "basic_emotions": ["anger", "surprise"], "trope_functions": ["the field that does not match the record"], "structural_function": "a lower-terrace household's evidence exposes falsified credit under sealed custody (Book 1) and forces the timing of the Hall's reform; the Hall opens the record itself in Book 5 to protect its standing against thinning."},
+        {"genre_node_id": "gn_political_institutional", "basic_emotions": ["joy", "sadness"], "trope_functions": ["the self-protective reform that keeps standing by ceding sole custody"], "structural_function": "Keeper Anselm Corrow chooses a reform that keeps the institution and ends its sole custody; Dorran carries the reform outward as messenger without defecting; the committee keeps the debt reading."}
+      ],
+      "reader_experience": "wonder at the first hidden chamber under the spring; anger at falsified credit; a wary respect for a reform that protects its own position",
+      "aesthetic": "sealed cases and physical traces first; the opened record rendered as plain procedure, with the reform shown from the Hall's side as self-protection rather than confession",
+      "narrative_function": "The Ledger governs. Stone Hall credit is proven false by a lower-terrace household's evidence, and a lower terrace runs wild. In Book 5 the Hall's own head opens the sealed record to protect the Hall's standing against thinning, so the monopoly breaks by reform rather than by outside seizure and the Hall survives reformed, its committee keeping the debt reading. Book 1 gives the first partial reading of the First Stones. Protagonist's agency comes from evidence and a coalition, not inheritance.",
+      "transition": "Records open through the Hall's own reform in Book 5, under pressure from household evidence, so shares become tradable and the spring shows its first recorded thinning; the committee's debt reading becomes the Hall's stake in what the open record means.",
+      "parallel_with": []
+    },
+    {
+      "id": "ph_2_the_turn",
+      "title": "The Turn",
+      "order": 2,
+      "scope": "books 6-11",
+      "genres": [
+        {"genre": "gn_political_institutional", "role": "governing"},
+        {"genre": "gn_pastoral_belonging", "role": "supporting"},
+        {"genre": "gn_mystery_discovery", "role": "background"},
+        {"genre": "gn_epic_fantasy", "role": "background"}
+      ],
+      "genre_activations": [
+        {"genre_node_id": "gn_political_institutional", "basic_emotions": ["anger", "sadness"], "trope_functions": ["the compromise that feeds a new market", "the self-protective reform that keeps standing by ceding sole custody"], "structural_function": "lowland Mill Compact buys shares from freed households under the committee's debt reading, which the Compact reads as contract; draw separates from return; the upper cistern thins (Book 6). The Turn is sworn and the Terrace Council forms (Books 7-11), arguing for gift-return against the debt reading."}
+      ],
+      "reader_experience": "belonging tested by sale; anger at a market in shares; a contest between a reformed debt reading and a gift reading that both claim the same water",
+      "aesthetic": "ordinary sale set beside sworn labour; the market rendered through documents and share counts, the Turn through repeated bodily work",
+      "narrative_function": "The Source governs. Open records make shares a commodity, and the committee's debt reading gives the Compact debts it can buy. The Compact's purchases draw water without return labour, so the physical balance is the constraint that decides what the institutions can do. The Terrace Council's gift reading and the committee's debt reading are rival partial readings; the Book 8 partial reading of the First Stones is read under an open record whose recording rules the committee wrote.",
+      "transition": "Maintenance becomes an institution (the Turn), the Old Hand becomes disputed knowledge, and the committee's debt reading and the Council's gift reading become rival partial readings.",
+      "parallel_with": []
+    },
+    {
+      "id": "ph_3_old_hand",
+      "title": "The Old Hand",
+      "order": 3,
+      "scope": "books 12-18",
+      "genres": [
+        {"genre": "gn_mystery_discovery", "role": "governing"},
+        {"genre": "gn_epic_fantasy", "role": "supporting"},
+        {"genre": "gn_political_institutional", "role": "supporting"}
+      ],
+      "genre_activations": [
+        {"genre_node_id": "gn_mystery_discovery", "basic_emotions": ["surprise", "fear"], "trope_functions": ["the reading that reframes an earlier debt"], "structural_function": "the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the reformed Stone Hall committee holds it as debt, the Terrace Council as gift and the Mill Compact as contract. The gift reading reframes the debt the committee has held since Book 5. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, forcing a new stewardship tally."},
+        {"genre_node_id": "gn_political_institutional", "basic_emotions": ["surprise", "sadness"], "trope_functions": ["the compromise that feeds a new monopoly"], "structural_function": "three readings compete for legitimacy over one record. The Reading Hall, founded after the full reading, makes the First Stones publicly readable, so the committee's debt reading cannot harden into a sole monopoly of interpretation."}
+      ],
+      "reader_experience": "wonder that the first compact was not a debt alone; surprise at the gift reading; fear of the surfeit",
+      "aesthetic": "competing readings staged as evidence that disagrees; the First Stones rendered as a physical text whose partial lines conflict",
+      "narrative_function": "The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The complete reading reframes the debt that the reformed committee has held since Book 5. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The Reading Hall is founded as a public institution with its own readings.",
+      "transition": "Legitimacy is contested among three readings; no single institution, reformed or not, holds the record or its reading.",
+      "parallel_with": []
+    },
+    {
+      "id": "ph_4_settled_water",
+      "title": "Settled Water",
+      "order": 4,
+      "scope": "books 19-22",
+      "genres": [
+        {"genre": "gn_pastoral_belonging", "role": "governing"},
+        {"genre": "gn_political_institutional", "role": "supporting"},
+        {"genre": "gn_epic_fantasy", "role": "background"}
+      ],
+      "genre_activations": [
+        {"genre_node_id": "gn_pastoral_belonging", "basic_emotions": ["joy", "sadness"], "trope_functions": ["generations on the same terraces"], "structural_function": "terraces adopt different practices (Turn, stewardship tally, unmeasured return); plurality is tested for the first time; small local disputes arise from settled practice rather than from new antagonists. The committee's debt reading persists as one settled practice among others, not as a dissenting remnant."}
+      ],
+      "reader_experience": "warmth of ordinary plurality; the bittersweet loss of single custody",
+      "aesthetic": "plural ordinary practice rendered as daily detail; the loss of single custody held in quiet rather than drama",
+      "narrative_function": "Co-governance. Ledger, Source and Old Hand share the field and no single engine dominates. This arc is deliberately lighter; its conflicts must come from settled practice, and it is the most likely place for filler.",
+      "transition": "Practice passes to the next generation.",
+      "parallel_with": []
+    },
+    {
+      "id": "ph_5_unmeasured",
+      "title": "Unmeasured",
+      "order": 5,
+      "scope": "books 23-30",
+      "genres": [
+        {"genre": "gn_epic_fantasy", "role": "governing"},
+        {"genre": "gn_pastoral_belonging", "role": "supporting"},
+        {"genre": "gn_political_institutional", "role": "supporting"},
+        {"genre": "gn_mystery_discovery", "role": "background"}
+      ],
+      "genre_activations": [
+        {"genre_node_id": "gn_epic_fantasy", "basic_emotions": ["surprise", "joy", "fear"], "trope_functions": ["the hidden order answers the people who keep it"], "structural_function": "the generation raised under open accounts and unmeasured return overdraws the upper cistern for the Brightwater festival (Book 23); in Book 30 the spring's deepest cycle meets a choice between restored monopoly and shared accounting of care, which accepts a visible cost. Restored monopoly can be drawn from the committee's debt reading or from any house, so it is a structural option rather than a new antagonist."}
+      ],
+      "reader_experience": "hope that is earned by cost; wonder at the deepest chamber",
+      "aesthetic": "the physical scale of the deepest chamber and the flood; the final choice rendered as cost rather than triumph",
+      "narrative_function": "The Source is the physical crisis-maker, but its crisis is caused by earlier successes (abundance without memory). The finale chooses shared accounting that informs rather than binds, and accepts that some lowland and lower-terrace families must rebuild channels with their neighbours.",
+      "transition": "Series closes locally; a shared practice and long-range questions continue.",
+      "parallel_with": []
+    }
+  ],
+  "open_questions": [
+    "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.",
+    "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+    "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state?",
+    "Who carries the Turn when the maintenance lineages end?",
+    "How many Brightwater shares may be drawn before the Balance Stones restrain them?",
+    "Is the Book 30 flood survived without losses or with lasting ones? This is an author choice and is not decided.",
+    "New under counterfactual H1: will the reformed committee's debt reading later become the vehicle for the Book 30 restored-monopoly option, or will it stand as one reading among several by then?"
+  ],
+  "emotion_targets": [
+    {"id": "et_wonder", "emotion": "surprise", "role": "primary", "intended_effect": "a sense that the valley's order is larger and more responsive than anyone assumed", "eliciting_condition": "the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)", "aesthetic_strategy": "concrete cold, light and sound; scale that reveals itself in steps", "provenance": "author_declared"},
+    {"id": "et_belonging", "emotion": "joy", "role": "primary", "intended_effect": "warmth of shared labour and meals at the turn", "eliciting_condition": "return work completed together by people who have few reasons to trust one another", "aesthetic_strategy": "ordinary detail and repeated ritual that changes slightly each season", "provenance": "author_declared"},
+    {"id": "et_hope", "emotion": "joy", "role": "supporting", "intended_effect": "a sense that a shared practice can outlast the institution that began it", "eliciting_condition": "the unmeasured return that works in Book 15 and the rebuilt channel of the finale", "aesthetic_strategy": "earned rather than announced; the cost stays visible", "provenance": "author_declared"},
+    {"id": "et_grief_of_orders", "emotion": "sadness", "role": "supporting", "intended_effect": "loss of the sole custody that gave some people certainty, with dignity for the Hall, whose reform is self-protective and whose reasons hold from its own side", "eliciting_condition": "Keeper Anselm Corrow's Book 5 reform: the Hall opens its sealed record to protect its standing against thinning and survives reformed rather than dissolved", "aesthetic_strategy": "give the Hall reasons coherent from its own side; render the reform as a costly procedure, not as redemption", "provenance": "agent_proposed"},
+    {"id": "et_anger_at_hidden_credit", "emotion": "anger", "role": "supporting", "intended_effect": "outrage at credit falsified against the powerless, which the reform answers by ending sealed custody but does not by itself repay", "eliciting_condition": "the falsified lower-terrace share exposed by household evidence in Book 1, and the sealed custody that lets it stand until the Hall's Book 5 reform", "aesthetic_strategy": "specific, documented injustice rather than abstract villainy; the reform is not offered as redemption", "provenance": "agent_proposed"},
+    {"id": "et_fear_of_wild_water", "emotion": "fear", "role": "local", "intended_effect": "dread of water that is not kept", "eliciting_condition": "lower terraces running wild in Book 1 and the finale's deepest cycle", "aesthetic_strategy": "physical sensation with short, plain sentences", "provenance": "agent_proposed"},
+    {"id": "et_open_record_relief", "emotion": "joy", "role": "local", "intended_effect": "relief that sealed custody opens, felt before its self-protective motive is understood", "eliciting_condition": "the Book 5 opening of sealed records, timed by household evidence", "aesthetic_strategy": "a plain, light procedural reveal set against the closed cases of Book 1", "provenance": "agent_proposed"}
+  ],
+  "complex_emotions": [
+    {"id": "ce_awe_of_source", "title": "Awe at the spring", "basic_emotions": ["surprise", "joy"], "context": "wonder that turns into care rather than fear"},
+    {"id": "ce_bittersweet_return", "title": "Bittersweet return", "basic_emotions": ["sadness", "joy"], "context": "a practice honoured after the institution that held sole custody has been reformed rather than destroyed"},
+    {"id": "ce_grudging_relief", "title": "Grudging relief at an open record", "basic_emotions": ["joy", "anger"], "context": "relief that sealed custody opens, shadowed by resentment that the reform protects the Hall's standing before it repays the falsified share"}
+  ],
+  "genre_contracts": [
+    {
+      "genre_node_id": "gn_epic_fantasy",
+      "role": "governing",
+      "emotion_target_ids": ["et_wonder", "et_hope"],
+      "complex_emotion_ids": ["ce_awe_of_source"],
+      "trope_functions": ["a hidden order beneath a familiar valley", "the keepers' authority reversed first by their own reform and later by public reading"],
+      "narrative_engine": "the quest is to understand a physical commons that answers choices, not to defeat a rival power",
+      "structural_pattern": "five macro arcs, each ending in a changed governing engine",
+      "aesthetic_strategies": ["sensory discovery of cold water and stone", "scale moves from terrace to valley to lowland"],
+      "payoff_expectations": ["the First Stones read in stages, completed in Book 15", "the spring's deepest cycle met with shared labour in Book 30"]
+    },
+    {
+      "genre_node_id": "gn_pastoral_belonging",
+      "role": "supporting",
+      "emotion_target_ids": ["et_belonging", "et_grief_of_orders"],
+      "complex_emotion_ids": ["ce_bittersweet_return"],
+      "trope_functions": ["the shared turn as ritual of inclusion", "generations on the same terraces"],
+      "narrative_engine": "belonging is produced by return labour and eroded by unshared draw",
+      "structural_pattern": "seasonal recurrence with changing participants",
+      "aesthetic_strategies": ["ordinary work rendered with care"],
+      "payoff_expectations": ["the first Turn of Book 6 is still practised, changed, in Book 30"]
+    },
+    {
+      "genre_node_id": "gn_political_institutional",
+      "role": "supporting",
+      "emotion_target_ids": ["et_anger_at_hidden_credit", "et_grief_of_orders", "et_open_record_relief"],
+      "complex_emotion_ids": ["ce_grudging_relief"],
+      "trope_functions": ["the falsified record", "the self-protective reform that keeps standing by ceding sole custody", "the compromise that feeds a new monopoly"],
+      "narrative_engine": "institutions compete for legitimacy over who may keep, read and draw on the record; after the Book 5 reform the contest moves from custody toward reading and distribution",
+      "structural_pattern": "arcs alternate between custody disputes and distribution disputes; after the Book 5 reform, custody disputes concern restoring sole custody and reading disputes are added",
+      "aesthetic_strategies": ["procedure rendered as drama", "the reform's reasons shown from the Hall's side"],
+      "payoff_expectations": ["the Stone Hall's sole custody ends in Book 5 by its own reform, the Hall is not dissolved, and no single house holds the record in Book 30"]
+    },
+    {
+      "genre_node_id": "gn_mystery_discovery",
+      "role": "background",
+      "emotion_target_ids": ["et_wonder", "et_fear_of_wild_water"],
+      "complex_emotion_ids": [],
+      "trope_functions": ["the field that does not match the record"],
+      "narrative_engine": "partial knowledge of the record and the spring changes choices; household evidence sets the timing of the reform",
+      "structural_pattern": "readings are staged so discovery advances by Book",
+      "aesthetic_strategies": ["evidence carried by physical traces"],
+      "payoff_expectations": ["the gift reading in Book 15 reframes the Book 1 debt and the debt the reformed committee has held since Book 5"]
+    }
+  ],
+  "genre_interactions": [
+    {"id": "gi_epic_political_tension", "source_genre_id": "gn_epic_fantasy", "target_genre_id": "gn_political_institutional", "kind": "creates_tension", "mechanism": "the quest to understand the spring becomes a dispute over who may read it; victory brings contention", "risk": "epic reduced to civics procedure"},
+    {"id": "gi_political_pastoral_constrains", "source_genre_id": "gn_political_institutional", "target_genre_id": "gn_pastoral_belonging", "kind": "constrains", "mechanism": "share markets and maintenance duties limit how belonging can be expressed", "risk": "belonging becomes a labour rota"},
+    {"id": "gi_mystery_epic_enables", "source_genre_id": "gn_mystery_discovery", "target_genre_id": "gn_epic_fantasy", "kind": "enables", "mechanism": "partial readings of the First Stones let the quest advance at a local pace", "risk": "readings postponed into a withheld revelation"},
+    {"id": "gi_pastoral_mystery_reinforces", "source_genre_id": "gn_pastoral_belonging", "target_genre_id": "gn_mystery_discovery", "kind": "reinforces", "mechanism": "maintenance lineages hold the knowledge needed to read the stones", "risk": "knowledge hardens into hereditary privilege"},
+    {"id": "gi_political_mystery_constrains", "source_genre_id": "gn_political_institutional", "target_genre_id": "gn_mystery_discovery", "kind": "constrains", "mechanism": "the committee's recording rules and debt reading decide which partial readings reach the open record, so discovery passes through reform procedure", "risk": "a reading held back by the committee becomes a withheld revelation the series must not postpone"}
+  ]
+}
