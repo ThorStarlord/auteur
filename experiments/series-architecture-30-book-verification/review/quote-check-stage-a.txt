@@ -1,0 +1,71 @@
+missing      | Claude Opus 5.5 (model ID claude-opus-5-5)
+found        | Effect on the governing variable
+found        | Draw no longer depends on hands.
+found        | A terrace that stops returning labour to the shared channels loses its own release at the next thaw. Nobody is
+found        | Each practice's release depends on the Gate schedule the other practice agrees to.
+found        | the schedule follows the balance reading
+found        | the other practice agrees to
+found        | revocable by the Council
+found        | The floor is funded by the lineage's Right, and the Gate Table administers it. The Table has no authority over
+found        | craft withdrawal
+missing      |  items 1 and 2, and 
+found        | hands are allocated per share by a published formula
+found        | the gift practice's labour stays uncounted
+missing      | What does not bind. A household's internal practice.
+missing      | the gift practice is counted for one window
+found        | Binding is confined to the rebuild window
+found        | a shortfall becomes a deficit to be repaid
+found        | Its allocation expires at the end of the cycle
+found        | The Compact may refuse grain-labour, and then its fate is open.
+found        | to be repaid
+found        | a household forfeits the window's draw, not its share
+found        | a shortfall becomes a deficit to be repaid, not a cut in water
+found        | The Reading Hall reads it.
+found        | The surveyor's reading decides whether the rule applies.
+found        | Disputes about meaning go to the Reading Hall.
+found        | becomes a Council surveyor
+found        | Few people attend to a rule for a pulse that has not come yet.
+found        | The rule may be stale by the time the cycle arrives.
+split-found  | The Balance Stones … show that its date is approaching.
+found        | reads the surfeit as an effect of the release the trial's schedule carried to the lower channels
+found        | draws the high cistern down. Its high channels dry
+found        | The high terraces absorb the surplus.
+found        | too much return, or stored water with no draw
+missing      |  in option (b) to 
+found        | the sluice that divides the high cistern's release between the upper and lower channels
+found        | The Gate must split the pulse between the high cistern and the lower channels.
+found        | to schedule the Turn
+found        | whether the Hollow Gate and the Gate Table are accepted
+found        | lineage crews have sealed the leaks in the high channels that used to feed wild water (Book 20)
+found        | Lineage crews repair the Lowfen.
+found        | For the first time in the series, a household's hands set part of its draw.
+found        | Until Book 19 draw follows shares alone.
+found        | Draw matched to labour in the high terraces, run by the Council since the Turn in Book 6.
+found        | hands set part of draw for the first time since Book 6
+found        | Under this working path the Hall dissolves in Book 5
+missing      | . Its Book 6 closed futures include 
+found        | the Lowfen channel, which carries Lower Ammen's wells
+found        | Hand-light share-holders have their draw converted in proportion to their deficit.
+found        | counts the lower valley's water, which repeats the Hall's pattern
+found        | the counted Turn in the high terraces
+missing      | hands set draw
+found        | The Compact's unhanded draw continues
+found        | the Turn burdens households with few hands, including Hesper's own
+found        | Hand-light houses have drawn less since Book 20
+found        | a belief that abundance needs no work
+found        | drawn by the hands that already had it
+found        | Committed: … Books 1, 6, 15, 23, 30 functions
+found        | Author-reserved decisions
+found        | shared accounting of care, which informs but binds no one
+found        | The Turn persists, changed: no longer mandatory.
+found        | Whether the shared accounting of care binds at all, and in what form.
+found        | unless the terraces ratify a renewal
+found        | the valley ratifies one instrument
+missing      | the high terraces [from] surfeit
+found        | arbitrary new threats
+found        | in Quillmark and two neighbouring valleys
+found        | upper cistern
+found        | high cistern
+found        | renewal test R2
+found        | Wandering Islands
+summary: {'found': 61, 'split-found': 1, 'missing': 8}

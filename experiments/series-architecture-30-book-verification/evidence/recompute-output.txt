@@ -1,0 +1,28 @@
+A delivered                          39.600
+A capacity                            0.732
+A T1 shortfall                       20.400
+A overflow at h=0.6, S=1.7            0.468
+A overflow at h=0.6, S=1.4            0.168
+A overflow at h=0.4, S=1.4            0.368
+A overflow at h=0.6, S=1.9            0.668
+A h needed at S=1.4                   0.768
+B delivered                          46.200
+B capacity                            0.754
+B deficit                            19.800
+B T1 shortfall                       13.800
+B h needed at S=1.7                   1.046
+B overflow at h=1.05                  0.000
+B h needed at S=1.4                   0.746
+B h needed at S=1.9                   1.246
+B compact-refusal capacity            0.726
+B compact-refusal h needed            1.074
+C delivered                          59.400
+C capacity                            0.798
+C deficit                             6.600
+C T1 shortfall                        0.600
+C h needed at S=1.7                   1.002
+C overflow at h=1.01                  0.000
+C h needed at S=1.4                   0.702
+C h needed at S=1.9                   1.202
+C compact-refusal capacity            0.762
+C compact-refusal h needed            1.038

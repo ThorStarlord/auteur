@@ -1,0 +1,82 @@
+{
+  "packet": "stage-A",
+  "source_commit": "aaae0eaaddfbfa98ccb6d239fc01cef5ffe3d478",
+  "builder": "experiments/series-architecture-30-book-verification/evidence/make_stage_packet.py",
+  "files": [
+    {
+      "path": "00-reviewer-instructions.md",
+      "sha256": "90463f1e45484eb9b24e5036397dfcf13128bd9bc2b3009453851d1cbb11fc1b",
+      "bytes": 4973
+    },
+    {
+      "path": "01-author-brief.md",
+      "sha256": "286477b2f3017292bc39a6819d0068daf2e6942ed5907d4c165c28250293a0d2",
+      "bytes": 2247
+    },
+    {
+      "path": "02-original-architecture.md",
+      "sha256": "fff8e6eeff50a3a85c1ec140b4511434502ede792e0833496cfb4bdb094f969d",
+      "bytes": 18105
+    },
+    {
+      "path": "03-causal-construction.md",
+      "sha256": "67a790e120d3dd40ff053b17f41535084847fef58c2ea7e6773253cb7b08906a",
+      "bytes": 14793
+    },
+    {
+      "path": "04-finale-alternatives.md",
+      "sha256": "19d88a6aaccffa82e906b0018c8101865cf237c684cd3687176608afe269cbf4",
+      "bytes": 12551
+    },
+    {
+      "path": "05-candidate-W2.json",
+      "sha256": "0fbf5c9cbbe24113fbe50411fa9336a57f3199c73162aeca01ac675b30ef4364",
+      "bytes": 36480
+    },
+    {
+      "path": "06-source-identity.md",
+      "sha256": "e3ae98c89e80f8ddfb8fb3e29f0203a19f1ca5042392928e3c8de4d060436f1e",
+      "bytes": 3388
+    }
+  ],
+  "source_blobs": {
+    "experiments/series-architecture-30-book-v1/A-original-architecture.md": "368de05cd99c4d2e432960a242b73722bb6ce86c066d84e766a95ba458ebc65e",
+    "experiments/series-architecture-30-book-construction/01-causal-construction.md": "67a790e120d3dd40ff053b17f41535084847fef58c2ea7e6773253cb7b08906a",
+    "experiments/series-architecture-30-book-construction/02-finale-alternatives.md": "b3694f4db9e8a458fa4c5e84744c37173dff6e5108af9e7fadb690a826ca56f9",
+    "experiments/series-architecture-30-book-construction/03-working-candidate-v2.json": "0fbf5c9cbbe24113fbe50411fa9336a57f3199c73162aeca01ac675b30ef4364"
+  },
+  "withholdings": [
+    {
+      "packet_file": "02-original-architecture.md",
+      "withheld": "§8 'Where the design is thin (admitted)' (whole section); one sentence in §4",
+      "reason": "the designer's self-assessment of the original architecture"
+    },
+    {
+      "packet_file": "04-finale-alternatives.md",
+      "withheld": "section 'Working direction for testing (agent-proposed, not an author decision)'; the paragraph 'Why it is an improvement.' under C",
+      "reason": "the designer's nomination and advocacy for one mechanism"
+    }
+  ],
+  "included_but_labelled": [
+    {
+      "packet_file": "05-candidate-W2.json",
+      "where": [
+        "summary (names C as the agent-proposed working direction for testing)",
+        "nodes.alt_c_ratified_trigger.title"
+      ],
+      "reason": "the candidate is included byte-for-byte; the labels are disclosed in file 00 and file 06"
+    },
+    {
+      "packet_file": "03-causal-construction.md",
+      "note": "the designer's reasoning and reskin checks are included unmodified"
+    },
+    {
+      "packet_file": "04-finale-alternatives.md",
+      "note": "the comparison table is the designer's characterisation; included unmodified; file 00 says to treat it as a claim"
+    }
+  ],
+  "not_in_packet_but_referenced": [
+    "05-consistency-record.md (linked from 03)",
+    "A-studio-candidate-original.json (named in 02)"
+  ]
+}

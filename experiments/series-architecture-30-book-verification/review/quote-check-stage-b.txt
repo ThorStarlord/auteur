@@ -1,0 +1,71 @@
+found        | no single institution holds the record
+found        | one public keeper
+found        | keep the original's events
+found        | a lower-terrace household
+found        | in Book 30 the record has one public keeper
+found        | so the record has one public keeper while the readings stay plural
+split-found  | Built on the original … which it does not modify
+missing      | , while `inst_reading_hall` said it 
+found        | the Hall's custody returning under another name
+found        | activation by the Reading Hall's reading may be unchecked
+found        | Books 1-15 keep the original's events. The working construction corrects one thing in them.
+found        | the Hall dissolves in Book 5
+found        | authored by the committee
+found        | Closed futures
+found        | the Hall's sole custody of the Stones is never restored
+found        | any valley returning to the Hall's custody
+split-found  | The reform committee keeps physical custody of the Stones and the master record … until Book 15
+found        | the committee's sale rules
+missing      | sealed custody is never restored
+found        | Dorran carries the reform as messenger rather than defecting.
+found        | Protagonist's agency comes from evidence and a coalition, not inheritance
+found        | the Hall hoarded unsold shares
+found        | forces the timing
+found        | the committee's custody ends with it: custody passes to the Reading Hall
+found        | Founded at Book 15 with the full reading
+found        | Founded after the full reading
+found        | the reform committee, not the tenders, sets the first rules of sale
+found        | Compact purchases are capped at a fixed proportion
+found        | authored by the committee and contested by scholars
+found        | made under the committee's custody
+found        | Who may read the oldest script
+found        | no indefinitely postponed revelations
+found        | readings postponed into a withheld revelation
+found        | does the Hall become a benevolent authority that the finale must oppose?
+found        | outside the Gate Table
+found        | its committee keeps the debt reading
+split-found  | keeps PHYSICAL CUSTODY … until Book 15; at Book 15 custody passes to the Reading Hall
+found        | Gate Table seat of the remnant
+found        | a practice honoured after the institution that held it has lost custody of it
+found        | protects the Hall's standing against a thinning its own falsified credit helped cause
+missing      | conflicts from earlier successes
+found        | the spring shows its first recorded thinning
+found        | evidence forces the timing … (Book 5)
+found        | In the original path the same evidence, with a coalition from outside
+found        | from outside
+found        | Corrow's remnant (the debt reading) stands outside the Gate Table and argues for counting.
+found        | the debt reading returns through the tally
+found        | Argues for counting
+found        | until Book 15
+found        | Readers will hear the Hall in it
+missing      | model or warning
+found        | the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)
+found        | return work completed together by people who have few reasons to trust one another
+found        | a shared practice can outlast the institution that began it
+found        | the committee's loss of custody at Book 15 and Keeper Corrow's remnant's dissent
+found        | the falsified lower-terrace share in Book 1
+found        | lower terraces running wild in Book 1, a household's declined share in Book 21
+found        | the hands-to-draw conversion adopted in Book 20
+found        | wonder that turns into care rather than fear
+found        | the institution that held it has lost custody of it
+found        | the keepers' authority reversed by public reading
+missing      | complex_emotion_ids: ['ce_bittersweet_return']
+found        | monopoly of access ends in Book 5; its monopoly of custody ends in Book 15
+found        | the record has one public keeper
+found        | compromise that feeds a new monopoly
+found        | the gift reading in Book 15 reframes the Book 1 debt
+found        | under the committee's sale rules
+found        | reasons that are coherent from their side
+found        | renewal test R2
+found        | witness-led repair R-A
+summary: {'found': 62, 'split-found': 3, 'missing': 5}
