@@ -1,0 +1,212 @@
+{
+  "steps": [
+    {
+      "step": "develop prepare",
+      "exit": 0,
+      "status": "awaiting_host_agent"
+    },
+    {
+      "step": "develop complete",
+      "exit": 0,
+      "status": "ready"
+    },
+    {
+      "step": "resume baseline",
+      "exit": 0,
+      "revision": 0,
+      "semantics": {
+        "attribution": {
+          "agent_proposed": 26,
+          "derived": 8,
+          "unknown_legacy": 49
+        },
+        "epistemic_status": {
+          "asserted": 29,
+          "unknown_legacy": 49,
+          "hypothetical": 5
+        },
+        "commitment_authority": {
+          "agent_working": 29,
+          "undecided": 37,
+          "not_adopted": 5,
+          "author_reserved": 12
+        },
+        "form": {
+          "legacy": 83,
+          "explicit": 0,
+          "legacy_ambiguous": 49
+        }
+      }
+    },
+    {
+      "step": "representation prepare",
+      "exit": 0,
+      "status": "awaiting_host_agent"
+    },
+    {
+      "step": "representation complete",
+      "exit": 0,
+      "applicable": true,
+      "status": "review_ready"
+    },
+    {
+      "step": "representation apply",
+      "exit": 0,
+      "status": "ready",
+      "result": "applied"
+    },
+    {
+      "step": "representation re-apply",
+      "exit": 0,
+      "status": "ready",
+      "result": "already_applied"
+    },
+    {
+      "step": "resume after representation",
+      "exit": 0,
+      "revision": 1
+    },
+    {
+      "step": "counterfactual prepare (probe attempt)",
+      "exit": 0,
+      "status": "awaiting_host_agent"
+    },
+    {
+      "step": "PROBE out-of-scope edit: completion",
+      "exit": 0,
+      "applicable": false,
+      "unexpected": [
+        "assume-p4"
+      ],
+      "status": "review_blocked"
+    },
+    {
+      "step": "PROBE apply of blocked review",
+      "exit": 1,
+      "result": "rejected",
+      "error": "unexpected changes block application: assume-p4 (changed: not a permitted element)"
+    },
+    {
+      "step": "counterfactual prepare (corrected attempt)",
+      "exit": 0,
+      "status": "awaiting_host_agent"
+    },
+    {
+      "step": "counterfactual complete",
+      "exit": 0,
+      "applicable": true,
+      "status": "review_ready"
+    },
+    {
+      "step": "counterfactual apply",
+      "exit": 0,
+      "status": "ready",
+      "result": "applied"
+    },
+    {
+      "step": "counterfactual re-apply",
+      "exit": 0,
+      "status": "ready",
+      "result": "already_applied"
+    },
+    {
+      "step": "resume after counterfactual",
+      "exit": 0,
+      "revision": 2,
+      "semantics": {
+        "attribution": {
+          "agent_proposed": 39,
+          "derived": 9,
+          "unattributed": 1,
+          "unknown_legacy": 36
+        },
+        "epistemic_status": {
+          "asserted": 35,
+          "unknown_legacy": 36,
+          "conditional": 8,
+          "hypothetical": 6
+        },
+        "commitment_authority": {
+          "agent_working": 42,
+          "not_established": 1,
+          "undecided": 24,
+          "not_adopted": 6,
+          "author_reserved": 12
+        },
+        "form": {
+          "legacy": 62,
+          "explicit": 23,
+          "legacy_ambiguous": 36
+        }
+      }
+    },
+    {
+      "step": "PROBE withdraw premise with dependents",
+      "exit": 1,
+      "result": "rejected",
+      "error": "eng-record-form: conditional on assume-witnessed-mark, which is rejected; revise this element first; cost-lineage-attestation: conditional on assume-witnessed-mark, which is rejected; revise this element first; trans-hesper-idrun: conditional on assume-witnessed-mark, which is rejected; revise this "
+    },
+    {
+      "step": "PROBE assert a decision-dependent claim",
+      "exit": 1,
+      "result": "rejected",
+      "error": "later-finale-capability: asserts a claim that depends on author decision dec-finale-mechanism; it must be conditional on that decision"
+    },
+    {
+      "step": "withdrawal prepare",
+      "exit": 0,
+      "applicable": true,
+      "status": "review_ready"
+    },
+    {
+      "step": "withdrawal apply",
+      "exit": 0,
+      "status": "ready",
+      "result": "applied"
+    },
+    {
+      "step": "resume final (fresh process)",
+      "exit": 0,
+      "revision": 3
+    }
+  ],
+  "canvas": "disposable canvas built from the W6 baseline and the Book 24 source items",
+  "representation_audit": [
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/23c4153a040000995f10500a31a2f4aaa46c5dd7465fc2e01517b6e2204a69e2/response.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/23c4153a040000995f10500a31a2f4aaa46c5dd7465fc2e01517b6e2204a69e2/review.json"
+  ],
+  "counterfactual_audit": [
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/567146491f8c92eddbeaed4243241b7cd72596606a6b924ac38d8aa3dc59171f/response.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/567146491f8c92eddbeaed4243241b7cd72596606a6b924ac38d8aa3dc59171f/review.json"
+  ],
+  "withdrawal_audit": [
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/latest_request.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/f80d509b4dc5300b04b241ad927174da7d2adbd327b81b771278837dc98ef0e1/request.json",
+    ".auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/requests/f80d509b4dc5300b04b241ad927174da7d2adbd327b81b771278837dc98ef0e1/review.json"
+  ],
+  "final_lineage": [
+    [
+      0,
+      "develop",
+      "47c3a3b1d15e"
+    ],
+    [
+      1,
+      "revise",
+      "38fb55db3d7d"
+    ],
+    [
+      2,
+      "revise",
+      "25afe5f89b0b"
+    ],
+    [
+      3,
+      "revise",
+      "274afe3c915e"
+    ]
+  ]
+}

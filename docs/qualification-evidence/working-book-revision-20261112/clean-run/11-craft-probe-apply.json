@@ -1,0 +1,4 @@
+{
+  "result": "rejected",
+  "error": "unexpected changes block application: assume-p4 (changed: not a permitted element)"
+}

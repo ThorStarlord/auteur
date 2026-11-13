@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -36,6 +37,7 @@ from auteur.host_agent import (
 from auteur.series.models import DependencyType
 
 REQUEST_KIND = "auteur_working_book_architecture_request_v1"
+REVISION_KIND = "auteur_working_book_revision_request_v1"
 ROLE = "working_book_architecture"
 STORY_VISION_ID = "story-vision"
 
@@ -195,8 +197,8 @@ class AlternativeElement(BookElement):
     def alternatives_are_hypothetical(self) -> "AlternativeElement":
         if self.provenance is not None and self.provenance != "hypothetical":
             raise ValueError(f"alternative {self.id!r} must carry hypothetical provenance")
-        if self.provenance is None and self.epistemic_status != "hypothetical":
-            raise ValueError(f"alternative {self.id!r} must have epistemic_status hypothetical")
+        if self.provenance is None and self.epistemic_status not in ("hypothetical", "rejected"):
+            raise ValueError(f"alternative {self.id!r} must have epistemic_status hypothetical or rejected")
         return self
 
 
@@ -348,6 +350,8 @@ def _check_semantics(artifact: WorkingBookArchitecture) -> None:
     """Explicit-form rules that keep genuine questions, author decisions and assumptions apart."""
     decision_ids = {item.id for item in artifact.open_author_decisions}
     assumption_ids = {item.id for item in artifact.assumptions}
+    rejected_ids = {element.id for _collection, element in _labelled_elements(artifact)
+                    if element.provenance is None and element.epistemic_status == "rejected"}
     problems: list[str] = []
     for _collection, element in _labelled_elements(artifact):
         if element.provenance is not None:
@@ -368,6 +372,11 @@ def _check_semantics(artifact: WorkingBookArchitecture) -> None:
                 problems.append(
                     f"{element.id}: conditional status needs a reference to an assumption or author decision"
                 )
+            for condition in conditions:
+                if condition in rejected_ids:
+                    problems.append(
+                        f"{element.id}: conditional on {condition}, which is rejected; revise this element first"
+                    )
     for item in artifact.unresolved:
         if item.provenance is None and item.epistemic_status != "unresolved":
             problems.append(f"{item.id}: an item listed as unresolved must have epistemic_status unresolved")
@@ -504,13 +513,23 @@ def _freshness(store: CanvasStore, book_number: int, record: dict) -> dict:
     }
 
 
-def book_prepare(store: CanvasStore, book_number: int) -> dict:
-    """Open a develop request for one Book, built on the current working Series architecture."""
+def book_prepare(
+    store: CanvasStore, book_number: int, *, instruction: str | None = None,
+    targets: tuple[str, ...] = (), holistic: bool = False,
+) -> dict:
+    """Develop a Book when none exists. With an instruction, prepare a reviewed revision of the existing one."""
     _check_number(book_number)
+    if instruction is None:
+        return _prepare_develop(store, book_number)
+    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic)
+
+
+def _prepare_develop(store: CanvasStore, book_number: int) -> dict:
+    """Open a develop request for one Book, built on the current working Series architecture."""
     with _FilesystemLock(store._path(".canvas.lock")):
         if _read(_book_root(store, book_number) / "current.json") is not None:
             raise ValueError(
-                f"Book {book_number} already has a working architecture; revision is not available yet"
+                f"Book {book_number} already has a working architecture; prepare a revision with --instruction and --target"
             )
         series = _candidate(store)
         if series is None or _current_candidate_freshness(store, series) != "ready":
@@ -560,9 +579,14 @@ def book_project(store: CanvasStore, book_number: int) -> dict:
     pointer = _read(base / "latest_request.json")
     record = _read(base / "current.json")
     pending = None
+    review = None
     if pointer and (record is None or record["request_sha256"] != pointer["request_sha256"]):
-        pending = load_host_agent_request(base / "requests" / pointer["request_sha256"] / "request.json")
-    if pending is not None:
+        sha = pointer["request_sha256"]
+        pending = load_host_agent_request(base / "requests" / sha / "request.json")
+        review = _read(base / "requests" / sha / "review.json")
+    if pending is not None and review is not None:
+        status = "review_ready" if review["applicable"] else "review_blocked"
+    elif pending is not None:
         status = "awaiting_host_agent"
     elif record is None:
         status = "not_started"
@@ -572,8 +596,10 @@ def book_project(store: CanvasStore, book_number: int) -> dict:
         "book_number": book_number,
         "status": status,
         "authority": "working_noncanonical",
-        "request": pending.model_dump() if pending is not None else None,
+        "request": pending.model_dump() if pending is not None and review is None else None,
         "request_sha256": record["request_sha256"] if record else None,
+        "pending_request_sha256": pending.request_sha256 if pending is not None else None,
+        "review": {key: value for key, value in review.items() if key != "candidate"} if review else None,
         "artifact": record["artifact"] if record else None,
     }
 
@@ -594,6 +620,11 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             if prior != response.model_dump():
                 raise BeginnerConcurrencyError("a different response already completed this Book request")
             return book_project(store, book_number)
+        operation = request.settings.get("operation", "develop")
+        if operation == "revise":
+            return _complete_revision(store, book_number, base, sha, request, response)
+        if operation != "develop":
+            raise ValueError(f"a {operation} request does not accept a candidate")
         settings = request.settings
         if _series_changed(store, settings) or _source_changed(store, book_number, settings):
             write_host_agent_response(base / "requests" / sha / "stale_response.json", response)
@@ -661,6 +692,8 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         },
         "author_fixed_context": {
             "story_vision_excerpt": vision[:600],
+            "story_vision_characters": len(vision),
+            "story_vision_excerpt_is_truncated": len(vision) > 600,
             "creative_intentions": [
                 {"id": item["id"], "title": item["title"], "status": item["status"]}
                 for item in source["creative_intentions"]
@@ -669,11 +702,11 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         "series_constraints": constraints,
         "exports": {
             "series_consequences": [
-                {"id": item.id, "kind": item.kind, "text": item.text}
+                {**_projected(item, "series_consequences", decision_ids), "kind": item.kind, "text": item.text}
                 for item in artifact.series_consequences
             ],
             "later_possibilities": [
-                {"id": item.id, "kind": item.kind, "text": item.text}
+                {**_projected(item, "later_possibilities", decision_ids), "kind": item.kind, "text": item.text}
                 for item in artifact.later_possibilities
             ],
             "assumptions": [
@@ -716,28 +749,622 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         "packet": packet,
         "artifact": record["artifact"],
         "verbatim_source": record.get("source_items", []),
+        "revision": {
+            "number": record.get("revision_number", 0),
+            "lineage": record.get("lineage", []),
+            "applied_review": record.get("applied_review"),
+        },
     }
 
 
 # --- CLI --------------------------------------------------------------------------------
+
+_NESTED_FIELDS = frozenset({"options", "costs_kept_visible", "transformation"})
+_CHANGE_FIELDS = ("attribution", "epistemic_status", "provenance", "reversal", "interpretation")
+_TOP_LEVEL = ("title", "book_number", "schema_version")
+
+
+def _index_elements(artifact: WorkingBookArchitecture) -> dict[str, dict]:
+    """Identity and content of every element and typed edge.
+
+    A choice block's own hash excludes its parts, which are indexed on their own, so a change to one
+    option is attributed to that option. Each entry keeps the parsed element for reference reads.
+    """
+    index: dict[str, dict] = {}
+    for collection, element in _labelled_elements(artifact):
+        exclude = _NESTED_FIELDS if isinstance(element, ChoiceBlock) else None
+        own = element.model_dump(mode="json", exclude=exclude)
+        index[element.id] = {"collection": collection, "own": own, "hash": _digest(own),
+                             "element": element, "edge": None}
+    for edge in artifact.typed_edges:
+        own = edge.model_dump(mode="json")
+        index[edge.id] = {"collection": "typed_edges", "own": own, "hash": _digest(own),
+                          "element": None, "edge": edge}
+    return index
+
+
+def _entry_refs(entry: dict) -> list[Ref]:
+    element = entry["element"]
+    if element is None:
+        edge = entry["edge"]
+        return [Ref(kind="book_element", id=edge.source), edge.target]
+    refs = list(element.refs)
+    if isinstance(element, AgentElement) and element.name_source is not None:
+        refs.append(element.name_source)
+    return refs
+
+
+def _references_of(index: dict[str, dict], identifier: str) -> set[str]:
+    """Book elements that this element references, explicitly and mechanically."""
+    return {ref.id for ref in _entry_refs(index[identifier]) if ref.kind == "book_element"}
+
+
+def _series_refs_of(index: dict[str, dict], identifier: str) -> set[str]:
+    return {ref.id for ref in _entry_refs(index[identifier]) if ref.kind == "series_node"}
+
+
+def _dependents_of(index: dict[str, dict], targets: set[str]) -> set[str]:
+    """Elements that reference a target by an explicit reference or a typed edge. Nothing is inferred."""
+    return {
+        identifier for identifier in index
+        if identifier not in targets and _references_of(index, identifier) & targets
+    }
+
+
+def _compare(base_index: dict, cand_index: dict, allowed: set[str] | None) -> tuple[dict, list[str], list[dict]]:
+    base_ids, cand_ids = set(base_index), set(cand_index)
+    both = base_ids & cand_ids
+    changed = sorted(
+        identifier for identifier in both
+        if base_index[identifier]["hash"] != cand_index[identifier]["hash"]
+        or base_index[identifier]["collection"] != cand_index[identifier]["collection"]
+    )
+    preserved = sorted(identifier for identifier in both if identifier not in set(changed))
+    changes: dict[str, list[dict]] = {"added": [], "changed": [], "removed": []}
+    unexpected: list[dict] = []
+
+    for identifier in sorted(cand_ids - base_ids):
+        refs = _references_of(cand_index, identifier)
+        changes["added"].append({"id": identifier, "collection": cand_index[identifier]["collection"],
+                                 "references": sorted(refs)})
+        if allowed is not None and not (refs & allowed):
+            unexpected.append({"id": identifier, "change": "added",
+                               "reason": "adds an element that references no permitted element"})
+
+    for identifier in sorted(base_ids - cand_ids):
+        changes["removed"].append({"id": identifier, "collection": base_index[identifier]["collection"]})
+        if allowed is not None and identifier not in allowed:
+            unexpected.append({"id": identifier, "change": "removed", "reason": "not a permitted element"})
+
+    for identifier in changed:
+        before, after = base_index[identifier]["own"], cand_index[identifier]["own"]
+        fields = sorted(key for key in set(before) | set(after) if before.get(key) != after.get(key))
+        changes["changed"].append({
+            "id": identifier,
+            "collection": cand_index[identifier]["collection"],
+            "classification": _classify_change(before, after),
+            "fields_changed": fields,
+            "before_text": before.get("text") if "text" in fields else None,
+            "after_text": after.get("text") if "text" in fields else None,
+        })
+        if allowed is not None and identifier not in allowed:
+            unexpected.append({"id": identifier, "change": "changed", "reason": "not a permitted element"})
+    return changes, preserved, unexpected
+
+
+def _classify_change(before: dict, after: dict) -> str:
+    """What kind of change this is. A working decision is not a representation change, and neither is a rewording.
+
+    interpretive: the statement's words or the agent's interpretation changed.
+    withdrawal / working_status: the working epistemic status changed (rejected, or otherwise).
+    representation_reclassified_from_legacy: a legacy label was restated in the explicit form.
+    representation: only attribution or the reversal's form changed.
+    mechanical: only structural references changed.
+    """
+    if before.get("text") != after.get("text") or before.get("interpretation") != after.get("interpretation"):
+        return "interpretive"
+    if before.get("provenance") is not None and after.get("provenance") is None:
+        return "representation_reclassified_from_legacy"
+    if before.get("epistemic_status") != after.get("epistemic_status"):
+        return "withdrawal" if after.get("epistemic_status") == "rejected" else "working_status"
+    if before.get("attribution") != after.get("attribution") or before.get("reversal") != after.get("reversal"):
+        return "representation"
+    return "mechanical"
+
+
+def _enforce_revision_rules(base_index: dict, cand_index: dict) -> None:
+    """Rules a revision cannot break whatever its scope: explicit form for changes, and fixed questions."""
+    problems: list[str] = []
+    for identifier, entry in cand_index.items():
+        base_entry = base_index.get(identifier)
+        if base_entry is not None and base_entry["hash"] == entry["hash"] and base_entry["collection"] == entry["collection"]:
+            continue
+        element = entry["element"]
+        if element is not None and element.provenance is not None:
+            problems.append(f"{identifier}: a new or changed element must use explicit attribution and epistemic_status")
+    for identifier, entry in base_index.items():
+        base_element = entry["element"]
+        if base_element is None:
+            continue
+        is_decision = isinstance(base_element, DecisionElement)
+        explicit_unresolved = base_element.provenance is None and base_element.epistemic_status == "unresolved"
+        if not (is_decision or explicit_unresolved):
+            continue
+        cand_element = cand_index.get(identifier, {}).get("element")
+        if cand_element is None:
+            problems.append(f"{identifier}: an open question or author decision cannot be removed by a revision")
+            continue
+        if cand_element.provenance is None and cand_element.epistemic_status != "unresolved":
+            problems.append(f"{identifier}: an unresolved question cannot be settled by a working revision")
+        if is_decision and (
+            cand_element.series_question_index != base_element.series_question_index
+            or cand_element.series_question_sha256 != base_element.series_question_sha256
+        ):
+            problems.append(f"{identifier}: an author decision's Series binding is fixed")
+    if problems:
+        raise ValueError("; ".join(problems[:20]))
+
+
+def _build_review(
+    *, baseline: WorkingBookArchitecture, candidate: WorkingBookArchitecture, base_index: dict,
+    cand_index: dict, settings: dict, instruction: str, series_node_ids: set[str], request_sha256: str,
+    withdrawal: dict | None = None,
+) -> dict:
+    allowed = None if settings["mode"] == "holistic" else set(settings["allowed_ids"])
+    changes, preserved, unexpected = _compare(base_index, cand_index, allowed)
+    if allowed is not None:
+        for field in _TOP_LEVEL:
+            if getattr(baseline, field) != getattr(candidate, field):
+                unexpected.append({"id": field, "change": "changed",
+                                   "reason": "top-level fields change only in a holistic revision"})
+    changed_ids = {entry["id"] for entry in changes["changed"]}
+    added_ids = {entry["id"] for entry in changes["added"]}
+    removed_ids = {entry["id"] for entry in changes["removed"]}
+    affected = changed_ids | removed_ids
+
+    consequence_candidates = []
+    implications = []
+    for identifier in preserved:
+        via = sorted(_references_of(cand_index, identifier) & affected)
+        if via:
+            consequence_candidates.append({
+                "id": identifier, "via": via, "classification": "mechanical_link", "basis": "explicit_book_reference",
+                "reason": "unchanged element references an element this revision changed; inspect whether it still holds",
+            })
+    for identifier in sorted(changed_ids | added_ids):
+        for target in sorted(_references_of(cand_index, identifier)):
+            if target in set(preserved):
+                implications.append({"from": identifier, "to": target, "relation": "reference",
+                                     "classification": "mechanical_link", "basis": "explicit_book_reference"})
+
+    touched = affected | added_ids | {entry["id"] for entry in consequence_candidates}
+    series_map: dict[str, set[str]] = {}
+    for identifier in touched:
+        refs = _series_refs_of(cand_index, identifier) if identifier in cand_index else set()
+        refs |= _series_refs_of(base_index, identifier) if identifier in base_index else set()
+        for node in refs:
+            series_map.setdefault(node, set()).add(identifier)
+    series_consequences = [
+        {"series_node_id": node, "cited_by": sorted(ids), "exists_in_series": node in series_node_ids,
+         "basis": "explicit_series_reference", "series_state": "unchanged",
+         "status": "inspection_recommended" if node in series_node_ids else "missing_in_series"}
+        for node, ids in sorted(series_map.items())
+    ]
+
+    decision_ids = {identifier for identifier, entry in base_index.items()
+                    if isinstance(entry["element"], DecisionElement)}
+    decision_map: dict[str, set[str]] = {}
+    for identifier in touched | removed_ids:
+        refs = _references_of(cand_index, identifier) if identifier in cand_index else set()
+        refs |= _references_of(base_index, identifier) if identifier in base_index else set()
+        for decision in (refs | ({identifier} if identifier in decision_ids else set())) & decision_ids:
+            decision_map.setdefault(decision, set()).add(identifier)
+    author_decisions = [
+        {"decision_id": decision, "touched_by": sorted(ids), "status": "remains_author_reserved"}
+        for decision, ids in sorted(decision_map.items())
+    ]
+
+    base_views = {view["id"]: view for view in project_artifact(baseline)["elements"]}
+    cand_views = {view["id"]: view for view in project_artifact(candidate)["elements"]}
+    authority_changes = [
+        {"id": identifier, "before": base_views[identifier]["commitment_authority"],
+         "after": cand_views[identifier]["commitment_authority"]}
+        for identifier in sorted(changed_ids | added_ids)
+        if identifier in base_views and identifier in cand_views
+        and base_views[identifier]["commitment_authority"] != cand_views[identifier]["commitment_authority"]
+    ]
+
+    edge_sources = {edge.source for edge in candidate.typed_edges} | {edge.target.id for edge in candidate.typed_edges}
+    unresolved_effects = [
+        {"id": entry["id"],
+         "note": "interpretive change with no recorded typed dependency; the representation does not establish its consequences"}
+        for entry in changes["changed"]
+        if entry["classification"] == "interpretive"
+        and not _references_of(cand_index, entry["id"]) and entry["id"] not in edge_sources
+    ]
+    return {
+        "authority": "working_revision_review_not_acceptance",
+        "request_sha256": request_sha256,
+        "book_number": candidate.book_number,
+        "baseline": {
+            "request_sha256": settings["baseline_request_sha256"],
+            "content_sha256": settings["baseline_content_sha256"],
+            "revision_number": settings["baseline_revision_number"],
+        },
+        "revision_number": settings["baseline_revision_number"] + 1,
+        "mode": settings["mode"],
+        "instruction": instruction,
+        "permitted_ids": settings["allowed_ids"],
+        "changes": changes,
+        "preserved": {"ids": preserved, "count": len(preserved)},
+        "unexpected_changes": unexpected,
+        "dependency_implications": implications,
+        "consequence_candidates": consequence_candidates,
+        "series_consequences": series_consequences,
+        "author_decisions": author_decisions,
+        "authority_changes": authority_changes,
+        "unresolved_effects": unresolved_effects,
+        "withdrawal": withdrawal,
+        "applicable": not unexpected,
+        "applied": False,
+        "note": ("Mechanical references are dependencies to inspect, not evidence of a narrative contradiction. "
+                 "This is a working proposal. It changes no Series, accepted, or intention state."),
+        "candidate": candidate.model_dump(mode="json"),
+    }
+
+
+def _revision_packet(
+    artifact: WorkingBookArchitecture, index: dict, book_number: int, current: dict, series: dict,
+    source: dict, targets: set[str], dependents: set[str], holistic: bool, instruction: str,
+) -> dict:
+    in_scope = set(index) if holistic else targets | dependents
+    views = {view["id"]: view for view in project_artifact(artifact)["elements"]}
+
+    def scoped_record(identifier: str) -> dict:
+        entry = index[identifier]
+        full = entry["element"].model_dump(mode="json") if entry["element"] is not None else entry["own"]
+        return {"id": identifier, "collection": entry["collection"], "content_sha256": entry["hash"], "record": full}
+
+    manifest = [] if holistic else [
+        {"id": identifier, "collection": index[identifier]["collection"],
+         "content_sha256": index[identifier]["hash"],
+         "attribution": views[identifier]["attribution"] if identifier in views else None,
+         "epistemic_status": views[identifier]["epistemic_status"] if identifier in views else None}
+        for identifier in sorted(index) if identifier not in in_scope
+    ]
+    nodes = {node["id"]: node for node in series["candidate"].get("nodes", [])}
+    referenced = sorted({node for identifier in in_scope for node in _series_refs_of(index, identifier)})
+    questions = series["candidate"].get("open_questions", [])
+    return {
+        "schema": REVISION_KIND,
+        "operation": "revise",
+        "book_number": book_number,
+        "baseline": {
+            "request_sha256": current["request_sha256"],
+            "content_sha256": current["content_sha256"],
+            "revision_number": current.get("revision_number", 0),
+        },
+        "instruction": instruction,
+        "mode": "holistic" if holistic else "targeted",
+        "permitted_ids": None if holistic else sorted(in_scope),
+        "scoped_elements": [scoped_record(identifier) for identifier in sorted(in_scope)],
+        "unchanged_elements": manifest,
+        "governing": {
+            "function": {"question": artifact.function.question, "pressure": artifact.function.pressure},
+            "book_source": source["book_source"],
+            "story_vision": source["story_vision"],
+            "creative_intentions": source["creative_intentions"],
+            "assumptions": [item.model_dump(mode="json") for item in artifact.assumptions],
+            "alternatives": [item.model_dump(mode="json") for item in artifact.alternatives],
+        },
+        "series_architecture": {
+            "request_sha256": series["request_sha256"],
+            "candidate_sha256": _digest(series["candidate"]),
+            "referenced_nodes": [nodes[node] for node in referenced if node in nodes],
+            "node_index": [{"id": node["id"], "category": node["category"], "title": node["title"]}
+                           for node in series["candidate"].get("nodes", [])],
+            "open_questions": [{"index": i, "text": text, "sha256": _text_digest(text)}
+                               for i, text in enumerate(questions)],
+        },
+        "visible_source_ids": _visible_source_ids(source),
+    }
+
+
+def _revision_attempt(base: Path, baseline_sha: str) -> int:
+    """Each deliberate prepare against one baseline is a new attempt, so its request identity differs.
+
+    Requests are content-addressed. Without an attempt number, re-preparing the same scope after a blocked
+    review would return the blocked request and refuse a corrected candidate.
+    """
+    count = 0
+    for request_file in (base / "requests").glob("*/request.json"):
+        settings = json.loads(request_file.read_text(encoding="utf-8")).get("settings", {})
+        if settings.get("baseline_request_sha256") == baseline_sha:
+            count += 1
+    return count + 1
+
+
+def _prepare_revision(
+    store: CanvasStore, book_number: int, instruction: str, targets: tuple[str, ...], holistic: bool,
+) -> dict:
+    if not instruction.strip():
+        raise ValueError("a revision needs a non-empty instruction")
+    if len(instruction) > 4000:
+        raise ValueError("revision instruction must be under 4000 characters")
+    if holistic and targets:
+        raise ValueError("choose either --target elements or --holistic, not both")
+    if not holistic and not targets:
+        raise ValueError("name the elements to revise with --target, or use --holistic")
+    with _FilesystemLock(store._path(".canvas.lock")):
+        base = _book_root(store, book_number)
+        current = _read(base / "current.json")
+        if current is None:
+            raise ValueError(f"Book {book_number} has no working architecture to revise; develop it first")
+        artifact = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
+        index = _index_elements(artifact)
+        unknown = sorted(identifier for identifier in targets if identifier not in index)
+        if unknown:
+            raise ValueError(f"unknown target elements: {', '.join(unknown)}")
+        target_set = set(targets)
+        dependents = set() if holistic else _dependents_of(index, target_set)
+        series = _candidate(store)
+        if series is None or _current_candidate_freshness(store, series) != "ready":
+            raise BeginnerConcurrencyError("the Series working architecture must be current before a Book revision")
+        source = _author_source(store, book_number)
+        packet = _revision_packet(artifact, index, book_number, current, series, source,
+                                  target_set, dependents, holistic, instruction)
+        user = json.dumps(packet, ensure_ascii=False, sort_keys=True)
+        settings = {
+            "book_number": book_number,
+            "operation": "revise",
+            "baseline_request_sha256": current["request_sha256"],
+            "baseline_content_sha256": current["content_sha256"],
+            "baseline_revision_number": current.get("revision_number", 0),
+            "series_request_sha256": series["request_sha256"],
+            "source_sha256": _digest(source),
+            "mode": "holistic" if holistic else "targeted",
+            "targets": sorted(target_set),
+            "dependents": sorted(dependents),
+            "allowed_ids": None if holistic else sorted(target_set | dependents),
+            "attempt": _revision_attempt(base, current["request_sha256"]),
+            "freshness_format": 2,
+        }
+        request = build_host_agent_request(
+            candidate_id=f"book-{book_number}-rev{settings['baseline_revision_number'] + 1}-"
+                         + _digest({"user": user})[:16],
+            role=ROLE, system=_BOOK_REVISION_SYSTEM, user=user, settings=settings,
+        )
+        write_host_agent_request(base / "requests" / request.request_sha256 / "request.json", request)
+        _atomic_json_write(base / "latest_request.json", {"request_sha256": request.request_sha256})
+    return book_project(store, book_number)
+
+
+def _series_view(packet: dict) -> dict:
+    """The Series facts a revision was built on, as reference checks need them: node ids and question texts."""
+    series = packet["series_architecture"]
+    return {"nodes": series["node_index"], "open_questions": [item["text"] for item in series["open_questions"]]}
+
+
+def _complete_revision(
+    store: CanvasStore, book_number: int, base: Path, sha: str,
+    request: HostAgentRequest, response: Any,
+) -> dict:
+    """Store a reviewed proposal. Never replaces current.json; only book_apply_review does that."""
+    settings = request.settings
+    current = _read(base / "current.json")
+    if current is None or current["request_sha256"] != settings["baseline_request_sha256"]:
+        write_host_agent_response(base / "requests" / sha / "stale_response.json", response)
+        raise BeginnerConcurrencyError(
+            "the working Book changed after this revision was prepared; response retained as stale evidence"
+        )
+    if _series_changed(store, settings) or _source_changed(store, book_number, settings):
+        write_host_agent_response(base / "requests" / sha / "stale_response.json", response)
+        raise BeginnerConcurrencyError(
+            "the Series architecture or the Book's source changed after this request; "
+            "response retained as stale evidence"
+        )
+    packet = json.loads(request.user)
+    candidate = WorkingBookArchitecture.model_validate_json(response.text)
+    if candidate.book_number != book_number:
+        raise ValueError("the artifact's book_number does not match the request")
+    baseline = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
+    series_view = _series_view(packet)
+    _check_references(candidate, series_view, set(packet["visible_source_ids"]))
+    _check_semantics(candidate)
+    base_index = _index_elements(baseline)
+    cand_index = _index_elements(candidate)
+    _enforce_revision_rules(base_index, cand_index)
+    series_node_ids = {node["id"] for node in series_view["nodes"]}
+    review = _build_review(
+        baseline=baseline, candidate=candidate, base_index=base_index, cand_index=cand_index,
+        settings=settings, instruction=packet["instruction"], series_node_ids=series_node_ids,
+        request_sha256=sha,
+    )
+    write_host_agent_response(base / "requests" / sha / "response.json", response)
+    _atomic_json_write(base / "requests" / sha / "review.json", review)
+    return book_project(store, book_number)
+
+
+def _set_epistemic_status(node: Any, identifier: str, status: str) -> bool:
+    """Set the explicit status on the one element with this id, wherever it sits in the record."""
+    if isinstance(node, dict):
+        if node.get("id") == identifier and "epistemic_status" in node:
+            node["epistemic_status"] = status
+            return True
+        return any(_set_epistemic_status(value, identifier, status) for value in node.values())
+    if isinstance(node, list):
+        return any(_set_epistemic_status(value, identifier, status) for value in node)
+    return False
+
+
+def book_withdraw(store: CanvasStore, book_number: int, element_id: str, rationale: str) -> dict:
+    """Propose a working withdrawal. It is a reviewed revision: nothing changes until it is applied."""
+    _check_number(book_number)
+    if not rationale.strip() or len(rationale) > 2000:
+        raise ValueError("a withdrawal needs a rationale under 2000 characters")
+    with _FilesystemLock(store._path(".canvas.lock")):
+        base = _book_root(store, book_number)
+        current = _read(base / "current.json")
+        if current is None:
+            raise ValueError(f"Book {book_number} has no working architecture to withdraw from")
+        artifact = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
+        index = _index_elements(artifact)
+        if element_id not in index:
+            raise ValueError(f"unknown element {element_id!r}")
+        entry = index[element_id]
+        element = entry["element"]
+        if element is None:
+            raise ValueError("typed edges are withdrawn with the elements they connect, not on their own")
+        if isinstance(element, FunctionBlock):
+            raise ValueError("the Book's function cannot be withdrawn; revise it instead")
+        if isinstance(element, DecisionElement) or element.epistemic_status in ("unresolved", "rejected"):
+            raise ValueError("author decisions, open questions and rejected items cannot be withdrawn by a working operation")
+        if element.provenance is not None:
+            raise ValueError("re-label this legacy element with a revision before withdrawing it")
+        cand_json = json.loads(json.dumps(current["artifact"]))
+        _set_epistemic_status(cand_json, element_id, "rejected")
+        candidate = WorkingBookArchitecture.model_validate_json(json.dumps(cand_json))
+        _check_semantics(candidate)
+        cand_index = _index_elements(candidate)
+        _enforce_revision_rules(index, cand_index)
+        settings = {
+            "book_number": book_number,
+            "operation": "withdraw",
+            "baseline_request_sha256": current["request_sha256"],
+            "baseline_content_sha256": current["content_sha256"],
+            "baseline_revision_number": current.get("revision_number", 0),
+            "series_request_sha256": current["series_request_sha256"],
+            "source_sha256": current["source_sha256"],
+            "mode": "targeted",
+            "targets": [element_id],
+            "dependents": sorted(_dependents_of(index, {element_id})),
+            "allowed_ids": [element_id],
+            "attempt": _revision_attempt(base, current["request_sha256"]),
+            "freshness_format": 2,
+        }
+        user = json.dumps({
+            "schema": REVISION_KIND, "operation": "withdraw", "book_number": book_number,
+            "element": entry["element"].model_dump(mode="json"), "rationale": rationale,
+            "baseline": {"request_sha256": current["request_sha256"], "content_sha256": current["content_sha256"]},
+        }, ensure_ascii=False, sort_keys=True)
+        request = build_host_agent_request(
+            candidate_id=f"book-{book_number}-withdraw-" + _digest({"user": user})[:16],
+            role=ROLE, system=_BOOK_REVISION_SYSTEM, user=user, settings=settings,
+        )
+        request_dir = base / "requests" / request.request_sha256
+        write_host_agent_request(request_dir / "request.json", request)
+        _atomic_json_write(base / "latest_request.json", {"request_sha256": request.request_sha256})
+        review = _build_review(
+            baseline=artifact, candidate=candidate, base_index=index, cand_index=cand_index,
+            settings=settings, instruction=f"withdraw {element_id}: {rationale}",
+            series_node_ids={node["id"] for node in (_candidate(store) or {}).get("candidate", {}).get("nodes", [])},
+            request_sha256=request.request_sha256,
+            withdrawal={"element_id": element_id, "rationale": rationale},
+        )
+        _atomic_json_write(request_dir / "review.json", review)
+    return book_project(store, book_number)
+
+
+def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str) -> dict:
+    """Apply one completed, applicable review. Repeated application is an explicit no-op."""
+    _check_number(book_number)
+    if not isinstance(request_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", request_sha256):
+        raise ValueError("valid request_sha256 is required")
+    with _FilesystemLock(store._path(".canvas.lock")):
+        base = _book_root(store, book_number)
+        pointer = _read(base / "latest_request.json")
+        review = _read(base / "requests" / request_sha256 / "review.json")
+        current = _read(base / "current.json")
+        if review is None:
+            raise ValueError("this request has no completed review")
+        if pointer is None or pointer["request_sha256"] != request_sha256:
+            raise BeginnerConcurrencyError("a newer Book request superseded this review")
+        if current is not None and current["request_sha256"] == request_sha256:
+            return {"result": "already_applied", **book_project(store, book_number)}
+        if current is None or current["request_sha256"] != review["baseline"]["request_sha256"]:
+            raise BeginnerConcurrencyError("the working Book changed after this review was prepared; review again")
+        request = load_host_agent_request(base / "requests" / request_sha256 / "request.json")
+        settings = request.settings
+        if _series_changed(store, settings) or _source_changed(store, book_number, settings):
+            raise BeginnerConcurrencyError(
+                "working context changed: the Series architecture or the Book's source changed; review again"
+            )
+        if not review["applicable"]:
+            problems = "; ".join(f"{item['id']} ({item['change']}: {item['reason']})"
+                                 for item in review["unexpected_changes"][:10])
+            raise ValueError(f"unexpected changes block application: {problems}")
+        artifact_json = review["candidate"]
+        artifact = WorkingBookArchitecture.model_validate_json(json.dumps(artifact_json))
+        series = _candidate(store)
+        series_nodes = {node["id"]: _digest(node) for node in (series or {}).get("candidate", {}).get("nodes", [])}
+        lineage = current.get("lineage") or [{
+            "revision": 0, "request_sha256": current["request_sha256"],
+            "content_sha256": current["content_sha256"], "operation": "develop",
+        }]
+        lineage = [*lineage, {
+            "revision": review["revision_number"], "request_sha256": request_sha256,
+            "content_sha256": _digest(artifact_json), "operation": "revise",
+            "baseline_request_sha256": review["baseline"]["request_sha256"],
+        }]
+        changed_ids = [entry["id"] for entry in review["changes"]["changed"]]
+        _atomic_json_write(base / "current.json", {
+            "book_number": book_number,
+            "request_sha256": request_sha256,
+            "series_request_sha256": settings["series_request_sha256"],
+            "source_sha256": settings["source_sha256"],
+            "series_nodes": {node: series_nodes[node] for node in sorted(_series_refs(artifact))
+                             if node in series_nodes},
+            "content_sha256": _digest(artifact_json),
+            "authority": "working_noncanonical",
+            "artifact": artifact_json,
+            "source_items": current.get("source_items", []),
+            "revision_number": review["revision_number"],
+            "lineage": lineage,
+            "applied_review": {
+                "mode": review["mode"],
+                "added": [entry["id"] for entry in review["changes"]["added"]],
+                "changed": changed_ids,
+                "removed": [entry["id"] for entry in review["changes"]["removed"]],
+                "preserved_count": review["preserved"]["count"],
+                "representation_only": [entry["id"] for entry in review["changes"]["changed"]
+                                        if entry["classification"].startswith("representation")],
+                "consequence_candidates": [entry["id"] for entry in review["consequence_candidates"]],
+                "author_decisions": [entry["decision_id"] for entry in review["author_decisions"]],
+                "withdrawal": review.get("withdrawal"),
+            },
+        })
+    return {"result": "applied", **book_project(store, book_number)}
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Auteur working Book architecture (noncanonical)")
     parser.add_argument("--project", required=True, help="Local Auteur project root")
     parser.add_argument("--canvas", required=True, help="Canvas id")
     actions = parser.add_subparsers(dest="action", required=True)
-    prepare = actions.add_parser("book-prepare", help="Open a develop request for one Book")
+    prepare = actions.add_parser("book-prepare", help="Develop a Book, or prepare a revision with --instruction")
     prepare.add_argument("--book", type=int, required=True)
+    prepare.add_argument("--instruction", default=None, help="Revision instruction. Omit to develop.")
+    prepare.add_argument("--target", action="append", default=[], help="Element id to revise (repeatable)")
+    prepare.add_argument("--holistic", action="store_true", help="Permit changes to any element")
     complete = actions.add_parser("book-complete-file", help="Validate and store the host agent's Book JSON")
     complete.add_argument("--book", type=int, required=True)
     complete.add_argument("--candidate", required=True, help="Path to Book architecture JSON")
+    withdraw = actions.add_parser("book-withdraw", help="Propose withdrawing one working element (a reviewed revision)")
+    withdraw.add_argument("--book", type=int, required=True)
+    withdraw.add_argument("--element", required=True)
+    withdraw.add_argument("--rationale", required=True)
+    apply_review = actions.add_parser("book-apply-review", help="Apply one completed, applicable review")
+    apply_review.add_argument("--book", type=int, required=True)
+    apply_review.add_argument("--request-sha256", required=True, help="Exact reviewed request SHA-256")
     resume = actions.add_parser("book-resume", help="Read-only re-entry for one Book")
     resume.add_argument("--book", type=int, required=True)
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     try:
         if args.action == "book-prepare":
-            result = book_prepare(store, args.book)
+            result = book_prepare(
+                store, args.book, instruction=args.instruction, targets=tuple(args.target), holistic=args.holistic,
+            )
         elif args.action == "book-complete-file":
             pending = book_project(store, args.book)
             if pending["status"] != "awaiting_host_agent" or not pending["request"]:
@@ -746,6 +1373,10 @@ def main(argv: list[str] | None = None) -> int:
             text = Path(args.candidate).read_text(encoding="utf-8")
             response = build_host_agent_response(request, text)
             result = book_complete(store, args.book, response.model_dump())
+        elif args.action == "book-withdraw":
+            result = book_withdraw(store, args.book, args.element, args.rationale)
+        elif args.action == "book-apply-review":
+            result = book_apply_review(store, args.book, args.request_sha256)
         else:
             result = book_resume(store, args.book)
     except (ValueError, BeginnerConcurrencyError) as exc:
@@ -775,6 +1406,17 @@ Every element: id (lowercase, starts with a letter), attribution, epistemic_stat
 - typed_edges: {id, source (a Book element id), target (a ref), dependency (sets_up, pays_off, depends_on, pressures, contradicts or transforms), function}.
 Preserve the source's causal, motivational and prospective substance; do not compress it into labels. Do not fabricate attribution, reversal conditions or references to make the object valid. Cite what the source says and mark what it does not say."""
 
+
+_BOOK_REVISION_SYSTEM = """You are revising ONE existing working Book architecture. Output exactly one JSON object with schema_version 1 and nothing else. It is the COMPLETE revised Book object, not a patch. This is a noncanonical working proposal: never accept, never write prose or chapters, never create character identities, character commitments or relationship states.
+
+Scope. Change only the elements whose ids appear in permitted_ids. Copy every other element exactly as it appears in the baseline (the record you are given in full for scoped elements, and the unchanged_elements manifest for the rest). You may refer to unchanged elements by id in refs. Keep a stable id wherever the same narrative responsibility continues. Introduce a new id only for a genuinely new element, and make it reference a permitted element.
+
+Form. Every element you change or add uses the explicit form: attribution (derived, with at least one ref to the source; agent_proposed; or unattributed when the source gives no attribution) and epistemic_status (asserted, hypothetical, unresolved, conditional or rejected). Put your own contribution to a source-derived statement in interpretation. Never write provenance, author_fixed, accepted, unlabelled, author-declared or author-supplied. An element that depends on an assumption or an author decision is conditional and cites it in refs. An assumption may state no reversal (reversal null) when none is known.
+
+Fixed. Open questions and author decisions stay unresolved and keep their Series binding. A working revision does not settle an open question or an author decision. Never assert a claim that depends on an author decision. Do not invent names, character commitments or relationship states.
+
+Instruction. The instruction is a working revision requested by the operator. Treat it as a hypothetical working change to develop and test, not as canon or an author decision. When it changes a mechanism, state the changed condition as an assumption, and record the condition it replaces as its reversal where you know it. Reflect the consequences inside the permitted elements, and record each dependency you establish as a typed edge. Do not rewrite the Series architecture and do not choose an accepted ending.
+"""
 
 if __name__ == "__main__":
     raise SystemExit(main())
