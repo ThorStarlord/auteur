@@ -1,0 +1,46 @@
+{
+  "book_number": 24,
+  "canvas": "spring-ledger-qual",
+  "status_after_prepare": "awaiting_host_agent",
+  "request_sha256": "77e0f638943f66c3933c1b3f1fa40ed28c8da94bc0e05779e4a951bc92c8cb33",
+  "user_packet_chars": 43610,
+  "system_instruction_chars": 3347,
+  "packet_keys": [
+    "author_source",
+    "book_number",
+    "operation",
+    "schema",
+    "series_architecture",
+    "visible_source_ids"
+  ],
+  "author_sources": {
+    "book_source": [
+      "book-24-author-brief"
+    ],
+    "creative_intentions": [
+      "intention-5fbc97e54e90",
+      "intention-f4a17a2820db",
+      "intention-5a1bfa5884bf",
+      "intention-aba6fb5d675f"
+    ],
+    "story_vision": [
+      "story-vision"
+    ]
+  },
+  "visible_source_ids": [
+    "book-24-author-brief",
+    "intention-5a1bfa5884bf",
+    "intention-5fbc97e54e90",
+    "intention-aba6fb5d675f",
+    "intention-f4a17a2820db",
+    "story-vision"
+  ],
+  "series_request_sha256": "90598b99df89a591df497a72be9f44cf8f77d50afc929858fedfd9b8af3c5a21",
+  "series_open_questions": 16,
+  "excluded_by_design": [
+    "book-24 cold-start function (PR 555 experiment)",
+    "earlier Book 24 candidates (PR 558, PR 560)",
+    "PR 555 challenge and correction reports",
+    "previous evaluator answers"
+  ]
+}

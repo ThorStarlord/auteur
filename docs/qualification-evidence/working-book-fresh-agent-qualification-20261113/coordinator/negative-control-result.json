@@ -1,0 +1,4 @@
+{
+  "result": "rejected",
+  "error": "1 validation error for WorkingBookArchitecture\n  Invalid JSON: EOF while parsing an object at line 1 column 59 [type=json_invalid, input_value='{\"schema_version\": 1, \"b... 24, \"title\": \"control\"', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/json_invalid"
+}
