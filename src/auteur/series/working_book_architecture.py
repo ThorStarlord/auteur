@@ -43,6 +43,8 @@ Provenance = Literal[
     "author_fixed", "derived", "agent_proposed", "hypothetical", "unresolved", "accepted", "unlabelled",
 ]
 AGENT_PROVENANCE = frozenset({"derived", "agent_proposed", "hypothetical", "unresolved"})
+Attribution = Literal["derived", "agent_proposed", "unattributed"]
+EpistemicStatus = Literal["asserted", "hypothetical", "unresolved", "conditional", "rejected"]
 _ID = r"^[a-z][a-z0-9_-]{0,79}$"
 _MAX_TEXT = 8000  # sanity bound against runaway output, not a content cap
 
@@ -65,20 +67,50 @@ class Ref(BaseModel):
 
 
 class BookElement(BaseModel):
+    """One Book element. Two forms are readable; an element uses only one of them.
+
+    Legacy form (Book records written before this correction): `provenance` alone. Its `unresolved`
+    value mixed unknown attribution, genuine open questions and assumptions without a reversal, so
+    legacy `unresolved` stays ambiguous and is never reinterpreted.
+
+    Explicit form: `attribution` (what supports the statement) and `epistemic_status` (where the statement
+    stands in the working proposal). Commitment authority is projected from these and from the author
+    decision list. It is never stored, so no element can carry an authority claim of its own.
+    """
     model_config = ConfigDict(extra="forbid", strict=True)
     id: str = Field(pattern=_ID)
-    provenance: Provenance
     text: str = Field(min_length=1, max_length=_MAX_TEXT)
     refs: list[Ref] = Field(default_factory=list, max_length=24)
+    provenance: Provenance | None = None
+    attribution: Attribution | None = None
+    epistemic_status: EpistemicStatus | None = None
+    interpretation: str | None = Field(default=None, min_length=1, max_length=2000)
 
     @model_validator(mode="after")
-    def agent_may_write_this_provenance(self) -> "BookElement":
-        if self.provenance not in AGENT_PROVENANCE:
+    def one_form_only(self) -> "BookElement":
+        if self.provenance is not None:
+            if self.attribution is not None or self.epistemic_status is not None or self.interpretation is not None:
+                raise ValueError(
+                    f"element {self.id!r} mixes the legacy provenance label with explicit attribution or status"
+                )
+            if self.provenance not in AGENT_PROVENANCE:
+                raise ValueError(
+                    f"provenance {self.provenance!r} cannot be written by an agent; "
+                    f"use one of {sorted(AGENT_PROVENANCE)}"
+                )
+            return self
+        if self.attribution is None or self.epistemic_status is None:
+            raise ValueError(f"element {self.id!r} needs attribution and epistemic_status")
+        if self.attribution == "derived" and not self._has_source_reference():
+            raise ValueError(f"source-derived element {self.id!r} must cite a source reference")
+        if self.interpretation is not None and self.attribution != "derived":
             raise ValueError(
-                f"provenance {self.provenance!r} cannot be written by an agent; "
-                f"use one of {sorted(AGENT_PROVENANCE)}"
+                f"element {self.id!r}: an interpretive contribution is recorded only on a source-derived element"
             )
         return self
+
+    def _has_source_reference(self) -> bool:
+        return bool(self.refs)
 
 
 class FunctionBlock(BookElement):
@@ -143,10 +175,12 @@ class PossibilityElement(BookElement):
 
 
 class AssumptionElement(BookElement):
+    """A provisional assumption. An unknown reversal is recorded as unknown; it is not an open author question."""
     reversal: str | None = Field(default=None, min_length=1, max_length=1200)
 
     @model_validator(mode="after")
-    def agent_assumptions_state_a_reversal(self) -> "AssumptionElement":
+    def legacy_agent_assumptions_state_a_reversal(self) -> "AssumptionElement":
+        # Rule of the legacy form only, kept so historical records keep their meaning.
         if self.provenance == "agent_proposed" and not self.reversal:
             raise ValueError(f"agent-proposed assumption {self.id!r} must state a reversal condition")
         return self
@@ -159,15 +193,26 @@ class AlternativeElement(BookElement):
 
     @model_validator(mode="after")
     def alternatives_are_hypothetical(self) -> "AlternativeElement":
-        if self.provenance != "hypothetical":
+        if self.provenance is not None and self.provenance != "hypothetical":
             raise ValueError(f"alternative {self.id!r} must carry hypothetical provenance")
+        if self.provenance is None and self.epistemic_status != "hypothetical":
+            raise ValueError(f"alternative {self.id!r} must have epistemic_status hypothetical")
         return self
 
 
 class DecisionElement(BookElement):
-    """An unresolved author decision, bound to one Series open question by index and text hash."""
+    """An author decision, bound to one Series open question by index and text hash. It stays unresolved."""
     series_question_index: int = Field(ge=0, le=63)
     series_question_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    def _has_source_reference(self) -> bool:
+        return True  # the binding to the Series open question is the source reference
+
+    @model_validator(mode="after")
+    def decisions_stay_unresolved(self) -> "DecisionElement":
+        if self.provenance is None and (self.epistemic_status != "unresolved" or self.attribution != "derived"):
+            raise ValueError(f"author decision {self.id!r} must be derived from its Series question and unresolved")
+        return self
 
 
 class TypedEdge(BaseModel):
@@ -201,13 +246,133 @@ class WorkingBookArchitecture(BaseModel):
 
 def _elements(artifact: WorkingBookArchitecture) -> list[BookElement]:
     """Every element in the artifact, including nested choice parts. Typed edges are not elements."""
-    found: list[BookElement] = [artifact.function, *artifact.inherited, *artifact.engines, *artifact.agents]
-    found += [artifact.choice, *artifact.choice.options, *artifact.choice.costs_kept_visible,
-              artifact.choice.transformation]
-    found += [*artifact.local_resolution, *artifact.series_consequences, *artifact.later_possibilities,
-              *artifact.assumptions, *artifact.alternatives, *artifact.unresolved,
-              *artifact.open_author_decisions]
+    return [element for _collection, element in _labelled_elements(artifact)]
+
+
+def _labelled_elements(artifact: WorkingBookArchitecture) -> list[tuple[str, BookElement]]:
+    """Every element with its collection name, including nested choice parts. Typed edges are not elements."""
+    found: list[tuple[str, BookElement]] = [("function", artifact.function)]
+    found += [("inherited", item) for item in artifact.inherited]
+    found += [("engines", item) for item in artifact.engines]
+    found += [("agents", item) for item in artifact.agents]
+    found += [("choice", artifact.choice)]
+    found += [("choice.options", item) for item in artifact.choice.options]
+    found += [("choice.costs_kept_visible", item) for item in artifact.choice.costs_kept_visible]
+    found += [("choice.transformation", artifact.choice.transformation)]
+    found += [("local_resolution", item) for item in artifact.local_resolution]
+    found += [("series_consequences", item) for item in artifact.series_consequences]
+    found += [("later_possibilities", item) for item in artifact.later_possibilities]
+    found += [("assumptions", item) for item in artifact.assumptions]
+    found += [("alternatives", item) for item in artifact.alternatives]
+    found += [("unresolved", item) for item in artifact.unresolved]
+    found += [("open_author_decisions", item) for item in artifact.open_author_decisions]
     return found
+
+
+# Legacy `provenance` values, read as what they can establish. `unresolved` is ambiguous on purpose.
+_LEGACY_READING = {
+    "derived": ("derived", "asserted"),
+    "agent_proposed": ("agent_proposed", "asserted"),
+    "hypothetical": ("agent_proposed", "hypothetical"),
+    "unresolved": ("unknown_legacy", "unknown_legacy"),
+}
+
+
+def project_element(element: BookElement, *, collection: str, decision_ids: set[str]) -> dict:
+    """Read one element's attribution, working status and commitment authority without storing authority.
+
+    Commitment authority is never `author_fixed` or `accepted`: Book operations cannot produce either.
+    """
+    if element.provenance is not None:
+        attribution, status = _LEGACY_READING[element.provenance]
+        form = "legacy"
+    else:
+        attribution, status = element.attribution, element.epistemic_status
+        form = "explicit"
+    if status == "rejected":
+        authority = "withdrawn"
+    elif element.id in decision_ids:
+        authority = "author_reserved"
+    elif status == "hypothetical":
+        authority = "not_adopted"
+    elif status in ("unresolved", "unknown_legacy"):
+        authority = "undecided"
+    elif attribution == "unattributed":
+        authority = "not_established"
+    elif attribution == "unknown_legacy":
+        authority = "undecided"
+    else:
+        authority = "agent_working"
+    view = {
+        "id": element.id,
+        "collection": collection,
+        "form": form,
+        "attribution": attribution,
+        "epistemic_status": status,
+        "commitment_authority": authority,
+        "ambiguous": status == "unknown_legacy",
+    }
+    if element.interpretation is not None:
+        view["interpretation"] = element.interpretation
+    if isinstance(element, AssumptionElement):
+        view["provisional"] = True
+        view["reversal_status"] = "stated" if element.reversal else "unknown"
+    return view
+
+
+def _projected(element: BookElement, collection: str, decision_ids: set[str]) -> dict:
+    view = project_element(element, collection=collection, decision_ids=decision_ids)
+    view.pop("collection")
+    return view
+
+
+def project_artifact(artifact: WorkingBookArchitecture) -> dict:
+    decision_ids = {item.id for item in artifact.open_author_decisions}
+    views = [
+        project_element(element, collection=collection, decision_ids=decision_ids)
+        for collection, element in _labelled_elements(artifact)
+    ]
+    summary: dict[str, dict[str, int]] = {"attribution": {}, "epistemic_status": {}, "commitment_authority": {}}
+    for view in views:
+        for field in summary:
+            summary[field][view[field]] = summary[field].get(view[field], 0) + 1
+    summary["form"] = {
+        "legacy": sum(1 for view in views if view["form"] == "legacy"),
+        "explicit": sum(1 for view in views if view["form"] == "explicit"),
+        "legacy_ambiguous": sum(1 for view in views if view["ambiguous"]),
+    }
+    return {"elements": views, "summary": summary}
+
+
+def _check_semantics(artifact: WorkingBookArchitecture) -> None:
+    """Explicit-form rules that keep genuine questions, author decisions and assumptions apart."""
+    decision_ids = {item.id for item in artifact.open_author_decisions}
+    assumption_ids = {item.id for item in artifact.assumptions}
+    problems: list[str] = []
+    for _collection, element in _labelled_elements(artifact):
+        if element.provenance is not None:
+            continue
+        if element.epistemic_status == "asserted":
+            for ref in element.refs:
+                if ref.kind == "book_element" and ref.id in decision_ids:
+                    problems.append(
+                        f"{element.id}: asserts a claim that depends on author decision {ref.id}; "
+                        "it must be conditional on that decision"
+                    )
+        if element.epistemic_status == "conditional":
+            conditions = [
+                ref.id for ref in element.refs
+                if ref.kind == "book_element" and (ref.id in assumption_ids or ref.id in decision_ids)
+            ]
+            if not conditions:
+                problems.append(
+                    f"{element.id}: conditional status needs a reference to an assumption or author decision"
+                )
+    for item in artifact.unresolved:
+        if item.provenance is None and item.epistemic_status != "unresolved":
+            problems.append(f"{item.id}: an item listed as unresolved must have epistemic_status unresolved")
+    if problems:
+        raise ValueError("; ".join(problems[:20]))
 
 
 def _all_refs(artifact: WorkingBookArchitecture) -> list[tuple[str, Ref]]:
@@ -443,6 +608,7 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
         _check_references(
             artifact, packet["series_architecture"]["candidate"], set(packet["visible_source_ids"]),
         )
+        _check_semantics(artifact)
         write_host_agent_response(base / "requests" / sha / "response.json", response)
         series_nodes = {node["id"]: _digest(node) for node in packet["series_architecture"]["candidate"]["nodes"]}
         artifact_json = artifact.model_dump(mode="json")
@@ -470,6 +636,7 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
     if record is None:
         return {"book_number": book_number, "status": "not_started", "authority": "working_noncanonical"}
     artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    decision_ids = {item.id for item in artifact.open_author_decisions}
     series = _candidate(store)
     series_nodes = {node["id"]: node for node in (series or {}).get("candidate", {}).get("nodes", [])}
     questions = (series or {}).get("candidate", {}).get("open_questions", [])
@@ -510,11 +677,11 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
                 for item in artifact.later_possibilities
             ],
             "assumptions": [
-                {"id": item.id, "provenance": item.provenance, "text": item.text, "reversal": item.reversal}
+                {**_projected(item, "assumptions", decision_ids), "text": item.text, "reversal": item.reversal}
                 for item in artifact.assumptions
             ],
             "alternatives": [
-                {"id": item.id, "title": item.title, "status": item.status}
+                {**_projected(item, "alternatives", decision_ids), "title": item.title}
                 for item in artifact.alternatives
             ],
         },
@@ -531,7 +698,10 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
             }
             for decision in artifact.open_author_decisions
         ],
-        "unresolved": [{"id": item.id, "text": item.text} for item in artifact.unresolved],
+        "unresolved": [
+            {**_projected(item, "unresolved", decision_ids), "text": item.text} for item in artifact.unresolved
+        ],
+        "semantics": project_artifact(artifact)["summary"],
         "revision_identity": {
             "book_request_sha256": record["request_sha256"],
             "series_request_sha256": record["series_request_sha256"],
@@ -588,8 +758,10 @@ def main(argv: list[str] | None = None) -> int:
 _BOOK_SYSTEM = """You are developing ONE Book's working architecture for a long-form Series. Output exactly one JSON object, schema_version 1, and nothing else. This is a noncanonical proposal: never accept, never write prose or chapters, never create character identities, character commitments or relationship states.
 
 Top level: schema_version, book_number, title, function, inherited, engines, agents, choice, local_resolution, series_consequences, later_possibilities, assumptions, alternatives, unresolved, open_author_decisions, typed_edges.
-Every element: id (lowercase, starts with a letter), provenance, text (the substance, as long as it needs to be, under 8000 characters), refs.
-- provenance: derived (you cite the refs it rests on), agent_proposed (your own working inference), hypothetical (alternatives only), unresolved (information missing from the source). Never author_fixed, accepted or unlabelled. If the source gives no attribution for an item, use unresolved, never a guess.
+Every element: id (lowercase, starts with a letter), attribution, epistemic_status, text (the substance, as long as it needs to be, under 8000 characters), refs, and interpretation only where the element is source-derived.
+- attribution: derived (cite the source in refs; put your own contribution in interpretation), agent_proposed (your own working inference), or unattributed (the source asserts it without naming a source; do not guess one). Never author_fixed, accepted, unlabelled, author-declared or author-supplied.
+- epistemic_status: asserted (the working proposal states it), hypothetical (an alternative not taken), unresolved (a genuinely open question or missing information), conditional (depends on an assumption or author decision you cite in refs; never assert a claim that depends on an author decision), rejected.
+- An assumption may state no reversal (reversal null) when none is known. That leaves the reversal unknown; it does not make the assumption unresolved.
 - refs: {kind, id}. kind series_node (an id in series_architecture.candidate.nodes), book_element (an id you define in this object), source_item (an id listed in visible_source_ids). Every ref must resolve.
 - function: question, pressure, and at least one series_node ref.
 - engines: condition, consequence, changed_state (required); choice, new_possibility (optional).
@@ -597,11 +769,11 @@ Every element: id (lowercase, starts with a letter), provenance, text (the subst
 - choice: two to six options (each an element), chosen_option_id, costs_kept_visible (one or more elements), transformation (an element).
 - local_resolution: items with closure true or false. series_consequences: items with kind changes, preserves or complicates. later_possibilities: items with kind enabled or closed.
 - assumptions: agent_proposed assumptions MUST state a reversal condition. If you cannot state one, mark the assumption unresolved with reversal null.
-- alternatives: title, status "hypothetical", rationale, provenance "hypothetical".
+- alternatives: title, status "hypothetical", rationale, attribution "agent_proposed", epistemic_status "hypothetical".
 - unresolved: missing information and author-reserved decisions.
 - open_author_decisions: series_question_index and series_question_sha256, copied exactly from series_architecture.open_questions. Use them only for a Series open question this Book must leave to the author.
 - typed_edges: {id, source (a Book element id), target (a ref), dependency (sets_up, pays_off, depends_on, pressures, contradicts or transforms), function}.
-Preserve the source's causal, motivational and prospective substance; do not compress it into labels. Do not fabricate provenance, reversal conditions or references to make the object valid. Cite what the source says and mark what it does not say."""
+Preserve the source's causal, motivational and prospective substance; do not compress it into labels. Do not fabricate attribution, reversal conditions or references to make the object valid. Cite what the source says and mark what it does not say."""
 
 
 if __name__ == "__main__":
