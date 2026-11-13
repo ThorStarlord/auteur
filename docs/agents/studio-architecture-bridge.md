@@ -111,6 +111,14 @@ Refusals:
 | `provenance '<value>' cannot be written by an agent` | `author_fixed`, `accepted` and `unlabelled` are never valid in an agent's response. |
 | `<kind> reference '<id>' does not resolve` | A reference names something absent from the Series revision, the artifact, or the visible source. |
 
-Provenance inside the Book: `derived` (based on the cited source), `agent_proposed` (the agent's reversible inference), `hypothetical` (considered and not taken), `unresolved` (the source gives no information or no attribution). An `agent_proposed` assumption must state a reversal. If the source gives none, record the assumption as `unresolved` with no reversal rather than inventing one.
+Book elements separate three questions. Write them explicitly:
+
+- `attribution`: what supports the statement. `derived` (cite the source in `refs`; put your own contribution in `interpretation`), `agent_proposed` (your own inference), `unattributed` (the source asserts it without naming a source; do not guess one).
+- `epistemic_status`: where the statement stands in the working proposal. `asserted`, `hypothetical` (an alternative not taken), `unresolved` (a genuinely open question or missing information), `conditional` (depends on an assumption or an author decision you cite in `refs`), `rejected`.
+- Commitment authority is not written. The read projection derives it: `agent_working`, `not_established`, `undecided`, `author_reserved`, `not_adopted` or `withdrawn`. No Book operation can produce `author_fixed` or `accepted`.
+
+Rules the validator enforces: a source-derived element cites a source reference; an asserted claim may not depend on an author decision (it must be `conditional`); an item listed as unresolved is `unresolved`; an author decision is `derived` from its Series question and stays `unresolved`. An assumption may state no reversal (`reversal` null). That leaves the reversal `unknown`; it does not make the assumption unresolved.
+
+Historical records keep the legacy `provenance` label. Legacy `unresolved` is read as `unknown_legacy` and marked `ambiguous`, never reinterpreted. A legacy element cannot also carry the explicit fields.
 
 Named agents need a `name_source` that is a visible source item or a Series node. Names that appear only in prose are not structured as named agents; record them as an unresolved item instead.
