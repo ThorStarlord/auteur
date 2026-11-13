@@ -517,3 +517,61 @@ def test_resume_of_a_developed_book_is_unchanged_by_the_revision_fields(tmp_path
     recovered = book_resume(store, 2)
     assert recovered["revision"] == {"number": 0, "lineage": [], "applied_review": None} or \
         recovered["revision"]["number"] == 0
+
+
+def test_reprepared_scope_after_a_blocked_review_gets_a_fresh_request(tmp_path):
+    store = make_store(tmp_path)
+    develop_book(store)
+    first = prepare(store, targets=["eng-trust"], instruction="Same instruction.")
+    blocked = complete(store, first, revised(lambda a: a["local_resolution"][0].update(text="Out of scope.")))
+    assert blocked["status"] == "review_blocked"
+    second = prepare(store, targets=["eng-trust"], instruction="Same instruction.")
+    assert second["pending_request_sha256"] != first["pending_request_sha256"]
+    fresh = complete(store, second, revised(lambda a: a["engines"][0].update(text="Reading rights are conditional.")))
+    assert fresh["status"] == "review_ready"
+
+
+def test_withdrawal_and_working_status_changes_are_not_called_representation():
+    from auteur.series.working_book_architecture import _classify_change
+    before = {"text": "A working item.", "attribution": "agent_proposed", "epistemic_status": "asserted"}
+    assert _classify_change(before, {**before, "epistemic_status": "rejected"}) == "withdrawal"
+    assert _classify_change(before, {**before, "epistemic_status": "conditional"}) == "working_status"
+    assert _classify_change({"text": "x", "provenance": "unresolved"},
+                            {"text": "x", "attribution": "agent_proposed", "epistemic_status": "asserted"})         == "representation_reclassified_from_legacy"
+
+
+def test_a_targeted_removal_is_reported_and_a_child_change_is_attributed_to_the_child(tmp_path):
+    store = make_store(tmp_path)
+    develop_book(store)
+    status = prepare(store, targets=["later-audit"], instruction="Drop the later audit possibility.")
+
+    def drop(a):
+        a["later_possibilities"] = []
+
+    removed = complete(store, status, revised(drop))
+    assert [entry["id"] for entry in review_of(removed)["changes"]["removed"]] == ["later-audit"]
+    assert review_of(removed)["applicable"] is True
+
+    status = prepare(store, targets=["opt-open"], instruction="Sharpen the open option.")
+    child = complete(store, status, revised(lambda a: a["choice"]["options"][0].update(text="Open the ledger to every heir.")))
+    changed = [entry["id"] for entry in review_of(child)["changes"]["changed"]]
+    assert changed == ["opt-open"], changed
+
+
+def test_a_change_to_references_alone_is_detected_and_classified_as_mechanical(tmp_path):
+    store = make_store(tmp_path)
+    develop_book(store)
+    status = prepare(store, targets=["res-heirs"], instruction="Add a reference only.")
+    finished = complete(store, status, revised(lambda a: a["local_resolution"][0].update(
+        refs=[{"kind": "series_node", "id": "rx_wonder"}])))
+    entry = [item for item in review_of(finished)["changes"]["changed"] if item["id"] == "res-heirs"][0]
+    assert entry["classification"] == "mechanical"
+    assert entry["fields_changed"] == ["refs"]
+
+
+def test_resume_flags_a_truncated_story_vision_excerpt(tmp_path):
+    store = make_store(tmp_path)
+    develop_book(store)
+    author = book_resume(store, 2)["packet"]["author_fixed_context"]
+    assert author["story_vision_excerpt_is_truncated"] is False
+    assert author["story_vision_characters"] == len("A shared water commons; wonder and a long return.")

@@ -240,3 +240,23 @@ def test_withdrawn_element_projects_as_withdrawn_without_becoming_a_new_truth():
     view = views(parse(data))["eng-trust"]
     assert view["epistemic_status"] == "rejected"
     assert view["commitment_authority"] == "withdrawn"
+
+
+def test_a_conditional_claim_may_not_depend_on_a_rejected_assumption():
+    data = book()
+    data["assumptions"].append({**element("assume-premise", "A working premise.", status="rejected"),
+                                "reversal": None})
+    data["later_possibilities"] = [{**element("later-x", "Depends on the premise.", status="conditional",
+                                              refs=[{"kind": "book_element", "id": "assume-premise"}]),
+                                    "kind": "enabled"}]
+    with pytest.raises(ValueError, match="which is rejected"):
+        _check_semantics(parse(data))
+
+
+def test_interpretation_changes_are_interpretive_not_representation():
+    from auteur.series.working_book_architecture import _classify_change
+    before = {"text": "The return is promised.", "attribution": "derived", "epistemic_status": "asserted"}
+    after = {**before, "interpretation": "Agent contribution: the valley now knows the date."}
+    assert _classify_change(before, after) == "interpretive"
+    relabelled = {**before, "attribution": "unattributed"}
+    assert _classify_change(before, relabelled) == "representation"

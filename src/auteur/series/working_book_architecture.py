@@ -350,6 +350,8 @@ def _check_semantics(artifact: WorkingBookArchitecture) -> None:
     """Explicit-form rules that keep genuine questions, author decisions and assumptions apart."""
     decision_ids = {item.id for item in artifact.open_author_decisions}
     assumption_ids = {item.id for item in artifact.assumptions}
+    rejected_ids = {element.id for _collection, element in _labelled_elements(artifact)
+                    if element.provenance is None and element.epistemic_status == "rejected"}
     problems: list[str] = []
     for _collection, element in _labelled_elements(artifact):
         if element.provenance is not None:
@@ -370,6 +372,11 @@ def _check_semantics(artifact: WorkingBookArchitecture) -> None:
                 problems.append(
                     f"{element.id}: conditional status needs a reference to an assumption or author decision"
                 )
+            for condition in conditions:
+                if condition in rejected_ids:
+                    problems.append(
+                        f"{element.id}: conditional on {condition}, which is rejected; revise this element first"
+                    )
     for item in artifact.unresolved:
         if item.provenance is None and item.epistemic_status != "unresolved":
             problems.append(f"{item.id}: an item listed as unresolved must have epistemic_status unresolved")
@@ -685,6 +692,8 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         },
         "author_fixed_context": {
             "story_vision_excerpt": vision[:600],
+            "story_vision_characters": len(vision),
+            "story_vision_excerpt_is_truncated": len(vision) > 600,
             "creative_intentions": [
                 {"id": item["id"], "title": item["title"], "status": item["status"]}
                 for item in source["creative_intentions"]
@@ -693,11 +702,11 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         "series_constraints": constraints,
         "exports": {
             "series_consequences": [
-                {"id": item.id, "kind": item.kind, "text": item.text}
+                {**_projected(item, "series_consequences", decision_ids), "kind": item.kind, "text": item.text}
                 for item in artifact.series_consequences
             ],
             "later_possibilities": [
-                {"id": item.id, "kind": item.kind, "text": item.text}
+                {**_projected(item, "later_possibilities", decision_ids), "kind": item.kind, "text": item.text}
                 for item in artifact.later_possibilities
             ],
             "assumptions": [
@@ -844,12 +853,21 @@ def _compare(base_index: dict, cand_index: dict, allowed: set[str] | None) -> tu
 
 
 def _classify_change(before: dict, after: dict) -> str:
-    """Interpretive means the words changed. Representation means only how the statement is labelled changed."""
+    """What kind of change this is. A working decision is not a representation change, and neither is a rewording.
+
+    interpretive: the statement's words or the agent's interpretation changed.
+    withdrawal / working_status: the working epistemic status changed (rejected, or otherwise).
+    representation_reclassified_from_legacy: a legacy label was restated in the explicit form.
+    representation: only attribution or the reversal's form changed.
+    mechanical: only structural references changed.
+    """
     if before.get("text") != after.get("text") or before.get("interpretation") != after.get("interpretation"):
         return "interpretive"
-    if any(before.get(field) != after.get(field) for field in _CHANGE_FIELDS):
-        if before.get("provenance") is not None and after.get("provenance") is None:
-            return "representation_reclassified_from_legacy"
+    if before.get("provenance") is not None and after.get("provenance") is None:
+        return "representation_reclassified_from_legacy"
+    if before.get("epistemic_status") != after.get("epistemic_status"):
+        return "withdrawal" if after.get("epistemic_status") == "rejected" else "working_status"
+    if before.get("attribution") != after.get("attribution") or before.get("reversal") != after.get("reversal"):
         return "representation"
     return "mechanical"
 
@@ -1052,6 +1070,20 @@ def _revision_packet(
     }
 
 
+def _revision_attempt(base: Path, baseline_sha: str) -> int:
+    """Each deliberate prepare against one baseline is a new attempt, so its request identity differs.
+
+    Requests are content-addressed. Without an attempt number, re-preparing the same scope after a blocked
+    review would return the blocked request and refuse a corrected candidate.
+    """
+    count = 0
+    for request_file in (base / "requests").glob("*/request.json"):
+        settings = json.loads(request_file.read_text(encoding="utf-8")).get("settings", {})
+        if settings.get("baseline_request_sha256") == baseline_sha:
+            count += 1
+    return count + 1
+
+
 def _prepare_revision(
     store: CanvasStore, book_number: int, instruction: str, targets: tuple[str, ...], holistic: bool,
 ) -> dict:
@@ -1094,6 +1126,7 @@ def _prepare_revision(
             "targets": sorted(target_set),
             "dependents": sorted(dependents),
             "allowed_ids": None if holistic else sorted(target_set | dependents),
+            "attempt": _revision_attempt(base, current["request_sha256"]),
             "freshness_format": 2,
         }
         request = build_host_agent_request(
@@ -1206,6 +1239,7 @@ def book_withdraw(store: CanvasStore, book_number: int, element_id: str, rationa
             "targets": [element_id],
             "dependents": sorted(_dependents_of(index, {element_id})),
             "allowed_ids": [element_id],
+            "attempt": _revision_attempt(base, current["request_sha256"]),
             "freshness_format": 2,
         }
         user = json.dumps({
