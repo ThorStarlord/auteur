@@ -172,13 +172,19 @@ class ArchitectureOpportunity(BaseModel):
     artistic_potential: str | None = Field(default=None, max_length=600)
     intention_fidelity: str | None = Field(default=None, max_length=600)
     requires_author_decision: bool = False
+    provisional_primary: bool = False
 
     @model_validator(mode="after")
     def replacement_requires_author_decision(self) -> "ArchitectureOpportunity":
-        if self.relationship == "replaces" and not self.requires_author_decision:
+        if (
+            self.relationship == "replaces"
+            and not self.requires_author_decision
+            and not self.provisional_primary
+        ):
             raise ValueError(
-                "an opportunity that would replace the author's expressed purpose "
-                "must require an explicit author decision"
+                "replacing the author's expressed purpose must be flagged either as "
+                "requiring an author decision or as a provisional primary direction "
+                "under explicitly delegated goal discovery"
             )
         return self
 
@@ -209,6 +215,10 @@ class ArchitectureCandidate(BaseModel):
             raise ValueError("duplicate candidate node or phase id")
         if len({link.id for link in self.links}) != len(self.links):
             raise ValueError("duplicate candidate link id")
+        if sum(1 for item in self.opportunities if item.provisional_primary) > 1:
+            raise ValueError(
+                "at most one opportunity may be the provisional primary direction"
+            )
         if any(link.source not in nodes or link.target not in nodes or link.source == link.target
                for link in self.links):
             raise ValueError("candidate connection references missing or identical nodes")
@@ -687,6 +697,12 @@ set requires_author_decision for anything that would replace that purpose. Do no
 rank a direction merely because it was expressed first, and never present a
 replacement as the governing architecture. Darker events may deepen an optimistic
 purpose; that is not the same as a governing goal that negates it.
+When the author explicitly delegates discovering the best artistic purpose, you
+may select a provisional primary working direction that differs from their
+initial sketch. Develop at least two meaningfully different directions, mark one
+opportunity provisional_primary, and explain the difference from the sketch, the
+alternatives you set aside and what remains uncertain. That is a working
+selection only: it never accepts Story Identity and the author can change it.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -837,9 +853,13 @@ def opportunities_projection(candidate: dict | None) -> dict:
             "id": item.get("id"),
             "relationship": item.get("relationship") or "unclear",
             "requires_author_decision": bool(item.get("requires_author_decision")),
+            "provisional_primary": bool(item.get("provisional_primary")),
         }
         for item in items
     ]
+    provisional = next(
+        (item["id"] for item in alternatives if item["provisional_primary"]), None,
+    )
     return {
         "authority": "noncanonical_opportunity",
         "count": len(items),
@@ -851,12 +871,16 @@ def opportunities_projection(candidate: dict | None) -> dict:
             "requires_author_decision": [
                 item["id"] for item in alternatives if item["requires_author_decision"]
             ],
+            "provisional_primary": provisional,
+            "working_selection_is_not_acceptance": True,
             "note": (
                 "Artistic potential and intention fidelity are separate claims. An "
                 "alternative is not better because it is more developed, and the "
                 "expressed direction is not superior because it came first. Any "
                 "alternative that would replace the author's purpose requires an "
-                "explicit author decision."
+                "explicit author decision. A provisional primary direction is a "
+                "working selection under delegated goal discovery, never accepted "
+                "Story Identity."
             ),
         },
         "note": (

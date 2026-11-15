@@ -222,6 +222,7 @@
           scope: text(item.scope) || 'other',
           relationship: text(item.relationship) || 'unclear',
           requiresAuthorDecision: item.requires_author_decision === true,
+          provisionalPrimary: item.provisional_primary === true,
         };
       }),
       governingObjective: (status && status.governingObjective) || null,
@@ -337,6 +338,9 @@
     addSection(documentRef, root, 'Optional opportunities (not accepted)',
       projection.opportunities.map(function (item) {
         var line = item.title + ' (' + item.scope + ', ' + item.relationship + ')';
+        if (item.provisionalPrimary) {
+          line += ' - the agent provisional primary under your delegated goal discovery';
+        }
         if (item.requiresAuthorDecision) {
           line += ' - would replace your purpose: your decision required';
         }

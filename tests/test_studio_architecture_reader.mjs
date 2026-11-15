@@ -306,3 +306,25 @@ test('reader does not demand a decision for a deepening alternative', () => {
   assert.match(text, /\(series, deepens\)/);
   assert.doesNotMatch(text, /would replace your purpose/);
 });
+
+const provisionalOpportunity = Object.assign({}, sample, {
+  opportunities: [{
+    id: 'consent-tragedy',
+    title: 'The vote is a tragedy',
+    why_it_matters: 'A different answer to what the voyage is for.',
+    scope: 'series',
+    relationship: 'replaces',
+    provisional_primary: true,
+  }],
+});
+
+test('reader marks a provisional primary as a working selection only', () => {
+  const api = load();
+  const p = api.project(provisionalOpportunity);
+  assert.equal(p.opportunities[0].provisionalPrimary, true);
+  const container = element('section');
+  api.render(container, p, documentStub());
+  const text = textOf(container);
+  assert.match(text, /the agent provisional primary under your delegated goal discovery/);
+  assert.doesNotMatch(text, /Accepted Story Identity/);
+});
