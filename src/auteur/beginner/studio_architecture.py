@@ -166,6 +166,21 @@ class ArchitectureOpportunity(BaseModel):
     scope: Literal[
         "book", "series", "character", "relationship", "theme", "other"
     ] = "other"
+    relationship: Literal[
+        "deepens", "reinterprets", "replaces", "unclear"
+    ] = "unclear"
+    artistic_potential: str | None = Field(default=None, max_length=600)
+    intention_fidelity: str | None = Field(default=None, max_length=600)
+    requires_author_decision: bool = False
+
+    @model_validator(mode="after")
+    def replacement_requires_author_decision(self) -> "ArchitectureOpportunity":
+        if self.relationship == "replaces" and not self.requires_author_decision:
+            raise ValueError(
+                "an opportunity that would replace the author's expressed purpose "
+                "must require an explicit author decision"
+            )
+        return self
 
 
 class ArchitectureCandidate(BaseModel):
@@ -663,6 +678,15 @@ architecture: say what would be gained, what would be lost, what remains
 uncertain, and whether further investigation is worth the cost. Keep the original
 direction available; never present the alternative as accepted canon or as an
 automatic replacement.
+When the author's instruction is broad but has not delegated replacing their
+expressed artistic purpose, keep that purpose as the governing working direction.
+If a conflicting direction seems stronger, record it in opportunities with a
+relationship of deepens, reinterprets or replaces. Say separately what artistic
+potential it has and how faithful it is to the author's expressed intention, and
+set requires_author_decision for anything that would replace that purpose. Do not
+rank a direction merely because it was expressed first, and never present a
+replacement as the governing architecture. Darker events may deepen an optimistic
+purpose; that is not the same as a governing goal that negates it.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -808,10 +832,33 @@ def project_architecture(store: CanvasStore) -> dict:
 def opportunities_projection(candidate: dict | None) -> dict:
     """Surface incidental creative possibilities without granting them authority."""
     items = list((candidate or {}).get("opportunities") or [])
+    alternatives = [
+        {
+            "id": item.get("id"),
+            "relationship": item.get("relationship") or "unclear",
+            "requires_author_decision": bool(item.get("requires_author_decision")),
+        }
+        for item in items
+    ]
     return {
         "authority": "noncanonical_opportunity",
         "count": len(items),
         "items": items,
+        "comparison": {
+            "governing_purpose_authority": "author_expressed",
+            "alternative_count": len(alternatives),
+            "alternatives": alternatives,
+            "requires_author_decision": [
+                item["id"] for item in alternatives if item["requires_author_decision"]
+            ],
+            "note": (
+                "Artistic potential and intention fidelity are separate claims. An "
+                "alternative is not better because it is more developed, and the "
+                "expressed direction is not superior because it came first. Any "
+                "alternative that would replace the author's purpose requires an "
+                "explicit author decision."
+            ),
+        },
         "note": (
             "Incidental creative possibilities the agent noticed while doing the "
             "requested work. They are not defects, not required author decisions, "
