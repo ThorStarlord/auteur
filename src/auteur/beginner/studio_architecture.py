@@ -1119,6 +1119,24 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         ),
     }
     adoption_lineage = _adoption_lineage(store, current)
+    retained = opportunities_projection(candidate)
+    # A saved idea is not current merely because it was saved.
+    withheld = projection["status"] in {"stale", "guidance_changed"}
+    working_opportunities = {
+        "authority": "noncanonical_opportunity",
+        "freshness": projection["status"],
+        "withheld": withheld,
+        "items": [] if withheld else retained["items"],
+        "retained_item_count": retained["count"],
+        "comparison": retained["comparison"],
+        "note": (
+            "Ideas retained from earlier working proposals. They are not accepted "
+            "narrative meaning, they are distinguishable from accepted Story "
+            "Identity and current commitments, and they are not promoted because "
+            "they were saved. When the author's source or guidance changed they are "
+            "withheld rather than presented as current."
+        ),
+    }
     return {
         "kind": "studio_architecture_resume",
         "authority": "working_noncanonical",
@@ -1128,6 +1146,7 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         "architecture": candidate,
         "architecture_status": projection["status"],
         "candidate_request_sha256": projection["candidate_request_sha256"],
+        "working_opportunities": working_opportunities,
         "pending_request_sha256": pending_sha,
         "pending_review": projection["review"],
         "open_questions": candidate.get("open_questions", []) if candidate else [],
