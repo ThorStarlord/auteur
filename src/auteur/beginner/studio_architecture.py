@@ -754,6 +754,83 @@ def project_architecture(store: CanvasStore) -> dict:
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
         "review": review,
+        "governing_objective": (current or {}).get("governing_objective"),
+        "premise_status": (current or {}).get("premise_status"),
+    }
+
+
+_ACCEPTED_COMMITMENT_KEYS = (
+    "central_engine", "target_experience", "story_type",
+    "architecture_preferences", "hard_constraints", "not_this",
+)
+
+
+def governing_objective(user: dict) -> dict:
+    """Name the author's expressed objective for this working proposal.
+
+    Derived only from author-visible source already sent to the host agent. It is
+    never accepted Story Identity, and reporting it here never makes it canon.
+    """
+    working = user.get("working_context") or {}
+    vision = working.get("vision")
+    instruction = user.get("revision_instruction") or ""
+    return {
+        "authority": "author_expressed",
+        "story_vision": vision if isinstance(vision, str) and vision.strip() else None,
+        "instruction": (
+            instruction if isinstance(instruction, str) and instruction.strip() else None
+        ),
+        "note": (
+            "The author's expressed creative objective for this working proposal. "
+            "It is not accepted Story Identity, and the candidate summary is an "
+            "interpretation of it rather than the objective itself."
+        ),
+    }
+
+
+def premise_status(candidate: dict, accepted_identity: dict | None = None) -> dict:
+    """Classify what kind of claim each part of the working proposal is.
+
+    The four buckets are the ones an author must be able to tell apart. Every
+    node, link and the summary stay noncanonical working material no matter how
+    thoroughly the agent developed them.
+    """
+    author_targets = sorted(
+        str(target.get("id")) for target in candidate.get("emotion_targets", [])
+        if target.get("provenance") == "author_declared"
+    )
+    commitments: dict = {}
+    if isinstance(accepted_identity, dict):
+        for key in _ACCEPTED_COMMITMENT_KEYS:
+            value = accepted_identity.get(key)
+            if value not in (None, [], {}):
+                commitments[key] = value
+    return {
+        "authority": "working_architecture_not_canon",
+        "author_expressed": {
+            "source": "story_vision_and_author_named_emotion_targets",
+            "emotion_targets": author_targets,
+            "note": (
+                "A source-origin claim only: the author's own text names this "
+                "emotion. It is not acceptance of the agent's elaboration."
+            ),
+        },
+        "accepted": {
+            "source": "accepted_story_identity" if commitments else None,
+            "commitments": commitments,
+        },
+        "provisional_agent_interpretation": {
+            "summary": True,
+            "nodes": sorted(str(node.get("id")) for node in candidate.get("nodes", [])),
+            "links": sorted(str(link.get("id")) for link in candidate.get("links", [])),
+            "note": (
+                "Every node, link and the summary are noncanonical working "
+                "material proposed by the agent."
+            ),
+        },
+        "unresolved": {
+            "open_questions": list(candidate.get("open_questions", [])),
+        },
     }
 
 
@@ -1098,7 +1175,8 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         proposal = ArchitectureCandidate.model_validate_json(
             response.text, context={"new_host_agent_response": True}
         )
-        instruction = json.loads(request.user)["revision_instruction"]
+        submitted = json.loads(request.user)
+        instruction = submitted["revision_instruction"]
         settings = request.settings
         if settings.get("freshness_format") == 2:
             user = json.loads(request.user)
@@ -1126,26 +1204,27 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             raise BeginnerConcurrencyError(
                 "the author's creative intentions changed; response retained as stale evidence"
             )
-        _validate_author_provenance(proposal, json.loads(request.user))
+        _validate_author_provenance(proposal, submitted)
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
+        accepted_identity = (submitted.get("narrative_design_context") or {}).get(
+            "accepted_story_identity"
+        )
         record = {
             "request_sha256": sha,
             "source_sha256": settings["source_sha256"],
             "candidate": candidate,
+            "governing_objective": governing_objective(submitted),
+            "premise_status": premise_status(candidate, accepted_identity),
         }
         if settings.get("freshness_format") == 2:
             record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
-            accepted_identity = json.loads(request.user)[
-                "narrative_design_context"
-            ].get("accepted_story_identity")
             record.update(build_architecture_review(
                 current["candidate"], candidate, instruction,
                 accepted_identity=accepted_identity,
             ))
             record["prior_request_sha256"] = current["request_sha256"]
-            submitted = json.loads(request.user)
             if submitted.get("graph_intent"):
                 record["graph_intent_receipt"] = submitted["graph_intent"]
             if submitted.get("selected_creative_alternative"):

@@ -192,3 +192,46 @@ test('reader render handles an empty projection with an honest message', () => {
   assert.match(text, /No working architecture/);
   assert.doesNotMatch(text, /undefined/);
 });
+
+const premiseStatus = {
+  governingObjective: {
+    authority: 'author_expressed',
+    story_vision: 'An optimistic seventy-Book series about repairing a ruined climate.',
+    instruction: null,
+    note: 'The author expressed creative objective for this working proposal.',
+  },
+  premiseStatus: {
+    authority: 'working_architecture_not_canon',
+    author_expressed: {emotion_targets: ['wonder']},
+    accepted: {source: null, commitments: {}},
+    provisional_agent_interpretation: {
+      summary: true, nodes: ['wonder-engine'], links: ['wonder-cost'],
+    },
+    unresolved: {open_questions: ['How much wonder should survive the ending?']},
+  },
+};
+
+test('reader names the author objective and premise status without claiming acceptance', () => {
+  const api = load();
+  const container = element('section');
+  api.render(container, api.project(sample, premiseStatus), documentStub());
+  const text = textOf(container);
+  assert.match(text, /What this proposal is/);
+  assert.match(text, /Author objective:/);
+  assert.match(text, /seventy-Book series/);
+  assert.match(text, /Author-named: wonder/);
+  assert.match(text, /Agent interpretation: 1 mechanisms, 1 relationships/);
+  assert.match(text, /Accepted commitments: none yet/);
+  assert.match(text, /Unresolved: 1 open question/);
+  assert.doesNotMatch(text, /Accepted Story Identity/);
+});
+
+test('reader omits the status section when no status is supplied', () => {
+  const api = load();
+  const p = api.project(sample);
+  assert.equal(p.governingObjective, null);
+  assert.equal(p.premiseStatus, null);
+  const container = element('section');
+  api.render(container, p, documentStub());
+  assert.doesNotMatch(textOf(container), /What this proposal is/);
+});

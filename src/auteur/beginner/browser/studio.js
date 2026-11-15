@@ -319,7 +319,10 @@
     readerRoot.hidden = !state.architecture;
     if (state.architecture && window.AuteurStudioArchitectureReader) {
       window.AuteurStudioArchitectureReader.render(
-        readerRoot, window.AuteurStudioArchitectureReader.project(state.architecture));
+        readerRoot, window.AuteurStudioArchitectureReader.project(state.architecture, {
+          governingObjective: state.architecture.governing_objective,
+          premiseStatus: state.architecture.premise_status,
+        }));
     }
     $("architecture-handoff").hidden = !projection.request;
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";

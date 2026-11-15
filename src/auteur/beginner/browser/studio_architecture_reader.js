@@ -39,7 +39,7 @@
       });
   }
 
-  function project(candidate) {
+  function project(candidate, status) {
     if (!candidate || typeof candidate !== 'object' || !hasCandidateContent(candidate)) {
       return emptyProjection();
     }
@@ -212,7 +212,41 @@
       mechanisms: mechanisms,
       relationships: relationships,
       uncertainties: asArray(candidate.open_questions).filter(nonempty),
+      governingObjective: (status && status.governingObjective) || null,
+      premiseStatus: (status && status.premiseStatus) || null,
     };
+  }
+
+  function excerpt(value, limit) {
+    var valueText = text(value);
+    if (valueText.length <= limit) return valueText;
+    return valueText.slice(0, limit - 1) + '\u2026';
+  }
+
+  function describeStatus(projection) {
+    var lines = [];
+    var objective = projection.governingObjective;
+    if (objective && objective.story_vision) {
+      lines.push('Author objective: ' + excerpt(objective.story_vision, 240));
+    }
+    if (objective && objective.instruction) {
+      lines.push('Requested change: ' + excerpt(objective.instruction, 240));
+    }
+    var status = projection.premiseStatus;
+    if (!status) return lines;
+    var authorNamed = (status.author_expressed || {}).emotion_targets || [];
+    lines.push('Author-named: ' + (authorNamed.length ? authorNamed.join(', ') : 'nothing yet'));
+    var provisional = status.provisional_agent_interpretation || {};
+    lines.push('Agent interpretation: ' + (provisional.nodes || []).length + ' mechanisms, '
+      + (provisional.links || []).length + ' relationships, and the summary above');
+    var accepted = status.accepted || {};
+    lines.push('Accepted commitments: ' + (accepted.source
+      ? 'drawn from accepted Story Identity' : 'none yet'));
+    var unresolved = (status.unresolved || {}).open_questions || [];
+    if (unresolved.length) {
+      lines.push('Unresolved: ' + unresolved.length + ' open question(s)');
+    }
+    return lines;
   }
 
   function make(doc, tag, className, value) {
@@ -247,6 +281,8 @@
     root.appendChild(make(documentRef, 'p', 'architecture-reader-summary',
       projection.summary || 'No architecture summary is available.'));
     if (projection.status === 'empty') return;
+
+    addSection(documentRef, root, 'What this proposal is', describeStatus(projection));
 
     addSection(documentRef, root, 'Emotional promise', projection.emotions.map(function (emotion) {
       var line = emotion.label + ' · ' + emotion.role + ' — ' + emotion.intendedEffect;
