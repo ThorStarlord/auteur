@@ -151,6 +151,23 @@ class NarrativePhase(BaseModel):
     parallel_with: list[str] = Field(default_factory=list, max_length=12)
 
 
+class ArchitectureOpportunity(BaseModel):
+    """A bounded, incidental creative possibility noticed while doing requested work.
+
+    It is not a defect, not a required author decision, and not narrative meaning.
+    It exists so an author can see a promising possibility without it displacing
+    the work they asked for.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+    title: str = Field(min_length=1, max_length=160)
+    why_it_matters: str = Field(min_length=1, max_length=600)
+    scope: Literal[
+        "book", "series", "character", "relationship", "theme", "other"
+    ] = "other"
+
+
 class ArchitectureCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     schema_version: Literal[1, 2]
@@ -159,6 +176,9 @@ class ArchitectureCandidate(BaseModel):
     links: list[ArchitectureLink] = Field(default_factory=list, max_length=180)
     phases: list[NarrativePhase] = Field(default_factory=list, max_length=32)
     open_questions: list[str] = Field(default_factory=list, max_length=16)
+    opportunities: list[ArchitectureOpportunity] = Field(
+        default_factory=list, max_length=3,
+    )
     emotion_targets: list[EmotionTarget] = Field(default_factory=list, max_length=30)
     complex_emotions: list[ComplexEmotion] = Field(default_factory=list, max_length=16)
     genre_contracts: list[GenreContract] = Field(default_factory=list, max_length=14)
@@ -698,6 +718,11 @@ and identify them as agent proposals; do not turn them into required author
 questions. Reserve open_questions for genuinely authorial preferences or
 commitments that cannot be responsibly inferred. A proposal never waits for
 answers before it can be developed or revised.
+You may also notice a consequential creative possibility nobody asked about and
+that is not a defect in this proposal. Record at most one or two in
+opportunities, each with a short reason it might matter. Omit opportunities
+entirely when nothing consequential appears: never manufacture novelty, never let
+an opportunity replace the requested work, and never treat one as accepted.
 All material is a noncanonical proposal; never accept Identity, Structure or prose."""
 
 
@@ -756,6 +781,25 @@ def project_architecture(store: CanvasStore) -> dict:
         "review": review,
         "governing_objective": (current or {}).get("governing_objective"),
         "premise_status": (current or {}).get("premise_status"),
+        "opportunities": opportunities_projection(
+            current["candidate"] if current else None,
+        ),
+    }
+
+
+def opportunities_projection(candidate: dict | None) -> dict:
+    """Surface incidental creative possibilities without granting them authority."""
+    items = list((candidate or {}).get("opportunities") or [])
+    return {
+        "authority": "noncanonical_opportunity",
+        "count": len(items),
+        "items": items,
+        "note": (
+            "Incidental creative possibilities the agent noticed while doing the "
+            "requested work. They are not defects, not required author decisions, "
+            "and not accepted narrative meaning. Ignoring them is a complete "
+            "response."
+        ),
     }
 
 

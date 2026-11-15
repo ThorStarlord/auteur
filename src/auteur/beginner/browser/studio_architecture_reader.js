@@ -212,6 +212,16 @@
       mechanisms: mechanisms,
       relationships: relationships,
       uncertainties: asArray(candidate.open_questions).filter(nonempty),
+      opportunities: asArray(candidate.opportunities).filter(function (item) {
+        return item && typeof item === 'object' && nonempty(item.title);
+      }).map(function (item) {
+        return {
+          id: text(item.id),
+          title: text(item.title),
+          whyItMatters: text(item.why_it_matters),
+          scope: text(item.scope) || 'other',
+        };
+      }),
       governingObjective: (status && status.governingObjective) || null,
       premiseStatus: (status && status.premiseStatus) || null,
     };
@@ -321,6 +331,11 @@
       if (relationship.mechanism) line += ' — ' + relationship.mechanism;
       return line;
     }));
+
+    addSection(documentRef, root, 'Optional opportunities (not accepted)',
+      projection.opportunities.map(function (item) {
+        return item.title + ' (' + item.scope + '): ' + item.whyItMatters;
+      }));
 
     addSection(documentRef, root, 'Open questions', projection.uncertainties);
   }
