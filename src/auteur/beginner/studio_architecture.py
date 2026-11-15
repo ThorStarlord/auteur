@@ -251,6 +251,18 @@ class SelectedCreativeAlternative(BaseModel):
     hypothesis_id: str = Field(pattern=r"^h[1-9][0-9]{0,2}$")
 
 
+class SelectedOpportunity(BaseModel):
+    """An author-chosen opportunity from the current working candidate.
+
+    It provides noncanonical working context only. Selecting one never accepts it
+    and never replaces the governing architecture.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    candidate_request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    opportunity_id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+
+
 def _root(store: CanvasStore) -> Path:
     return store.directory / "architecture"
 
@@ -645,6 +657,12 @@ If selected_creative_alternative is present, the author chose that noncanonical
 alternative from an earlier read-only inquiry about this exact baseline. Develop
 it coherently across every materially affected element, keep unrelated author
 decisions and accepted constraints, and never present it as accepted canon.
+If selected_opportunity is present, the author asked to deepen that incidental
+opportunity into a working alternative. Compare it honestly against the governing
+architecture: say what would be gained, what would be lost, what remains
+uncertain, and whether further investigation is worth the cost. Keep the original
+direction available; never present the alternative as accepted canon or as an
+automatic replacement.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -1076,6 +1094,7 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
 def prepare_architecture(
     store: CanvasStore, instruction: str = "", graph_intent: dict | None = None,
     selected_alternative: dict | None = None,
+    selected_opportunity: dict | None = None,
 ) -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("revision instruction must be text under 4000 characters")
@@ -1089,6 +1108,37 @@ def prepare_architecture(
             if not current or _current_candidate_freshness(store, current) != "ready":
                 raise BeginnerConcurrencyError("selected alternative source or guidance is stale")
             selected_context = _selected_alternative_context(store, current, selection)
+        opportunity_context = None
+        if selected_opportunity is not None:
+            if not instruction.strip():
+                raise ValueError("a selected opportunity requires a revision instruction")
+            choice = SelectedOpportunity.model_validate(selected_opportunity)
+            if not current or _current_candidate_freshness(store, current) != "ready":
+                raise BeginnerConcurrencyError("selected opportunity source or guidance is stale")
+            if current["request_sha256"] != choice.candidate_request_sha256:
+                raise BeginnerConcurrencyError(
+                    "selected opportunity belongs to a superseded working candidate"
+                )
+            match = next(
+                (
+                    item for item in current["candidate"].get("opportunities", [])
+                    if item.get("id") == choice.opportunity_id
+                ),
+                None,
+            )
+            if match is None:
+                raise ValueError("selected opportunity is not present on the current candidate")
+            opportunity_context = {
+                "authority": "noncanonical_opportunity",
+                "source": "current_working_candidate",
+                "candidate_request_sha256": current["request_sha256"],
+                "opportunity": match,
+                "note": (
+                    "The author asked to deepen this incidental opportunity as a "
+                    "working alternative. It remains noncanonical and the governing "
+                    "architecture stays available for continuation."
+                ),
+            }
         resolved_graph_intent = None
         if graph_intent is not None:
             typed_intent = GraphIntent.model_validate(graph_intent)
@@ -1135,6 +1185,7 @@ def prepare_architecture(
             "revision_instruction": instruction,
             **({"graph_intent": resolved_graph_intent} if resolved_graph_intent else {}),
             **({"selected_creative_alternative": selected_context} if selected_context else {}),
+            **({"selected_opportunity": opportunity_context} if opportunity_context else {}),
         }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
@@ -1273,6 +1324,8 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 record["graph_intent_receipt"] = submitted["graph_intent"]
             if submitted.get("selected_creative_alternative"):
                 record["selected_creative_alternative"] = submitted["selected_creative_alternative"]
+            if submitted.get("selected_opportunity"):
+                record["selected_opportunity"] = submitted["selected_opportunity"]
             _atomic_json_write(base / "review.json", record)
         else:
             _atomic_json_write(_root(store) / "current.json", record)
