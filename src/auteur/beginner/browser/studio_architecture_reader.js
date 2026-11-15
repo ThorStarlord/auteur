@@ -220,6 +220,8 @@
           title: text(item.title),
           whyItMatters: text(item.why_it_matters),
           scope: text(item.scope) || 'other',
+          relationship: text(item.relationship) || 'unclear',
+          requiresAuthorDecision: item.requires_author_decision === true,
         };
       }),
       governingObjective: (status && status.governingObjective) || null,
@@ -334,7 +336,11 @@
 
     addSection(documentRef, root, 'Optional opportunities (not accepted)',
       projection.opportunities.map(function (item) {
-        return item.title + ' (' + item.scope + '): ' + item.whyItMatters;
+        var line = item.title + ' (' + item.scope + ', ' + item.relationship + ')';
+        if (item.requiresAuthorDecision) {
+          line += ' - would replace your purpose: your decision required';
+        }
+        return line + ': ' + item.whyItMatters;
       }));
 
     addSection(documentRef, root, 'Open questions', projection.uncertainties);

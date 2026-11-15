@@ -263,3 +263,46 @@ test('reader omits the opportunity section when none is proposed', () => {
   api.render(container, api.project(sample), documentStub());
   assert.doesNotMatch(textOf(container), /Optional opportunities/);
 });
+
+const replacingOpportunity = Object.assign({}, sample, {
+  opportunities: [{
+    id: 'tragic-replacement',
+    title: 'The compact fails and hope was naive',
+    why_it_matters: 'A tragic frame may sharpen institutional pressure.',
+    scope: 'series',
+    relationship: 'replaces',
+    requires_author_decision: true,
+  }],
+});
+
+const deepeningOpportunity = Object.assign({}, sample, {
+  opportunities: [{
+    id: 'darker-middle',
+    title: 'A devastating middle Book',
+    why_it_matters: 'Cost can make the eventual hope load-bearing.',
+    scope: 'series',
+    relationship: 'deepens',
+    requires_author_decision: false,
+  }],
+});
+
+test('reader marks an alternative that would replace the expressed purpose', () => {
+  const api = load();
+  const p = api.project(replacingOpportunity);
+  assert.equal(p.opportunities[0].relationship, 'replaces');
+  assert.equal(p.opportunities[0].requiresAuthorDecision, true);
+  const container = element('section');
+  api.render(container, p, documentStub());
+  const text = textOf(container);
+  assert.match(text, /would replace your purpose: your decision required/);
+  assert.match(text, /\(series, replaces\)/);
+});
+
+test('reader does not demand a decision for a deepening alternative', () => {
+  const api = load();
+  const container = element('section');
+  api.render(container, api.project(deepeningOpportunity), documentStub());
+  const text = textOf(container);
+  assert.match(text, /\(series, deepens\)/);
+  assert.doesNotMatch(text, /would replace your purpose/);
+});
