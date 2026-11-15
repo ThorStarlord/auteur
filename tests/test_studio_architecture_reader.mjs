@@ -235,3 +235,31 @@ test('reader omits the status section when no status is supplied', () => {
   api.render(container, p, documentStub());
   assert.doesNotMatch(textOf(container), /What this proposal is/);
 });
+
+const withOpportunity = Object.assign({}, sample, {
+  opportunities: [{
+    id: 'archive-city',
+    title: 'The archive becomes a city',
+    why_it_matters: 'A late Book could expose the keepers as an institution.',
+    scope: 'series',
+  }],
+});
+
+test('reader surfaces optional opportunities as explicitly not accepted', () => {
+  const api = load();
+  const p = api.project(withOpportunity);
+  assert.equal(p.opportunities.length, 1);
+  assert.equal(p.opportunities[0].scope, 'series');
+  const container = element('section');
+  api.render(container, p, documentStub());
+  const text = textOf(container);
+  assert.match(text, /Optional opportunities \(not accepted\)/);
+  assert.match(text, /The archive becomes a city/);
+});
+
+test('reader omits the opportunity section when none is proposed', () => {
+  const api = load();
+  const container = element('section');
+  api.render(container, api.project(sample), documentStub());
+  assert.doesNotMatch(textOf(container), /Optional opportunities/);
+});
