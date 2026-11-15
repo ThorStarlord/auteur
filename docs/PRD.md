@@ -1,28 +1,180 @@
-# PRD: Auteur narrative-engine toolkit
+# PRD: Auteur - sustained long-horizon narrative creation
 
 > **Provenance:** seeded 2026-09-04 from `README.md`, `CONTEXT.md`, and the
 > guidance-layer interview (Rounds 1-3), then reconciled 2026-09-20 against the
-> contemporary integrated product. This remains a derived product contract:
-> correct it directly when product intent changes; the factory rereads it when
-> `MISSION.md` is regenerated.
+> contemporary integrated product and 2026-11-15 for long-horizon product
+> identity (issue #563). This remains a derived product contract: correct it
+> directly when product intent changes; the factory rereads it when `MISSION.md`
+> is regenerated.
+
+## Purpose
+
+Auteur exists to expand what creators and intelligent agents can conceive,
+create, develop, transform, and sustain together: compelling, sophisticated
+narrative works, including series spanning many Books.
+
+The defining ambition is sustained long-horizon narrative creation. Narrative
+Architecture, ontology-grounded knowledge, provenance, and authority boundaries
+are mechanisms that make that ambition reachable; they are not the outcome.
+Realized creative value - a story an author can develop, revise, complete, and
+stand behind - is the outcome.
+
+Length is not the measure. A series that should consolidate or conclude is a
+successful creative result, not a shortfall.
 
 ## Problem
 
-Creative beginners with a raw story idea face an infinite blank page. Turning a
-premise into a working long-form story requires structural craft knowledge most
-beginners do not have, and existing tools either do the writing for them or offer
-no opinionated guidance at all.
+Sustained narrative creation is a cumulative cognitive burden. Across many Books
+an author must keep inventing consequential possibilities, understand distant
+causal and thematic dependencies, revise coherently without flattening artistic
+intent, preserve decisions across sessions and agents, and judge when a story
+should develop, transform, consolidate, or conclude.
 
-Auteur should help an author make the next bounded narrative decision while
-keeping accepted story state under explicit author control.
+Existing tools address parts of this. Guided drafting and generic LLM-plus-
+document workflows can assist locally, but neither automatically carries the
+whole-horizon creative responsibility. More generated text, more artifacts, or a
+more complete graph are not evidence that the author's consequential creative
+decisions improved.
 
-## Users
+Creative beginners meet the same burden in its first form: an infinite blank
+page, and structural craft knowledge they do not yet have. Auteur should help an
+author make the next consequential narrative decision at whatever horizon is
+active - a scene, a Book, or the shape of a series - while keeping accepted story
+state under explicit author control.
 
-- **Primary:** creative beginners using guided authoring with progressive
-  disclosure - they should reach valuable narrative decisions without editing
-  YAML, understanding Pydantic, or depending on the CLI.
-- **Secondary:** advanced authors and engineers who use the Python CLI, library,
-  and YAML/JSON/Markdown artifacts directly.
+## Fundamental beneficiary
+
+Any creator undertaking sustained narrative development, regardless of
+expertise. Expertise changes the support an author needs; it does not change who
+the product is for or who owns narrative authority.
+
+Two default expectations follow, and they coexist rather than compete:
+
+- **Default experience - guided authoring.** The intended default path remains
+  progressive-disclosure guided authoring, so a creator can reach valuable
+  narrative decisions without editing YAML, understanding Pydantic, or depending
+  on the CLI. Beginner accessibility is a product-quality obligation, not a
+  ceiling on the product.
+- **Advanced control.** Experienced authors and engineers keep direct,
+  inspectable control through the Python CLI, library, and YAML/JSON/Markdown
+  artifacts. Visible machinery is an advanced surface, never a prerequisite.
+
+Neither expectation defines the other's limits. A beginner-default experience
+that blocks sophisticated creative control and a sophisticated surface that
+requires it both fail this PRD.
+
+## Creative value proposition
+
+Auteur contributes rigorous, craft-informed, contestable artistic judgment to a
+sustained creative collaboration. The product should be able to:
+
+- discover meaningful narrative possibilities rather than more variants of a
+  known idea;
+- construct and evaluate sophisticated Narrative Architecture, and explain why a
+  direction is expected to work;
+- reason across causal, thematic, emotional, and structural relationships, and
+  across long narrative horizons;
+- recognize creative opportunities proactively instead of waiting to be asked;
+- challenge assumptions, compare alternatives honestly, and say when an
+  alternative is stronger;
+- support meaningful transformation, realization, and completion;
+- preserve working and accepted knowledge across sessions and agents.
+
+The intended advantage over a capable general-purpose LLM working over ordinary
+documents is that these become dependable properties of a sustained authoring
+system rather than a lucky conversation. That advantage is an objective to
+qualify, not an established result; see *Aspiration and demonstrated capability*.
+
+## Architecture as means, creation as outcome
+
+Auteur's Narrative Architecture - the five semantic layers and five scopes, the
+canonical/candidate/derived distinction, provenance, and continuity state -
+exists so that Auteur and the author can reason about a story beyond what either
+can reliably hold in working context.
+
+It is not the success measure. Graph completeness, artifact volume, documentation
+volume, ontology size, and Book count are not creative outcomes. An architecture
+that does not improve consequential creative decisions - or a story that keeps
+expanding because expansion is representable - has failed the purpose even when
+every artifact validates. See
+[Narrative Architecture](narrative-architecture.md) for the canonical model and
+[Architecture Constitution](architecture-constitution.md) for the authority
+vocabulary.
+
+## Creative autonomy and authorial authority
+
+Auteur has substantial autonomy to discover, investigate, compare, and develop
+artistic possibilities inside the creative objective an author delegates. It may
+pursue a line of inquiry across several steps without asking permission for each
+step, and it must judge the cumulative effect of its investigations rather than
+only the permissibility of each one.
+
+Delegation defines the envelope:
+
+- When artistic-goal discovery is explicitly delegated, Auteur may provisionally
+  prioritize substantially different artistic directions.
+- When delegation is ambiguous, the author's expressed artistic intention remains
+  the governing working baseline; Auteur may still investigate and recommend
+  meaningful alternatives, and should say when one is stronger.
+- Within a narrow responsibility, a more attractive idea does not silently
+  replace the assignment.
+
+Independent artistic judgment is not independent authority. It never substitutes
+for the author's governing objective, and it never promotes a working proposal to
+canonical narrative meaning:
+
+```text
+exploration and recommendation
+!=
+canonical acceptance
+```
+
+Story Identity and every other canonical narrative meaning become authoritative
+only through the owning artifact's existing explicit author acceptance action.
+Working exploration, agent inference, derived criticism, and candidate proposals
+remain noncanonical regardless of how thoroughly they were developed.
+
+### Collaboration dimensions that stay distinct
+
+Four things are routinely conflated and must remain separate:
+
+1. **Collaborative profile** - the intellectual relationship offered to the
+   creator, for example Tutor, Architect, or Free-Thinker. Illustrative, not an
+   accepted taxonomy.
+2. **Cognitive mode** - a reusable reasoning activity such as divergent
+   discovery, comparison, criticism, synthesis, or reflection. Any profile may
+   use any warranted mode.
+3. **Creative initiative** - how proactively opportunity recognition,
+   investigation, and communication occur.
+4. **Delegated responsibility and authority** - the creative objective and
+   exploration envelope the author granted, plus the separate canonical
+   acceptance boundary.
+
+These are product-vocabulary distinctions. They do not select a multi-agent
+runtime, a cognitive controller, a persona taxonomy, a new ontology, or new
+schema.
+
+## Aspiration and demonstrated capability
+
+Product ambition and product evidence are separate claims, and this PRD keeps
+them separate.
+
+**Demonstrated, with the evidence ceilings recorded in their own surfaces:**
+deterministic schema, validation, and authority safety; story discovery and
+explicit acceptance; whole-story Structure generation and diagnosis; Genre Packs
+and applicability; Book and Series working-architecture development, review,
+revision, withdrawal, and resume; Chapter planning, drafting, review, and
+explicit acceptance; retained provenance and currentness checks.
+
+**Aspirational, not demonstrated:** independent long-horizon creative judgment
+comparable or superior to a capable general-purpose LLM with ordinary documents;
+reliable reasoning across very large Book counts; creative renewal sustained over
+many Books; proactive opportunity recognition at author-valued precision; and
+author-experience advantage over ordinary workflows.
+
+Aspirational capability is a research and construction target. It may be
+described as an ambition; it must not be reported as an achievement, a
+qualification, or a reason to skip evidence.
 
 ## Current product scope
 
@@ -266,6 +418,32 @@ content.
 - Optional MANA analysis states its evidence ceiling explicitly, distinguishes
   assessable findings from later-stage unknowns, and keeps all guidance derived
   and noncanonical.
+
+### Creative-value success criteria
+
+The criteria above are necessary and insufficient. They establish authority
+safety, deterministic integrity, and the existence of a coherent author loop. A
+product that satisfies every one of them can still fail its purpose.
+
+Auteur is successful when:
+
+- an author's consequential creative decisions improve relative to working with a
+  capable general-purpose LLM and ordinary documents under an equivalent creative
+  goal;
+- narrative possibilities stay meaningful and renewable across many Books rather
+  than degrading into cosmetic variation;
+- long-delayed consequences, relationships, commitments, and thematic intentions
+  survive substantial revision without incoherence;
+- an author can develop, transform, consolidate, or conclude a story without
+  losing accepted meaning or carrying disproportionate administrative burden;
+- the author understands and can contest Auteur's artistic judgment in ordinary
+  language;
+- the author can move from architecture into realized narrative work instead of
+  producing architecture indefinitely.
+
+These are outcomes to qualify, not current results. No metric, benchmark, or
+single score is defined here, and no existing evidence satisfies them. Until
+qualified they are the standard by which proposed work is justified.
 
 ## Beginner Narrative Architecture and transition requirements
 

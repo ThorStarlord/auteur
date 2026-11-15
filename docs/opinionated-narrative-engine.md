@@ -1,15 +1,27 @@
 # Opinionated Narrative Engine
 
-Auteur is a guided, opinionated creative writing tutor for beginners who need
-decisive narrative direction while learning narrative craft. It transforms raw creative input into a
-recommended, validated story engine before any chapter outline or prose draft
-is treated as the product.
+Auteur's default experience is a guided, opinionated creative writing tutor for
+authors who need decisive narrative direction while learning narrative craft. It
+transforms raw creative input into a recommended, validated story engine before
+any chapter outline or prose draft is treated as the product.
+
+This document governs that default experience and its recommendation posture. It
+does not define the product's fundamental purpose or beneficiary; those are set
+by the [PRD](PRD.md) and [Mission](../MISSION.md). Auteur exists to help creators
+conceive, create, and sustain compelling long-horizon narrative work. The tutor
+experience is the default entry into that work, not its boundary.
 
 ## Product Persona
 
-Auteur's primary persona is a **creative beginner**: someone inexperienced in
-long-form narrative craft, regardless of technical ability. Technical expertise
-is not a requirement of the product and is not its defining audience.
+The default experience is designed for a **creative beginner**: someone
+inexperienced in long-form narrative craft, regardless of technical ability.
+Technical expertise is not a requirement of the product, and beginners are the
+audience the default path must serve well.
+
+The beginner is the default experience's design target, not the product's
+fundamental beneficiary. Creators pursuing sustained, complex narrative projects
+are the beneficiary regardless of expertise, and advanced authors keep direct,
+inspectable control. See [PRD](PRD.md).
 
 Product design should progressively hide internal machinery such as CLI
 commands, YAML, Pydantic, and Auteur's specialist vocabulary from users who do
@@ -37,6 +49,11 @@ into a clear, accepted whole-story direction: a `StoryIdentity` plus enough
 Structure to understand what the story is and where its risks are. Immediate
 prose generation is not the primary first-value promise.
 
+That is the first value of the default path, not the product's final measure. The
+enduring objective is sustained creation across many Books and substantial
+revision; the accepted first direction is the point at which that work becomes
+possible.
+
 ## Default Interaction Surface (Working Product Hypothesis)
 
 The default creative-beginner path should be guided authoring. Users should not
@@ -51,6 +68,13 @@ The default experience should present one strongest recommended story direction,
 explain why it fits, and show meaningful rejected alternatives. The author can
 accept, modify, or override the recommendation. Auteur reduces uncertainty; it
 does not remove authorial control.
+
+Recommendations should be strong and explicitly contestable: they state the craft
+and project-specific reasoning behind them and remain open to author
+disagreement. Genre conventions, tropes, and structural patterns are contextual
+artistic resources, not universal requirements. A conventional, subversive,
+deconstructive, or experimental intention is evaluated against the experience it
+is trying to create rather than against genre alignment alone.
 
 ## Explicit Ratification (Working Product Promise)
 
@@ -121,15 +145,25 @@ genre/subgenre. Structural coherence and fidelity to author input still constrai
 the recommendation, while emotional power is used to sharpen ties and explain
 the recommendation.
 
+`genre_aligned` is the deterministic default recommendation basis, not an
+artistic standard. It answers "which engine best fulfills the selected genre's
+promise?" and remains subject to explicit author override. It does not license
+the product to reject an author-intended departure from genre convention, and it
+does not make genre alignment a universal measure of narrative merit.
+
 ## Three Product Stages
 
-1. **Narrative Engine**: The primary product scope. This stage locks the core
+1. **Narrative Engine**: The first product stage. This stage locks the core
    answer, target experience, genre promise, protagonist want, resistance,
    conflict, stakes, change, ending shape, rejected directions, and rationale.
 2. **Chapter Outline**: Optional downstream automation. This stage sequences the
    accepted story engine into chapters after the engine is locked.
 3. **Prose**: Optional execution. This stage drafts words from the accepted
    structure and should not invent or silently rewrite the story engine.
+
+The stages are execution order, not a product hierarchy. Auteur's outcome is
+realized narrative work the author stands behind; the engine stage is primary
+because later stages depend on it, not because architecture is the goal.
 
 ## Modes
 

@@ -1,13 +1,21 @@
 # Mission
 
-**Derived from:** `docs/PRD.md` - vendored 2026-09-04, from the guidance-layer interview.
+**Derived from:** `docs/PRD.md` - vendored 2026-09-04, from the guidance-layer
+interview; re-derived 2026-11-15 against the long-horizon product identity
+reconciliation (issue #563).
 
 ## What this is
 
-Auteur is an opinionated narrative-engine toolkit for long-form fiction: a
-literary compiler that turns a raw premise into multiple plausible story
-engines, recommends the strongest direction with explicit tradeoffs, and keeps
-canonical story state under the author's control. Deterministic code owns
+Auteur exists to expand what creators and intelligent agents can conceive,
+create, develop, transform, and sustain together: compelling, sophisticated
+narrative works, including series spanning many Books. Realized creative value is
+the objective. Narrative Architecture, ontology-grounded knowledge, provenance,
+and authority boundaries are the means.
+
+Concretely, Auteur is an opinionated narrative-engine toolkit for long-form
+fiction: a literary compiler that turns a raw premise into multiple plausible
+story engines, recommends the strongest direction with explicit tradeoffs, and
+keeps canonical story state under the author's control. Deterministic code owns
 schemas, project files, validation, artifacts, and retry rails; nondeterministic
 creative planning, prose, and critique are supplied through a backend-neutral
 generation boundary. When Auteur runs inside a capable coding-agent environment,
@@ -17,16 +25,19 @@ structure engine comes first; chapter drafting comes second.
 
 ## Users
 
-Creative beginners using guided authoring with progressive disclosure (the
-intended default experience), and advanced authors and engineers using the
-Python CLI and YAML/JSON/Markdown artifacts directly.
+Any creator undertaking sustained narrative development, regardless of expertise.
+Creative beginners using guided authoring with progressive disclosure remain the
+intended default experience; advanced authors and engineers using the Python CLI
+and YAML/JSON/Markdown artifacts directly retain full, inspectable control.
+Expertise changes the support an author needs, not who the product is for.
 
 ## In scope
 
 Story discovery and acceptance; opinionated story identity; genre packs,
 overrides, and subgenre modifiers; structure generation and diagnosis;
 deterministic diagnostics with repair proposals; state management across the
-semantic layers and scopes; outline compiling; chapter contracts and TDD
+semantic layers and scopes; long-horizon Series and Book development, continuity,
+revision, and reconciliation; outline compiling; chapter contracts and TDD
 drafting; interactive genre pipelines on the neutral runtime; coding-agent-native,
 backend-agnostic generation; direct LLM provider adapters for standalone and
 compatibility execution.
