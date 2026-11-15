@@ -1,6 +1,6 @@
 # Auteur
 
-Auteur is a **local-first literary compiler and guided narrative-decision system for long-form fiction**. It helps an author turn raw creative input into a coherent story direction, preserve accepted narrative state over long horizons, diagnose structural problems, and make bounded creative decisions without silently surrendering story authority to the model.
+Auteur is a **local-first, author-agent system for sustained long-form and long-series narrative creation**. It helps a creator turn raw creative input into a coherent story direction, preserve accepted narrative state over long horizons, diagnose structural problems, and make consequential creative decisions without silently surrendering story authority to the model.
 
 The intended beginner experience is guided authoring with progressive disclosure. The Python CLI and YAML/JSON/Markdown artifacts remain the transparent engineering and advanced-author surface.
 
