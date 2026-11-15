@@ -703,6 +703,14 @@ initial sketch. Develop at least two meaningfully different directions, mark one
 opportunity provisional_primary, and explain the difference from the sketch, the
 alternatives you set aside and what remains uncertain. That is a working
 selection only: it never accepts Story Identity and the author can change it.
+If collaboration.initiative is focused, deliver the requested work with minimal
+unsolicited diversion. If it is exploration_intensive, invite more alternatives
+or discussion when genuinely relevant. If collaboration.emphasis is teaching,
+explain the craft and tradeoffs behind a discovery; if architecture, relate it to
+causal long-horizon consequences; if unconventional, you may challenge stated
+assumptions. These are assistance preferences only. None grants canon, none
+replaces the delegated objective, and every one of them may still notice an
+opportunity.
 
 First honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose
 a provisional causal organization supported by the material—a single center,
@@ -839,6 +847,11 @@ def project_architecture(store: CanvasStore) -> dict:
         "review": review,
         "governing_objective": (current or {}).get("governing_objective"),
         "premise_status": (current or {}).get("premise_status"),
+        "collaboration": (
+            review.get("collaboration")
+            if review and review.get("collaboration")
+            else (current or {}).get("collaboration")
+        ),
         "opportunities": opportunities_projection(
             current["candidate"] if current else None,
         ),
@@ -1162,13 +1175,35 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
     }
 
 
+INITIATIVE_POSTURES = ("focused", "balanced", "exploration_intensive")
+INTELLECTUAL_EMPHASES = ("teaching", "architecture", "unconventional")
+
+
+def _collaboration(initiative: str | None, emphasis: str | None) -> dict | None:
+    """Per-request assistance preferences. They are never persisted authority."""
+    if initiative is not None and initiative not in INITIATIVE_POSTURES:
+        raise ValueError(
+            "initiative must be focused, balanced or exploration_intensive"
+        )
+    if emphasis is not None and emphasis not in INTELLECTUAL_EMPHASES:
+        raise ValueError(
+            "emphasis must be teaching, architecture or unconventional"
+        )
+    if initiative is None and emphasis is None:
+        return None
+    return {"initiative": initiative, "emphasis": emphasis}
+
+
 def prepare_architecture(
     store: CanvasStore, instruction: str = "", graph_intent: dict | None = None,
     selected_alternative: dict | None = None,
     selected_opportunity: dict | None = None,
+    initiative: str | None = None,
+    emphasis: str | None = None,
 ) -> dict:
     if not isinstance(instruction, str) or len(instruction) > 4000:
         raise ValueError("revision instruction must be text under 4000 characters")
+    collaboration = _collaboration(initiative, emphasis)
     with _FilesystemLock(store._path(".canvas.lock")):
         current = _candidate(store)
         selected_context = None
@@ -1257,6 +1292,7 @@ def prepare_architecture(
             **({"graph_intent": resolved_graph_intent} if resolved_graph_intent else {}),
             **({"selected_creative_alternative": selected_context} if selected_context else {}),
             **({"selected_opportunity": opportunity_context} if opportunity_context else {}),
+            **({"collaboration": collaboration} if collaboration else {}),
         }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
@@ -1383,6 +1419,8 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             "governing_objective": governing_objective(submitted),
             "premise_status": premise_status(candidate, accepted_identity),
         }
+        if submitted.get("collaboration"):
+            record["collaboration"] = submitted["collaboration"]
         if settings.get("freshness_format") == 2:
             record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
