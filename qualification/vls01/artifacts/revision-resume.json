@@ -1,0 +1,2410 @@
+{
+  "kind": "studio_architecture_resume",
+  "authority": "working_noncanonical",
+  "canvas_id": "vls01",
+  "canvas_revision": 1,
+  "story_vision": "An optimistic hundred-Book series about a profession of witnesses who testify to\nevents they did not see, reconstructing them from physical traces. A testimony is\nadmissible only if the witness can be shown to have been wrong at least once.\n\nIntended reader experience: earned trust in testimony that is openly fallible. The\nreader should feel the cost of relying on someone who has already been wrong, and\nshould never be given the comfort that a perfectly reliable witness exists.\n\nAuthor commitments:\n1. A witness who has never been shown wrong is not yet admissible.\n2. The profession survives by being auditable, not by being trusted.\n3. Success must transform the profession rather than merely defeating a rival.\n\nIntentional ambiguity: what counts as \"shown to have been wrong\" is never fixed by\nthe author. Whether error must be proven publicly, admitted privately, or inferred\nfrom a later correction is left open.\n\nForbidden trivial resolution: the series must not resolve its question by declaring\nthat all testimony is equally unreliable, nor by producing a witness who is finally\nand completely right.\n\nAim for roughly one hundred Books. The engines, transformations, macro periods and\nending are yours to invent. If a shorter horizon would be artistically stronger,\nsay so and show what you would cut.",
+  "architecture": {
+    "schema_version": 2,
+    "summary": "One rule governs everything: a claim about an event the claimant did not witness becomes actionable only when its maker has already been shown to have been wrong, and that showing is still inspectable. Around the gate sit trace reconstruction, defect certification, the defect economy, witness formation and institutional standing, and the architecture is the succession of settlements that press on it. The governing engine is not 'a mystery solved' but 'error consumed': a defect is scarce, spendable, transferable, inheritable, so the profession must continuously produce, borrow, inherit and audit its own wrongness in order to keep speaking.\n\nFive movements: the rule as scandal (1-23); the constitutional exemption (24-49), in which the audit regress is closed by declaring that certification authority cannot itself be certified, and the profession must defend that exemption on trust; the written standard that fixes the meaning of 'shown wrong', entrenches the exemption, and begins excluding the competent (50-75); the discovery that a full audit of the profession's foundation can be completed and cannot be signed (76-92); and the reform that makes admissibility and authority revocable (93-100). Six focal Books carry the spine: 1, 2, 24, 50, 76, 100.\n\nPreserved: Book 1's disposable showing; Book 2's permanently valid receipt; the defect economy; the codification at 50 and the cohort it excludes; the Book 2 to Book 76 dependency; the reform's mechanism of continuous re-testing; and all three author commitments, which the revision tests rather than replaces.\n\nInvalidated: the audit regress as a continuing pressure, since it now closes at 24 instead of returning at 76; the claim that every certifier is compromised by a defect of their own; and the mid-series engine of managing a scandal of persons, which becomes a boundary dispute instead.\n\nNewly possible: the exemption as a standing constitutional object that can be defended, entrenched, applied retroactively and finally made revocable; an errorless bench, the only seat in the profession not earned in its own currency; the unsigned ruling as a recurring formal object; and an ending that puts the profession's own authority on a renewal schedule rather than only its witnesses. Everything here is noncanonical working material.",
+    "nodes": [
+      {
+        "id": "rx_earned_trust",
+        "title": "Earned trust in openly fallible testimony",
+        "category": "reader_experience",
+        "summary": "The governing reader promise. The reader is invited to trust a claim after watching its maker's error be handled in the open. The trust is calibrated rather than restored: it survives because the machinery of checking survives, not because doubt was answered. Every payoff should leave a residual, inspectable doubt, and every doubt should remain actionable in a later Book.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_cost_of_reliance",
+        "title": "The felt cost of relying on someone already wrong",
+        "category": "reader_experience",
+        "summary": "The recurring emotional labor of the series. The reader is repeatedly placed in the position of a client, a court, a family, or a public that must act on a claim whose maker carries a receipt. The cost must be concrete and distributive: someone paid for the proof, and the reader should be able to name who.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_no_safe_witness",
+        "title": "The withheld comfort of a reliable witness",
+        "category": "reader_experience",
+        "summary": "A designed structural refusal. Each era offers a candidate for the perfectly reliable witness - an instrument, a method, a person of unblemished record, a reconstruction assembled without a human claimant - and each candidate is shown to be either untested and therefore inadmissible, or tested at someone's expense. The refusal only works if the reader first wants the comfort that is then withdrawn. From Book 24 the most tempting candidate is the exempt certifier, whose record is unblemished because nothing may examine it; the series must never let immunity read as reliability, and the exempt office must never be available to testify, so what is offered is a person who can rule and cannot witness.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_procedural_pleasure",
+        "title": "The pleasure of watching a claim be tested",
+        "category": "reader_experience",
+        "summary": "The supporting engine of reader momentum. Reconstructions satisfy when the trace-to-inference chain is legible; hearings satisfy when the rules are strict enough to be gamed visibly. This pleasure is what lets the series be optimistic without being soft, and it is the main defense against a hundred Books of unrelieved gravity.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx_dread_of_clarity",
+        "title": "Dread that clarity will be bought with exclusion",
+        "category": "reader_experience",
+        "summary": "The contrasting affect installed at Book 50. Once the standard is written, the reader sees the cost of precision before the characters do: every ambiguity that gets settled produces a class of people who can no longer speak, and the reader has already met some of them.",
+        "scope": "Books 50-75",
+        "parent_id": null
+      },
+      {
+        "id": "rx_provisional_peace",
+        "title": "Settled and renewable provisionality",
+        "category": "reader_experience",
+        "summary": "The terminal affect. Not vindication and not defeat: the specific relief of a system that has stopped promising final answers and can therefore keep checking. It must be earned by visible loss, and it must end visibly unfinished rather than closing on a verdict.",
+        "scope": "Books 93-100",
+        "parent_id": null
+      },
+      {
+        "id": "ae_forensic_plainness",
+        "title": "Forensic plainness",
+        "category": "aesthetic",
+        "summary": "Description orders itself the way evidence does: the trace, its condition, its custody, then the inference. The prose refuses to let inference borrow the texture of observation. Sentences become plain at precisely the moment a reader would like them to be beautiful, so that confidence is never carried by style.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ae_ledger_texture",
+        "title": "Ledger and register texture",
+        "category": "aesthetic",
+        "summary": "Recurring formal surfaces - defect registers, certificate margins, hearing transcripts, amendment slips - used as both plot instrument and rhythm. The reader learns to read the profession's paperwork directly, which is how a hundred Books keep a continuous identity without a continuous plot.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ae_withheld_certification",
+        "title": "Narration that will not certify",
+        "category": "aesthetic",
+        "summary": "The narration never vouches for a character's reliability on the reader's behalf. Interior access is granted freely and then periodically devalued: the series makes the reader notice that they have been treating privileged access as evidence when the profession's own rules say it is not.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ae_hearing_rhythm",
+        "title": "Alternating strictness",
+        "category": "aesthetic",
+        "summary": "A macro rhythm of long patient reconstruction answered by short adversarial exchange. This alternation is the series' beat structure at Book scale, and it is what makes a long horizon feel varied without requiring new premises or escalating threats.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ae_dry_warmth",
+        "title": "Unsentimental warmth",
+        "category": "aesthetic",
+        "summary": "The register that makes optimism survivable. The profession is treated with affection and no reverence; its members are dryly funny about their own procedures. Warmth is directed at the work and at people doing it badly, never at the institution's authority.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_procedural_inquiry",
+        "title": "Procedural inquiry",
+        "category": "genre",
+        "summary": "The genre of a claim being built and tested by procedure: trace, reconstruction, objection, ruling. It supplies episode-level shape, carries the audience's main pleasure, and is the only genre whose rules are stated explicitly enough for the reader to check a verdict against them.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_epistemic_mystery",
+        "title": "Epistemic mystery",
+        "category": "genre",
+        "summary": "The question is not who acted but what can be known and by what right. Evidence is genuine and incomplete; the resolution must be a defensible account rather than a confession. Supplies the sense that the past is recoverable only approximately, which is what keeps every victory partial.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_institutional_drama",
+        "title": "Institutional drama",
+        "category": "genre",
+        "summary": "Jurisdiction, credentialing, budget, precedent. The profession's survival is a standing political problem, and this is the genre in which 'auditable, not trusted' is contested in public rather than merely practiced in private.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_adversarial_contest",
+        "title": "Adversarial contest",
+        "category": "genre",
+        "summary": "Structured hearings in which two certified accounts and their defect receipts are set against each other under rules strict enough to be gamed. Supplies reversals, gives antagonists legitimate standing, and externalizes the series' unresolved ambiguity as visible procedure.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_generational_succession",
+        "title": "Generational succession",
+        "category": "genre",
+        "summary": "Cohorts, apprenticeship, inherited debt, retirement of the discredited. This genre is the structural reason the horizon is long: only a generational frame can show the cost of a rule as a spent cohort rather than as an anecdote about one unlucky person.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_civic_crisis",
+        "title": "Civic crisis",
+        "category": "genre",
+        "summary": "Occasional Books in which a testimony decides something public and irreversible. Used sparingly and at Book scale, it raises the stakes of the whole profession without converting the series into a thriller.",
+        "scope": "Books 76-92, occasional earlier",
+        "parent_id": null
+      },
+      {
+        "id": "g_bureaucratic_comedy",
+        "title": "Bureaucratic comedy",
+        "category": "genre",
+        "summary": "The wry register of people administering an impossible rule. Prevents solemnity from becoming the series' only tone and lets the profession's absurdities be seen as absurdities rather than as evils, which is necessary if the institution is to end up transformed rather than destroyed.",
+        "scope": "whole_story, local",
+        "parent_id": null
+      },
+      {
+        "id": "tp_inverse_unreliable",
+        "title": "Inverse unreliable witness",
+        "category": "trope",
+        "summary": "The witness whose known unreliability is the credential. This inverts the usual contract with the reader: suspicion becomes the precondition of trust, so the reader cannot settle into belief or doubt and must instead learn to grade. The trope is the series' signature and must be varied by register rather than repeated.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_the_receipt",
+        "title": "The receipt",
+        "category": "trope",
+        "summary": "The portable instrument proving a past wrongness: who was wrong, before whom, by what method, how much of the showing remains unspent. Because it is portable it becomes alienable, and forgery, expiry, purchase, and inheritance become available mechanics without requiring any new premise.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_spent_mentor",
+        "title": "The spent mentor",
+        "category": "trope",
+        "summary": "A teacher whose one demonstrated error licenses a student and whose remaining authority is exhausted by that use. Transmits cost across generations and makes apprenticeship economically real rather than sentimental: the student's voice is paid for with the teacher's standing.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_the_hearing",
+        "title": "The hearing",
+        "category": "trope",
+        "summary": "A bounded, rule-governed contest over admissibility. Converts the central ambiguity into visible procedure, so the reader can watch the question be decided case by case without the series ever answering it once and for all.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_inherited_case",
+        "title": "The inherited case",
+        "category": "trope",
+        "summary": "A dispute reopened after everyone who knew it is dead. This is the device that lets an early Book's consequence arrive decades later as a live obligation rather than as a reference, and it is how the Book 2 dependency reaches Book 76 without nostalgia.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_rival_who_is_right",
+        "title": "The rival who is right",
+        "category": "trope",
+        "summary": "An antagonist whose competing standard is defensible and partly successful. This prevents the resolution from becoming the defeat of a villain, which the author's third commitment explicitly rules out as sufficient success.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tp_reform_overreach",
+        "title": "The reform that overreached",
+        "category": "trope",
+        "summary": "A correct fix that creates the next crisis. Each movement ends with a repair that solves the previous movement's problem and installs the next movement's pressure, so no victory terminates the engine and no Book can end the series' argument by winning.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "e_admissibility",
+        "title": "The admissibility gate",
+        "category": "engine",
+        "summary": "The governing mechanism. A claim about an unwitnessed event may be acted on only if its maker has been shown wrong and that showing remains inspectable by whoever is asked to rely on the claim. The gate does three jobs that pull against each other: it must be strict enough to be credible, cheap enough to be usable, and open enough that new witnesses can pass. Every movement is a different settlement of that tension, and every settlement fails in a way that produces the next.\n\nAfter Book 24 the gate has a constitutional exterior. The authority that decides what counts as a showing stands outside the gate by exemption rather than by failure, so the gate rules a domain and is silent about its own edge. Every later settlement must decide how far the domain reaches, and Book 76 discovers that the edge runs backward: a gate with an exempt apex cannot ratify the certifications that apex has already made.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "e_defect_provenance",
+        "title": "Defect provenance and certification",
+        "category": "engine",
+        "summary": "How a wrongness becomes 'shown.' Three rival certifying practices assign different costs, audiences and failure modes: public proof before witnesses, sealed private admission that can be used but not cited, and inference from the fact that a later account superseded an earlier one. This engine is where the author's intentional ambiguity does its work: it is never resolved, only administered, and every administration favors someone. After Book 24 the engine administers a process whose administrators are constitutionally outside it, so it must answer a question it is not permitted to hear: on what authority is any of this administered?",
+        "scope": "whole_story",
+        "parent_id": "e_admissibility"
+      },
+      {
+        "id": "e_defect_economy",
+        "title": "The defect economy",
+        "category": "engine",
+        "summary": "Defects are finite, spendable and alienable. A certified wrongness licenses a bounded amount of testimony, depreciates as it is used, and can be transferred, purchased or inherited. Because supply is manufactured rather than found, the profession acquires a structural incentive to produce error in others and to protect its own. This is the series' renewable plot supply and its moral engine. Book 24 seals the top of the ladder: the exempt bench consumes no defects and cannot be reached by spending one, so demand concentrates below and the profession's highest office becomes the only credential not priced in the profession's own currency.",
+        "scope": "whole_story",
+        "parent_id": "e_admissibility"
+      },
+      {
+        "id": "e_trace_reconstruction",
+        "title": "Trace reconstruction",
+        "category": "engine",
+        "summary": "How physical residue becomes a defensible account. Constrains the whole series' epistemology: every claim must be assembled from objects, and every assembly carries a stated error surface the reader can inspect. Produces the craft pleasure, the case variety, and the recurring failure in which a correct inference is drawn from a corrupted trace.",
+        "scope": "whole_story",
+        "parent_id": "e_admissibility"
+      },
+      {
+        "id": "e_witness_formation",
+        "title": "Witness formation and succession",
+        "category": "engine",
+        "summary": "How a person becomes admissible, and what it costs them. Training requires spending a real defect on a candidate, so the profession consumes its own young to keep a supply of licensed voices. Controls cohort turnover, apprenticeship, retirement of the discredited, and the standing question of whether debt may be inherited. Book 24 creates exactly one errorless route to being heard, the exempt bench, so each cohort's ambition reorganizes around the single seat its own currency cannot buy, and the ladder's top rung quietly stops being part of the ladder.",
+        "scope": "whole_story",
+        "parent_id": "e_admissibility"
+      },
+      {
+        "id": "e_institutional_standing",
+        "title": "Institutional standing",
+        "category": "engine",
+        "summary": "How the profession keeps jurisdiction over truth-telling against patrons, courts, markets, and publics that would prefer certainty without audit. Its success condition is survival rather than victory, and its characteristic move is to trade a piece of its own rigor for the right to keep operating. That trade is the series' recurring political scene and the source of its eventual reform.",
+        "scope": "whole_story",
+        "parent_id": "e_admissibility"
+      },
+      {
+        "id": "th_main",
+        "title": "The changing meaning of the gate",
+        "category": "thread",
+        "summary": "The main thread, which is a progression of settlements rather than a plot: the gate as scandal (Book 1), as property (Book 2 onward), as ledger, as a bounded jurisdiction with an exempt apex (Book 24), as written law (Book 50), as an audit that can finish but not be signed (Book 76), as a renewable condition (Book 100). Each settlement is the previous movement's repair, and each repair is sincere.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_distant_promise",
+        "title": "The self-sealing defect",
+        "category": "thread",
+        "summary": "Book 2 establishes a certified wrongness whose proof was produced by an instrument the profession later adopts as its own standard. The defect cannot be re-tested without invalidating the standard, and the standard cannot be withdrawn without discrediting the profession's founding evidence. Book 24 then exempts the certifying office from certification, which does not shield the receipt but strands it: the receipt stays valid, becomes maximally admissible, and turns out to be unratifiable, because ratifying it is certifying the certifier. It remains a dependency rather than a callback: at Book 76 the only claim capable of settling a public crisis is licensed by it, and the audit that must conclude cannot be signed. The final reform must decide what to do with an authority that cannot be proved but can be removed.",
+        "scope": "whole_story, paid at Books 76-100",
+        "parent_id": null
+      },
+      {
+        "id": "th_generational_cost",
+        "title": "Cohorts formed and spent",
+        "category": "thread",
+        "summary": "Each settlement produces a cohort suited to it and then discredits that cohort when the settlement fails. Tracks who was trained for a rule that no longer exists, and keeps the series' cost concrete across a century rather than letting it become statistical.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_audit_regress",
+        "title": "The audit regress, closed at Book 24",
+        "category": "thread",
+        "summary": "Whoever certifies defects is themselves uncertified. Resolving the regress by certifying the certifiers makes every certifier compromised; refusing to resolve it makes the profession unauditable in principle, which contradicts its reason for existing. This is the specific pressure Book 24 must answer, and its function is now a setup rather than a standing thread: the exemption closes it, and what survives is the boundary problem tracked in th_exemption_boundary. The regress is not a hole in the architecture; it is the question whose answer becomes the series' constitution.",
+        "scope": "Books 24-49, returns at 76",
+        "parent_id": null
+      },
+      {
+        "id": "th_exemption_boundary",
+        "title": "The jurisdiction of the exemption",
+        "category": "thread",
+        "summary": "The successor pressure to the audit regress. The regress closes at Book 24 by declaring that certification authority cannot itself be certified; what replaces it is a boundary problem rather than a recursion. Every later Book asks one question in a new case: is this act the office, which is exempt, or an output of the office, which is not? Three properties make the boundary renewable. It is defended on trust, so every defense of it requires the profession to argue for the one value it has renounced. It is retroactive, so its scope reaches every certification the office has already made. And it is entrenchable, so Book 50 writes it into law and removes it from ordinary amendment. The thread's terminal state is temporal rather than territorial: the boundary is not moved at Book 100 but put on a renewal schedule.",
+        "scope": "Books 24-100",
+        "parent_id": null
+      },
+      {
+        "id": "th_patron_pressure",
+        "title": "The demand for untested certainty",
+        "category": "thread",
+        "summary": "External actors who want testimony without the inconvenience of demonstrated error, and who can pay, legislate, or threaten. The profession's recurring antagonist is not a liar but a preference for reliability, which is harder to refuse because it is reasonable. After Book 24 that preference has a constitutional address: the exempt bench offers certainty without requiring anyone to defeat the rule, so the antagonist's method shifts from buying witnesses to capturing a seat.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "st_series_horizon",
+        "title": "Series horizon: 100 Books, five movements, six focal anchors",
+        "category": "structure",
+        "summary": "The horizon representation. A hundred Books cannot be modeled as a hundred nodes, so the architecture represents the horizon as five macro periods plus six focal Books whose functions cannot be redistributed. Books 3-23, 25-49, 51-75, and 77-99 are case-bearing intervals: each Book tests one part of the gate under the current settlement and none is required by the spine. The spine is the six focal Books, and only they carry irreversible change.",
+        "scope": "series",
+        "parent_id": null
+      },
+      {
+        "id": "bk_01",
+        "title": "Book 1 - The rule as scandal",
+        "category": "structure",
+        "summary": "Inherits a world in which a claim about an unwitnessed event is either taken on the standing of its speaker or discarded. Develops the pressure that makes the rule necessary: an authoritative account is acted on, turns out wrong, and the only available repair is to admit that the speaker's earlier failure is now the reason to believe the correction. What changes: admissibility by demonstrated error becomes a usable precedent rather than an idea, and the showing is treated as consumable - a thing spent once and used up. Affects defect provenance, witness formation, and institutional standing. Later Books differ because from Book 2 the receipt is property: it can be kept, spent, inherited, or forged, none of which is possible while a showing is disposable.",
+        "scope": "Book 1",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "bk_02",
+        "title": "Book 2 - The defect that cannot be re-tested",
+        "category": "structure",
+        "summary": "Inherits the rule as a disposable precedent. Develops the pressure of scale: ad hoc showings do not survive more than a few cases, so the profession needs a standard instrument for proving wrongness. What changes: the profession adopts an instrument, and the first receipt certified by that instrument becomes permanently valid - it cannot be re-opened without invalidating the instrument, and the instrument cannot be withdrawn without discrediting the evidence on which the profession's own founding claim rests. Affects the defect economy, because permanent receipts make admissibility inheritable; affects institutional standing; and affects the entire late series through th_distant_promise. Later Books differ because admissibility can now be accumulated, so a rule about epistemic humility silently manufactures a hereditary class of the licensed and a hereditary class of the excluded.",
+        "scope": "Book 2",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "bk_24",
+        "title": "Book 24 - The constitutional exemption",
+        "category": "structure",
+        "summary": "Inherits two decades of accumulated ledger, a hierarchy the ledger justifies, and an unresolved regress: those who certify defects hold the only uncertified authority in the system. The pressure has become formal rather than practical - certification cannot be certified without escalation, and cannot be left uncertified without conceding that the profession's public claim is false.\n\nWhat changes: the profession closes the regress by constitutional exemption instead of by certification. Certification authority cannot itself be certified, by its own constitution, and the exemption is defended as the only thing preserving public trust: certification must terminate somewhere, a public told that nothing is final will rely on nothing, and a profession that cannot conclude will be replaced by whatever certainty is purchasable. The argument is good, and it is the first time the profession justifies itself on trust rather than auditability - which it must, because auditability cannot justify an exemption.\n\nAffects the gate, which acquires a constitutional exterior at its own apex; the economy, because the exempt bench is the one seat not paid for in defects; and witness formation, because it is the only career terminus reachable without ever being wrong. Later Books differ because there is no recursion left to manage, only a boundary to police, and because the exemption turns out to reach backward: every certification the office ever made now depends on an authority no ruling may examine.",
+        "scope": "Book 24",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "bk_50",
+        "title": "Book 50 - The written standard and the entrenched clause",
+        "category": "structure",
+        "summary": "Inherits an exemption that has closed the regress and left the base carrying the whole burden of legitimacy, plus two decades of boundary hearings that settle cases without settling the line. Develops the pressure: the exemption cannot be defended case by case, because a boundary argued ad hoc looks like exactly what it is - an exception - whereas a complete written rule can make an unaccountable apex look like the lawful summit of an auditable order.\n\nWhat changes: the definition of shown wrong is codified, and the ambiguity migrates from practice into law. The code is deliberately harder than the profession needs, because it must bear evidentiary weight the apex cannot, and it contains an entrenched clause placing the exemption beyond its own amendment procedure. Within a generation it excludes more competent witnesses than it admits, since the cheapest way to satisfy a written standard is to have already failed in the way the standard recognizes - and the excluded are partly what pays for the exempt.\n\nAffects witness formation catastrophically, becomes the demand side of the defect economy, reclassifies every later ruling, and makes the exemption at once safer and more visible. Later Books differ because argument must now be conducted against a written rule, and because the profession's most demanding self-legislation has become the instrument of its least accountable office.",
+        "scope": "Book 50",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "bk_76",
+        "title": "Book 76 - The audit that cannot be signed",
+        "category": "structure",
+        "summary": "Inherits a codified standard, an entrenched exemption and the permanent Book 2 receipt. Develops the pressure the series has withheld: a public crisis can only be settled by a claim licensed by that receipt, and the receipt's authority rests on the office the constitution forbids anyone to certify. The profession does what seventy-five Books have trained it to do - assembles the traces, reconstructs, hears objections, states the error surface, checks the register - and completes every step.\n\nWhat changes: the audit finishes and cannot be ratified. Signing would be certifying the certifier, which the exemption forbids, so the ruling is filed with its signature line blank. Because the exemption reaches backward, voiding the foundation would not restore auditability either; it would only remove the evidence. The choice is therefore not between auditing the foundation and preserving the authority - the exemption preserves the authority whatever is decided. It is between destroying the profession's history and extending the exemption to its evidence, and both courses require the profession to concede in public that its foundation rests on trust.\n\nAffects standing, provenance, the boundary and the ending. Later Books differ because trust is no longer the live question, and neither is auditability; the final movement is about what the profession is willing to make revocable.",
+        "scope": "Book 76",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "bk_100",
+        "title": "Book 100 - Revocable admissibility and revocable authority",
+        "category": "structure",
+        "summary": "Inherits a profession with an unsigned audit on file, receipts that cannot be ratified, and an exemption no ruling can reach. Develops the final pressure: every repair that preserves permanent receipts reproduces Book 76, and every repair that certifies the exempt office reopens the regress Book 24 closed.\n\nWhat changes: the profession stops trying to certify its authority and makes it removable. Witness admissibility becomes continuously re-openable on a schedule, so a witness is admissible because their error is due to be tested again rather than because it has been settled; and the exempt office, which cannot be scheduled for proof, is scheduled for renewal instead, so authority is renewed or withdrawn rather than verified. The unsigned ruling is completed by a renewal date instead of a signature.\n\nThis dissolves the defect economy and the professional monopoly, and adds a loss the earlier ending did not require: the profession's own authority becomes provisional. It also hands the bench to whoever can schedule its renewal, so the reform is honest and purchasable at once, and the series must not settle which. There are no later Books; no witness is vindicated, and the profession is neither defeated nor restored.",
+        "scope": "Book 100",
+        "parent_id": "st_series_horizon"
+      },
+      {
+        "id": "tm_auditability_not_trust",
+        "title": "Auditability rather than trust",
+        "category": "theme",
+        "summary": "The author's second commitment expressed as a theme: the profession's authority is legitimate exactly to the extent that people who do not trust it can inspect its claims. The series tests the proposition by making auditability expensive, then hereditary, then codified, then formally suspended at a single office, then scheduled - and by showing that each form of auditability was real while it lasted. Book 24 locates the theme's floor: auditability cannot justify an exemption, so the profession must argue for trust exactly once, and the series neither denies that it does nor lets it be forgiven.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tm_error_as_value",
+        "title": "Error as a form of value",
+        "category": "theme",
+        "summary": "The series' central economic idea. If wrongness is the credential, then wrongness is produced, hoarded, inherited, and sold. The moral question is never whether error exists but who was made to supply it, and the series keeps that question attached to named costs rather than to abstraction.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tm_survival_cost",
+        "title": "What survival costs",
+        "category": "theme",
+        "summary": "Institutions persist by trading rigor for continuance. Each movement's repair buys survival with a piece of the thing that justified survival, and the series refuses to call that trade either cowardice or wisdom, because both readings are available and neither is complete.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tm_provisional_competence",
+        "title": "Competence without finality",
+        "category": "theme",
+        "summary": "The position the series finally defends. Expertise is real, checkable, and never final; the ending institutionalizes that rather than resolving it. This is the thematic answer to both forbidden shortcuts, since it neither levels all testimony nor produces a witness who is completely right.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tm_who_pays",
+        "title": "Who pays for proof",
+        "category": "theme",
+        "summary": "The distributional question beneath the rule. Every certified wrongness has a bearer, and the series tracks the transfer from the person who was wrong to the institution that spends their error. The theme is what keeps the defect economy from reading as clever worldbuilding rather than as a moral arrangement.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "tm_the_unfixed_question",
+        "title": "The question left open on purpose",
+        "category": "theme",
+        "summary": "What counts as shown wrong is never settled by the author, and this architecture does not settle it. Instead it builds an institution that keeps answering the question differently, and makes each answer cost something the reader can see. The theme's discipline is that the series must never let one answer become obviously correct.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ot_three_registers",
+        "title": "The three registers of demonstration",
+        "category": "other",
+        "summary": "The standing taxonomy the profession administers: public proof, meaning a wrongness established before witnesses and citable; sealed private admission, meaning a wrongness recorded and usable but not citable; and inferred correction, meaning a wrongness established only by the fact that a later account superseded an earlier one. Different bodies rank the registers differently, which is how the architecture holds the author's ambiguity open while making it operationally decisive in every ruling. The taxonomy has an outside rather than a fourth member: after Book 24 the exempt office is declared to stand beyond all three, and the profession insists this is not a fourth answer but the condition under which three answers can be administered at all.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ot_defect_ledger",
+        "title": "The defect ledger",
+        "category": "other",
+        "summary": "The in-world instrument that turns certification into accumulation: a record of who was shown wrong, by what instrument, at what cost, and how much of the showing remains unspent. Its form changes across the series from private register to statutory code to re-testing calendar, and its reliability becomes the late series' central object of dispute. After Book 24 it also records an absence: the exempt office appears in the ledger as a blank column with no entries, and at Book 100 that column acquires a renewal date instead of a record.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "ot_unsigned_ruling",
+        "title": "The unsigned ruling",
+        "category": "other",
+        "summary": "The exemption's formal artifact. A ruling complete in every respect except ratification: traces assembled, error surface stated, objections heard, holding written, signature line blank. It is the exact inverse of the receipt, which proves a past showing that can never be repeated; the unsigned ruling is a present showing that can never be concluded. It appears first at Book 76, when the profession performs a full and honest audit of its own foundation and discovers that signing would be certifying the certifier. It recurs through the fourth movement as the profession's characteristic embarrassment, filed and citable and unusable, and at Book 100 the blank line is filled with a renewal date rather than a signature.",
+        "scope": "Books 76-100",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "lk_gate_provenance",
+        "source": "e_admissibility",
+        "target": "e_defect_provenance",
+        "function": "Defines what the gate requires while being unable to certify any showing itself"
+      },
+      {
+        "id": "lk_gate_economy",
+        "source": "e_admissibility",
+        "target": "e_defect_economy",
+        "function": "Makes wrongness scarce property, converting a test into a market"
+      },
+      {
+        "id": "lk_gate_trace",
+        "source": "e_admissibility",
+        "target": "e_trace_reconstruction",
+        "function": "Forces every claim to arrive as an inspectable assembly of traces"
+      },
+      {
+        "id": "lk_gate_formation",
+        "source": "e_admissibility",
+        "target": "e_witness_formation",
+        "function": "Requires people to be broken into credibility one defect at a time"
+      },
+      {
+        "id": "lk_gate_standing",
+        "source": "e_admissibility",
+        "target": "e_institutional_standing",
+        "function": "Makes jurisdiction a permanent negotiation over how strict the gate may be"
+      },
+      {
+        "id": "lk_economy_provenance",
+        "source": "e_defect_economy",
+        "target": "e_defect_provenance",
+        "function": "Depends on certification for supply and presses it toward cheap rulings"
+      },
+      {
+        "id": "lk_provenance_regress",
+        "source": "e_defect_provenance",
+        "target": "th_audit_regress",
+        "function": "Leaves the certifier uncertified, generating the regress Book 24 closes"
+      },
+      {
+        "id": "lk_formation_economy",
+        "source": "e_witness_formation",
+        "target": "e_defect_economy",
+        "function": "Consumes spent defects to license new voices, tightening supply"
+      },
+      {
+        "id": "lk_standing_economy",
+        "source": "e_institutional_standing",
+        "target": "e_defect_economy",
+        "function": "Trades rigor for continuance, expanding or restricting the market"
+      },
+      {
+        "id": "lk_trace_provenance",
+        "source": "e_trace_reconstruction",
+        "target": "e_defect_provenance",
+        "function": "Supplies the instruments by which wrongness is demonstrated at all"
+      },
+      {
+        "id": "lk_regress_standing",
+        "source": "th_audit_regress",
+        "target": "e_institutional_standing",
+        "function": "Turns an internal inconsistency into a public credibility problem"
+      },
+      {
+        "id": "lk_patron_standing",
+        "source": "th_patron_pressure",
+        "target": "e_institutional_standing",
+        "function": "Rewards the profession for accepting claimants it cannot audit"
+      },
+      {
+        "id": "lk_main_gate",
+        "source": "th_main",
+        "target": "e_admissibility",
+        "function": "Records each settlement of the gate and the failure that ends it"
+      },
+      {
+        "id": "lk_distant_main",
+        "source": "th_distant_promise",
+        "target": "th_main",
+        "function": "Supplies the late spine's decisive obligation from Book 2"
+      },
+      {
+        "id": "lk_distant_economy",
+        "source": "th_distant_promise",
+        "target": "e_defect_economy",
+        "function": "Creates permanent receipts that never depreciate and cannot be replaced"
+      },
+      {
+        "id": "lk_generational_formation",
+        "source": "th_generational_cost",
+        "target": "e_witness_formation",
+        "function": "Makes cohort turnover the visible bearer of each era's cost"
+      },
+      {
+        "id": "lk_generational_main",
+        "source": "th_generational_cost",
+        "target": "th_main",
+        "function": "Shows the rule's cost as a spent generation rather than an anecdote"
+      },
+      {
+        "id": "lk_horizon_main",
+        "source": "st_series_horizon",
+        "target": "th_main",
+        "function": "Represents a century as macro movements rather than serial escalation"
+      },
+      {
+        "id": "lk_horizon_distant",
+        "source": "st_series_horizon",
+        "target": "th_distant_promise",
+        "function": "Reserves the long fuse's payoff for one late focal Book"
+      },
+      {
+        "id": "lk_bk01_gate",
+        "source": "bk_01",
+        "target": "e_admissibility",
+        "function": "Installs the gate as scandalous precedent and makes the showing disposable"
+      },
+      {
+        "id": "lk_bk01_register",
+        "source": "bk_01",
+        "target": "ot_three_registers",
+        "function": "Leaves the three registers unranked, which makes the Book 50 error possible"
+      },
+      {
+        "id": "lk_bk02_distant",
+        "source": "bk_02",
+        "target": "th_distant_promise",
+        "function": "Establishes the non-re-testable defect and hands it to the late series"
+      },
+      {
+        "id": "lk_bk02_economy",
+        "source": "bk_02",
+        "target": "e_defect_economy",
+        "function": "Turns a spent precedent into permanent, inheritable admissibility"
+      },
+      {
+        "id": "lk_bk24_regress",
+        "source": "bk_24",
+        "target": "th_audit_regress",
+        "function": "Closes the regress by exempting the certifiers instead of certifying them"
+      },
+      {
+        "id": "lk_bk24_standing",
+        "source": "bk_24",
+        "target": "e_institutional_standing",
+        "function": "Trades auditability at the apex for the continuance of auditability elsewhere"
+      },
+      {
+        "id": "lk_bk50_code",
+        "source": "bk_50",
+        "target": "e_witness_formation",
+        "function": "Codifies the ambiguity and begins excluding the merely competent"
+      },
+      {
+        "id": "lk_bk50_registers",
+        "source": "bk_50",
+        "target": "ot_three_registers",
+        "function": "Privileges public proof over admission and inference, and pays for it"
+      },
+      {
+        "id": "lk_bk76_distant",
+        "source": "bk_76",
+        "target": "th_distant_promise",
+        "function": "Collects the Book 2 dependency as an audit that can finish but not be ratified"
+      },
+      {
+        "id": "lk_bk76_standing",
+        "source": "bk_76",
+        "target": "e_institutional_standing",
+        "function": "Forces authority and auditability into open public conflict"
+      },
+      {
+        "id": "lk_bk100_formation",
+        "source": "bk_100",
+        "target": "e_witness_formation",
+        "function": "Replaces permanent credentials with scheduled re-testing"
+      },
+      {
+        "id": "lk_bk100_economy",
+        "source": "bk_100",
+        "target": "e_defect_economy",
+        "function": "Ends the defect market by making no receipt final"
+      },
+      {
+        "id": "lk_bk100_ledger",
+        "source": "bk_100",
+        "target": "ot_defect_ledger",
+        "function": "Turns the ledger from settled archive into calendar of future tests"
+      },
+      {
+        "id": "lk_ledger_registers",
+        "source": "ot_defect_ledger",
+        "target": "ot_three_registers",
+        "function": "Stores all three registers side by side without reconciling them"
+      },
+      {
+        "id": "lk_forensic_trace",
+        "source": "ae_forensic_plainness",
+        "target": "e_trace_reconstruction",
+        "function": "Makes the assembly's error surface visible in the prose itself"
+      },
+      {
+        "id": "lk_withheld_nosafe",
+        "source": "ae_withheld_certification",
+        "target": "rx_no_safe_witness",
+        "function": "Executes the refusal by never vouching for anyone on the reader's behalf"
+      },
+      {
+        "id": "lk_drywarm_rx",
+        "source": "ae_dry_warmth",
+        "target": "rx_procedural_pleasure",
+        "function": "Keeps procedure pleasurable rather than grim across a long horizon"
+      },
+      {
+        "id": "lk_ledger_aesthetic",
+        "source": "ae_ledger_texture",
+        "target": "ot_defect_ledger",
+        "function": "Makes the ledger a formal surface the reader learns to read directly"
+      },
+      {
+        "id": "lk_hearing_adversarial",
+        "source": "ae_hearing_rhythm",
+        "target": "g_adversarial_contest",
+        "function": "Gives hearings a short adversarial pulse against long reconstruction"
+      },
+      {
+        "id": "lk_pleasure_trust",
+        "source": "rx_procedural_pleasure",
+        "target": "rx_earned_trust",
+        "function": "Sustains the governing promise between its widely spaced payoffs"
+      },
+      {
+        "id": "lk_cost_trust",
+        "source": "rx_cost_of_reliance",
+        "target": "rx_earned_trust",
+        "function": "Makes the promise costly, and therefore credible"
+      },
+      {
+        "id": "lk_nosafe_cost",
+        "source": "rx_no_safe_witness",
+        "target": "rx_cost_of_reliance",
+        "function": "Removes every substitute for the person who must be relied on"
+      },
+      {
+        "id": "lk_dread_peace",
+        "source": "rx_dread_of_clarity",
+        "target": "rx_provisional_peace",
+        "function": "Makes the ending's relief a release from a specific fear"
+      },
+      {
+        "id": "lk_proc_gate",
+        "source": "g_procedural_inquiry",
+        "target": "e_admissibility",
+        "function": "Turns the gate into repeatable episode shape and legible rules"
+      },
+      {
+        "id": "lk_mystery_trace",
+        "source": "g_epistemic_mystery",
+        "target": "e_trace_reconstruction",
+        "function": "Makes the trace the only route to the past, and a partial one"
+      },
+      {
+        "id": "lk_inst_standing",
+        "source": "g_institutional_drama",
+        "target": "e_institutional_standing",
+        "function": "Puts the profession's survival into public contest"
+      },
+      {
+        "id": "lk_adv_registers",
+        "source": "g_adversarial_contest",
+        "target": "ot_three_registers",
+        "function": "Forces the registers to be ranked in front of an audience"
+      },
+      {
+        "id": "lk_gen_formation",
+        "source": "g_generational_succession",
+        "target": "e_witness_formation",
+        "function": "Makes apprenticeship and inheritance the long-horizon engine"
+      },
+      {
+        "id": "lk_civic_standing",
+        "source": "g_civic_crisis",
+        "target": "e_institutional_standing",
+        "function": "Occasionally makes the profession's answer irreversible"
+      },
+      {
+        "id": "lk_comedy_standing",
+        "source": "g_bureaucratic_comedy",
+        "target": "e_institutional_standing",
+        "function": "Lets the institution's absurdity be seen without becoming its evil"
+      },
+      {
+        "id": "lk_receipt_economy",
+        "source": "tp_the_receipt",
+        "target": "e_defect_economy",
+        "function": "Makes error portable, hence alienable, hence a market"
+      },
+      {
+        "id": "lk_inverse_nosafe",
+        "source": "tp_inverse_unreliable",
+        "target": "rx_no_safe_witness",
+        "function": "Delivers the refusal as a narrative contract rather than an assertion"
+      },
+      {
+        "id": "lk_mentor_generational",
+        "source": "tp_spent_mentor",
+        "target": "th_generational_cost",
+        "function": "Makes transmission of cost concrete between named generations"
+      },
+      {
+        "id": "lk_hearing_registers",
+        "source": "tp_the_hearing",
+        "target": "ot_three_registers",
+        "function": "Externalizes the ambiguity as procedure the reader can watch"
+      },
+      {
+        "id": "lk_inherited_distant",
+        "source": "tp_inherited_case",
+        "target": "th_distant_promise",
+        "function": "Lets an early consequence return as a live obligation"
+      },
+      {
+        "id": "lk_rival_standing",
+        "source": "tp_rival_who_is_right",
+        "target": "e_institutional_standing",
+        "function": "Gives the antagonist a defensible standard instead of a lie"
+      },
+      {
+        "id": "lk_reform_main",
+        "source": "tp_reform_overreach",
+        "target": "th_main",
+        "function": "Guarantees each settlement ends by installing its successor"
+      },
+      {
+        "id": "lk_theme_audit_gate",
+        "source": "tm_auditability_not_trust",
+        "target": "e_admissibility",
+        "function": "States what the gate is for, then tests it until it breaks"
+      },
+      {
+        "id": "lk_theme_error_economy",
+        "source": "tm_error_as_value",
+        "target": "e_defect_economy",
+        "function": "Names the market's moral content and keeps it visible"
+      },
+      {
+        "id": "lk_theme_survival_standing",
+        "source": "tm_survival_cost",
+        "target": "e_institutional_standing",
+        "function": "Frames each trade as neither cowardice nor wisdom"
+      },
+      {
+        "id": "lk_theme_provisional_end",
+        "source": "tm_provisional_competence",
+        "target": "rx_provisional_peace",
+        "function": "Converts the ending's institutional reform into a felt position"
+      },
+      {
+        "id": "lk_theme_pays_economy",
+        "source": "tm_who_pays",
+        "target": "e_defect_economy",
+        "function": "Keeps the distributional question visible inside every transaction"
+      },
+      {
+        "id": "lk_theme_unfixed_registers",
+        "source": "tm_the_unfixed_question",
+        "target": "ot_three_registers",
+        "function": "Keeps the author's ambiguity open by institutionalizing disagreement"
+      },
+      {
+        "id": "lk_gate_exemption",
+        "source": "e_admissibility",
+        "target": "th_exemption_boundary",
+        "function": "Requires a boundary it cannot adjudicate, since it cannot rule on its own edge"
+      },
+      {
+        "id": "lk_bk24_boundary",
+        "source": "bk_24",
+        "target": "th_exemption_boundary",
+        "function": "Opens the boundary every later Book must police"
+      },
+      {
+        "id": "lk_bk24_gate",
+        "source": "bk_24",
+        "target": "e_admissibility",
+        "function": "Gives the gate a constitutional exterior at its own apex"
+      },
+      {
+        "id": "lk_bk24_economy",
+        "source": "bk_24",
+        "target": "e_defect_economy",
+        "function": "Seals the top of the ladder, so the highest office stops consuming defects"
+      },
+      {
+        "id": "lk_patron_exemption",
+        "source": "th_patron_pressure",
+        "target": "th_exemption_boundary",
+        "function": "Finds in the exempt bench a way to buy certainty without defeating the rule"
+      },
+      {
+        "id": "lk_bk50_exemption",
+        "source": "bk_50",
+        "target": "th_exemption_boundary",
+        "function": "Writes the exemption into law, making it harder to remove and harder to ignore"
+      },
+      {
+        "id": "lk_bk76_boundary",
+        "source": "bk_76",
+        "target": "th_exemption_boundary",
+        "function": "Finds that the exemption's reach is retroactive rather than prospective"
+      },
+      {
+        "id": "lk_bk76_gate",
+        "source": "bk_76",
+        "target": "e_admissibility",
+        "function": "Stages a complete audit of the gate that cannot be ratified"
+      },
+      {
+        "id": "lk_bk76_unsigned",
+        "source": "bk_76",
+        "target": "ot_unsigned_ruling",
+        "function": "Produces the form: a ruling complete except for ratification"
+      },
+      {
+        "id": "lk_unsigned_withheld",
+        "source": "ae_withheld_certification",
+        "target": "ot_unsigned_ruling",
+        "function": "Turns the narration's refusal to vouch into a visible institutional object"
+      },
+      {
+        "id": "lk_unsigned_bk100",
+        "source": "ot_unsigned_ruling",
+        "target": "bk_100",
+        "function": "Becomes a renewal date instead of a signature"
+      },
+      {
+        "id": "lk_bk100_boundary",
+        "source": "bk_100",
+        "target": "th_exemption_boundary",
+        "function": "Temporalizes the exemption: authority becomes revocable instead of certifiable"
+      },
+      {
+        "id": "lk_exemption_ledger",
+        "source": "th_exemption_boundary",
+        "target": "ot_defect_ledger",
+        "function": "Appears in the ledger as a blank column, then as a renewal date"
+      },
+      {
+        "id": "lk_exemption_theme",
+        "source": "tm_auditability_not_trust",
+        "target": "th_exemption_boundary",
+        "function": "Locates the floor of auditability, where the theme must argue from trust"
+      }
+    ],
+    "phases": [
+      {
+        "id": "ph_0_scandal",
+        "title": "Movement I - The rule as scandal",
+        "order": 0,
+        "scope": "Books 1-23 (estimated; duration unknown)",
+        "genres": [
+          {
+            "genre": "Procedural inquiry",
+            "role": "governing"
+          },
+          {
+            "genre": "Epistemic mystery",
+            "role": "supporting"
+          },
+          {
+            "genre": "Adversarial contest",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional drama",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_procedural_inquiry",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the receipt"
+            ],
+            "structural_function": "Establishes the procedure the reader will check for a hundred Books: a claim, its traces, its maker's defect, a ruling. Early Books keep the procedure small and local so that the rule is learned as a practice before it is learned as an institution."
+          },
+          {
+            "genre_node_id": "g_epistemic_mystery",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the inherited case"
+            ],
+            "structural_function": "Supplies case variety and the movement's epistemology: the past is recoverable only as a defensible approximation, so early victories are partial by construction rather than by misfortune."
+          },
+          {
+            "genre_node_id": "g_adversarial_contest",
+            "basic_emotions": [
+              "anger",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the hearing"
+            ],
+            "structural_function": "Introduces the hearing as the place where admissibility is argued, so the rule's ambiguity is visible from the first movement instead of arriving later as an unforeseen complication."
+          }
+        ],
+        "reader_experience": "The reader learns one rule and watches it be scandalous. Trust in the profession is not yet available; the pleasure is in seeing an impossible standard actually used, and in noticing that its first uses cost someone.",
+        "aesthetic": "Plain, evidence-first prose, with ledger texture arriving gradually. The register is closer to testimony than to jurisprudence; nothing yet sounds like law being made.",
+        "narrative_function": "Installs the gate as a practice rather than a doctrine, and installs its economics: Book 1 makes a showing disposable, Book 2 makes one showing permanent. The movement must give the reader enough procedural literacy to feel every later settlement as a change to something already understood, and it must make the profession sympathetic before it becomes powerful. It must also plant the Book 2 dependency without marking it as a plant.",
+        "transition": "The movement ends when the ledger is large enough that admissibility can be accumulated - the point at which a rule about error becomes a system of inheritance and the profession acquires a hierarchy it did not choose.",
+        "parallel_with": [
+          "ph_3_unauditable"
+        ]
+      },
+      {
+        "id": "ph_1_regress",
+        "title": "Movement II - The constitutional exemption",
+        "order": 1,
+        "scope": "Books 24-49 (estimated; duration unknown)",
+        "genres": [
+          {
+            "genre": "Institutional drama",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Adversarial contest",
+            "role": "supporting"
+          },
+          {
+            "genre": "Procedural inquiry",
+            "role": "supporting"
+          },
+          {
+            "genre": "Generational succession",
+            "role": "background"
+          },
+          {
+            "genre": "Bureaucratic comedy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_drama",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the rival who is right"
+            ],
+            "structural_function": "Makes the profession's own constitution the adversary. The exemption is argued on its merits by people who are right, so the movement has stakes without inventing an external threat and the reader has to weigh the argument instead of detecting a villain."
+          },
+          {
+            "genre_node_id": "g_adversarial_contest",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "the hearing",
+              "the receipt"
+            ],
+            "structural_function": "Turns boundary disputes into public hearings: is this act the office, or an output of the office? Each hearing settles one case and leaves the line exactly where it was, which is how a technical constitutional question becomes a legitimacy crisis the reader can watch."
+          },
+          {
+            "genre_node_id": "g_procedural_inquiry",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the receipt"
+            ],
+            "structural_function": "Keeps the series' core pleasure running underneath the politics, and starts attaching grief to procedure as hearings end careers over the location of a line rather than over a mistake."
+          }
+        ],
+        "reader_experience": "Relief, then suspicion of the relief. The reader is handed a settlement they would have made themselves and watches it defended well, so the doubt that remains is not whether the profession is lying but whether agreeing was the mistake.",
+        "aesthetic": "Ledger-heavy and newly punctilious. Documents multiply, prose becomes more procedural and less scenic, and the comedy register appears because an institution that has lawfully exempted itself from its own rule is absurd in a way that must be seen as absurd rather than as evil.",
+        "narrative_function": "Turns the profession's central claim into its central exception. Book 24 closes the regress by exempting certification authority from certification, and the exemption is not a concession but an argument: certification must terminate somewhere, an endless regress of certifiers leaves a public nothing to rely on, and a profession that cannot conclude will be replaced by whatever certainty is purchasable. The defense is good, and it is the first time the profession justifies itself on trust rather than auditability. The rest of the movement polices the boundary the exemption creates - which acts belong to the office and which are merely outputs of it, who sits on the exempt bench, and what the base must prove so that an unaccountable apex looks like a constitution rather than a hole.",
+        "transition": "The movement ends when case-by-case defense of the boundary exhausts itself. The only remaining defense is a complete written rule, because a rule is the one instrument that can make an unaccountable apex look like the lawful summit of an auditable order rather than an exception to it, which is the Book 50 decision rather than an accident.",
+        "parallel_with": [
+          "ph_3_unauditable"
+        ]
+      },
+      {
+        "id": "ph_2_code",
+        "title": "Movement III - The written standard",
+        "order": 2,
+        "scope": "Books 50-75 (estimated; duration unknown)",
+        "genres": [
+          {
+            "genre": "Institutional drama",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Generational succession",
+            "role": "supporting"
+          },
+          {
+            "genre": "Procedural inquiry",
+            "role": "supporting"
+          },
+          {
+            "genre": "Bureaucratic comedy",
+            "role": "background"
+          },
+          {
+            "genre": "Civic crisis",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_drama",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "the reform that overreached",
+              "the rival who is right"
+            ],
+            "structural_function": "Converts the central ambiguity into statute and places the exemption beyond amendment. The drama is no longer whether the profession will be audited but which definition of auditability will govern a base that must be perfect so that its summit need not be."
+          },
+          {
+            "genre_node_id": "g_generational_succession",
+            "basic_emotions": [
+              "sadness",
+              "anger"
+            ],
+            "trope_functions": [
+              "the spent mentor",
+              "the inherited case"
+            ],
+            "structural_function": "Carries the movement's real cost: a cohort excluded by a definition rather than by failure, and excluded partly so that the exemption above it can be defended. This is the activation that justifies the series' length, because exclusion must be lived long enough to be felt as a generation."
+          },
+          {
+            "genre_node_id": "g_procedural_inquiry",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the receipt"
+            ],
+            "structural_function": "Now runs against a written rule, so competence at procedure becomes competence at compliance. The reader's pleasure in checking rulings turns against the ruling class."
+          },
+          {
+            "genre_node_id": "g_bureaucratic_comedy",
+            "basic_emotions": [
+              "joy",
+              "anger"
+            ],
+            "trope_functions": [
+              "the reform that overreached"
+            ],
+            "structural_function": "Provides the movement's only relief and its sharpest critique: the code is administered by people filling in forms about their own disgrace."
+          }
+        ],
+        "reader_experience": "Clarity arrives and is worse than the ambiguity. The reader can now check every ruling against a written standard, which is satisfying, and can see exactly who the standard excludes, which is not.",
+        "aesthetic": "Juridical rather than forensic: clause numbers, marginal amendments, dissents. Prose becomes more exact and less warm, and the dry warmth retreats into the comedy register where it is safe.",
+        "narrative_function": "Fixes the meaning of shown wrong inside the story, which remains the series' largest self-inflicted injury and must be entirely defensible when it happens. The code is not written because the regress is unmanageable but because the exemption has left the base carrying the whole burden of legitimacy: if the apex cannot be tested, everything beneath it must be beyond argument. The result is a standard harder than the profession needs, which admits the conveniently broken and excludes the merely competent, and an entrenched clause placing the exemption beyond the code's own amendment procedure. Writing the exemption down makes it at once safer and more visible than custom ever made it.",
+        "transition": "The movement ends when a case arises that the code can only resolve by using the one receipt whose audit the constitution forbids, so the Book 76 dependency arrives through procedure rather than through revelation.",
+        "parallel_with": [
+          "ph_0_scandal"
+        ]
+      },
+      {
+        "id": "ph_3_unauditable",
+        "title": "Movement IV - The conclusion that cannot be signed",
+        "order": 3,
+        "scope": "Books 76-92 (estimated; duration unknown)",
+        "genres": [
+          {
+            "genre": "Civic crisis",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Adversarial contest",
+            "role": "supporting"
+          },
+          {
+            "genre": "Epistemic mystery",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional drama",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_civic_crisis",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "the inherited case"
+            ],
+            "structural_function": "Makes the unsigned conclusion decide something public and irreversible, so the profession's constitutional limit becomes everyone's emergency and the audit regress question cannot be deferred by another committee."
+          },
+          {
+            "genre_node_id": "g_adversarial_contest",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the hearing",
+              "the rival who is right"
+            ],
+            "structural_function": "Stages the confrontation between voiding the history and extending the exemption to the evidence, with both sides arguing correctly and neither able to win cleanly."
+          },
+          {
+            "genre_node_id": "g_epistemic_mystery",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the inherited case"
+            ],
+            "structural_function": "Reopens the founding showing itself, so the reader discovers that a certification was always a reconstruction with an error surface - the one thing the profession never said about its own origins."
+          },
+          {
+            "genre_node_id": "g_institutional_drama",
+            "basic_emotions": [
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the reform that overreached"
+            ],
+            "structural_function": "Carries the legitimate defenders of the institution, whose strongest available argument is now also the most damaging one: that the profession must be believed precisely where it cannot be checked."
+          }
+        ],
+        "reader_experience": "The reader's tools work completely and do not conclude. Seventy-five Books of training in checking claims arrive at a case where the checking finishes and no verdict can be issued; the discomfort is not that the machinery failed but that it succeeded and had nowhere to put the result.",
+        "aesthetic": "The plainest register in the series. Ornament is almost entirely refused, hearings read as transcripts, and warmth survives only in scenes of people deciding what to lose.",
+        "narrative_function": "Collects the distant promise. The profession performs a full, competent, honest audit of the certification its foundation rests on, and discovers it can complete every step and ratify none, because ratification is certifying the certifier. The exemption enacted at Book 24 turns out to have been retroactive: every certification the office ever made now depends on an authority no ruling may examine. The choice is no longer between auditing the foundation and preserving the authority, since the exemption preserves the authority either way. It is between voiding the profession's history and extending the exemption to its evidence, and both courses require the profession to concede in public that its foundation rests on trust.",
+        "transition": "The movement ends with the audit filed unsigned. Permanent receipts remain, authority remains, and neither can settle anything, which is the condition the final movement reforms.",
+        "parallel_with": [
+          "ph_1_regress"
+        ]
+      },
+      {
+        "id": "ph_4_revocable",
+        "title": "Movement V - Revocable admissibility and authority",
+        "order": 4,
+        "scope": "Books 93-100 (estimated; duration unknown)",
+        "genres": [
+          {
+            "genre": "Generational succession",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional drama",
+            "role": "supporting"
+          },
+          {
+            "genre": "Procedural inquiry",
+            "role": "supporting"
+          },
+          {
+            "genre": "Bureaucratic comedy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_generational_succession",
+            "basic_emotions": [
+              "sadness",
+              "joy"
+            ],
+            "trope_functions": [
+              "the spent mentor",
+              "the inherited case"
+            ],
+            "structural_function": "Makes the reform legible as an inheritance decision: what the current cohort hands the next is not a credential but an obligation to be re-tested and an authority that can be taken back. The reform is chosen rather than granted."
+          },
+          {
+            "genre_node_id": "g_institutional_drama",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "the reform that overreached",
+              "the rival who is right"
+            ],
+            "structural_function": "Stages the reform as a contested constitutional act: the fight is over who may revoke the exempt office - a court, a polity, or the profession itself - and every answer has a real loser, so the profession's opposition stays coherent."
+          },
+          {
+            "genre_node_id": "g_procedural_inquiry",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the hearing"
+            ],
+            "structural_function": "Returns the series to its plainest pleasure one last time, now attached to a procedure that can never finish, which is what the reader has been trained to want without being promised it."
+          }
+        ],
+        "reader_experience": "Not vindication. The specific relief of a system that has stopped promising final answers and can therefore keep working, mixed with grief for a permanence that was promised and never available - and the vertigo of a profession whose own authority is now as provisional as the testimony it licenses.",
+        "aesthetic": "The ledger returns as a calendar rather than an archive. Prose is plain and slightly warmer than the previous movement, and the comedy register is allowed one last appearance so the ending is not solemn.",
+        "narrative_function": "Transforms the profession, and now transforms its summit as well as its base. Witness admissibility becomes continuously re-openable on a schedule, which dissolves the defect economy and the professional monopoly. The exempt office cannot be scheduled for proof - that is what the exemption means - so it is scheduled for renewal instead: authority becomes revocable rather than certifiable. The ending must be institutional. No witness is vindicated, no witness is finally right, and the profession's own authority is the last thing put on a calendar. The unresolved risk belongs to the ending and must not be settled: an office removable by political means is an office exposed to exactly the patron pressure the exemption was invented to resist.",
+        "transition": "Terminal. The movement ends the series rather than handing off, and its final image should be a signature line filled with a renewal date rather than a verdict.",
+        "parallel_with": [
+          "ph_0_scandal"
+        ]
+      }
+    ],
+    "open_questions": [
+      "Should the profession's authority be contractual, statutory, or mixed? The exemption now presupposes something capable of being constitutional, so the choice decides more than whether the antagonists are markets or states: it decides whether the exemption is an entrenched clause, a licensing condition, or a private agreement among clients.",
+      "May defect-debt be inherited by an institution or a lineage, or must each witness's admissibility rest on an error they or their mentor personally bore? The candidate permits inheritance after Book 2; the stricter reading is available and would change the middle movement substantially.",
+      "Who fills the exempt bench - appointment, election, seniority, or purchase - and may a sitting member be removed for anything other than the schedule? The candidate leaves this open because the answer decides whether patron pressure succeeds by capture or is resisted by form.",
+      "How much of the series may be funny? The candidate protects optimism with dry warmth and a local comedy genre. More levity or none at all are both available without touching the gate.",
+      "Should any Book after Book 2 be readable cold as a standalone entry? If yes, the six focal Books cannot carry exclusive information, which constrains how much of the spine may be load-bearing versus how much must be re-established inside each interval."
+    ],
+    "opportunities": [
+      {
+        "id": "op_defect_black_market",
+        "title": "The defect market as its own criminal genre",
+        "why_it_matters": "The defect economy makes forgery, engineered failure, and purchased wrongness structurally available. A recurring supply-side strand would give the mid-series an antagonist that is not a rival institution and would let the reader see the price of a credential without the profession's leadership explaining it.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "A durable mid-series engine that keeps the gate central while changing the scene family from hearings to transactions, and a natural home for the disgust target that otherwise has few places to live.",
+        "intention_fidelity": "High: the author's rule implies that error is scarce, and scarcity implies a market. This is a consequence of the stated premise rather than a new direction.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "op_register_paratext",
+        "title": "The admissibility register as recurring paratext",
+        "why_it_matters": "Printing fragments of the defect ledger between movements would make the central ambiguity inspectable rather than merely discussed: readers could learn to read the registers and disagree with a ruling before the characters do. It also gives a hundred-Book series a continuous formal identity without a continuous plot.",
+        "scope": "other",
+        "relationship": "deepens",
+        "artistic_potential": "Turns the ledger aesthetic into a reader-facing instrument and makes the series' withholding honest, since everything needed to check a ruling would already be on the page.",
+        "intention_fidelity": "Moderate: it serves the author's stated experience of earned trust, but it commits the series to a formal device the vision does not mention.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "interpretations": [
+      {
+        "id": "i-engine-organization",
+        "interpretation": "Two causal organizations were developed. (A) A single governing gate with subordinate layers: one rule owns causality, and reconstruction, provenance, formation and standing press on it. (B) An ensemble of co-governing mechanisms whose dominance rotates by era, so no mechanism owns outcomes. Chosen: A, with rotating dominance among the subordinates - dominance rotates, ownership does not. The Book 24 exemption tests A hardest: under B an exemption would be one member's legitimate victory and would not oblige the series to answer to the gate, whereas under A the exemption is a statement about the gate's own edge and every later Book must argue about that edge.",
+        "affects": [
+          "e_admissibility",
+          "e_defect_provenance",
+          "th_main",
+          "th_exemption_boundary",
+          "bk_24",
+          "st_series_horizon"
+        ],
+        "consequences": "Keeps the reader learning one rule deeply across a century instead of relearning a causal center each movement. The exemption then reads as the gate's own limit rather than as a new regime, which is what lets Book 76 be an argument about one rule instead of a contest between systems. Cost: the architecture commits the exemption to being a boundary fact, so it cannot later be reinterpreted as a second engine without dismantling this choice.",
+        "alternative": "If the author wants each movement to feel like a different series, B is stronger - and the exemption would then be one mechanism simply winning, which is bolder and much closer to the forbidden resolution that some testimony stands beyond the rule altogether.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-defect-economy",
+        "interpretation": "A defect is finite and spendable: a certified wrongness licenses a bounded amount of testimony, depreciates as it is used, and can be transferred, purchased or inherited, while permanent receipts never depreciate. The author established the rule, not its supply. Book 24's exemption then seals the top of the ladder, because the exempt bench is the one seat that cannot be reached by spending error. Demand concentrates below: every non-exempt voice still needs a defect, and the profession's highest office is now priced in nothing the market can supply.",
+        "affects": [
+          "e_defect_economy",
+          "e_defect_provenance",
+          "e_witness_formation",
+          "ot_defect_ledger",
+          "th_patron_pressure",
+          "bk_24"
+        ],
+        "consequences": "Supplies renewable pressure for a hundred Books without new premises - shortages, forgeries, inherited debt, manufactured failure, a permanent uncredentialed class - and adds a structural grievance: the ladder's last rung is appointment, not merit as the rule defines merit. Cost: the world becomes mercantile and the profession risks reading as corrupt rather than fallible, so the dry-warmth aesthetic and the comedy register carry real defensive weight.",
+        "alternative": "Defects non-transferable and strictly personal: one showing licenses only its own witness, once. Cleaner ethically and more dignified, but starves the series of Book-scale variety and removes inheritance, forgery and the ledger.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-shown-wrong-registers",
+        "interpretation": "The author left shown-to-have-been-wrong unfixed, and this architecture does not fix it. It institutes three rival registers - public proof, sealed private admission, inference from a later correction - ranked differently by different bodies. Book 50 codifies a ranking, and that code is an in-story mistake rather than an authorial ruling. The Book 24 exemption is deliberately not a fourth register: it is the profession's declaration that one class of claim stands outside the taxonomy, which keeps the original ambiguity intact instead of answering it with an authoritative fourth answer.",
+        "affects": [
+          "ot_three_registers",
+          "e_defect_provenance",
+          "bk_01",
+          "bk_24",
+          "bk_50",
+          "tm_the_unfixed_question"
+        ],
+        "consequences": "Keeps the ambiguity live for a hundred Books without vagueness: every ruling must name which register it used and what it cost, while the exemption marks a boundary rather than a solution. It also means no ending may resolve the question; the final reform changes who may re-open a register and who may revoke an authority, not which register is true.",
+        "alternative": "Fixing one meaning early, such as public proof only, would give sharper jurisprudence and a cleaner middle, but converts the author's deliberate ambiguity into a solved premise and makes the forbidden all-equally-unreliable conclusion much harder to avoid.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-self-sealing-defect",
+        "interpretation": "Book 2 establishes a certified wrongness whose proof was produced by an instrument the profession later adopts as its own standard. Once adopted, the receipt cannot be re-tested without invalidating the standard and the standard cannot be withdrawn without discrediting the profession's founding evidence. It is the first permanent receipt and the only one that must never be inspected. The Book 24 counterfactual touches none of this: Book 2 is preserved exactly as it stands, and the exemption changes only what may be done about the receipt later.",
+        "affects": [
+          "bk_02",
+          "th_distant_promise",
+          "bk_76",
+          "bk_100",
+          "e_defect_economy"
+        ],
+        "consequences": "Gives the distant promise a dependency rather than a callback: at Book 76 the claim that must settle a public crisis is licensed by this receipt. It also explains why the profession's rigor hardened into hierarchy, since permanent receipts create inheritable admissibility. Keeping Book 2 intact is deliberate: the revision must not purchase a new late crisis by changing the setup it depends on.",
+        "alternative": "A receipt that is merely very old and inconvenient would function as a callback, not a dependency, and the late crisis would be about sentiment rather than structure. Alternatively the permanent receipt could belong to a rival institution, which externalizes the crisis and weakens the ending's self-audit.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-codification-as-error",
+        "interpretation": "Book 50 answers the exemption's legitimacy debt by writing down what counts as shown wrong. This remains the series' central institutional error and it is a legitimate one: a complete code does make rulings consistent, and only a complete code can make an unaccountable apex look like the lawful summit of an auditable order. Its cost stays selective - the cheapest way to satisfy a written standard is to have already failed in the way the standard recognizes - and the code entrenches the exemption beyond its own amendment procedure, which makes the exemption safer and more visible in the same stroke.",
+        "affects": [
+          "bk_50",
+          "th_exemption_boundary",
+          "e_witness_formation",
+          "ot_three_registers",
+          "th_generational_cost",
+          "g_generational_succession"
+        ],
+        "consequences": "Provides the middle movement's engine and the late series' antagonist, and converts the exemption from a custom into a clause ordinary law cannot reach. The irony is structural: the profession's most demanding self-legislation is what armours its least accountable office, and the excluded cohort pays part of the bill. It also creates the generation the late series must mourn, which is the strongest single reason the horizon needs to be long.",
+        "alternative": "The exemption could have been written down at Book 24, with the code built around a clause everyone already knew. Cheaper and clearer, but it removes the discovery that legislation is what armours the exemption, and it makes the profession look naive about its own act.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-witness-formation-cost",
+        "interpretation": "Training a witness requires spending a real defect: a candidate is licensed by someone else's demonstrated error, usually a mentor's, and that error is then exhausted. Apprenticeship is therefore an economic act with a victim, and cohorts are formed by shortages the previous cohort created. Book 24 adds one exception and only one - the exempt bench, the sole career terminus reachable without ever being wrong - so a cohort's ambition reorganizes around the one seat its own currency cannot buy.",
+        "affects": [
+          "e_witness_formation",
+          "tp_spent_mentor",
+          "th_generational_cost",
+          "g_generational_succession",
+          "bk_24"
+        ],
+        "consequences": "Makes succession causal rather than decorative and keeps the cost of the rule concrete. The errorless terminus makes the profession's meritocracy visibly false at exactly one point, which is enough: the reader can see the ladder and see where it stops being a ladder, without the series needing a villain. It also becomes a standing source of the grief and disgust targets.",
+        "alternative": "Candidates could earn their own defects through supervised failure. Kinder and more plausible, but it produces a profession that manufactures error in its own young, a darker reading that may strain the optimistic frame.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-exemption-scope",
+        "interpretation": "Book 24's exemption governs the certifying authority, not the things it certified. It therefore neither protects the Book 2 receipt nor makes it unusable: the receipt stays valid, becomes maximally usable, and becomes impossible to conclude, because concluding would be certifying the certifier. The exemption is retroactive, so at Book 76 the profession can re-run the whole audit, check every trace, and issue no verdict. The receipt is protected in form and exposed in effect - worse than either its defenders or its reformers expect.",
+        "affects": [
+          "th_distant_promise",
+          "bk_02",
+          "bk_24",
+          "bk_76",
+          "e_admissibility",
+          "ot_unsigned_ruling",
+          "th_exemption_boundary",
+          "bk_100"
+        ],
+        "consequences": "Gives Book 76 a crisis that follows from the exemption instead of restating it: the machinery succeeds and has nowhere to put the result, so the profession's craft is shown to be complete and insufficient at once. It keeps the Book 2 dependency alive without altering Book 2, and it leaves revocability as the only conclusion available at Book 100. Cost: it requires the exemption to be read broadly enough to reach outputs, which a narrow legal reading would resist.",
+        "alternative": "A narrow boundary - the exemption covers the office, not its outputs - would leave the Book 2 receipt fully auditable at 76. The crisis then becomes destructive rather than deadlocked: the audit completes and voids the standard, and the profession must choose between its history and its evidence. Sharper melodrama, weaker fit with the exemption's own logic.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-revocable-two-clocks",
+        "interpretation": "The ending converts permanence into two clocks rather than one. For witnesses, admissibility becomes continuously re-openable on a schedule, so a witness is admissible because their error is due to be tested again rather than because it has been settled. For the exempt office, the exemption from certification is left standing - it cannot be abolished without reopening the regress - and revocation is substituted for verification: authority is renewed or withdrawn on a schedule. Nothing in the profession is final, including the profession itself.",
+        "affects": [
+          "bk_100",
+          "th_exemption_boundary",
+          "e_admissibility",
+          "e_defect_economy",
+          "e_witness_formation",
+          "rx_provisional_peace",
+          "tm_provisional_competence",
+          "th_main"
+        ],
+        "consequences": "Satisfies the third commitment with a measurable loss: the profession gives up the permanence of its own authority, not merely the permanence of its witnesses, so the apex finally pays something. It satisfies the second commitment more precisely than abolition would, since the regress stays closed and auditability is extended to its floor by a different instrument. Cost: revocation is a political act, so the reform hands the bench to whoever can schedule its renewal, and the series must leave that unsettled.",
+        "alternative": "Repeal the exemption at Book 100 and certify the certifiers. Intellectually cleaner and it restores formal auditability, but it reopens the regress, undoes Book 24 rather than transforming it, and makes the ending a correct answer rather than a live settlement.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-horizon-100",
+        "interpretation": "A hundred Books remains justified, and the exemption strengthens the case: its retroactive reach cannot be felt unless the certification it contaminates is old, so the distance between Book 2 and Book 76 becomes structural rather than atmospheric. The condition is unchanged - the four case-bearing intervals must be standalone disputes, and only the six focal Books may carry irreversible change. The cut I would still make is to sixty, and it is now a worse cut, because an excluded generation needs about twenty-five Books to be felt as a generation.",
+        "affects": [
+          "st_series_horizon",
+          "th_generational_cost",
+          "bk_50",
+          "bk_76",
+          "bk_100",
+          "th_exemption_boundary"
+        ],
+        "consequences": "If the intervals become a single serial escalation, a hundred collapses to roughly forty and the surplus Books become padding. If they stay standalone disputes, the length buys four cohorts and a seventy-four-Book fuse, and the exemption's retroactivity arrives with a lifetime of certifications behind it. The revision therefore does not change the horizon decision, only the reason it holds.",
+        "alternative": "A sixty-Book horizon is the credible shorter version: merge movements III and IV, compress the codification-to-collapse interval, and lose the cohort the code excludes - which is precisely why the shorter version is weaker.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-emotion-provenance",
+        "interpretation": "Every emotion target is marked agent_proposed. The vision states an intended experience - earned trust, the cost of relying on someone already wrong, no comfort of a reliable witness - but it does not name any of the six basic emotions in its own words, and optimistic is not one of them. Attributing joy, fear or anger to the author would be an invention dressed as a quotation, including the new targets built for the Book 24 settlement.",
+        "affects": [
+          "rx_earned_trust",
+          "rx_cost_of_reliance",
+          "rx_no_safe_witness"
+        ],
+        "consequences": "The six-label emotional architecture is a proposal to be corrected, not a restatement. The governing promise is carried by the reader-experience nodes, which do describe the experience the author stated, while the emotion labels are mine and can be replaced without touching any author commitment.",
+        "alternative": "A looser reading would let optimistic license joy as author-declared. That would put the author's name on a label they never used, which is what the provenance rule exists to prevent.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-genre-frames",
+        "interpretation": "The genre participation listed here is a working frame, not an author commitment. The vision establishes a profession, an evidentiary rule and an institutional survival condition; it names no genre. These seven frames - procedural inquiry, epistemic mystery, institutional drama, adversarial contest, generational succession, civic crisis, bureaucratic comedy - are the ones that make the stated mechanisms legible at Book and movement scale. The exemption is carried inside institutional drama rather than by a new constitutional genre, which keeps the frame count unchanged.",
+        "affects": [
+          "g_procedural_inquiry",
+          "g_institutional_drama",
+          "g_generational_succession",
+          "ae_forensic_plainness",
+          "e_institutional_standing"
+        ],
+        "consequences": "Genre contracts and interactions are proposals that can be swapped without disturbing the gate, the defect economy or the six focal Books. If the author wants a different surface - satire, a romance of vocation, political epic - the mechanisms survive the transplant, though the aesthetic nodes would need revision.",
+        "alternative": "Committing to a single governing genre, most likely procedural, would give sharper shelf identity and simpler contracts, at the cost of the institutional and generational registers the long horizon depends on.",
+        "author_decision_required": false
+      }
+    ],
+    "emotion_targets": [
+      {
+        "id": "et_reliance_relief",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "Relief that is inseparable from risk: a claim holds because it was tested, not because it was trusted. Relief should arrive only after visible checking, and should always be smaller than the reader expects.",
+        "eliciting_condition": "A reconstruction is contested, a defect is inspected, a witness's past error is shown to bear directly on the present claim, and the claim still holds under that burden.",
+        "aesthetic_strategy": "Plain procedural prose during checking; the moment of relief gets a short flat sentence rather than a lyrical one, so satisfaction attaches to the machinery instead of to vindication.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_apprehension_under_claim",
+        "emotion": "fear",
+        "role": "primary",
+        "intended_effect": "A continuous low fear that the current reconstruction is wrong in a way nobody has yet paid for. It must never resolve into safety, only into a different and narrower risk.",
+        "eliciting_condition": "Interior access to a witness who is certain, combined with a trace that does not quite fit, in front of a reader who now knows what an unspent defect costs.",
+        "aesthetic_strategy": "The narration grants certainty freely and withholds corroboration; sentences get plainer as the claim gets stronger, so the reader's alarm comes from the gap between confidence and evidence.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_grief_for_spent",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "Grief for people whose wrongness was converted into institutional value and who were then discarded. The reader should mourn a specific loss of standing rather than a general injustice.",
+        "eliciting_condition": "A witness's defect is spent to license someone else, and the witness remains alive, competent, and permanently unable to speak again.",
+        "aesthetic_strategy": "The loss is recorded in ledger language and then contradicted by a single scene of ordinary competence, so grief attaches to a person the paperwork has already closed.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_indignation_at_purity",
+        "emotion": "anger",
+        "role": "supporting",
+        "intended_effect": "Anger at the offer of untested authority - a person, a method, or an instrument presented as beyond error. Directed at the offer rather than the offerer, so the series does not become a hunt for villains.",
+        "eliciting_condition": "A patron, court, or reformer proposes a claimant with no demonstrated error and treats the absence as the qualification.",
+        "aesthetic_strategy": "The proposal is written in the most reasonable available voice, so the reader's anger has to work against plausibility rather than against villainy.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_revulsion_at_manufacture",
+        "emotion": "disgust",
+        "role": "local",
+        "intended_effect": "Disgust when wrongness is made rather than found: a defect arranged, a failure engineered, a person broken to supply a credential. Local to particular Books so that it retains force.",
+        "eliciting_condition": "A showing is traced back to its supply and turns out to have been procured, with the person who was wrong aware of what their error was for.",
+        "aesthetic_strategy": "Told through procurement paperwork and the ordinary courtesy of the transaction, so revulsion comes from administrative calm rather than from spectacle.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_shock_of_reopening",
+        "emotion": "surprise",
+        "role": "supporting",
+        "intended_effect": "The jolt of a settled showing being unsettled - not a twist for its own sake, but the discovery that a certification was itself a reconstruction with an error surface.",
+        "eliciting_condition": "A defect that has licensed testimony for decades is examined under a standard that did not exist when it was certified.",
+        "aesthetic_strategy": "The reopening is presented as routine procedure, and the shock comes from the reader realizing they never asked the question the procedure is now asking.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_quiet_craft_pleasure",
+        "emotion": "joy",
+        "role": "local",
+        "intended_effect": "Small frequent pleasure in a reconstruction that fits: the trace accounted for, the inference honest, the error surface stated. This is the series' working pleasure between large payoffs.",
+        "eliciting_condition": "An assembly closes around awkward evidence without discarding any of it, and the reader can verify the fit from what was shown.",
+        "aesthetic_strategy": "Forensic plainness plus ledger texture: the sentence orders itself as evidence does, letting the reader do the confirming rather than being told the result was elegant.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_dread_of_the_code",
+        "emotion": "fear",
+        "role": "contrasting",
+        "intended_effect": "Fear produced by clarity rather than obscurity: a written standard that will exclude people the reader has come to respect. Contrasts with the series' usual fear, which comes from uncertainty.",
+        "eliciting_condition": "A competent witness is disqualified under a newly written definition for failing to have failed in the recognized way.",
+        "aesthetic_strategy": "The disqualification is shown in full procedural correctness - clause cited, hearing properly held - so dread comes from legitimacy rather than from abuse.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_anger_at_the_ledger",
+        "emotion": "anger",
+        "role": "local",
+        "intended_effect": "Anger at accounting itself: at a system in which a person's worst moment is a line item with a remaining balance. Local, and used sparingly, because sustained anger at the ledger would become anger at the premise.",
+        "eliciting_condition": "A character reads their own entry and discovers how much of their disgrace is still available to be spent by others.",
+        "aesthetic_strategy": "Ledger texture placed in the character's hands rather than in the narrator's, so the record is experienced as an object rather than explained as a system.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_relief_at_exemption",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "Relief at a concession the reader would have made themselves: the regress ends, the institution is spared, and the relief arrives well before the cost does.",
+        "eliciting_condition": "A well-argued settlement closes an unbearable recursion by exempting the one body that cannot be checked, and it is presented by people who are not villains and who are right about what would have happened otherwise.",
+        "aesthetic_strategy": "Play the argument straight and let the reader win it first. The dread is installed afterward, by the reader noticing that they agreed and that their agreement is what makes the exemption unremovable.",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "cx_earned_trust",
+        "title": "Earned trust",
+        "basic_emotions": [
+          "joy",
+          "fear"
+        ],
+        "context": "Trust available only with the risk still attached: the reader believes a claim while holding its maker's demonstrated error in view. Not confidence plus doubt, but confidence whose warrant is the doubt."
+      },
+      {
+        "id": "cx_audited_grief",
+        "title": "Audited grief",
+        "basic_emotions": [
+          "sadness",
+          "anger"
+        ],
+        "context": "Mourning a witness whose error has been fully spent, combined with anger at the accounting that made the spending legitimate. The two cannot be separated, which is the point of the emotion."
+      },
+      {
+        "id": "cx_complicit_reliance",
+        "title": "Complicit reliance",
+        "basic_emotions": [
+          "joy",
+          "disgust"
+        ],
+        "context": "The relief of acting on a valid receipt obtained by manufacturing someone's failure. The reader enjoys the outcome and dislikes its price in the same moment, with no way to accept one and refuse the other."
+      },
+      {
+        "id": "cx_juridical_dread",
+        "title": "Juridical dread",
+        "basic_emotions": [
+          "fear",
+          "surprise"
+        ],
+        "context": "The specific chill of a rule producing an outcome nobody intended while remaining correct by its own terms. Fear at the consequence plus surprise at the legitimacy of the route."
+      },
+      {
+        "id": "cx_institutional_shame",
+        "title": "Institutional shame",
+        "basic_emotions": [
+          "disgust",
+          "sadness"
+        ],
+        "context": "The profession recognizing its own exemption as an act rather than a condition: revulsion at what it has written into itself, grief for the guarantee it once appeared to give, and the specific shame of an act that was correct when it was taken."
+      },
+      {
+        "id": "cx_provisional_peace",
+        "title": "Provisional peace",
+        "basic_emotions": [
+          "joy",
+          "sadness"
+        ],
+        "context": "The ending's affect: relief that competence can now be kept honest indefinitely, and grief that permanence was never available and was promised anyway."
+      },
+      {
+        "id": "cx_consented_exemption",
+        "title": "Consented exemption",
+        "basic_emotions": [
+          "joy",
+          "fear"
+        ],
+        "context": "The relief of a problem solved by a concession you would have made yourself, combined with the fear that your own agreement is what makes the concession permanent. Not trust betrayed but trust spent knowingly, and the knowing arrives after the spending."
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "g_procedural_inquiry",
+        "role": "governing",
+        "emotion_target_ids": [
+          "et_reliance_relief",
+          "et_apprehension_under_claim",
+          "et_quiet_craft_pleasure"
+        ],
+        "complex_emotion_ids": [
+          "cx_earned_trust"
+        ],
+        "trope_functions": [
+          "the receipt",
+          "the hearing",
+          "the inherited case"
+        ],
+        "narrative_engine": "Each Book poses a claim about an unwitnessed event, assembles it from traces, tests it against its maker's certified defects, and rules. The gate is the engine: because admissibility depends on a spendable defect, every procedure consumes something scarce and produces the shortage that drives the next procedure.",
+        "structural_pattern": "Trace, then reconstruction, then objection, then defect inspection, then ruling, repeated at Book scale with the ruling's cost carried forward. Movements vary which step is contested, so the pattern renews without changing shape.",
+        "aesthetic_strategies": [
+          "forensic plainness",
+          "ledger and register texture",
+          "alternating strictness"
+        ],
+        "payoff_expectations": [
+          "a ruling the reader can check against what was actually shown",
+          "a cost the ruling imposes on someone identifiable",
+          "one part of the gate newly contested by the ruling"
+        ]
+      },
+      {
+        "genre_node_id": "g_epistemic_mystery",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_apprehension_under_claim",
+          "et_shock_of_reopening"
+        ],
+        "complex_emotion_ids": [
+          "cx_earned_trust"
+        ],
+        "trope_functions": [
+          "the inherited case",
+          "the receipt"
+        ],
+        "narrative_engine": "The unknown is not a culprit but a past state of affairs recoverable only through residue. Every answer must be an account with a stated error surface, so the genre's pleasure is approximation rather than exposure.",
+        "structural_pattern": "Partial trace set, competing assemblies, a disambiguating test, then an account that is defensible and incomplete. Never a confession, and never a reconstruction the traces cannot carry.",
+        "aesthetic_strategies": [
+          "forensic plainness",
+          "narration that will not certify"
+        ],
+        "payoff_expectations": [
+          "a past that can be acted on without being fully known",
+          "an inference the reader could have made and did not"
+        ]
+      },
+      {
+        "genre_node_id": "g_institutional_drama",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_indignation_at_purity",
+          "et_dread_of_the_code",
+          "et_relief_at_exemption"
+        ],
+        "complex_emotion_ids": [
+          "cx_juridical_dread",
+          "cx_institutional_shame",
+          "cx_consented_exemption"
+        ],
+        "trope_functions": [
+          "the rival who is right",
+          "the reform that overreached"
+        ],
+        "narrative_engine": "Jurisdiction is renegotiated whenever the profession's rigor becomes inconvenient to a patron. The engine runs on trades: a piece of auditability exchanged for the right to keep operating.",
+        "structural_pattern": "External pressure, internal accommodation, public justification, then a delayed cost that returns as the next movement's premise.",
+        "aesthetic_strategies": [
+          "ledger and register texture",
+          "unsentimental warmth"
+        ],
+        "payoff_expectations": [
+          "a survival that is visibly a loss",
+          "an antagonist position the reader cannot dismiss"
+        ]
+      },
+      {
+        "genre_node_id": "g_adversarial_contest",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_indignation_at_purity",
+          "et_revulsion_at_manufacture",
+          "et_anger_at_the_ledger"
+        ],
+        "complex_emotion_ids": [
+          "cx_complicit_reliance"
+        ],
+        "trope_functions": [
+          "the hearing",
+          "the receipt"
+        ],
+        "narrative_engine": "Two certified accounts and their defect receipts are set against each other under rules strict enough to be gamed. Contest is how the unresolved ambiguity becomes visible without being answered.",
+        "structural_pattern": "A bounded hearing with stated rules, an attempt to win by procedure rather than truth, and a ruling that ranks the registers for this case only.",
+        "aesthetic_strategies": [
+          "alternating strictness",
+          "narration that will not certify"
+        ],
+        "payoff_expectations": [
+          "a winner who is not vindicated",
+          "a procedural move the reader could have anticipated"
+        ]
+      },
+      {
+        "genre_node_id": "g_generational_succession",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_grief_for_spent",
+          "et_apprehension_under_claim"
+        ],
+        "complex_emotion_ids": [
+          "cx_audited_grief"
+        ],
+        "trope_functions": [
+          "the spent mentor",
+          "the inherited case"
+        ],
+        "narrative_engine": "Training requires spending a real defect on a candidate, so each cohort is formed by a shortage the previous cohort created. Generations inherit credentials and unpaid costs together, which is why the profession's history is a sequence of spent people.",
+        "structural_pattern": "Apprenticeship, licensed practice under one settlement, that settlement's collapse, then a cohort trained for a rule that no longer exists.",
+        "aesthetic_strategies": [
+          "unsentimental warmth",
+          "ledger and register texture"
+        ],
+        "payoff_expectations": [
+          "a successor whose competence is inseparable from someone's discrediting",
+          "a cost that outlives the person who paid it"
+        ]
+      },
+      {
+        "genre_node_id": "g_civic_crisis",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "et_apprehension_under_claim",
+          "et_indignation_at_purity"
+        ],
+        "complex_emotion_ids": [
+          "cx_juridical_dread"
+        ],
+        "trope_functions": [
+          "the inherited case",
+          "the rival who is right"
+        ],
+        "narrative_engine": "Occasionally a testimony decides something public and irreversible, and the profession's internal argument becomes everyone's problem. Used sparingly, so the stakes stay scarce and a civic crisis still means something when it arrives.",
+        "structural_pattern": "A public decision point, a compressed hearing, an irreversible action, then an aftermath the next Book must live inside rather than review.",
+        "aesthetic_strategies": [
+          "alternating strictness",
+          "forensic plainness"
+        ],
+        "payoff_expectations": [
+          "a decision that cannot be re-run",
+          "public knowledge of exactly how the ruling was made"
+        ]
+      },
+      {
+        "genre_node_id": "g_bureaucratic_comedy",
+        "role": "local",
+        "emotion_target_ids": [
+          "et_quiet_craft_pleasure",
+          "et_anger_at_the_ledger"
+        ],
+        "complex_emotion_ids": [
+          "cx_complicit_reliance"
+        ],
+        "trope_functions": [
+          "the reform that overreached",
+          "the receipt"
+        ],
+        "narrative_engine": "The rule is administered by people who must file forms about their own disgrace. Comedy runs on the gap between the rule's dignity and its clerical reality, and it never softens the cost the rule imposes.",
+        "structural_pattern": "Short Books or interludes in the movement's register, using procedure's absurdity for relief while the underlying stakes stay untouched.",
+        "aesthetic_strategies": [
+          "unsentimental warmth",
+          "ledger and register texture"
+        ],
+        "payoff_expectations": [
+          "laughter at the institution that does not excuse it",
+          "a clerical detail that later becomes load-bearing"
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "gi_proc_enables_mystery",
+        "source_genre_id": "g_procedural_inquiry",
+        "target_genre_id": "g_epistemic_mystery",
+        "kind": "enables",
+        "mechanism": "Procedure supplies the discoverable rule set that makes a trace-based mystery fair: the reader knows what a showing requires, so an incomplete account reads as incomplete rather than as authorial withholding.",
+        "risk": "Procedure can crowd out the genuinely unknown by converting every gap into a technicality."
+      },
+      {
+        "id": "gi_mystery_constrains_proc",
+        "source_genre_id": "g_epistemic_mystery",
+        "target_genre_id": "g_procedural_inquiry",
+        "kind": "constrains",
+        "mechanism": "Because the past is recoverable only through residue, procedure can never establish more than the traces support. The mystery genre caps what a ruling is allowed to claim, which is what keeps the gate honest.",
+        "risk": "Repeatedly capping rulings can make the profession look merely cautious rather than rigorous."
+      },
+      {
+        "id": "gi_proc_tension_inst",
+        "source_genre_id": "g_procedural_inquiry",
+        "target_genre_id": "g_institutional_drama",
+        "kind": "creates_tension",
+        "mechanism": "A credible procedure must be strict, but a strict procedure is slow and expensive, and the institution survives by being usable. The two genres are in permanent budget conflict, which is the institutional engine's fuel.",
+        "risk": "The tension can flatten into repetitive budget arguments if the movement does not change what is being bought."
+      },
+      {
+        "id": "gi_adv_reinforces_inst",
+        "source_genre_id": "g_adversarial_contest",
+        "target_genre_id": "g_institutional_drama",
+        "kind": "reinforces",
+        "mechanism": "Hearings are where jurisdiction is performed in public. A well-run hearing legitimizes the institution; a badly run one becomes the next movement's political problem.",
+        "risk": "If hearings always resolve cleanly, the institution never accrues the damage that later movements need."
+      },
+      {
+        "id": "gi_inst_constrains_adv",
+        "source_genre_id": "g_institutional_drama",
+        "target_genre_id": "g_adversarial_contest",
+        "kind": "constrains",
+        "mechanism": "Who may convene a hearing, and which registers count as citable, is set institutionally. Every contest is therefore fought on a field the institution has already shaped, which is why winning a hearing is never the same as winning the argument.",
+        "risk": "Institutional framing can make the contest feel rigged in advance, removing suspense."
+      },
+      {
+        "id": "gi_gen_converges_inst",
+        "source_genre_id": "g_generational_succession",
+        "target_genre_id": "g_institutional_drama",
+        "kind": "converges",
+        "mechanism": "Over decades the institution's continuity problem and the succession problem become the same problem: both ask who can be authorized to speak once the people who built the rule are gone.",
+        "risk": "Convergence can blur the distinction between a person's arc and the institution's, making both feel abstract."
+      },
+      {
+        "id": "gi_civic_contrasts_proc",
+        "source_genre_id": "g_civic_crisis",
+        "target_genre_id": "g_procedural_inquiry",
+        "kind": "contrasts",
+        "mechanism": "Civic crisis demands a decision before the procedure can finish, which throws the procedural genre's patience into relief and shows what patience costs when it is genuinely unavailable.",
+        "risk": "Used too often, it teaches the reader that procedure is a luxury, undermining the series' main pleasure."
+      },
+      {
+        "id": "gi_comedy_contrasts_inst",
+        "source_genre_id": "g_bureaucratic_comedy",
+        "target_genre_id": "g_institutional_drama",
+        "kind": "contrasts",
+        "mechanism": "Comedy treats the same procedures as farce, which stops the drama's gravity from becoming the series' only available attitude and keeps the institution's failures human-scaled rather than mythic.",
+        "risk": "Comedy can excuse what the series needs the reader to hold the institution accountable for."
+      },
+      {
+        "id": "gi_adv_enables_gen",
+        "source_genre_id": "g_adversarial_contest",
+        "target_genre_id": "g_generational_succession",
+        "kind": "enables",
+        "mechanism": "Hearings are the public occasions on which careers end, so they are the mechanism by which cohorts are spent and successors are made. Contest supplies succession with its decisive events.",
+        "risk": "If every career ends at a hearing, succession becomes formulaic."
+      },
+      {
+        "id": "gi_mystery_enables_civic",
+        "source_genre_id": "g_epistemic_mystery",
+        "target_genre_id": "g_civic_crisis",
+        "kind": "enables",
+        "mechanism": "A public decision needs a defensible account of what happened. The mystery genre supplies the account that the civic decision then overreads into policy, which is where irreversible damage enters the series.",
+        "risk": "Civic overreading can make the profession look naive about politics in a way that weakens its institutional credibility."
+      },
+      {
+        "id": "gi_inst_constrains_mystery",
+        "source_genre_id": "g_institutional_drama",
+        "target_genre_id": "g_epistemic_mystery",
+        "kind": "constrains",
+        "mechanism": "The exemption forbids the profession to ask the one question its own epistemology requires: by what right does the certifier certify? The mystery genre must therefore work around a prohibition rather than a gap, and every reconstruction it stages is silently bounded by a question nobody is allowed to put.",
+        "risk": "A prohibition the reader can see but no character may name can read as authorial withholding rather than as institutional constraint."
+      }
+    ]
+  },
+  "architecture_status": "ready",
+  "candidate_request_sha256": "20916630d3060b5209e5317c694fb3ae1ee981219defde724e9e96566bf8ab5d",
+  "governing_objective": null,
+  "premise_status": null,
+  "collaboration": null,
+  "working_interpretations": {
+    "authority": "agent_interpretation",
+    "count": 11,
+    "items": [
+      {
+        "id": "i-engine-organization",
+        "interpretation": "Two causal organizations were developed. (A) A single governing gate with subordinate layers: one rule owns causality, and reconstruction, provenance, formation and standing press on it. (B) An ensemble of co-governing mechanisms whose dominance rotates by era, so no mechanism owns outcomes. Chosen: A, with rotating dominance among the subordinates - dominance rotates, ownership does not. The Book 24 exemption tests A hardest: under B an exemption would be one member's legitimate victory and would not oblige the series to answer to the gate, whereas under A the exemption is a statement about the gate's own edge and every later Book must argue about that edge.",
+        "affects": [
+          "e_admissibility",
+          "e_defect_provenance",
+          "th_main",
+          "th_exemption_boundary",
+          "bk_24",
+          "st_series_horizon"
+        ],
+        "consequences": "Keeps the reader learning one rule deeply across a century instead of relearning a causal center each movement. The exemption then reads as the gate's own limit rather than as a new regime, which is what lets Book 76 be an argument about one rule instead of a contest between systems. Cost: the architecture commits the exemption to being a boundary fact, so it cannot later be reinterpreted as a second engine without dismantling this choice.",
+        "alternative": "If the author wants each movement to feel like a different series, B is stronger - and the exemption would then be one mechanism simply winning, which is bolder and much closer to the forbidden resolution that some testimony stands beyond the rule altogether.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-defect-economy",
+        "interpretation": "A defect is finite and spendable: a certified wrongness licenses a bounded amount of testimony, depreciates as it is used, and can be transferred, purchased or inherited, while permanent receipts never depreciate. The author established the rule, not its supply. Book 24's exemption then seals the top of the ladder, because the exempt bench is the one seat that cannot be reached by spending error. Demand concentrates below: every non-exempt voice still needs a defect, and the profession's highest office is now priced in nothing the market can supply.",
+        "affects": [
+          "e_defect_economy",
+          "e_defect_provenance",
+          "e_witness_formation",
+          "ot_defect_ledger",
+          "th_patron_pressure",
+          "bk_24"
+        ],
+        "consequences": "Supplies renewable pressure for a hundred Books without new premises - shortages, forgeries, inherited debt, manufactured failure, a permanent uncredentialed class - and adds a structural grievance: the ladder's last rung is appointment, not merit as the rule defines merit. Cost: the world becomes mercantile and the profession risks reading as corrupt rather than fallible, so the dry-warmth aesthetic and the comedy register carry real defensive weight.",
+        "alternative": "Defects non-transferable and strictly personal: one showing licenses only its own witness, once. Cleaner ethically and more dignified, but starves the series of Book-scale variety and removes inheritance, forgery and the ledger.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-shown-wrong-registers",
+        "interpretation": "The author left shown-to-have-been-wrong unfixed, and this architecture does not fix it. It institutes three rival registers - public proof, sealed private admission, inference from a later correction - ranked differently by different bodies. Book 50 codifies a ranking, and that code is an in-story mistake rather than an authorial ruling. The Book 24 exemption is deliberately not a fourth register: it is the profession's declaration that one class of claim stands outside the taxonomy, which keeps the original ambiguity intact instead of answering it with an authoritative fourth answer.",
+        "affects": [
+          "ot_three_registers",
+          "e_defect_provenance",
+          "bk_01",
+          "bk_24",
+          "bk_50",
+          "tm_the_unfixed_question"
+        ],
+        "consequences": "Keeps the ambiguity live for a hundred Books without vagueness: every ruling must name which register it used and what it cost, while the exemption marks a boundary rather than a solution. It also means no ending may resolve the question; the final reform changes who may re-open a register and who may revoke an authority, not which register is true.",
+        "alternative": "Fixing one meaning early, such as public proof only, would give sharper jurisprudence and a cleaner middle, but converts the author's deliberate ambiguity into a solved premise and makes the forbidden all-equally-unreliable conclusion much harder to avoid.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-self-sealing-defect",
+        "interpretation": "Book 2 establishes a certified wrongness whose proof was produced by an instrument the profession later adopts as its own standard. Once adopted, the receipt cannot be re-tested without invalidating the standard and the standard cannot be withdrawn without discrediting the profession's founding evidence. It is the first permanent receipt and the only one that must never be inspected. The Book 24 counterfactual touches none of this: Book 2 is preserved exactly as it stands, and the exemption changes only what may be done about the receipt later.",
+        "affects": [
+          "bk_02",
+          "th_distant_promise",
+          "bk_76",
+          "bk_100",
+          "e_defect_economy"
+        ],
+        "consequences": "Gives the distant promise a dependency rather than a callback: at Book 76 the claim that must settle a public crisis is licensed by this receipt. It also explains why the profession's rigor hardened into hierarchy, since permanent receipts create inheritable admissibility. Keeping Book 2 intact is deliberate: the revision must not purchase a new late crisis by changing the setup it depends on.",
+        "alternative": "A receipt that is merely very old and inconvenient would function as a callback, not a dependency, and the late crisis would be about sentiment rather than structure. Alternatively the permanent receipt could belong to a rival institution, which externalizes the crisis and weakens the ending's self-audit.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-codification-as-error",
+        "interpretation": "Book 50 answers the exemption's legitimacy debt by writing down what counts as shown wrong. This remains the series' central institutional error and it is a legitimate one: a complete code does make rulings consistent, and only a complete code can make an unaccountable apex look like the lawful summit of an auditable order. Its cost stays selective - the cheapest way to satisfy a written standard is to have already failed in the way the standard recognizes - and the code entrenches the exemption beyond its own amendment procedure, which makes the exemption safer and more visible in the same stroke.",
+        "affects": [
+          "bk_50",
+          "th_exemption_boundary",
+          "e_witness_formation",
+          "ot_three_registers",
+          "th_generational_cost",
+          "g_generational_succession"
+        ],
+        "consequences": "Provides the middle movement's engine and the late series' antagonist, and converts the exemption from a custom into a clause ordinary law cannot reach. The irony is structural: the profession's most demanding self-legislation is what armours its least accountable office, and the excluded cohort pays part of the bill. It also creates the generation the late series must mourn, which is the strongest single reason the horizon needs to be long.",
+        "alternative": "The exemption could have been written down at Book 24, with the code built around a clause everyone already knew. Cheaper and clearer, but it removes the discovery that legislation is what armours the exemption, and it makes the profession look naive about its own act.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-witness-formation-cost",
+        "interpretation": "Training a witness requires spending a real defect: a candidate is licensed by someone else's demonstrated error, usually a mentor's, and that error is then exhausted. Apprenticeship is therefore an economic act with a victim, and cohorts are formed by shortages the previous cohort created. Book 24 adds one exception and only one - the exempt bench, the sole career terminus reachable without ever being wrong - so a cohort's ambition reorganizes around the one seat its own currency cannot buy.",
+        "affects": [
+          "e_witness_formation",
+          "tp_spent_mentor",
+          "th_generational_cost",
+          "g_generational_succession",
+          "bk_24"
+        ],
+        "consequences": "Makes succession causal rather than decorative and keeps the cost of the rule concrete. The errorless terminus makes the profession's meritocracy visibly false at exactly one point, which is enough: the reader can see the ladder and see where it stops being a ladder, without the series needing a villain. It also becomes a standing source of the grief and disgust targets.",
+        "alternative": "Candidates could earn their own defects through supervised failure. Kinder and more plausible, but it produces a profession that manufactures error in its own young, a darker reading that may strain the optimistic frame.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-exemption-scope",
+        "interpretation": "Book 24's exemption governs the certifying authority, not the things it certified. It therefore neither protects the Book 2 receipt nor makes it unusable: the receipt stays valid, becomes maximally usable, and becomes impossible to conclude, because concluding would be certifying the certifier. The exemption is retroactive, so at Book 76 the profession can re-run the whole audit, check every trace, and issue no verdict. The receipt is protected in form and exposed in effect - worse than either its defenders or its reformers expect.",
+        "affects": [
+          "th_distant_promise",
+          "bk_02",
+          "bk_24",
+          "bk_76",
+          "e_admissibility",
+          "ot_unsigned_ruling",
+          "th_exemption_boundary",
+          "bk_100"
+        ],
+        "consequences": "Gives Book 76 a crisis that follows from the exemption instead of restating it: the machinery succeeds and has nowhere to put the result, so the profession's craft is shown to be complete and insufficient at once. It keeps the Book 2 dependency alive without altering Book 2, and it leaves revocability as the only conclusion available at Book 100. Cost: it requires the exemption to be read broadly enough to reach outputs, which a narrow legal reading would resist.",
+        "alternative": "A narrow boundary - the exemption covers the office, not its outputs - would leave the Book 2 receipt fully auditable at 76. The crisis then becomes destructive rather than deadlocked: the audit completes and voids the standard, and the profession must choose between its history and its evidence. Sharper melodrama, weaker fit with the exemption's own logic.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-revocable-two-clocks",
+        "interpretation": "The ending converts permanence into two clocks rather than one. For witnesses, admissibility becomes continuously re-openable on a schedule, so a witness is admissible because their error is due to be tested again rather than because it has been settled. For the exempt office, the exemption from certification is left standing - it cannot be abolished without reopening the regress - and revocation is substituted for verification: authority is renewed or withdrawn on a schedule. Nothing in the profession is final, including the profession itself.",
+        "affects": [
+          "bk_100",
+          "th_exemption_boundary",
+          "e_admissibility",
+          "e_defect_economy",
+          "e_witness_formation",
+          "rx_provisional_peace",
+          "tm_provisional_competence",
+          "th_main"
+        ],
+        "consequences": "Satisfies the third commitment with a measurable loss: the profession gives up the permanence of its own authority, not merely the permanence of its witnesses, so the apex finally pays something. It satisfies the second commitment more precisely than abolition would, since the regress stays closed and auditability is extended to its floor by a different instrument. Cost: revocation is a political act, so the reform hands the bench to whoever can schedule its renewal, and the series must leave that unsettled.",
+        "alternative": "Repeal the exemption at Book 100 and certify the certifiers. Intellectually cleaner and it restores formal auditability, but it reopens the regress, undoes Book 24 rather than transforming it, and makes the ending a correct answer rather than a live settlement.",
+        "author_decision_required": true
+      },
+      {
+        "id": "i-horizon-100",
+        "interpretation": "A hundred Books remains justified, and the exemption strengthens the case: its retroactive reach cannot be felt unless the certification it contaminates is old, so the distance between Book 2 and Book 76 becomes structural rather than atmospheric. The condition is unchanged - the four case-bearing intervals must be standalone disputes, and only the six focal Books may carry irreversible change. The cut I would still make is to sixty, and it is now a worse cut, because an excluded generation needs about twenty-five Books to be felt as a generation.",
+        "affects": [
+          "st_series_horizon",
+          "th_generational_cost",
+          "bk_50",
+          "bk_76",
+          "bk_100",
+          "th_exemption_boundary"
+        ],
+        "consequences": "If the intervals become a single serial escalation, a hundred collapses to roughly forty and the surplus Books become padding. If they stay standalone disputes, the length buys four cohorts and a seventy-four-Book fuse, and the exemption's retroactivity arrives with a lifetime of certifications behind it. The revision therefore does not change the horizon decision, only the reason it holds.",
+        "alternative": "A sixty-Book horizon is the credible shorter version: merge movements III and IV, compress the codification-to-collapse interval, and lose the cohort the code excludes - which is precisely why the shorter version is weaker.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-emotion-provenance",
+        "interpretation": "Every emotion target is marked agent_proposed. The vision states an intended experience - earned trust, the cost of relying on someone already wrong, no comfort of a reliable witness - but it does not name any of the six basic emotions in its own words, and optimistic is not one of them. Attributing joy, fear or anger to the author would be an invention dressed as a quotation, including the new targets built for the Book 24 settlement.",
+        "affects": [
+          "rx_earned_trust",
+          "rx_cost_of_reliance",
+          "rx_no_safe_witness"
+        ],
+        "consequences": "The six-label emotional architecture is a proposal to be corrected, not a restatement. The governing promise is carried by the reader-experience nodes, which do describe the experience the author stated, while the emotion labels are mine and can be replaced without touching any author commitment.",
+        "alternative": "A looser reading would let optimistic license joy as author-declared. That would put the author's name on a label they never used, which is what the provenance rule exists to prevent.",
+        "author_decision_required": false
+      },
+      {
+        "id": "i-genre-frames",
+        "interpretation": "The genre participation listed here is a working frame, not an author commitment. The vision establishes a profession, an evidentiary rule and an institutional survival condition; it names no genre. These seven frames - procedural inquiry, epistemic mystery, institutional drama, adversarial contest, generational succession, civic crisis, bureaucratic comedy - are the ones that make the stated mechanisms legible at Book and movement scale. The exemption is carried inside institutional drama rather than by a new constitutional genre, which keeps the frame count unchanged.",
+        "affects": [
+          "g_procedural_inquiry",
+          "g_institutional_drama",
+          "g_generational_succession",
+          "ae_forensic_plainness",
+          "e_institutional_standing"
+        ],
+        "consequences": "Genre contracts and interactions are proposals that can be swapped without disturbing the gate, the defect economy or the six focal Books. If the author wants a different surface - satire, a romance of vocation, political epic - the mechanisms survive the transplant, though the aesthetic nodes would need revision.",
+        "alternative": "Committing to a single governing genre, most likely procedural, would give sharper shelf identity and simpler contracts, at the cost of the institutional and generational registers the long horizon depends on.",
+        "author_decision_required": false
+      }
+    ],
+    "requires_author_decision": [
+      "i-engine-organization",
+      "i-defect-economy",
+      "i-shown-wrong-registers",
+      "i-exemption-scope",
+      "i-revocable-two-clocks"
+    ],
+    "note": "Consequential readings the agent is using while proposing this architecture. They are recommendations, not author-established commitments, and none becomes canon without the existing acceptance path."
+  },
+  "working_opportunities": {
+    "authority": "noncanonical_opportunity",
+    "freshness": "ready",
+    "withheld": false,
+    "items": [
+      {
+        "id": "op_defect_black_market",
+        "title": "The defect market as its own criminal genre",
+        "why_it_matters": "The defect economy makes forgery, engineered failure, and purchased wrongness structurally available. A recurring supply-side strand would give the mid-series an antagonist that is not a rival institution and would let the reader see the price of a credential without the profession's leadership explaining it.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "A durable mid-series engine that keeps the gate central while changing the scene family from hearings to transactions, and a natural home for the disgust target that otherwise has few places to live.",
+        "intention_fidelity": "High: the author's rule implies that error is scarce, and scarcity implies a market. This is a consequence of the stated premise rather than a new direction.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "op_register_paratext",
+        "title": "The admissibility register as recurring paratext",
+        "why_it_matters": "Printing fragments of the defect ledger between movements would make the central ambiguity inspectable rather than merely discussed: readers could learn to read the registers and disagree with a ruling before the characters do. It also gives a hundred-Book series a continuous formal identity without a continuous plot.",
+        "scope": "other",
+        "relationship": "deepens",
+        "artistic_potential": "Turns the ledger aesthetic into a reader-facing instrument and makes the series' withholding honest, since everything needed to check a ruling would already be on the page.",
+        "intention_fidelity": "Moderate: it serves the author's stated experience of earned trust, but it commits the series to a formal device the vision does not mention.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "retained_item_count": 2,
+    "comparison": {
+      "governing_purpose_authority": "author_expressed",
+      "alternative_count": 2,
+      "alternatives": [
+        {
+          "id": "op_defect_black_market",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        },
+        {
+          "id": "op_register_paratext",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        }
+      ],
+      "requires_author_decision": [],
+      "provisional_primary": null,
+      "working_selection_is_not_acceptance": true,
+      "note": "Artistic potential and intention fidelity are separate claims. An alternative is not better because it is more developed, and the expressed direction is not superior because it came first. Any alternative that would replace the author's purpose requires an explicit author decision. A provisional primary direction is a working selection under delegated goal discovery, never accepted Story Identity."
+    },
+    "note": "Ideas retained from earlier working proposals. They are not accepted narrative meaning, they are distinguishable from accepted Story Identity and current commitments, and they are not promoted because they were saved. When the author's source or guidance changed they are withheld rather than presented as current."
+  },
+  "pending_request_sha256": null,
+  "pending_review": null,
+  "open_questions": [
+    "Should the profession's authority be contractual, statutory, or mixed? The exemption now presupposes something capable of being constitutional, so the choice decides more than whether the antagonists are markets or states: it decides whether the exemption is an entrenched clause, a licensing condition, or a private agreement among clients.",
+    "May defect-debt be inherited by an institution or a lineage, or must each witness's admissibility rest on an error they or their mentor personally bore? The candidate permits inheritance after Book 2; the stricter reading is available and would change the middle movement substantially.",
+    "Who fills the exempt bench - appointment, election, seniority, or purchase - and may a sitting member be removed for anything other than the schedule? The candidate leaves this open because the answer decides whether patron pressure succeeds by capture or is resisted by form.",
+    "How much of the series may be funny? The candidate protects optimism with dry warmth and a local comedy genre. More levity or none at all are both available without touching the gate.",
+    "Should any Book after Book 2 be readable cold as a standalone entry? If yes, the six focal Books cannot carry exclusive information, which constrains how much of the spine may be load-bearing versus how much must be re-established inside each interval."
+  ],
+  "ontology_guidance": {
+    "authority": "derived_ontology_guidance",
+    "concepts": [
+      {
+        "definition": "A recurring abstract idea or concept explored throughout the narrative. Themes are not concrete entities but intellectual or emotional explorations.",
+        "name": "Theme",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme influences multiple arcs",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme manifests through symbols",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Symbol"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "Opposition or challenge involving at least two forces with incompatible goals. Conflict creates narrative tension and drives progression.",
+        "name": "Conflict",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Conflict occurs within an arc",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-one",
+            "description": "Conflict resolves in payoff",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A progression over time from a starting state to an ending state. Arcs can track character development, story progression, or thematic exploration.",
+        "name": "Arc",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more beats",
+            "required": true,
+            "source_concept": "Arc",
+            "target_concept": "Beat"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc involves one or more characters",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc explores one or more themes",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Theme"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more conflicts",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The introduction of an element, promise, or mystery that requires later resolution. Setups create expectations that drive narrative forward.",
+        "name": "Setup",
+        "relationships": [
+          {
+            "cardinality": "one-to-one",
+            "description": "Setup requires corresponding payoff",
+            "required": true,
+            "source_concept": "Setup",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The resolution or delivery of something set up earlier in the narrative. Payoffs satisfy expectations created by setups.",
+        "name": "Payoff",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Payoff resolves a setup",
+            "required": true,
+            "source_concept": "Payoff",
+            "target_concept": "Setup"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The disclosure of information previously unknown to the audience or characters. Revelations change understanding and can reframe entire narratives.",
+        "name": "Revelation",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Revelation occurs as a beat",
+            "required": false,
+            "source_concept": "Revelation",
+            "target_concept": "Beat"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An unexpected change that inverts the direction or expected outcome of an arc. Reversals violate established patterns and create surprise.",
+        "name": "Reversal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Reversal affects an arc's trajectory",
+            "required": false,
+            "source_concept": "Reversal",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A desired outcome that an entity (typically a character) wants to achieve. Goals create motivation and can generate conflicts.",
+        "name": "Goal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal is owned by a character",
+            "required": true,
+            "source_concept": "Goal",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal pursuit creates conflict",
+            "required": false,
+            "source_concept": "Goal",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A discrete, identifiable moment in the narrative. Beats are atomic narrative units that combine to form scenes and arcs.",
+        "name": "Beat",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Beat belongs to an arc",
+            "required": true,
+            "source_concept": "Beat",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An object, image, or action that carries meaning beyond its literal interpretation. Symbols represent abstract concepts through concrete forms.",
+        "name": "Symbol",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Symbol represents themes",
+            "required": false,
+            "source_concept": "Symbol",
+            "target_concept": "Theme"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A connection between narrative entities (typically characters) that affects how they interact. Relationships have dynamics, stakes, and evolution.",
+        "name": "Relationship",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Relationship connects characters",
+            "required": true,
+            "source_concept": "Relationship",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An entity capable of agency within the narrative. Characters have identities, beliefs, goals, and can participate in relationships and arcs.",
+        "name": "Character",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Character pursues one or more goals",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Goal"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Character can appear in multiple arcs",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Character engages in relationships with other entities",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Relationship"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      }
+    ],
+    "kind": "relevant_narrative_ontology_context",
+    "selection": {
+      "foundational_concepts": [
+        "Theme",
+        "Conflict",
+        "Arc",
+        "Setup",
+        "Payoff",
+        "Revelation",
+        "Reversal",
+        "Goal",
+        "Beat",
+        "Symbol",
+        "Relationship",
+        "Character"
+      ],
+      "genre_extensions": [],
+      "not_story_intent": "These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.",
+      "rationale": "Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown."
+    },
+    "source_refs": [
+      "auteur.data.ontology:base_ontology.yaml"
+    ],
+    "origin": "request",
+    "request_sha256": "20916630d3060b5209e5317c694fb3ae1ee981219defde724e9e96566bf8ab5d"
+  },
+  "accepted_story_identity": null,
+  "source_visibility": {
+    "working_item_count": 0,
+    "omitted_working_item_count": 0,
+    "omitted_working_connection_count": 0,
+    "truncated_items": [],
+    "provisional_concept_item_count": 0,
+    "omitted_provisional_concept_item_count": 0,
+    "vision_characters": 1315
+  },
+  "provisional_concepts": [],
+  "creative_deliberation": {
+    "authority": "noncanonical_working_deliberation",
+    "inquiry_history": [],
+    "superseded_inquiry_history": [],
+    "mentor_advice": null,
+    "mentor_prior_advice": null
+  },
+  "adopted_creative_alternative": null,
+  "creative_adoption_lineage": [],
+  "creative_intentions": []
+}

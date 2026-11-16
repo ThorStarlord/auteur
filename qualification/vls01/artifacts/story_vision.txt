@@ -1,0 +1,24 @@
+An optimistic hundred-Book series about a profession of witnesses who testify to
+events they did not see, reconstructing them from physical traces. A testimony is
+admissible only if the witness can be shown to have been wrong at least once.
+
+Intended reader experience: earned trust in testimony that is openly fallible. The
+reader should feel the cost of relying on someone who has already been wrong, and
+should never be given the comfort that a perfectly reliable witness exists.
+
+Author commitments:
+1. A witness who has never been shown wrong is not yet admissible.
+2. The profession survives by being auditable, not by being trusted.
+3. Success must transform the profession rather than merely defeating a rival.
+
+Intentional ambiguity: what counts as "shown to have been wrong" is never fixed by
+the author. Whether error must be proven publicly, admitted privately, or inferred
+from a later correction is left open.
+
+Forbidden trivial resolution: the series must not resolve its question by declaring
+that all testimony is equally unreliable, nor by producing a witness who is finally
+and completely right.
+
+Aim for roughly one hundred Books. The engines, transformations, macro periods and
+ending are yours to invent. If a shorter horizon would be artistically stronger,
+say so and show what you would cut.
