@@ -190,6 +190,24 @@ class ArchitectureOpportunity(BaseModel):
         return self
 
 
+class ArchitectureInterpretation(BaseModel):
+    """A consequential working interpretation the agent is using as if it were given.
+
+    It is not author-established. It exists so a load-bearing invention - a world
+    rule, the meaning of an author commitment, or a proposed resolution of an
+    author-reserved question - stays visible as a recommendation rather than being
+    reported as settled narrative fact.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+    interpretation: str = Field(min_length=1, max_length=800)
+    affects: list[str] = Field(min_length=1, max_length=12)
+    consequences: str = Field(min_length=1, max_length=800)
+    alternative: str | None = Field(default=None, max_length=800)
+    author_decision_required: bool = False
+
+
 class ArchitectureCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     schema_version: Literal[1, 2]
@@ -201,6 +219,9 @@ class ArchitectureCandidate(BaseModel):
     opportunities: list[ArchitectureOpportunity] = Field(
         default_factory=list, max_length=3,
     )
+    interpretations: list[ArchitectureInterpretation] = Field(
+        default_factory=list, max_length=12,
+    )
     emotion_targets: list[EmotionTarget] = Field(default_factory=list, max_length=30)
     complex_emotions: list[ComplexEmotion] = Field(default_factory=list, max_length=16)
     genre_contracts: list[GenreContract] = Field(default_factory=list, max_length=14)
@@ -211,6 +232,14 @@ class ArchitectureCandidate(BaseModel):
         if info.context and info.context.get("new_host_agent_response") and self.schema_version != 2:
             raise ValueError("new Studio architecture responses must use schema_version 2")
         nodes = {node.id for node in self.nodes}
+        if len({item.id for item in self.interpretations}) != len(self.interpretations):
+            raise ValueError("duplicate interpretation id")
+        for item in self.interpretations:
+            missing = [identifier for identifier in item.affects if identifier not in nodes]
+            if missing:
+                raise ValueError(
+                    f"interpretation {item.id!r} affects unknown nodes: {', '.join(missing)}"
+                )
         phases = {phase.id for phase in self.phases}
         if len(nodes) != len(self.nodes) or len(phases) != len(self.phases):
             raise ValueError("duplicate candidate node or phase id")
@@ -790,6 +819,14 @@ that is not a defect in this proposal. Record at most one or two in
 opportunities, each with a short reason it might matter. Omit opportunities
 entirely when nothing consequential appears: never manufacture novelty, never let
 an opportunity replace the requested work, and never treat one as accepted.
+When you must invent something the author did not establish in order to make this
+architecture work - a world rule, the meaning of one of the author's commitments,
+or a proposed resolution of a question the author reserved - record it in
+interpretations. State the reading you are using, which nodes it determines, its
+major consequences, and any credible alternative. Set author_decision_required
+when the choice would materially redirect the series. Make the recommendation
+confidently; just do not report your reading as something the author already
+established.
 All material is a noncanonical proposal; never accept Identity, Structure or prose."""
 
 
@@ -855,6 +892,27 @@ def project_architecture(store: CanvasStore) -> dict:
         ),
         "opportunities": opportunities_projection(
             current["candidate"] if current else None,
+        ),
+        "working_interpretations": interpretations_projection(
+            current["candidate"] if current else None,
+        ),
+    }
+
+
+def interpretations_projection(candidate: dict | None) -> dict:
+    """Surface consequential working interpretations as recommendations, not facts."""
+    items = list((candidate or {}).get("interpretations") or [])
+    return {
+        "authority": "agent_interpretation",
+        "count": len(items),
+        "items": items,
+        "requires_author_decision": [
+            item.get("id") for item in items if item.get("author_decision_required")
+        ],
+        "note": (
+            "Consequential readings the agent is using while proposing this "
+            "architecture. They are recommendations, not author-established "
+            "commitments, and none becomes canon without the existing acceptance path."
         ),
     }
 
@@ -1151,6 +1209,7 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         "governing_objective": projection.get("governing_objective"),
         "premise_status": projection.get("premise_status"),
         "collaboration": projection.get("collaboration"),
+        "working_interpretations": projection.get("working_interpretations"),
         "working_opportunities": working_opportunities,
         "pending_request_sha256": pending_sha,
         "pending_review": projection["review"],
@@ -1443,6 +1502,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             "candidate": candidate,
             "governing_objective": governing_objective(submitted),
             "premise_status": premise_status(candidate, accepted_identity),
+            "working_interpretations": interpretations_projection(candidate),
         }
         if submitted.get("collaboration"):
             record["collaboration"] = submitted["collaboration"]
