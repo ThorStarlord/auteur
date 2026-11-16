@@ -328,3 +328,24 @@ test('reader marks a provisional primary as a working selection only', () => {
   assert.match(text, /the agent provisional primary under your delegated goal discovery/);
   assert.doesNotMatch(text, /Accepted Story Identity/);
 });
+
+test('reader states that an agent-assigned emotion label came from the agent', () => {
+  const api = load();
+  const declaredId = api.project(sample).emotions.filter(e => e.provenance === 'author_declared').map(e => e.id)[0];
+  const status = {authorEmotionGrounding: [{id: declaredId, emotion: 'joy', emotion_named_by_author: false}]};
+  const p = api.project(sample, status);
+  const container = element('section');
+  api.render(container, p, documentStub());
+  const text = textOf(container);
+  assert.match(text, /experience described by the author; emotion label assigned by the agent/);
+  assert.doesNotMatch(text, /\[author declared\]/);
+});
+
+test('reader keeps the author-declared label when the author named the emotion', () => {
+  const api = load();
+  const declaredId = api.project(sample).emotions.filter(e => e.provenance === 'author_declared').map(e => e.id)[0];
+  const status = {authorEmotionGrounding: [{id: declaredId, emotion: 'joy', emotion_named_by_author: true}]};
+  const container = element('section');
+  api.render(container, api.project(sample, status), documentStub());
+  assert.match(textOf(container), /\[author declared\]/);
+});

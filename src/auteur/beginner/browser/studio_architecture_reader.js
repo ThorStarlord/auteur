@@ -49,6 +49,10 @@
     var titles = {};
     nodes.forEach(function (node) { titles[node.id] = nonempty(node.title) ? node.title : node.id; });
 
+    var emotionNaming = {};
+    asArray(status && status.authorEmotionGrounding).forEach(function (row) {
+      if (row && nonempty(row.id)) emotionNaming[row.id] = row.emotion_named_by_author === true;
+    });
     var emotions = asArray(candidate.emotion_targets).filter(function (target) {
       return target && typeof target === 'object' && nonempty(target.id);
     }).map(function (target) {
@@ -60,6 +64,8 @@
         elicitingCondition: text(target.eliciting_condition),
         aestheticStrategy: text(target.aesthetic_strategy),
         provenance: text(target.provenance) || 'unknown',
+        groundingKnown: Object.prototype.hasOwnProperty.call(emotionNaming, target.id),
+        emotionNamedByAuthor: emotionNaming[target.id] === true,
       };
     });
 
@@ -322,7 +328,12 @@
     addSection(documentRef, root, 'Emotional promise', projection.emotions.map(function (emotion) {
       var line = emotion.label + ' · ' + emotion.role + ' — ' + emotion.intendedEffect;
       if (emotion.elicitingCondition) line += ' (Elicited by: ' + emotion.elicitingCondition + ')';
-      if (emotion.provenance !== 'unknown') line += ' [' + emotion.provenance.replace(/_/g, ' ') + ']';
+      if (emotion.provenance === 'author_declared' && emotion.groundingKnown
+          && !emotion.emotionNamedByAuthor) {
+        line += ' [experience described by the author; emotion label assigned by the agent]';
+      } else if (emotion.provenance !== 'unknown') {
+        line += ' [' + emotion.provenance.replace(/_/g, ' ') + ']';
+      }
       return line;
     }).concat(projection.complexEmotions.map(function (emotion) {
       return emotion.title + ' — ' + emotion.context + ' (' + emotion.basicEmotions.join(', ') + ')';
