@@ -237,6 +237,15 @@
           requiresDecision: item.author_decision_required === true,
         };
       }),
+      interpretationAffects: (function () {
+        var ids = {};
+        asArray(candidate.interpretations).forEach(function (item) {
+          asArray(item && item.affects).forEach(function (id) {
+            if (nonempty(id)) ids[id] = true;
+          });
+        });
+        return ids;
+      })(),
       premiseStatus: (status && status.premiseStatus) || null,
     };
   }
@@ -302,6 +311,8 @@
     root.appendChild(make(documentRef, 'h2', 'architecture-reader-title', 'Your narrative architecture'));
     root.appendChild(make(documentRef, 'p', 'architecture-reader-authority',
       projection.authorityLabel || 'Working proposal — not accepted story'));
+    root.appendChild(make(documentRef, 'p', 'architecture-reader-default-authority',
+      'Unmarked material below is an agent proposal, not an author-established commitment.'));
     root.appendChild(make(documentRef, 'p', 'architecture-reader-summary',
       projection.summary || 'No architecture summary is available.'));
     if (projection.status === 'empty') return;
@@ -337,7 +348,11 @@
     }));
 
     addSection(documentRef, root, 'Narrative mechanisms', projection.mechanisms.map(function (mechanism) {
-      return mechanism.title + ' (' + mechanism.category + '): ' + mechanism.summary;
+      var line = mechanism.title + ' (' + mechanism.category + '): ' + mechanism.summary;
+      if (projection.interpretationAffects[mechanism.id]) {
+        line += ' [depends on a proposed reading]';
+      }
+      return line;
     }));
 
     addSection(documentRef, root, 'Relationships', projection.relationships.map(function (relationship) {

@@ -14,11 +14,19 @@ def main() -> int:
     out = Path(sys.argv[2]).resolve()
     data = json.loads(source.read_text(encoding="utf-8"))
     lines = ["# Working narrative architecture (an AI proposal, not accepted story)", ""]
+    lines += [
+        "_Unmarked material is the agent's proposal, not something the author established._",
+        "",
+    ]
     lines += ["## Summary", "", data.get("summary", ""), ""]
 
     lines += ["## Mechanisms and components", ""]
+    affected_ids = set()
+    for item in data.get("interpretations") or []:
+        affected_ids.update(item.get("affects") or [])
     for node in data.get("nodes", []):
-        lines.append(f"- **{node.get('title')}** ({node.get('category')}): {node.get('summary')}")
+        marker = " [depends on a proposed reading]" if node.get("id") in affected_ids else ""
+        lines.append(f"- **{node.get('title')}** ({node.get('category')}): {node.get('summary')}{marker}")
     lines.append("")
 
     lines += ["## How the components connect", ""]
