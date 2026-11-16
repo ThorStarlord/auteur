@@ -25,6 +25,7 @@ from auteur.host_agent import (
     build_host_agent_request,
     build_host_agent_response,
     load_host_agent_request,
+    model_output_contract,
     validate_host_agent_response,
     write_host_agent_request,
     write_host_agent_response,
@@ -1320,6 +1321,7 @@ def prepare_architecture(
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
             role="studio_architecture", system=_SYSTEM, user=user, settings=settings,
+            output_contract=model_output_contract(ArchitectureCandidate),
         )
         base = _root(store)
         write_host_agent_request(base / "requests" / request.request_sha256 / "request.json", request)
