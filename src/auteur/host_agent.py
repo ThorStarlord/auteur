@@ -18,6 +18,7 @@ from typing import Any
 
 
 REQUEST_SCHEMA = "auteur_host_agent_request_v1"
+OUTPUT_CONTRACT_SCHEMA = "auteur_host_agent_output_contract_v1"
 RESPONSE_SCHEMA = "auteur_host_agent_response_v1"
 UNAVAILABLE = "UNAVAILABLE"
 
@@ -60,6 +61,24 @@ def _atomic_json_write(path: Path, payload: dict[str, Any]) -> None:
                 pass
 
 
+def model_output_contract(model: type, *, title: str | None = None) -> dict[str, Any]:
+    """Machine-readable output contract generated from the authoritative model.
+
+    The JSON Schema is generated, never hand-maintained, so it cannot drift from
+    the validator. Semantic rules that JSON Schema cannot express remain enforced
+    by the existing post-generation validators; this contract is context, not
+    proof that a model will comply.
+    """
+    schema = model.model_json_schema()
+    return {
+        "schema": OUTPUT_CONTRACT_SCHEMA,
+        "version": 1,
+        "model": title or model.__name__,
+        "json_schema": schema,
+        "json_schema_sha256": hashlib.sha256(_canonical_bytes(schema)).hexdigest(),
+    }
+
+
 @dataclass(frozen=True)
 class HostAgentRequest:
     schema: str
@@ -71,9 +90,15 @@ class HostAgentRequest:
     user: str
     settings: dict[str, Any]
     request_sha256: str
+    output_contract: dict[str, Any] | None = None
 
     def model_dump(self) -> dict[str, Any]:
-        return asdict(self)
+        payload = asdict(self)
+        if self.output_contract is None:
+            # Historical packets never carried this key; omit it so their bytes and
+            # fingerprints keep their original meaning.
+            payload.pop("output_contract", None)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -101,6 +126,7 @@ def build_host_agent_request(
     user: str,
     settings: dict[str, Any],
     created_at: str | None = None,
+    output_contract: dict[str, Any] | None = None,
 ) -> HostAgentRequest:
     if not candidate_id.strip():
         raise ValueError("candidate_id must not be empty")
@@ -116,6 +142,9 @@ def build_host_agent_request(
         "user": user,
         "settings": settings,
     }
+    if output_contract is not None:
+        # Only present when supplied, so historical request fingerprints are stable.
+        body["output_contract"] = output_contract
     fingerprint = hashlib.sha256(_canonical_bytes(body)).hexdigest()
     return HostAgentRequest(
         schema=REQUEST_SCHEMA,
@@ -127,6 +156,7 @@ def build_host_agent_request(
         user=user,
         settings=settings,
         request_sha256=fingerprint,
+        output_contract=output_contract,
     )
 
 
@@ -146,6 +176,7 @@ def load_host_agent_request(path: Path) -> HostAgentRequest:
         user=request.user,
         settings=request.settings,
         created_at=request.created_at,
+        output_contract=request.output_contract,
     )
     if request.schema != REQUEST_SCHEMA:
         raise ValueError("unsupported host-agent request schema")

@@ -1,4 +1,4 @@
-"""Working Book Architecture: one Book's provisional, noncanonical function (develop and resume).
+﻿"""Working Book Architecture: one Book's provisional, noncanonical function (develop and resume).
 
 A Book artifact holds the detailed function of one Book: its question and pressure, the Series
 conditions it inherits, the engines and agents that drive its conflict, its choice and closure,
@@ -29,6 +29,7 @@ from auteur.host_agent import (
     _atomic_json_write,
     build_host_agent_request,
     build_host_agent_response,
+    model_output_contract,
     load_host_agent_request,
     validate_host_agent_response,
     write_host_agent_request,
@@ -629,6 +630,7 @@ def _prepare_develop(store: CanvasStore, book_number: int) -> dict:
         request = build_host_agent_request(
             candidate_id=f"book-{book_number}-" + _digest({"user": user})[:16],
             role=ROLE, system=_BOOK_SYSTEM, user=user, settings=settings,
+            output_contract=model_output_contract(WorkingBookArchitecture),
         )
         base = _book_root(store, book_number)
         write_host_agent_request(base / "requests" / request.request_sha256 / "request.json", request)
@@ -1298,6 +1300,7 @@ def _prepare_revision(
             candidate_id=f"book-{book_number}-rev{settings['baseline_revision_number'] + 1}-"
                          + _digest({"user": user})[:16],
             role=ROLE, system=_BOOK_REVISION_SYSTEM, user=user, settings=settings,
+            output_contract=model_output_contract(WorkingBookArchitecture),
         )
         write_host_agent_request(base / "requests" / request.request_sha256 / "request.json", request)
         _atomic_json_write(base / "latest_request.json", {"request_sha256": request.request_sha256})
@@ -1417,6 +1420,7 @@ def book_withdraw(store: CanvasStore, book_number: int, element_id: str, rationa
         request = build_host_agent_request(
             candidate_id=f"book-{book_number}-withdraw-" + _digest({"user": user})[:16],
             role=ROLE, system=_BOOK_REVISION_SYSTEM, user=user, settings=settings,
+            output_contract=model_output_contract(WorkingBookArchitecture),
         )
         request_dir = base / "requests" / request.request_sha256
         write_host_agent_request(request_dir / "request.json", request)
