@@ -1,0 +1,25 @@
+ValidationError: 8 validation errors for ArchitectureCandidate
+opportunities.0.description
+  Extra inputs are not permitted [type=extra_forbidden, input_value="The architecture already...than a memory exercise.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+opportunities.0.faithfulness_to_author_intent
+  Extra inputs are not permitted [type=extra_forbidden, input_value='High. The vision already...icting anything stated.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+opportunities.0.why_it_matters
+  Field required [type=missing, input_value={'id': 'opp-serial-order-...author_decision': False}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+opportunities.1.description
+  Extra inputs are not permitted [type=extra_forbidden, input_value='The vision asks whether ...object of hope is gone.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+opportunities.1.faithfulness_to_author_intent
+  Extra inputs are not permitted [type=extra_forbidden, input_value='Moderate to high but not...than the one described.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+opportunities.1.why_it_matters
+  Field required [type=missing, input_value={'id': 'opp-chosen-demoli..._author_decision': True}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+genre_contracts.1.role
+  Input should be 'governing', 'supporting', 'tertiary' or 'local' [type=literal_error, input_value='locally_dominant', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+genre_contracts.7.role
+  Input should be 'governing', 'supporting', 'tertiary' or 'local' [type=literal_error, input_value='background', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error

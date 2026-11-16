@@ -1,0 +1,2163 @@
+{
+  "schema_version": 2,
+  "summary": "Noncanonical working architecture for a forty-Book series about a desert archive whose orders decide which lives enter record, carrying the author's expressed intent: unease at how much order depends on forgetting. Governing organization is an agent proposal, because architecture preferences are UNKNOWN: primary_with_layers, complexity layered, causal distribution mixed. Primary engine is record adjudication, the recurring decision that turns lives into admissible or inadmissible record. Three subordinate engines carry the long horizon: neutrality fabrication, where the orders manufacture the impartiality that justifies them; erasure debt, where every exclusion accrues an obligation that cannot be discharged by adding records without redistributing authority over recording; and memory-war deterrence, where the credible fear of a war over memory makes compliance rational. Enemy dependence is the hinge mechanism that converts an external threat into justification, and the author's Book 26 anchor is treated as a fixed structural pivot: the Warden's long campaign ends in victory, deleting the external justification at the moment the orders are strongest, and converting erasure debt from background absence into an active counterparty. Enabling layers are testimony conversion and record drift; environmental and temporal clocks are desert scarcity and keeper succession. Intended experience is built as fear, disgust and sadness delivered procedurally, with joy of order and relief as deliberate seductions and local joys of recognition. Because the author's word unease is not one of the six basic labels, every emotion target here is labeled agent_proposed. Ten abstract phases run from working neutrality through procedure hardening, enemy consolidation, divided custody, war approach, the campaign's end, a justification vacuum, debt as counterparty, and a settlement that repairs partially and leaves recorded residue. Named provisional defaults: erasure is irreversible by default but partially reconstructable; the archive is one institution with divided custody; the ending acknowledges unpaid debt rather than discharging it; the Warden is not reused as a post-victory antagonist. No scenes, characters, or plot events beyond the author's Book 26 anchor are invented.",
+  "nodes": [
+    {
+      "id": "arch-causal-spine",
+      "title": "Causal Spine: Adjudication at Center, Legitimation in Layers",
+      "category": "engine",
+      "summary": "Agent proposal, not author commitment. Architecture preferences are UNKNOWN, so this organization is inferred from the material: the series is about an archive that decides which lives are recorded. That makes the adjudication of recordability the repeatable causal center, and makes the orders' neutrality and the accumulated debt the load that center carries. Chosen shape: primary_with_layers, complexity layered, causal distribution mixed. Primary engine: record adjudication. Subordinate engines: neutrality fabrication, erasure debt, memory-war deterrence, with enemy dependence as the hinge mechanism that converts an external threat into justification. Enabling layers: testimony conversion, which governs how a life becomes evidence, and record drift, which explains why evidence cannot stay stable. Environmental and temporal clocks: desert scarcity and keeper succession. Action patterns this layer expects from actors: petition, verification, recusal, sealing, triage, contest, settlement. Characteristic pressures: scarcity of durable media, a credible war threat, inherited standards that no living keeper tested. Characteristic reversals: a settled ruling reopened because standing changed; a neutral act revealed as a selection; an enemy removed by victory, which removes the excuse rather than the obligation. Payoff mechanics: a life is recorded, refused, amended, or reclassified, and every outcome redistributes authority. Thematic consequence: order is a selection with identifiable beneficiaries, so forgetting is productive rather than accidental. Single_center was rejected because the debt and the neutrality claim are causally productive, not decorative. Ensemble was rejected because adjudication is the action that generates episodes and gives every other layer something to press against.",
+      "scope": "series",
+      "parent_id": null
+    },
+    {
+      "id": "arch-experiential-spine",
+      "title": "Experiential Spine: Unease Delivered Through Procedure",
+      "category": "reader_experience",
+      "summary": "Agent proposal. Governing promise: unease at how much order depends on forgetting, delivered as dread that arrives through procedure rather than spectacle. Supporting palette: grief for the unrecorded, anger at the orders' self-justification, procedural suspense. Contrasting palette: relief that an order holds and prevents a war, plus local joys of being recorded and of partial settlement. The contrast matters because it makes the archive desirable, and desirability is what makes complicity available. Macro trajectory: ambient unease inside a working institution, then complicity as the reader accepts the archive's convenience, then widening grief and anger as the debt becomes a party, then reckoning that settles some claims and records others as unpaid. The recursion this spine depends on: the reader is also being handed a curated record and is also asked to accept its selection, so the reading situation mirrors the archive's. The aesthetic layer exists to keep the dread administrative rather than lurid: flat register, managed gaps, material motifs of drift and burial, and revelations timed as clerical corrections instead of theatrical reveals.",
+      "scope": "series",
+      "parent_id": null
+    },
+    {
+      "id": "arch-generic-spine",
+      "title": "Genre Spine: Institutional Procedure Under Tragic Load",
+      "category": "genre",
+      "summary": "Agent proposal, since the brief names no genre. Working assignment: institutional procedural as the governing vehicle, because the archive's renewable action is a case with a ruling attached; political tragedy as the locally dominant register once the debt becomes a party, because the cost of order must be allocated to someone; archival inquiry as a supporting discovery procedure that produces reopenings; historiographic speculative as a supporting pressure that keeps asking who authored the neutrality claim; desert survival as a background constraint on who can testify and what can be carried; memory-war epic as a background horizon that makes deterrence credible without spending the war early. These are functional roles, not marketing categories, and they can be reassigned if the author prefers a different governing vehicle. The generic spine is deliberately narrower than the engine spine: genres supply episode grammar, pressure habits and payoff expectations, while engines own causality. Keeping the genre set this small also prevents a forty-Book series from mistaking tonal variety for structural renewal.",
+      "scope": "series",
+      "parent_id": null
+    },
+    {
+      "id": "arch-thematic-spine",
+      "title": "Thematic Spine: Order Purchased by Forgetting",
+      "category": "theme",
+      "summary": "Agent proposal. The thematic spine states its claims as questions the architecture can test rather than as messages: does order depend on forgetting, and if so, who pays; is neutrality a fact about the archive or a claim the orders must continually produce; what is owed to the erased, and can a record-based institution ever discharge a debt whose currency is authority over recording; who rules when classification is the act of rule; what does a successor owe for an order they did not author. Themes are carried by mechanism rather than assertion: fabricated neutrality is carried by the recusal ritual and the audit; the debt is carried by the double ledger and the reopened case; inherited obligation is carried by the succession relay; classification-as-rule is carried by every ruling scene that has to decide admissibility before it can decide fact. The spine is designed to survive the author's darkest turns: darker events deepen the intended unease rather than replace it with nihilism, because debt that can be named remains a claim rather than a void.",
+      "scope": "series",
+      "parent_id": null
+    },
+    {
+      "id": "engine-record-adjudication",
+      "title": "Primary Engine: Record Adjudication",
+      "category": "engine",
+      "summary": "Want: a defensible standard for which lives enter the record, applied consistently enough to be called neutral. Resistance: every standard produces exclusions whose justification cannot be given to the excluded, because the excluded lack the record-standing needed to be heard. Conflict: claims arrive faster than procedure can absorb, and each absorption raises the standard that produces the next exclusion. Stakes: whether a life persists in memory, and whether the orders keep authority over that persistence. Change: from procedural confidence to negotiated authority, without ever reaching a standard that costs nothing. Renewable mechanism: each case re-runs the same decision with a different class of claimant and a different evidentiary obstacle, so variation comes from the case type rather than from new cast or new setting. Payoff mechanics: ruling, refusal, amendment, reclassification, deferral, seal. Each payoff must be inspectable: the reader should be able to see what criterion decided and who bore the cost. Thematic function: adjudication is where order is revealed as selection. This engine is the causal center; the other engines either supply its materials, justify its authority, generate its caseload, or inherit its consequences.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-neutrality-fabrication",
+      "title": "Subordinate Engine: Fabrication of Neutrality",
+      "category": "engine",
+      "summary": "Want: keep the orders' neutrality believable to keepers, claimants and rivals, because neutrality is the only justification the orders have. Resistance: neutrality is not a natural fact and must be produced continuously through recusal, audit, rotation, publication and ritual restraint, and every production act leaves visible traces of choice. Conflict: the more scrupulously neutrality is performed, the more it looks like a performance; the less it is performed, the less the orders can claim it. Stakes: legitimacy, compliance, and the credibility that keeps a memory war from starting. Change: from an inherited assumption that the archive is neutral, to an explicit claim that must be argued, to a contested bargain over who authorizes recording. Renewable mechanism: each new class of claimant forces a new display of impartiality, and each display can be read as evidence of partiality. Payoff mechanics: a procedural gesture that the reader has learned to trust is later shown to have decided an outcome. Thematic function: neutrality is a claim with a maintenance budget, so the cost of order becomes visible as labor rather than as violence.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-erasure-debt",
+      "title": "Subordinate Engine: Accrual of Erasure Debt",
+      "category": "engine",
+      "summary": "Want: the debt does not want; it accumulates as an obligation owed by the orders to lives the record never held. It becomes a want only when claimants give it voice. Resistance: the debt has no ledger the archive recognizes, and proof of a life requires the very record that excluded it. Conflict: every attempt to pay by adding records strengthens the archive's authority to decide inclusion, which is the authority that produced the debt. Stakes: whether the obligation becomes enforceable or remains a permanent moral remainder. Change: from unspoken absence to organized claim to negotiated settlement that cannot fully discharge. Renewable mechanism: debt accrues interest through generational inheritance and through each new exclusion that cites the earlier ones as precedent. Payoff mechanics: a claim that cannot be refused on procedure alone, a settlement whose terms reveal what the archive will not concede, and a residue that survives the settlement. Thematic function: makes the author's required eventual facing of what the series owes the erased a structural obligation rather than a late gesture. This engine is the main reason the architecture is layered rather than single-centered.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-memory-war-deterrence",
+      "title": "Subordinate Engine: Memory-War Deterrence",
+      "category": "engine",
+      "summary": "Want: prevent a war over memory by making the archive's neutrality the only credible alternative to open conflict. Resistance: deterrence works by keeping a threat vivid, and a vivid threat is also a usable weapon by anyone who can invoke it. Conflict: the same fear that restrains claimants restrains the orders from conceding anything that would weaken the deterrent. Stakes: literal survival of records, institutions and the people who depend on them. Change: from credible deterrence, to deterrence strained by the campaign, to a spent threat after victory, to a latent risk that settlements must keep latent. Renewable mechanism: every settlement attempt is judged by whether it raises or lowers the risk of war, which gives internal debates external stakes. Payoff mechanics: a confrontation that stops short of war and costs a record instead, or a procedural concession traded for a promise not to escalate. Thematic function: shows that order is held in place by fear as much as by agreement, which sharpens the intended unease rather than softening it.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-enemy-dependence",
+      "title": "Hinge Engine: Dependence on an Enemy",
+      "category": "engine",
+      "summary": "Want: the orders need an external threat that makes their authority necessary rather than merely convenient. Resistance: an enemy is contingent and can be defeated, discredited or exhausted, whereas the orders present themselves as permanent. Conflict: the archive must oppose the enemy without becoming a party to the conflict, because taking a side would destroy the neutrality that the enemy justifies. Stakes: whether the orders' authority survives the disappearance of the threat. Change: from threat-fuelled legitimacy to a vacuum once the campaign ends, which is the series' mid-horizon pivot. Renewable mechanism: a threat can be named, denied, supplied or inherited, so the mechanism recurs in different forms without needing the same antagonist. Payoff mechanics: the enemy is defeated and instead of relief the orders face an accounting; the mechanism pays off by inverting the promised emotion of victory. Thematic function: exposes that neutrality was underwritten by enmity, so the archive's impartiality was always a position in a conflict rather than a place outside it. This engine is what makes the author's Book 26 anchor a structural hinge rather than a plot climax.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-victory-vacuum",
+      "title": "Structural Engine: The Victory Vacuum",
+      "category": "engine",
+      "summary": "Want: after the Warden's long campaign ends in victory, someone must supply a justification for the orders that no longer has an enemy to point at. Resistance: every internal justification available to the orders is an argument the erased can answer, because they are the ones who were excluded by it. Conflict: keepers who spent their working lives defending the archive against an external threat must now defend it against the people it failed to record. Stakes: whether the orders reform, harden, or dissolve, and whether reform is offered before or after pressure becomes unignorable. Change: from externally underwritten authority to internally argued authority, with no guarantee that the argument succeeds. Renewable mechanism: each former justification for the orders is tested in turn against a claimant who can now speak, and each test produces a partial concession or a new refusal. Payoff mechanics: the victory that the reader has been trained to want arrives as a subtraction, and the accounting that follows is the return on that setup. Thematic function: converts the author's fixed Book 26 event into the moment the series stops being about defense and starts being about debt. Kept deliberately abstract: no campaign events, tactics or outcomes beyond the author's stated victory.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-testimony-conversion",
+      "title": "Enabling Engine: Testimony Conversion",
+      "category": "engine",
+      "summary": "Want: convert a lived life into something the archive can hold, which requires witness, deposition, classification, inscription and custody. Resistance: each conversion step loses what did not fit its format, and the loss is invisible in the finished record. Conflict: witnesses want their account preserved, the archive wants accounts comparable, and comparability is achieved by discarding what is not. Stakes: whether a life is remembered as lived or as classified, and whether the difference can ever be detected later. Change: from a craft the keepers are proud of, to a craft they can no longer perform innocently. Renewable mechanism: each case exercises a different conversion bottleneck, such as a witness who cannot travel, a language the archive will not accept, a testimony that arrives only as an object, or a life documented only by its enemies. Payoff mechanics: a record is produced and later compared with what the reader saw, so the conversion loss becomes a payable discrepancy. Thematic function: makes classification concrete as an act with a technical pipeline, which is what allows the series to show rule and record as the same operation.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-record-drift",
+      "title": "Enabling Engine: Record Drift",
+      "category": "engine",
+      "summary": "Want: records want to persist unchanged and cannot. Resistance: copying, translating, migrating media, re-cataloguing and summarizing all alter what is held. Conflict: the archive's authority rests on the stability of records, and that stability is an achievement that must be continually re-earned. Stakes: whether a claim about the past can be settled at all, and whether drift can be distinguished from deliberate alteration. Change: from drift treated as maintenance noise, to drift treated as an alibi for erasure, to drift accepted as a condition the order must admit. Renewable mechanism: each generational handover or media migration produces a new class of discrepancy that can be discovered, disputed or exploited. Payoff mechanics: a discrepancy that looks like corruption turns out to be an edit, or the reverse, and both outcomes are plausible enough to sustain suspense. Thematic function: prevents the architecture from pretending that a perfectly neutral archive is possible, so the neutrality claim is exposed as a claim about authority rather than about accuracy.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-desert-scarcity",
+      "title": "Environmental Clock: Desert Scarcity",
+      "category": "engine",
+      "summary": "Want: survival and continuity in conditions where water, distance, heat and abrasive sand make durable memory expensive. Resistance: everything the archive values decays faster than it can be replaced, and every copy costs labor that could have kept someone alive. Conflict: preserving a record competes directly with preserving a person, and the archive's rules decide which cost is legitimate. Stakes: who can reach the archive, whose testimony can arrive intact, and which records survive long enough to become evidence. Change: from scarcity as ordinary background, to scarcity as an instrument of selection, to scarcity that settlements must openly allocate. Renewable mechanism: each movement of records, witnesses or water creates a new constraint on what can be claimed and by whom. Payoff mechanics: a record lost in transit, a witness who cannot make the journey, a copy that exists in only one place. Thematic function: makes forgetting cheap and remembering costly in material terms, so the reader feels the economics of erasure rather than only its morality. Deliberately environmental and infrastructural, not a place description.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "engine-succession",
+      "title": "Temporal Clock: Succession of Keepers",
+      "category": "engine",
+      "summary": "Want: transmit a workable standard of record to successors who can apply it. Resistance: what can be transmitted is procedure and oath, not the experience that made the procedure seem necessary. Conflict: successors owe loyalty to predecessors who are no longer present to be questioned, and owe obligation to claimants their predecessors excluded. Stakes: whether the archive's authority renews or merely repeats, and whether an inherited justification can be amended without disowning the inheritor's own formation. Change: from unexamined inheritance, to conscious amendment, to a transmission that names its own contingency. Renewable mechanism: every generation encounters a case class its predecessors never faced, so inheritance is always incomplete. Payoff mechanics: a successor applies an inherited rule and discovers what it costs, then must decide whether to pass it on unchanged. Thematic function: makes the forty-Book horizon a relay of obligation rather than a single protagonist's lifespan. Duration is unknown and stays unknown; the architecture does not assume a fixed number of generations.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-main-record-claim",
+      "title": "Main Thread: The Adjudicated Life",
+      "category": "thread",
+      "summary": "Want: the archive's custodians want a standard of recordability defensible enough to end dispute. Resistance: every standard produces exclusions its authors cannot justify to the excluded. Conflict: claims accumulate faster than procedure can absorb, and each absorption ratifies the standard that caused the next exclusion. Stakes: a life's persistence in memory and the orders' authority over that persistence. Change: from procedural confidence to negotiated authority, arriving at a settlement that is real and incomplete. Thematic function: carries the series spine without requiring one protagonist, because the thread is a recurring decision rather than a person's goal. Subordinate to the primary engine and expressed through the recursive case unit; it is the through-line the reader follows when cast and era change.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-the-orders-legitimation",
+      "title": "Thread: Justifying the Orders",
+      "category": "thread",
+      "summary": "Want: keep the orders authoritative enough that keepers obey and claimants accept rulings. Resistance: the justification depends on a forgetting the orders cannot name without indicting themselves. Conflict: every defense of neutrality reveals a choice, and every revealed choice invites a demand for revision. Stakes: legitimacy, compliance, and the difference between an order that is obeyed and an order that is merely enforced. Change: from inherited assumption, to explicit argument under threat, to a bargain whose terms are visible to the reader. Thematic function: makes the political layer causal rather than atmospheric, because the orders are always doing legitimation work even when nothing dramatic is happening. This thread is what the victory vacuum converts from background into foreground.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-the-erased-counterclaim",
+      "title": "Thread: The Erased as Counterparty",
+      "category": "thread",
+      "summary": "Want: standing, not pity. Resistance: absence of records is precisely the disqualification from claiming, so the erased must argue from a position the archive defines as empty. Conflict: proving a life requires the archive that excluded it, so every claim implicates the institution it addresses. Stakes: whether obligation becomes enforceable, and whether the archive can owe something to people it cannot name. Change: from absence, to presence as a category the archive manages, to presence as a party with terms. Thematic function: converts the author's required facing of what is owed into agency rather than sentiment. The thread is deliberately collective at first and may become specific later; the architecture does not decide whether a single claimant represents the erased or whether the claim stays collective.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-warden-campaign",
+      "title": "Thread: The Long Campaign and Its Victory",
+      "category": "thread",
+      "summary": "Want: the Warden's campaign aims to defeat the archive's authority over record, which the campaign treats as a power disguised as a duty. Resistance: the archive's neutrality is a shield that makes opposition look like an attack on peace, and desert logistics make sustained pressure expensive. Conflict: the campaign against the archive versus the orders that need the campaign as justification. Stakes: whether neutrality survives being fought for, and whether the archive can oppose the campaign without becoming a faction. Change: the campaign ends in victory at Book 26, which is the author's fixed anchor; the victory removes the external justification and leaves the internal debt. Thematic function: supplies the enemy-dependence mechanism with a concrete career and supplies the series with a mid-horizon pivot. Deliberately abstract: no tactics, no campaign events, no outcome beyond victory, and no reuse of the Warden as a post-victory antagonist unless the author chooses otherwise.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-keepership-succession",
+      "title": "Thread: Transmission Between Keepers",
+      "category": "thread",
+      "summary": "Want: hand over a practice that still works. Resistance: the evidence that made the practice seem necessary does not transmit with it, so successors inherit conclusions without their grounds. Conflict: loyalty to predecessors versus obligation to claimants the predecessors excluded. Stakes: continuity of the archive, and whether continuity is worth what it costs the people outside the record. Change: from inheritance, to contestation, to amendment that admits what it cannot repair. Thematic function: gives the series a renewable cast-level engine without inventing a dynasty, because the thread concerns a role and an obligation rather than specific people. Also provides the time-scale flexibility the forty-Book horizon needs: the relay can compress into one lifetime or stretch across many, and that choice is left open.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "thread-memory-war-risk",
+      "title": "Thread: The War That Must Not Start",
+      "category": "thread",
+      "summary": "Want: keep a war over memory from becoming actual. Resistance: deterrence needs a live threat, and every actor who benefits from fear can keep the threat alive. Conflict: the same fear that restrains claimants restrains the orders from conceding anything that would weaken the deterrent. Stakes: survival of records, institutions and the people who depend on them, measured in lost copies rather than battles. Change: from credible risk, to risk inflated by the campaign, to risk spent by victory, to a latent risk that settlements must keep latent. Thematic function: sets the escalation ceiling for the whole series and keeps climax distributed, because a war that arrives would end the architecture's ability to argue about order rather than fight over it. The thread is therefore a pressure gauge the phases read, not a promised confrontation.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-recursive-case-unit",
+      "title": "Structural Pattern: Recursive Case Unit",
+      "category": "structure",
+      "summary": "The renewable unit of the series is a case: a life or a body of lives whose recordability is in question, brought to the archive under a standard that has already decided similar cases. Variation comes from the class of case, not from new cast or new setting. Abstract case classes the pattern can rotate: routine, contested, sealed, inherited, retroactive, and impossible, where impossible means the claimant cannot satisfy any evidentiary requirement the archive recognizes. Each case must expose one criterion of the standard, so a sequence of cases accumulates an argument about what the standard is for. The unit is deliberately not a mystery structure: the reader may learn the outcome before the reasoning, and the interest lies in watching a defensible procedure produce an indefensible result. Function: supplies episode grammar for a forty-Book horizon without requiring escalation of stakes in every movement, and gives the primary engine a repeatable form that the other engines can load.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-double-ledger",
+      "title": "Structural Pattern: The Double Ledger",
+      "category": "structure",
+      "summary": "Two accounting surfaces run in parallel: the public record, which is complete, audited and defensible, and the obligation ledger, which is partial, unofficial and not admissible. The pattern generates irony because the reader can see both, while most actors can see only one. It also generates a revelation grammar: an entry in the hidden ledger that contradicts the public record is a setup, and its becoming admissible is a payoff. Abstractly, the pattern can be carried by custody practices, inherited notes, ritual recitation, or a second classification system kept by keepers who distrust the first. Risk the architecture must manage: the hidden ledger can become a convenient oracle that resolves disputes too cheaply, so it must be as unreliable as the public record and must cost something to use. Function: makes erasure debt visible before it is speakable, and makes the neutrality claim inspectable by showing what the claim omitted.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-generational-relay",
+      "title": "Structural Pattern: Generational Relay",
+      "category": "structure",
+      "summary": "The series advances by transferring obligation between keepers rather than by following one life. Each relay point re-establishes the archive's authority, re-teaches the standard, and inherits unresolved claims. The pattern's engine is asymmetry of knowledge: the predecessor knows why a rule exists, the successor knows only that it exists, and the claimant knows what the rule cost. Relay points are natural phase boundaries because they change who must answer for the past without changing the institution. Risk: the relay can feel like a reset, so the architecture requires that each transfer carry forward at least one unresolved claim and one specific consequence of the predecessor's choices. Function: gives the architecture its long horizon without assuming a fixed number of generations or a fixed span of years; both remain unknown by design.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-debt-escalation",
+      "title": "Structural Pattern: Debt Escalation",
+      "category": "structure",
+      "summary": "The debt moves through recognizable stages that are not acts: accrual, naming, refusal, documentation, confrontation, negotiation, partial settlement, recorded residue. Each stage changes what is at stake rather than merely increasing intensity, because each stage changes who must respond. Accrual is invisible; naming creates a claimant; refusal creates a precedent; documentation makes the claim portable; confrontation forces the orders to argue in public; negotiation converts obligation into terms; settlement allocates cost; residue records what the settlement would not touch. Risk: escalation can become monotonic, so the architecture permits partial de-escalations that buy time without discharging anything, and permits a settlement to fail without resetting the debt. Function: formats the erasure-debt engine into a progression the phases can distribute across the series.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-hinge-without-reset",
+      "title": "Structural Pattern: Hinge Without Reset",
+      "category": "structure",
+      "summary": "The series' mid-horizon pivot changes the justification for the orders without clearing their obligations. The Warden's campaign ends in victory, which removes the external threat and leaves the archive stronger in capacity and weaker in legitimacy. The pattern's discipline: the hinge must not resolve the debt, must not introduce a larger replacement enemy, and must not restore the status quo by other means. What it may change: who argues, what they can argue, which claims become admissible, and which keepers discover they have been defending a justification rather than a fact. Risk: a mid-series hinge can read as a second beginning if the later phases do not inherit specific unresolved claims from the earlier ones, so the architecture requires the residue surface to carry named obligations forward. Function: gives the forty-Book horizon a genuine turn at Book 26 without pretending the series restarts.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-nested-reopening",
+      "title": "Structural Pattern: Nested Reopening",
+      "category": "structure",
+      "summary": "Settled cases reopen when the standard changes, new standing appears, or a record's drift becomes visible. Reopening is the architecture's main device for making the past contemporaneous: an early ruling becomes a later case without requiring the series to revise history. The pattern nests because reopening a case can expose the precedent that settled other cases, producing a cascade that is bounded by what the archive is willing to re-examine. Risk: reopening can become a formula that substitutes for new pressure, so each reopening must be caused by a change in authority or evidence rather than by a keeper's curiosity alone. Function: converts the archive's own decisions into renewable material, and gives the erased counterclaim a procedural route into the institution.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "struct-distributed-climax",
+      "title": "Structural Pattern: Distributed Climax",
+      "category": "structure",
+      "summary": "The series has no single confrontation that discharges the debt. Instead, climactic pressure distributes across settlements, each of which resolves something real and leaves something recorded as unpaid. The pattern's logic follows from the engines: erasure debt is not the kind of obligation that a victory can cancel, and the orders' authority is reproduced daily rather than defended once. Risk: distributed climax can feel like an absence of climax, so each settlement must have its own irreversible cost and its own visible winner, and the final phase must deliver a decision that the reader can name. Function: permits a forty-Book series to end without falsifying its own premise, and keeps the memory war as a latent risk rather than a spent spectacle.",
+      "scope": "series",
+      "parent_id": "arch-causal-spine"
+    },
+    {
+      "id": "genre-institutional-procedural",
+      "title": "Institutional Procedural",
+      "category": "genre",
+      "summary": "Agent proposal, since the brief names no genre. Function here: supply the case grammar that makes the archive's adjudication renewable. The genre's conventions are used as mechanisms rather than texture: jurisdiction, admissibility, precedent, recusal, custody, audit and appeal are all ways of distributing authority, so a procedural movement can advance the argument about order while appearing to process a case. The genre also supplies a characteristic pleasure the architecture wants: competence that is satisfying even when its outcome is wrong, which is what makes complicity available to the reader. Risk: the genre can imply that every problem has a correct procedure, which would contradict the intended unease, so each case must end with a ruling that is procedurally correct and substantively contested. Role is governing but not exclusive: the procedural carries the spine while tragedy and inquiry carry cost and discovery.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "genre-political-tragedy",
+      "title": "Political Tragedy",
+      "category": "genre",
+      "summary": "Agent proposal. Function here: convert the cost of order into allocation. Tragedy is used structurally rather than tonally: decisions distribute loss to identifiable parties, and no resolution is available that returns everyone to their prior standing. The genre's characteristic payoff, recognition that arrives too late to prevent the cost, maps onto the series' hinge: victory reveals what the orders were always doing. Risk: relentless cost can make the archive merely villainous and destroy the seduction that the architecture needs, so the genre is held to locally dominant rather than continuously dominant, and the procedural's competence must keep providing genuine relief. Role: locally dominant from the moment the debt becomes a party; supporting earlier.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "genre-archival-inquiry",
+      "title": "Archival Inquiry",
+      "category": "genre",
+      "summary": "Agent proposal. Function here: supply a discovery procedure that produces reopenings without requiring a detective. Inquiry in this architecture means establishing what a record can support, not solving a crime: questions of provenance, custody, copying history and testimony quality. The genre's conventions, discrepancy, chain of custody, competing copies and missing witnesses, are used to make the archive's own practices investigable. Risk: inquiry can become the whole plot and reduce institutional pressure to puzzle-solving, so every inquiry must change a standard or a standing rather than merely add a fact. Role: supporting, with local dominance inside reopening movements.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "genre-historiographic-speculative",
+      "title": "Historiographic Speculative",
+      "category": "genre",
+      "summary": "Agent proposal. Function here: keep the question of authorship attached to the record. The genre asks who wrote the account, under what constraints, for whom, and what the account cannot include. Used here it does not imply a fantasy mechanism; the speculative element is the archive's constitutive power over what counts as real, which the series treats as an institutional fact rather than a magical one. The genre's risk is relativism: if every record is authored, accountability can diffuse until nobody is responsible, which would dissolve the intended unease into indifference. The architecture therefore holds that authorship is traceable to decisions and beneficiaries, so a claim about neutrality can be answered with a name, an office and a cost. Role: supporting, locally dominant at the end when the series must admit what it has been doing.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "genre-desert-survival",
+      "title": "Desert Survival",
+      "category": "genre",
+      "summary": "Agent proposal. Function here: make scarcity material rather than scenic. The genre's conventions, water discipline, heat, distance, loads, shelter, are used as constraints on testimony: who can travel to be heard, what can be carried, how many copies can be kept, what decays. The genre prevents the architecture from treating erasure as a purely moral act by showing that remembering has a budget. Risk: logistics can dominate and stall the inquiry rhythm, so survival pressure appears as specific decisions with costs rather than as extended hardship. Role: background, with local dominance in any movement that moves records, witnesses or water.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "genre-memory-war-epic",
+      "title": "Memory-War Epic",
+      "category": "genre",
+      "summary": "Agent proposal. Function here: hold a credible horizon of large-scale conflict over memory without spending it. The genre supplies scale, collective stakes and the possibility that records are war aims, which makes deterrence rational and makes every settlement feel like a reprieve. The architecture keeps it background because an actual war would convert argument into force and end the series' ability to adjudicate. Risk: an unspent horizon can become an empty threat, so the campaign thread must impose real costs throughout, and the war's plausibility must be measured in lost copies and restricted access rather than in declarations. Role: background, locally dominant only in the approach and aftermath of the campaign's end.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-bureaucratic-recusal",
+      "title": "Trope Function: Bureaucratic Recusal",
+      "category": "trope",
+      "summary": "A keeper or office steps aside from a decision to demonstrate impartiality, and the step-aside becomes the visible proof that the institution is neutral. Used functionally: recusal is the cheapest available display of neutrality, so it is performed most often exactly where the underlying choice is most contested. The trope generates two payoffs, a recusal that decides the outcome by removing the only person willing to refuse, and a recusal that is later shown to have been unnecessary because the rule already determined the result. Risk: the trope can become a repeated gag, so each use must reveal a different layer of the neutrality claim. Function: carries neutrality fabrication in observable behavior rather than assertion.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-sealed-testimony",
+      "title": "Trope Function: Sealed Testimony",
+      "category": "trope",
+      "summary": "A record exists but cannot be opened, read or admitted until a condition is met. Used functionally: the seal is a promise the architecture makes to the reader on the archive's behalf, and the condition for opening is always a change in authority rather than a change in curiosity. The trope is the main setup device for nested reopening, because a seal can be inherited, contested, broken, or found to have been empty. Risk: the trope can become a cheap withholding device, so the seal must be justified by an institutional reason the reader can evaluate, and the payoff must change what a record means rather than merely disclose content. Function: converts withheld information into an institutional claim about who is entitled to know.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-unreliable-ledger",
+      "title": "Trope Function: The Authoritative Error",
+      "category": "trope",
+      "summary": "A record is authoritative and wrong. Used functionally: the trope makes record drift consequential, because the reader can see that the archive's confidence and its accuracy are independent properties. The error is never arbitrary; it must be traceable to a conversion loss, a copying decision, a translation choice or an interested edit. Risk: if the error is revealed as a simple lie, the trope collapses into a villain story and the systemic argument weakens; the architecture prefers errors produced by defensible practice. Function: keeps the archive's authority visible as a claim that survives its own inaccuracies.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-inherited-oath",
+      "title": "Trope Function: The Inherited Oath",
+      "category": "trope",
+      "summary": "A successor is bound by a promise made by someone else, in circumstances the successor cannot verify. Used functionally: the oath transmits justification without its evidence, which is the core asymmetry of the succession engine. The trope's payoff is not whether the oath is broken but what breaking it would cost, since the successor's own formation depended on keeping it. Risk: the trope can sentimentalize duty, so each oath must be attached to a specific excluded party whose claim the oath makes harder to hear. Function: gives inherited obligation a concrete transmission device and gives the reader a reason to care about a promise whose grounds are absent.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-necessary-enemy",
+      "title": "Trope Function: The Necessary Enemy",
+      "category": "trope",
+      "summary": "An adversary whose existence justifies an institution's authority, so that defeating the adversary threatens the institution. Used functionally: the trope makes enemy dependence legible without requiring a conspiracy; the orders need not have created the threat, only have learned to rely on it. Risk: the trope invites a reveal that the institution manufactured its enemy, which would turn a structural argument into a scandal and let the orders off too easily by making them simply criminal. The architecture prefers a threat that is real and also useful. Function: converts the campaign into a legitimation mechanism and sets up the victory vacuum.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-impossible-witness",
+      "title": "Trope Function: The Impossible Witness",
+      "category": "trope",
+      "summary": "A witness whose testimony cannot be verified but also cannot be dismissed. Used functionally: the trope forces the archive to decide by rule rather than by fact, which is exactly the moment classification reveals itself as rule. The witness may be unable to travel, unable to speak in an admissible form, unable to produce corroboration, or able to produce only an object. Risk: the trope can become a test of the reader's sympathy rather than of the institution, so the case must turn on what the archive's standard requires, not on whether the witness is likable. Function: makes the testimony-conversion pipeline visible at its point of failure.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-redacted-return",
+      "title": "Trope Function: The Redacted Return",
+      "category": "trope",
+      "summary": "Something removed from the record comes back, not as a person restored but as a claim with standing. Used functionally: the trope is how absence becomes a party, and it is the erased counterclaim's main entry into the story. The return can be a name, a copy, a descendant, a debt, or a procedural right asserted by someone the archive never recorded. Risk: a return staged as a dramatic reappearance would convert structural erasure into personal reunion, so the architecture keeps returns partial and juridical rather than sentimental. Function: gives the debt a route into the institution and gives the reader a payoff that does not require restoring what was lost.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-victory-that-empties",
+      "title": "Trope Function: The Victory That Empties",
+      "category": "trope",
+      "summary": "A long-sought victory arrives and removes the condition that made the struggle meaningful, leaving the winner with an obligation instead of a triumph. Used functionally: the trope is the exact shape of the author's Book 26 anchor, where the campaign's victory deletes the external justification for the orders. Risk: the trope can read as punishing success, so the victory must be genuinely won and genuinely valuable, with real relief before the accounting begins. Function: turns the fixed mid-series event into a structural hinge and sets the emotional key of vindication without satisfaction.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-double-bookkeeping",
+      "title": "Trope Function: Double Bookkeeping",
+      "category": "trope",
+      "summary": "The same obligation is recorded twice, once in a form that counts and once in a form that does not. Used functionally: the trope is the visible practice behind the double-ledger structure, and it lets the reader watch a life be simultaneously acknowledged and inadmissible. Risk: the second ledger can become an oracle that solves disputes, so it must be incomplete, contested and expensive to use. Function: makes the neutrality claim inspectable by showing what the official record omitted, and gives the erasure debt a place to be written before it can be spoken.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "trope-custodian-who-forgets",
+      "title": "Trope Function: The Custodian Who Forgets",
+      "category": "trope",
+      "summary": "The keeper of memory is subject to the same forgetting the archive administers. Used functionally: the trope binds oblivion to person rather than office, so inherited obligation becomes a matter of formation rather than paperwork. The keeper may forget a case, a promise, a language, or the reason a rule exists, and the forgetting is always produced by the same conditions that produce record drift. Risk: the trope can become an excuse, so the keeper's forgetting must be shown as a consequence of the work rather than a personal failing. Function: keeps record drift embodied and gives the succession thread its emotional cost.",
+      "scope": "series",
+      "parent_id": "arch-generic-spine"
+    },
+    {
+      "id": "theme-order-depends-on-forgetting",
+      "title": "Theme: Order Purchased by Forgetting",
+      "category": "theme",
+      "summary": "The governing question: the order that prevents a memory war is the same order that decides which lives are not worth remembering, so peace and erasure are not opposites but products of one arrangement. The theme is not argued in narration; it is demonstrated by the fact that every settlement the series reaches requires an exclusion to remain in place. Carried by the recursive case unit, the double ledger and the victory vacuum. Test the architecture must pass: if the reader can imagine the archive becoming neutral through better procedure, the theme has failed. Implication for later work: reform must be shown as redistribution of authority, not as improved accuracy.",
+      "scope": "series",
+      "parent_id": "arch-thematic-spine"
+    },
+    {
+      "id": "theme-neutrality-as-claim",
+      "title": "Theme: Neutrality as Claim, Not Fact",
+      "category": "theme",
+      "summary": "The archive's neutrality is the orders' justification and a produced effect, never a natural property of the institution. The theme is carried by recusal ritual, audit, rotation of custody and the visible labor of appearing impartial. It must remain compatible with the author's commitment that neutrality is the orders' justification rather than a fact. Implication: arguments about the archive are arguments about who authorized the claim, and the strongest evidence against neutrality is a neutral act that decided an outcome. The theme also protects the series from a cheap resolution in which a good keeper restores integrity, because integrity was never the property being contested.",
+      "scope": "series",
+      "parent_id": "arch-thematic-spine"
+    },
+    {
+      "id": "theme-debt-to-the-erased",
+      "title": "Theme: What Is Owed to the Erased",
+      "category": "theme",
+      "summary": "The debt is not for information but for authority: the erased were denied the power to determine how their lives are held. This is why adding records cannot settle the debt, and why settlement must transfer some control over recording rather than merely extend coverage. Carried by the double ledger, the redacted return and the negotiated settlement. Implication: the series' late movement must face what is owed, as the author requires, and must allow that the answer is contested rather than obvious. The theme also sets the limit of repair: some obligations can be recorded as unpaid and still bind the institution that records them.",
+      "scope": "series",
+      "parent_id": "arch-thematic-spine"
+    },
+    {
+      "id": "theme-classification-is-rule",
+      "title": "Theme: Classification Is Rule",
+      "category": "theme",
+      "summary": "Whoever decides what a life is decides what a life may claim, so classification is the executive act of the whole order rather than a clerical preliminary. Carried by the adjudication engine and by the conversion pipeline, where a format decision silently becomes a judgment about reality. Implication: procedural detail is never decorative in this architecture; a change in the admissible form of testimony is a change in who holds power. The theme also explains why the orders fight over standards rather than over facts, and why a settlement that leaves classification untouched has not settled anything.",
+      "scope": "series",
+      "parent_id": "arch-thematic-spine"
+    },
+    {
+      "id": "theme-inherited-obligation",
+      "title": "Theme: Obligation Without Authorship",
+      "category": "theme",
+      "summary": "Successors inherit obligations they did not create and justifications they cannot verify, and the inheritance is not cancellable by innocence. Carried by the succession relay, the inherited oath and the keeper who forgets. The theme prevents the architecture from treating guilt as a matter of individual intention: a keeper can be conscientious and still reproduce an exclusion, which is the precise texture of the intended unease. Implication: reform requires successors to disown something that formed them, so the cost of repair is identity-level rather than administrative.",
+      "scope": "series",
+      "parent_id": "arch-thematic-spine"
+    },
+    {
+      "id": "rx-unease-of-forgetting",
+      "title": "Reader Experience: Unease at Order Built on Forgetting",
+      "category": "reader_experience",
+      "summary": "The governing experience the author names: unease at how much order depends on forgetting. Intended as dread that accumulates through administrative detail rather than through shocks. The reader should repeatedly notice that something reasonable has just produced an unreasonable outcome, and should be unable to identify a single villain to blame. Delivered by procedural suspense, understated revelation, managed absence and material motifs of drift. The experience must survive the series' darkest material without becoming despair, because unease depends on the reader still caring what the archive does.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "rx-complicity",
+      "title": "Reader Experience: Complicity",
+      "category": "reader_experience",
+      "summary": "The reader is placed in the archive's position: given a curated record, asked to accept its selection, and offered the relief of letting an institution decide. Complicity is produced by making the archive genuinely useful and its keepers genuinely competent, so that the reader's sympathy is earned before it is indicted. It is the hinge between the early ambient unease and the late reckoning, because a reckoning only costs the reader something if the reader was a participant. Delivered by relief of order, multi-register testimony and rulings the reader half-agrees with.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "rx-procedural-suspense",
+      "title": "Reader Experience: Procedural Suspense",
+      "category": "reader_experience",
+      "summary": "Suspense generated by whether a standard will hold, not by whether a character will survive. The reader waits to see which criterion decides, who is willing to invoke it, and what the ruling costs. This is the architecture's main engine of readability across a long horizon, because it can be sustained without escalating violence. Delivered by documentary dryness and by cases whose outcomes are legible but contestable.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "rx-grief-for-the-unrecorded",
+      "title": "Reader Experience: Grief for the Unrecorded",
+      "category": "reader_experience",
+      "summary": "Grief for lives that never became records, experienced as accumulation rather than as a single loss. The architecture avoids elegizing individuals it has not invented; instead the grief attaches to categories of absence the reader can feel through the archive's gaps, refusals and missing copies. Delivered by material erasure motifs, managed absence and the counterclaim's partial returns. By the late phases this grief should have become a demand rather than a mood, which is what makes the reckoning feel owed.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "rx-relief-of-order",
+      "title": "Reader Experience: Relief That Order Holds",
+      "category": "reader_experience",
+      "summary": "The contrasting experience the architecture depends on: relief that an institution exists which prevents a war over memory, and that its procedures, however imperfect, are better than the alternative. Without this relief the intended unease becomes simple condemnation, and the series loses its central claim that order is worth something and costs something. Delivered by vastness and enclosure, by competent procedure, and by the credible threat of the memory war. The relief must be available even in late phases, otherwise the final settlement has nothing to preserve.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "rx-reckoning-and-residue",
+      "title": "Reader Experience: Reckoning and Residue",
+      "category": "reader_experience",
+      "summary": "The late experience: the debt is faced, some of it is settled, and what cannot be settled is recorded as owed rather than forgotten. Reckoning is not absolution; it is the moment the archive stops presenting its exclusions as neutral outcomes. Residue is the intended aftertaste of the whole series, matching an ending in which unease persists knowingly rather than resolving into comfort. Delivered by managed absence, documentary dryness and a settlement whose terms the reader can enumerate. The architecture treats this as the honest payoff for a story whose premise makes full discharge implausible.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-documentary-dryness",
+      "title": "Aesthetic Strategy: Documentary Dryness",
+      "category": "aesthetic",
+      "summary": "Prose and scene construction borrow the register of institutional documents: lists, forms, custody notes, catalogue entries, terse rulings. Used functionally, dryness is not neutrality of style; it is the reader's experience of the archive's own voice, which makes administrative harm feel ordinary. The strategy keeps dread below melodrama and lets a single vivid detail carry disproportionate weight. Risk: sustained dryness can flatten emotional access, so the architecture pairs it with multi-register testimony and with rare, restrained lyric passages tied to material motifs.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-material-erasure-motifs",
+      "title": "Aesthetic Strategy: Material Motifs of Drift and Burial",
+      "category": "aesthetic",
+      "summary": "Recurring material images carry erasure without explaining it: wind abrading an inscription, sand filling a cut, a copy fading faster than its original, water rationed to the people who carry records. Used functionally, the motifs give forgetting a physical grammar so the reader feels erasure as an ongoing process rather than a past event. Risk: the motifs can become decorative landscape writing, so each appearance must attach to a specific record, claim or cost.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-understated-revelation",
+      "title": "Aesthetic Strategy: Understated Revelation",
+      "category": "aesthetic",
+      "summary": "Revelations arrive as clerical corrections, marginal notes, revised catalogue entries or procedural admissions rather than as confrontational speeches. Used functionally, understatement keeps the reader's judgment active: the significance of a correction must be assembled from what the reader already knows about the standard. This strategy is what makes surprise feel structural instead of twisty. Risk: too much understatement can hide the turn entirely, so each revelation must be legible in retrospect from a detail the reader was given plainly.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-multi-register-testimony",
+      "title": "Aesthetic Strategy: Multi-Register Testimony",
+      "category": "aesthetic",
+      "summary": "The same life is presented in several registers: deposition, official summary, remembered speech, hostile account, material trace. Used functionally, register shifts dramatize testimony conversion, since the reader can see what each format keeps and drops. The strategy also distributes authority: no single register is reliably true, and the reader must weigh them the way the archive does. Risk: competing registers can blur into relativism, so each version must be anchored to a specific interest and a specific cost.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-vastness-and-enclosure",
+      "title": "Aesthetic Strategy: Vastness and Enclosure",
+      "category": "aesthetic",
+      "summary": "Scale alternates between exposed distance and contained custody: open desert against closed stacks, travel against intake rooms, horizon against shelf. Used functionally, the contrast makes the archive feel like shelter and like a trap at the same time, which is exactly the doubleness the intended unease needs. Risk: the contrast can become a fixed scenery rhythm, so it must be tied to changes in who is permitted inside and who is left outside.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    },
+    {
+      "id": "aes-managed-absence",
+      "title": "Aesthetic Strategy: Managed Absence",
+      "category": "aesthetic",
+      "summary": "Gaps are shown without commentary: a missing entry, a struck line, a silence in a deposition where a name should be, a catalogue number with no record behind it. Used functionally, managed absence gives the reader room to supply judgment, which produces unease more reliably than narrated outrage. The strategy also encodes the theme formally, since the reading surface has its own redactions. Risk: absence can read as an authorial gap rather than an institutional one, so each omission must be marked by a visible trace of the practice that produced it.",
+      "scope": "series",
+      "parent_id": "arch-experiential-spine"
+    }
+  ],
+  "links": [
+    {
+      "id": "link-01-adjudication-needs-claim",
+      "source": "engine-record-adjudication",
+      "target": "engine-neutrality-fabrication",
+      "function": "each ruling requires the neutrality claim that quietly qualified it"
+    },
+    {
+      "id": "link-02-claim-supplies-criteria",
+      "source": "engine-neutrality-fabrication",
+      "target": "engine-record-adjudication",
+      "function": "the claim supplies the admissibility criteria every ruling applies"
+    },
+    {
+      "id": "link-03-ruling-produces-exclusion",
+      "source": "engine-record-adjudication",
+      "target": "engine-erasure-debt",
+      "function": "every inclusion threshold produces exclusions that accrue obligation"
+    },
+    {
+      "id": "link-04-debt-reopens-rulings",
+      "source": "engine-erasure-debt",
+      "target": "engine-record-adjudication",
+      "function": "accrued obligation returns as claims that reopen settled rulings"
+    },
+    {
+      "id": "link-05-debt-pressures-neutrality",
+      "source": "engine-erasure-debt",
+      "target": "engine-neutrality-fabrication",
+      "function": "debt forces the orders to restate impartiality with more insistence"
+    },
+    {
+      "id": "link-06-pipeline-feeds-adjudication",
+      "source": "engine-testimony-conversion",
+      "target": "engine-record-adjudication",
+      "function": "the deposition pipeline is what a ruling can actually consume"
+    },
+    {
+      "id": "link-07-drift-degrades-testimony",
+      "source": "engine-record-drift",
+      "target": "engine-testimony-conversion",
+      "function": "copying, translation and migration degrade testimony at every handoff"
+    },
+    {
+      "id": "link-08-drift-denies-stable-neutrality",
+      "source": "engine-record-drift",
+      "target": "engine-neutrality-fabrication",
+      "function": "drift makes stable neutrality unavailable, so it must be re-performed"
+    },
+    {
+      "id": "link-09-scarcity-accelerates-drift",
+      "source": "engine-desert-scarcity",
+      "target": "engine-record-drift",
+      "function": "heat, sand and distance accelerate loss and force re-inscription"
+    },
+    {
+      "id": "link-10-scarcity-rations-witnesses",
+      "source": "engine-desert-scarcity",
+      "target": "engine-testimony-conversion",
+      "function": "water and travel ration who can appear as a witness"
+    },
+    {
+      "id": "link-11-scarcity-makes-records-worth-war",
+      "source": "engine-desert-scarcity",
+      "target": "engine-memory-war-deterrence",
+      "function": "scarcity of durable copies makes records worth fighting over"
+    },
+    {
+      "id": "link-12-deterrence-justifies-neutrality",
+      "source": "engine-memory-war-deterrence",
+      "target": "engine-neutrality-fabrication",
+      "function": "fear of war is the standing argument for impartiality"
+    },
+    {
+      "id": "link-13-deterrence-needs-threat",
+      "source": "engine-memory-war-deterrence",
+      "target": "engine-enemy-dependence",
+      "function": "deterrence requires a named threat to stay credible"
+    },
+    {
+      "id": "link-14-enemy-shelters-neutrality",
+      "source": "engine-enemy-dependence",
+      "target": "engine-neutrality-fabrication",
+      "function": "the enemy lets the orders present neutrality as shelter"
+    },
+    {
+      "id": "link-15-enemy-needs-campaign",
+      "source": "engine-enemy-dependence",
+      "target": "thread-warden-campaign",
+      "function": "the campaign is the concrete career of the enemy the orders need"
+    },
+    {
+      "id": "link-16-campaign-renews-enemy",
+      "source": "thread-warden-campaign",
+      "target": "engine-enemy-dependence",
+      "function": "campaign pressure renews demand for the orders guarantee"
+    },
+    {
+      "id": "link-17-victory-creates-vacuum",
+      "source": "thread-warden-campaign",
+      "target": "engine-victory-vacuum",
+      "function": "its victory removes the external justification in one stroke"
+    },
+    {
+      "id": "link-18-vacuum-exposes-debt",
+      "source": "engine-victory-vacuum",
+      "target": "engine-erasure-debt",
+      "function": "with the enemy gone the debt becomes the only live claim"
+    },
+    {
+      "id": "link-19-vacuum-forces-argument",
+      "source": "engine-victory-vacuum",
+      "target": "thread-the-orders-legitimation",
+      "function": "forces the orders to argue from their own record"
+    },
+    {
+      "id": "link-20-vacuum-spends-deterrence",
+      "source": "engine-victory-vacuum",
+      "target": "engine-memory-war-deterrence",
+      "function": "deterrence loses credibility once the threat is spent"
+    },
+    {
+      "id": "link-21-succession-inherits-claim",
+      "source": "engine-succession",
+      "target": "engine-neutrality-fabrication",
+      "function": "successors inherit a justification they never saw tested"
+    },
+    {
+      "id": "link-22-succession-relearns-pipeline",
+      "source": "engine-succession",
+      "target": "engine-testimony-conversion",
+      "function": "each generation re-learns the evidentiary standard as craft"
+    },
+    {
+      "id": "link-23-succession-thread",
+      "source": "engine-succession",
+      "target": "thread-keepership-succession",
+      "function": "hands the orders to actors who did not author them"
+    },
+    {
+      "id": "link-24-succession-needs-threat",
+      "source": "engine-succession",
+      "target": "engine-enemy-dependence",
+      "function": "new keepers need a threat their predecessors can no longer point to"
+    },
+    {
+      "id": "link-25-adjudication-carries-main-thread",
+      "source": "engine-record-adjudication",
+      "target": "thread-main-record-claim",
+      "function": "the recurring ruling is the thread the reader follows"
+    },
+    {
+      "id": "link-26-fabrication-carries-legitimation",
+      "source": "engine-neutrality-fabrication",
+      "target": "thread-the-orders-legitimation",
+      "function": "every display of impartiality is a legitimation act"
+    },
+    {
+      "id": "link-27-debt-carries-counterclaim",
+      "source": "engine-erasure-debt",
+      "target": "thread-the-erased-counterclaim",
+      "function": "accrued obligation is what gives the erased a claim to make"
+    },
+    {
+      "id": "link-28-deterrence-carries-war-risk",
+      "source": "engine-memory-war-deterrence",
+      "target": "thread-memory-war-risk",
+      "function": "sets the escalation ceiling the whole series reads"
+    },
+    {
+      "id": "link-29-counterclaim-forces-negotiation",
+      "source": "thread-the-erased-counterclaim",
+      "target": "thread-the-orders-legitimation",
+      "function": "the counterclaim converts justification into negotiation"
+    },
+    {
+      "id": "link-30-legitimation-sets-validity",
+      "source": "thread-the-orders-legitimation",
+      "target": "thread-main-record-claim",
+      "function": "legitimation decides what counts as a valid claim"
+    },
+    {
+      "id": "link-31-war-risk-limits-revision",
+      "source": "thread-memory-war-risk",
+      "target": "thread-the-orders-legitimation",
+      "function": "war risk is the limit on how far legitimation may be revised"
+    },
+    {
+      "id": "link-32-campaign-moves-war-risk",
+      "source": "thread-warden-campaign",
+      "target": "thread-memory-war-risk",
+      "function": "the campaign raises and then discharges the plausibility of war"
+    },
+    {
+      "id": "link-33-succession-carries-standard",
+      "source": "thread-keepership-succession",
+      "target": "thread-main-record-claim",
+      "function": "each keepers tenure carries the adjudication standard forward"
+    },
+    {
+      "id": "link-34-claims-produce-exclusions",
+      "source": "thread-main-record-claim",
+      "target": "thread-the-erased-counterclaim",
+      "function": "settled claims produce the exclusions the counterclaim organizes"
+    },
+    {
+      "id": "link-35-case-unit-forms-adjudication",
+      "source": "struct-recursive-case-unit",
+      "target": "engine-record-adjudication",
+      "function": "the repeating case is the engines recurring form"
+    },
+    {
+      "id": "link-36-adjudication-reproduces-case",
+      "source": "engine-record-adjudication",
+      "target": "struct-recursive-case-unit",
+      "function": "the engine keeps producing cases, so the unit recurs with variation"
+    },
+    {
+      "id": "link-37-double-ledger-holds-debt",
+      "source": "struct-double-ledger",
+      "target": "engine-erasure-debt",
+      "function": "the hidden obligation ledger is where debt is visible first"
+    },
+    {
+      "id": "link-38-relay-transmits-orders",
+      "source": "struct-generational-relay",
+      "target": "engine-succession",
+      "function": "the relay hands the orders to actors who did not author them"
+    },
+    {
+      "id": "link-39-escalation-formats-debt",
+      "source": "struct-debt-escalation",
+      "target": "engine-erasure-debt",
+      "function": "escalation formats debt into claim, refusal and confrontation"
+    },
+    {
+      "id": "link-40-hinge-targets-vacuum",
+      "source": "struct-hinge-without-reset",
+      "target": "engine-victory-vacuum",
+      "function": "the hinge changes justification without clearing institutional debts"
+    },
+    {
+      "id": "link-41-reopening-returns-cases",
+      "source": "struct-nested-reopening",
+      "target": "engine-record-adjudication",
+      "function": "reopening turns old rulings into new cases"
+    },
+    {
+      "id": "link-42-reopening-admits-claims",
+      "source": "struct-nested-reopening",
+      "target": "thread-the-erased-counterclaim",
+      "function": "reopening is how the erased re-enter as parties"
+    },
+    {
+      "id": "link-43-distributed-climax-limits-settlement",
+      "source": "struct-distributed-climax",
+      "target": "engine-victory-vacuum",
+      "function": "no single settlement can discharge the whole debt"
+    },
+    {
+      "id": "link-44-distributed-climax-keeps-war-latent",
+      "source": "struct-distributed-climax",
+      "target": "thread-memory-war-risk",
+      "function": "many partial settlements keep war latent rather than resolved"
+    },
+    {
+      "id": "link-45-hinge-places-campaign",
+      "source": "struct-hinge-without-reset",
+      "target": "thread-warden-campaign",
+      "function": "places the campaigns end as midpoint rather than ending"
+    },
+    {
+      "id": "link-46-double-ledger-exposes-selection",
+      "source": "struct-double-ledger",
+      "target": "engine-neutrality-fabrication",
+      "function": "the second ledger exposes the first one as a selection"
+    },
+    {
+      "id": "link-47-case-unit-serves-procedural",
+      "source": "struct-recursive-case-unit",
+      "target": "genre-institutional-procedural",
+      "function": "case form is what makes the procedural renewable"
+    },
+    {
+      "id": "link-48-procedural-hosts-adjudication",
+      "source": "genre-institutional-procedural",
+      "target": "engine-record-adjudication",
+      "function": "the genre gives the adjudication engine its episode grammar"
+    },
+    {
+      "id": "link-49-tragedy-carries-theme",
+      "source": "genre-political-tragedy",
+      "target": "theme-order-depends-on-forgetting",
+      "function": "tragedy makes the cost of order a price someone pays"
+    },
+    {
+      "id": "link-50-inquiry-enables-reopening",
+      "source": "genre-archival-inquiry",
+      "target": "struct-nested-reopening",
+      "function": "inquiry is the discovery procedure that justifies reopening"
+    },
+    {
+      "id": "link-51-historiographic-questions-neutrality",
+      "source": "genre-historiographic-speculative",
+      "target": "theme-neutrality-as-claim",
+      "function": "the genre asks who authored the archives neutrality"
+    },
+    {
+      "id": "link-52-survival-uses-scarcity",
+      "source": "genre-desert-survival",
+      "target": "engine-desert-scarcity",
+      "function": "survival converts scarcity from setting detail into pressure"
+    },
+    {
+      "id": "link-53-epic-holds-war-horizon",
+      "source": "genre-memory-war-epic",
+      "target": "thread-memory-war-risk",
+      "function": "epic scale is the only register where the war is a real horizon"
+    },
+    {
+      "id": "link-54-seal-feeds-reopening",
+      "source": "trope-sealed-testimony",
+      "target": "struct-nested-reopening",
+      "function": "sealed records are the setups that reopening pays off"
+    },
+    {
+      "id": "link-55-necessary-enemy-formalizes-dependence",
+      "source": "trope-necessary-enemy",
+      "target": "engine-enemy-dependence",
+      "function": "the trope formalizes a legitimation need as a recurring figure"
+    },
+    {
+      "id": "link-56-victory-trope-names-vacuum",
+      "source": "trope-victory-that-empties",
+      "target": "engine-victory-vacuum",
+      "function": "names the mechanism by which winning removes the excuse"
+    },
+    {
+      "id": "link-57-oath-transmits-justification",
+      "source": "trope-inherited-oath",
+      "target": "engine-succession",
+      "function": "oath transmits an unexamined justification to the next keeper"
+    },
+    {
+      "id": "link-58-impossible-witness-forces-rule",
+      "source": "trope-impossible-witness",
+      "target": "engine-testimony-conversion",
+      "function": "unverifiable testimony forces decision by rule rather than fact"
+    },
+    {
+      "id": "link-59-double-bookkeeping-practice",
+      "source": "trope-double-bookkeeping",
+      "target": "struct-double-ledger",
+      "function": "the trope is the visible practice behind the structure"
+    },
+    {
+      "id": "link-60-return-gives-standing",
+      "source": "trope-redacted-return",
+      "target": "thread-the-erased-counterclaim",
+      "function": "return is how absence becomes a claim with standing"
+    },
+    {
+      "id": "link-61-recusal-manufactures-impartiality",
+      "source": "trope-bureaucratic-recusal",
+      "target": "engine-neutrality-fabrication",
+      "function": "recusal is the ritual that manufactures visible impartiality"
+    },
+    {
+      "id": "link-62-custodian-shares-drift",
+      "source": "trope-custodian-who-forgets",
+      "target": "engine-record-drift",
+      "function": "the keeper is subject to the same degradation as the record"
+    },
+    {
+      "id": "link-63-authoritative-error-makes-drift-consequential",
+      "source": "trope-unreliable-ledger",
+      "target": "engine-record-drift",
+      "function": "the trope makes drift consequential rather than cosmetic"
+    },
+    {
+      "id": "link-64-seal-holds-future-claim",
+      "source": "trope-sealed-testimony",
+      "target": "thread-the-erased-counterclaim",
+      "function": "sealed testimony is a promise held against future need"
+    },
+    {
+      "id": "link-65-theme-delivered-as-unease",
+      "source": "theme-order-depends-on-forgetting",
+      "target": "rx-unease-of-forgetting",
+      "function": "the theme is delivered as structural unease, not as argument"
+    },
+    {
+      "id": "link-66-claim-carried-by-ritual",
+      "source": "theme-neutrality-as-claim",
+      "target": "trope-bureaucratic-recusal",
+      "function": "the theme is carried by rituals that perform impartiality"
+    },
+    {
+      "id": "link-67-debt-requires-counterparty",
+      "source": "theme-debt-to-the-erased",
+      "target": "thread-the-erased-counterclaim",
+      "function": "the theme requires the erased to become a counterparty"
+    },
+    {
+      "id": "link-68-classification-is-the-ruling",
+      "source": "theme-classification-is-rule",
+      "target": "engine-record-adjudication",
+      "function": "classification is the act that distributes authority over lives"
+    },
+    {
+      "id": "link-69-inheritance-carried-by-relay",
+      "source": "theme-inherited-obligation",
+      "target": "struct-generational-relay",
+      "function": "the theme needs a transmission device, not a declaration"
+    },
+    {
+      "id": "link-70-forgetting-theme-uses-tragedy",
+      "source": "theme-order-depends-on-forgetting",
+      "target": "genre-political-tragedy",
+      "function": "the theme finds its vehicle in tragedies accounting for cost"
+    },
+    {
+      "id": "link-71-neutrality-theme-uses-historiography",
+      "source": "theme-neutrality-as-claim",
+      "target": "genre-historiographic-speculative",
+      "function": "the genre keeps asking who wrote the claim and why"
+    },
+    {
+      "id": "link-72-debt-theme-pays-off-in-residue",
+      "source": "theme-debt-to-the-erased",
+      "target": "rx-reckoning-and-residue",
+      "function": "the themes payoff is reckoning that cannot fully discharge"
+    },
+    {
+      "id": "link-73-unease-deepens-into-complicity",
+      "source": "rx-unease-of-forgetting",
+      "target": "rx-complicity",
+      "function": "unease deepens when the reader notices their own consent"
+    },
+    {
+      "id": "link-74-relief-enables-complicity",
+      "source": "rx-relief-of-order",
+      "target": "rx-complicity",
+      "function": "relief is the seduction that makes complicity available"
+    },
+    {
+      "id": "link-75-complicity-makes-reckoning-owed",
+      "source": "rx-complicity",
+      "target": "rx-reckoning-and-residue",
+      "function": "complicity is what makes the late reckoning personally owed"
+    },
+    {
+      "id": "link-76-suspense-delivers-dread",
+      "source": "rx-procedural-suspense",
+      "target": "rx-unease-of-forgetting",
+      "function": "suspense is the delivery mechanism for administrative dread"
+    },
+    {
+      "id": "link-77-grief-becomes-demand",
+      "source": "rx-grief-for-the-unrecorded",
+      "target": "rx-reckoning-and-residue",
+      "function": "grief accumulates into demand rather than consolation"
+    },
+    {
+      "id": "link-78-dryness-sustains-suspense",
+      "source": "aes-documentary-dryness",
+      "target": "rx-procedural-suspense",
+      "function": "flat register makes small procedural details consequential"
+    },
+    {
+      "id": "link-79-motifs-give-grief-form",
+      "source": "aes-material-erasure-motifs",
+      "target": "rx-grief-for-the-unrecorded",
+      "function": "wind, burial and drift give grief a physical grammar"
+    },
+    {
+      "id": "link-80-understatement-keeps-dread-low",
+      "source": "aes-understated-revelation",
+      "target": "rx-unease-of-forgetting",
+      "function": "revelation as clerical correction keeps dread below drama"
+    },
+    {
+      "id": "link-81-registers-stage-the-pull",
+      "source": "aes-multi-register-testimony",
+      "target": "rx-complicity",
+      "function": "register shifts let the reader feel the pull of each account"
+    },
+    {
+      "id": "link-82-scale-makes-shelter",
+      "source": "aes-vastness-and-enclosure",
+      "target": "rx-relief-of-order",
+      "function": "scale makes the archive feel like shelter and like a trap"
+    },
+    {
+      "id": "link-83-absence-asks-judgment",
+      "source": "aes-managed-absence",
+      "target": "rx-unease-of-forgetting",
+      "function": "gaps are shown without commentary so the reader supplies judgment"
+    },
+    {
+      "id": "link-84-dryness-hides-wrong-record",
+      "source": "aes-documentary-dryness",
+      "target": "trope-unreliable-ledger",
+      "function": "the register lets a wrong record look authoritative"
+    },
+    {
+      "id": "link-85-absence-embodies-theme",
+      "source": "aes-managed-absence",
+      "target": "theme-order-depends-on-forgetting",
+      "function": "formal gaps embody the theme in the reading surface"
+    },
+    {
+      "id": "link-86-registers-dramatize-conversion",
+      "source": "aes-multi-register-testimony",
+      "target": "engine-testimony-conversion",
+      "function": "voice registers dramatize a life converted into evidence"
+    },
+    {
+      "id": "link-87-scale-makes-scarcity-felt",
+      "source": "aes-vastness-and-enclosure",
+      "target": "engine-desert-scarcity",
+      "function": "spatial scale makes scarcity felt as distance"
+    },
+    {
+      "id": "link-88-procedural-pays-in-suspense",
+      "source": "rx-procedural-suspense",
+      "target": "genre-institutional-procedural",
+      "function": "the genres payoff is suspense generated by paperwork"
+    },
+    {
+      "id": "link-89-grief-drives-tragedy",
+      "source": "rx-grief-for-the-unrecorded",
+      "target": "genre-political-tragedy",
+      "function": "tragedy converts grief into public accounting"
+    },
+    {
+      "id": "link-90-relief-needs-the-threat",
+      "source": "rx-relief-of-order",
+      "target": "genre-memory-war-epic",
+      "function": "epic threat is what makes the small peace feel earned"
+    },
+    {
+      "id": "link-91-unease-uses-uncertainty",
+      "source": "rx-unease-of-forgetting",
+      "target": "genre-historiographic-speculative",
+      "function": "the genres uncertainty is the source of the unease"
+    },
+    {
+      "id": "link-92-victory-exposes-underwriting",
+      "source": "trope-victory-that-empties",
+      "target": "theme-order-depends-on-forgetting",
+      "function": "victory exposes that order was underwritten by an enemy"
+    },
+    {
+      "id": "link-93-enemy-props-the-claim",
+      "source": "trope-necessary-enemy",
+      "target": "theme-neutrality-as-claim",
+      "function": "the trope shows the claim being propped up from outside"
+    },
+    {
+      "id": "link-94-keepers-erasure-binds-obligation",
+      "source": "trope-custodian-who-forgets",
+      "target": "theme-inherited-obligation",
+      "function": "the keepers own erasure binds obligation to person, not office"
+    },
+    {
+      "id": "link-95-rule-exposed-as-ruler",
+      "source": "trope-impossible-witness",
+      "target": "theme-classification-is-rule",
+      "function": "unverifiable lives force the rule to reveal itself as ruler"
+    },
+    {
+      "id": "link-96-tragedy-needs-escalation",
+      "source": "genre-political-tragedy",
+      "target": "struct-debt-escalation",
+      "function": "tragedy requires the debt to escalate rather than resolve"
+    },
+    {
+      "id": "link-97-inquiry-uses-drift",
+      "source": "genre-archival-inquiry",
+      "target": "engine-record-drift",
+      "function": "inquiry converts drift into discoverable discrepancy"
+    },
+    {
+      "id": "link-98-historiography-treats-drift",
+      "source": "genre-historiographic-speculative",
+      "target": "engine-record-drift",
+      "function": "the genre treats drift as an epistemic condition, not an accident"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase-working-neutrality",
+      "title": "Working Neutrality",
+      "order": 1,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Institutional Procedural",
+          "role": "governing"
+        },
+        {
+          "genre": "Archival Inquiry",
+          "role": "supporting"
+        },
+        {
+          "genre": "Desert Survival",
+          "role": "background"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "fear",
+            "disgust",
+            "surprise"
+          ],
+          "trope_functions": [
+            "bureaucratic recusal performed as competence",
+            "authoritative error accepted as ordinary"
+          ],
+          "structural_function": "establishes the case unit and the cost of a ruling"
+        },
+        {
+          "genre_node_id": "genre-archival-inquiry",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "sealed testimony introduced as routine custody"
+          ],
+          "structural_function": "plants discrepancies that later justify reopening"
+        },
+        {
+          "genre_node_id": "genre-desert-survival",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "impossible witness established by distance and cost"
+          ],
+          "structural_function": "fixes material limits on who can be recorded"
+        }
+      ],
+      "reader_experience": "The reader moves through procedural suspense, relief that order holds, and unease at order built on forgetting.",
+      "aesthetic": "The register draws on documentary dryness, vastness and enclosure, and managed absence.",
+      "narrative_function": "Establish the archive as competent, unglamorous and necessary. Forgetting should appear as the unavoidable cost of scale rather than as a policy, so the reader's first unease is diffuse and deniable.",
+      "transition": "A claim that procedure cannot classify without admitting a choice forces the orders into explicit justification.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase-first-claim",
+      "title": "The First Claim",
+      "order": 2,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Institutional Procedural",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Political Tragedy",
+          "role": "supporting"
+        },
+        {
+          "genre": "Archival Inquiry",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "fear",
+            "anger"
+          ],
+          "trope_functions": [
+            "impossible witness tested against admissibility",
+            "double bookkeeping used to absorb a claim"
+          ],
+          "structural_function": "converts background absence into a live case"
+        },
+        {
+          "genre_node_id": "genre-archival-inquiry",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "authoritative error discovered in an existing entry"
+          ],
+          "structural_function": "shows that a settled record can be contested from inside"
+        },
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "sadness",
+            "anger"
+          ],
+          "trope_functions": [
+            "redacted return staged as a claim rather than a reunion"
+          ],
+          "structural_function": "introduces the cost of absorption to a specific party"
+        }
+      ],
+      "reader_experience": "The reader moves through unease at order built on forgetting, grief for the unrecorded, and procedural suspense.",
+      "aesthetic": "The register draws on understated revelation and multi-register testimony.",
+      "narrative_function": "Show that the erased can appear as a claimant and that the procedure's first instinct is to absorb rather than answer. The reader should feel the relief of a working process and the first suspicion that the process is the problem.",
+      "transition": "Absorption works too well; the orders formalize the standard that made absorption possible, converting precedent into policy.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase-hardening-of-procedure",
+      "title": "Hardening of Procedure",
+      "order": 3,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Institutional Procedural",
+          "role": "governing"
+        },
+        {
+          "genre": "Historiographic Speculative",
+          "role": "supporting"
+        },
+        {
+          "genre": "Desert Survival",
+          "role": "background"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "fear",
+            "disgust"
+          ],
+          "trope_functions": [
+            "recusal formalized into a rule that decides outcomes",
+            "sealed testimony made standard practice"
+          ],
+          "structural_function": "turns forgetting from oversight into policy"
+        },
+        {
+          "genre_node_id": "genre-historiographic-speculative",
+          "basic_emotions": [
+            "surprise",
+            "disgust"
+          ],
+          "trope_functions": [
+            "custodian who forgets the reason for a rule"
+          ],
+          "structural_function": "exposes that the standard was authored and can be re-authored"
+        },
+        {
+          "genre_node_id": "genre-desert-survival",
+          "basic_emotions": [
+            "sadness"
+          ],
+          "trope_functions": [
+            "copying decisions forced by scarcity of media"
+          ],
+          "structural_function": "makes drift a material consequence of policy"
+        }
+      ],
+      "reader_experience": "The reader moves through unease at order built on forgetting and complicity.",
+      "aesthetic": "The register draws on documentary dryness and managed absence.",
+      "narrative_function": "Convert forgetting from accident into policy. The archive should now be visibly defending a version of itself, and the reader should recognize their own willingness to let it.",
+      "transition": "An external campaign against the archive supplies a threat the orders can point to instead of an argument they must make.",
+      "parallel_with": [
+        "phase-enemy-consolidation"
+      ]
+    },
+    {
+      "id": "phase-enemy-consolidation",
+      "title": "Enemy Consolidation",
+      "order": 4,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Political Tragedy",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Memory-War Epic",
+          "role": "supporting"
+        },
+        {
+          "genre": "Institutional Procedural",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "fear",
+            "anger"
+          ],
+          "trope_functions": [
+            "necessary enemy accepted as a fact of the world"
+          ],
+          "structural_function": "supplies the external justification the orders require"
+        },
+        {
+          "genre_node_id": "genre-memory-war-epic",
+          "basic_emotions": [
+            "fear",
+            "surprise"
+          ],
+          "trope_functions": [
+            "war horizon made credible through lost copies and restricted access"
+          ],
+          "structural_function": "raises the cost ceiling without spending the war"
+        },
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "disgust"
+          ],
+          "trope_functions": [
+            "double bookkeeping justified as emergency practice"
+          ],
+          "structural_function": "shows procedure bending around the threat it is said to resist"
+        }
+      ],
+      "reader_experience": "The reader moves through relief that order holds, unease at order built on forgetting, and procedural suspense.",
+      "aesthetic": "The register draws on vastness and enclosure, and understated revelation.",
+      "narrative_function": "Make deterrence seductive. The orders become the thing standing between the archive and a war over memory, and the reader should feel genuine relief at that, which is what the later vacuum will take away.",
+      "transition": "The threat becomes credible enough that internal disagreement about neutrality turns into a loyalty test.",
+      "parallel_with": [
+        "phase-hardening-of-procedure"
+      ]
+    },
+    {
+      "id": "phase-divided-custody",
+      "title": "Divided Custody",
+      "order": 5,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Institutional Procedural",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Political Tragedy",
+          "role": "supporting"
+        },
+        {
+          "genre": "Historiographic Speculative",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "anger",
+            "fear"
+          ],
+          "trope_functions": [
+            "rival readings of the same standard",
+            "sealed testimony claimed by two custodians"
+          ],
+          "structural_function": "makes the orders an object of interpretation rather than inheritance"
+        },
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "anger",
+            "sadness"
+          ],
+          "trope_functions": [
+            "inherited oath set against the claim of the excluded"
+          ],
+          "structural_function": "forces cost to be allocated between keepers, not only to claimants"
+        },
+        {
+          "genre_node_id": "genre-historiographic-speculative",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "authoritative error shown to favour one faction"
+          ],
+          "structural_function": "reveals that drift and interest can share a result"
+        }
+      ],
+      "reader_experience": "The reader moves through complicity, unease at order built on forgetting, and grief for the unrecorded.",
+      "aesthetic": "The register draws on multi-register testimony and documentary dryness.",
+      "narrative_function": "Split the keepers over what neutrality permits. The reader should see that sincere people can defend incompatible orders, and that the dispute is about authority rather than about facts.",
+      "transition": "Both factions prepare for the campaign, which is also preparation for the argument they will have after it.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase-approach-of-war",
+      "title": "Approach of War",
+      "order": 6,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Memory-War Epic",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Political Tragedy",
+          "role": "supporting"
+        },
+        {
+          "genre": "Desert Survival",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-memory-war-epic",
+          "basic_emotions": [
+            "fear",
+            "anger"
+          ],
+          "trope_functions": [
+            "necessary enemy becomes an immediate operational threat"
+          ],
+          "structural_function": "brings the horizon close without resolving it"
+        },
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "sadness",
+            "fear"
+          ],
+          "trope_functions": [
+            "oath tested by the cost of keeping it"
+          ],
+          "structural_function": "converts institutional preparation into personal obligation"
+        },
+        {
+          "genre_node_id": "genre-desert-survival",
+          "basic_emotions": [
+            "sadness",
+            "fear"
+          ],
+          "trope_functions": [
+            "witnesses and records cannot both be moved"
+          ],
+          "structural_function": "makes the war's cost material before it is decided"
+        }
+      ],
+      "reader_experience": "The reader moves through procedural suspense, relief that order holds, and grief for the unrecorded.",
+      "aesthetic": "The register draws on vastness and enclosure, and material motifs of drift and burial.",
+      "narrative_function": "Make the war's cost material: records moved, copies lost, witnesses who cannot travel. Victory later must have something concrete to be measured against.",
+      "transition": "The campaign is defeated. The orders that depended on it lose their external justification at the moment they are strongest.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase-campaign-ends",
+      "title": "The Campaign Ends",
+      "order": 7,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Political Tragedy",
+          "role": "governing"
+        },
+        {
+          "genre": "Institutional Procedural",
+          "role": "supporting"
+        },
+        {
+          "genre": "Memory-War Epic",
+          "role": "background"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "joy",
+            "sadness"
+          ],
+          "trope_functions": [
+            "victory that empties the struggle of its justification"
+          ],
+          "structural_function": "delivers the authored hinge without resolving the debt"
+        },
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "surprise",
+            "fear"
+          ],
+          "trope_functions": [
+            "triumph recorded in the same flat register as any other intake"
+          ],
+          "structural_function": "shows the institution absorbing its own victory as procedure"
+        },
+        {
+          "genre_node_id": "genre-memory-war-epic",
+          "basic_emotions": [
+            "fear"
+          ],
+          "trope_functions": [
+            "enemy removed rather than replaced"
+          ],
+          "structural_function": "forecloses the easy sequel of a larger replacement threat"
+        }
+      ],
+      "reader_experience": "The reader moves through relief that order holds, complicity, and unease at order built on forgetting.",
+      "aesthetic": "The register draws on understated revelation and managed absence.",
+      "narrative_function": "Deliver the author's fixed anchor: the Warden's long campaign ends in victory. Treat the win as a structural hinge, not a resolution: the justification disappears and the debts do not. Do not stage campaign events, tactics or aftermaths beyond the victory itself.",
+      "transition": "With no enemy to justify them, the orders must argue from their own record to people whose lives that record never held.",
+      "parallel_with": []
+    },
+    {
+      "id": "phase-vacuum-of-justification",
+      "title": "Vacuum of Justification",
+      "order": 8,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Political Tragedy",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Institutional Procedural",
+          "role": "supporting"
+        },
+        {
+          "genre": "Historiographic Speculative",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "fear",
+            "anger"
+          ],
+          "trope_functions": [
+            "oath defended with no threat left to point at"
+          ],
+          "structural_function": "converts external defense into internal accounting"
+        },
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "disgust",
+            "fear"
+          ],
+          "trope_functions": [
+            "recusal used to avoid answering rather than to appear fair"
+          ],
+          "structural_function": "reveals the neutrality claim as labor with no cover"
+        },
+        {
+          "genre_node_id": "genre-historiographic-speculative",
+          "basic_emotions": [
+            "surprise"
+          ],
+          "trope_functions": [
+            "the written justification is found to postdate the practice"
+          ],
+          "structural_function": "makes the orders historically authored in front of the reader"
+        }
+      ],
+      "reader_experience": "The reader moves through unease at order built on forgetting, complicity, and grief for the unrecorded.",
+      "aesthetic": "The register draws on documentary dryness and understated revelation.",
+      "narrative_function": "Make the orders' self-justification visible as work. Every defense of neutrality should reveal a choice someone made, and the reader should feel the archive's authority thinning without collapsing.",
+      "transition": "The erased stop being a category the archive manages and become a party the archive must negotiate with.",
+      "parallel_with": [
+        "phase-debt-as-counterparty"
+      ]
+    },
+    {
+      "id": "phase-debt-as-counterparty",
+      "title": "The Debt as Counterparty",
+      "order": 9,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Political Tragedy",
+          "role": "governing"
+        },
+        {
+          "genre": "Archival Inquiry",
+          "role": "supporting"
+        },
+        {
+          "genre": "Institutional Procedural",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "anger",
+            "sadness"
+          ],
+          "trope_functions": [
+            "redacted return with standing rather than restoration"
+          ],
+          "structural_function": "converts debt into negotiable claim"
+        },
+        {
+          "genre_node_id": "genre-archival-inquiry",
+          "basic_emotions": [
+            "surprise",
+            "fear"
+          ],
+          "trope_functions": [
+            "impossible witness finally admissible on changed terms"
+          ],
+          "structural_function": "shows that admissibility, not evidence, was the barrier"
+        },
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "disgust"
+          ],
+          "trope_functions": [
+            "double bookkeeping produced as the price of settlement"
+          ],
+          "structural_function": "reveals that the settlement already concedes an unpaid remainder"
+        }
+      ],
+      "reader_experience": "The reader moves through grief for the unrecorded, complicity, and reckoning and residue.",
+      "aesthetic": "The register draws on multi-register testimony and managed absence.",
+      "narrative_function": "Convert debt into a claim with terms. What is owed cannot be settled by adding records alone, because authority over recording is the thing in dispute, and the reader should be able to name that distinction.",
+      "transition": "Settlement is attempted on terms the archive can survive, which means the settlement cannot be complete.",
+      "parallel_with": [
+        "phase-vacuum-of-justification"
+      ]
+    },
+    {
+      "id": "phase-settlement-and-residue",
+      "title": "Settlement and Residue",
+      "order": 10,
+      "scope": "series",
+      "genres": [
+        {
+          "genre": "Historiographic Speculative",
+          "role": "locally_dominant"
+        },
+        {
+          "genre": "Political Tragedy",
+          "role": "supporting"
+        },
+        {
+          "genre": "Institutional Procedural",
+          "role": "supporting"
+        }
+      ],
+      "genre_activations": [
+        {
+          "genre_node_id": "genre-historiographic-speculative",
+          "basic_emotions": [
+            "sadness",
+            "surprise"
+          ],
+          "trope_functions": [
+            "the archive's own account admits it authored its neutrality"
+          ],
+          "structural_function": "makes the series' record-keeping an explicit theme rather than a frame"
+        },
+        {
+          "genre_node_id": "genre-political-tragedy",
+          "basic_emotions": [
+            "sadness",
+            "joy"
+          ],
+          "trope_functions": [
+            "victory that empties, now paid forward as obligation"
+          ],
+          "structural_function": "delivers a settlement with visible winners and recorded losers"
+        },
+        {
+          "genre_node_id": "genre-institutional-procedural",
+          "basic_emotions": [
+            "disgust",
+            "fear"
+          ],
+          "trope_functions": [
+            "residue entered into the record as an unpaid obligation"
+          ],
+          "structural_function": "institutionalizes the remainder instead of resolving it"
+        }
+      ],
+      "reader_experience": "The reader moves through reckoning and residue, unease at order built on forgetting, and relief that order holds.",
+      "aesthetic": "The register draws on managed absence, documentary dryness, and material motifs of drift and burial.",
+      "narrative_function": "End on acknowledged residue: some obligations are recorded as unpaid, and the unease the author asked for persists knowingly rather than resolving into absolution. The reader should be able to enumerate what was settled and what was not.",
+      "transition": "No further transition is required. If the series continues beyond this phase, continuation must inherit the residue rather than discharge it.",
+      "parallel_with": []
+    }
+  ],
+  "open_questions": [
+    "Is erasure irreversible, with records destroyed, or recoverable, with records withheld? The architecture currently assumes irreversible by default with partial reconstruction, and that assumption sets the ceiling on repair.",
+    "Is the desert archive one institution or a network of archives with rival orders? This decides whether neutrality can be local and whether the memory war is civil or external.",
+    "Are the orders a written canon or a performed tradition? This decides how amendment, schism and succession can plausibly work, and how visible the neutrality claim is to ordinary people.",
+    "Is the memory war literal, with records as war aims, or is it contested history only? This sets how much weight the memory-war epic can carry without turning the series into a war narrative.",
+    "May the series ever show an exclusion that is defensible? If every exclusion must be unjust, neutrality becomes mere hypocrisy; if some are defensible, the intended unease becomes genuinely tragic.",
+    "Does the Warden remain a party after the Book 26 victory? The architecture currently assumes the victory removes the enemy role rather than recycling the same antagonist as a later threat.",
+    "Are keepers beneficiaries of the orders or captive servants of them? This changes whose complicity the reader is asked to share, and whether reform costs the keepers status or safety.",
+    "May the erased speak through specific representatives, or must the claim stay collective? The architecture keeps it collective at first and does not decide whether it narrows to a named party later.",
+    "May the ending leave debt unpaid? The architecture proposes acknowledged residue; the author may require actual discharge, which would change the final phase's whole payoff logic.",
+    "Does the forty-Book horizon permit generational time jumps? The relay structure assumes it does; if not, succession must compress into one keeper's lifetime and the recurrence rate of the case unit changes.",
+    "May the reader ever be given a record that is definitively true? If yes, unease can resolve into judgment; if no, the series risks relativism and must work harder to keep accountability traceable.",
+    "Is the Book 26 victory military, political or evidentiary? The architecture treats it abstractly, but the mechanism determines what the justification vacuum can actually do in the following phases."
+  ],
+  "emotion_targets": [
+    {
+      "id": "emo-fear-of-unrecorded-life",
+      "emotion": "fear",
+      "role": "primary",
+      "intended_effect": "The reader dreads the archive's verdict as a threat that could fall on anyone, including themselves, and learns to fear classification rather than violence.",
+      "eliciting_condition": "A routine adjudication in which a life's admissibility turns on a procedural detail nobody can supply, such as a missing witness, an inadmissible language, or an unverified copy.",
+      "aesthetic_strategy": "Documentary dryness with clinical detail: the flatness makes the threat feel administrative, so fear attaches to paperwork instead of to a threatening figure.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-disgust-at-neutral-machinery",
+      "emotion": "disgust",
+      "role": "primary",
+      "intended_effect": "The reader is repelled by the machinery of impartiality itself, not by a villain, and begins to hear the word neutral as a claim rather than a description.",
+      "eliciting_condition": "A scrupulously fair procedure produces an outcome that is visibly unjust while every participant behaves correctly and can defend their conduct.",
+      "aesthetic_strategy": "Understated revelation and managed absence: the reader is shown the clean surface and the gap it conceals, so revulsion comes from noticing rather than from being told.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-sadness-for-the-unrecorded",
+      "emotion": "sadness",
+      "role": "primary",
+      "intended_effect": "The reader grieves lives that never became records, and the grief accumulates across the series instead of being discharged by any single loss.",
+      "eliciting_condition": "Repeated encounters with absence that has left a trace: a catalogue number without a record, a name in a margin, a copy that exists only as a reference.",
+      "aesthetic_strategy": "Material motifs of drift and burial give grief a physical grammar, so it attaches to sand, fading and travel rather than to invented biography.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-anger-at-the-orders",
+      "emotion": "anger",
+      "role": "supporting",
+      "intended_effect": "The reader wants to hold the orders accountable as an authored arrangement, not as an unfortunate inheritance, and directs anger at justification rather than at fate.",
+      "eliciting_condition": "A defense of neutrality that reveals a choice someone made and benefited from, delivered in the register of inevitability.",
+      "aesthetic_strategy": "Documentary dryness exposes the gap between the calm wording of a rule and the cost it allocates, letting anger arrive through comparison rather than accusation.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-surprise-at-contingency",
+      "emotion": "surprise",
+      "role": "supporting",
+      "intended_effect": "The reader is startled to discover that the archive's neutrality was decided rather than found, and re-reads earlier competence as construction.",
+      "eliciting_condition": "A revelation that a foundational practice has a date, an author, or a dispute behind it, disclosed as a clerical or custodial detail.",
+      "aesthetic_strategy": "Understated revelation: the disclosure arrives as a correction in a record the reader already trusts, so surprise comes from reinterpreting what was already seen.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-joy-of-being-recorded",
+      "emotion": "joy",
+      "role": "local",
+      "intended_effect": "The reader feels the genuine relief and joy of being recorded, which makes the archive's power desirable and prevents the series from becoming a one-note indictment.",
+      "eliciting_condition": "A claimant is admitted, a name is entered, or a life becomes legible to an institution that will now protect it in some small way.",
+      "aesthetic_strategy": "Restraint releases briefly: a plain sentence, a completed form, an unremarkable entry given weight by the surrounding dryness.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-joy-of-order-holding",
+      "emotion": "joy",
+      "role": "contrasting",
+      "intended_effect": "The reader takes pleasure in an order that works and prevents a war, so that the later accounting costs them something they actually valued.",
+      "eliciting_condition": "A moment when the archive's procedure visibly averts escalation, protects a record from seizure, or keeps a dispute inside argument rather than force.",
+      "aesthetic_strategy": "Vastness and enclosure make the archive feel like shelter, and procedural competence is staged as genuinely satisfying craft.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-fear-of-memory-war",
+      "emotion": "fear",
+      "role": "supporting",
+      "intended_effect": "The reader fears the war over memory enough to accept the orders as a lesser evil, and notices later that this fear was also an argument used against claimants.",
+      "eliciting_condition": "Evidence of what a memory war costs: records seized, copies destroyed, access refused, witnesses stranded, and disputes that leave argument for force.",
+      "aesthetic_strategy": "Multi-register testimony shows the same loss in official, personal and hostile accounts, so the threat feels documented rather than declared.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-sadness-of-inherited-loss",
+      "emotion": "sadness",
+      "role": "supporting",
+      "intended_effect": "The reader feels the specific sadness of successors who must answer for losses they did not cause and cannot fully repair.",
+      "eliciting_condition": "A keeper inherits a standard, an oath, or an unresolved claim and discovers what it cost someone who is no longer present to be asked.",
+      "aesthetic_strategy": "Vastness and enclosure stage the keeper alone with a record that outlasts the person who made it, letting scale carry the sadness.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-anger-at-oath-betrayal",
+      "emotion": "anger",
+      "role": "local",
+      "intended_effect": "The reader feels sharp anger when a sworn standard is exposed as a convenience, and registers that the betrayal is institutional rather than personal.",
+      "eliciting_condition": "A keeper's oath is shown to have been written, amended or waived in a way that served the institution's authority while claiming continuity.",
+      "aesthetic_strategy": "Documentary dryness lets the betrayal appear as a version difference between two texts rather than as a confrontation.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-fear-of-victory-vacuum",
+      "emotion": "fear",
+      "role": "supporting",
+      "intended_effect": "The reader fears what happens to an institution that has won and lost its reason, and expects the accounting to be worse than the war.",
+      "eliciting_condition": "After the campaign's victory, the orders must justify themselves with no external threat available, and the first attempts sound hollow to the people hearing them.",
+      "aesthetic_strategy": "Managed absence does the work: the missing enemy is felt as a structural hole in every justification that follows.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-surprise-at-record-reversal",
+      "emotion": "surprise",
+      "role": "local",
+      "intended_effect": "The reader is surprised by a record turning out otherwise than its authority implied, and learns to read every confident entry as provisional.",
+      "eliciting_condition": "A sealed, authoritative or inherited record is shown to contain a different account than the one the archive has been acting on.",
+      "aesthetic_strategy": "Multi-register testimony stages the competing accounts side by side, so the surprise is produced by juxtaposition rather than by a twist.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-sadness-at-repair-limit",
+      "emotion": "sadness",
+      "role": "local",
+      "intended_effect": "The reader grieves the limit of repair, accepting that a settlement can be real and still insufficient, which is the emotional honesty the premise requires.",
+      "eliciting_condition": "A settlement is reached that restores standing to some claimants while explicitly recording others as permanently unpaid.",
+      "aesthetic_strategy": "Managed absence and documentary dryness let the remainder be stated plainly in the record, so sadness comes from the entry rather than from commentary.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-joy-of-partial-settlement",
+      "emotion": "joy",
+      "role": "supporting",
+      "intended_effect": "The reader feels real relief at a partial settlement, so the series can end with something gained rather than only with loss acknowledged.",
+      "eliciting_condition": "A claim that was previously inadmissible becomes admissible, and a specific obligation is formally accepted by the institution that denied it.",
+      "aesthetic_strategy": "Restraint breaks once: a plain procedural sentence carries the weight, and the dryness around it makes the concession feel earned.",
+      "provenance": "agent_proposed"
+    },
+    {
+      "id": "emo-fear-of-deciding",
+      "emotion": "fear",
+      "role": "local",
+      "intended_effect": "The reader fears the position of the decider, recognizing that anyone who rules will produce exclusion, which converts sympathy for keepers into discomfort.",
+      "eliciting_condition": "A keeper must rule on a case where every available decision violates something the keeper believes, and deferral is itself a ruling.",
+      "aesthetic_strategy": "Understated revelation keeps the moment quiet: the reader watches a hand complete a form rather than a figure make a speech.",
+      "provenance": "agent_proposed"
+    }
+  ],
+  "complex_emotions": [
+    {
+      "id": "cx-governing-unease",
+      "title": "Governing Unease",
+      "basic_emotions": [
+        "fear",
+        "disgust",
+        "sadness"
+      ],
+      "context": "The compound the author names as unease: fear that the archive's verdict could fall on anyone, disgust that impartial machinery produces it, and sadness for the lives it has already cost. Interpreted here as a reading posture rather than a clinical state, and it is strongest when the reader cannot locate a single party to blame."
+    },
+    {
+      "id": "cx-complicity",
+      "title": "Complicity",
+      "basic_emotions": [
+        "joy",
+        "disgust"
+      ],
+      "context": "Pleasure at an institution that spares the reader from deciding, curdling into revulsion when the reader notices the cost of that relief. The joy is real, which is why the disgust has somewhere to come from; this is the hinge emotion between early comfort and late reckoning."
+    },
+    {
+      "id": "cx-institutional-faith",
+      "title": "Institutional Faith",
+      "basic_emotions": [
+        "joy",
+        "fear"
+      ],
+      "context": "Trust in an order that is sustained by the threat it guards against, so that reassurance and dread arrive together. Interpreted as the emotional signature of deterrence rather than as a claim about how belief works."
+    },
+    {
+      "id": "cx-archival-grief",
+      "title": "Archival Grief",
+      "basic_emotions": [
+        "sadness",
+        "anger"
+      ],
+      "context": "Grief that refuses consolation because it has become a demand for accounting. It differs from ordinary loss by attaching to a procedure rather than to a person, and it is the emotional form the erased counterclaim takes when it acquires standing."
+    },
+    {
+      "id": "cx-vindication-emptiness",
+      "title": "Vindication Emptiness",
+      "basic_emotions": [
+        "joy",
+        "sadness"
+      ],
+      "context": "The shape of the Book 26 victory: a long campaign is won and the win removes the condition that made the struggle coherent. Joy belongs to the winners and is not fake; sadness belongs to what the win reveals about why the orders were obeyed."
+    },
+    {
+      "id": "cx-bureaucratic-revulsion",
+      "title": "Bureaucratic Revulsion",
+      "basic_emotions": [
+        "disgust",
+        "surprise"
+      ],
+      "context": "Revulsion produced by a banal administrative detail that suddenly reveals how the machinery works. Surprise is essential: the detail must be something the reader has already seen many times without registering its implication."
+    },
+    {
+      "id": "cx-inherited-shame",
+      "title": "Inherited Shame",
+      "basic_emotions": [
+        "disgust",
+        "sadness",
+        "fear"
+      ],
+      "context": "A successor's relation to orders they did not author but continue to enforce: disgust at the arrangement, sadness for what it cost, fear of what disowning it would cost them. It is not guilt about intention, since the keeper may have intended nothing."
+    },
+    {
+      "id": "cx-reckoning-dread",
+      "title": "Reckoning Dread",
+      "basic_emotions": [
+        "fear",
+        "anger",
+        "surprise"
+      ],
+      "context": "The compound of approaching an obligation that cannot be discharged by apology or by addition: fear of the terms, anger at having inherited them, and surprise at how much of the debt turns out to be about authority rather than information."
+    }
+  ],
+  "genre_contracts": [
+    {
+      "genre_node_id": "genre-institutional-procedural",
+      "role": "governing",
+      "emotion_target_ids": [
+        "emo-fear-of-unrecorded-life",
+        "emo-disgust-at-neutral-machinery",
+        "emo-surprise-at-contingency",
+        "emo-joy-of-order-holding"
+      ],
+      "complex_emotion_ids": [
+        "cx-governing-unease",
+        "cx-bureaucratic-revulsion"
+      ],
+      "trope_functions": [
+        "bureaucratic recusal as the visible ritual of impartiality",
+        "sealed testimony as the withheld stake of a case",
+        "authoritative error as the consequence of ordinary practice"
+      ],
+      "narrative_engine": "record adjudication, exercised through a renewable case unit with rotating case classes and one contested criterion per case",
+      "structural_pattern": "recursive case unit escalating into debt escalation, with nested reopening when standards change",
+      "aesthetic_strategies": [
+        "documentary dryness",
+        "understated revelation",
+        "managed absence"
+      ],
+      "payoff_expectations": [
+        "Every case must deliver a ruling whose criterion the reader can inspect and dispute.",
+        "Refusals must cost someone standing rather than spectacle, and no ruling may be correct in a way that resolves the underlying argument."
+      ]
+    },
+    {
+      "genre_node_id": "genre-political-tragedy",
+      "role": "local",
+      "emotion_target_ids": [
+        "emo-anger-at-the-orders",
+        "emo-sadness-for-the-unrecorded",
+        "emo-fear-of-victory-vacuum",
+        "emo-joy-of-partial-settlement"
+      ],
+      "complex_emotion_ids": [
+        "cx-archival-grief",
+        "cx-vindication-emptiness"
+      ],
+      "trope_functions": [
+        "necessary enemy as the prop of legitimacy",
+        "victory that empties the struggle",
+        "inherited oath as obligation without authorship"
+      ],
+      "narrative_engine": "neutrality fabrication under pressure, converting every defense of order into an allocation of cost",
+      "structural_pattern": "debt escalation culminating in a hinge that changes justification instead of clearing obligation",
+      "aesthetic_strategies": [
+        "understated revelation",
+        "multi-register testimony",
+        "documentary dryness"
+      ],
+      "payoff_expectations": [
+        "Cost must land on identifiable parties, including keepers.",
+        "The Book 26 victory must be shown as a reallocation of justification rather than a release, and no settlement may return anyone to their prior standing."
+      ]
+    },
+    {
+      "genre_node_id": "genre-archival-inquiry",
+      "role": "supporting",
+      "emotion_target_ids": [
+        "emo-surprise-at-record-reversal",
+        "emo-fear-of-deciding",
+        "emo-fear-of-unrecorded-life"
+      ],
+      "complex_emotion_ids": [
+        "cx-reckoning-dread",
+        "cx-bureaucratic-revulsion"
+      ],
+      "trope_functions": [
+        "sealed testimony reopened on changed authority",
+        "impossible witness whose failure exposes the standard",
+        "redacted return as a claim with standing"
+      ],
+      "narrative_engine": "testimony conversion and record drift, producing discrepancies that force standards to be re-argued",
+      "structural_pattern": "nested reopening with cascading precedent, bounded by institutional willingness to re-examine",
+      "aesthetic_strategies": [
+        "multi-register testimony",
+        "documentary dryness"
+      ],
+      "payoff_expectations": [
+        "Inquiry must change what a record means or who bears the burden, never merely add a fact.",
+        "Each discovery must be traceable to a custody, copying or classification decision that someone made for a reason."
+      ]
+    },
+    {
+      "genre_node_id": "genre-historiographic-speculative",
+      "role": "supporting",
+      "emotion_target_ids": [
+        "emo-surprise-at-contingency",
+        "emo-disgust-at-neutral-machinery",
+        "emo-fear-of-deciding"
+      ],
+      "complex_emotion_ids": [
+        "cx-governing-unease",
+        "cx-bureaucratic-revulsion"
+      ],
+      "trope_functions": [
+        "authoritative error as an epistemic condition",
+        "custodian who forgets the ground of a rule",
+        "double bookkeeping as an official admission"
+      ],
+      "narrative_engine": "record drift and neutrality fabrication, keeping the question of authorship attached to every record",
+      "structural_pattern": "nested reopening paired with the double ledger, ending in explicit admission of authorship",
+      "aesthetic_strategies": [
+        "managed absence",
+        "understated revelation"
+      ],
+      "payoff_expectations": [
+        "The series must eventually show that the archive's neutrality was authored, and must trace the claim to a decision, an office and a beneficiary.",
+        "Authorship must never diffuse into the claim that no one is responsible."
+      ]
+    },
+    {
+      "genre_node_id": "genre-desert-survival",
+      "role": "tertiary",
+      "emotion_target_ids": [
+        "emo-sadness-for-the-unrecorded",
+        "emo-fear-of-memory-war",
+        "emo-sadness-at-repair-limit"
+      ],
+      "complex_emotion_ids": [
+        "cx-archival-grief"
+      ],
+      "trope_functions": [
+        "impossible witness created by distance and water",
+        "redacted return carried by migration rather than by reunion"
+      ],
+      "narrative_engine": "desert scarcity and record drift, pricing every act of remembering",
+      "structural_pattern": "generational relay paced by drought, migration and media decay rather than by years",
+      "aesthetic_strategies": [
+        "material erasure motifs",
+        "vastness and enclosure"
+      ],
+      "payoff_expectations": [
+        "Material cost must constrain who can make claims, and scarcity must never be mere scenery.",
+        "Every movement of records or witnesses must cost something that could otherwise have preserved a life."
+      ]
+    },
+    {
+      "genre_node_id": "genre-memory-war-epic",
+      "role": "tertiary",
+      "emotion_target_ids": [
+        "emo-fear-of-memory-war",
+        "emo-anger-at-the-orders",
+        "emo-fear-of-victory-vacuum"
+      ],
+      "complex_emotion_ids": [
+        "cx-institutional-faith",
+        "cx-vindication-emptiness"
+      ],
+      "trope_functions": [
+        "necessary enemy held at horizon scale",
+        "victory that empties rather than replaces the threat"
+      ],
+      "narrative_engine": "memory-war deterrence and enemy dependence, with the war as a pressure reading rather than a promised confrontation",
+      "structural_pattern": "distributed climax with a hinge that forecloses a replacement enemy",
+      "aesthetic_strategies": [
+        "vastness and enclosure",
+        "multi-register testimony"
+      ],
+      "payoff_expectations": [
+        "The war must remain a horizon the series refuses to spend cheaply.",
+        "If it becomes actual, it must arrive as the consequence of a failed settlement, and its cost must be measured in lost records, lost access and stranded witnesses rather than in battle spectacle."
+      ]
+    }
+  ],
+  "genre_interactions": [
+    {
+      "id": "gi-01-procedural-reinforces-historiography",
+      "source_genre_id": "genre-institutional-procedural",
+      "target_genre_id": "genre-historiographic-speculative",
+      "kind": "reinforces",
+      "mechanism": "Case form stages the question of what a record can know as a procedural question with a ruling attached, so epistemology acquires stakes and a deadline.",
+      "risk": "Procedural closure can flatten genuine ambiguity into a solved case, making the archive look merely under-informed rather than constitutive."
+    },
+    {
+      "id": "gi-02-tragedy-constrains-procedural",
+      "source_genre_id": "genre-political-tragedy",
+      "target_genre_id": "genre-institutional-procedural",
+      "kind": "constrains",
+      "mechanism": "Tragedy forbids costless rulings, so every procedure must allocate loss to an identifiable party and cannot resolve a case by finding the right form.",
+      "risk": "Relentless cost can make the institution merely villainous and destroy the relief that the architecture needs in order to produce complicity."
+    },
+    {
+      "id": "gi-03-inquiry-enables-procedural",
+      "source_genre_id": "genre-archival-inquiry",
+      "target_genre_id": "genre-institutional-procedural",
+      "kind": "enables",
+      "mechanism": "Inquiry supplies the discrepancies, provenance questions and competing copies that give each case something to argue about beyond its own paperwork.",
+      "risk": "Inquiry can become the only plot and reduce institutional pressure to puzzle-solving, at which point the archive stops being the subject."
+    },
+    {
+      "id": "gi-04-survival-constrains-inquiry",
+      "source_genre_id": "genre-desert-survival",
+      "target_genre_id": "genre-archival-inquiry",
+      "kind": "constrains",
+      "mechanism": "Travel, water and heat ration who can appear as a witness and what evidence can be carried, so discovery is limited by logistics rather than by ingenuity.",
+      "risk": "Logistics can dominate and stall inquiry rhythm, turning structural pressure into an itinerary."
+    },
+    {
+      "id": "gi-05-epic-tensions-procedural",
+      "source_genre_id": "genre-memory-war-epic",
+      "target_genre_id": "genre-institutional-procedural",
+      "kind": "creates_tension",
+      "mechanism": "Epic scale demands stakes beyond a single case, while procedure demands jurisdiction, so every attempt to raise stakes threatens the frame that makes the series arguable.",
+      "risk": "The war horizon can swallow local stakes or remain an empty threat, either of which weakens the deterrence engine."
+    },
+    {
+      "id": "gi-06-historiography-tensions-tragedy",
+      "source_genre_id": "genre-historiographic-speculative",
+      "target_genre_id": "genre-political-tragedy",
+      "kind": "creates_tension",
+      "mechanism": "If records are authored, accountability diffuses; tragedy needs someone who can answer for the cost, so the two genres pull the series in opposite directions.",
+      "risk": "Relativism that dissolves the intended unease into the claim that no one is responsible, which contradicts the author's commitment that neutrality is a justification rather than a fact."
+    },
+    {
+      "id": "gi-07-tragedy-converges-epic",
+      "source_genre_id": "genre-political-tragedy",
+      "target_genre_id": "genre-memory-war-epic",
+      "kind": "converges",
+      "mechanism": "Both convert the past into a claim on the present, so the campaign's end can serve as a shared event: a victory for one register and an indictment in the other.",
+      "risk": "Convergence can make the war feel like the tragedy's only available climax and pull the series toward spectacle."
+    },
+    {
+      "id": "gi-08-survival-enables-epic",
+      "source_genre_id": "genre-desert-survival",
+      "target_genre_id": "genre-memory-war-epic",
+      "kind": "enables",
+      "mechanism": "Scarcity of durable copies makes records worth seizing and worth defending, which is what gives a war over memory a material object.",
+      "risk": "Material logic can imply the war is only about supply, reducing a conflict over authority to a conflict over stock."
+    },
+    {
+      "id": "gi-09-procedural-constrains-epic",
+      "source_genre_id": "genre-institutional-procedural",
+      "target_genre_id": "genre-memory-war-epic",
+      "kind": "constrains",
+      "mechanism": "Procedure is the dam: war stays a horizon while adjudication still works, so escalation is measured by procedural failure rather than by declarations.",
+      "risk": "Over-constraint can mean the promised war never arrives, which erodes the credibility the deterrence engine depends on."
+    },
+    {
+      "id": "gi-10-inquiry-reinforces-tragedy",
+      "source_genre_id": "genre-archival-inquiry",
+      "target_genre_id": "genre-political-tragedy",
+      "kind": "reinforces",
+      "mechanism": "Discoveries become the reversals tragedy spends, because a changed record changes who bears the cost without changing the institution that allocated it.",
+      "risk": "Too many reversals can make the orders look incompetent rather than interested in forgetting, which weakens the systemic argument."
+    }
+  ]
+}

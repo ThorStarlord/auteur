@@ -1,0 +1,3012 @@
+{
+  "schema_version": 1,
+  "book_number": 26,
+  "story_vision": [
+    {
+      "content": "A forty-Book series about a desert archive that decides which lives are recorded. The orders that keep the archive neutral are the only thing preventing a memory war. The intended experience is unease at how much order depends on forgetting.\n\nAccepted commitments that must not be contradicted:\n1. Book 26 ends the Warden's long campaign in victory.\n2. The archive's neutrality is the orders' justification, not a natural fact.\n3. The Series must eventually face what it owes the erased.",
+      "id": "story-vision",
+      "title": "Story Vision"
+    }
+  ],
+  "book_source": [
+    {
+      "content": "Book 26 source: the Warden's long campaign against the archive finally ends in victory. The orders that depended on having an enemy must now justify themselves to the people whose lives the archive never recorded.",
+      "group": "book-26",
+      "id": "book-26-source",
+      "title": "Book 26 source"
+    }
+  ],
+  "function": {
+    "attribution": "derived",
+    "epistemic_status": "conditional",
+    "id": "fn-hinge-of-spent-threat",
+    "interpretation": "The source fixes the event and its sequence: a long campaign ends in victory, and the orders that depended on an enemy must now justify themselves to the people the archive never recorded. The series architecture fixes what the event does to justification, and forbids it from resolving the debt, supplying a replacement threat, or restoring the status quo. The contribution added here belongs to the working revision: the victory is read as a change in the archive's competence rather than in its caseload, so what the hinge removes is the title on which the archive could decide the classes its emergency created. That reading is untested, is carried as a conditional proposal, and can be reversed without touching the source event.",
+    "pressure": "The orders must justify themselves with no external threat available, and the lapse that would have delivered the claims also removes the ground on which the archive could decide them: the war-time instruments were the archive's only title to the classes they deferred. Capacity is at its height and its authority over exactly the claims that matter is thin. Every defence available is an argument the excluded can answer, and every way of hearing them is an authored act - either a reassertion of the emergency in peacetime or the founding of an authority the archive does not have. Delay is still a ruling, and now it rules twice: it leaves an entitled class with no forum and the institution with no author. The Book keeps pressure procedural rather than spectacular: what is at stake is who may decide, which decides everything else.",
+    "question": "When the threat that justified the orders is gone, can an institution that won its war justify itself to the people whose record it never held - and when the competence to hear them expired with the emergency that deferred them, who is left with authority to found it?",
+    "refs": [
+      {
+        "id": "book-26-source",
+        "kind": "source_item"
+      },
+      {
+        "id": "thread-warden-campaign",
+        "kind": "series_node"
+      },
+      {
+        "id": "engine-victory-vacuum",
+        "kind": "series_node"
+      },
+      {
+        "id": "struct-hinge-without-reset",
+        "kind": "series_node"
+      },
+      {
+        "id": "theme-order-depends-on-forgetting",
+        "kind": "series_node"
+      },
+      {
+        "id": "asm-competence-lapsed-with-instruments",
+        "kind": "book_element"
+      }
+    ],
+    "text": "Book 26 is the series' pivot. The Warden's long campaign against the archive ends in victory, and the win removes the external threat that made the orders' neutrality worth obeying. The Book's job is not to resolve the debt but to change what the orders can argue from and who may decide what they may argue: the archive enters with an enemy to point at and with title over the classes it deferred, and leaves with an entitled class it is no longer competent to hear. The victory is genuinely won, genuinely relieving, and useless as a justification - no surrender instrument, no ruling against the campaign, no admission that neutrality was authored. What changes is not the size of the docket but the location of authority: the emergency instruments that deferred whole classes were also the archive's only competence over them, so the lapse ends a jurisdiction rather than opening a case list. The Book stages a transfer that nobody performs: capacity peaks, authority thins, and the first post-victory hearing establishes that the archive must sit and cannot decide. It may use the victory as an event and must not supply its mechanism, and it must not found the forum the later Books need."
+  },
+  "agents": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-emergency-keepers",
+      "refs": [
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-keepership-succession",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The keepers who argued for emergency practice and administered it through the campaign. They are not villains. They spent the war doing the work that kept the archive from being seized, and they are the people best placed to run a review designed so that no practice is examined.\n\nMotives: To preserve the institution that prevented the war, and to be able to say afterwards that the archive held. Their willingness to reform is sincere; it simply runs through the instruments they built, because those are the only instruments they trust.\n\nInstitutions: The orders as amended by emergency instrument, and the post-victory standard review, which belongs to them by seniority and by the fact that they are the only keepers who know how the exceptions were administered.\n\nConstraints: Their authority rests on a threat they can no longer produce. To admit that the emergency was a selection would indict the formation that made them competent, so they will accept almost any change that does not require them to name what they did."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-lapsed-claimants",
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-redacted-return",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-testimony-conversion",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The people whose files were deferred, and the descendants and custodians who carry what evidence survives. Kept collective: this Book does not name a representative and does not decide whether the claim ever narrows to a named party.\n\nMotives: A forum, not pity. They want to be a party something must answer rather than a category an institution manages, and they are willing to accept a hearing whose terms were written to exclude them because a hearing is the first thing the archive has ever had to give.\n\nInstitutions: The petition, the docket, and the lapse that ended their deferral without anyone deciding to. Their strongest instrument is a procedural accident, which means it can be reversed by another - and it has produced an entitlement that no current body can hear.\n\nConstraints: They must argue in formats built to exclude them, with evidence shaped by war-time conversion and scarcity, and their best proof is a ledger the archive does not fully trust. Standing is not restoration: nothing in this Book returns anyone to a prior position, and the entitlement they have won is one the archive has ruled itself unable to satisfy."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-ledger-keepers",
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-unreliable-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-custodian-who-forgets",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The keepers of the unofficial obligation ledger. They are the only people in the archive who can testify that a life was known and not recorded, and they are compromised by their own record's purpose.\n\nMotives: To keep what the official record could not hold, and to survive the discovery that their record was kept for a war that has ended and is now evidence in a peace they did not prepare for.\n\nInstitutions: The second ledger's custody practice and the archive's evidence rules, which admit the ledger as evidence of custody rather than of fact, and which they helped write precisely so that it would never be admissible as more.\n\nConstraints: The ledger is incomplete, expensive to use, and selective. Partial admission serves the claimants and undermines them at once, and its keepers can be asked, in public, why they wrote some names and not others."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-refusing-keepers",
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The minority who refused the emergency instruments and were marginal for the whole campaign. Their vindication arrives as an accident, which is worse for them than defeat would have been, because they cannot claim it and cannot refuse it. The clause they drafted did not merely end the emergency; it took the archive's competence over the deferred classes with it, so their fidelity to the pre-war standard has produced a class that no one may now hear.\n\nMotives: To restore the pre-war standard as quickly and completely as possible, which they experience as fidelity rather than as reaction, and to be seen to have been right without having to say so.\n\nInstitutions: The expiry clauses they drafted and lost the vote on, which have now done more than they intended, and the written orders they treat as the archive's actual constitution rather than as a settlement among offices.\n\nConstraints: Their standard is also the standard that excluded the claimants. Vindication now looks like opportunism, restoring the old rule would re-admit people without answering them, and leaving the lapse alone leaves those people entitled and unheard. The faction that opposed the emergency has no way to be both right and just."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-sheltered-populations",
+      "refs": [
+        {
+          "id": "rx-relief-of-order",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-memory-war-deterrence",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-desert-survival",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The populations that accepted the orders as shelter because the war was real to them. They are the constituency that makes hardening popular, and they are not fools: the archive did keep a war away from them.\n\nMotives: To keep the peace the procedure secured, which they do not experience as complicity, and to prevent a settlement that trades their protection for someone else's standing.\n\nInstitutions: Access rights, water allocations and travel permissions tied to archive standing, which are the material form the orders take in ordinary lives.\n\nConstraints: Their safety was the argument used against claimants, so every concession looks to them like a payment made out of their security. They can be told the truth about the archive and still reasonably prefer it to the alternative."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "agent-successor-keeper",
+      "refs": [
+        {
+          "id": "engine-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-inherited-oath",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-generational-relay",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The keeper-designate who will inherit the post-victory argument. Their role is a position and an obligation, not a dynasty; the Book gives them no biography, only a formation that took place entirely under threat.\n\nMotives: To hand on a practice that still works, and to be worthy of predecessors who are no longer present to be questioned. They would rather be loyal than be right, which is the disposition the relay selects for.\n\nInstitutions: The relay, the oath, and a standard review they will chair without having seen the archive before the threat existed.\n\nConstraints: No memory of an uncontested archive, no first-hand grounds for the justification they must defend, and no authority to disown the formation that produced them. If they win the argument, they will have won it by method, which does not settle anything."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "agent-warden-victor",
+      "refs": [
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        },
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-enemy-dependence",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The campaign's victor, used here as the source of a victory rather than as a character. The Book needs the Warden only for the fact that the war ended and for the problem that the ending produces inside the archive: a win in a register the institution does not admit. No post-victory demand, appearance or settlement claim is staged, because whether the Warden remains a party is an author decision this Book leaves open.\n\nMotives: To end the archive's authority over record, which the campaign treats as a power disguised as a duty. Victory was the means. What the victor wants from a world in which the archive no longer decides which lives are recorded is not defined here and is not decided by this Book.\n\nInstitutions: The campaign itself, which after victory has no object and must dissolve, convert into a claimant, or become a new authority. The Book shows the archive preparing for all three without choosing among them.\n\nConstraints: A victor has no standing in a procedure built to adjudicate records. The campaign won in a register the archive does not admit, so its account can enter the archive only if someone inside the archive first rules it admissible - which puts the winner's own victory behind the standard the winner fought."
+    }
+  ],
+  "inherited": [
+    {
+      "attribution": "derived",
+      "epistemic_status": "conditional",
+      "id": "inh-debt-must-be-faced",
+      "interpretation": "The commitment is that the facing must happen. Placing the beginning of the facing at the hinge, rather than later, is this Book's inference from the series architecture's own sequencing. Reading the hinge as the moment the debt acquires an entitlement without a forum is the working revision's inference, and is carried as conditional rather than as a series commitment.",
+      "refs": [
+        {
+          "id": "story-vision",
+          "kind": "source_item"
+        },
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-debt-escalation",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The series must eventually face what it owes the erased. Book 26 begins that facing and must not complete it: the debt becomes a party whose terms cannot yet be negotiated, because the body that could negotiate them does not exist. Anything in this Book that appears to discharge the obligation is a misreading, and anything that appears to constitute a forum for it is a scope breach."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "inh-double-ledger",
+      "interpretation": "The series architecture supplies the second surface and its unreliability requirement. Putting it into play at the hinge, through the discovery that it was kept for the war, is this Book's choice; the series only requires that it stay expensive and contested.",
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-double-bookkeeping",
+          "kind": "series_node"
+        }
+      ],
+      "text": "An unofficial obligation ledger runs alongside the public record: partial, unofficial, inadmissible, and unreliable. Book 26 inherits it as the archive's second accounting surface, and must keep it expensive to use and contested, so that it cannot become an oracle that resolves disputes cheaply."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "inh-neutrality-claim",
+      "interpretation": "The vision states the commitment. Reading the victory as an event that strips the claim of its prop, so the claim becomes audible as a claim, is this Book's design.",
+      "refs": [
+        {
+          "id": "story-vision",
+          "kind": "source_item"
+        },
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The archive's neutrality is the orders' justification, not a natural fact. Book 26 may show the justification failing to hold under the loss of its external prop, but it may not replace the claim with a natural fact, and it may not let a good keeper restore integrity, because integrity was never the contested property."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "inh-relay",
+      "interpretation": "The relay and its knowledge asymmetry are the series architecture's. Handing the argument over during the hinge, so the successor's lack of grounds becomes visible in the same Book that removes the grounds, is this Book's staging decision.",
+      "refs": [
+        {
+          "id": "engine-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-generational-relay",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Keepers inherit conclusions without the grounds that made them seem necessary. The keeper who will carry the post-victory argument is already in formation during this Book, and the Book hands the argument to them before they are ready, which is the relay's ordinary condition rather than a crisis in it."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "inh-victory-anchor",
+      "interpretation": "The source fixes the event and its position in the series. Treating the event as a justification change rather than a climax, and refusing to invent a mechanism for it, is this Book's choice rather than the source's claim.",
+      "refs": [
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        },
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-victory-that-empties",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The campaign ends in victory at Book 26. The Book may use the event and must not supply its mechanism: no tactics, no campaign chronology, and no outcome beyond the win. The victory must be genuinely won and genuinely valuable, because the accounting only costs the reader something if the relief was real."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "inh-war-latent",
+      "interpretation": "The architecture sets the horizon and forbids spending it. This Book's contribution is to keep the risk intact while removing the credibility of the threat, so the horizon survives the campaign's end without a replacement.",
+      "refs": [
+        {
+          "id": "thread-memory-war-risk",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-memory-war-epic",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The memory war stays a horizon. Book 26 removes the campaign and must not remove the risk or replace it with another. The war's plausibility continues to be measured in lost copies, stranded witnesses and restricted access, never in declarations or battles."
+    }
+  ],
+  "engines": [
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From scarcity as a war constraint to scarcity as the allocator of the settlement's agenda; remembering is priced, and the price decides who is owed first.",
+      "choice": null,
+      "condition": "Duplication and transport capacity that emergency practice had devoted to the campaign's records is released, and durable media remain scarce.",
+      "consequence": "The order in which claims can even be evidenced is set by what travels cheaply, and where a forum must be reached at all, that price becomes a threshold that precedes any question of merit. A claimant with one object and no copies waits behind a claimant with a portfolio, and a claimant whose evidence is a place waits behind both.",
+      "epistemic_status": "asserted",
+      "id": "eng-copying-priorities",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "engine-desert-scarcity",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-record-drift",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-desert-survival",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The war's duplication capacity is released into a peace that is still short of media. The order in which claims can even be evidenced is set by what travels cheaply, so the settlement's agenda is logistical before it is just - and after the lapse the same price also decides which claims can reach any forum at all."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From credible warning to latent risk: the escalation ceiling drops without removing the risk, and settlements must be justified by what they preserve rather than by what they prevent.",
+      "choice": null,
+      "condition": "Compliance still depends on fear of a war over memory, but the war's credibility rested on the campaign, and a spent threat cannot be re-inflated without naming a replacement enemy.",
+      "consequence": "The only remaining deterrent is the memory of what the war cost, which is a citation to the record, and the record's authority is the thing now in dispute. Each invocation of the risk costs the archive credibility, because the audience can see there is nothing behind it but the last war.",
+      "epistemic_status": "asserted",
+      "id": "eng-deterrence-after-threat",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "engine-memory-war-deterrence",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-memory-war-risk",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-enemy-dependence",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-memory-war-epic",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The archive has spent its deterrent and cannot mint another without naming a replacement enemy. What remains is the memory of the last war, cited from a record whose authority is the thing being argued about."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From an emergency that widened and deferred classes to a peace in which those classes have no home: the lapse ends the deferral and the title together, so the caseload that arrives is not larger but partly unhearable.",
+      "choice": null,
+      "condition": "The war-time instruments that widened intake, sealed testimony, accelerated classification and deferred whole claim classes were written with expiry tied to the existence of the threat, and under the working revision they were also the archive's only competence over the classes they deferred.",
+      "consequence": "Victory expires them automatically. Classes that were inadmissible by regulation rather than by ruling do not enter the docket; they lose the ground on which the archive could ever have decided them, and no ruling substitutes for it. What arrives is the ordinary business the archive was always competent for, plus a class it must now formally decline.",
+      "epistemic_status": "conditional",
+      "id": "eng-emergency-lapse",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-recursive-case-unit",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-double-bookkeeping",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The Book's central mechanism: a war-time institution writes its exceptions with an expiry, and victory triggers the expiry automatically. Under the working revision the same instrument carried the only competence the archive had over the deferred classes, so the lapse removes the exemption and the authority in one act, and the claims arrive as an entitlement no forum holds."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From neutrality asserted in speech to neutrality visible as a shape in the archive's own record; the reader can point at the gap, and so can a claimant.",
+      "choice": null,
+      "condition": "The victory must be entered in the archive's own record, and the classification holds no category for the disappearance of the threat that justified it.",
+      "consequence": "The entry is filed as the closure of a file series. The justification persists in the record with its referent deleted, so the archive's central document shows a claim about necessity with nothing in the world answering to it.",
+      "epistemic_status": "asserted",
+      "id": "eng-flat-record-of-victory",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "aes-documentary-dryness",
+          "kind": "series_node"
+        },
+        {
+          "id": "aes-managed-absence",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-custodian-who-forgets",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The victory has to be entered, and the classification has no slot for what has ended. The entry therefore preserves the justification and deletes its referent, which is the Book's clearest visible form of the theme."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From an inquiry into the orders' conduct to an inquiry into whether the archive may decide at all, with the institution's competence rather than its judgment as the thing under examination.",
+      "choice": null,
+      "condition": "Some keepers move to convert the victory into a legitimating proceeding: a hearing on whether the archive's conduct during the campaign was correct.",
+      "consequence": "Any hearing must draw witnesses from the record, and the people who could testify to what the war cost are the people the archive never recorded. Seating them requires a ruling on their admissibility first, and the ruling that follows is not about them: the archive finds that the instrument which admitted them has expired, so the hearing converts into a declaration of its own incompetence.",
+      "epistemic_status": "conditional",
+      "id": "eng-hearing-that-tries-the-standard",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "genre-institutional-procedural",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-impossible-witness",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Some keepers try to convert the victory into a ruling on the archive's own conduct. The proceeding becomes a hearing about who is entitled to be heard, and then about whether the archive may rule on that question at all - the institution's constitutive question arriving under cover of a war review and ending its own jurisdiction."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From debt that was written but unspeakable to debt that is partly admissible and still unproven, so the erased gain a forum and lose the comfort of a clean document.",
+      "choice": null,
+      "condition": "The unofficial obligation ledger was kept partly as war-preparedness, a record of what must be recovered if the archive fell, so its entries were written for a contingency that has now passed.",
+      "consequence": "With the war over the second column stops being contingency and starts being claim. Its keepers must decide whether a war ledger can serve as a peace record, and its unreliability now cuts against the people it would serve: partial admission yields contested evidence rather than proof.",
+      "epistemic_status": "asserted",
+      "id": "eng-ledger-of-preparedness",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-double-bookkeeping",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-unreliable-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-erasure-debt",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The second ledger was kept, at least partly, so the archive could rebuild itself if it fell. Its authority and its unreliability both come from that war use, and the war is over, so its entries change genre in place: contingency becomes claim."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "Neutrality's cheapest display becomes the mechanism that authorises reform, and the institution gets a change of standard with no author to hold to it.",
+      "choice": null,
+      "condition": "The post-victory review of the standard must be conducted by keepers who can claim impartiality, and the keepers most implicated are exactly those whose formation and authority were made by the campaign's necessity.",
+      "consequence": "The implicated recuse. The review falls to a keeper who never accepted that the threat justified the orders, so the first change of standard is produced by an absence rather than by an argument, and can be neither credited nor blamed.",
+      "epistemic_status": "asserted",
+      "id": "eng-review-by-recusal",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The post-victory review of the standard is decided before it opens, because the only keepers who could fairly chair it are the ones who must step aside from it. Neutrality's cheapest ritual produces the first real concession."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "The erased acquire an entitlement as a class by procedural consequence rather than by concession, and discover that the entitlement has no forum: the counterclaim becomes a right the order acknowledges and cannot satisfy.",
+      "choice": null,
+      "condition": "A claimant whose file was deferred under emergency practice petitions after the lapse, and the only ground for refusing is the threat that no longer exists - but the power to decide has expired with it.",
+      "consequence": "The hearing cannot be refused and cannot conclude. It establishes that a person the record never held can compel the archive to sit, and that the archive has nothing left to decide with. The claim is heard in the only sense the archive can still offer, which is that its absence of competence is entered against it.",
+      "epistemic_status": "conditional",
+      "id": "eng-standing-by-lapse",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-redacted-return",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "A deferred claimant petitions after the lapse, and the archive discovers that the only ground for refusing has been deleted by its own record of the victory, and that the power to grant has gone with it. The hearing that follows creates entitlement without creating a forum."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From inheritance carried by testimony to inheritance carried by method alone; the orders' defence becomes reproducible, arguable, and therefore losable.",
+      "choice": null,
+      "condition": "The keeper who will carry the post-victory argument reached authority during the campaign and has no memory of an archive that was not under threat.",
+      "consequence": "The successor cannot defend the orders by witness, only by procedure, and procedure is a form of argument the erased can use too. The relay hands on a conclusion whose grounds are absent, exactly as the succession engine predicts, and the absence becomes visible in public argument for the first time.",
+      "epistemic_status": "asserted",
+      "id": "eng-successor-without-precedent",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "engine-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-generational-relay",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-inherited-oath",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-keepership-succession",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The keeper who inherits the argument learned the orders during the campaign and has never seen them untested. They must defend by method alone, and method is a weapon the claimants can pick up too."
+    },
+    {
+      "attribution": "derived",
+      "changed_state": "From an authority that could point outward at a threat to an authority that must be argued inward, with capacity at its highest and grounds at their thinnest.",
+      "choice": null,
+      "condition": "The campaign ends in a victory that produces no instrument the archive's own procedure can admit: no surrender text, no finding against the campaign, no ruling in the archive's favour.",
+      "consequence": "The archive can record that it survived and cannot record why it was right. Every defence of the orders becomes testimony rather than citation, and a keeper who says the orders existed to prevent a war is making a claim in a room where claims must be proved.",
+      "epistemic_status": "asserted",
+      "id": "eng-victory-without-instrument",
+      "interpretation": "The source and the series architecture fix the victory and the vacuum it creates. The inference added here is that a procedural institution legitimates itself with documents, so the absence of an admissible instrument is what turns the hinge from an event into a legitimacy problem.",
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-victory-that-empties",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The victory is a subtraction of the enemy and not an instrument the archive can admit. This is the Book's master condition: the win is real, the relief is real, and the institution has nothing it can file to show why it deserved to survive."
+    },
+    {
+      "attribution": "agent_proposed",
+      "changed_state": "From authority that could be inherited with the office to authority that must be founded: the archive can no longer cite an instrument for its power to decide the war's classes, and no successor instrument exists.",
+      "choice": null,
+      "condition": "The competence over the deferred classes expired with the emergency instruments, so any body that decides those claims must first be constituted with a title the archive does not have.",
+      "consequence": "Every route to a hearing runs through someone authoring a competence. The archive can reassert the old power, which reproduces the emergency in peacetime; it can leave the class unheard, which is lawful and final; or it can help constitute a body that is not itself, which requires it to author the authority that will judge it. The following Books therefore inherit a founding problem rather than a case list, and no option lets the archive stay the neutral decider of its own war record.",
+      "epistemic_status": "conditional",
+      "id": "eng-competence-vacancy",
+      "interpretation": null,
+      "new_possibility": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The victory does not enlarge the archive's jurisdiction; it ends it for the classes the emergency created. What remains is a gap in authority that someone must fill by an act, which is the first time in the series that the archive's power has to be authored rather than cited."
+    }
+  ],
+  "assumptions": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-capacity-peaks",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-desert-scarcity",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If the campaign's end leaves the archive damaged, sacked or bankrupt, the hinge must run through scarcity rather than legitimacy, and Book 26 becomes a survival Book whose debt consequence is that claims cannot be heard at all.",
+      "text": "The archive's capacity - intake, custody, duplication, staff - is at its highest at the moment of victory, so the hinge is a legitimacy problem rather than a survival problem."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-deferred-class",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-double-bookkeeping",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If every deferral was adjudicated individually, the lapse reopens cases one at a time; there is no class standing and no single act of incapacity, and the Book's political consequence shrinks to a series of contested hearings with no party at the end of them.",
+      "text": "The war-time instruments deferred a class of claims by regulation rather than by individual ruling, so the expiry ends the deferral for the whole class at once instead of case by case."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-expiry-clauses",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If the instruments were open-ended, the lapse disappears and the claims would need an authored decision to admit them. The Book's central choice would then have to be made explicitly by someone the reader can identify, which changes the Book from procedural accident to public confrontation.",
+      "text": "The war-time instruments carried expiry tied to the existence of the threat, rather than open-ended authority renewed by the keeper's discretion."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "asm-hearing-compellable",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "reversal": "If no such right exists, the erased need a keeper to sponsor them, and the Book's central event becomes a discretionary act of grace rather than an entitlement - and with competence gone, a grace nobody has the power to perform.",
+      "text": "The archive's procedure allows a petitioner with an expired deferral to compel a hearing, because a deferral is a pending obligation rather than a closed refusal; the right survives the lapse even where the archive's power to grant anything does not."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "asm-keepers-stake",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "oad-keepers-stake",
+          "kind": "book_element"
+        },
+        {
+          "id": "theme-inherited-obligation",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If keepers are captive servants, reform threatens their safety rather than their standing, and the same scenes must read as a threat to persons; the complicity the reader is asked to share shifts from recognition to pity, which changes who the Book is about.",
+      "text": "Assuming keepers are beneficiaries of the orders rather than captive servants, this Book's keepers lose status when they lose the argument, not safety. The scenes are written so that loss of standing is the visible cost."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-ledger-unreliable",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-unreliable-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If the ledger is reliable, admitting it would settle the archive's partiality on the record, and the debt-as-counterparty movement would lose its negotiation because the claimants would already have won on evidence.",
+      "text": "The unofficial ledger is unreliable enough that partial admission yields contested rather than decisive evidence, so it cannot function as an oracle."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-no-admissible-instrument",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        }
+      ],
+      "reversal": "If an instrument exists, the archive can adjudicate the campaign and the vacuum is partly filled procedurally. The Book's pressure would shift from justification to interpretation of the instrument, and the erased would arrive as parties to a settlement already drafted without them.",
+      "text": "The victory produced no surrender, finding or agreement that the archive can admit as its own vindication."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-no-category",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        },
+        {
+          "id": "aes-managed-absence",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If such a category exists, the flat entry becomes routine and the visible gap must be produced another way - for instance by the entry's citation of a repealed instrument - or the Book loses its clearest image of a claim without a referent.",
+      "text": "The archive's classification holds no category for the disappearance of a justifying threat, because the threat's existence was the premise of the classification rather than a case within it."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-review-falls-to-skeptic",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If the remaining reviewer shared the emergency's premises, the first post-war concession would not happen through review at all, and the Book would have to produce standing through confrontation - which would make the victory hearing, not the recusal, the Book's central mechanism.",
+      "text": "The recusal leaves the standard review to a keeper who never accepted that the threat justified the orders, so the review's direction is set by the composition of the room rather than by argument."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "asm-scarcity-persists",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-desert-scarcity",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-desert-survival",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If victory releases abundance, logistics stop ordering the accounting and the settlement's agenda becomes arguable on merit. The desert-survival constraint weakens and the Book's distribution of who is heard first must be justified politically instead of materially.",
+      "text": "Durable media remain scarce after the war, and the released duplication capacity is reallocated rather than expanded enough to remove the constraint."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "asm-competence-lapsed-with-instruments",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        }
+      ],
+      "reversal": "If the deferral was merely procedural and competence over the class rested elsewhere - in the orders' standing jurisdiction, in an office that survives the emergency, or in an instrument that outlasts the war - then the lapse produces a backlog rather than a vacancy, the archive can absorb the claims as ordinary business, and Book 26 adds cases to the later Books instead of changing their conditions. That is the condition this working revision replaces.",
+      "text": "The war-time instruments that deferred whole claim classes were also the archive's only source of competence over those classes: deferral was an exercise of emergency jurisdiction rather than a scheduling decision. When the instruments expire with the threat, the competence expires with them, so the deferred class leaves the docket instead of joining it."
+    }
+  ],
+  "choice": {
+    "attribution": "agent_proposed",
+    "chosen_option_id": "opt-lapse-and-recuse",
+    "costs_kept_visible": [
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "asserted",
+        "id": "cost-no-author",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "theme-neutrality-as-claim",
+            "kind": "series_node"
+          },
+          {
+            "id": "trope-bureaucratic-recusal",
+            "kind": "series_node"
+          },
+          {
+            "id": "res-competence-declared-absent",
+            "kind": "book_element"
+          }
+        ],
+        "text": "The reform has no author, and the absence now extends past the reform to the forum. Standing arrives through an expiry clause, no keeper concedes that neutrality was a claim, and no claimant can cite a moment when the archive admitted it. Worse for the claimants than a victory and worse for the archive than a confession: the entitlement is real, and no one decided to give it and no one can decide to hear it."
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "asserted",
+        "id": "cost-victory-unrecorded",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "thread-warden-campaign",
+            "kind": "series_node"
+          },
+          {
+            "id": "engine-victory-vacuum",
+            "kind": "series_node"
+          }
+        ],
+        "text": "The victory is entered as a file closure. The Warden's account of the campaign never becomes admissible in the archive's own forum, so the outcome that ended the war is unowned inside the institution the war was against."
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "asserted",
+        "id": "cost-emergency-unjudged",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "engine-neutrality-fabrication",
+            "kind": "series_node"
+          },
+          {
+            "id": "thread-keepership-succession",
+            "kind": "series_node"
+          }
+        ],
+        "text": "The keepers who built the emergency are neither vindicated nor indicted. Their instruments lapse without a finding, which spares them personally and leaves the archive's most consequential practice unexamined by the institution that used it."
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "asserted",
+        "id": "cost-scheduling-by-scarcity",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "engine-desert-scarcity",
+            "kind": "series_node"
+          },
+          {
+            "id": "engine-record-drift",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Because capacity orders what can be brought at all, the claims that reach any forum first are the ones whose evidence travels cheaply. The Book shows who waits, and does not pretend the queue was neutral - and after the lapse the queue is not the only filter, because the class with the least mobile evidence is also the class with no forum to reach."
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "conditional",
+        "id": "cost-lawful-abandonment",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "engine-record-adjudication",
+            "kind": "series_node"
+          },
+          {
+            "id": "genre-political-tragedy",
+            "kind": "series_node"
+          },
+          {
+            "id": "asm-competence-lapsed-with-instruments",
+            "kind": "book_element"
+          }
+        ],
+        "text": "The abandonment is lawful. Nothing in the Book is done wrongly: the instruments expired as drafted, the entry is accurate, and the archive declines a class it genuinely has no title to hear. Malice would give the claimants someone to answer; a correct procedure leaves them with a decision no one can be blamed for and no one can appeal."
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "conditional",
+        "id": "cost-right-without-forum",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "thread-the-erased-counterclaim",
+            "kind": "series_node"
+          },
+          {
+            "id": "theme-debt-to-the-erased",
+            "kind": "series_node"
+          },
+          {
+            "id": "engine-erasure-debt",
+            "kind": "series_node"
+          },
+          {
+            "id": "asm-competence-lapsed-with-instruments",
+            "kind": "book_element"
+          }
+        ],
+        "text": "The claimants hold an entitlement and no place to exercise it. The debt becomes a right the order acknowledges and cannot satisfy, which is colder than refusal and stronger than pity: they can no longer be told they were never owed anything, and they cannot yet be told where to collect."
+      }
+    ],
+    "epistemic_status": "conditional",
+    "id": "choice-how-victory-becomes-authority",
+    "interpretation": null,
+    "options": [
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "hypothetical",
+        "id": "opt-victory-tribunal",
+        "refs": [
+          {
+            "id": "genre-institutional-procedural",
+            "kind": "series_node"
+          },
+          {
+            "id": "theme-classification-is-rule",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Convene a hearing on the campaign so the archive can rule on its own conduct and emerge justified by a finding rather than by survival.",
+        "interpretation": null
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "hypothetical",
+        "id": "opt-lapse-and-absorb",
+        "refs": [
+          {
+            "id": "struct-hinge-without-reset",
+            "kind": "series_node"
+          },
+          {
+            "id": "trope-bureaucratic-recusal",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Let the emergency instruments expire on their own terms and process the resulting claims as ordinary docket business, with no announcement, no doctrine and no review that names what changed.",
+        "interpretation": null
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "hypothetical",
+        "id": "opt-seal-and-hold",
+        "refs": [
+          {
+            "id": "trope-sealed-testimony",
+            "kind": "series_node"
+          },
+          {
+            "id": "thread-the-orders-legitimation",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Seal the campaign's own record, cite the archive's survival as sufficient justification, and answer claims one at a time at the pace the archive sets.",
+        "interpretation": null
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "hypothetical",
+        "id": "opt-successor-threat",
+        "refs": [
+          {
+            "id": "engine-enemy-dependence",
+            "kind": "series_node"
+          },
+          {
+            "id": "struct-hinge-without-reset",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Convert the campaign's remnants into a successor threat so deterrence can be re-established and compliance renewed.",
+        "interpretation": null
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "hypothetical",
+        "id": "opt-declare-authorship",
+        "refs": [
+          {
+            "id": "theme-neutrality-as-claim",
+            "kind": "series_node"
+          },
+          {
+            "id": "thread-the-erased-counterclaim",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Enter into the victory's own record that the neutrality claim was authored, and open the standard to amendment by the claimants themselves.",
+        "interpretation": null
+      },
+      {
+        "attribution": "agent_proposed",
+        "epistemic_status": "conditional",
+        "id": "opt-lapse-and-recuse",
+        "interpretation": null,
+        "refs": [
+          {
+            "id": "struct-hinge-without-reset",
+            "kind": "series_node"
+          },
+          {
+            "id": "trope-bureaucratic-recusal",
+            "kind": "series_node"
+          },
+          {
+            "id": "asm-competence-lapsed-with-instruments",
+            "kind": "book_element"
+          },
+          {
+            "id": "engine-record-adjudication",
+            "kind": "series_node"
+          }
+        ],
+        "text": "Let the emergency instruments expire on their own terms, enter on the archive's own record that its competence over the deferred class expired with them, and decline the class rather than absorbing it - leaving the claimants entitled, unheard, and outside any forum the archive controls."
+      }
+    ],
+    "refs": [
+      {
+        "id": "thread-the-orders-legitimation",
+        "kind": "series_node"
+      },
+      {
+        "id": "engine-victory-vacuum",
+        "kind": "series_node"
+      },
+      {
+        "id": "struct-debt-escalation",
+        "kind": "series_node"
+      },
+      {
+        "id": "asm-competence-lapsed-with-instruments",
+        "kind": "book_element"
+      }
+    ],
+    "text": "The Book's central decision is not whether to reform but what the archive does with a victory it cannot adjudicate. It can reassert the competence the emergency gave it and absorb the deferred class as ordinary business; it can seal what it has and answer claims at its own pace; it can convert the remnant into a successor threat; it can enter the authorship of its neutrality claim into the record; or it can let the lapse stand and decline the class it can no longer lawfully hear. Each is available to the same institution at the same moment, and each allocates the cost of winning differently.",
+    "transformation": {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "tr-authority-without-argument",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "From an archive whose authority was underwritten by an enemy to an archive whose authority over its own war record has lapsed while its ordinary business runs on. Capacity rises, legitimacy thins, and the people the record never held become entitled to an answer from an institution that has just ruled itself unable to give one - so authority in the later Books is something to be founded rather than defended."
+    }
+  },
+  "local_resolution": [
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "conditional",
+      "id": "res-first-hearing",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-impossible-witness",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "A claimant outside the record compels a hearing on the strength of an expired deferral. The hearing does not reach the claim. It establishes that a person the record never held can require the archive to sit, and that the archive has nothing left to decide with - so the first post-victory hearing ends in the archive's own statement of incapacity, produced by a claimant's entitlement rather than by a keeper's choice."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "conditional",
+      "id": "res-lapse-takes-effect",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-recursive-case-unit",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The emergency instruments expire by their own terms. The deferrals end for whole classes at once and nothing replaces them: the ordinary docket runs on, and the classes they covered lose the ground on which the archive could hear them. No one has to decide anything for this to happen, which is exactly why it happens."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "asserted",
+      "id": "res-ledger-as-custody",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-unreliable-ledger",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The unofficial ledger is admitted as evidence of custody, not of fact. Its entries can establish that the archive held knowledge of a life; they cannot establish the life. Claimants gain a document and lose the hope of a decisive one."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "asserted",
+      "id": "res-no-finding-against-emergency",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-custodian-who-forgets",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-order-depends-on-forgetting",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The review closes without a finding against the emergency practice. It lapses rather than being judged, so the archive's most consequential war-time decision leaves no precedent, no admission and no defendant - only a gap where the assessment of it should be."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "asserted",
+      "id": "res-recused-reviewer",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The implicated reviewer steps aside and the standard review proceeds under a keeper who never accepted the threat's necessity. The review's outcome is decided before it opens, and everyone in the room can see that the recusal, not the argument, did it. The recusing keeper loses the office that made them competent and cannot appeal a decision made in their absence."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "asserted",
+      "id": "res-successor-chairs",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-generational-relay",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The review is handed to a successor who has never known an archive without a threat. The transmission of the argument without its grounds becomes an institutional fact rather than a character's problem, and the Book ends with the orders' defence in the hands of someone who can only argue method."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "asserted",
+      "id": "res-victory-entered",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "aes-documentary-dryness",
+          "kind": "series_node"
+        },
+        {
+          "id": "aes-managed-absence",
+          "kind": "series_node"
+        },
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        }
+      ],
+      "text": "The victory is entered in the archive's own record as the closure of a file series, in the same flat register as any intake, with no category for what has ended. The Book opens here: the largest event in the institution's recent history is filed as paperwork, and the paperwork cannot say what it was for."
+    },
+    {
+      "attribution": "agent_proposed",
+      "closure": true,
+      "epistemic_status": "conditional",
+      "id": "res-competence-declared-absent",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        },
+        {
+          "id": "aes-documentary-dryness",
+          "kind": "series_node"
+        },
+        {
+          "id": "aes-managed-absence",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The archive enters on its own record that its competence over the deferred class expired with the instruments that created it. The entry is not a refusal of the claims and not a finding about them; it is the archive recording that it has no authority to rule, in the same flat register it uses for intake. The class now holds an entitlement and no forum, and the record shows exactly where the hole is - which is the one thing the later Books can cite."
+    }
+  ],
+  "series_consequences": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-classification-untouched",
+      "interpretation": null,
+      "kind": "preserves",
+      "refs": [
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-testimony-conversion",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Classification remains the act of rule. The Book changes who may be heard, not who decides what a life is, so a later settlement that leaves classification alone still cannot settle the debt. The archive's executive power is intact and now openly in question."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-deterrence-latent",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "engine-memory-war-deterrence",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-memory-war-risk",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Deterrence changes register: from a credible warning that restrains escalation to a latent risk that settlements must keep latent. The war horizon survives the campaign's end without a replacement threat, and the series' escalation ceiling drops without the risk being removed."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-emergency-unjudged",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The emergency is never judged. The keepers who built it keep their standing, and the archive's most consequential practice becomes the one thing its own procedure will not examine - so accountability later has to reach for the practice through a new case rather than through the record of what was decided."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-erased-standing",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The erased acquire entitlement without a forum. The counterclaim stops being a moral remainder and becomes a right the order acknowledges; because the archive has disqualified itself from hearing it, the right has no place to be exercised. That is a harder position than being refused, and it is the condition Books 27-30 inherit: a party that exists procedurally and cannot appear anywhere yet."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-justification-internal",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "thread-the-orders-legitimation",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The orders' justification moves from an external threat to an argument that must be made in a forum the archive does not control - or, where no forum exists, to no argument at all. Nothing about the practice changes; what changes is that the defence can no longer be made by the institution to itself, and a self-addressed justification is the only form the archive ever mastered."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-keeper-cost-absent-finding",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-keepership-succession",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The cost lands on the most implicated keeper as absence rather than as judgement: they lose the office, not the argument, and cannot answer a decision made while they were correctly excluded from it. The Book therefore produces an injured keeper and an unindicted practice at the same time."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-ledger-partly-admissible",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-erasure-debt",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Part of the second ledger becomes admissible as evidence of custody. Erasure debt becomes speakable in the archive's own forum for the first time, and remains unproven, so the debt gains a voice and loses the possibility of a clean settlement."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-neutrality-still-claim",
+      "interpretation": null,
+      "kind": "preserves",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The neutrality claim survives as a claim. The Book does not concede that it was authored, and the archive keeps authority to describe its own conduct, which preserves the late phase's admission as something still to be won rather than something already given."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-queue-allocates",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "engine-desert-scarcity",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-debt-escalation",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Scarcity allocates access to a forum. Because evidence has to travel and be copied, the claims that can be brought at all are the ones whose proof is cheap to carry, and the class the archive cannot hear is also the class least able to reach any other forum - so logistics decides who is owed first even where the order has already decided who is owed."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-reform-without-author",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Reform arrives by procedural accident and now includes the archive's own disqualification. Any later concession must either ratify a lapse nobody authored or re-author a competence the lapse removed - so the late admission of authorship has to found authority rather than confess to holding it."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-relay-grounds-absent",
+      "interpretation": null,
+      "kind": "preserves",
+      "refs": [
+        {
+          "id": "engine-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-inherited-oath",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The relay carries the argument forward without its grounds. The next keeper inherits a defensible method and no testimony, which reproduces the succession engine's condition rather than relieving it, and makes the inherited oath harder to keep because it can no longer be justified by memory."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-victory-unowned",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The victory is unowned and now also unlitigable inside the archive. A later Book that wants to adjudicate the campaign must first build a forum, because the archive has ruled that its competence over the war's record expired with the war's instruments - so the war's outcome exists in the series but not in any jurisdiction."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "sc-war-unspent",
+      "interpretation": null,
+      "kind": "preserves",
+      "refs": [
+        {
+          "id": "thread-memory-war-risk",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-memory-war-epic",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The memory war stays unspent. The victory removes the campaign, not the risk; nothing in the Book makes a war over memory less possible, only less easy to threaten with. The series keeps its horizon and loses its cheapest argument."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-competence-is-the-stake",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The series' contested object changes from records to competence. Books 27-30 cannot be about which claims the archive grants; they must be about who has authority to grant anything, because the only body holding the records has ruled itself out. The argument about order moves from what the standard decides to who may hold a standard at all."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-disability-precedent",
+      "interpretation": null,
+      "kind": "complicates",
+      "refs": [
+        {
+          "id": "trope-sealed-testimony",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-testimony-conversion",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The lapse becomes a disability precedent. Every class the emergency instruments touched - sealed testimony, accelerated classification, widened intake - can now be argued to have lost its forum with the instrument that created it, so the archive's authority over its own war record erodes class by class rather than case by case. Books 28-30 inherit an institution progressively disqualified from the period it most needs to defend."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-forum-must-be-authored",
+      "interpretation": null,
+      "kind": "changes",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-historiographic-speculative",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-the-orders-legitimation",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Any forum competent to hear the class must be authored. The series' late movement therefore cannot arrive as an internal reform; it arrives as a founding, with the authorship question the archive spent the early Books avoiding now unavoidably on the table. That is the revision's main consequence for Books 27-30: they must build an authority before they can argue about a debt."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "sc-ordinary-docket-continues",
+      "interpretation": null,
+      "kind": "preserves",
+      "refs": [
+        {
+          "id": "rx-relief-of-order",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-distributed-climax",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The archive's ordinary docket keeps running. The Book does not collapse the institution; it leaves it competent for everything except the claims its own victory created, which preserves the relief the series depends on while the debt goes unaddressed. The later Books can therefore argue with the archive rather than around its ruin."
+    }
+  ],
+  "later_possibilities": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "lp-absolution",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "trope-victory-that-empties",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-order-depends-on-forgetting",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Treating the victory as absolution is closed. The win removes the excuse and leaves the obligation, and the Book's own entry shows a claim about necessity with nothing in the world answering to it."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "lp-discharge-by-addition",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Discharging the debt by adding records is closed. The Book shows why in its own practice: coverage is not authority, and a claim that is about who decides how a life is held cannot be paid in entries."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-evidence-class-contest",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "genre-archival-inquiry",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The second ledger's partial admission can become a contested evidence class, with claimants arguing about which entries count and keepers arguing about who may authenticate them - an inquiry that cannot be resolved by better research, and after the lapse also an argument about which forum's authentication would count."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-keepers-split",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "thread-keepership-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-institutional-procedural",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The keepers can split over whether to ratify the recusal or reassert the competence it disclaims, which makes the archive's own authority the next site of conflict and gives the following Books an internal dispute with constitutional stakes rather than another docket."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-precedent-reopens",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The lapse can be cited as a disability precedent: what expired with the instruments was not only the deferral but the competence, so a later Book can reopen the question of forum for any class the emergency touched, producing the cascade the nested-reopening structure requires without requiring a keeper's curiosity."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "asserted",
+      "id": "lp-reinflate-threat",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "engine-memory-war-deterrence",
+          "kind": "series_node"
+        },
+        {
+          "id": "thread-memory-war-risk",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Re-inflating the campaign as a live deterrent is closed. The victory is public and the threat is spent; no keeper can produce it again without contradicting the record they have just closed."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "asserted",
+      "id": "lp-replacement-enemy",
+      "interpretation": "The prohibition is the series architecture's, and the Book's addition is to stage the temptation as a live option that fails rather than as an option nobody considered.",
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-enemy-dependence",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Naming a replacement external enemy to underwrite the orders again is closed. The hinge may not supply a larger threat to replace the campaign, and Book 26 forecloses the easy sequel by having the keepers consider it and find nothing they can name."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-restore-standard-silently",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Restoring the pre-war standard without deciding the lapsed claims is closed. The lapse is automatic, so reversal would be an authored act with a named author, and restoration now also leaves the class outside any competence - which makes it look like ratifying the abandonment rather than repairing it."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-review-names-author",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "genre-historiographic-speculative",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "A later standard review can be forced to name who authored the neutrality claim, now that the claim has nothing external to hide behind - and, because any forum must be founded, it must also name who authors the authority that will hear the class the archive declined."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-settlement-of-authority",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-distributed-climax",
+          "kind": "series_node"
+        },
+        {
+          "id": "oad-forum-competence",
+          "kind": "book_element"
+        }
+      ],
+      "text": "A settlement can be attempted that transfers authority over recording rather than extending coverage, which is the only form of payment the debt's terms allow. Under the revision it also requires parties capable of contracting, so Books 27-30 must constitute a forum before any settlement can be staged, and the settlement's terms become the terms on which authority was founded."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-warden-as-party",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "oad-warden-party",
+          "kind": "book_element"
+        },
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The Warden can return as a claimant with terms rather than as an enemy, if the author chooses to keep the role a party. This Book leaves the possibility open and stages nothing that would decide it."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-forum-founded-outside",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "oad-forum-competence",
+          "kind": "book_element"
+        },
+        {
+          "id": "sc-erased-standing",
+          "kind": "book_element"
+        }
+      ],
+      "text": "A forum competent to hear the class can be constituted outside the archive, so Books 27-30 can carry the claim into an authority the archive does not own. Whether such a body can exist at all is not this Book's to decide: it depends on whether the series' world holds one institution or a network of them, and the Book keeps the possibility conditional on that answer."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-forum-founded-by-archive",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The archive can constitute a body to hear claims against itself, which looks like reform and reproduces the emergency's logic: the institution supplies the competence it just disclaimed, and the recusal becomes a maneuver. Books 27-30 can take this path, and the series' whole argument about authored neutrality turns on whether it is recognisable as one."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-disability-spreads",
+      "interpretation": null,
+      "kind": "enabled",
+      "refs": [
+        {
+          "id": "sc-disability-precedent",
+          "kind": "book_element"
+        },
+        {
+          "id": "struct-nested-reopening",
+          "kind": "series_node"
+        },
+        {
+          "id": "trope-sealed-testimony",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The disability can travel from the deferred class to every class the emergency instruments touched, so Books 28-30 face an archive that keeps losing jurisdiction over the part of the record that most needs defending - while the memory war horizon stays latent rather than being spent on the dispute."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-absorb-as-docket",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "res-competence-declared-absent",
+          "kind": "book_element"
+        },
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Processing the deferred class as ordinary post-war docket business is closed. It would require the archive to assert the competence the lapse removed, which is to re-author the emergency in peacetime, and it would turn the following Books into more cases of the same procedure instead of a change in what can be argued."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-quiet-lapse",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "aes-managed-absence",
+          "kind": "series_node"
+        },
+        {
+          "id": "res-competence-declared-absent",
+          "kind": "book_element"
+        },
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        }
+      ],
+      "text": "A lapse that passes unremarked is closed. The recusal has to be entered in the archive's own register for the class to hold anything at all, so the hole is documented rather than silent - a worse outcome for the institution than a lapse nobody had to record, and the only surface the later Books can cite."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "conditional",
+      "id": "lp-archive-judges-own-conduct",
+      "interpretation": null,
+      "kind": "closed",
+      "refs": [
+        {
+          "id": "genre-institutional-procedural",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "text": "The archive ruling on whether its war conduct was justified is closed. The competence that would have let it do so expired with the instruments it would have judged, so the tribunal is not merely unwise or captured - it cannot be constituted by the institution at all."
+    }
+  ],
+  "open_author_decisions": [
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-defensible-exclusion",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to re-admit claims without ruling on whether their exclusion was defensible, and the working revision sharpens that: by declaring itself incompetent the archive never rules on defensibility at all, so both answers stay available and the question is deferred to whatever forum is later founded.",
+      "refs": [
+        {
+          "id": "genre-political-tragedy",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 4,
+      "series_question_sha256": "1f97de323905b0b26437c6c5c18e175e1684e2c8d828f87b22063871198d2781",
+      "text": "Whether any exclusion may be shown defensible. Book 26 re-admits the claim and then declines to decide it; if no exclusion may be defensible, the later forum must be arranged so that no ruling looks correct, which changes how the successor's review can end."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-erased-representatives",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to give the claim standing as a class and to name no representative, so the claim can still narrow later if the author chooses.",
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 7,
+      "series_question_sha256": "93604e64c1b7dcb953bb49851d1719f8eda8ac601bd40d914e2f7c672391e3f7",
+      "text": "Whether the erased may speak through specific representatives or must stay collective. Book 26 gives the claim standing as a class and names no representative, which is a decision this Book can only leave open."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-erasure-ceiling",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to route the claim through a lapsed deferral rather than a recovered file, which works under either answer.",
+      "refs": [
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 0,
+      "series_question_sha256": "9dbf3003c6b9680637378d73709631355ceadab4822ba181bd5ab4d8bae84327",
+      "text": "Whether erasure is irreversible, with records destroyed, or recoverable, with records withheld. Book 26 uses a lapsed deferral rather than a recovered file, but the answer sets what the lapsed claimants can ever win and therefore how the later settlement must be shaped."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-keepers-stake",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to stage keeper loss as loss of standing rather than safety, which is the reading its conditional assumption asm-keepers-stake already flags as revisable.",
+      "refs": [
+        {
+          "id": "thread-keepership-succession",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-keepers-stake",
+          "kind": "book_element"
+        }
+      ],
+      "series_question_index": 6,
+      "series_question_sha256": "10a26fd8eef9cb71e4a37069a26aeb00e0d0c9d472432b2cb514f4060544c272",
+      "text": "Whether keepers are beneficiaries of the orders or captive servants of them. Book 26 stages keepers losing standing rather than safety, and that choice is conditional on the author's answer."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-orders-form",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to stage the standard review as the amendment of something reviewable, a staging choice that can be re-performed as a dispute over practice. The revision adds a second dependency: whether competence can be lost by instrument depends on whether the orders are written at all.",
+      "refs": [
+        {
+          "id": "genre-institutional-procedural",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 2,
+      "series_question_sha256": "2f585407646c71c3d2014edf59ffb8980124e1f5ba545b24f8524d6d3ac79096",
+      "text": "Whether the orders are a written canon or a performed tradition. Book 26 assumes there is something reviewable to amend and something expiry can end; if the orders are performed, the lapse may not be an event at all and the recusal has to be staged as a refusal to recite rather than as the entry of an expired title."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-victory-mechanism",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to keep every scene mechanism-agnostic, so the vacuum can be written under any of the answers. The revision adds a consequence the author's answer would settle: an evidentiary victory might itself have produced the instrument that confers competence, which would close the vacancy before it opens.",
+      "refs": [
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 11,
+      "series_question_sha256": "ca8d53d38a5e1cbb37c6f101fb3c09c060e8bcc9081adfd41dc2d2912352efc0",
+      "text": "Whether the victory is military, political or evidentiary. The architecture treats it abstractly, and Book 26 stays abstract on purpose, but the mechanism decides not only what the vacuum can do but whether it creates a competence or removes one: a victory won in the record may bring an instrument the archive can cite."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-warden-party",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to use the victory without staging any post-victory appearance or demand, so nothing here forecloses either answer. The revision adds that any post-victory standing the Warden claims would need a forum competent to hear it.",
+      "refs": [
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 5,
+      "series_question_sha256": "a723ccb4d0bb045dbddeda358d4aa0f90da199f4df97d926268b82422783bd28",
+      "text": "Whether the Warden remains a party after the victory. Book 26 needs the victory without a post-victory role, and cannot decide on its own whether the winner becomes a claimant, an exile, or nothing at all - and if the winner does claim, the claim arrives in a forum that does not yet exist."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-forum-competence",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to make it load-bearing for the whole later movement: whether a competent forum can exist at all follows from whether the archive is one institution or several, and the Book therefore stages no forum rather than assuming one.",
+      "refs": [
+        {
+          "id": "thread-the-erased-counterclaim",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 1,
+      "series_question_sha256": "8fb530e8ee8546a8ab516334b4849987fd9d0a07fd1db4e4146eba076377a206",
+      "text": "Whether a forum competent to hear claims against the archive can exist. If the desert archive is one institution, then declining the class leaves it with no forum at all and Books 27-30 must author one or stage a permanent residue; if there is a network of archives with rival orders, a forum exists but its authority is rival and interested, and the debt becomes a bargaining position rather than a vacancy. The Book cannot answer this and must not imply an answer."
+    },
+    {
+      "attribution": "derived",
+      "epistemic_status": "unresolved",
+      "id": "oad-unpaid-ending",
+      "interpretation": "The Series open question supplies the open term. This Book's contribution is to show what the residue would look like in its hardest form: an acknowledged entitlement with no forum, which the author may either ratify as the ending's residue or require the later Books to discharge by founding one.",
+      "refs": [
+        {
+          "id": "theme-debt-to-the-erased",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-distributed-climax",
+          "kind": "series_node"
+        }
+      ],
+      "series_question_index": 8,
+      "series_question_sha256": "f1f2a52f38b51f4f9eba85c66aec7d51fe905400698bc61ae6c953ca94e8f2dc",
+      "text": "Whether the ending may leave the debt unpayable rather than merely unpaid. The revision makes payment depend on a forum that does not exist, so if the author permits acknowledged residue the series can end with the entitlement on the record and no hearing; if the author requires actual discharge, the later Books must constitute authority and stage a settlement, which changes the late phase's payoff logic rather than decorating it."
+    }
+  ],
+  "unresolved": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-backlog-scale",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-debt-escalation",
+          "kind": "series_node"
+        }
+      ],
+      "text": "The size and composition of the lapsed claim backlog is unknown, so the Book's pressure is structural rather than quantified and no numbers are asserted about how many cases arrive."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-campaign-papers-custody",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-sealed-testimony",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-testimony-conversion",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Who holds the campaign's own records after the victory, and under what custody rule they could enter the archive, is not established by the packet."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-instrument-existence",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-no-admissible-instrument",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Whether any instrument of surrender, agreement or ceasefire exists is unknown. The Book's central problem assumes none is admissible, and that assumption is flagged with its reversal rather than presented as fact."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-lapse-drafting-history",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "engine-neutrality-fabrication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Who drafted the expiry clauses, and whether their drafters understood that victory would trigger them - and that the trigger would carry the archive's competence away with the emergency - is not established. The Book does not turn this into a revelation, because a conspiracy would make the institution merely criminal and would convert a structural disability into a plot."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-ledger-keepers-status",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "struct-double-ledger",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Whether the unofficial ledger's keepers remain in office after the war, and whether their custody practice survives the review, is undecided."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-review-composition",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Who sits on the post-victory standard review besides the recusing keeper is not fixed, and the Book treats the review as a composition problem rather than a named bench."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-victor-wants",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "thread-warden-campaign",
+          "kind": "series_node"
+        },
+        {
+          "id": "oad-warden-party",
+          "kind": "book_element"
+        }
+      ],
+      "text": "What the victor wants from a world in which the archive no longer decides which lives are recorded is unknown. The Book does not decide whether the campaign's aim was dissolution, replacement or reform."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-victory-mechanism",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "book-26-source",
+          "kind": "source_item"
+        },
+        {
+          "id": "engine-victory-vacuum",
+          "kind": "series_node"
+        }
+      ],
+      "text": "How the campaign was won - militarily, politically, evidentially or by exhaustion - is not specified, and the Book deliberately does not supply it. The mechanism determines what the justification vacuum can actually do, so the Book is written to be mechanism-agnostic."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-competence-holder",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        },
+        {
+          "id": "oad-forum-competence",
+          "kind": "book_element"
+        }
+      ],
+      "text": "Who, if anyone, holds competence over the deferred class after the lapse is not established by the source. The Book asserts only that the archive's competence expired with the instruments; it does not supply a successor forum, and whether one exists is an author decision rather than a fact the packet can settle."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-disability-scope",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-sealed-testimony",
+          "kind": "series_node"
+        },
+        {
+          "id": "engine-testimony-conversion",
+          "kind": "series_node"
+        }
+      ],
+      "text": "How far the competence loss reaches is not established: whether it covers only the classes deferred by regulation, or every class the emergency instruments touched - sealed testimony, accelerated classification, widened intake. The Book stages the narrow reading and leaves the wider one visible as the argument the later Books can make."
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "unresolved",
+      "id": "unr-recusal-form",
+      "interpretation": null,
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "aes-documentary-dryness",
+          "kind": "series_node"
+        }
+      ],
+      "text": "Whether an institutional recusal can be entered without an officer to enter it is not established. The Book treats the entry as an administrative act in the archive's flat register and names no one who signs it, because naming a signatory would decide whether the reform has an author."
+    }
+  ],
+  "alternatives": [
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-confession-book",
+      "interpretation": null,
+      "rationale": "It pays the theme early and honestly, but it discharges the settlement-and-residue movement and turns the remaining Books into implementation rather than argument. Rejected as premature: the series needs the claim to survive the hinge so that its later admission can still cost something.",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-distributed-climax",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Have the archive enter in the victory's own record that its neutrality was a claim, and open the standard to amendment by the claimants.",
+      "title": "The Authored Neutrality"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-hardening-book",
+      "interpretation": null,
+      "rationale": "It produces a strong institutional posture and good procedural suspense, but it makes the institution villainous, which destroys the reader's complicity, and it contradicts the requirement that exclusions be defensible as well as costly. Viable only as an inner episode.",
+      "refs": [
+        {
+          "id": "trope-sealed-testimony",
+          "kind": "series_node"
+        },
+        {
+          "id": "rx-complicity",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Make the Book about the archive sealing the campaign record and ruling by capacity, answering claims one at a time at its own pace.",
+      "title": "Seal and Hold"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-impossible-witness",
+      "interpretation": null,
+      "rationale": "It is the sharpest available demonstration of classification-as-rule, but it personalizes a claim the architecture keeps collective and narrows the Book's political scope to a single case. Strong as an inner case inside the lapsed backlog, not as the Book's spine.",
+      "refs": [
+        {
+          "id": "trope-impossible-witness",
+          "kind": "series_node"
+        },
+        {
+          "id": "theme-classification-is-rule",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Center the Book on one person from the campaign who cannot satisfy any peacetime evidentiary requirement, and let the archive's handling of them carry the whole Book.",
+      "title": "The Witness Who Cannot Testify"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-replacement-threat",
+      "interpretation": null,
+      "rationale": "It would preserve the series' familiar pressure, but the hinge forbids a replacement enemy and using one would make the victory meaningless. Retained here to mark the temptation the keepers actually feel, not a path the series may take.",
+      "refs": [
+        {
+          "id": "engine-enemy-dependence",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Convert the campaign's remnants into a new enemy so that deterrence can be restored and compliance renewed.",
+      "title": "The Replacement Threat"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-tribunal-book",
+      "interpretation": null,
+      "rationale": "It would deliver a dramatic ruling and make the justification explicit, but it puts the campaign on trial in a forum the archive controls, which lets the institution acquit itself and steals the historiographic admission the late movement needs. Rejected because the hinge must remove the justification, not resolve it.",
+      "refs": [
+        {
+          "id": "genre-institutional-procedural",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Build Book 26 around a hearing on the archive's conduct during the campaign, with the orders emerging justified by a finding rather than by survival.",
+      "title": "The Victory Tribunal"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-two-keeper-book",
+      "interpretation": null,
+      "rationale": "It dramatizes neutrality fabrication and succession at once, but it risks making the Book about two careers rather than about an institution's justification, and it presumes a cast continuity the series has not fixed. The chosen shape keeps both roles as positions rather than persons.",
+      "refs": [
+        {
+          "id": "trope-bureaucratic-recusal",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-generational-relay",
+          "kind": "series_node"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Split the Book between the keeper who recuses and the successor who inherits the review, letting the transmission between them carry the hinge.",
+      "title": "Recusal and Relay"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-absorb-the-backlog",
+      "interpretation": null,
+      "rationale": "This is the shape the revision replaces: the victory enlarges the docket, the lapse supplies standing, and each following Book is another case under the same procedure. It is procedurally elegant and keeps the case unit running, but it makes the victory additive - the later Books get more of what they already had - and it requires the archive to assert a competence the lapse removed. Rejected because the hinge must change the conditions of the later Books, not their volume.",
+      "refs": [
+        {
+          "id": "engine-record-adjudication",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-recursive-case-unit",
+          "kind": "series_node"
+        },
+        {
+          "id": "asm-competence-lapsed-with-instruments",
+          "kind": "book_element"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Process the deferred class as ordinary post-war docket business, with the lapse supplying standing and nobody conceding anything, and let Books 27-30 be the hearings that follow.",
+      "title": "The Absorbed Backlog"
+    },
+    {
+      "attribution": "agent_proposed",
+      "epistemic_status": "hypothetical",
+      "id": "alt-forum-founding-book",
+      "interpretation": null,
+      "rationale": "It would close Book 26 with an institution and hand the following Books a stage. Rejected on two counts: it authors the settlement the series must not reach at the hinge, and it converts the recusal from a disability into a maneuver the archive performs to keep control. The forum has to be the later Books' problem, because founding it is the authored act the series has been postponing.",
+      "refs": [
+        {
+          "id": "theme-neutrality-as-claim",
+          "kind": "series_node"
+        },
+        {
+          "id": "struct-hinge-without-reset",
+          "kind": "series_node"
+        },
+        {
+          "id": "lp-forum-founded-by-archive",
+          "kind": "book_element"
+        }
+      ],
+      "responsibility": "in_service",
+      "status": "hypothetical",
+      "text": "Have Book 26 constitute the forum it needs before the Book ends, so the class is heard by a body the archive helps create and Books 27-30 inherit a working court.",
+      "title": "The Founded Forum"
+    }
+  ],
+  "typed_edges": [
+    {
+      "dependency": "sets_up",
+      "function": "the Book's stated job is to deliver the hinge the series engine requires, not to resolve it",
+      "id": "e01",
+      "source": "fn-hinge-of-spent-threat",
+      "target": {
+        "id": "engine-victory-vacuum",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the victory arrives as subtraction rather than triumph, which is the trope's required shape",
+      "id": "e02",
+      "source": "eng-victory-without-instrument",
+      "target": {
+        "id": "trope-victory-that-empties",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the lapse can only occur because the threat that anchored the instruments is gone",
+      "id": "e03",
+      "source": "eng-emergency-lapse",
+      "target": {
+        "id": "eng-victory-without-instrument",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "the lapse ends whole classes at once, so each arriving case is also a question about whether the archive may hear it",
+      "id": "e04",
+      "source": "eng-emergency-lapse",
+      "target": {
+        "id": "struct-recursive-case-unit",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the recusal decides the outcome by removing the only reviewer willing to refuse",
+      "id": "e05",
+      "source": "eng-review-by-recusal",
+      "target": {
+        "id": "trope-bureaucratic-recusal",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "the review must decide what to do with a lapse it did not author",
+      "id": "e06",
+      "source": "eng-review-by-recusal",
+      "target": {
+        "id": "eng-emergency-lapse",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "an inquiry into conduct becomes an inquiry into who may be heard",
+      "id": "e07",
+      "source": "eng-hearing-that-tries-the-standard",
+      "target": {
+        "id": "theme-classification-is-rule",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "the choice is a legitimation decision disguised as an administrative one",
+      "id": "e08",
+      "source": "choice-how-victory-becomes-authority",
+      "target": {
+        "id": "thread-the-orders-legitimation",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the chosen option works only because the instruments expire on their own terms and take the competence with them",
+      "id": "e09",
+      "source": "opt-lapse-and-recuse",
+      "target": {
+        "id": "eng-emergency-lapse",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the rejected option would pay the theme early, which is why the Book cannot take it",
+      "id": "e10",
+      "source": "opt-declare-authorship",
+      "target": {
+        "id": "theme-neutrality-as-claim",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "contradicts",
+      "function": "a replacement enemy violates the hinge's discipline",
+      "id": "e11",
+      "source": "opt-successor-threat",
+      "target": {
+        "id": "struct-hinge-without-reset",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the erased acquire entitlement as a class, which is the counterclaim's precondition for becoming a party and the reason it has nowhere to appear",
+      "id": "e12",
+      "source": "eng-standing-by-lapse",
+      "target": {
+        "id": "thread-the-erased-counterclaim",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "standing is produced by the expiry rather than by a ruling on entitlement",
+      "id": "e13",
+      "source": "eng-standing-by-lapse",
+      "target": {
+        "id": "eng-emergency-lapse",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the second ledger's purpose is exposed as war-preparedness, which makes it usable and unreliable at once",
+      "id": "e14",
+      "source": "eng-ledger-of-preparedness",
+      "target": {
+        "id": "struct-double-ledger",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the ledger's war purpose is what reduces its admission to evidence of custody",
+      "id": "e15",
+      "source": "eng-ledger-of-preparedness",
+      "target": {
+        "id": "res-ledger-as-custody",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "transforms",
+      "function": "credible warning becomes latent risk without the risk being removed",
+      "id": "e16",
+      "source": "eng-deterrence-after-threat",
+      "target": {
+        "id": "thread-memory-war-risk",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "scarcity is shown allocating the accounting's agenda rather than decorating it",
+      "id": "e17",
+      "source": "eng-copying-priorities",
+      "target": {
+        "id": "engine-desert-scarcity",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "logistics decides which claims reach the docket first",
+      "id": "e18",
+      "source": "eng-copying-priorities",
+      "target": {
+        "id": "res-first-hearing",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the relay hands on a method without the testimony that made it seem necessary",
+      "id": "e19",
+      "source": "eng-successor-without-precedent",
+      "target": {
+        "id": "struct-generational-relay",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "the gap is shown with a trace of the practice that produced it",
+      "id": "e20",
+      "source": "eng-flat-record-of-victory",
+      "target": {
+        "id": "aes-managed-absence",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the visible claim with no referent is the surface later phases can point at",
+      "id": "e21",
+      "source": "eng-flat-record-of-victory",
+      "target": {
+        "id": "theme-neutrality-as-claim",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the recusal is what produces a reform with no author",
+      "id": "e22",
+      "source": "res-recused-reviewer",
+      "target": {
+        "id": "sc-reform-without-author",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "an unattributable reform leaves no author to hold to the change, so reopening must cite a procedure rather than a decision",
+      "id": "e23",
+      "source": "sc-reform-without-author",
+      "target": {
+        "id": "struct-nested-reopening",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the unowned victory cannot be adjudicated until the author decides whether the Warden remains a party",
+      "id": "e24",
+      "source": "sc-victory-unowned",
+      "target": {
+        "id": "oad-warden-party",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "contradicts",
+      "function": "the possibility is closed because coverage is not authority",
+      "id": "e25",
+      "source": "lp-discharge-by-addition",
+      "target": {
+        "id": "theme-debt-to-the-erased",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "if the instruments lacked expiry, the chosen option would not exist",
+      "id": "e26",
+      "source": "asm-expiry-clauses",
+      "target": {
+        "id": "choice-how-victory-becomes-authority",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the claimant's petition is the occasion for the first post-victory hearing",
+      "id": "e27",
+      "source": "agent-lapsed-claimants",
+      "target": {
+        "id": "eng-standing-by-lapse",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the inherited second surface is the material the ledger engine works on",
+      "id": "e28",
+      "source": "inh-double-ledger",
+      "target": {
+        "id": "eng-ledger-of-preparedness",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "transforms",
+      "function": "the choice is what converts external underwritten authority into an unargued internal procedure",
+      "id": "e29",
+      "source": "choice-how-victory-becomes-authority",
+      "target": {
+        "id": "tr-authority-without-argument",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the Book's function is bounded by the source's fixed event and cannot invent the campaign's mechanism",
+      "id": "e30",
+      "source": "fn-hinge-of-spent-threat",
+      "target": {
+        "id": "book-26-source",
+        "kind": "source_item"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the engine's new effect depends on reading the deferral as emergency jurisdiction rather than scheduling",
+      "id": "e31",
+      "source": "asm-competence-lapsed-with-instruments",
+      "target": {
+        "id": "eng-emergency-lapse",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "the Book's decision is forced because the archive has no ground left on which to decide the class itself",
+      "id": "e32",
+      "source": "eng-competence-vacancy",
+      "target": {
+        "id": "choice-how-victory-becomes-authority",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "transforms",
+      "function": "justification has to be made by founding authority rather than by citing one",
+      "id": "e33",
+      "source": "eng-competence-vacancy",
+      "target": {
+        "id": "thread-the-orders-legitimation",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "an entitlement without a forum is produced by the entry rather than by a refusal",
+      "id": "e34",
+      "source": "res-competence-declared-absent",
+      "target": {
+        "id": "sc-erased-standing",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "contradicts",
+      "function": "absorbing the class would require the competence the entry disclaims",
+      "id": "e35",
+      "source": "res-competence-declared-absent",
+      "target": {
+        "id": "lp-absorb-as-docket",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "neutrality performed to the point of self-disqualification is the sharpest demonstration that it was a claim",
+      "id": "e36",
+      "source": "res-competence-declared-absent",
+      "target": {
+        "id": "theme-neutrality-as-claim",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "an entitlement with no forum is what makes founding a forum the work of the following Books",
+      "id": "e37",
+      "source": "sc-erased-standing",
+      "target": {
+        "id": "lp-forum-founded-outside",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "whether any such forum can exist is the author's answer to the series question",
+      "id": "e38",
+      "source": "lp-forum-founded-outside",
+      "target": {
+        "id": "oad-forum-competence",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the self-authoring route is available only if the series' institutions allow the archive to constitute a body over itself",
+      "id": "e39",
+      "source": "lp-forum-founded-by-archive",
+      "target": {
+        "id": "oad-forum-competence",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the precedent is what lets the disability travel from the deferred class to the other classes the instruments touched",
+      "id": "e40",
+      "source": "sc-disability-precedent",
+      "target": {
+        "id": "lp-disability-spreads",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pressures",
+      "function": "reopening runs as a competence claim rather than a case claim",
+      "id": "e41",
+      "source": "lp-disability-spreads",
+      "target": {
+        "id": "struct-nested-reopening",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "a lawful abandonment is what makes an authored forum the only route to a hearing",
+      "id": "e42",
+      "source": "cost-lawful-abandonment",
+      "target": {
+        "id": "sc-forum-must-be-authored",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "pays_off",
+      "function": "keeping the archive competent for everything else preserves the relief the series depends on",
+      "id": "e43",
+      "source": "sc-ordinary-docket-continues",
+      "target": {
+        "id": "rx-relief-of-order",
+        "kind": "series_node"
+      }
+    },
+    {
+      "dependency": "sets_up",
+      "function": "the need to author a forum follows from competence lapsing with the instruments",
+      "id": "e44",
+      "source": "asm-competence-lapsed-with-instruments",
+      "target": {
+        "id": "sc-forum-must-be-authored",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "the compelled hearing exists only because a deferral counts as a pending obligation rather than a closed refusal",
+      "id": "e45",
+      "source": "res-first-hearing",
+      "target": {
+        "id": "asm-hearing-compellable",
+        "kind": "book_element"
+      }
+    },
+    {
+      "dependency": "depends_on",
+      "function": "whether the series may leave the entitlement unsatisfied is the author's answer, and the Book cannot settle it",
+      "id": "e46",
+      "source": "sc-forum-must-be-authored",
+      "target": {
+        "id": "oad-unpaid-ending",
+        "kind": "book_element"
+      }
+    }
+  ],
+  "creative_intentions": []
+}
