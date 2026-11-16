@@ -226,6 +226,17 @@
         };
       }),
       governingObjective: (status && status.governingObjective) || null,
+      interpretations: asArray(candidate.interpretations).filter(function (item) {
+        return item && typeof item === 'object' && nonempty(item.interpretation);
+      }).map(function (item) {
+        return {
+          id: text(item.id),
+          interpretation: text(item.interpretation),
+          consequences: text(item.consequences),
+          alternative: text(item.alternative),
+          requiresDecision: item.author_decision_required === true,
+        };
+      }),
       premiseStatus: (status && status.premiseStatus) || null,
     };
   }
@@ -334,6 +345,14 @@
       if (relationship.mechanism) line += ' — ' + relationship.mechanism;
       return line;
     }));
+
+    addSection(documentRef, root, 'Readings the agent is using (not your commitments)',
+      projection.interpretations.map(function (item) {
+        var line = item.interpretation + ' -> ' + item.consequences;
+        if (item.alternative) line += ' | Alternative: ' + item.alternative;
+        if (item.requiresDecision) line += ' [your decision required]';
+        return line;
+      }));
 
     addSection(documentRef, root, 'Optional opportunities (not accepted)',
       projection.opportunities.map(function (item) {

@@ -38,13 +38,33 @@ def main() -> int:
     lines.append("")
 
     targets = data.get("emotion_targets", [])
-    if targets:
-        lines += ["## Intended emotional progression", ""]
-        for target in targets:
+    declared = [t for t in targets if t.get("provenance") == "author_declared"]
+    proposed = [t for t in targets if t.get("provenance") != "author_declared"]
+    if declared:
+        lines += ["## Emotional intent the author stated", ""]
+        for target in declared:
             lines.append(
-                f"- {target.get('emotion')} ({target.get('role')}): "
-                f"{target.get('intended_effect')} — elicited by {target.get('eliciting_condition')}"
+                f"- {target.get('emotion')} ({target.get('role')}): {target.get('intended_effect')}"
             )
+        lines.append("")
+    if proposed:
+        lines += ["## Emotional design the agent proposed (not author-stated)", ""]
+        for target in proposed:
+            lines.append(
+                f"- {target.get('emotion')} ({target.get('role')}): {target.get('intended_effect')}"
+            )
+        lines.append("")
+
+    interpretations = data.get("interpretations", [])
+    if interpretations:
+        lines += ["## Readings the agent is using (recommendations, not author commitments)", ""]
+        for item in interpretations:
+            line = f"- {item.get('interpretation')} -> {item.get('consequences')}"
+            if item.get("alternative"):
+                line += f" | Alternative: {item['alternative']}"
+            if item.get("author_decision_required"):
+                line += " [author decision required]"
+            lines.append(line)
         lines.append("")
 
     opportunities = data.get("opportunities", [])
