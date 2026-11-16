@@ -1,0 +1,2342 @@
+{
+  "kind": "studio_architecture_resume",
+  "authority": "working_noncanonical",
+  "canvas_id": "qualification-r09",
+  "canvas_revision": 1,
+  "story_vision": "A twelve-Book optimistic series about a monastery that copies books whose authors are unknown. The monks must decide, generation after generation, whether an anonymous book can be authoritative. The intended experience is earned trust in incomplete knowledge: authority is extended before it can be verified, and the series should make that extension feel both necessary and dangerous. The series must not resolve its central question by declaring anonymity either fatal or irrelevant. The ending, whenever it comes, must be chosen rather than exhausted.",
+  "architecture": {
+    "schema_version": 2,
+    "summary": "WORKING PROPOSAL, not canon. No accepted Identity and no declared architecture preference exist, so the causal organization here is an agent proposal: a primary engine with subordinate layers. A single center would be too narrow for twelve Books of generational time; an ensemble would diffuse the one question the series is built to keep open.\n\nThe primary engine is The Irreversible Copy. Authority is extended before it can be verified, and once extended the book is copied, distributed, and cannot be recalled, so the consequence of a reception always arrives in the hands of someone who did not decide. Six subordinate engines are not decorations on that engine; they are the specific reasons it cannot be settled. Inherited Warrant makes each generation the receiver of its ancestors, so anonymity is a phase of transmission rather than an exception inside it. The Displacement Ledger prices every yes in uncopied books. Reading as the Only Verification makes taste the instrument of authority, and taste is formed by the archive it is judging. Faithful Contradiction makes a received text permanently incompatible with the corpus while forbidding repair. Instrumental Demand makes unattributable texts valuable to the powerful precisely because no author can be held to them. Proxy Attribution settles the cost on whoever last handled the book.\n\nThe emotional promise is a compound held as co-primary: earned trust, stated by the author, and the dread of the unchecked, proposed here. Trust that has never been afraid of being wrong is flattery, so fear is load-bearing rather than atmospheric. The complex emotion the series is finally after is Trust That Has a Receipt.\n\nGenres are working hypotheses, since the vision names none: institutional chronicle governing; novel of ideas, epistemic suspense, generational succession, and institutional comedy supporting; archival form tertiary.\n\nTwelve phases trace one arc: an extension that is unrecorded, then costed, then contradictory, then blamed, then instrumental, then inherited, then refused to the point of starvation, then recorded, then contested, then reified, then handed over, then closed by choice. The invented pivot is the wager record: a reception dated, signed, and given a condition under which it should be reopened. It is not a cure. The record is copied, and the next generation trusts the record without its reasons, which restarts the engine one level up. That recursion is what keeps the ending an act instead of an answer, and what lets anonymity stay neither fatal nor set aside.",
+    "nodes": [
+      {
+        "id": "engine_irreversible_copy",
+        "title": "The Irreversible Copy",
+        "category": "engine",
+        "summary": "The primary engine. A book's authority can only be extended by receiving it into the copying queue, and reception cannot be undone: the copy is made, distributed, and outlives its copyist. Verification of an anonymous text is structurally late, so it can only arrive as consequences felt by people who did not make the decision. The recurring pressure is that the monastery must act on a judgment it cannot discharge, and every act of generosity also commits the institution's name. Actors under this engine do not choose between a right and a wrong answer; they choose between two ways of being wrong, one discoverable inside a lifetime and one not.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "engine_inherited_warrant",
+        "title": "Inherited Warrant",
+        "category": "engine",
+        "summary": "Each generation inherits its predecessors' receptions as settled fact, stripped of the reading that justified them. This converts the primary engine from a repeated event into an accumulating structure: the monks are not only deciding about anonymous authors, they are the anonymous authors of their own tradition's warrants. Its action pattern is re-reading under a closed door - someone tries to recover why a text was admitted and finds only the admission. Its pressure is arithmetic: the archive's authority grows by exactly the amount of reasoning it has lost.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "engine_displacement_ledger",
+        "title": "The Displacement Ledger",
+        "category": "engine",
+        "summary": "Copying is slow, and shelf and scribal hours are finite, so every reception is also a refusal of something else. This engine makes generosity cost something the reader can count. Its action pattern is arithmetic performed under moral pressure: which unadmitted book loses its place because this one was taken. Its pressure is that the monastery can never know the value of what it displaced, because the counterfactual book is not in the archive to be read. This is the engine that forbids the series from concluding that openness is simply better.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "engine_reading_as_verification",
+        "title": "Reading as the Only Verification",
+        "category": "engine",
+        "summary": "With provenance unavailable, the only remaining test of an anonymous book is whether it coheres with the received corpus, answers questions its readers actually bring, and survives repeated use. That makes taste the instrument of authority, and taste is trained by the same corpus it is judging. The action pattern is comparison under uncertainty: this passage sounds like us, this one does not, and the ear making the judgment was formed by the archive under judgment. Its pressure is a circularity that cannot be escaped, only made visible - which is also the engine's gift, since visible circularity can be owned.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "engine_faithful_contradiction",
+        "title": "Faithful Contradiction",
+        "category": "engine",
+        "summary": "The monastery's fidelity rule is absolute: a copied text is transmitted as received, never emended. So a received book that contradicts the corpus must either be carried as a permanent contradiction or refused entirely. This generates the sharpest recurring crisis of the horizon, and it recurs without repeating because the content of each contradiction differs while the rule that forbids repair never does. The action pattern is the search for an honest third option that does not exist - annotation, quarantine, separate shelving - each of which turns out to be either a refusal or an emendation wearing a procedure.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "engine_instrumental_orphan",
+        "title": "The Instrumental Orphan",
+        "category": "engine",
+        "summary": "The archive has clients outside it: those who need legitimation, those who need precedent, those who need a mistake they can point at. An unattributable text serves all three, because no author can be punished, contradicted, or asked to recant. This supplies the external pressure that makes the central question urgent rather than scholarly, and it does so without requiring a villain, since every client's interest is individually defensible. The action pattern is the persuasive offer - admit this, for a reason that is genuinely good and happens to serve us.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "engine_proxy_attribution",
+        "title": "Proxy Attribution",
+        "category": "engine",
+        "summary": "When no author exists, responsibility migrates to the transmitter. This produces the recurring social crisis: someone is held to account for a sentence they transcribed and did not write, and the account is procedurally correct. The action pattern is the search for a stand-in - the copyist, the receiving house, the last named commentator - followed by the discovery that the stand-in is the only party who can in fact be held. This is where the series shows what a name is for: not proof of truth, but a place to put the cost.",
+        "scope": "whole_story",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "st_wager_architecture",
+        "title": "The Wager Architecture",
+        "category": "structure",
+        "summary": "The repeating rhythmic unit every Book of the horizon shares without repeating its content: a reception crisis appears; available verification is structurally insufficient; a decision is made that cannot be recalled; the consequence arrives a generation later, in the hands of someone who did not decide. The unit's force comes from the temporal offset, since decision and cost always sit in different Books, so the reader learns to read every reception as a debt. It is deliberately not a plot template: it specifies what kind of pressure must exist, never what happens.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "st_two_ledgers",
+        "title": "The Two Ledgers",
+        "category": "structure",
+        "summary": "Every Book keeps two accounts and teaches the reader to read both: what was received and on what grounds, and what was refused and what the refusal cost. The second ledger is the series' conscience and its most fragile structure, because refusals leave no copies to consult - they survive only as entries. When someone later asks what the archive would look like had a refusal gone the other way, the answer exists only there. The ledger is also the first thing an institution stops maintaining when it is frightened, which makes its condition a running index of the monastery's honesty.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread_starvation",
+        "title": "The Starvation Line",
+        "category": "thread",
+        "summary": "A subordinate line running the full horizon. Want: an archive open enough to keep answering the questions its readers bring. Resistance: the fear of contamination, which is always locally reasonable and never absurd. Change: strictness is repeatedly proven costly in concrete, unfixable ways, so the line moves from an argument about safety to an argument about what a tradition is for. This is the line that makes the extension necessary rather than merely kind, because it shows what a closed archive loses and who pays for the loss.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread_accountability",
+        "title": "The Accountability Line",
+        "category": "thread",
+        "summary": "Want: a responsible party for every text, so that being wrong has somewhere to land. Resistance: structural anonymity, which no amount of diligence removes. Change: the line stops hunting an author and starts constructing a receiver, ending not in a recovered identity but in a documented, dated, contestable act of reception. This line carries the series' answer to the danger, and that answer is deliberately procedural rather than metaphysical - it is about who owns a judgment, not about what is true.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread_coherence",
+        "title": "The Coherence Line",
+        "category": "thread",
+        "summary": "Want: a corpus that holds together well enough to be used, taught, and argued from. Resistance: faithful contradiction, which the fidelity rule forbids resolving by repair. Change: coherence is demoted across the horizon from a gate that decides admission to a stated cost a reception accepts. This is where the series does its most technical work, because it must show a tradition remaining usable while inconsistent, without pretending the inconsistency is a richness or a secret harmony.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread_succession",
+        "title": "The Succession Line",
+        "category": "thread",
+        "summary": "Want: to hand on something intact. Resistance: reasons decay faster than texts, so what is handed on is always less than what was meant. Change: the line moves from preserving the archive, to choosing what to hand on, to handing on the practice of re-deciding rather than the decisions themselves. This converts inheritance from a setting detail into the series' central action, and it is the mechanism that lets the horizon end by choice rather than by depletion.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_authority_as_extension",
+        "title": "Authority Is Extended, Not Possessed",
+        "category": "theme",
+        "summary": "Authority is not a property a text carries but an act a receiver performs: the monastery does not find authority in a book, it confers it, and the conferral is what makes the book citable as tradition. This reverses the usual direction of the problem. The corruption the series must fear is not in the anonymous author alone but in the receiver's capacity to be wrong, and the receiver is the party the reader can actually watch. The theme forbids every consolation in which a sufficiently careful reading recovers the missing guarantee.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_anonymity_as_transferred_risk",
+        "title": "Anonymity Transfers Risk to the Receiver",
+        "category": "theme",
+        "summary": "Anonymity does not erase responsibility; it relocates its cost forward in time, onto every reader who must act without a guarantor. The unnamed author has offloaded the labour of verification onto strangers who cannot reach them. This reading keeps the danger specific and keeps anonymity from becoming a neutral technical condition, because something is genuinely taken from the receiver in the transaction: recourse. It also keeps the necessity specific, since the same transaction is what lets a text travel when its author cannot.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_names_as_leverage",
+        "title": "A Name Is Leverage, Not Truth",
+        "category": "theme",
+        "summary": "What a name buys is not proof but contestability: someone to argue with, someone to credit, someone to refuse. Precision about this is what allows the series to hold its two commitments at once. Anonymity is not fatal, because a text without an author can still be received well. Anonymity is not irrelevant, because a text without an author cannot be contested at its source, and the argument must therefore be had with the transmitter instead. The theme gives the series a precise vocabulary for loss without converting loss into doom.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_incomplete_knowledge",
+        "title": "Incomplete Knowledge Is the Working Condition",
+        "category": "theme",
+        "summary": "Incompleteness is not an obstacle the monastery will eventually clear; it is the medium in which all its judgment occurs. The theme is stated structurally rather than morally: the archive is incomplete, the record is incomplete, and the reader's knowledge is incomplete in exactly the same way and for the same reason. That symmetry is the series' ethical engine, because it makes the reader a participant in the wager rather than an auditor of it, and it forbids any ending in which completeness arrives and settles the question.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "th_chosen_endings",
+        "title": "Endings Are Chosen, Never Exhausted",
+        "category": "theme",
+        "summary": "A conclusion is legitimate because someone with standing chose it, dated it, and left it reopenable - not because the material ran out. This theme supplies the series' only honest form of closure, since its central question cannot be answered without violating its premise. Closure becomes an act of custody: the monastery closes a period of discernment rather than declaring the matter settled, and the reader is asked to accept that act as sufficient instead of accepting a proof.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "t_the_unverifiable_warrant",
+        "title": "The Unverifiable Warrant",
+        "category": "trope",
+        "summary": "A claim whose backing is structurally unavailable, used anyway, so that every use is a wager. At scene scale this is the primary engine's basic unit: a text is cited in a way that matters before anything about it can be checked. The trope's discipline is that the missing backing must be shown to be missing for a reason, not merely withheld by the author for suspense.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_irreversible_copy"
+      },
+      {
+        "id": "t_the_costing_yes",
+        "title": "The Costing Yes",
+        "category": "trope",
+        "summary": "Every inclusion is a visible exclusion. The trope forces an admission to be shown together with the specific uncopied thing it displaced, so generosity is never permitted to be costless on the page. Its strength is that it makes the reader complicit in the arithmetic: by the middle of the horizon the reader has preferences among the refused books and knows those preferences were formed without reading them.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_displacement_ledger"
+      },
+      {
+        "id": "t_the_inherited_verdict",
+        "title": "The Inherited Verdict",
+        "category": "trope",
+        "summary": "A decision outlives its reasons and is obeyed as though the reasons still held. The trope recurs because institutions store conclusions and discard arguments, and because the discarded argument is usually the only thing that could have revised the conclusion. Its payoff shape is the moment a living person discovers they are enforcing a dead person's judgment about a world that no longer exists - and that the dead person may have been right.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_inherited_warrant"
+      },
+      {
+        "id": "t_the_trained_ear",
+        "title": "The Trained Ear",
+        "category": "trope",
+        "summary": "A judgment of authenticity made by someone whose sense of authenticity was formed by the thing being judged. The trope prevents the series from offering connoisseurship as a substitute for provenance. It recurs in the form of an expert who is right for reasons they cannot defend and wrong for reasons they cannot see, and it is the engine of the reader's own discomfort, since the reader's ear is being trained by the series at the same time.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_reading_as_verification"
+      },
+      {
+        "id": "t_the_faithful_contradiction",
+        "title": "The Faithful Contradiction",
+        "category": "trope",
+        "summary": "Fidelity requires transmitting something that damages the whole. The trope is the series' sharpest pressure device because it offers no correct option: refuse and lose a true thing, copy and carry a permanent injury, emend and commit the one act the institution regards as unforgivable. It recurs with different content and the same shape, and its accumulation across the horizon is what finally makes coherence a cost rather than a gate.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_faithful_contradiction"
+      },
+      {
+        "id": "t_the_useful_orphan",
+        "title": "The Useful Orphan",
+        "category": "trope",
+        "summary": "An unattributable thing is valuable precisely because no one can be held to it. The trope turns the archive's problem into other people's instrument, so that the monks' dilemma acquires clients, leverage, and urgency. Its discipline is refusing villainy: the party making the offer should be right on the merits and wrong in the aggregate, which is the most uncomfortable and most truthful shape available.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_instrumental_orphan"
+      },
+      {
+        "id": "t_the_proxy_accused",
+        "title": "The Proxy Accused",
+        "category": "trope",
+        "summary": "Blame migrates to whoever handled the thing last, and the migration is procedurally correct. The trope is where the series' comedy and its cruelty share a single mechanism, because an absurd assignment of blame is also a defensible one. Its payoff is always the same recognition in a new costume: the cost of anonymity does not disappear, it simply finds a body.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_proxy_attribution"
+      },
+      {
+        "id": "t_the_record_turned_relic",
+        "title": "The Record Turned Relic",
+        "category": "trope",
+        "summary": "The corrective instrument becomes the next unread authority. The record is copied, quoted, cited, and finally trusted without its reasons, so the monastery manufactures a new anonymous book - its own. This is the series' recursive engine and its best protection against a too-tidy answer: any procedure invented to make reception accountable becomes, one generation later, an accountability it can no longer explain.",
+        "scope": "periodic_recurrence",
+        "parent_id": "engine_inherited_warrant"
+      },
+      {
+        "id": "t_the_open_handing_over",
+        "title": "The Open Handing Over",
+        "category": "trope",
+        "summary": "Succession as a choice among live options rather than a default. The trope requires at least two genuinely viable things to hand on - the decisions, the reasons, or the practice of re-deciding - and requires the choice to cost something the chooser valued. It is the trope that makes the required ending possible, because it locates closure in an act of custody rather than in the exhaustion of material.",
+        "scope": "periodic_recurrence",
+        "parent_id": "thread_succession"
+      },
+      {
+        "id": "g_institutional_chronicle",
+        "title": "Institutional Chronicle",
+        "category": "genre",
+        "summary": "The governing genre, proposed rather than declared. Its subject is the institution across periods long enough that no single person spans the consequence of their own decision. Its pleasures are structural: accumulated consequence, procedure under strain, and the slow revelation that an organization's character is the residue of its unexamined rulings. It is chosen because the vision's question is asked generation after generation, which only an institutional timescale can make into pressure rather than theme.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_novel_of_ideas",
+        "title": "Novel of Ideas",
+        "category": "genre",
+        "summary": "A supporting genre, proposed. Its contribution is that argument becomes action: a proposition is tested by whether the institution will act on it before it is settled, not by whether it is elegantly stated. The genre is kept subordinate deliberately, because a novel of ideas that governs would let the series debate its central question instead of paying for it, and the vision requires the extension to be felt as dangerous rather than discussed as difficult.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_epistemic_suspense",
+        "title": "Epistemic Suspense",
+        "category": "genre",
+        "summary": "A supporting genre, proposed. Suspense is generated by the shape of the institution's knowledge rather than by threat: verification is always available in principle and never available in time. This genre is what converts unverifiability from a premise into a feeling, and it is the main reason fear can carry a primary emotional role without the series becoming a thriller.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_generational_saga",
+        "title": "Generational Succession Narrative",
+        "category": "genre",
+        "summary": "A supporting genre, proposed. It supplies the body that ages: handoffs, inherited obligations, and the specific grief of receiving something from someone whose intentions are no longer recoverable. Used here without a continuous cast, so attachment attaches to the office, the archive, and the ledger rather than to persons - a choice that intensifies the theme at the cost of some conventional reader intimacy.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_institutional_comedy",
+        "title": "Institutional Comedy",
+        "category": "genre",
+        "summary": "A supporting genre, proposed, and the series' most necessary corrective. Comedy keeps trust from hardening into reverence by exposing that much of the dread is produced by procedure rather than danger. Its function is not relief but critique: the absurdity it reveals is load-bearing, and the laughter stops at the exact moment a ruling becomes a penalty. Without it, twelve Books of grave discernment would teach the reader to be solemn about the question instead of honest about it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "g_archival_form",
+        "title": "Archival Form",
+        "category": "genre",
+        "summary": "A tertiary genre, proposed. The series is built partly from apparatus: catalogue entries, reception notes, refusals, marginal disputes, later hands annotating earlier ones. The form performs the theme instead of illustrating it, because the reader receives the institution's reasoning in the same degraded state the monks do. Its danger is distance, so it is held tertiary and never allowed to become the primary surface.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aes_plain_hand",
+        "title": "The Plain Hand",
+        "category": "aesthetic",
+        "summary": "Prose that reads like good copying: unadorned, exact, slightly worn, with visible seams where a later hand has intervened. Sentences are built to be transmitted rather than admired, and the few moments of figurative writing carry disproportionate weight because the surface has earned them. The strategy makes fidelity perceptible as a texture, so the reader can feel the difference between a line that was copied and a line that was mended.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "aes_catalogue_marginalia",
+        "title": "Catalogue and Marginalia",
+        "category": "aesthetic",
+        "summary": "The series' apparatus is not decoration but a second narrative surface. Catalogue entries record what exists; the two ledgers record what was decided and what it cost; marginalia carry opinions the main text will not state. Quoted without editorial gloss, the apparatus lets the reader do the interpretive work the institution refuses to do, which is also how the reader is recruited into the wager.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "aes_withheld_light",
+        "title": "Withheld Light",
+        "category": "aesthetic",
+        "summary": "Tension is produced by what is not shown rather than by what threatens. Provenance is withheld without narratorial comment; periods end at the moment of commitment rather than at the moment of discovery; the reader is allowed to notice the gap before any character names it. The calibration rule is strict: nothing is withheld that a reader could not reasonably be expected to miss, so the eventual noticing feels like attention rewarded rather than a trick revealed.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "aes_comic_deflation",
+        "title": "Comic Deflation",
+        "category": "aesthetic",
+        "summary": "Sudden registers of institutional absurdity placed exactly where the series risks self-importance. The comedy is deadpan and never winks; the funniest line in a period should be a correct ruling. Deflation is used as an instrument of critique, and it is withdrawn at the moment a consequence becomes personal, so that the reader experiences the withdrawal as the removal of a protection they had been enjoying.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "aes_dated_voice",
+        "title": "Dated Voice",
+        "category": "aesthetic",
+        "summary": "Each generation's idiom is distinct enough that the reader can feel the drift of vocabulary while the argument stays the same. This is the aesthetic instrument of the Inherited Warrant engine: when the words change and the conclusion does not, the reader sees that the conclusion has become a relic while everyone inside the period experiences it as agreement. Voice drift is tracked deliberately across the horizon and never explained by a narrator.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "rx_earned_trust",
+        "title": "Earned Trust",
+        "category": "reader_experience",
+        "summary": "The governing promise, named by the author. The reader should finish each Book with confidence in the monastery's judgment that is proportional to what the Book showed it costing, and finish the horizon with a trust that knows its own terms. Earned is the operative word: the experience must be distinguishable from the comfort of a tradition that has never been tested, and a reader who has not been made afraid somewhere in the horizon should not be able to feel it at all.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "rx_dread_of_the_unchecked",
+        "title": "The Dread of the Unchecked",
+        "category": "reader_experience",
+        "summary": "A steady, low-grade unease that what the reader has accepted as true was accepted on someone's word, and that the word cannot now be checked. The dread is directed at the reading experience itself rather than at any threat inside the story, which is what makes it survive the absence of a villain. It must be sustained long enough to become familiar, since the series' payoff depends on the reader recognizing the feeling as their own condition rather than a character's predicament.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "rx_complicity",
+        "title": "Reader Complicity",
+        "category": "reader_experience",
+        "summary": "The reader is a receiver too. They cannot verify the texts either, they form preferences among the refused books without reading them, and they judge receptions they could not have made better. The series uses apparatus and temporal offset to make this structural rather than rhetorical: the reader is never told they are implicated, they are simply placed where the monks stand and left to notice. This is the experience that converts the theme from a claim about monks into a claim about reading.",
+        "scope": "reader_facing",
+        "parent_id": null
+      },
+      {
+        "id": "rx_relief_of_custody",
+        "title": "The Relief of Custody",
+        "category": "reader_experience",
+        "summary": "The warmth of a chain of hands: the felt security of being one link among many, holding something one did not choose and did not make. This is the series' counterweight to dread, and it is deliberately not optimism about outcomes - it is the pleasure of belonging to a practice. It has to remain available even in the darkest periods, because the required ending depends on the reader accepting custody, rather than certainty, as a sufficient form of closure.",
+        "scope": "reader_facing",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "lk_copy_feeds_warrant",
+        "source": "engine_irreversible_copy",
+        "target": "engine_inherited_warrant",
+        "function": "Every irreversible copy becomes the next generation's warrant, stripped of its reasons."
+      },
+      {
+        "id": "lk_copy_forces_selection",
+        "source": "engine_irreversible_copy",
+        "target": "engine_displacement_ledger",
+        "function": "Permanence forces selection; an admitted book displaces an uncopied one forever."
+      },
+      {
+        "id": "lk_copy_forces_reading",
+        "source": "engine_irreversible_copy",
+        "target": "engine_reading_as_verification",
+        "function": "With provenance closed, the reading itself becomes the only available check."
+      },
+      {
+        "id": "lk_copy_creates_contradiction",
+        "source": "engine_irreversible_copy",
+        "target": "engine_faithful_contradiction",
+        "function": "Irreversibility turns a copied contradiction into a permanent one."
+      },
+      {
+        "id": "lk_copy_attracts_demand",
+        "source": "engine_irreversible_copy",
+        "target": "engine_instrumental_orphan",
+        "function": "A text that cannot be recalled is worth capturing, and worth lending."
+      },
+      {
+        "id": "lk_absence_forces_proxy",
+        "source": "engine_irreversible_copy",
+        "target": "engine_proxy_attribution",
+        "function": "The author cannot be reached, so the cost settles on whoever handled the book."
+      },
+      {
+        "id": "lk_warrant_strips_reasons",
+        "source": "engine_inherited_warrant",
+        "target": "engine_reading_as_verification",
+        "function": "Inherited verdicts arrive without their reading, so judgment must be rebuilt from taste."
+      },
+      {
+        "id": "lk_warrant_hides_cost",
+        "source": "engine_inherited_warrant",
+        "target": "engine_displacement_ledger",
+        "function": "Inheritance conceals which refusals paid for the archive it hands on."
+      },
+      {
+        "id": "lk_copy_enacts_extension",
+        "source": "engine_irreversible_copy",
+        "target": "th_authority_as_extension",
+        "function": "Authority exists only in the act of admitting; the text never carries it."
+      },
+      {
+        "id": "lk_absence_transfers_risk",
+        "source": "engine_irreversible_copy",
+        "target": "th_anonymity_as_transferred_risk",
+        "function": "The unnamed author hands the cost of being wrong to every later reader."
+      },
+      {
+        "id": "lk_proxy_shows_leverage",
+        "source": "engine_proxy_attribution",
+        "target": "th_names_as_leverage",
+        "function": "Blame needs a name; without one the monastery authors everything it copies."
+      },
+      {
+        "id": "lk_reading_limits_knowledge",
+        "source": "engine_reading_as_verification",
+        "target": "th_incomplete_knowledge",
+        "function": "Judgment under unavailable evidence is the practice, not the obstacle."
+      },
+      {
+        "id": "lk_warrant_requires_choice",
+        "source": "engine_inherited_warrant",
+        "target": "th_chosen_endings",
+        "function": "A tradition that cannot verify must decide when to stop deciding."
+      },
+      {
+        "id": "lk_ledger_pressures_starvation",
+        "source": "engine_displacement_ledger",
+        "target": "thread_starvation",
+        "function": "Priced yeses make strictness look affordable until the shelf thins."
+      },
+      {
+        "id": "lk_proxy_pressures_accountability",
+        "source": "engine_proxy_attribution",
+        "target": "thread_accountability",
+        "function": "Each mislaid blame renews the demand for a responsible party."
+      },
+      {
+        "id": "lk_contradiction_pressures_coherence",
+        "source": "engine_faithful_contradiction",
+        "target": "thread_coherence",
+        "function": "Every faithful transmission makes coherence harder to claim and dearer to keep."
+      },
+      {
+        "id": "lk_warrant_pressures_succession",
+        "source": "engine_inherited_warrant",
+        "target": "thread_succession",
+        "function": "Decayed reasons make handing on intact impossible, so succession becomes a choice."
+      },
+      {
+        "id": "lk_copy_produces_dread",
+        "source": "engine_irreversible_copy",
+        "target": "rx_dread_of_the_unchecked",
+        "function": "Irreversibility is what the reader feels as the dread of the unchecked."
+      },
+      {
+        "id": "lk_reading_produces_complicity",
+        "source": "engine_reading_as_verification",
+        "target": "rx_complicity",
+        "function": "The reader judges by taste and so shares the monks' circularity."
+      },
+      {
+        "id": "lk_warrant_produces_custody",
+        "source": "engine_inherited_warrant",
+        "target": "rx_relief_of_custody",
+        "function": "Inheritance is felt as warmth before it is felt as debt."
+      },
+      {
+        "id": "lk_ledger_produces_trust",
+        "source": "engine_displacement_ledger",
+        "target": "rx_earned_trust",
+        "function": "Trust feels earned only where each yes is shown to have cost something."
+      },
+      {
+        "id": "lk_fidelity_produces_plain_hand",
+        "source": "engine_faithful_contradiction",
+        "target": "aes_plain_hand",
+        "function": "A rule against emendation produces prose with visible seams and no varnish."
+      },
+      {
+        "id": "lk_ledger_produces_catalogue",
+        "source": "engine_displacement_ledger",
+        "target": "aes_catalogue_marginalia",
+        "function": "Two accounts require an apparatus, and the apparatus becomes a surface."
+      },
+      {
+        "id": "lk_copy_produces_withholding",
+        "source": "engine_irreversible_copy",
+        "target": "aes_withheld_light",
+        "function": "What cannot be checked is withheld without comment, not explained away."
+      },
+      {
+        "id": "lk_proxy_produces_comedy",
+        "source": "engine_proxy_attribution",
+        "target": "aes_comic_deflation",
+        "function": "A procedure that blames a copyist is funny until you are the copyist."
+      },
+      {
+        "id": "lk_warrant_produces_dated_voice",
+        "source": "engine_inherited_warrant",
+        "target": "aes_dated_voice",
+        "function": "Decayed reasons surface as vocabulary drift that no narrator explains."
+      },
+      {
+        "id": "lk_wager_unit_frames_copy",
+        "source": "st_wager_architecture",
+        "target": "engine_irreversible_copy",
+        "function": "Repeats the primary engine as a unit: crisis, unfounded decision, transmission, delayed cost."
+      },
+      {
+        "id": "lk_ledgers_serve_cost",
+        "source": "st_two_ledgers",
+        "target": "engine_displacement_ledger",
+        "function": "The second ledger is how an uncopied loss stays visible."
+      },
+      {
+        "id": "lk_ledgers_serve_starvation",
+        "source": "st_two_ledgers",
+        "target": "thread_starvation",
+        "function": "Recording refusals turns strictness from a policy into an accumulating debt."
+      },
+      {
+        "id": "lk_wager_produces_trust",
+        "source": "st_wager_architecture",
+        "target": "rx_earned_trust",
+        "function": "The unit pays off as trust because the cost always arrives somewhere the reader can see."
+      },
+      {
+        "id": "lk_wager_produces_complicity",
+        "source": "st_wager_architecture",
+        "target": "rx_complicity",
+        "function": "Temporal offset puts the reader in the position of judging a dead receiver's wager."
+      },
+      {
+        "id": "lk_ideas_to_reading",
+        "source": "g_novel_of_ideas",
+        "target": "engine_reading_as_verification",
+        "function": "Discursive form makes reading the action; argument must change what gets copied."
+      },
+      {
+        "id": "lk_suspense_to_copy",
+        "source": "g_epistemic_suspense",
+        "target": "engine_irreversible_copy",
+        "function": "Suspense supplies the deadline that makes a reception decision unavoidable."
+      },
+      {
+        "id": "lk_chronicle_to_warrant",
+        "source": "g_institutional_chronicle",
+        "target": "engine_inherited_warrant",
+        "function": "Institutional time is what turns one decision into a whole tradition's premise."
+      },
+      {
+        "id": "lk_saga_to_succession",
+        "source": "g_generational_saga",
+        "target": "thread_succession",
+        "function": "Handoffs give succession a body, so decay is suffered rather than observed."
+      },
+      {
+        "id": "lk_archive_to_catalogue",
+        "source": "g_archival_form",
+        "target": "aes_catalogue_marginalia",
+        "function": "Documentary form supplies the apparatus that carries the second narrative surface."
+      },
+      {
+        "id": "lk_comedy_to_proxy",
+        "source": "g_institutional_comedy",
+        "target": "engine_proxy_attribution",
+        "function": "Comedy is the register in which a correct but unjust blame assignment is bearable."
+      },
+      {
+        "id": "lk_chronicle_to_extension",
+        "source": "g_institutional_chronicle",
+        "target": "th_authority_as_extension",
+        "function": "Only a long institutional frame can show conferral occurring rather than authority being found."
+      },
+      {
+        "id": "lk_archive_to_complicity",
+        "source": "g_archival_form",
+        "target": "rx_complicity",
+        "function": "Reading apparatus without gloss reproduces the receiver's condition in the reader."
+      },
+      {
+        "id": "lk_starvation_to_dread",
+        "source": "thread_starvation",
+        "target": "rx_dread_of_the_unchecked",
+        "function": "Strictness meant to end dread produces a narrower dread instead."
+      },
+      {
+        "id": "lk_accountability_to_complicity",
+        "source": "thread_accountability",
+        "target": "rx_complicity",
+        "function": "The search for a responsible party ends by asking the reader who should sign."
+      },
+      {
+        "id": "lk_coherence_to_plain_hand",
+        "source": "thread_coherence",
+        "target": "aes_plain_hand",
+        "function": "Usable inconsistency requires a surface plain enough to show the joins."
+      },
+      {
+        "id": "lk_succession_to_custody",
+        "source": "thread_succession",
+        "target": "rx_relief_of_custody",
+        "function": "Handing on is felt as security precisely because the receiver did not choose it."
+      },
+      {
+        "id": "lk_plain_hand_to_trust",
+        "source": "aes_plain_hand",
+        "target": "rx_earned_trust",
+        "function": "Exact prose lets the reader trust the transmitter without trusting the author."
+      },
+      {
+        "id": "lk_withheld_to_dread",
+        "source": "aes_withheld_light",
+        "target": "rx_dread_of_the_unchecked",
+        "function": "Unremarked gaps teach the reader to feel provenance missing before it is named."
+      },
+      {
+        "id": "lk_catalogue_to_complicity",
+        "source": "aes_catalogue_marginalia",
+        "target": "rx_complicity",
+        "function": "Entries the reader consults without checking make the reader a user of the archive."
+      },
+      {
+        "id": "lk_comedy_to_trust",
+        "source": "aes_comic_deflation",
+        "target": "rx_earned_trust",
+        "function": "What can be laughed at can be revised, so laughter keeps trust from becoming reverence."
+      },
+      {
+        "id": "lk_dated_voice_to_trust",
+        "source": "aes_dated_voice",
+        "target": "rx_earned_trust",
+        "function": "Hearing the vocabulary drift proves the trust was chosen again, not inherited."
+      },
+      {
+        "id": "lk_relic_restarts_engine",
+        "source": "t_the_record_turned_relic",
+        "target": "engine_irreversible_copy",
+        "function": "The record is copied, then trusted without its reasons, restarting the engine one level up."
+      },
+      {
+        "id": "lk_relic_needs_open_handing",
+        "source": "t_the_record_turned_relic",
+        "target": "t_the_open_handing_over",
+        "function": "A relic can only be broken by a succession that treats it as an option rather than a fact."
+      },
+      {
+        "id": "lk_open_handing_closes",
+        "source": "t_the_open_handing_over",
+        "target": "th_chosen_endings",
+        "function": "Frames closure as a choice among live options rather than an exhaustion of material."
+      },
+      {
+        "id": "lk_costing_yes_sustains_trust",
+        "source": "t_the_costing_yes",
+        "target": "rx_earned_trust",
+        "function": "Trust is earned only where the price of each yes is visible on the page."
+      }
+    ],
+    "phases": [
+      {
+        "id": "ph_unrecorded_yes",
+        "title": "The Unrecorded Yes",
+        "order": 0,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "supporting"
+          },
+          {
+            "genre": "Archival Form",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "fear",
+              "joy"
+            ],
+            "trope_functions": [
+              "the unverifiable warrant"
+            ],
+            "structural_function": "Establishes that reception has always happened and has never been justified in writing, so the opening question is not whether to trust but whether to keep trusting blindly."
+          }
+        ],
+        "reader_experience": "Warmth at a working institution, with a slow chill at how little of it is written down.",
+        "aesthetic": "Plain hand; catalogue apparatus presented as ordinary housekeeping rather than evidence.",
+        "narrative_function": "Opens on a practice rather than a problem. The monastery receives anonymous books competently and without ceremony, and the reader is invited to find this admirable before being shown that the competence is inherited rather than achieved. The phase must establish the primary engine in ordinary operation, so that every later phase can be measured against a baseline of unremarkable competence.",
+        "transition": "The practice is shown to be expensive, which the opening has carefully not mentioned.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_first_displacement",
+        "title": "The Cost of the Yes",
+        "order": 1,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Generational Succession Narrative",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional Comedy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "sadness",
+              "anger"
+            ],
+            "trope_functions": [
+              "the costing yes"
+            ],
+            "structural_function": "Makes the second ledger visible: every received book is also a refused one, and the refused book is absent exactly when it is needed."
+          }
+        ],
+        "reader_experience": "The discomfort of arithmetic applied to generosity, and irritation at being made to count.",
+        "aesthetic": "Two ledgers presented side by side; the empty shelf described with the care usually given to the full one.",
+        "narrative_function": "Prices openness. The phase forces the first visible trade between admitting something valuable and losing something else valuable, and it refuses to let the reader dismiss the loss because the lost book was never copied. Its structural job is to install an irreversible reader habit: from here on, every admission is read as a displacement whether or not the text mentions one.",
+        "transition": "Once the cost is known, the next reception has to be argued rather than assumed.",
+        "parallel_with": [
+          "ph_unrecorded_yes"
+        ]
+      },
+      {
+        "id": "ph_faithful_contradiction",
+        "title": "Transmitted Whole, Contradicting",
+        "order": 2,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Epistemic Suspense",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the faithful contradiction"
+            ],
+            "structural_function": "Introduces the horizon's recurring crisis shape: a received text the corpus cannot absorb and the fidelity rule forbids repairing."
+          },
+          {
+            "genre_node_id": "g_novel_of_ideas",
+            "basic_emotions": [
+              "surprise",
+              "anger"
+            ],
+            "trope_functions": [
+              "the faithful contradiction"
+            ],
+            "structural_function": "Forces the argument about fidelity to become a decision with a cost rather than a position with a defence."
+          }
+        ],
+        "reader_experience": "The specific vertigo of a rule that is right and produces damage at the same time.",
+        "aesthetic": "Withheld light around the contradiction; the offending passage quoted in full and left standing, without editorial framing.",
+        "narrative_function": "Establishes fidelity as absolute and therefore costly, and does so once so that the rest of the horizon can use contradiction without re-explanation. The reader must leave this phase knowing that the monastery's integrity and the monastery's harm come from the same rule, which blocks every later reading in which the damage is blamed on a failure of principle.",
+        "transition": "A contradiction that cannot be repaired must be carried by someone, and the phase ends by asking who.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_proxy_accused",
+        "title": "The Transmitter Stands In",
+        "order": 3,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Institutional Comedy",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Epistemic Suspense",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_comedy",
+            "basic_emotions": [
+              "anger",
+              "fear"
+            ],
+            "trope_functions": [
+              "the proxy accused"
+            ],
+            "structural_function": "Converts a textual problem into a social one by letting responsibility settle on the last handler, because the author is unreachable."
+          }
+        ],
+        "reader_experience": "Laughter that curdles as a correct procedure produces an outcome nobody would defend out loud.",
+        "aesthetic": "Deadpan procedure, no winking; comedy withdrawn at the exact moment the penalty lands.",
+        "narrative_function": "Dramatizes what a name actually does. The reader sees that accountability is not a substitute for truth but a place to put the cost, and that anonymity does not remove the cost so much as remove the place. This phase is also the series' ethical hinge: it is where the reader decides whether the monastery is a victim of its own rigour or an instrument of it.",
+        "transition": "An institution that cannot blame an author becomes useful to people who would rather not be blamed.",
+        "parallel_with": [
+          "ph_first_displacement"
+        ]
+      },
+      {
+        "id": "ph_useful_orphan",
+        "title": "The Useful Orphan",
+        "order": 4,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Generational Succession Narrative",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional Comedy",
+            "role": "supporting"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the useful orphan"
+            ],
+            "structural_function": "Applies external pressure: clients want unattributable texts precisely because unattributability is a form of power."
+          }
+        ],
+        "reader_experience": "Recognition that the question has become urgent for the wrong reasons, and that each wrong reason is individually defensible.",
+        "aesthetic": "Dated voice sharpening; the vocabulary of legitimation entering the archive's own prose without comment.",
+        "narrative_function": "Makes the danger political without inventing a villain. Every client's interest is coherent on its own terms, so the phase cannot be discharged by exposing a bad actor; it can only be discharged by the institution deciding what it is for. This is where the series earns the right to be about institutions rather than about a scandal.",
+        "transition": "By the end of the phase the institution's own past has become one of its clients.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_reasons_decayed",
+        "title": "The Reasons Have Decayed",
+        "order": 5,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Archival Form",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "surprise",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the inherited verdict"
+            ],
+            "structural_function": "Reverses the question: the monks become the anonymous authors of their own tradition's warrants."
+          },
+          {
+            "genre_node_id": "g_archival_form",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "the inherited verdict",
+              "the record turned relic"
+            ],
+            "structural_function": "Makes the unrecoverable reasoning a physical artifact the reader handles in the same condition as the monks."
+          }
+        ],
+        "reader_experience": "The jolt of discovering that a settled verdict belongs to a person whose reasons no longer exist anywhere.",
+        "aesthetic": "Palimpsest; later hands annotating earlier ones, and the annotations disagreeing in a vocabulary the original could not have used.",
+        "narrative_function": "Closes the first movement by turning the question back on the monastery. Anonymity is now visible as a phase of all transmission rather than an exception inside it, and this is done without yet claiming that it is therefore harmless. The phase must leave the reader genuinely uncertain whether the discovery is a relief or an indictment.",
+        "transition": "If inherited warrant cannot be trusted, the obvious response is to stop inheriting.",
+        "parallel_with": [
+          "ph_faithful_contradiction"
+        ]
+      },
+      {
+        "id": "ph_narrowing",
+        "title": "The Narrowing",
+        "order": 6,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Generational Succession Narrative",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the costing yes",
+              "the inherited verdict"
+            ],
+            "structural_function": "Proves necessity by subtraction: a regime of signed books only, where the tradition thins in ways that stop being abstract once someone needs what it no longer holds."
+          }
+        ],
+        "reader_experience": "Grief for a tradition that has become safe and is no longer sufficient.",
+        "aesthetic": "Austerity: prose reduces, ledgers shorten, and the empty shelf becomes the presiding image of the phase.",
+        "narrative_function": "This is the phase that prevents be more careful from being the answer. Strictness is given its strongest case and is then shown to be a real loss, felt by readers whose needs a closed archive cannot meet. The phase must be genuinely convincing as policy, because the series' whole argument depends on the reader having been tempted by safety.",
+        "transition": "Something has to be invented, or the institution will keep the archive and lose the reason for keeping it.",
+        "parallel_with": [
+          "ph_unrecorded_yes"
+        ]
+      },
+      {
+        "id": "ph_the_dated_yes",
+        "title": "The Dated Yes",
+        "order": 7,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Archival Form",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the unverifiable warrant"
+            ],
+            "structural_function": "The pivot of the horizon: the wager record is invented, so a reception is dated, signed, and given a condition under which it should be reopened."
+          },
+          {
+            "genre_node_id": "g_archival_form",
+            "basic_emotions": [
+              "joy",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the unverifiable warrant"
+            ],
+            "structural_function": "Changes the register of the apparatus: entries acquire dates, names, and reasons, and the reader can now see what was previously invisible."
+          }
+        ],
+        "reader_experience": "Relief that is immediately complicated by the sense that something has been signed in the reader's own name.",
+        "aesthetic": "The apparatus changes register mid-horizon; from here the document surface is visibly heavier and more precise.",
+        "narrative_function": "Converts the danger from an unacknowledged wager into an acknowledged one. This is emphatically not a solution to anonymity; it is a procedure for being wrong in public, which is the only thing an archive that cannot verify can honestly offer. The phase must present the invention as genuinely good and obviously insufficient at the same time, or the recursion that follows will look like authorial punishment rather than consequence.",
+        "transition": "A record that works is a record that will be trusted.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_whose_reasons",
+        "title": "Whose Reasons Count",
+        "order": 8,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Institutional Comedy",
+            "role": "supporting"
+          },
+          {
+            "genre": "Novel of Ideas",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the record turned relic"
+            ],
+            "structural_function": "Turns the record into a site of power: a good reason in one generation becomes a disqualifying reason in the next."
+          }
+        ],
+        "reader_experience": "Anger at watching an instrument of honesty become an instrument of advantage.",
+        "aesthetic": "Comic deflation of procedural solemnity, then its withdrawal when the advantage lands.",
+        "narrative_function": "Prevents the invention from functioning as a cure. Recording does not remove risk; it relocates risk into the politics of which reasons remain legible, and the phase must show the relocation with enough precision that the reader can predict it in their own institutions. The comedy here is not relief but diagnosis.",
+        "transition": "The record will outlive the reasons it was built to preserve.",
+        "parallel_with": [
+          "ph_proxy_accused"
+        ]
+      },
+      {
+        "id": "ph_record_as_relic",
+        "title": "The Record as Relic",
+        "order": 9,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Archival Form",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Epistemic Suspense",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "fear",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the record turned relic"
+            ],
+            "structural_function": "Recursive crisis: the monastery has manufactured a new anonymous book, its own record, cited by everyone and read by no one."
+          },
+          {
+            "genre_node_id": "g_archival_form",
+            "basic_emotions": [
+              "fear",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the record turned relic"
+            ],
+            "structural_function": "Makes the recursive object physically present, so the reader can see the reasons going unread in the same room as the text."
+          }
+        ],
+        "reader_experience": "The nausea of recognizing a reliquary that has never been opened, and the suspicion that one has been venerating it.",
+        "aesthetic": "Withheld light; the record quoted by others and never by its own keepers.",
+        "narrative_function": "Restarts the primary engine one level up. The corrective instrument becomes the next unexamined authority, which is the horizon's strongest evidence that no procedure alone can close the question. This is the phase where the series earns the right to refuse a cure, because it has first built one and used it well.",
+        "transition": "The next generation must decide what it is actually handing on.",
+        "parallel_with": [
+          "ph_faithful_contradiction",
+          "ph_reasons_decayed"
+        ]
+      },
+      {
+        "id": "ph_handing_over",
+        "title": "The Handing Over",
+        "order": 10,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Generational Succession Narrative",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional Chronicle",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional Comedy",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_generational_saga",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the open handing over",
+              "the inherited verdict"
+            ],
+            "structural_function": "Frames succession as a choice among live options: the decisions, the reasons, or the practice of re-deciding."
+          }
+        ],
+        "reader_experience": "Custodial warmth sharpened by the knowledge that whatever is chosen, something worth keeping is left behind.",
+        "aesthetic": "Physical motifs of handling return; the ledger is handed rather than shelved, and the worn edges do the argument.",
+        "narrative_function": "Converts the horizon from an accumulation into a decision. At least two options must remain genuinely viable at the end of this phase, because the series' ending is required to be chosen rather than exhausted; if only one option survives, the final phase becomes a formality. The phase must also make the choice feel like custody rather than authorship, so the chooser is not credited with inventing the tradition's future.",
+        "transition": "A choice must be made by someone who has to live inside its consequences.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_chosen_close",
+        "title": "The Chosen Ending",
+        "order": 11,
+        "scope": "series",
+        "genres": [
+          {
+            "genre": "Institutional Chronicle",
+            "role": "governing"
+          },
+          {
+            "genre": "Generational Succession Narrative",
+            "role": "supporting"
+          },
+          {
+            "genre": "Archival Form",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "g_institutional_chronicle",
+            "basic_emotions": [
+              "joy",
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the open handing over"
+            ],
+            "structural_function": "Closes by a deliberate, dated, revocable act: a period of discernment is ended, and the question is explicitly left standing rather than answered."
+          }
+        ],
+        "reader_experience": "Satisfaction that admits it is a decision, and relief without the lie of completeness.",
+        "aesthetic": "The final apparatus entry is dated, signed, and left visibly revocable, so the last thing on the page is an option.",
+        "narrative_function": "Delivers the required ending: chosen, not exhausted. The central question remains open by design, with anonymity neither declared fatal nor set aside as irrelevant, and the closure is legitimate because it is dated, owned, and reopenable. The phase is a disposition rather than a scheduled event and may land earlier or later than the twelfth Book, since the published count is a horizon and not a deadline; the architecture treats the ending as an act that can arrive whenever someone with standing chooses it.",
+        "transition": "Closure is explicitly reversible; the reopening condition remains the last thing on the page.",
+        "parallel_with": [
+          "ph_unrecorded_yes"
+        ]
+      }
+    ],
+    "open_questions": [
+      "Should the reader ever know more than the monastery does - a provenance the archive cannot possess - or should the reader share the monks' ignorance for the whole horizon? The architecture assumes shared ignorance, which is what makes the reader complicit, but a partial-knowledge version would trade complicity for dramatic irony.",
+      "How much of the series' pleasure should come from the comedy of procedure? The design uses it to keep trust from hardening into reverence, but the balance between irony and gravity is an authorial register choice, not a structural one.",
+      "Is the monastery's continuity institutional or communal? The architecture holds the former, with attachment carried by the office, the ledger, and the archive rather than by a continuous cast. A communal version would change what the reader grieves at each handoff.",
+      "How much of the world outside the archive should be shown? External demand is load-bearing in this design because it makes anonymity valuable as well as dangerous; a narrower world would slow the pressure that makes the question urgent.",
+      "Should the wager record be weighted as a genuine advance, an ambiguous accommodation, or a new form of the same danger? The phases play all three; the author may want one to dominate, which would change how the final phase reads.",
+      "What register should the ending hold - relief, grief, or unresolved resolve? Chosen rather than exhausted permits all three, and they are different final feelings rather than different plot outcomes.",
+      "Are the anonymous texts to be understood as religious, secular, or deliberately unclassified? The vision's monastery implies a tradition without specifying what kind, and the architecture avoids the question so as not to invent doctrine.",
+      "Does the horizon assume unbroken institutional continuity, or does it permit a period of collapse and refounding? The phases assume continuity with narrowing and recovery; a collapse would require re-anchoring the inherited warrant engine.",
+      "Should the central question ever be argued explicitly by a voice in the text, or only enacted through decisions? The novel-of-ideas contract permits direct argument, and a purely enacted version would need a different surface.",
+      "Should the series ask the reader, structurally, to make a reception decision of their own, or keep them a witness? The archival form makes the first possible; the second is safer for a reader who wants to be told a story."
+    ],
+    "opportunities": [
+      {
+        "id": "op_silence_ledger",
+        "title": "The Third Ledger: what was never offered",
+        "why_it_matters": "The two ledgers record what was received and what was refused, but not what never reached the monastery at all. A third, mostly empty ledger would let the series dramatize the archive's ignorance of its own gaps, which is a way of deepening incomplete knowledge without touching the central question or resolving it. It would also give a later generation something to find that changes what they think their tradition is.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Adds a category of loss the reader can feel but never audit, and gives the archival form a genuinely new surface late in the horizon without adding a new engine.",
+        "intention_fidelity": "High. It intensifies the author's stated experience of incomplete knowledge and leaves the anonymity question exactly as open as required.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "op_the_drift_as_author",
+        "title": "Copyist Drift as a Third Kind of Authorship",
+        "why_it_matters": "After enough generations, a copyist's error is indistinguishable from an author's choice. The series could treat that drift as a genuine third category between the named and the anonymous, which would sharpen the danger by making anonymity a spectrum rather than a condition. It matters because it is the most likely place for a reader to feel the series has something new to say about authorship.",
+        "scope": "theme",
+        "relationship": "reinterprets",
+        "artistic_potential": "Very high, and it gives the fidelity rule a second life: under drift, faithful transmission is the only thing separating a tradition from a slow collaboration.",
+        "intention_fidelity": "Uncertain. Handled carelessly it slides toward the reading the vision forbids, in which anonymity becomes a universal condition and therefore irrelevant. It would need the named and the drifted kept genuinely distinct in their consequences.",
+        "requires_author_decision": true,
+        "provisional_primary": false
+      }
+    ],
+    "interpretations": [
+      {
+        "id": "int_authority_is_reception",
+        "interpretation": "I am treating authority as a performative act of reception rather than a property of a text. A book becomes authoritative when the monastery receives it into the copying queue, and reception is irreversible because the copy leaves the house and cannot be recalled. Authority is therefore something the receiver does, and the receiver is the only party the story can actually watch.",
+        "affects": [
+          "engine_irreversible_copy",
+          "th_authority_as_extension",
+          "st_wager_architecture",
+          "thread_accountability"
+        ],
+        "consequences": "The series' subject becomes the receiver's judgment rather than the author's identity, which is what allows twelve Books about the same question without twelve investigations. It also makes the danger internal and structural: there is no villain and no discovery that could put the matter right. Every phase must therefore be organized around a decision that cannot be deferred, and the reader's attention must be trained on the act of conferral rather than on the text's origin.",
+        "alternative": "Authority could instead be a latent property the monastery merely discovers, with reception as a registration of something already true. That version is more consoling and much weaker: it reduces the series to a sequence of authentication puzzles and makes the monastery's fallibility a technical problem rather than a moral one.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_hold_is_not_neutral",
+        "interpretation": "The monastery does have a category for not deciding, but holding is not free: a held book occupies shelf and scribal time and blocks the book behind it in the queue. So deferral exists as an option and functions as a soft refusal. I am using this so that the monks can never claim innocence by postponement.",
+        "affects": [
+          "engine_displacement_ledger",
+          "thread_starvation",
+          "st_two_ledgers",
+          "t_the_costing_yes"
+        ],
+        "consequences": "Every phase can dramatize a third choice that is secretly a decision, which keeps the moral field three-cornered instead of binary. It also gives institutional cowardice a concrete cost that the second ledger can record. The risk is that it makes the monastery's procedure look designed to produce bad faith, so the hold must be shown as a reasonable safeguard that happens to have a price.",
+        "alternative": "A hard rule that a book is either received or refused, with no middle state, would make every decision cleaner and more theatrical, but it would remove the most realistic form of institutional evasion available to the series.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_absolute_fidelity",
+        "interpretation": "I am reading the monastery's copying discipline as absolutely forbidding emendation. A copied text is transmitted as received; correcting it is the one act the institution treats as unforgivable, because correction is indistinguishable from authorship and destroys the only guarantee the house can honestly offer.",
+        "affects": [
+          "engine_faithful_contradiction",
+          "t_the_faithful_contradiction",
+          "aes_plain_hand",
+          "thread_coherence"
+        ],
+        "consequences": "Contradiction becomes a permanent structural fact rather than a problem to be solved, which is what gives the coherence thread twelve Books of work. It also supplies the series' disgust target, since a doctored copy is the one available form of betrayal. The cost is that the monastery can never repair anything, so the horizon must be able to make accumulated inconsistency feel like integrity rather than negligence.",
+        "alternative": "A discipline permitting annotated correction would relocate the drama from fidelity to commentary, and would let each generation argue with its predecessors in the margin. That is a legitimate series, but a more comfortable one: it turns the central question into a conversation rather than a wager.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_wager_record",
+        "interpretation": "This is my proposed resolution of the question the author reserved, and it is a proposal, not a finding. The horizon's pivot is an invented instrument: a reception is recorded with its date, the name of the receiver, the reason it was accepted, and an explicit condition under which it should be reopened. Anonymity is thereby made a named counterparty to a contract rather than a verdict about the text.",
+        "affects": [
+          "thread_accountability",
+          "th_names_as_leverage",
+          "t_the_record_turned_relic",
+          "th_chosen_endings",
+          "st_two_ledgers"
+        ],
+        "consequences": "The series gets a real payoff that is not a solution, which is the only shape that satisfies both author commitments at once. It also generates the horizon's recursive turn, since the record is copied and then trusted without its reasons, making the monastery the author of a new anonymous book. The ending becomes an act of custody rather than a discovery, and can therefore be chosen at any point someone has standing to choose it.",
+        "alternative": "The series could refuse to invent any instrument and end on a bare acknowledgment that the wager is unavoidable. That is cleaner and more austere, but it gives the reader nothing to have built, and it makes the twelve-Book accumulation feel like repetition rather than construction.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_names_as_leverage",
+        "interpretation": "I am reading the author's refusal to call anonymity either fatal or irrelevant as a claim about what a name does. A name does not certify truth; it supplies recourse. It gives someone to argue with, someone to credit, someone to refuse. Anonymity removes recourse, not meaning.",
+        "affects": [
+          "th_names_as_leverage",
+          "engine_proxy_attribution",
+          "thread_accountability",
+          "t_the_proxy_accused"
+        ],
+        "consequences": "The series must keep showing what is lost when no name exists, which means the archive's named books must be visibly better in one respect - they can be contested at the source - even when they are worse in others. This prevents the seductive reading in which names are merely a fiction of authority. It also means the payoff cannot be a recovery of identity; it has to be a substitute for recourse.",
+        "alternative": "Names could be treated as pure false comfort, a credential the series steadily exposes. That reading is available and cheaper, but it collapses toward the conclusion the vision explicitly forbids, since anonymity would then be no worse than anything else.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_twelve_is_publication_horizon",
+        "interpretation": "I am treating twelve Books as a publication horizon rather than a narrative deadline. The vision says the ending must be chosen whenever it comes, so the final phase is a disposition available to the series rather than an event scheduled for a particular Book.",
+        "affects": [
+          "th_chosen_endings",
+          "thread_succession",
+          "t_the_open_handing_over"
+        ],
+        "consequences": "The architecture can end honestly at more than one point, and no phase has to be padded to reach a twelfth position. It also means the last phase must be written so that arriving early would feel like decision rather than truncation, which constrains how much the horizon may defer to its final movement.",
+        "alternative": "The count could be treated as a structural contract, with the closing disposition fixed to the final Book. That gives a tighter shape but risks making the ending arrive because the shelf is full, which is exactly the exhaustion the vision rules out.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_external_clients",
+        "interpretation": "I am inventing a world condition the vision does not state: the archive has clients outside the monastery who need its texts for legitimation, precedent, or accusation. This is what makes an unattributable book valuable as well as dangerous.",
+        "affects": [
+          "engine_instrumental_orphan",
+          "t_the_useful_orphan",
+          "thread_starvation",
+          "g_institutional_comedy"
+        ],
+        "consequences": "The central question acquires urgency and a political dimension without requiring a villain, since each client's interest is defensible. It also gives the monastery a reason to keep copying that is not purely spiritual, which makes the institution's compromises legible. The cost is a wider world than a cloistered version would need, and the series must show enough of it to make the pressure credible without becoming a political chronicle.",
+        "alternative": "A closed house whose only audience is the next generation would make the danger slower and more purely epistemic. It would also make the stakes felt only by monks, which risks the reader experiencing the question as a professional dilemma rather than a human one.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_receiver_not_author",
+        "interpretation": "I am reading generation after generation as a mandate for discontinuous generations and no continuous cast. Attachment is carried by the office, the archive, and the ledgers rather than by persons who persist across the horizon.",
+        "affects": [
+          "g_generational_saga",
+          "thread_succession",
+          "aes_dated_voice",
+          "rx_relief_of_custody"
+        ],
+        "consequences": "The series can span the time its question requires without aging a cast implausibly, and reader affection attaches to a practice rather than to individuals, which is thematically apt. The cost is a real loss of conventional intimacy: the reader must learn to love an office, and each handoff has to re-earn attachment quickly.",
+        "alternative": "A small continuous community aging across all twelve Books would give the series a familiar emotional spine and let one person's whole life be the wager. It would also compress the horizon and make inherited warrant a matter of one generation's memory rather than several generations' silence.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_genre_provenance",
+        "interpretation": "The vision names no genre, so the genre set here is a working hypothesis rather than a commitment. I am choosing institutional chronicle as governing because the question is asked generation after generation, with novel of ideas, epistemic suspense, generational succession, and institutional comedy supporting, and archival form tertiary.",
+        "affects": [
+          "g_institutional_chronicle",
+          "g_novel_of_ideas",
+          "g_epistemic_suspense",
+          "g_institutional_comedy",
+          "g_archival_form"
+        ],
+        "consequences": "The series' pleasures become structural, procedural, and discursive rather than action-driven, and the phase rhythm is built for accumulation rather than escalation. If the author wanted a more intimate or more adventurous register, this entire phase sequence would need re-pacing even though the engines could survive.",
+        "alternative": "A single-generation, character-scaled treatment would concentrate the emotional weight and make the central question a personal crisis rather than an institutional one. It would lose the delayed-consequence engine, which is the main source of the series' specific gravity.",
+        "author_decision_required": true
+      }
+    ],
+    "emotion_targets": [
+      {
+        "id": "em_earned_trust",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "The pleasure of confidence that has been paid for: relief at finding something reliable, held together with the knowledge of what it cost to keep it. Joy here means the specific warmth of a wager that held, not the absence of doubt.",
+        "eliciting_condition": "A reception the reader has watched being argued, priced, and doubted turns out to have been right, or turns out to have been wrong in a way the institution survives and records.",
+        "aesthetic_strategy": "Plain, exact prose that earns delight through precision; the ledger's visible cost doing the work that reassurance would otherwise do.",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "em_dread_unchecked",
+        "emotion": "fear",
+        "role": "primary",
+        "intended_effect": "A steady, low-grade dread that what has been accepted as true was accepted on someone's word, and that the word can no longer be checked. Directed at the act of reading rather than at any threat inside the story.",
+        "eliciting_condition": "A text is relied upon in a way the reader can see is irreversible, while every route to its origin is shown to be closed and nobody in the scene finds this remarkable.",
+        "aesthetic_strategy": "Withhold provenance consistently and without narratorial comment; let the reader notice the gap before any character names it.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_pleasure_transmission",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "The specific pleasure of a text that survives: the beauty of exact copying, the satisfaction of a book answering a question it was never asked, the craft-pride of a hand that got it right.",
+        "eliciting_condition": "A passage is copied faithfully and then does work in the world that its copyist could not have anticipated, without any distortion being required for it to work.",
+        "aesthetic_strategy": "Plain hand turned toward precision as a source of delight; sensory attention to the physical act of copying.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_relief_custody",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "Warmth at the chain of hands: the felt security of being one link among many, holding something one did not choose and could not have made.",
+        "eliciting_condition": "A book passes between generations and is treated as an obligation rather than a possession, by someone who gains nothing from it.",
+        "aesthetic_strategy": "Recurring physical motifs of handling - worn edges, repaired bindings, a hand that is not the first - left unexplained.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_grief_refusal",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "Grief for the books that were never copied, felt as absence rather than as tragedy: the reader misses something they never had and cannot audit.",
+        "eliciting_condition": "A refusal is shown to have been reasonable, and its cost is shown to be a need that nothing else in the archive can meet.",
+        "aesthetic_strategy": "The two ledgers, with refusals recorded at the same level of care as admissions, so the reader feels the empty shelf as a room.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_anger_proxy",
+        "emotion": "anger",
+        "role": "contrasting",
+        "intended_effect": "Anger at the injustice of holding whoever last touched a book responsible for what the book says, made worse by the fact that the holding is procedurally correct.",
+        "eliciting_condition": "A copyist is held to account for a sentence they transcribed and did not write, and no step of the proceeding can be faulted.",
+        "aesthetic_strategy": "Comic deadpan procedure, then the comedy withdrawn at the moment the penalty lands.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_disgust_doctored",
+        "emotion": "disgust",
+        "role": "contrasting",
+        "intended_effect": "Revulsion at the corrected copy: the specific nausea of a text that has been made to agree, and the recognition that the correction was kindly meant.",
+        "eliciting_condition": "A contradiction is resolved by emendation and the emendation is defended as fidelity, with the trace of the alteration still visible.",
+        "aesthetic_strategy": "Show the physical evidence of alteration - a scraped line, a word in a later hand, a margin that argues - rather than describing the act.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_surprise_inherited",
+        "emotion": "surprise",
+        "role": "local",
+        "intended_effect": "The jolt of learning that a settled verdict was decided by someone whose reasons no longer exist, and that the current practice is the fossil of a dispute nobody remembers having.",
+        "eliciting_condition": "A record, or the pointed absence of one, reveals that a rule the monks treat as tradition was a contested judgment within living memory of a previous period.",
+        "aesthetic_strategy": "Dated voice: the reader hears the idiom shift and realizes the argument has been reworded into agreement.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_unease_complicity",
+        "emotion": "fear",
+        "role": "local",
+        "intended_effect": "The reader's own discomfort at having made the same wager the monks make, and having enjoyed it, and being unable to say what they would have done better.",
+        "eliciting_condition": "The reader is invited to judge a reception decision that they could not have made better with the information available at the time.",
+        "aesthetic_strategy": "Direct address by structure rather than by narration: the apparatus asks the reader to sign, and the reader has been reading it as furniture.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "em_joy_chosen_close",
+        "emotion": "joy",
+        "role": "local",
+        "intended_effect": "Satisfaction at an ending that admits it is a decision: relief without the lie of completeness, and the particular calm of a door left visibly unlocked.",
+        "eliciting_condition": "A period of discernment is closed explicitly, by someone with standing, with the reopening condition left legible on the page.",
+        "aesthetic_strategy": "The final apparatus entry is dated, signed, and left visibly revocable, so the last thing the reader sees is an option.",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "cx_earned_trust",
+        "title": "Trust That Has a Receipt",
+        "basic_emotions": [
+          "fear",
+          "joy",
+          "sadness"
+        ],
+        "context": "Trust that has been through the fear of being wrong and the grief of what was given up to be right. It feels like steadiness rather than confidence: the holder can say what would change their mind, and knows what the admission cost. This is the series' governing emotional destination, and it is only available to a reader who has been afraid somewhere in the horizon."
+      },
+      {
+        "id": "cx_custodial_love",
+        "title": "Custodial Love",
+        "basic_emotions": [
+          "joy",
+          "sadness"
+        ],
+        "context": "Affection for a thing one did not choose and did not make, held because it was handed over. The sadness is not disappointment in the object but the knowledge that the person who handed it over meant more than they could transmit. It is the emotion that makes succession feel like a privilege rather than a burden."
+      },
+      {
+        "id": "cx_suspicion_of_reverence",
+        "title": "The Suspicion of Reverence",
+        "basic_emotions": [
+          "fear",
+          "disgust"
+        ],
+        "context": "Dread at discovering that the object of one's reverence is unread: the sensation of a reliquary that has never been opened, combined with revulsion at one's own participation in the veneration. It is the specific feeling of the record-turned-relic phase, and it is also aimed at the reader, who has been treating the series' apparatus the same way."
+      },
+      {
+        "id": "cx_institutional_repentance",
+        "title": "Institutional Repentance",
+        "basic_emotions": [
+          "sadness",
+          "anger",
+          "disgust"
+        ],
+        "context": "An institution recognizing its own error without discrediting itself: grief for the harm done, anger at the procedure that did it, disgust at the temptation to cover it. The compound is unstable, because any one of the three can take over and turn repair into either self-pity, prosecution, or concealment."
+      },
+      {
+        "id": "cx_comic_dread",
+        "title": "Comic Dread",
+        "basic_emotions": [
+          "joy",
+          "fear"
+        ],
+        "context": "The laughter that comes when a procedure reveals itself as arbitrary, immediately followed by the chill of realizing the procedure still has force. The joy and the fear are not sequential moods but a single compound: the reader is amused and implicated at once, which is the only reliable defence against twelve Books of gravitas."
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "g_institutional_chronicle",
+        "role": "governing",
+        "emotion_target_ids": [
+          "em_earned_trust",
+          "em_dread_unchecked",
+          "em_surprise_inherited"
+        ],
+        "complex_emotion_ids": [
+          "cx_earned_trust",
+          "cx_suspicion_of_reverence"
+        ],
+        "trope_functions": [
+          "the inherited verdict",
+          "the unverifiable warrant",
+          "the costing yes",
+          "the record turned relic"
+        ],
+        "narrative_engine": "Powered by the Irreversible Copy and its subordinate Inherited Warrant. Each period must make a reception decision its own generation cannot evaluate, and the next period opens by inheriting the result. The institution, not any person, is the subject that changes; persons are the medium through which one period's judgment becomes the next period's condition. The chronicle's long horizon is what converts the question from a dilemma into an accumulating structure.",
+        "structural_pattern": "Serialized institutional time: a repeating unit of crisis, insufficient verification, irreversible decision, and delayed consequence, whose conditions differ each iteration because the archive and the institution's self-understanding have both changed. No unit resolves the question; each changes what the question costs to hold.",
+        "aesthetic_strategies": [
+          "plain, exact prose that performs fidelity rather than describing it",
+          "procedural documents quoted without editorial gloss",
+          "generational vocabulary drift that reveals change without commentary"
+        ],
+        "payoff_expectations": [
+          "each reception's cost arrives visibly in a later period",
+          "the institution's accumulated authority is finally shown to equal its accumulated unexamined reasoning",
+          "the horizon ends on a deliberate institutional act rather than on a discovery"
+        ]
+      },
+      {
+        "genre_node_id": "g_novel_of_ideas",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "em_surprise_inherited",
+          "em_pleasure_transmission",
+          "em_unease_complicity"
+        ],
+        "complex_emotion_ids": [
+          "cx_earned_trust",
+          "cx_institutional_repentance"
+        ],
+        "trope_functions": [
+          "the unverifiable warrant",
+          "the faithful contradiction"
+        ],
+        "narrative_engine": "Reading as the Only Verification. Argument is conducted through consequences rather than conversation: a proposition is tested by whether the institution will act on it before it is settled. Every abstraction must eventually be entered in a ledger, and the ledger does not care how well the proposition was phrased.",
+        "structural_pattern": "Proposition, price, transmission, reckoning. The pattern refuses the essayistic pause, since a detour that leaves nothing altered is not permitted to occupy a period.",
+        "aesthetic_strategies": [
+          "argument carried by decision rather than by dialogue",
+          "technical vocabulary used precisely and then abandoned when it stops earning its keep",
+          "the reader positioned as a juror rather than a student"
+        ],
+        "payoff_expectations": [
+          "a position the reader has been persuaded by is shown to be unusable when it must be acted on",
+          "the horizon's most abstract claim is finally paid for by a specific irreversible loss"
+        ]
+      },
+      {
+        "genre_node_id": "g_epistemic_suspense",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "em_dread_unchecked",
+          "em_anger_proxy"
+        ],
+        "complex_emotion_ids": [
+          "cx_comic_dread"
+        ],
+        "trope_functions": [
+          "the unverifiable warrant",
+          "the proxy accused"
+        ],
+        "narrative_engine": "The Irreversible Copy supplies the deadline. Verification is always available in principle and never available in time, so suspense is generated by the shape of the institution's knowledge rather than by threat. The reader is placed in the same epistemic position as the decider, which is the source of the dread and the reason it does not need a monster.",
+        "structural_pattern": "Withholding calibrated to the reader's own inability to check. Tension rises when a decision approaches and cannot be deferred, not when danger approaches.",
+        "aesthetic_strategies": [
+          "withhold provenance without narratorial comment",
+          "let the reader notice the gap before any character names it",
+          "end periods at the moment of commitment rather than at the moment of discovery"
+        ],
+        "payoff_expectations": [
+          "dread is confirmed by a consequence rather than by a revelation",
+          "at least one dread turns out to have been misplaced, and the cost of the misplaced dread is shown"
+        ]
+      },
+      {
+        "genre_node_id": "g_generational_saga",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "em_relief_custody",
+          "em_grief_refusal"
+        ],
+        "complex_emotion_ids": [
+          "cx_custodial_love"
+        ],
+        "trope_functions": [
+          "the open handing over",
+          "the inherited verdict",
+          "the trained ear"
+        ],
+        "narrative_engine": "Inherited Warrant drives succession: what is handed on is always less than what was meant, because reasons decay faster than texts. Each generation must reconstruct a justification it did not author, and each reconstruction is a new act of reception with its own unacknowledged wager.",
+        "structural_pattern": "Handoff to handoff. Continuity is carried by objects, procedures, and the ledgers rather than by a continuous cast, so each period re-earns attachment to something it did not choose.",
+        "aesthetic_strategies": [
+          "recurring physical motifs of handling: worn edges, repaired bindings, a hand that is not the first",
+          "no continuous cast, so affection attaches to the office and the archive",
+          "each generation's idiom distinct enough to be dated by ear"
+        ],
+        "payoff_expectations": [
+          "an inherited verdict is finally challenged by someone with standing to challenge it",
+          "the last handoff is a choice among live options rather than a default"
+        ]
+      },
+      {
+        "genre_node_id": "g_institutional_comedy",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "em_anger_proxy",
+          "em_unease_complicity"
+        ],
+        "complex_emotion_ids": [
+          "cx_comic_dread",
+          "cx_institutional_repentance"
+        ],
+        "trope_functions": [
+          "the proxy accused",
+          "the costing yes",
+          "the useful orphan"
+        ],
+        "narrative_engine": "Proxy Attribution. The comedy is produced by a procedure that is internally coherent and externally absurd: blame assigned correctly according to rules that no longer correspond to anything. The laughter is the reader recognizing the mechanism, and it stops precisely when the penalty lands on a body.",
+        "structural_pattern": "Escalation by procedural logic. A rule followed to its end produces an outcome nobody intended and everyone authorized, and the phase's turn is the moment the paperwork becomes a sentence.",
+        "aesthetic_strategies": [
+          "deadpan procedure, no winking",
+          "withdraw the comedy at the exact moment the consequence becomes personal",
+          "let the funniest line be a correct ruling"
+        ],
+        "payoff_expectations": [
+          "a joke the reader has enjoyed becomes the instrument of an injustice",
+          "the comedy is resolved by the procedure changing, not by a character becoming earnest"
+        ]
+      },
+      {
+        "genre_node_id": "g_archival_form",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "em_unease_complicity",
+          "em_surprise_inherited"
+        ],
+        "complex_emotion_ids": [
+          "cx_suspicion_of_reverence"
+        ],
+        "trope_functions": [
+          "the record turned relic",
+          "the inherited verdict"
+        ],
+        "narrative_engine": "The Two Ledgers. The series is built partly from apparatus - catalogue entries, reception notes, refusals, marginal disputes - so the reader receives the institution's reasoning in the same degraded form the monks do. Form performs the theme instead of illustrating it, and the reader's ordinary reading habits do the rest.",
+        "structural_pattern": "Documentary stratification. Later hands annotate earlier ones; the reader reads the palimpsest, never the original, and the palimpsest is what the institution actually has.",
+        "aesthetic_strategies": [
+          "quote apparatus without gloss",
+          "let marginalia carry opinions the main text will not state",
+          "preserve the physical trace of alteration rather than describing the act"
+        ],
+        "payoff_expectations": [
+          "the reader discovers they have been trusting an apparatus they never checked",
+          "the final apparatus entry is dated, signed, and visibly revocable"
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "gi_chronicle_enables_ideas",
+        "source_genre_id": "g_institutional_chronicle",
+        "target_genre_id": "g_novel_of_ideas",
+        "kind": "enables",
+        "mechanism": "The chronicle's long horizon lets a proposition acquire consequences that outlive whoever held it, so an idea can be dramatized as an inheritance rather than as a debate. Argument becomes action because the institution must act on the proposition before it is settled, and the settlement arrives for somebody else.",
+        "risk": "Didacticism: positions become mouthpieces, and the reader is invited to admire a debate rather than feel a cost."
+      },
+      {
+        "id": "gi_suspense_constrains_ideas",
+        "source_genre_id": "g_epistemic_suspense",
+        "target_genre_id": "g_novel_of_ideas",
+        "kind": "constrains",
+        "mechanism": "Suspense requires every proposition to carry a cost and a horizon, which forbids the essayistic detour that leaves nothing altered. An idea may only be explored by being made decidable against a clock, so the form cannot argue its way past a decision it would rather avoid.",
+        "risk": "Suspense can convert nuance into peril, making every distinction a threat and flattening the argument the series exists to make."
+      },
+      {
+        "id": "gi_comedy_tenses_suspense",
+        "source_genre_id": "g_institutional_comedy",
+        "target_genre_id": "g_epistemic_suspense",
+        "kind": "creates_tension",
+        "mechanism": "Comedy reveals that much of the dread is produced by procedure rather than danger, which is simultaneously the relief and the accusation. Deflation is the point: it deflates stakes suspense has just built, and the reader is left unsure whether the fear was proportionate.",
+        "risk": "Tonal collapse. Readers may take the laughter as the series conceding that its central question is trivial, which the vision forbids."
+      },
+      {
+        "id": "gi_saga_reinforces_chronicle",
+        "source_genre_id": "g_generational_saga",
+        "target_genre_id": "g_institutional_chronicle",
+        "kind": "reinforces",
+        "mechanism": "Succession gives the institution a body that ages. Each handoff is a fresh act of reception performed by someone who did not choose the thing they must now defend, so the chronicle's institutional time is felt as personal time in the hands of whoever is deciding.",
+        "risk": "Repetition: the same crisis recurs with new names and the horizon stops accumulating consequence."
+      },
+      {
+        "id": "gi_archive_enables_saga",
+        "source_genre_id": "g_archival_form",
+        "target_genre_id": "g_generational_saga",
+        "kind": "enables",
+        "mechanism": "Inherited documents let the reader receive a dead generation's reasoning secondhand, which is exactly how the monks receive it. The saga's continuity is carried by apparatus rather than by surviving persons, so a horizon without a continuous cast can still feel continuous.",
+        "risk": "Distance: the reader may feel they are reading a dossier of the past rather than living a decision that is still open."
+      },
+      {
+        "id": "gi_chronicle_enables_comedy",
+        "source_genre_id": "g_institutional_chronicle",
+        "target_genre_id": "g_institutional_comedy",
+        "kind": "enables",
+        "mechanism": "The chronicle's procedural surface gives comedy something real to be funny about. Because the rules have genuine weight, the absurdity they produce is load-bearing, and comedy becomes an instrument of institutional critique rather than decoration.",
+        "risk": "The comedy can start protecting the institution from the reader's anger by making its failures charming."
+      },
+      {
+        "id": "gi_suspense_converges_chronicle",
+        "source_genre_id": "g_epistemic_suspense",
+        "target_genre_id": "g_institutional_chronicle",
+        "kind": "converges",
+        "mechanism": "Both genres are organized by delay: the chronicle withholds consequence across generations, suspense withholds verification within a period. The shared shape lets a slow institutional rhythm generate immediate tension without importing a thriller plot.",
+        "risk": "Convergence risks a single long withheld answer, which would violate the requirement that the ending be chosen rather than exhausted."
+      },
+      {
+        "id": "gi_ideas_constrains_saga",
+        "source_genre_id": "g_novel_of_ideas",
+        "target_genre_id": "g_generational_saga",
+        "kind": "constrains",
+        "mechanism": "An idea must be shown changing across generations, not restated by them. The same argument may not appear twice in the same form, which forces the saga to dramatize drift in vocabulary rather than repetition of doctrine.",
+        "risk": "The constraint can push toward novelty for its own sake, making each generation merely different rather than consequentially different."
+      },
+      {
+        "id": "gi_comedy_contrasts_saga",
+        "source_genre_id": "g_institutional_comedy",
+        "target_genre_id": "g_generational_saga",
+        "kind": "contrasts",
+        "mechanism": "The saga asks the reader to accept inheritance as an obligation, while comedy shows the inheritance being administered by people who are tired, petty, and procedural. The contrast keeps custodial love from becoming piety, since the thing being handed over is handled by hands that are not reverent.",
+        "risk": "If the comedy dominates, the reader stops believing the obligation matters and the handoffs lose their weight."
+      }
+    ]
+  },
+  "architecture_status": "ready",
+  "candidate_request_sha256": "f2e9ffad4d621c4f6d9c29310bc099d80bb3178c07400a4756b19487ca207b37",
+  "governing_objective": {
+    "authority": "author_expressed",
+    "story_vision": "A twelve-Book optimistic series about a monastery that copies books whose authors are unknown. The monks must decide, generation after generation, whether an anonymous book can be authoritative. The intended experience is earned trust in incomplete knowledge: authority is extended before it can be verified, and the series should make that extension feel both necessary and dangerous. The series must not resolve its central question by declaring anonymity either fatal or irrelevant. The ending, whenever it comes, must be chosen rather than exhausted.",
+    "instruction": null,
+    "note": "The author's expressed creative objective for this working proposal. It is not accepted Story Identity, and the candidate summary is an interpretation of it rather than the objective itself."
+  },
+  "premise_status": {
+    "authority": "working_architecture_not_canon",
+    "author_expressed": {
+      "source": "story_vision_and_author_named_emotion_targets",
+      "emotion_targets": [
+        "em_earned_trust"
+      ],
+      "note": "A source-origin claim only: the author's own text names this emotion. It is not acceptance of the agent's elaboration."
+    },
+    "accepted": {
+      "source": null,
+      "commitments": {}
+    },
+    "provisional_agent_interpretation": {
+      "summary": true,
+      "nodes": [
+        "aes_catalogue_marginalia",
+        "aes_comic_deflation",
+        "aes_dated_voice",
+        "aes_plain_hand",
+        "aes_withheld_light",
+        "engine_displacement_ledger",
+        "engine_faithful_contradiction",
+        "engine_inherited_warrant",
+        "engine_instrumental_orphan",
+        "engine_irreversible_copy",
+        "engine_proxy_attribution",
+        "engine_reading_as_verification",
+        "g_archival_form",
+        "g_epistemic_suspense",
+        "g_generational_saga",
+        "g_institutional_chronicle",
+        "g_institutional_comedy",
+        "g_novel_of_ideas",
+        "rx_complicity",
+        "rx_dread_of_the_unchecked",
+        "rx_earned_trust",
+        "rx_relief_of_custody",
+        "st_two_ledgers",
+        "st_wager_architecture",
+        "t_the_costing_yes",
+        "t_the_faithful_contradiction",
+        "t_the_inherited_verdict",
+        "t_the_open_handing_over",
+        "t_the_proxy_accused",
+        "t_the_record_turned_relic",
+        "t_the_trained_ear",
+        "t_the_unverifiable_warrant",
+        "t_the_useful_orphan",
+        "th_anonymity_as_transferred_risk",
+        "th_authority_as_extension",
+        "th_chosen_endings",
+        "th_incomplete_knowledge",
+        "th_names_as_leverage",
+        "thread_accountability",
+        "thread_coherence",
+        "thread_starvation",
+        "thread_succession"
+      ],
+      "links": [
+        "lk_absence_forces_proxy",
+        "lk_absence_transfers_risk",
+        "lk_accountability_to_complicity",
+        "lk_archive_to_catalogue",
+        "lk_archive_to_complicity",
+        "lk_catalogue_to_complicity",
+        "lk_chronicle_to_extension",
+        "lk_chronicle_to_warrant",
+        "lk_coherence_to_plain_hand",
+        "lk_comedy_to_proxy",
+        "lk_comedy_to_trust",
+        "lk_contradiction_pressures_coherence",
+        "lk_copy_attracts_demand",
+        "lk_copy_creates_contradiction",
+        "lk_copy_enacts_extension",
+        "lk_copy_feeds_warrant",
+        "lk_copy_forces_reading",
+        "lk_copy_forces_selection",
+        "lk_copy_produces_dread",
+        "lk_copy_produces_withholding",
+        "lk_costing_yes_sustains_trust",
+        "lk_dated_voice_to_trust",
+        "lk_fidelity_produces_plain_hand",
+        "lk_ideas_to_reading",
+        "lk_ledger_pressures_starvation",
+        "lk_ledger_produces_catalogue",
+        "lk_ledger_produces_trust",
+        "lk_ledgers_serve_cost",
+        "lk_ledgers_serve_starvation",
+        "lk_open_handing_closes",
+        "lk_plain_hand_to_trust",
+        "lk_proxy_pressures_accountability",
+        "lk_proxy_produces_comedy",
+        "lk_proxy_shows_leverage",
+        "lk_reading_limits_knowledge",
+        "lk_reading_produces_complicity",
+        "lk_relic_needs_open_handing",
+        "lk_relic_restarts_engine",
+        "lk_saga_to_succession",
+        "lk_starvation_to_dread",
+        "lk_succession_to_custody",
+        "lk_suspense_to_copy",
+        "lk_wager_produces_complicity",
+        "lk_wager_produces_trust",
+        "lk_wager_unit_frames_copy",
+        "lk_warrant_hides_cost",
+        "lk_warrant_pressures_succession",
+        "lk_warrant_produces_custody",
+        "lk_warrant_produces_dated_voice",
+        "lk_warrant_requires_choice",
+        "lk_warrant_strips_reasons",
+        "lk_withheld_to_dread"
+      ],
+      "note": "Every node, link and the summary are noncanonical working material proposed by the agent."
+    },
+    "unresolved": {
+      "open_questions": [
+        "Should the reader ever know more than the monastery does - a provenance the archive cannot possess - or should the reader share the monks' ignorance for the whole horizon? The architecture assumes shared ignorance, which is what makes the reader complicit, but a partial-knowledge version would trade complicity for dramatic irony.",
+        "How much of the series' pleasure should come from the comedy of procedure? The design uses it to keep trust from hardening into reverence, but the balance between irony and gravity is an authorial register choice, not a structural one.",
+        "Is the monastery's continuity institutional or communal? The architecture holds the former, with attachment carried by the office, the ledger, and the archive rather than by a continuous cast. A communal version would change what the reader grieves at each handoff.",
+        "How much of the world outside the archive should be shown? External demand is load-bearing in this design because it makes anonymity valuable as well as dangerous; a narrower world would slow the pressure that makes the question urgent.",
+        "Should the wager record be weighted as a genuine advance, an ambiguous accommodation, or a new form of the same danger? The phases play all three; the author may want one to dominate, which would change how the final phase reads.",
+        "What register should the ending hold - relief, grief, or unresolved resolve? Chosen rather than exhausted permits all three, and they are different final feelings rather than different plot outcomes.",
+        "Are the anonymous texts to be understood as religious, secular, or deliberately unclassified? The vision's monastery implies a tradition without specifying what kind, and the architecture avoids the question so as not to invent doctrine.",
+        "Does the horizon assume unbroken institutional continuity, or does it permit a period of collapse and refounding? The phases assume continuity with narrowing and recovery; a collapse would require re-anchoring the inherited warrant engine.",
+        "Should the central question ever be argued explicitly by a voice in the text, or only enacted through decisions? The novel-of-ideas contract permits direct argument, and a purely enacted version would need a different surface.",
+        "Should the series ask the reader, structurally, to make a reception decision of their own, or keep them a witness? The archival form makes the first possible; the second is safer for a reader who wants to be told a story."
+      ]
+    }
+  },
+  "collaboration": null,
+  "working_interpretations": {
+    "authority": "agent_interpretation",
+    "count": 9,
+    "items": [
+      {
+        "id": "int_authority_is_reception",
+        "interpretation": "I am treating authority as a performative act of reception rather than a property of a text. A book becomes authoritative when the monastery receives it into the copying queue, and reception is irreversible because the copy leaves the house and cannot be recalled. Authority is therefore something the receiver does, and the receiver is the only party the story can actually watch.",
+        "affects": [
+          "engine_irreversible_copy",
+          "th_authority_as_extension",
+          "st_wager_architecture",
+          "thread_accountability"
+        ],
+        "consequences": "The series' subject becomes the receiver's judgment rather than the author's identity, which is what allows twelve Books about the same question without twelve investigations. It also makes the danger internal and structural: there is no villain and no discovery that could put the matter right. Every phase must therefore be organized around a decision that cannot be deferred, and the reader's attention must be trained on the act of conferral rather than on the text's origin.",
+        "alternative": "Authority could instead be a latent property the monastery merely discovers, with reception as a registration of something already true. That version is more consoling and much weaker: it reduces the series to a sequence of authentication puzzles and makes the monastery's fallibility a technical problem rather than a moral one.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_hold_is_not_neutral",
+        "interpretation": "The monastery does have a category for not deciding, but holding is not free: a held book occupies shelf and scribal time and blocks the book behind it in the queue. So deferral exists as an option and functions as a soft refusal. I am using this so that the monks can never claim innocence by postponement.",
+        "affects": [
+          "engine_displacement_ledger",
+          "thread_starvation",
+          "st_two_ledgers",
+          "t_the_costing_yes"
+        ],
+        "consequences": "Every phase can dramatize a third choice that is secretly a decision, which keeps the moral field three-cornered instead of binary. It also gives institutional cowardice a concrete cost that the second ledger can record. The risk is that it makes the monastery's procedure look designed to produce bad faith, so the hold must be shown as a reasonable safeguard that happens to have a price.",
+        "alternative": "A hard rule that a book is either received or refused, with no middle state, would make every decision cleaner and more theatrical, but it would remove the most realistic form of institutional evasion available to the series.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_absolute_fidelity",
+        "interpretation": "I am reading the monastery's copying discipline as absolutely forbidding emendation. A copied text is transmitted as received; correcting it is the one act the institution treats as unforgivable, because correction is indistinguishable from authorship and destroys the only guarantee the house can honestly offer.",
+        "affects": [
+          "engine_faithful_contradiction",
+          "t_the_faithful_contradiction",
+          "aes_plain_hand",
+          "thread_coherence"
+        ],
+        "consequences": "Contradiction becomes a permanent structural fact rather than a problem to be solved, which is what gives the coherence thread twelve Books of work. It also supplies the series' disgust target, since a doctored copy is the one available form of betrayal. The cost is that the monastery can never repair anything, so the horizon must be able to make accumulated inconsistency feel like integrity rather than negligence.",
+        "alternative": "A discipline permitting annotated correction would relocate the drama from fidelity to commentary, and would let each generation argue with its predecessors in the margin. That is a legitimate series, but a more comfortable one: it turns the central question into a conversation rather than a wager.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_wager_record",
+        "interpretation": "This is my proposed resolution of the question the author reserved, and it is a proposal, not a finding. The horizon's pivot is an invented instrument: a reception is recorded with its date, the name of the receiver, the reason it was accepted, and an explicit condition under which it should be reopened. Anonymity is thereby made a named counterparty to a contract rather than a verdict about the text.",
+        "affects": [
+          "thread_accountability",
+          "th_names_as_leverage",
+          "t_the_record_turned_relic",
+          "th_chosen_endings",
+          "st_two_ledgers"
+        ],
+        "consequences": "The series gets a real payoff that is not a solution, which is the only shape that satisfies both author commitments at once. It also generates the horizon's recursive turn, since the record is copied and then trusted without its reasons, making the monastery the author of a new anonymous book. The ending becomes an act of custody rather than a discovery, and can therefore be chosen at any point someone has standing to choose it.",
+        "alternative": "The series could refuse to invent any instrument and end on a bare acknowledgment that the wager is unavoidable. That is cleaner and more austere, but it gives the reader nothing to have built, and it makes the twelve-Book accumulation feel like repetition rather than construction.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_names_as_leverage",
+        "interpretation": "I am reading the author's refusal to call anonymity either fatal or irrelevant as a claim about what a name does. A name does not certify truth; it supplies recourse. It gives someone to argue with, someone to credit, someone to refuse. Anonymity removes recourse, not meaning.",
+        "affects": [
+          "th_names_as_leverage",
+          "engine_proxy_attribution",
+          "thread_accountability",
+          "t_the_proxy_accused"
+        ],
+        "consequences": "The series must keep showing what is lost when no name exists, which means the archive's named books must be visibly better in one respect - they can be contested at the source - even when they are worse in others. This prevents the seductive reading in which names are merely a fiction of authority. It also means the payoff cannot be a recovery of identity; it has to be a substitute for recourse.",
+        "alternative": "Names could be treated as pure false comfort, a credential the series steadily exposes. That reading is available and cheaper, but it collapses toward the conclusion the vision explicitly forbids, since anonymity would then be no worse than anything else.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_twelve_is_publication_horizon",
+        "interpretation": "I am treating twelve Books as a publication horizon rather than a narrative deadline. The vision says the ending must be chosen whenever it comes, so the final phase is a disposition available to the series rather than an event scheduled for a particular Book.",
+        "affects": [
+          "th_chosen_endings",
+          "thread_succession",
+          "t_the_open_handing_over"
+        ],
+        "consequences": "The architecture can end honestly at more than one point, and no phase has to be padded to reach a twelfth position. It also means the last phase must be written so that arriving early would feel like decision rather than truncation, which constrains how much the horizon may defer to its final movement.",
+        "alternative": "The count could be treated as a structural contract, with the closing disposition fixed to the final Book. That gives a tighter shape but risks making the ending arrive because the shelf is full, which is exactly the exhaustion the vision rules out.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_external_clients",
+        "interpretation": "I am inventing a world condition the vision does not state: the archive has clients outside the monastery who need its texts for legitimation, precedent, or accusation. This is what makes an unattributable book valuable as well as dangerous.",
+        "affects": [
+          "engine_instrumental_orphan",
+          "t_the_useful_orphan",
+          "thread_starvation",
+          "g_institutional_comedy"
+        ],
+        "consequences": "The central question acquires urgency and a political dimension without requiring a villain, since each client's interest is defensible. It also gives the monastery a reason to keep copying that is not purely spiritual, which makes the institution's compromises legible. The cost is a wider world than a cloistered version would need, and the series must show enough of it to make the pressure credible without becoming a political chronicle.",
+        "alternative": "A closed house whose only audience is the next generation would make the danger slower and more purely epistemic. It would also make the stakes felt only by monks, which risks the reader experiencing the question as a professional dilemma rather than a human one.",
+        "author_decision_required": true
+      },
+      {
+        "id": "int_receiver_not_author",
+        "interpretation": "I am reading generation after generation as a mandate for discontinuous generations and no continuous cast. Attachment is carried by the office, the archive, and the ledgers rather than by persons who persist across the horizon.",
+        "affects": [
+          "g_generational_saga",
+          "thread_succession",
+          "aes_dated_voice",
+          "rx_relief_of_custody"
+        ],
+        "consequences": "The series can span the time its question requires without aging a cast implausibly, and reader affection attaches to a practice rather than to individuals, which is thematically apt. The cost is a real loss of conventional intimacy: the reader must learn to love an office, and each handoff has to re-earn attachment quickly.",
+        "alternative": "A small continuous community aging across all twelve Books would give the series a familiar emotional spine and let one person's whole life be the wager. It would also compress the horizon and make inherited warrant a matter of one generation's memory rather than several generations' silence.",
+        "author_decision_required": false
+      },
+      {
+        "id": "int_genre_provenance",
+        "interpretation": "The vision names no genre, so the genre set here is a working hypothesis rather than a commitment. I am choosing institutional chronicle as governing because the question is asked generation after generation, with novel of ideas, epistemic suspense, generational succession, and institutional comedy supporting, and archival form tertiary.",
+        "affects": [
+          "g_institutional_chronicle",
+          "g_novel_of_ideas",
+          "g_epistemic_suspense",
+          "g_institutional_comedy",
+          "g_archival_form"
+        ],
+        "consequences": "The series' pleasures become structural, procedural, and discursive rather than action-driven, and the phase rhythm is built for accumulation rather than escalation. If the author wanted a more intimate or more adventurous register, this entire phase sequence would need re-pacing even though the engines could survive.",
+        "alternative": "A single-generation, character-scaled treatment would concentrate the emotional weight and make the central question a personal crisis rather than an institutional one. It would lose the delayed-consequence engine, which is the main source of the series' specific gravity.",
+        "author_decision_required": true
+      }
+    ],
+    "requires_author_decision": [
+      "int_authority_is_reception",
+      "int_absolute_fidelity",
+      "int_wager_record",
+      "int_external_clients",
+      "int_genre_provenance"
+    ],
+    "note": "Consequential readings the agent is using while proposing this architecture. They are recommendations, not author-established commitments, and none becomes canon without the existing acceptance path."
+  },
+  "working_opportunities": {
+    "authority": "noncanonical_opportunity",
+    "freshness": "ready",
+    "withheld": false,
+    "items": [
+      {
+        "id": "op_silence_ledger",
+        "title": "The Third Ledger: what was never offered",
+        "why_it_matters": "The two ledgers record what was received and what was refused, but not what never reached the monastery at all. A third, mostly empty ledger would let the series dramatize the archive's ignorance of its own gaps, which is a way of deepening incomplete knowledge without touching the central question or resolving it. It would also give a later generation something to find that changes what they think their tradition is.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Adds a category of loss the reader can feel but never audit, and gives the archival form a genuinely new surface late in the horizon without adding a new engine.",
+        "intention_fidelity": "High. It intensifies the author's stated experience of incomplete knowledge and leaves the anonymity question exactly as open as required.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "op_the_drift_as_author",
+        "title": "Copyist Drift as a Third Kind of Authorship",
+        "why_it_matters": "After enough generations, a copyist's error is indistinguishable from an author's choice. The series could treat that drift as a genuine third category between the named and the anonymous, which would sharpen the danger by making anonymity a spectrum rather than a condition. It matters because it is the most likely place for a reader to feel the series has something new to say about authorship.",
+        "scope": "theme",
+        "relationship": "reinterprets",
+        "artistic_potential": "Very high, and it gives the fidelity rule a second life: under drift, faithful transmission is the only thing separating a tradition from a slow collaboration.",
+        "intention_fidelity": "Uncertain. Handled carelessly it slides toward the reading the vision forbids, in which anonymity becomes a universal condition and therefore irrelevant. It would need the named and the drifted kept genuinely distinct in their consequences.",
+        "requires_author_decision": true,
+        "provisional_primary": false
+      }
+    ],
+    "retained_item_count": 2,
+    "comparison": {
+      "governing_purpose_authority": "author_expressed",
+      "alternative_count": 2,
+      "alternatives": [
+        {
+          "id": "op_silence_ledger",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        },
+        {
+          "id": "op_the_drift_as_author",
+          "relationship": "reinterprets",
+          "requires_author_decision": true,
+          "provisional_primary": false
+        }
+      ],
+      "requires_author_decision": [
+        "op_the_drift_as_author"
+      ],
+      "provisional_primary": null,
+      "working_selection_is_not_acceptance": true,
+      "note": "Artistic potential and intention fidelity are separate claims. An alternative is not better because it is more developed, and the expressed direction is not superior because it came first. Any alternative that would replace the author's purpose requires an explicit author decision. A provisional primary direction is a working selection under delegated goal discovery, never accepted Story Identity."
+    },
+    "note": "Ideas retained from earlier working proposals. They are not accepted narrative meaning, they are distinguishable from accepted Story Identity and current commitments, and they are not promoted because they were saved. When the author's source or guidance changed they are withheld rather than presented as current."
+  },
+  "pending_request_sha256": null,
+  "pending_review": null,
+  "open_questions": [
+    "Should the reader ever know more than the monastery does - a provenance the archive cannot possess - or should the reader share the monks' ignorance for the whole horizon? The architecture assumes shared ignorance, which is what makes the reader complicit, but a partial-knowledge version would trade complicity for dramatic irony.",
+    "How much of the series' pleasure should come from the comedy of procedure? The design uses it to keep trust from hardening into reverence, but the balance between irony and gravity is an authorial register choice, not a structural one.",
+    "Is the monastery's continuity institutional or communal? The architecture holds the former, with attachment carried by the office, the ledger, and the archive rather than by a continuous cast. A communal version would change what the reader grieves at each handoff.",
+    "How much of the world outside the archive should be shown? External demand is load-bearing in this design because it makes anonymity valuable as well as dangerous; a narrower world would slow the pressure that makes the question urgent.",
+    "Should the wager record be weighted as a genuine advance, an ambiguous accommodation, or a new form of the same danger? The phases play all three; the author may want one to dominate, which would change how the final phase reads.",
+    "What register should the ending hold - relief, grief, or unresolved resolve? Chosen rather than exhausted permits all three, and they are different final feelings rather than different plot outcomes.",
+    "Are the anonymous texts to be understood as religious, secular, or deliberately unclassified? The vision's monastery implies a tradition without specifying what kind, and the architecture avoids the question so as not to invent doctrine.",
+    "Does the horizon assume unbroken institutional continuity, or does it permit a period of collapse and refounding? The phases assume continuity with narrowing and recovery; a collapse would require re-anchoring the inherited warrant engine.",
+    "Should the central question ever be argued explicitly by a voice in the text, or only enacted through decisions? The novel-of-ideas contract permits direct argument, and a purely enacted version would need a different surface.",
+    "Should the series ask the reader, structurally, to make a reception decision of their own, or keep them a witness? The archival form makes the first possible; the second is safer for a reader who wants to be told a story."
+  ],
+  "ontology_guidance": {
+    "authority": "derived_ontology_guidance",
+    "concepts": [
+      {
+        "definition": "A recurring abstract idea or concept explored throughout the narrative. Themes are not concrete entities but intellectual or emotional explorations.",
+        "name": "Theme",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme influences multiple arcs",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Theme manifests through symbols",
+            "required": false,
+            "source_concept": "Theme",
+            "target_concept": "Symbol"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "Opposition or challenge involving at least two forces with incompatible goals. Conflict creates narrative tension and drives progression.",
+        "name": "Conflict",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Conflict occurs within an arc",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-one",
+            "description": "Conflict resolves in payoff",
+            "required": false,
+            "source_concept": "Conflict",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A progression over time from a starting state to an ending state. Arcs can track character development, story progression, or thematic exploration.",
+        "name": "Arc",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more beats",
+            "required": true,
+            "source_concept": "Arc",
+            "target_concept": "Beat"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc involves one or more characters",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Arc explores one or more themes",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Theme"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Arc contains one or more conflicts",
+            "required": false,
+            "source_concept": "Arc",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The introduction of an element, promise, or mystery that requires later resolution. Setups create expectations that drive narrative forward.",
+        "name": "Setup",
+        "relationships": [
+          {
+            "cardinality": "one-to-one",
+            "description": "Setup requires corresponding payoff",
+            "required": true,
+            "source_concept": "Setup",
+            "target_concept": "Payoff"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The resolution or delivery of something set up earlier in the narrative. Payoffs satisfy expectations created by setups.",
+        "name": "Payoff",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Payoff resolves a setup",
+            "required": true,
+            "source_concept": "Payoff",
+            "target_concept": "Setup"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "The disclosure of information previously unknown to the audience or characters. Revelations change understanding and can reframe entire narratives.",
+        "name": "Revelation",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Revelation occurs as a beat",
+            "required": false,
+            "source_concept": "Revelation",
+            "target_concept": "Beat"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An unexpected change that inverts the direction or expected outcome of an arc. Reversals violate established patterns and create surprise.",
+        "name": "Reversal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Reversal affects an arc's trajectory",
+            "required": false,
+            "source_concept": "Reversal",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A desired outcome that an entity (typically a character) wants to achieve. Goals create motivation and can generate conflicts.",
+        "name": "Goal",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal is owned by a character",
+            "required": true,
+            "source_concept": "Goal",
+            "target_concept": "Character"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Goal pursuit creates conflict",
+            "required": false,
+            "source_concept": "Goal",
+            "target_concept": "Conflict"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A discrete, identifiable moment in the narrative. Beats are atomic narrative units that combine to form scenes and arcs.",
+        "name": "Beat",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Beat belongs to an arc",
+            "required": true,
+            "source_concept": "Beat",
+            "target_concept": "Arc"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An object, image, or action that carries meaning beyond its literal interpretation. Symbols represent abstract concepts through concrete forms.",
+        "name": "Symbol",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Symbol represents themes",
+            "required": false,
+            "source_concept": "Symbol",
+            "target_concept": "Theme"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "A connection between narrative entities (typically characters) that affects how they interact. Relationships have dynamics, stakes, and evolution.",
+        "name": "Relationship",
+        "relationships": [
+          {
+            "cardinality": "many-to-many",
+            "description": "Relationship connects characters",
+            "required": true,
+            "source_concept": "Relationship",
+            "target_concept": "Character"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      },
+      {
+        "definition": "An entity capable of agency within the narrative. Characters have identities, beliefs, goals, and can participate in relationships and arcs.",
+        "name": "Character",
+        "relationships": [
+          {
+            "cardinality": "one-to-many",
+            "description": "Character pursues one or more goals",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Goal"
+          },
+          {
+            "cardinality": "many-to-many",
+            "description": "Character can appear in multiple arcs",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Arc"
+          },
+          {
+            "cardinality": "one-to-many",
+            "description": "Character engages in relationships with other entities",
+            "required": false,
+            "source_concept": "Character",
+            "target_concept": "Relationship"
+          }
+        ],
+        "source_ref": "auteur.data.ontology:base_ontology.yaml"
+      }
+    ],
+    "kind": "relevant_narrative_ontology_context",
+    "selection": {
+      "foundational_concepts": [
+        "Theme",
+        "Conflict",
+        "Arc",
+        "Setup",
+        "Payoff",
+        "Revelation",
+        "Reversal",
+        "Goal",
+        "Beat",
+        "Symbol",
+        "Relationship",
+        "Character"
+      ],
+      "genre_extensions": [],
+      "not_story_intent": "These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.",
+      "rationale": "Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown."
+    },
+    "source_refs": [
+      "auteur.data.ontology:base_ontology.yaml"
+    ],
+    "origin": "request",
+    "request_sha256": "f2e9ffad4d621c4f6d9c29310bc099d80bb3178c07400a4756b19487ca207b37"
+  },
+  "accepted_story_identity": null,
+  "source_visibility": {
+    "working_item_count": 0,
+    "omitted_working_item_count": 0,
+    "omitted_working_connection_count": 0,
+    "truncated_items": [],
+    "provisional_concept_item_count": 0,
+    "omitted_provisional_concept_item_count": 0,
+    "vision_characters": 554
+  },
+  "provisional_concepts": [],
+  "creative_deliberation": {
+    "authority": "noncanonical_working_deliberation",
+    "inquiry_history": [],
+    "superseded_inquiry_history": [],
+    "mentor_advice": null,
+    "mentor_prior_advice": null
+  },
+  "adopted_creative_alternative": null,
+  "creative_adoption_lineage": [],
+  "creative_intentions": []
+}
