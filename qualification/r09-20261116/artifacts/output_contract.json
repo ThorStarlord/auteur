@@ -1,0 +1,794 @@
+{
+  "schema": "auteur_host_agent_output_contract_v1",
+  "version": 1,
+  "model": "ArchitectureCandidate",
+  "json_schema": {
+    "$defs": {
+      "ArchitectureInterpretation": {
+        "additionalProperties": false,
+        "description": "A consequential working interpretation the agent is using as if it were given.\n\nIt is not author-established. It exists so a load-bearing invention - a world\nrule, the meaning of an author commitment, or a proposed resolution of an\nauthor-reserved question - stays visible as a recommendation rather than being\nreported as settled narrative fact.",
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "interpretation": {
+            "maxLength": 800,
+            "minLength": 1,
+            "title": "Interpretation",
+            "type": "string"
+          },
+          "affects": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Affects",
+            "type": "array"
+          },
+          "consequences": {
+            "maxLength": 800,
+            "minLength": 1,
+            "title": "Consequences",
+            "type": "string"
+          },
+          "alternative": {
+            "anyOf": [
+              {
+                "maxLength": 800,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Alternative"
+          },
+          "author_decision_required": {
+            "default": false,
+            "title": "Author Decision Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "interpretation",
+          "affects",
+          "consequences"
+        ],
+        "title": "ArchitectureInterpretation",
+        "type": "object"
+      },
+      "ArchitectureLink": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "function": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Function",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "target",
+          "function"
+        ],
+        "title": "ArchitectureLink",
+        "type": "object"
+      },
+      "ArchitectureNode": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "reader_experience",
+              "aesthetic",
+              "genre",
+              "trope",
+              "engine",
+              "thread",
+              "structure",
+              "theme",
+              "character",
+              "relationship",
+              "other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "summary": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          },
+          "scope": {
+            "default": "whole_story",
+            "maxLength": 100,
+            "title": "Scope",
+            "type": "string"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Parent Id"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "category",
+          "summary"
+        ],
+        "title": "ArchitectureNode",
+        "type": "object"
+      },
+      "ArchitectureOpportunity": {
+        "additionalProperties": false,
+        "description": "A bounded, incidental creative possibility noticed while doing requested work.\n\nIt is not a defect, not a required author decision, and not narrative meaning.\nIt exists so an author can see a promising possibility without it displacing\nthe work they asked for.",
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "why_it_matters": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Why It Matters",
+            "type": "string"
+          },
+          "scope": {
+            "default": "other",
+            "enum": [
+              "book",
+              "series",
+              "character",
+              "relationship",
+              "theme",
+              "other"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "relationship": {
+            "default": "unclear",
+            "enum": [
+              "deepens",
+              "reinterprets",
+              "replaces",
+              "unclear"
+            ],
+            "title": "Relationship",
+            "type": "string"
+          },
+          "artistic_potential": {
+            "anyOf": [
+              {
+                "maxLength": 600,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artistic Potential"
+          },
+          "intention_fidelity": {
+            "anyOf": [
+              {
+                "maxLength": 600,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Intention Fidelity"
+          },
+          "requires_author_decision": {
+            "default": false,
+            "title": "Requires Author Decision",
+            "type": "boolean"
+          },
+          "provisional_primary": {
+            "default": false,
+            "title": "Provisional Primary",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "why_it_matters"
+        ],
+        "title": "ArchitectureOpportunity",
+        "type": "object"
+      },
+      "ComplexEmotion": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "basic_emotions": {
+            "items": {
+              "enum": [
+                "joy",
+                "sadness",
+                "fear",
+                "anger",
+                "disgust",
+                "surprise"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "minItems": 2,
+            "title": "Basic Emotions",
+            "type": "array"
+          },
+          "context": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Context",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "basic_emotions",
+          "context"
+        ],
+        "title": "ComplexEmotion",
+        "type": "object"
+      },
+      "EmotionTarget": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "emotion": {
+            "enum": [
+              "joy",
+              "sadness",
+              "fear",
+              "anger",
+              "disgust",
+              "surprise"
+            ],
+            "title": "Emotion",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "primary",
+              "supporting",
+              "contrasting",
+              "local"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "intended_effect": {
+            "maxLength": 450,
+            "minLength": 1,
+            "title": "Intended Effect",
+            "type": "string"
+          },
+          "eliciting_condition": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Eliciting Condition",
+            "type": "string"
+          },
+          "aesthetic_strategy": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Aesthetic Strategy",
+            "type": "string"
+          },
+          "provenance": {
+            "enum": [
+              "author_declared",
+              "agent_proposed"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "emotion",
+          "role",
+          "intended_effect",
+          "eliciting_condition",
+          "aesthetic_strategy",
+          "provenance"
+        ],
+        "title": "EmotionTarget",
+        "type": "object"
+      },
+      "GenreActivation": {
+        "additionalProperties": false,
+        "properties": {
+          "genre_node_id": {
+            "title": "Genre Node Id",
+            "type": "string"
+          },
+          "basic_emotions": {
+            "items": {
+              "enum": [
+                "joy",
+                "sadness",
+                "fear",
+                "anger",
+                "disgust",
+                "surprise"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "title": "Basic Emotions",
+            "type": "array"
+          },
+          "trope_functions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Trope Functions",
+            "type": "array"
+          },
+          "structural_function": {
+            "maxLength": 700,
+            "minLength": 1,
+            "title": "Structural Function",
+            "type": "string"
+          }
+        },
+        "required": [
+          "genre_node_id",
+          "structural_function"
+        ],
+        "title": "GenreActivation",
+        "type": "object"
+      },
+      "GenreContract": {
+        "additionalProperties": false,
+        "properties": {
+          "genre_node_id": {
+            "title": "Genre Node Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "governing",
+              "supporting",
+              "tertiary",
+              "local"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "emotion_target_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Emotion Target Ids",
+            "type": "array"
+          },
+          "complex_emotion_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12,
+            "title": "Complex Emotion Ids",
+            "type": "array"
+          },
+          "trope_functions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Trope Functions",
+            "type": "array"
+          },
+          "narrative_engine": {
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Narrative Engine",
+            "type": "string"
+          },
+          "structural_pattern": {
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Structural Pattern",
+            "type": "string"
+          },
+          "aesthetic_strategies": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12,
+            "title": "Aesthetic Strategies",
+            "type": "array"
+          },
+          "payoff_expectations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Payoff Expectations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "genre_node_id",
+          "role",
+          "trope_functions",
+          "narrative_engine",
+          "structural_pattern",
+          "payoff_expectations"
+        ],
+        "title": "GenreContract",
+        "type": "object"
+      },
+      "GenreInteraction": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "source_genre_id": {
+            "title": "Source Genre Id",
+            "type": "string"
+          },
+          "target_genre_id": {
+            "title": "Target Genre Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "reinforces",
+              "enables",
+              "constrains",
+              "contrasts",
+              "creates_tension",
+              "converges"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "mechanism": {
+            "maxLength": 900,
+            "minLength": 1,
+            "title": "Mechanism",
+            "type": "string"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "maxLength": 600,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Risk"
+          }
+        },
+        "required": [
+          "id",
+          "source_genre_id",
+          "target_genre_id",
+          "kind",
+          "mechanism"
+        ],
+        "title": "GenreInteraction",
+        "type": "object"
+      },
+      "GenreParticipation": {
+        "additionalProperties": false,
+        "properties": {
+          "genre": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Genre",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "governing",
+              "locally_dominant",
+              "supporting",
+              "background"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "genre",
+          "role"
+        ],
+        "title": "GenreParticipation",
+        "type": "object"
+      },
+      "NarrativePhase": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "order": {
+            "maximum": 1000,
+            "minimum": 0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "scope": {
+            "default": "whole_story",
+            "maxLength": 100,
+            "title": "Scope",
+            "type": "string"
+          },
+          "genres": {
+            "items": {
+              "$ref": "#/$defs/GenreParticipation"
+            },
+            "maxItems": 8,
+            "title": "Genres",
+            "type": "array"
+          },
+          "genre_activations": {
+            "items": {
+              "$ref": "#/$defs/GenreActivation"
+            },
+            "maxItems": 8,
+            "title": "Genre Activations",
+            "type": "array"
+          },
+          "reader_experience": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reader Experience"
+          },
+          "aesthetic": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Aesthetic"
+          },
+          "narrative_function": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Narrative Function",
+            "type": "string"
+          },
+          "transition": {
+            "anyOf": [
+              {
+                "maxLength": 700,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Transition"
+          },
+          "parallel_with": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 12,
+            "title": "Parallel With",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "order",
+          "narrative_function"
+        ],
+        "title": "NarrativePhase",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": {
+        "enum": [
+          1,
+          2
+        ],
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "summary": {
+        "maxLength": 3000,
+        "minLength": 1,
+        "title": "Summary",
+        "type": "string"
+      },
+      "nodes": {
+        "items": {
+          "$ref": "#/$defs/ArchitectureNode"
+        },
+        "maxItems": 80,
+        "minItems": 1,
+        "title": "Nodes",
+        "type": "array"
+      },
+      "links": {
+        "items": {
+          "$ref": "#/$defs/ArchitectureLink"
+        },
+        "maxItems": 180,
+        "title": "Links",
+        "type": "array"
+      },
+      "phases": {
+        "items": {
+          "$ref": "#/$defs/NarrativePhase"
+        },
+        "maxItems": 32,
+        "title": "Phases",
+        "type": "array"
+      },
+      "open_questions": {
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 16,
+        "title": "Open Questions",
+        "type": "array"
+      },
+      "opportunities": {
+        "items": {
+          "$ref": "#/$defs/ArchitectureOpportunity"
+        },
+        "maxItems": 3,
+        "title": "Opportunities",
+        "type": "array"
+      },
+      "interpretations": {
+        "items": {
+          "$ref": "#/$defs/ArchitectureInterpretation"
+        },
+        "maxItems": 12,
+        "title": "Interpretations",
+        "type": "array"
+      },
+      "emotion_targets": {
+        "items": {
+          "$ref": "#/$defs/EmotionTarget"
+        },
+        "maxItems": 30,
+        "title": "Emotion Targets",
+        "type": "array"
+      },
+      "complex_emotions": {
+        "items": {
+          "$ref": "#/$defs/ComplexEmotion"
+        },
+        "maxItems": 16,
+        "title": "Complex Emotions",
+        "type": "array"
+      },
+      "genre_contracts": {
+        "items": {
+          "$ref": "#/$defs/GenreContract"
+        },
+        "maxItems": 14,
+        "title": "Genre Contracts",
+        "type": "array"
+      },
+      "genre_interactions": {
+        "items": {
+          "$ref": "#/$defs/GenreInteraction"
+        },
+        "maxItems": 40,
+        "title": "Genre Interactions",
+        "type": "array"
+      }
+    },
+    "required": [
+      "schema_version",
+      "summary",
+      "nodes"
+    ],
+    "title": "ArchitectureCandidate",
+    "type": "object"
+  },
+  "json_schema_sha256": "310b5fdcbf8acc8fd4bd6550d000d035bfe4f09c679c706290078859ae679f18"
+}
