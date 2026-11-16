@@ -1,0 +1,1541 @@
+{
+  "status": "ready",
+  "request": null,
+  "candidate": {
+    "schema_version": 2,
+    "summary": "WORKING PROPOSAL / NOT ACCEPTED. A provisional abstract architecture for an optimistic thirty-Book series about a court that must keep rendering a peace treaty across two languages whose promises are not interchangeable: one can be inherited, the other cannot be forgiven. The causal organization is AGENT-PROPOSED, because the author has stated no engine_hierarchy, causal_distribution or complexity preference and those remain UNKNOWN: a primary engine, Obligation Drift, with six subordinate layers (the asymmetric promise-kinds, custodial succession, ritual ratification, glossarial accumulation, interested reading, and private comprehension as counterweight). Drift is primary because it is the only mechanism that both generates the recurring problem and consumes the series' own output: each ratified rendering becomes the next generation's authoritative text. The other layers either supply what drift moves, freeze it into precedent, preserve and bury it, weaponise it, or pay for it at human scale. The emotional movement runs from wonder at two kinds of promise, through institutional comfort, contested custody, retroactive recognition of misreading, unpaid indebtedness and grief, into a contested, expensive, publicly limited repair, and finally into hope that is earned because the reader has watched the price paid and knows residue remains. Genres are working contracts proposed by this architecture, not author commitments; the brief names none. The two forbidden resolutions, that translation is impossible and that translation is easy, are treated as structural constraints rather than stated themes: every repair is specific, costly and incomplete, while the practice of acknowledged partiality stays renewable across generations. All content is noncanonical.",
+    "nodes": [
+      {
+        "id": "re_earned_hope_promise",
+        "title": "Governing Promise: Earned Hope About Being Understood",
+        "category": "reader_experience",
+        "summary": "The series' standing emotional promise, stated by the author in their own words: earned hope about being understood. Hope is the return on demonstrated cost, so the architecture must show the price before it shows the return: comprehension attempted across a lexical gap, paid for in obligation, embarrassment, lost standing and irrecoverable readings. Hope is never announced by a narrator, granted by a revelation, or confirmed by a correct translation. It is inferred by the reader from accumulated evidence that partial understanding changed something real. Residue is not a failure of this promise; unacknowledged residue is.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "re_partial_reader_position",
+        "title": "The Reader Also Holds Only a Partial Rendering",
+        "category": "reader_experience",
+        "summary": "The reader is never handed the whole treaty, the full glossarial apparatus, or a neutral vantage above the two promise-kinds. Like the court, the reader receives renderings in instalments, from interested parties, with the reasoning behind each choice partly withheld. This is a structural position rather than a puzzle device: if the reader could adjudicate the text, the series' question would become a test with an answer instead of a practice with a cost. The position also distributes the emotional work, because the reader's discomfort at not knowing is the same discomfort the court must act inside.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "re_cumulative_drift_recognition",
+        "title": "Recognizing Drift Before the Characters Do",
+        "category": "reader_experience",
+        "summary": "Because the series runs thirty Books, the reader can accumulate evidence that no single generation possesses. A clause returns near-verbatim with one word altered; a gloss contradicts an earlier gloss; a dispute is settled by a ruling whose reasoning was never written down. The resulting experience is a specific compound of pleasure and dread: the reader sees inheritance happening before anyone in the story names it. This is the reader-side payoff of the long horizon, and the main reason drift must be formal, carried in recurring wording and visible apparatus, rather than merely asserted as a theme.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aes_two_obligation_registers",
+        "title": "Two Obligation Grammars Carried in the Prose",
+        "category": "aesthetic",
+        "summary": "Speech and document style differ according to which promise-kind is in use. Formulations that can be inherited are built to survive their speaker: impersonal, chain-like, grammatically forward-dated. Formulations that cannot be forgiven are built to terminate at a particular person: singular, addressed, grammatically closed. The difference is carried in syntax and cadence rather than explained in a note every time. Translation scenes therefore have audible texture, because the moment a rendering converts one grammar into the other, the prose itself registers the loss.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aes_glossarial_marginalia",
+        "title": "Glossarial Marginalia as Visible Apparatus",
+        "category": "aesthetic",
+        "summary": "The court's notes, struck readings, cross-references and disputed definitions appear in the narrative texture: quoted, misquoted, cited out of context, and occasionally missing at the exact point of need. Marginalia produce two effects at once. They make the accumulated labour of comprehension concrete, and they make the archive an unreliable place rather than a solution. Discovery in this series is archival work with a real chance of failure, not a key found under a rug.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aes_recurring_formulation_drift",
+        "title": "Recurring Formulations That Return Slightly Changed",
+        "category": "aesthetic",
+        "summary": "Specific phrasings from the founding rendering return across phases with a single altered term, a shifted pronoun, or a dropped qualifier. The prose performs drift instead of describing it. Handled carefully, this is the series' strongest quiet instrument: a reader who has been reading for many Books can feel a clause tilt without being told it moved, and an attentive rereader can date a decision by which version a character quotes.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aes_ceremonial_ratification_cadence",
+        "title": "Ceremonial Cadence at Ratification",
+        "category": "aesthetic",
+        "summary": "At ratification the register heightens into legal-liturgical cadence: formulaic, public, cadenced, and requiring the speaker to state a commitment they privately doubt. The ceremony is the series' recurring set-piece form because it is the point where an interpretation stops being an opinion and starts binding people. Formality here is not decoration; it is the audible sound of a choice becoming precedent.",
+        "scope": "repeated_across_phases",
+        "parent_id": null
+      },
+      {
+        "id": "aes_plain_intimate_counterweight",
+        "title": "Plain Intimate Counterweight",
+        "category": "aesthetic",
+        "summary": "Scenes of two people half-understanding each other are written in deliberately unwrought prose: short sentences, few figures, no ceremony. The plainness holds the series' optimism at human scale and prevents the institutional question from becoming the only question. It is also the tonal relief that makes the ceremonial register bearable across thirty Books, and the place where the reader learns what partial comprehension feels like before being asked to judge it politically.",
+        "scope": "repeated_across_phases",
+        "parent_id": null
+      },
+      {
+        "id": "gen_literary_political_drama",
+        "title": "Literary Political Drama",
+        "category": "genre",
+        "summary": "The governing genre proposal: a public, consequential drama about who is bound by what, played out among people whose work is interpretation and whose failures have constituencies. It supplies the arena, the willingness to make outcomes cost something, and the demand that any hope be publicly earned rather than privately felt. Agent-proposed; the brief names no genre and this commitment remains revisable.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gen_speculative_linguistics",
+        "title": "Speculative Linguistics",
+        "category": "genre",
+        "summary": "A working genre proposal in which the constructed lexical facts are load-bearing: two promise-kinds that cannot be substituted at no cost. The genre supplies strict rules the story cannot cheat, and its pleasure is discovery by consequence rather than exposition. It is what keeps the central question from becoming a metaphor only. Agent-proposed.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gen_dynastic_generational_saga",
+        "title": "Dynastic Generational Saga",
+        "category": "genre",
+        "summary": "The genre proposal that makes thirty Books renewable: office, craft and unresolved readings pass between successive generations, and each inherits fluency it did not earn. It supplies turnover, long-horizon stakes, and the structural condition that no living participant saw the founding decision. Agent-proposed; it can be realized as institutional or familial turnover, and that choice belongs to the author.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gen_institutional_procedural",
+        "title": "Institutional Procedural",
+        "category": "genre",
+        "summary": "The genre proposal in which hearings, drafting, challenge, ruling and ratification are the action. It gives interpretation a visible machinery, makes competence a source of pressure rather than reassurance, and supplies the recurring set-piece rhythm of a court. Agent-proposed.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gen_diplomatic_thriller",
+        "title": "Diplomatic Thriller",
+        "category": "genre",
+        "summary": "A tertiary proposal: deadlines, brinkmanship, and legitimate ambiguity used as leverage. It exists to make reading urgent, so that comprehension must be attempted before it is adequate. Agent-proposed; it must be constrained so that urgency does not force a single decisive fix.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "gen_elegiac_tragedy",
+        "title": "Elegiac Tragedy as Local Register",
+        "category": "genre",
+        "summary": "A local register proposal, never governing: the mode in which irrecoverable cost is counted and witnessed. It protects the series from cheap hope by making loss real and unpaid. It must remain local, because a tragic verdict at series scale would resolve the central question as impossibility, which the vision forbids. Agent-proposed.",
+        "scope": "local_register",
+        "parent_id": null
+      },
+      {
+        "id": "trope_untranslatable_obligation",
+        "title": "The Untranslatable Obligation Word",
+        "category": "trope",
+        "summary": "A lexical gap that cannot be left open: because a treaty clause must bind someone, the absence of an equivalent word forces a positive choice, and refusing to choose is itself binding. The trope's function is to convert a linguistic fact into an obligation with a debtor, a creditor and a date. It generates the series' characteristic pressure, which is not the frustration of not finding the word but the cost of the word chosen.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "trope_inherited_authoritative_text",
+        "title": "The Inherited Authoritative Text",
+        "category": "trope",
+        "summary": "An authoritative document whose founding reasoning no living participant can verify, cited by everyone and read closely by almost no one. Function: makes drift structural rather than accidental, because the text is both unquestionable in authority and unverifiable in meaning. It supplies the recurring condition that produces error from competence rather than negligence.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "trope_binding_mistranslation",
+        "title": "The Error That Becomes Law",
+        "category": "trope",
+        "summary": "A rendering choice made under pressure acquires legal force, so a mistake acquires a constituency that will defend it. Function: makes repair costly and political, and prevents later discovery of the error from being automatically liberating. It also supplies the long-horizon mechanism by which a small early decision blooms many Books later.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "trope_divided_custody",
+        "title": "Divided Custody of the Meaning",
+        "category": "trope",
+        "summary": "Two bodies each legitimately hold part of the authority to say what the text means, so no single reading can be authoritative by fiat. Function: generates conflict in which both parties are defensible, which is the only kind of conflict that can carry a series about good-faith misreading. It removes the option of resolving interpretive disputes by exposing a villain.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "trope_novice_ear",
+        "title": "The Novice Ear",
+        "category": "trope",
+        "summary": "A newcomer reads the inherited text with less fluency and therefore sees what fluency has been trained not to see. Function: supplies discovery without a conspiracy, and gives each generation a plausible route to noticing drift. The newcomer is not chosen or special; their advantage is a deficiency of training, which is exactly what the court cannot value without undermining itself.",
+        "scope": "recurring_across_generations",
+        "parent_id": null
+      },
+      {
+        "id": "trope_ratification_ritual",
+        "title": "The Ratification Ritual",
+        "category": "trope",
+        "summary": "A public ceremony that converts a private rendering into a binding obligation, requiring the ratifier to endorse what they only partly believe. Function: joins the political layer to the intimate one, and supplies a recurring form for the series' most consequential moments. It also produces the series' characteristic shame, because the ceremony records assent rather than conviction.",
+        "scope": "recurring_across_phases",
+        "parent_id": null
+      },
+      {
+        "id": "eng_obligation_drift",
+        "title": "Primary Engine: Obligation Drift",
+        "category": "engine",
+        "summary": "The causal center, agent-proposed. Each generation must render the treaty across a lexical gap; each rendering is ratified; each ratified rendering becomes the authoritative base for the next generation's work. Meaning therefore moves every time the text is used correctly. The action pattern is: read the inherited text, discover an inadequacy, choose a rendering that can bind, seek ratification, hand the result on. Its pressure is that no party can stop participating, since withdrawal is a reading too. Reversals come from good-faith parties acting on the same clause incompatibly, and from discoveries that a settled reading was always wrong. Payoff mechanics: drift can be slowed, named and partly discharged, but never reset to an original meaning. Thematic consequence: comprehension is a renewable obligation rather than an achieved state, which is what makes earned hope structurally possible across thirty Books.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_asymmetric_promise_kinds",
+        "title": "Layer: The Two Non-Interchangeable Promise-Kinds",
+        "category": "engine",
+        "summary": "The material the drift engine consumes. One language can express a promise that is inherited: it survives its maker and can be discharged by successors. The other can express a promise that cannot be forgiven: it terminates at the person who made it and cannot be transferred or absolved. Every rendering must convert one into the other, approximate, split the clause, or refuse, and each option distributes obligation differently among living people. This layer sets hard rules. No rendering is free, no conversion is reversible, and the asymmetry cannot be dissolved by discovering a hidden equivalent. It is what makes the series' difficulty structural rather than rhetorical.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_custodial_succession",
+        "title": "Layer: Custodial Succession",
+        "category": "engine",
+        "summary": "Office, craft-habit and unfinished reading pass from generation to generation, and each successor inherits fluency they did not earn plus doctrine they did not choose. This layer is the series' renewable human mechanism across thirty Books: it replaces custodians at intervals without resetting the question, and it makes inherited error feel like competence. Its action pattern is apprenticeship, promotion, handover. Its pressure is loyalty to a predecessor's reading. Its characteristic reversal is a successor who must publicly repudiate the reading that made them credible.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_ritual_ratification",
+        "title": "Layer: Ritual Ratification",
+        "category": "engine",
+        "summary": "The conversion point where interpretation becomes obligation. Ratification is a public, formal, witnessed act with procedural prerequisites, and it requires the ratifier to endorse a text whose limitations they know. This layer freezes drift into precedent, which is the reason repair requires reopening rather than correction, and it generates the recurring set-piece shape of the series. Its pressure is that failure to ratify is also a decision, with consequences for people who will never read the clause. Its payoff is legitimacy, which is deliberately not the same thing as correctness.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_glossarial_accumulation",
+        "title": "Layer: Glossarial Accumulation",
+        "category": "engine",
+        "summary": "The court's apparatus of notes, precedents, corrections and cross-references grows with every generation. It is simultaneously the only route back to earlier meanings and the reason those meanings become unreachable, because a reading buried under competent commentary is harder to challenge than a reading absent. This layer supplies the series' discovery mechanics: revelation is archival, partial, and dependent on which notes were kept. It also supplies a renewable form of loss, since an interpretation can be destroyed by being well documented.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_bad_faith_reading",
+        "title": "Layer: Interested Reading",
+        "category": "engine",
+        "summary": "Parties exploit legitimate ambiguity for advantage without fabricating anything. Because the text genuinely supports more than one reading, adversarial interpretation is legally and morally defensible, which keeps opposition from collapsing into villainy. This layer generates recurring antagonism, forces the court to argue rather than expose, and provides the series' sharpest political pressure: the most dangerous reader is a careful one with an interest. It must be handled so that interest explains behaviour without excusing it.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "eng_private_comprehension",
+        "title": "Counterweight Layer: Private Comprehension",
+        "category": "engine",
+        "summary": "The intimate mechanism that keeps the series' hope from becoming an abstraction: two people act on partial understanding of each other, at personal cost, without a treaty to ratify. Its action pattern is attempt, misreading, correction, renewed attempt. Its function is scale control. It demonstrates the governing promise at a size the reader can verify, and it supplies the tonal relief a thirty-Book institutional drama needs. It also holds the series' ethical center, because the worth of comprehension is shown rather than argued in what people are willing to keep paying.",
+        "scope": "whole_story",
+        "parent_id": "str_engine_composition"
+      },
+      {
+        "id": "thr_main_rendering_the_peace",
+        "title": "Main Thread: Rendering a Peace That Can Be Signed",
+        "category": "thread",
+        "summary": "The whole-story spine. Want: a rendering both parties can ratify without either being made to promise something its language forbids. Resistance: the two promise-kinds cannot express the same obligations, so every clause that binds one party releases or overbinds the other. Conflict: each party's good-faith reading convicts the other of bad faith. Stakes: whether a peace holds for the people it was made to protect, and whether the court retains standing to keep working. Change: from seeking the one faithful rendering to sustaining a shared, revisable, openly partial one. Thematic function: comprehension as costly, partial and worth the cost, with the thread serving as the theme's proof rather than its statement.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thr_sub_inheritance_without_consent",
+        "title": "Subordinate Thread: Bound by What You Did Not Choose",
+        "category": "thread",
+        "summary": "Want: to discharge an inherited obligation without being destroyed by it, or to be released from it legitimately. Resistance: the promise-kind that binds successors makes refusal a breach, and the promise-kind that cannot forgive makes absolution unavailable. Conflict: obligation to predecessors against obligation to contemporaries. Stakes: whether a person's life is theirs to spend. Change: from treating inheritance as fate to treating it as a negotiable claim with a record. Thematic function: inheritance binds without consent, and the binding is neither just nor escapable, only renegotiable.",
+        "scope": "whole_story",
+        "parent_id": "thr_main_rendering_the_peace"
+      },
+      {
+        "id": "thr_sub_custody_of_meaning",
+        "title": "Subordinate Thread: Who May Say What the Text Means",
+        "category": "thread",
+        "summary": "Want: authority to define the authoritative reading, held legitimately rather than seized. Resistance: another body holds a defensible part of the same authority, and the archive supports both. Conflict: custody disputes in which each claimant's argument is stronger than the other's standing. Stakes: who is bound by the peace, and by whose account of it. Change: from claiming sole authority to accepting adjudicated, revisable, shared authority. Thematic function: interpretive authority is a possession that must be continually justified, and justification is itself an act of translation.",
+        "scope": "whole_story",
+        "parent_id": "thr_main_rendering_the_peace"
+      },
+      {
+        "id": "thr_sub_private_understanding",
+        "title": "Subordinate Thread: Being Understood by One Person",
+        "category": "thread",
+        "summary": "Want: to be understood well enough by one other person to act without full explanation. Resistance: the habit of professional interpretation makes private speech sound like a text to be rendered, and rendering changes what was meant. Conflict: the demands of accurate understanding against the demands of being responded to now. Stakes: whether the series' large hope has any small evidence. Change: from seeking perfect reception to accepting partial reception as sufficient grounds for action. Thematic function: the same ethic as the main thread, at a size where the cost is visible in a single relationship.",
+        "scope": "whole_story",
+        "parent_id": "thr_main_rendering_the_peace"
+      },
+      {
+        "id": "thm_costly_partial_comprehension",
+        "title": "Comprehension Is Costly, Partial and Worth the Cost",
+        "category": "theme",
+        "summary": "The governing thematic proposition, taken from the author's stated intended experience and treated here as a design constraint rather than a slogan. Its negative half forbids two resolutions: that translation is impossible, and that translation is easy. Its positive half requires that every act of understanding in the series be specific, expensive, and demonstrably useful to someone. Because the theme functions as a constraint, the architecture cannot argue it; it must repeatedly stage cost followed by a return whose value the reader can check.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thm_inheritance_binds_without_consent",
+        "title": "Inheritance Binds Without Consent",
+        "category": "theme",
+        "summary": "Obligations pass to people who did not make them, and the passing is not a metaphor for culture: in this series it is enforceable. The theme explores the difference between inheriting a debt and inheriting a meaning, and asks whether either can be refused without abandoning someone who relied on it. It gives the generational structure its argument and prevents turnover from becoming merely a device for fresh custodians.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thm_promise_kinds_not_interchangeable",
+        "title": "Promise-Kinds Are Not Interchangeable Currency",
+        "category": "theme",
+        "summary": "A promise that can be inherited and a promise that cannot be forgiven are not two words for one thing. Converting between them always adds or loses obligation, and the loss falls on identifiable people. The theme keeps the series honest about what translation is: not the recovery of an original, but the assumption of a debt. It also supplies the series' central refusal, which is not an argument that meaning is arbitrary but that meaning is not free.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thm_fluency_is_not_fidelity",
+        "title": "Fluency Is Not Fidelity",
+        "category": "theme",
+        "summary": "The most fluent rendering is the one most likely to be trusted and least likely to disclose what it dropped. The theme targets the reader's own preference for smooth prose, and it gives the aesthetic strategy its edge: beautiful rendering must occasionally be shown to be a kind of theft. It is the reason the series keeps a plain register available, so that fluency is never the only available pleasure.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thm_authority_to_interpret",
+        "title": "The Authority to Interpret Is Itself Contested Ground",
+        "category": "theme",
+        "summary": "Someone must decide what the text means before anyone can be bound by it, and that decision is a political act performed by people with interests. The theme connects the procedural genre to the series' ethics: a legitimate process can produce a wrong reading, and a right reading can arrive without legitimacy. It prevents the series from treating correct interpretation as automatically authoritative, or authority as automatically correct.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_engine_composition",
+        "title": "Proposed Composition: One Primary Engine with Six Subordinate Layers",
+        "category": "structure",
+        "summary": "AGENT PROPOSAL, not an author preference. The author has stated no engine_hierarchy, causal_distribution or complexity value, so all three remain UNKNOWN and this composition may be replaced. Rationale for choosing primary-with-layers over a single center or an ensemble: Obligation Drift is the only mechanism that both generates the recurring problem and consumes the series' own product, so a single center would leave the others decorative; but they are not co-governing either, because they act on drift's material rather than at the same causal level. The two promise-kinds supply what drift moves; succession supplies who moves it; ratification freezes it; glossarial accumulation preserves and buries it; interested reading weaponises it; private comprehension pays for it at human scale. This asymmetry of the hierarchy is the architecture's main structural claim and its main revisable choice.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_generation_cycle",
+        "title": "Recurring Cycle: Read, Render, Ratify, Drift, Discover",
+        "category": "structure",
+        "summary": "The long horizon's basic rhythm, deliberately not tied to Book counts. A generation reads an inherited text, discovers an inadequacy, chooses a binding rendering, ratifies it publicly, and hands on a text that will drift again. The cycle is not a formula for each Book; it is the shape that any interval of the series can enter at a different point. Its value is that it makes thirty Books coherent without requiring a single escalating plot, and it lets the series vary tempo, since one phase may cover a single negotiation and another several successions.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "str_reopening_cycle",
+        "title": "Recurring Cycle: Reopening Rather Than Correction",
+        "category": "structure",
+        "summary": "Because ratified renderings become precedent, error cannot simply be corrected; it must be reopened by a procedure that costs standing to those who invoke it. This structure supplies the series' recurring late-phase engine and its characteristic political dilemma: admitting an inherited reading was wrong is a public loss of face for people who performed their work competently. Repairs are therefore partial, negotiated and recorded with their uncertainties, which is how the architecture enforces the refusal of easy resolution without ever stating it.",
+        "scope": "whole_story",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "l_asymmetry_pressures_drift",
+        "source": "eng_asymmetric_promise_kinds",
+        "target": "eng_obligation_drift",
+        "function": "Forces each rendering to convert one promise-kind into the other or refuse, and refusal also binds."
+      },
+      {
+        "id": "l_succession_renews_drift",
+        "source": "eng_custodial_succession",
+        "target": "eng_obligation_drift",
+        "function": "Replaces custodians with inheritors whose earned fluency conceals the drift they inherit."
+      },
+      {
+        "id": "l_ratification_freezes_drift",
+        "source": "eng_ritual_ratification",
+        "target": "eng_obligation_drift",
+        "function": "Turns a chosen rendering into precedent, so drift becomes irreversible except by reopening."
+      },
+      {
+        "id": "l_gloss_preserves_and_buries",
+        "source": "eng_glossarial_accumulation",
+        "target": "eng_obligation_drift",
+        "function": "Preserves earlier readings under competent commentary, making recovery archival and partial."
+      },
+      {
+        "id": "l_interest_weaponises_ambiguity",
+        "source": "eng_bad_faith_reading",
+        "target": "eng_obligation_drift",
+        "function": "Exploits genuine ambiguity without fabricating, so opposition stays legally defensible."
+      },
+      {
+        "id": "l_private_anchors_hope",
+        "source": "eng_private_comprehension",
+        "target": "re_earned_hope_promise",
+        "function": "Demonstrates the governing promise at human scale, so hope is verified rather than asserted."
+      },
+      {
+        "id": "l_drift_drives_main_thread",
+        "source": "eng_obligation_drift",
+        "target": "thr_main_rendering_the_peace",
+        "function": "Supplies the main thread's recurring want and its renewable institutional pressure."
+      },
+      {
+        "id": "l_drift_feeds_custody",
+        "source": "eng_obligation_drift",
+        "target": "thr_sub_custody_of_meaning",
+        "function": "Makes authoritative reading a moving target that someone must be entitled to define."
+      },
+      {
+        "id": "l_succession_feeds_inheritance",
+        "source": "eng_custodial_succession",
+        "target": "thr_sub_inheritance_without_consent",
+        "function": "Binds each successor to obligations and readings they had no part in choosing."
+      },
+      {
+        "id": "l_private_feeds_private_thread",
+        "source": "eng_private_comprehension",
+        "target": "thr_sub_private_understanding",
+        "function": "Supplies the recurring counter-scene: two people acting on partial understanding."
+      },
+      {
+        "id": "l_interest_pressures_main_thread",
+        "source": "eng_bad_faith_reading",
+        "target": "thr_main_rendering_the_peace",
+        "function": "Turns each ratification into a contest among readings that are all defensible."
+      },
+      {
+        "id": "l_main_thread_enacts_theme",
+        "source": "thr_main_rendering_the_peace",
+        "target": "thm_costly_partial_comprehension",
+        "function": "Enacts the theme as repeated labour rather than as stated belief."
+      },
+      {
+        "id": "l_inheritance_thread_enacts_theme",
+        "source": "thr_sub_inheritance_without_consent",
+        "target": "thm_inheritance_binds_without_consent",
+        "function": "Turns inheritance from a metaphor into an enforceable claim with a record."
+      },
+      {
+        "id": "l_custody_thread_enacts_theme",
+        "source": "thr_sub_custody_of_meaning",
+        "target": "thm_authority_to_interpret",
+        "function": "Shows legitimacy and correctness separating under institutional pressure."
+      },
+      {
+        "id": "l_asymmetry_enacts_theme",
+        "source": "eng_asymmetric_promise_kinds",
+        "target": "thm_promise_kinds_not_interchangeable",
+        "function": "Makes conversion cost visible in who owes what to whom."
+      },
+      {
+        "id": "l_interest_enacts_theme",
+        "source": "eng_bad_faith_reading",
+        "target": "thm_fluency_is_not_fidelity",
+        "function": "Shows confident rendering carrying an interest while sounding neutral."
+      },
+      {
+        "id": "l_register_serves_asymmetry",
+        "source": "aes_two_obligation_registers",
+        "target": "eng_asymmetric_promise_kinds",
+        "function": "Makes the promise-kind difference audible in syntax instead of explained in exposition."
+      },
+      {
+        "id": "l_marginalia_serves_gloss",
+        "source": "aes_glossarial_marginalia",
+        "target": "eng_glossarial_accumulation",
+        "function": "Renders the archive as visible texture, competent and unreliable at the same time."
+      },
+      {
+        "id": "l_recurrence_serves_drift",
+        "source": "aes_recurring_formulation_drift",
+        "target": "re_cumulative_drift_recognition",
+        "function": "Lets readers accumulate drift as form, ahead of any character's realisation."
+      },
+      {
+        "id": "l_ceremony_serves_ratification",
+        "source": "aes_ceremonial_ratification_cadence",
+        "target": "eng_ritual_ratification",
+        "function": "Gives the moment a choice becomes binding its recurring audible shape."
+      },
+      {
+        "id": "l_plainness_serves_private",
+        "source": "aes_plain_intimate_counterweight",
+        "target": "eng_private_comprehension",
+        "function": "Strips register from intimate scenes so the cost of understanding shows plainly."
+      },
+      {
+        "id": "l_register_constitutes_reader_position",
+        "source": "aes_two_obligation_registers",
+        "target": "re_partial_reader_position",
+        "function": "The reader must hold both grammars at once, so comprehension stays visibly incomplete."
+      },
+      {
+        "id": "l_recurrence_defends_hope",
+        "source": "re_cumulative_drift_recognition",
+        "target": "re_earned_hope_promise",
+        "function": "Makes hope defensible: cost has been watched accumulating and value returning."
+      },
+      {
+        "id": "l_hope_conditions_reader_position",
+        "source": "re_earned_hope_promise",
+        "target": "re_partial_reader_position",
+        "function": "Sets partial understanding as the price of the hope the series promises."
+      },
+      {
+        "id": "l_political_hosts_drift",
+        "source": "gen_literary_political_drama",
+        "target": "eng_obligation_drift",
+        "function": "Gives drift a public arena where rendering choices decide whether a peace holds."
+      },
+      {
+        "id": "l_linguistics_grounds_asymmetry",
+        "source": "gen_speculative_linguistics",
+        "target": "eng_asymmetric_promise_kinds",
+        "function": "Supplies strict lexical rules the story cannot cheat to resolve its question."
+      },
+      {
+        "id": "l_saga_carries_succession",
+        "source": "gen_dynastic_generational_saga",
+        "target": "eng_custodial_succession",
+        "function": "Provides turnover of custodians without resetting the inherited question."
+      },
+      {
+        "id": "l_procedural_carries_ratification",
+        "source": "gen_institutional_procedural",
+        "target": "eng_ritual_ratification",
+        "function": "Supplies the hearing, drafting and ruling machinery ratification depends on."
+      },
+      {
+        "id": "l_thriller_pressurises_reading",
+        "source": "gen_diplomatic_thriller",
+        "target": "eng_bad_faith_reading",
+        "function": "Adds deadlines so ambiguity becomes urgent rather than academic."
+      },
+      {
+        "id": "l_tragedy_counts_cost",
+        "source": "gen_elegiac_tragedy",
+        "target": "re_earned_hope_promise",
+        "function": "Keeps loss available as real cost, so the promise of hope cannot be cheap."
+      },
+      {
+        "id": "l_untranslatable_activates_asymmetry",
+        "source": "trope_untranslatable_obligation",
+        "target": "eng_asymmetric_promise_kinds",
+        "function": "Turns a lexical gap into an obligation with a debtor, a creditor and a date."
+      },
+      {
+        "id": "l_inherited_text_activates_drift",
+        "source": "trope_inherited_authoritative_text",
+        "target": "eng_obligation_drift",
+        "function": "Makes drift structural: authority unquestioned, meaning unverifiable."
+      },
+      {
+        "id": "l_binding_error_activates_ratification",
+        "source": "trope_binding_mistranslation",
+        "target": "eng_ritual_ratification",
+        "function": "Lets a pressured choice acquire a constituency that defends it as law."
+      },
+      {
+        "id": "l_divided_custody_activates_thread",
+        "source": "trope_divided_custody",
+        "target": "thr_sub_custody_of_meaning",
+        "function": "Gives the custody thread two defensible claimants instead of one villain."
+      },
+      {
+        "id": "l_novice_ear_activates_gloss",
+        "source": "trope_novice_ear",
+        "target": "eng_glossarial_accumulation",
+        "function": "Lets an under-trained reader see what fluency has been taught not to see."
+      },
+      {
+        "id": "l_ratification_trope_joins_scales",
+        "source": "trope_ratification_ritual",
+        "target": "eng_private_comprehension",
+        "function": "Forces a private doubt into public endorsement, joining intimate and political stakes."
+      },
+      {
+        "id": "l_composition_declares_primary",
+        "source": "str_engine_composition",
+        "target": "eng_obligation_drift",
+        "function": "Declares drift primary and the remaining engines subordinate layers, provisionally."
+      },
+      {
+        "id": "l_composition_orders_threads",
+        "source": "str_engine_composition",
+        "target": "thr_main_rendering_the_peace",
+        "function": "Sets the peace-rendering thread as spine and the others as contributors."
+      },
+      {
+        "id": "l_generation_cycle_organises_succession",
+        "source": "str_generation_cycle",
+        "target": "eng_custodial_succession",
+        "function": "Gives the long horizon a repeatable rhythm without fixing Book counts."
+      },
+      {
+        "id": "l_reopening_organises_repair",
+        "source": "str_reopening_cycle",
+        "target": "eng_obligation_drift",
+        "function": "Makes repair a recurring procedural phase rather than a single climax."
+      },
+      {
+        "id": "l_reopening_requires_record",
+        "source": "str_reopening_cycle",
+        "target": "aes_ceremonial_ratification_cadence",
+        "function": "Requires each repair to be publicly recorded with its stated uncertainties."
+      },
+      {
+        "id": "l_theme_constrains_reopening",
+        "source": "thm_costly_partial_comprehension",
+        "target": "str_reopening_cycle",
+        "function": "Forbids repairs that reset meaning, forcing each reopening to leave residue."
+      },
+      {
+        "id": "l_theme_governs_reader_promise",
+        "source": "thm_costly_partial_comprehension",
+        "target": "re_earned_hope_promise",
+        "function": "Constrains hope to returns the reader has watched being paid for."
+      }
+    ],
+    "phases": [
+      {
+        "id": "ph_founding_rendering",
+        "title": "The Founding Rendering",
+        "order": 0,
+        "scope": "series_opening",
+        "genres": [
+          {
+            "genre": "speculative linguistics",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "literary political drama",
+            "role": "supporting"
+          },
+          {
+            "genre": "institutional procedural",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_speculative_linguistics",
+            "basic_emotions": [
+              "surprise",
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_untranslatable_obligation"
+            ],
+            "structural_function": "Establishes the promise-kind asymmetry as a hard constraint before any obligation exists to defend, so later difficulty is inherited rather than invented."
+          },
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_ratification_ritual"
+            ],
+            "structural_function": "Shows the first rendering becoming binding through procedure, fixing the form that every later ratification will repeat."
+          }
+        ],
+        "reader_experience": "Wonder at two kinds of promise that cannot be swapped, and unease at how quickly a workable choice becomes permanent.",
+        "aesthetic": "Ceremonial cadence undercut by the plainness of the actual choosing: the founding act reads as procedure rather than legend.",
+        "narrative_function": "Sets the terms that govern every later generation. The treaty must be rendered across a lexical gap with no neutral solution, the founders' choice becomes the precedent the series inherits, and refusal is shown to be a binding act rather than an escape. The phase deliberately withholds the founders' reasoning, so later generations can inherit confidence without grounds.",
+        "transition": "The ratified text and its first glosses pass to successors; the founding choice is now unremarkable, which is how drift becomes possible.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_inherited_gloss",
+        "title": "The Inherited Gloss",
+        "order": 1,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "dynastic generational saga",
+            "role": "governing"
+          },
+          {
+            "genre": "institutional procedural",
+            "role": "supporting"
+          },
+          {
+            "genre": "speculative linguistics",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_dynastic_generational_saga",
+            "basic_emotions": [
+              "sadness",
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_inherited_authoritative_text"
+            ],
+            "structural_function": "Introduces successors who inherit fluency and doctrine together, so inherited error feels like competence."
+          },
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_ratification_ritual"
+            ],
+            "structural_function": "Shows the court functioning competently on a text whose founding reasoning nobody has read, making procedure the carrier of inherited confidence."
+          }
+        ],
+        "reader_experience": "Comfort in a working institution, then the first cold recognition that institutional confidence is not evidence of fidelity.",
+        "aesthetic": "Marginalia thickens; recurring formulations return already slightly wrong; the plain register carries the private doubts procedure cannot hold.",
+        "narrative_function": "Establishes the renewable condition of the whole series: an authoritative text, a dense apparatus, and no living translator who has read the founding reasoning. Comprehension is inherited as habit, and the reader is placed inside the same fluency that hides the drift.",
+        "transition": "A reading that once settled a dispute is cited by two parties to opposite effect, opening the custody contest.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_custody_dispute",
+        "title": "The Custody Contest",
+        "order": 2,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "institutional procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "literary political drama",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "anger",
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_divided_custody"
+            ],
+            "structural_function": "Converts interpretive authority into an object of conflict, so the question becomes who is entitled to say what the text means."
+          },
+          {
+            "genre_node_id": "gen_literary_political_drama",
+            "basic_emotions": [
+              "anger"
+            ],
+            "trope_functions": [
+              "trope_divided_custody"
+            ],
+            "structural_function": "Raises the stakes of the contest from professional standing to who is bound by the peace, so the dispute cannot be settled quietly."
+          }
+        ],
+        "reader_experience": "Frustration sharpened by the suspicion that both claimants are right about what was actually written.",
+        "aesthetic": "Competing glosses placed in sequence, so the reader reads the same text saying two things in the same sitting.",
+        "narrative_function": "Tests whether a peace can survive a legitimate disagreement rather than a bad-faith one. Both claimants hold defensible readings and partial authority, so the phase cannot be resolved by exposing a villain. It must be resolved, if at all, by procedure whose reasoning will later prove thinner than its authority.",
+        "transition": "A ruling issues from reasoning no one records fully, and everyone proceeds as though the question is settled.",
+        "parallel_with": [
+          "ph_inherited_gloss"
+        ]
+      },
+      {
+        "id": "ph_drift_discovery",
+        "title": "The Drift Made Visible",
+        "order": 3,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "speculative linguistics",
+            "role": "governing"
+          },
+          {
+            "genre": "institutional procedural",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_speculative_linguistics",
+            "basic_emotions": [
+              "surprise",
+              "fear",
+              "sadness"
+            ],
+            "trope_functions": [
+              "trope_novice_ear",
+              "trope_binding_mistranslation"
+            ],
+            "structural_function": "Turns a settled reading into evidence of error, making the central revelation grammatical rather than conspiratorial."
+          },
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_inherited_authoritative_text"
+            ],
+            "structural_function": "Makes discovery arrive through verified usage and archived ruling rather than intuition, so the correction cannot be dismissed as opinion."
+          }
+        ],
+        "reader_experience": "Retroactive rereading: earlier confidence becomes visible as misreading, and the reader feels the ground move under their own memory.",
+        "aesthetic": "A recurring formulation returns with one word changed, and the change is the discovery.",
+        "narrative_function": "Delivers the first irrefutable demonstration that the inherited text obliges something no one alive intended, without identifying who benefits. The phase's job is epistemic rather than punitive: it must make the drift undeniable while leaving the obligation standing.",
+        "transition": "Discovery produces obligation rather than relief; knowing the drift does not dissolve it, which forces the next phase.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_unpaid_generation",
+        "title": "The Unpaid Generation",
+        "order": 4,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "literary political drama",
+            "role": "governing"
+          },
+          {
+            "genre": "elegiac tragedy",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "diplomatic thriller",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_elegiac_tragedy",
+            "basic_emotions": [
+              "sadness",
+              "anger"
+            ],
+            "trope_functions": [
+              "trope_inherited_authoritative_text"
+            ],
+            "structural_function": "Makes the cost of drift concrete in people who must discharge obligations they cannot meet."
+          },
+          {
+            "genre_node_id": "gen_diplomatic_thriller",
+            "basic_emotions": [
+              "fear",
+              "anger"
+            ],
+            "trope_functions": [
+              "trope_binding_mistranslation"
+            ],
+            "structural_function": "Adds a deadline that compels repair before understanding is adequate, so the phase cannot wait for a better reading."
+          }
+        ],
+        "reader_experience": "Grief and indignation held together, with the knowledge that the drift was nobody's single crime.",
+        "aesthetic": "Plain register dominates; ceremonial language appears only in quoted obligation, stripped of its occasion.",
+        "narrative_function": "Shows that drift's cost is paid by those least responsible for it, and that a correct reading can arrive too late to help anyone. This is where the series is most at risk of tipping into futility; the phase must record endurance and specific loss rather than deliver a verdict about meaning.",
+        "transition": "Cumulative default makes the current rendering unusable, forcing a reopening that no party can control or limit.",
+        "parallel_with": [
+          "ph_drift_discovery"
+        ]
+      },
+      {
+        "id": "ph_contested_reopening",
+        "title": "The Contested Reopening",
+        "order": 5,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "institutional procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "diplomatic thriller",
+            "role": "supporting"
+          },
+          {
+            "genre": "speculative linguistics",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "fear",
+              "surprise"
+            ],
+            "trope_functions": [
+              "trope_divided_custody",
+              "trope_ratification_ritual"
+            ],
+            "structural_function": "Stages the machinery of re-reading: what may be reopened, by whom, and at what cost to standing."
+          },
+          {
+            "genre_node_id": "gen_diplomatic_thriller",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_binding_mistranslation"
+            ],
+            "structural_function": "Presses the reopening against a negotiating clock, so procedure must finish before the parties abandon the table."
+          }
+        ],
+        "reader_experience": "Suspense about whether repair is institutionally possible, distinct from whether it is linguistically possible.",
+        "aesthetic": "Ceremonial cadence returns as procedure rather than celebration; the archive is read aloud and what is missing is audible.",
+        "narrative_function": "Converts diagnosis into procedure. The series' hope is tested here rather than in any moment of insight, because reopening requires admitting that a competent predecessor read wrongly, which is a public loss of face for people who did their work well. The phase must make the institutional obstacle as real as the linguistic one.",
+        "transition": "Reopening yields a partial, better-argued rendering that no one can fully verify, passing to ratification.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_partial_repair",
+        "title": "The Partial Repair",
+        "order": 6,
+        "scope": "generation_span",
+        "genres": [
+          {
+            "genre": "literary political drama",
+            "role": "governing"
+          },
+          {
+            "genre": "institutional procedural",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_literary_political_drama",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "trope_ratification_ritual"
+            ],
+            "structural_function": "Delivers a repair that is real, bounded and openly incomplete, so payoff is measured in obligations discharged rather than truth established."
+          },
+          {
+            "genre_node_id": "gen_institutional_procedural",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_ratification_ritual"
+            ],
+            "structural_function": "Requires the repair to pass through legitimate procedure with its reservations recorded, so the outcome is both usable and contestable."
+          }
+        ],
+        "reader_experience": "Earned relief, qualified by clear sight of what the repair leaves standing.",
+        "aesthetic": "Ceremonial formality returns, now carrying stated reservations instead of concealed ones.",
+        "narrative_function": "Pays the governing promise: comprehension is costly and partial, and the cost was worth paying. The repair must be specific and limited, so that it neither proves translation impossible nor pretends it is easy. Its measure is whether identifiable obligations are discharged or fairly refused.",
+        "transition": "The new rendering is ratified with its uncertainties written in, which is itself a new and vulnerable kind of precedent.",
+        "parallel_with": []
+      },
+      {
+        "id": "ph_renewal_with_residue",
+        "title": "Renewal With Residue",
+        "order": 7,
+        "scope": "series_movement_close",
+        "genres": [
+          {
+            "genre": "dynastic generational saga",
+            "role": "governing"
+          },
+          {
+            "genre": "elegiac tragedy",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "gen_dynastic_generational_saga",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "trope_ratification_ritual",
+              "trope_inherited_authoritative_text"
+            ],
+            "structural_function": "Returns the series to an inherited-text condition on better terms, closing a movement without closing the question."
+          },
+          {
+            "genre_node_id": "gen_elegiac_tragedy",
+            "basic_emotions": [
+              "sadness",
+              "joy"
+            ],
+            "trope_functions": [
+              "trope_inherited_authoritative_text"
+            ],
+            "structural_function": "Counts what the repair did not recover, so the movement closes with residue named rather than hope overstated."
+          }
+        ],
+        "reader_experience": "Hope that has been paid for, alongside the recognition that the next generation inherits this too.",
+        "aesthetic": "Recurring formulations return corrected and still vulnerable; the final cadence is ceremonial but not triumphant.",
+        "narrative_function": "Re-establishes the renewable cycle with a difference: the new text will drift, but the practice of recording partiality survives as a counter-drift. The series completes a movement with hope earned at a price the reader watched being paid, and leaves the central question open by design rather than by evasion.",
+        "transition": "Cycles back to the inherited-gloss condition: partiality is now on the record, and the record can itself be misread.",
+        "parallel_with": [
+          "ph_inherited_gloss"
+        ]
+      }
+    ],
+    "open_questions": [
+      "What does the peace actually oblige? The vision establishes the form of obligation but not its subject, and every phase's cost accounting depends on whether the treaty concerns territory, tribute, hostages, trade, reparations or something else.",
+      "Should the series give the reader a home grammar, a language whose promise-kind feels native, or deliberately leave the reader outside both? This changes reader sympathy, the aesthetic strategy and which failures land as loss.",
+      "Are the thirty Books one continuous generational line, or a setting that admits contained sub-arcs with independent entry points? Phase weighting and the drift cycle can support either, but not both at once.",
+      "Is drift to be caused mainly by ordinary language change, by interested readings, or by honest error? Each supports a different antagonist logic and a different verdict on the court.",
+      "Is the court a single institution or two rival institutions with separate custody? Divided custody is powerful but it is a structural commitment, not a decorative one.",
+      "May a generation be lost, a rendering abandoned and a peace broken, as a local outcome without the series implying that translation is impossible overall? The vision forbids the global verdict but does not settle the local one.",
+      "Should hope arrive through institutional repair, through personal fidelity, or through both in sequence? This decides whether the procedural genre is a vehicle of hope or a source of its delay.",
+      "How much of the two languages should appear as constructed text rather than being conveyed through consequence and failure? This is an aesthetic commitment with real cost across thirty Books.",
+      "Is each repair required to leave an irreducible residue, or may one generation fully discharge its inherited obligation? The architecture currently assumes residue; the size of the residue is an authorial decision."
+    ],
+    "opportunities": [
+      {
+        "id": "opp_untranslated_interludes",
+        "title": "Interludes the reader must hold without a rendering",
+        "why_it_matters": "The vision asks for earned hope about being understood. Passages that arrive without gloss would make the reader's own partial comprehension the series' argument rather than its subject, which no amount of narrated translation failure can achieve.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Turns a thirty-Book horizon into an instrument: the reader's growing tolerance for not understanding becomes the evidence the ending depends on.",
+        "intention_fidelity": "High. It serves the stated experience without relaxing either refusal, since neither impossibility nor ease follows from the reader being left outside a passage.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "opp_delayed_consequence_across_volumes",
+        "title": "Consequences that arrive several Books after their cause",
+        "why_it_matters": "A thirty-Book horizon can pay a choice off long after the reader has stopped watching for it. That delay is the only form in which drift is felt as inheritance rather than explained as theme, and it gives early volumes retroactive weight on rereading.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Makes the series' own structure complicit in the premise: readers experience a text whose meaning changed while they were reading something else.",
+        "intention_fidelity": "Good, provided the delays are recorded fairly so that payoff is recognition rather than trickery.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "emotion_targets": [
+      {
+        "id": "et_earned_hope",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "The reader closes phases believing that being understood is possible at a price, because they have watched the price paid and the return used. Hope reads as forward-leaning gladness that has been earned, not as consolation granted after loss.",
+        "eliciting_condition": "A rendering is produced at visible cost (a reputation spent, an obligation accepted, a reading given up) and is then used by someone who needed it, in a way the reader can check. The author states this target in their own words: earned hope about being understood, with comprehension costly, partial and worth the cost.",
+        "aesthetic_strategy": "Distribute evidence rather than assertion: cost first, return second, and never a narrator's reassurance. Recurring formulations let the reader measure what changed; the plain register shows the same ethic at intimate scale; ceremonial cadence marks the moment the cost becomes public.",
+        "provenance": "author_declared"
+      },
+      {
+        "id": "et_drift_dread",
+        "emotion": "fear",
+        "role": "supporting",
+        "intended_effect": "A low, continuous apprehension that the text being relied on says something no one alive intended, and that the reliance is already in motion.",
+        "eliciting_condition": "A clause is quoted exactly as ratified, and its effect on a living obligation differs from what the quoting party believes it establishes.",
+        "aesthetic_strategy": "Show the apparatus thickening while remaining unread; quote the founding text rarely, and always through an interested party's memory of it.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_grief_lost_readings",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "Mourning for interpretations that existed, were correct for their moment, and are now unrecoverable, and for the people who were bound by them.",
+        "eliciting_condition": "A reading is shown to have been right, well argued and permanently out of reach, usually discovered while repairing its consequences.",
+        "aesthetic_strategy": "Let archival discovery arrive too late to help; keep recovered reasoning fragmentary; reserve the elegiac register until the cost has been counted in plain prose.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_indignation",
+        "emotion": "anger",
+        "role": "supporting",
+        "intended_effect": "Sharp anger at obligations imposed on people who could not consent and cannot discharge them, directed at the arrangement rather than at a single offender.",
+        "eliciting_condition": "An obligation created generations earlier becomes payable by someone who had no part in it, and the demand is procedurally correct.",
+        "aesthetic_strategy": "Keep the procedure impeccable while the outcome is intolerable, and deny the reader a villain to absorb the anger.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_revulsion_fluency",
+        "emotion": "disgust",
+        "role": "contrasting",
+        "intended_effect": "A recoil from smooth, confident rendering once the reader has seen what fluency drops, including recoil from their own pleasure in elegant prose.",
+        "eliciting_condition": "A seamless, beautiful rendering is shown to have removed an obligation or transferred it to someone defenceless.",
+        "aesthetic_strategy": "Pair the series' most polished sentences with their least acceptable consequences, and keep the plain register available so fluency is never the only pleasure.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_recognition_surprise",
+        "emotion": "surprise",
+        "role": "supporting",
+        "intended_effect": "The jolt of a foreign construction suddenly becoming legible: comprehension arriving as a change in the reader's own capacity rather than as information delivered.",
+        "eliciting_condition": "A grammatical feature introduced earlier as opaque becomes immediately usable, so the reader notices understanding without being told it happened.",
+        "aesthetic_strategy": "Introduce the construction in use long before explaining it, and let the explanation arrive as recognition of something already carried.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_relief_received",
+        "emotion": "joy",
+        "role": "local",
+        "intended_effect": "Small, specific relief when a partial rendering is received as partial and acted on anyway: the series' smallest unit of hope.",
+        "eliciting_condition": "Someone accepts an admittedly incomplete account and proceeds with it, without pretending it was complete.",
+        "aesthetic_strategy": "Use the plain register and short scenes, and let the moment pass without ceremony so it does not compete with ratification.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "et_comic_minutiae",
+        "emotion": "joy",
+        "role": "local",
+        "intended_effect": "Dry, affectionate amusement at a court arguing with total seriousness about a comma while a peace waits, relief that also indicts the reader's own appetite for procedure.",
+        "eliciting_condition": "A consequential outcome hinges on a small textual particular, and the participants' competence makes the scene funnier rather than less serious.",
+        "aesthetic_strategy": "Play procedural cadence straight, and let the comedy come from accurate detail and from the reader's awareness of what is at stake.",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "ce_faithful_inadequacy",
+        "title": "Faithful Inadequacy",
+        "basic_emotions": [
+          "sadness",
+          "joy"
+        ],
+        "context": "Ratifying a rendering one knows to be partial and believing it is still the right act: sadness at what the text cannot carry, gladness that something binding can be carried at all. Interpretive context: a court deciding whether an incomplete text may bind living people; not a claim that partial understanding always suffices."
+      },
+      {
+        "id": "ce_inherited_guilt",
+        "title": "Inherited Guilt",
+        "basic_emotions": [
+          "fear",
+          "anger",
+          "sadness"
+        ],
+        "context": "Being bound by an obligation one did not make, cannot discharge as written and cannot be released from: fear of the consequence, anger at the arrangement, grief for the predecessor who chose it in good faith."
+      },
+      {
+        "id": "ce_guarded_receptivity",
+        "title": "Guarded Receptivity",
+        "basic_emotions": [
+          "fear",
+          "joy",
+          "surprise"
+        ],
+        "context": "Trusting a rendering enough to act while knowing it may drift: fear of what was dropped, gladness that anything arrived, surprise at how much a partial account can carry."
+      },
+      {
+        "id": "ce_reverent_doubt",
+        "title": "Reverent Doubt",
+        "basic_emotions": [
+          "joy",
+          "disgust",
+          "fear"
+        ],
+        "context": "Revering what a text carried while recoiling from the fluency that smoothed it, and fearing that one's own competence is the instrument of the loss."
+      },
+      {
+        "id": "ce_obstinate_care",
+        "title": "Obstinate Care",
+        "basic_emotions": [
+          "anger",
+          "joy",
+          "sadness"
+        ],
+        "context": "Staying with another person one can only partly understand: anger at the cost of the attempt, gladness that the attempt continues, sadness at what remains unshared."
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "gen_literary_political_drama",
+        "role": "governing",
+        "emotion_target_ids": [
+          "et_earned_hope",
+          "et_indignation",
+          "et_grief_lost_readings",
+          "et_relief_received"
+        ],
+        "complex_emotion_ids": [
+          "ce_faithful_inadequacy",
+          "ce_obstinate_care"
+        ],
+        "trope_functions": [
+          "trope_ratification_ritual",
+          "trope_divided_custody",
+          "trope_binding_mistranslation"
+        ],
+        "narrative_engine": "A rendering must be produced under institutional pressure, ratified publicly, and then lived with. The genre's renewable conflict is that every party's defensible reading of the same authoritative text obliges different people differently. Because outcomes are public and consequential, each phase ends with an obligation actually placed on someone. The engine runs on good faith rather than villainy, which lets the series sustain argument across thirty Books without escalating an antagonist.",
+        "structural_pattern": "Cycles of negotiation, drafting, challenge and ratification, each producing a binding outcome whose costs land in a later phase. The pattern is cyclical rather than escalating, since consequences from earlier cycles re-enter as inherited conditions. The reader's knowledge deliberately runs slightly ahead of the court's, so public confidence and private doubt can occupy the same scene.",
+        "aesthetic_strategies": [
+          "aes_ceremonial_ratification_cadence",
+          "aes_plain_intimate_counterweight",
+          "aes_recurring_formulation_drift"
+        ],
+        "payoff_expectations": [
+          "An obligation is discharged or refused on the record, at visible cost to identifiable people.",
+          "The court's standing changes because of what it agreed to, not because of what it discovered.",
+          "A rendering is ratified with its limits stated, so legitimacy and correctness remain distinguishable.",
+          "Hope arrives as the use of a partial text, never as confirmation that the text was finally right."
+        ]
+      },
+      {
+        "genre_node_id": "gen_speculative_linguistics",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_recognition_surprise",
+          "et_drift_dread",
+          "et_indignation"
+        ],
+        "complex_emotion_ids": [
+          "ce_reverent_doubt",
+          "ce_guarded_receptivity"
+        ],
+        "trope_functions": [
+          "trope_untranslatable_obligation",
+          "trope_novice_ear"
+        ],
+        "narrative_engine": "Lexical facts generate binding consequences. The two promise-kinds make some obligations expressible in one language and not the other, so every attempt to say what a party owes produces a residue that must be allocated. The engine's pressure is that the court cannot wait for perfect understanding: it must choose a rendering, and the choice is judged by its effects on people who never read the clause.",
+        "structural_pattern": "Revelation by construction: each phase discloses one further property of the two promise-kinds through a consequence already suffered, never through exposition first. Constraints are stated once, plainly, and then obeyed without exception, so the reader can reason about what is and is not possible.",
+        "aesthetic_strategies": [
+          "aes_two_obligation_registers",
+          "aes_glossarial_marginalia"
+        ],
+        "payoff_expectations": [
+          "A demonstrated rather than asserted account of what each language can and cannot oblige.",
+          "At least one moment where the reader recognises a construction in use before it is explained.",
+          "The asymmetry is never dissolved by a discovered equivalent or a workaround that makes conversion free."
+        ]
+      },
+      {
+        "genre_node_id": "gen_dynastic_generational_saga",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_grief_lost_readings",
+          "et_drift_dread",
+          "et_earned_hope"
+        ],
+        "complex_emotion_ids": [
+          "ce_inherited_guilt",
+          "ce_faithful_inadequacy"
+        ],
+        "trope_functions": [
+          "trope_inherited_authoritative_text",
+          "trope_novice_ear"
+        ],
+        "narrative_engine": "Succession transfers office, craft-habit and unfinished reading together. Each successor inherits fluency they did not earn and doctrine they did not choose, and must decide whether to defend or repudiate the reading that made them credible. Turnover renews the same question with new people and new costs, which is what allows a thirty-Book horizon without a single escalating antagonist.",
+        "structural_pattern": "Generational turnover at intervals the architecture deliberately leaves unspecified in Book counts. Each turnover re-prices an unchanged question: what may be owed by someone who did not consent. Parallel generations can be held against each other so that the reader compares rather than merely follows.",
+        "aesthetic_strategies": [
+          "aes_glossarial_marginalia",
+          "aes_recurring_formulation_drift",
+          "aes_plain_intimate_counterweight"
+        ],
+        "payoff_expectations": [
+          "A successor's partial answer is re-evaluated by the generation that inherits it.",
+          "An inherited reading is publicly defended or repudiated at real personal cost.",
+          "Readers can compare two generations' handling of the same clause and see what each could not see."
+        ]
+      },
+      {
+        "genre_node_id": "gen_institutional_procedural",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "et_indignation",
+          "et_drift_dread",
+          "et_comic_minutiae",
+          "et_relief_received"
+        ],
+        "complex_emotion_ids": [
+          "ce_faithful_inadequacy",
+          "ce_reverent_doubt"
+        ],
+        "trope_functions": [
+          "trope_divided_custody",
+          "trope_ratification_ritual",
+          "trope_binding_mistranslation"
+        ],
+        "narrative_engine": "Procedure converts interpretation into decision under rules. Hearings, drafting, challenge and ruling give the court a visible machinery, and competence becomes a source of pressure rather than reassurance: the better the work, the harder it is to challenge. Scarcity of authority generates recurring conflict, because valid claims must be adjudicated by someone entitled to adjudicate them.",
+        "structural_pattern": "Recurring set pieces in which a dispute is framed, evidence of usage is argued, a ruling is issued and a ratification follows, with outcomes that are procedurally earned and substantively contestable. The pattern supplies tempo variation, since a phase may compress several rulings or spend itself on one.",
+        "aesthetic_strategies": [
+          "aes_ceremonial_ratification_cadence",
+          "aes_glossarial_marginalia"
+        ],
+        "payoff_expectations": [
+          "Outcomes are legitimately reached and still open to moral dispute.",
+          "The machinery's cost is shown as labour, not as bureaucracy for its own sake.",
+          "A ruling whose authority exceeds the reasoning that produced it becomes consequential later."
+        ]
+      },
+      {
+        "genre_node_id": "gen_diplomatic_thriller",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "et_drift_dread",
+          "et_indignation",
+          "et_recognition_surprise"
+        ],
+        "complex_emotion_ids": [
+          "ce_guarded_receptivity"
+        ],
+        "trope_functions": [
+          "trope_binding_mistranslation",
+          "trope_divided_custody"
+        ],
+        "narrative_engine": "Deadlines and brinkmanship make reading urgent. Because ambiguity is genuine, each party can advance a defensible reading as leverage, and the court must render before comprehension is adequate. The genre's function is to convert interpretive difficulty into time pressure without converting it into a puzzle with one solution.",
+        "structural_pattern": "Escalation under clocks, resolved by a rendering delivered under duress and then lived with. Deadlines recur at intervals, and each is a different constraint rather than a larger one, so tension renews without inflating.",
+        "aesthetic_strategies": [
+          "aes_ceremonial_ratification_cadence",
+          "aes_recurring_formulation_drift"
+        ],
+        "payoff_expectations": [
+          "Suspense resolved by a textual choice whose consequences arrive later.",
+          "Urgency is shown to degrade the quality of comprehension rather than to prove it impossible."
+        ]
+      },
+      {
+        "genre_node_id": "gen_elegiac_tragedy",
+        "role": "local",
+        "emotion_target_ids": [
+          "et_grief_lost_readings",
+          "et_revulsion_fluency",
+          "et_relief_received"
+        ],
+        "complex_emotion_ids": [
+          "ce_faithful_inadequacy",
+          "ce_inherited_guilt"
+        ],
+        "trope_functions": [
+          "trope_inherited_authoritative_text"
+        ],
+        "narrative_engine": "Loss is counted rather than reversed. This register takes over after cost-bearing phases to witness what drift consumed, including correct readings, willing obligors, standing and years, and to keep the series' hope from being cheap. It has no independent plot engine; it borrows the obligation cycle's outcomes and gives them weight.",
+        "structural_pattern": "Elegiac movements placed after cost-bearing phases, never terminal. Each movement names a specific loss and stops, and none is permitted to deliver a verdict about whether translation is possible.",
+        "aesthetic_strategies": [
+          "aes_plain_intimate_counterweight",
+          "aes_recurring_formulation_drift"
+        ],
+        "payoff_expectations": [
+          "Grief is witnessed rather than redeemed.",
+          "The register closes without concluding the series' question, leaving repair possible."
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "gi_procedural_enables_political",
+        "source_genre_id": "gen_institutional_procedural",
+        "target_genre_id": "gen_literary_political_drama",
+        "kind": "enables",
+        "mechanism": "Procedure supplies the arena, the standing to act and the clock. Political drama needs decisions with authority behind them, and the institutional genre provides hearings, drafting and rulings that place specific obligations on specific people, so the drama argues about consequences rather than opinions.",
+        "risk": "If procedure dominates, phases become hearing transcripts and the private cost disappears from view."
+      },
+      {
+        "id": "gi_linguistics_constrains_saga",
+        "source_genre_id": "gen_speculative_linguistics",
+        "target_genre_id": "gen_dynastic_generational_saga",
+        "kind": "constrains",
+        "mechanism": "Because the promise-kinds cannot be substituted at no cost, inheritance conflicts must run through what can be owed and forgiven rather than only through office, loyalty or blood. The lexical constraint forces every generational dispute to specify which promise is being inherited and by whom, which keeps turnover from becoming a costume change.",
+        "risk": "Over-tight constraint can make each generation repeat the same argument under different names."
+      },
+      {
+        "id": "gi_saga_enables_political",
+        "source_genre_id": "gen_dynastic_generational_saga",
+        "target_genre_id": "gen_literary_political_drama",
+        "kind": "enables",
+        "mechanism": "Turnover of custodians renews the same disagreement with new costs and new people, giving a thirty-Book horizon renewable stakes without escalating them. Each new generation can enter the argument at a different point in the drift cycle, which is how the political drama avoids exhausting its first conflict.",
+        "risk": "Renewal can become repetition unless each generation's inherited error differs in kind, not only in degree."
+      },
+      {
+        "id": "gi_thriller_tensions_procedural",
+        "source_genre_id": "gen_diplomatic_thriller",
+        "target_genre_id": "gen_institutional_procedural",
+        "kind": "creates_tension",
+        "mechanism": "Deadlines demand a rendering before comprehension is adequate, while procedure requires the slow evidentiary work that makes a rendering defensible. The two genres pull on the same scene: ratify now and lose fidelity, or wait and lose the peace.",
+        "risk": "Urgency can push the series toward a decisive single fix, which would violate the refusal of easy resolution."
+      },
+      {
+        "id": "gi_linguistics_converges_political",
+        "source_genre_id": "gen_speculative_linguistics",
+        "target_genre_id": "gen_literary_political_drama",
+        "kind": "converges",
+        "mechanism": "The lexical asymmetry is the political problem itself. What a promise is determines who can be bound, so the speculative premise and the political drama share one stake rather than running in parallel, and neither can be resolved without the other.",
+        "risk": "If the convergence is treated as identity, the linguistic premise becomes a metaphor and stops constraining outcomes."
+      },
+      {
+        "id": "gi_tragedy_tensions_political",
+        "source_genre_id": "gen_elegiac_tragedy",
+        "target_genre_id": "gen_literary_political_drama",
+        "kind": "creates_tension",
+        "mechanism": "Elegiac register counts irrecoverable loss, while the governing drama must keep repair possible. Holding both prevents hope from becoming cheap and prevents loss from becoming a verdict, which makes this tension the architecture's main protection against both forbidden resolutions.",
+        "risk": "If tragedy is allowed to conclude rather than accompany, the series resolves by declaring translation impossible."
+      },
+      {
+        "id": "gi_thriller_contrasts_saga",
+        "source_genre_id": "gen_diplomatic_thriller",
+        "target_genre_id": "gen_dynastic_generational_saga",
+        "kind": "contrasts",
+        "mechanism": "Deadline scale against generational scale: what must be settled before a season ends versus what will drift for centuries. The contrast shows that urgency and durability answer different questions, and that a decision made under a clock is inherited by people who never felt it.",
+        "risk": null
+      },
+      {
+        "id": "gi_procedural_reinforces_linguistics",
+        "source_genre_id": "gen_institutional_procedural",
+        "target_genre_id": "gen_speculative_linguistics",
+        "kind": "reinforces",
+        "mechanism": "The court's apparatus of glosses, precedents and rulings makes the linguistic premise observable as work. Instead of explaining the lexical gap, the procedural genre shows people failing, arguing and partially succeeding at it, which converts a stipulated fact into visible consequence.",
+        "risk": null
+      }
+    ]
+  },
+  "candidate_request_sha256": "6a515a5b5b5c0f44fb832c5a9107cfd4c7bd1ebd4b2f4fd33110dc9259c994c3",
+  "review": null,
+  "governing_objective": {
+    "authority": "author_expressed",
+    "story_vision": "An optimistic thirty-Book series about a court of translators who must render a peace treaty between two languages that cannot express the same obligations. One language has a word for a promise that can be inherited; the other has a word for a promise that cannot be forgiven. Every generation of translators inherits a treaty whose meaning has drifted. The intended experience is earned hope about being understood: comprehension is costly, partial, and worth the cost. The series should never resolve its central question by declaring that translation is impossible, and it should never resolve it by declaring that translation is easy.",
+    "instruction": null,
+    "note": "The author's expressed creative objective for this working proposal. It is not accepted Story Identity, and the candidate summary is an interpretation of it rather than the objective itself."
+  },
+  "premise_status": {
+    "authority": "working_architecture_not_canon",
+    "author_expressed": {
+      "source": "story_vision_and_author_named_emotion_targets",
+      "emotion_targets": [
+        "et_earned_hope"
+      ],
+      "note": "A source-origin claim only: the author's own text names this emotion. It is not acceptance of the agent's elaboration."
+    },
+    "accepted": {
+      "source": null,
+      "commitments": {}
+    },
+    "provisional_agent_interpretation": {
+      "summary": true,
+      "nodes": [
+        "aes_ceremonial_ratification_cadence",
+        "aes_glossarial_marginalia",
+        "aes_plain_intimate_counterweight",
+        "aes_recurring_formulation_drift",
+        "aes_two_obligation_registers",
+        "eng_asymmetric_promise_kinds",
+        "eng_bad_faith_reading",
+        "eng_custodial_succession",
+        "eng_glossarial_accumulation",
+        "eng_obligation_drift",
+        "eng_private_comprehension",
+        "eng_ritual_ratification",
+        "gen_diplomatic_thriller",
+        "gen_dynastic_generational_saga",
+        "gen_elegiac_tragedy",
+        "gen_institutional_procedural",
+        "gen_literary_political_drama",
+        "gen_speculative_linguistics",
+        "re_cumulative_drift_recognition",
+        "re_earned_hope_promise",
+        "re_partial_reader_position",
+        "str_engine_composition",
+        "str_generation_cycle",
+        "str_reopening_cycle",
+        "thm_authority_to_interpret",
+        "thm_costly_partial_comprehension",
+        "thm_fluency_is_not_fidelity",
+        "thm_inheritance_binds_without_consent",
+        "thm_promise_kinds_not_interchangeable",
+        "thr_main_rendering_the_peace",
+        "thr_sub_custody_of_meaning",
+        "thr_sub_inheritance_without_consent",
+        "thr_sub_private_understanding",
+        "trope_binding_mistranslation",
+        "trope_divided_custody",
+        "trope_inherited_authoritative_text",
+        "trope_novice_ear",
+        "trope_ratification_ritual",
+        "trope_untranslatable_obligation"
+      ],
+      "links": [
+        "l_asymmetry_enacts_theme",
+        "l_asymmetry_pressures_drift",
+        "l_binding_error_activates_ratification",
+        "l_ceremony_serves_ratification",
+        "l_composition_declares_primary",
+        "l_composition_orders_threads",
+        "l_custody_thread_enacts_theme",
+        "l_divided_custody_activates_thread",
+        "l_drift_drives_main_thread",
+        "l_drift_feeds_custody",
+        "l_generation_cycle_organises_succession",
+        "l_gloss_preserves_and_buries",
+        "l_hope_conditions_reader_position",
+        "l_inheritance_thread_enacts_theme",
+        "l_inherited_text_activates_drift",
+        "l_interest_enacts_theme",
+        "l_interest_pressures_main_thread",
+        "l_interest_weaponises_ambiguity",
+        "l_linguistics_grounds_asymmetry",
+        "l_main_thread_enacts_theme",
+        "l_marginalia_serves_gloss",
+        "l_novice_ear_activates_gloss",
+        "l_plainness_serves_private",
+        "l_political_hosts_drift",
+        "l_private_anchors_hope",
+        "l_private_feeds_private_thread",
+        "l_procedural_carries_ratification",
+        "l_ratification_freezes_drift",
+        "l_ratification_trope_joins_scales",
+        "l_recurrence_defends_hope",
+        "l_recurrence_serves_drift",
+        "l_register_constitutes_reader_position",
+        "l_register_serves_asymmetry",
+        "l_reopening_organises_repair",
+        "l_reopening_requires_record",
+        "l_saga_carries_succession",
+        "l_succession_feeds_inheritance",
+        "l_succession_renews_drift",
+        "l_theme_constrains_reopening",
+        "l_theme_governs_reader_promise",
+        "l_thriller_pressurises_reading",
+        "l_tragedy_counts_cost",
+        "l_untranslatable_activates_asymmetry"
+      ],
+      "note": "Every node, link and the summary are noncanonical working material proposed by the agent."
+    },
+    "unresolved": {
+      "open_questions": [
+        "What does the peace actually oblige? The vision establishes the form of obligation but not its subject, and every phase's cost accounting depends on whether the treaty concerns territory, tribute, hostages, trade, reparations or something else.",
+        "Should the series give the reader a home grammar, a language whose promise-kind feels native, or deliberately leave the reader outside both? This changes reader sympathy, the aesthetic strategy and which failures land as loss.",
+        "Are the thirty Books one continuous generational line, or a setting that admits contained sub-arcs with independent entry points? Phase weighting and the drift cycle can support either, but not both at once.",
+        "Is drift to be caused mainly by ordinary language change, by interested readings, or by honest error? Each supports a different antagonist logic and a different verdict on the court.",
+        "Is the court a single institution or two rival institutions with separate custody? Divided custody is powerful but it is a structural commitment, not a decorative one.",
+        "May a generation be lost, a rendering abandoned and a peace broken, as a local outcome without the series implying that translation is impossible overall? The vision forbids the global verdict but does not settle the local one.",
+        "Should hope arrive through institutional repair, through personal fidelity, or through both in sequence? This decides whether the procedural genre is a vehicle of hope or a source of its delay.",
+        "How much of the two languages should appear as constructed text rather than being conveyed through consequence and failure? This is an aesthetic commitment with real cost across thirty Books.",
+        "Is each repair required to leave an irreducible residue, or may one generation fully discharge its inherited obligation? The architecture currently assumes residue; the size of the residue is an authorial decision."
+      ]
+    }
+  },
+  "collaboration": null,
+  "opportunities": {
+    "authority": "noncanonical_opportunity",
+    "count": 2,
+    "items": [
+      {
+        "id": "opp_untranslated_interludes",
+        "title": "Interludes the reader must hold without a rendering",
+        "why_it_matters": "The vision asks for earned hope about being understood. Passages that arrive without gloss would make the reader's own partial comprehension the series' argument rather than its subject, which no amount of narrated translation failure can achieve.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Turns a thirty-Book horizon into an instrument: the reader's growing tolerance for not understanding becomes the evidence the ending depends on.",
+        "intention_fidelity": "High. It serves the stated experience without relaxing either refusal, since neither impossibility nor ease follows from the reader being left outside a passage.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "opp_delayed_consequence_across_volumes",
+        "title": "Consequences that arrive several Books after their cause",
+        "why_it_matters": "A thirty-Book horizon can pay a choice off long after the reader has stopped watching for it. That delay is the only form in which drift is felt as inheritance rather than explained as theme, and it gives early volumes retroactive weight on rereading.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Makes the series' own structure complicit in the premise: readers experience a text whose meaning changed while they were reading something else.",
+        "intention_fidelity": "Good, provided the delays are recorded fairly so that payoff is recognition rather than trickery.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "comparison": {
+      "governing_purpose_authority": "author_expressed",
+      "alternative_count": 2,
+      "alternatives": [
+        {
+          "id": "opp_untranslated_interludes",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        },
+        {
+          "id": "opp_delayed_consequence_across_volumes",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        }
+      ],
+      "requires_author_decision": [],
+      "provisional_primary": null,
+      "working_selection_is_not_acceptance": true,
+      "note": "Artistic potential and intention fidelity are separate claims. An alternative is not better because it is more developed, and the expressed direction is not superior because it came first. Any alternative that would replace the author's purpose requires an explicit author decision. A provisional primary direction is a working selection under delegated goal discovery, never accepted Story Identity."
+    },
+    "note": "Incidental creative possibilities the agent noticed while doing the requested work. They are not defects, not required author decisions, and not accepted narrative meaning. Ignoring them is a complete response."
+  }
+}
