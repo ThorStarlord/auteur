@@ -401,8 +401,50 @@ def _series_refs(artifact: WorkingBookArchitecture) -> set[str]:
     return {ref.id for _, ref in _all_refs(artifact) if ref.kind == "series_node"}
 
 
+def _inherited_provenance(
+    artifact: WorkingBookArchitecture, series_candidate: dict,
+    visible_source_ids: set[str],
+) -> dict:
+    """Report what each inherited claim is actually grounded in.
+
+    Existence of a reference is not authority. A claim grounded only in
+    agent-proposed Series nodes is a working proposal, not an author commitment.
+    """
+    node_ids = {node["id"] for node in series_candidate.get("nodes", [])}
+    items = []
+    for element in artifact.inherited:
+        author_grounded = any(
+            ref.kind == "source_item" and ref.id in visible_source_ids
+            for ref in element.refs
+        )
+        if author_grounded:
+            basis = "author_source"
+        elif any(ref.kind == "series_node" and ref.id in node_ids for ref in element.refs):
+            basis = "working_series_proposal"
+        elif element.refs:
+            basis = "book_element"
+        else:
+            basis = "unreferenced"
+        items.append({
+            "id": element.id,
+            "source_basis": basis,
+            "author_grounded": author_grounded,
+            "legacy_form": element.provenance is not None,
+        })
+    return {
+        "authority": "derived_projection_not_canon",
+        "items": items,
+        "note": (
+            "Derived from the references and the working Series. A claim grounded only "
+            "in agent-proposed Series nodes is a working proposal, not an "
+            "author-established commitment."
+        ),
+    }
+
+
 def _check_references(
     artifact: WorkingBookArchitecture, series_candidate: dict, visible_source_ids: set[str],
+    baseline: WorkingBookArchitecture | None = None,
 ) -> None:
     """Every reference must resolve against the Series revision this request was built on."""
     ids = [element.id for element in _elements(artifact)] + [edge.id for edge in artifact.typed_edges]
@@ -424,6 +466,24 @@ def _check_references(
     for edge in artifact.typed_edges:
         if edge.source not in element_ids:
             problems.append(f"{edge.id}: source {edge.source!r} is not a Book element")
+    prior = {item.id: item for item in baseline.inherited} if baseline is not None else {}
+    for element in artifact.inherited:
+        if element.provenance is not None:
+            continue  # historical form keeps its original meaning
+        if baseline is not None and prior.get(element.id) == element:
+            continue  # unchanged elements are not re-judged
+        if element.attribution != "derived":
+            continue
+        grounded = any(
+            ref.kind == "source_item" and ref.id in visible_source_ids
+            for ref in element.refs
+        )
+        if not grounded:
+            problems.append(
+                f"{element.id}: inherited claim marked derived is grounded only in "
+                "agent-proposed Series material; mark it agent_proposed or cite the "
+                "author's source"
+            )
     questions = series_candidate.get("open_questions", [])
     for decision in artifact.open_author_decisions:
         index = decision.series_question_index
@@ -814,6 +874,10 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
         "authority": "working_noncanonical",
         **_freshness(store, book_number, record),
         "packet": packet,
+        "inherited_provenance": _inherited_provenance(
+            artifact, (series or {}).get("candidate", {}),
+            set(_visible_source_ids(source)),
+        ),
         "responsibility": responsibility,
         "artifact": record["artifact"],
         "verbatim_source": record.get("source_items", []),
@@ -1270,7 +1334,9 @@ def _complete_revision(
         raise ValueError("the artifact's book_number does not match the request")
     baseline = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
     series_view = _series_view(packet)
-    _check_references(candidate, series_view, set(packet["visible_source_ids"]))
+    _check_references(
+        candidate, series_view, set(packet["visible_source_ids"]), baseline=baseline,
+    )
     _check_semantics(candidate)
     base_index = _index_elements(baseline)
     cand_index = _index_elements(candidate)

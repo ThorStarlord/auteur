@@ -1146,6 +1146,10 @@ def project_architecture_resume(store: CanvasStore) -> dict:
         "architecture": candidate,
         "architecture_status": projection["status"],
         "candidate_request_sha256": projection["candidate_request_sha256"],
+        # T01's distinction must survive a fresh session, not only the live projection.
+        "governing_objective": projection.get("governing_objective"),
+        "premise_status": projection.get("premise_status"),
+        "collaboration": projection.get("collaboration"),
         "working_opportunities": working_opportunities,
         "pending_request_sha256": pending_sha,
         "pending_review": projection["review"],
