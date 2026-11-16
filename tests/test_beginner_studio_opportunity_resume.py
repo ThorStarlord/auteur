@@ -127,3 +127,18 @@ def test_resume_is_read_only(tmp_path):
     project_architecture_resume(store)
     assert store.load().revision == before
     assert not (store.project_root / "blueprint.yaml").exists()
+
+
+def test_resume_recovers_the_governing_objective_and_premise_status(tmp_path):
+    store = store_for(tmp_path)
+    _develop(store)
+    resume = project_architecture_resume(store)
+
+    objective = resume["governing_objective"]
+    assert objective["authority"] == "author_expressed"
+    assert objective["story_vision"] == VISION
+
+    status = resume["premise_status"]
+    assert status["authority"] == "working_architecture_not_canon"
+    assert status["accepted"]["source"] is None
+    assert "guild-schism" not in status["provisional_agent_interpretation"]["nodes"]
