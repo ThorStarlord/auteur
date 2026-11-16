@@ -322,6 +322,7 @@
         readerRoot, window.AuteurStudioArchitectureReader.project(state.architecture, {
           governingObjective: state.architecture.governing_objective,
           premiseStatus: state.architecture.premise_status,
+          authorEmotionGrounding: state.architecture.author_emotion_grounding,
         }));
     }
     $("architecture-handoff").hidden = !projection.request;
