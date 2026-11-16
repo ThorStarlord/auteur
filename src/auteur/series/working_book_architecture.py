@@ -192,6 +192,9 @@ class AlternativeElement(BookElement):
     title: str = Field(min_length=1, max_length=160)
     status: Literal["hypothetical"]
     rationale: str = Field(min_length=1, max_length=2000)
+    responsibility: Literal[
+        "in_service", "alternative_responsibility"
+    ] = "in_service"
 
     @model_validator(mode="after")
     def alternatives_are_hypothetical(self) -> "AlternativeElement":
@@ -742,11 +745,76 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
             "content_sha256": record["content_sha256"],
         },
     }
+    lineage = record.get("lineage") or []
+    added_revisions = 0
+    advanced_revisions = 0
+    for entry in lineage:
+        if entry.get("operation") != "revise":
+            continue
+        review = _read(
+            _book_root(store, book_number) / "requests" / entry["request_sha256"]
+            / "review.json"
+        )
+        block = (review or {}).get("responsibility") or {}
+        if block.get("alternative_responsibilities_added"):
+            added_revisions += 1
+        if (block.get("deliverable") or {}).get("advanced"):
+            advanced_revisions += 1
+    alternative_responsibilities = [
+        {"id": item.id, "title": item.title, "rationale": item.rationale}
+        for item in artifact.alternatives
+        if item.responsibility == "alternative_responsibility"
+    ]
+    responsibility = {
+        "authority": "working_noncanonical",
+        "delegated": {
+            "book_number": artifact.book_number,
+            "title": artifact.title,
+            "question": artifact.function.question,
+            "pressure": artifact.function.pressure,
+        },
+        "progress": {
+            "revision_number": record.get("revision_number", 0),
+            "revision_count": len(lineage),
+            "local_resolution_count": len(artifact.local_resolution),
+            "freshness": _freshness(store, book_number, record)["freshness"],
+        },
+        "in_service": {
+            "alternatives": [
+                item.id for item in artifact.alternatives
+                if item.responsibility == "in_service"
+            ],
+            "assumption_count": len(artifact.assumptions),
+        },
+        "alternative_responsibilities": alternative_responsibilities,
+        "unresolved": {
+            "elements": [item.id for item in artifact.unresolved],
+            "author_decisions": [item.id for item in artifact.open_author_decisions],
+            "later_possibilities": [
+                {"id": item.id, "kind": item.kind} for item in artifact.later_possibilities
+            ],
+        },
+        "cumulative_displacement": {
+            "revisions_adding_alternative_responsibility": added_revisions,
+            "revisions_advancing_deliverable": advanced_revisions,
+            "signal": (
+                "none" if not alternative_responsibilities and not added_revisions
+                else "review_required" if added_revisions > advanced_revisions
+                else "in_service"
+            ),
+            "note": (
+                "A signal is evidence to inspect, not a verdict. Successive revisions that add "
+                "alternative responsibilities without advancing the Book deliverable are the "
+                "cumulative-displacement case; a broad Series delegation may legitimately do more."
+            ),
+        },
+    }
     return {
         "book_number": book_number,
         "authority": "working_noncanonical",
         **_freshness(store, book_number, record),
         "packet": packet,
+        "responsibility": responsibility,
         "artifact": record["artifact"],
         "verbatim_source": record.get("source_items", []),
         "revision": {
@@ -982,6 +1050,38 @@ def _build_review(
         if entry["classification"] == "interpretive"
         and not _references_of(cand_index, entry["id"]) and entry["id"] not in edge_sources
     ]
+    deliverable_collections = {"function", "choice", "local_resolution"}
+    advanced_ids = [
+        identifier for identifier in sorted(added_ids | changed_ids)
+        if (cand_index.get(identifier) or {}).get("collection") in deliverable_collections
+    ]
+    alternative_responsibilities_added = [
+        identifier for identifier in sorted(added_ids)
+        if isinstance(cand_index[identifier]["element"], AlternativeElement)
+        and cand_index[identifier]["element"].responsibility == "alternative_responsibility"
+    ]
+    responsibility = {
+        "delegated": {
+            "book_number": candidate.book_number,
+            "question": candidate.function.question,
+            "pressure": candidate.function.pressure,
+        },
+        "deliverable": {
+            "advanced": bool(advanced_ids),
+            "advanced_ids": advanced_ids,
+            "local_resolution_count": len(candidate.local_resolution),
+        },
+        "alternative_responsibilities_added": alternative_responsibilities_added,
+        "alternative_responsibility_total": sum(
+            1 for item in candidate.alternatives
+            if item.responsibility == "alternative_responsibility"
+        ),
+        "note": (
+            "The delegated Book deliverable is its function, choice and local resolution. "
+            "An alternative responsibility is a direction discovered while doing that work; "
+            "adding one is reported, and it is never by itself a reason to abandon the Book."
+        ),
+    }
     return {
         "authority": "working_revision_review_not_acceptance",
         "request_sha256": request_sha256,
@@ -1005,6 +1105,7 @@ def _build_review(
         "authority_changes": authority_changes,
         "unresolved_effects": unresolved_effects,
         "withdrawal": withdrawal,
+        "responsibility": responsibility,
         "applicable": not unexpected,
         "applied": False,
         "note": ("Mechanical references are dependencies to inspect, not evidence of a narrative contradiction. "
