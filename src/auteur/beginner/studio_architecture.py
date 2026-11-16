@@ -896,6 +896,7 @@ def project_architecture(store: CanvasStore) -> dict:
         "working_interpretations": interpretations_projection(
             current["candidate"] if current else None,
         ),
+        "author_emotion_grounding": (current or {}).get("author_emotion_grounding"),
     }
 
 
@@ -1443,6 +1444,30 @@ def _validate_author_provenance(proposal: ArchitectureCandidate, packet: dict) -
             )
 
 
+def _author_emotion_grounding(
+    proposal: ArchitectureCandidate, packet: dict,
+) -> list[dict]:
+    """Distinguish an author-named emotion from an author-described experience.
+
+    `author_declared` means the author's words name the experience the target
+    stands for. It does not mean the author named the basic-emotion label: an
+    author who writes "earned trust" described an experience, and joy is the
+    agent's classification of it.
+    """
+    words = _author_visible_words(packet)
+    rows = []
+    for target in proposal.emotion_targets:
+        if target.provenance != "author_declared":
+            continue
+        rows.append({
+            "id": target.id,
+            "emotion": target.emotion,
+            "experience_named_by_author": _author_term_grounded(target.id, words),
+            "emotion_named_by_author": _author_term_grounded(target.emotion, words),
+        })
+    return rows
+
+
 def complete_architecture(store: CanvasStore, payload: dict) -> dict:
     with _FilesystemLock(store._path(".canvas.lock")):
         pointer = _read(_root(store) / "latest_request.json")
@@ -1503,6 +1528,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             "governing_objective": governing_objective(submitted),
             "premise_status": premise_status(candidate, accepted_identity),
             "working_interpretations": interpretations_projection(candidate),
+            "author_emotion_grounding": _author_emotion_grounding(proposal, submitted),
         }
         if submitted.get("collaboration"):
             record["collaboration"] = submitted["collaboration"]

@@ -21,14 +21,14 @@ VISION = (
 )
 
 
-def store_for(tmp_path):
+def store_for(tmp_path, vision=VISION):
     store = CanvasStore(tmp_path, "story-one")
     store.create()
     store.apply(
         "create-item", expected_revision=0, command_id="vision-created",
         payload={"item": {
             "id": "story-vision", "kind": "note", "title": "Story Vision",
-            "content": VISION,
+            "content": vision,
         }, "position": {"x": 20, "y": 50}},
     )
     return store
@@ -165,3 +165,31 @@ def test_a_historical_candidate_without_readings_still_parses(tmp_path):
     data.pop("interpretations")
     projection = _develop(store, data)
     assert projection["working_interpretations"]["count"] == 0
+
+
+def test_an_author_described_experience_is_not_an_author_named_emotion(tmp_path):
+    """The R09 failure: the author wrote "earned trust"; the agent labelled it joy."""
+    store = store_for(
+        tmp_path,
+        "A series about two languages that cannot express the same obligations. "
+        "The intended experience is earned trust in incomplete knowledge, extended "
+        "before it can be verified.",
+    )
+    data = candidate()
+    data["emotion_targets"] = [{
+        "id": "earned-trust", "emotion": "joy", "role": "primary",
+        "intended_effect": "Trust is extended before it can be verified.",
+        "eliciting_condition": "A partial rendering is received as partial.",
+        "aesthetic_strategy": "Restraint.", "provenance": "author_declared",
+    }]
+    rows = _develop(store, data)["author_emotion_grounding"]
+    assert rows[0]["id"] == "earned-trust"
+    assert rows[0]["experience_named_by_author"] is True
+    assert rows[0]["emotion_named_by_author"] is False
+
+
+def test_agent_proposed_emotions_are_not_reported_as_author_grounding(tmp_path):
+    store = store_for(tmp_path)
+    rows = _develop(store)["author_emotion_grounding"]
+    assert [row["id"] for row in rows] == ["earned-hope"]
+    assert "drift-dread" not in [row["id"] for row in rows]
