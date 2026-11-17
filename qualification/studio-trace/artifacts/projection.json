@@ -1,0 +1,2079 @@
+{
+  "status": "ready",
+  "request": null,
+  "candidate": {
+    "schema_version": 2,
+    "summary": "A fourteen-Book optimistic architecture whose governing engine is risk transfer, not detection and not politics. A ward's signature is the act that moves the consequence of being wrong off the builder, off the crown, and onto one named person who cannot indemnify herself. Every other mechanism in this proposal exists to distribute, disguise, dispute, or finally share that transfer. Causal organization is proposed as a primary engine with layered subordinates - an agent proposal, because the brief declares no engine hierarchy, complexity or causal distribution: the signature-burden engine owns the series, and beneath it sit the unverifiable-certificate engine (trust only ever reaches a signer secondhand), precedent memory (what an old signature still binds), succession (who is permitted to sign next), the crossing-public engine (use as the only test the guild did not write), the compressed-labor engine (one name summarizing judgements made by people who are never named), the standing market (a reputation is an asset, therefore a thing that can be bought), and capture pressure (crown and contractors buying the function of certification while refusing its liability). Two layers are deliberately outside that ownership. Material load - the span itself, indifferent to paper - is the unparented dispute: a span can be certified and fail, or purchased and hold, and the series must live with both. Capture pressure is a competing claimant rather than a servant, which is why the crown's exclusion never becomes a war. The emotional promise is earned trust: not relief, not safety, but the specific joy-plus-fear of having decided to rely on a stranger and having been right, with the cost still visible. The progression runs from elegant unease, through anger at purchase, into somatic fear, disgust at institutions, grief for forty unknowing years, and out into a hard, shared consent rather than restored innocence. Book 12 is the structural center: the false binary of close-or-keep is replaced by the recognition that only a ward can unbind a span, the only ward whose signature binds the Old Span was bought, and therefore no verdict is available - so the decision becomes a re-allocation of risk to the party that has actually been underwriting it for forty years, the crossing public, knowingly and at visible cost. The series never says certification is meaningless; it says a certificate must name its true bearer. No basic-emotion word appears in the brief, so every emotion target here is agent_proposed; no genre is declared, so every genre contract is a working framing. All of this is a noncanonical proposal.",
+    "nodes": [
+      {
+        "id": "engine-risk-transfer",
+        "title": "The Signature Burden Engine (governing center)",
+        "category": "engine",
+        "summary": "The series' causal center. A certification is not a judgement that circulates; it is a burden that lands. When a ward signs, the possibility of being wrong stops belonging to the builder and the crown and becomes the ward's own body, standing and name. The renewable machinery is brutally simple and survives fourteen Books without escalation: someone must sign, the wrongness stays findable forever, and any signature can one day be shown to have been bought. Reversals are produced by re-opening a completed transfer rather than by raising stakes. Pressures come from three directions at once: builders who want cheap warrants, a guild that wants continuity, and a public that wants the bridge. Payoff is mechanical rather than moral: a risk that was moved onto a name and then made to be borne where it actually fell. Actor action pattern: wards act by consenting to exposure; everyone else acts by trying to arrange who consents. Thematic consequence: authority is real only where someone will be wrong in public.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "engine-unverifiable-certificate",
+        "title": "The Unverifiable Certificate Engine",
+        "category": "engine",
+        "summary": "The reader and the crossing public can never check the span. They can only check the signer, and only by reputation. Trust therefore travels one hop and no further: a signature is a claim about a person, which is a claim about a judgement, which is a claim about a bridge nobody in the scene has inspected. This engine converts the primary engine's burden into an experience. It supplies the series' permanent epistemic ceiling: no amount of narrative access to a ward's interiority can reproduce the crossing party's position, because the crossing party does not get interiority. Deliberately generates a fraud surface rather than a mystery: wherever judgement is unverifiable, judgement is purchasable. Payoff mechanics: a scene in which the reader has been given more information than any character who must cross, and the extra information changes nothing about the crossing.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-precedent-memory",
+        "title": "Precedent Memory Engine",
+        "category": "engine",
+        "summary": "Because the crown cannot overrule, the only thing that can bind a ward is another signature or an older one. The guild's archive is therefore not record-keeping but government: what a past signature still means is the series' constitutional question. This engine makes time a causal agent. A forty-year-old signature is not history; it is active load, and it can be honoured, distinguished, quietly ignored, or formally withdrawn. Actions available: cite, contest, re-sign, withdraw, refuse to rule. Reversal pattern: the precedent that justified the present turns out to have been produced by the same failure now under examination. This is the engine that makes a long series cumulative rather than repetitive, and it is the direct feeder of the Book 12 crucible.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-succession",
+        "title": "Succession Engine: Who May Sign Next",
+        "category": "engine",
+        "summary": "Wards are made by wards. The guild reproduces its own authority through supervised exposure, and that reproduction is itself an uncertified act: nobody outside the guild signs off on who is fit to sign. Worked as a long engine rather than a training subplot, succession is where the series hides its deepest risk - each generation inherits a standard it cannot audit, transmitted by people who sincerely believe it. Actions: test, vouch, withhold vouch, quietly lower a bar, refuse an apprentice a first crossing. Reversal: the master whose judgement made a ward turns out to have been the purchased one. Pressure: continuity versus auditability. Thematic consequence: the most consequential certificates the guild issues are the ones it never writes.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-crossing-public",
+        "title": "Crossing Public Engine: Use as the Real Test",
+        "category": "engine",
+        "summary": "The author's criterion, mechanized. A span is sound only if a person who did not build it will cross it, which means the certificate is completed not at the signing but at a stranger's first step, and re-completed every ordinary morning thereafter. The public are not a passive backdrop and not a mob; they are the party that has always performed the final test, without knowing they were performing it. This engine gives the series a renewable legitimacy the guild does not own, and a renewable accusation the guild cannot answer. Actions: cross, refuse to cross, cross resentfully, teach a child to cross, organize a refusal. Payoff: a commons that names itself as underwriter. It is the engine that eventually makes Book 12's re-allocation structurally possible rather than merely clever.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-compressed-labor",
+        "title": "Compressed Labor Engine",
+        "category": "engine",
+        "summary": "A signature is one name standing on top of many judgements: the people who climb, tap, measure, and argue about a joint before the ward ever arrives. Their work is real and unwitnessed, and it is erased at the moment of signing. This engine is the guild's quiet structural injustice and the answer to any sentimentality about craft. Actions: disclose, hide, be omitted, be credited at someone else's convenience. Reversal: a signature defended in public turns out to rest on a labourer's objection that was overruled. It sharpens the series' central question by adding a second bearer nobody discusses - the people whose judgement the signature literally is - and it prevents the ward from becoming a solitary romantic figure.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-standing-market",
+        "title": "Standing Market Engine",
+        "category": "engine",
+        "summary": "A ward's name is the only thing crossing parties can evaluate, which makes that name an asset: lendable, insurable, speculated upon, and inheritable in practice if not in law. This engine turns identity into commodity without any villainy required - buyers simply prefer a famous signature, and famous signatures learn what they are worth. Actions: rent a name, attach a name, trade on a mentor's name, purchase the appearance of independent judgement. Reversal: the market's own logic produces a signature indistinguishable from a judged one, and the series cannot tell them apart either. Thematic consequence: any trust that must be priced will eventually be sold, which is why the series' answer cannot be better pricing.",
+        "scope": "whole_story",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "engine-capture-pressure",
+        "title": "Capture Pressure Engine: Buying the Function, Refusing the Liability",
+        "category": "engine",
+        "summary": "A competing claimant rather than a subordinate layer, and deliberately unparented. The crown cannot certify and cannot overrule, which means the only way to control certification is to own the people who do it. So the pressure is never abolition; it is comfort. Fund the guild, honour its wards, standardize its findings, insure its risks, and slowly make the signature a formality performed by well-paid people who no longer carry anything. Contractors supply the same pressure from below by simply paying. This engine is the attractive version of the position the series must refuse: certification that is efficient, safe and meaningless. Actions: endow, flatter, standardize, indemnify, promote. Payoff: a guild that must choose an uncomfortable authority over a comfortable one.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "engine-material-load",
+        "title": "Material Load Engine (the dispute)",
+        "category": "engine",
+        "summary": "The span itself, deliberately unparented because it does not serve the center; it argues with it. Bridges are physical: they settle, fatigue, corrode, and occasionally do exactly what their papers say they cannot. Material load is indifferent to signatures, which is the single most important fact in the architecture. It guarantees two asymmetries the series must live with forever: a sound certificate over a failing span, and a purchased certificate over a span that holds. It prevents the whole design from collapsing into a procedural about documents, and it prevents the optimism from becoming a claim that documentation works. Actions available: hold, groan, settle, fail, outlast. Its reversals are not moral; they are load-path reversals that re-read every prior scene.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread-wrong-certificate-tail",
+        "title": "Thread: The Tail of a Wrong Certificate",
+        "category": "thread",
+        "summary": "The whole-series thread that follows one error through its full life: signed, relied upon, used, discovered, defended, and finally allocated. It is not a mystery thread; the reader is not asked who did it. The thread tracks consequence, and its characteristic movement is retroactive - each Book lengthens the tail of an earlier signature until the guild's present authority is visibly standing on a pile of unexamined ones.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread-risk-bearer-rotation",
+        "title": "Thread: The Rotating Bearer",
+        "category": "thread",
+        "summary": "The thread that carries the author's second commitment: every Book changes who bears the risk of a wrong certificate. The rotation is the series' spine and its answer to the problem of a fourteen-Book arc without escalation. The sequence this architecture proposes: the ward, then the guild, then the crossing public, then the next generation of signers, then, at Book 12, a bearer who accepts knowingly rather than by assignment. Each step must be irreversible in the sense that the previous bearer cannot simply take the burden back.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread-public-faith",
+        "title": "Thread: The Practice of Trust",
+        "category": "thread",
+        "summary": "The public's trust is not a belief but a habit: people cross because crossing is what mornings are. This thread tracks the habit's formation, exploitation, rupture and repair across generations. It is deliberately warmer than the guild thread, and it is where the series' optimism actually lives - not in institutions doing better, but in strangers continuing to rely on each other's judgement after learning exactly what that costs.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread-guild-self-rule",
+        "title": "Thread: Self-Rule Under Capture",
+        "category": "thread",
+        "summary": "The guild's claim to govern itself is real, ungrounded and continuously eroded. This thread runs the slow argument between an authority that cannot be taken away and a comfort that can always be offered. It supplies the series' antagonist pressure without a villain, and its terminal question is not whether the guild survives but whether it survives as a body that signs or as a body that approves.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "thread-old-span-fuse",
+        "title": "Thread: The Forty-Year Fuse",
+        "category": "thread",
+        "summary": "The Old Span as a long-burning thread rather than a late reveal. From early in the series it is a monument of ordinary use: forty years of daily traffic, a famous name on a famous certificate, a crossing nobody thinks about. The thread's whole craft problem is that its flaw must be invisible while its weight is constantly present, so that the Book 12 discovery re-reads forty years of background rather than introducing a stranger.",
+        "scope": "books_1_11",
+        "parent_id": null
+      },
+      {
+        "id": "structure-risk-rotation-spine",
+        "title": "Structural Spine: Irreversible Re-Allocation Per Book",
+        "category": "structure",
+        "summary": "Each Book terminates on an allocation of risk that the previous Book's cast cannot undo. The spine is not a sequence of rising threats but a sequence of bearers, and its governing rule is that a Book only counts if the reader can answer, precisely, whose life changes if the certificate is wrong. Refusals to allocate are not permitted endings. The spine also enforces the author's second commitment mechanically rather than thematically: if two consecutive Books have the same bearer, the second is not yet a Book.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "structure-book-decision-gate",
+        "title": "Structural Gate: The Four Available Acts",
+        "category": "structure",
+        "summary": "Every Book's terminal decision is reducible to a small, honest set of acts, which keeps the series from inventing new machinery each time: certify, refuse to certify, withdraw an existing signature, or re-sign in your own name something you did not build. Each act has a fixed cost profile and a fixed sympathy profile, so the reader learns the grammar early and can feel the difference between a hard decision and a concealed one. The gate is what makes Book 12 legible in advance as an impossible fourth act.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "structure-criterion-test",
+        "title": "Structural Test: The Stranger Who Crosses",
+        "category": "structure",
+        "summary": "The author's governing criterion applied as a structural instrument in every Book: name the person who did not build it, and ask whether they will cross. Used this way the criterion is a diagnostic rather than a moral, because it can return three different answers - they will, they will not, and nobody has been asked - and the third answer is the series' most reliable engine of unease. The test is also the device by which the guild's own reproduction can eventually be examined, since an apprentice is a stranger to the standards they inherit.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "structure-book-12-crucible",
+        "title": "Book 12 Crucible: The Old Span Decision",
+        "category": "structure",
+        "summary": "The series' center of gravity, and the answer to the named brief. A ward's certificate on the Old Span is shown to have been bought from the contractor who built the span; the crossing public has used that span daily for forty years. The decisive architectural move is to treat close-or-keep as a false binary generated by the certification regime itself. Only a ward can unbind a span. The only ward whose signature binds this one was compromised. No substitute signer exists, and a fabricated verdict would be the same crime in a cleaner coat. So Book 12 is not a verdict but a re-allocation: the guild declines to issue a soundness finding it has no standing to issue, publishes the entire basis of the original certificate rather than the conclusion, withdraws the compromised signature visibly instead of quietly, and addresses the crossing public as the party that has in fact been underwriting the span for forty years, asking them to accept the load with open eyes. The span stays open, unwarranted, knowingly borne. The cost is not rhetorical: the ward who moves this loses standing permanently, the consent obtained is not unanimous, and material load remains entirely indifferent to the agreement.",
+        "scope": "book_12_decision",
+        "parent_id": null
+      },
+      {
+        "id": "structure-aftermath-horizon",
+        "title": "Aftermath Horizon: Books 13 and 14",
+        "category": "structure",
+        "summary": "The last Books must carry the cost of the re-allocation rather than celebrate it. What changes is not that certification becomes trustworthy but that it becomes accurately labelled: a signature now states whose risk it is, and a public that has once consented to carry a span can be asked again. The optimism here is procedural and cold, not warm - a commons that has learned to name its bearers is durable, and it is also less comfortable than the innocence it replaced.",
+        "scope": "books_13_14",
+        "parent_id": null
+      },
+      {
+        "id": "structure-retroactive-audit",
+        "title": "Structural Device: The Retroactive Audit",
+        "category": "structure",
+        "summary": "A recurring formal move in which a completed transfer is re-opened and the reader is made to re-read material they have already accepted. Each occurrence must change what a signature means rather than merely add a fact, and each must cost someone standing. Used sparingly and at increasing documentary depth, the device gives a fourteen-Book series a way to escalate understanding without escalating threat, and it trains the reader in the exact discipline the crossing public can never perform.",
+        "scope": "recurring_per_book",
+        "parent_id": null
+      },
+      {
+        "id": "genre-procedural",
+        "title": "Institutional certification procedural",
+        "category": "genre",
+        "summary": "The governing generic frame. The material's own machinery is procedural: an act, a record, a formal moment where liability moves, and an archive that can be searched. This frame is chosen because procedure is the only form that lets a signature be both a private act and a public fact, and because it disciplines the series away from courtroom spectacle. Its characteristic scene family is the certification itself, rendered at full length, with the reader watching a person become responsible.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "genre-tribunal",
+        "title": "Tribunal drama without an overlord",
+        "category": "genre",
+        "summary": "The guild's internal process is the only forum that exists, because the crown cannot overrule and cannot certify. This produces a tribunal genre with an unusual defect built in: the forum can find facts and condemn people, but it cannot produce the one act that resolves anything, which is a valid signature. Its scenes therefore end in exposure rather than judgment, and its recurring frustration is that a finding of fault leaves a span exactly as legal as it was that morning.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "genre-craft-thriller",
+        "title": "Craft and structural thriller",
+        "category": "genre",
+        "summary": "The physical span as a scene of work rather than a scene of combat. Inspection is suspenseful because load is not visible and judgement is cumulative: a joint that has been overlooked is dangerous in a way nobody in the scene can confirm. This frame supplies the series' somatic vocabulary and its most reliable source of short-horizon tension, and it keeps the certification from becoming a purely social transaction.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "genre-evidence-inquiry",
+        "title": "Evidence inquiry",
+        "category": "genre",
+        "summary": "The frame for any Book that reopens a completed certificate: payments, correspondence, the gap between what was measured and what was signed. Its discipline is that evidence here never proves soundness or unsoundness, only motive and method. An inquiry can establish that a warrant was bought and cannot establish whether the span is safe, which makes this genre structurally incapable of resolving the series' central question and therefore permanently useful to it.",
+        "scope": "recurring_per_book",
+        "parent_id": null
+      },
+      {
+        "id": "genre-apprenticeship",
+        "title": "Apprenticeship bildungsroman",
+        "category": "genre",
+        "summary": "The making of a signer, treated as risk education rather than moral education. What an apprentice learns is not how to be good but how much they are willing to be wrong in front of someone. This frame carries succession across generations and gives the series a renewable cast without a reset, and its characteristic emotional register is the sweetness of being trusted, which is precisely the sweetness that corrupts.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "genre-civic-life",
+        "title": "Civic daily-life",
+        "category": "genre",
+        "summary": "The unremarkable texture of a town that crosses a bridge every day: queues, weather, children carried, goods moved, arguments had in the middle of a span. This frame is the series' optimism engine, and it is also its quietest accusation, because a habit this ordinary is exactly what a purchased certificate exploits. Its best scenes make the reader feel the crossing as pleasure and then remind them what the pleasure costs.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "genre-disaster",
+        "title": "Structural disaster",
+        "category": "genre",
+        "summary": "Held at background pressure for most of the series and permitted to dominate only at genuine pivots. Its function is not spectacle but arbitration: a collapse settles in an hour a question the guild has argued for a decade, and it does so with complete indifference to who was right. Used more than sparingly it would break the architecture by letting physics resolve moral questions; used as the permanent possibility it is, it makes every procedural scene nervous.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "trope-signing-as-exposure",
+        "title": "Trope: Signing as Public Exposure",
+        "category": "trope",
+        "summary": "The signing scene as a stripping rather than an endorsement. Everything about it is designed to make the act irreversible and visible: the pen, the witness, the plain language of the undertaking, the absence of any clause that would let the signer off. The trope's discipline is that it must never be glamorous. A signature is a person agreeing to be wrong in front of strangers, and the scene should feel closer to undressing than to knighting.",
+        "scope": "recurring_per_book",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "trope-bought-seal",
+        "title": "Trope: The Bought Seal",
+        "category": "trope",
+        "summary": "The purchased endorsement, deployed not as a shocking reveal but as the system's normal failure mode. Because judgement cannot be verified, it can be priced, and the trope's real work is to show the purchase happening in ordinary, courteous, entirely comprehensible terms. The horror is administrative: a payment recorded as a fee, a favour returned as hospitality, a ward who genuinely believes the span is fine and takes money to say so faster.",
+        "scope": "recurring_per_book",
+        "parent_id": "engine-unverifiable-certificate"
+      },
+      {
+        "id": "trope-first-crosser",
+        "title": "Trope: The First Crosser",
+        "category": "trope",
+        "summary": "The ward must be the first to cross what they certified. This trope converts liability into choreography and is the series' single most reliable scene generator, because it forces the abstract burden into a body at a specific hour. It must be handled with restraint and variation - crossed at night, crossed with a crowd, crossed by a proxy the ward has persuaded, refused - or it becomes a ritual the reader learns to predict and therefore to discount.",
+        "scope": "recurring_per_book",
+        "parent_id": "engine-risk-transfer"
+      },
+      {
+        "id": "trope-successor-inherits-doubt",
+        "title": "Trope: The Successor Who Inherits Doubt",
+        "category": "trope",
+        "summary": "The apprentice who discovers that the standard they were taught was itself purchased, and who must decide whether transmitting it faithfully is loyalty or complicity. This trope is the series' generational transmission device: it lets fourteen Books cover a long span of time without a single continuous cast, and it locates the deepest moral pressure not in villains but in decent people repeating a compromised lesson with real care.",
+        "scope": "whole_story",
+        "parent_id": "engine-succession"
+      },
+      {
+        "id": "trope-crowd-crosses",
+        "title": "Trope: The Crowd That Crosses Anyway",
+        "category": "trope",
+        "summary": "The collective act of use, performed knowingly, by people who have been told the certificate is worthless. This is the trope that rescues the series from despair without letting it off the hook, because the crowd's crossing is neither vindication of the guild nor proof the span is safe - it is a decision by the actual underwriters to keep carrying a risk they now know they carry. Deployed at Book 12 and then refused any repetition, since repetition would turn consent into liturgy.",
+        "scope": "book_12_decision",
+        "parent_id": "engine-crossing-public"
+      },
+      {
+        "id": "trope-criterion-reflexive",
+        "title": "Trope: The Criterion Turned on the Guild",
+        "category": "trope",
+        "summary": "The governing criterion applied to certification itself: is a signer sound only if a person who did not make them will rely on them? The guild has no answer, because its reproduction is unwitnessed. This trope is the series' structural self-examination and the bridge between the institutional Books and the succession Books, and it must be asked by someone with standing to ask it rather than as a rhetorical flourish.",
+        "scope": "whole_story",
+        "parent_id": "structure-criterion-test"
+      },
+      {
+        "id": "aesthetic-load-bearing-prose",
+        "title": "Aesthetic: Load-Bearing Prose",
+        "category": "aesthetic",
+        "summary": "A prose discipline in which every sentence carries weight it can justify: plain declaratives, few adjectives, no lyricism that has not been earned by physical detail. The register is close to an engineer's report and to a legal undertaking at once, and it is chosen so that the reader's pleasure is the pleasure of a well-made thing rather than of beautiful writing. When the series does become ornate, it should be during fraud - elegance as the tell.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aesthetic-inspection-attention",
+        "title": "Aesthetic: Inspection Attention",
+        "category": "aesthetic",
+        "summary": "The reader is trained to look at joints, bearings, water paths and the undersides of things rather than at faces. Sensory attention is directed downward and outward, which produces a characteristic reading experience: the reader becomes an inspector, and therefore becomes complicit in the judgement they cannot actually make. This aesthetic is the formal engine of the series' central unease and must be established early enough that later fraud scenes can be read through it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aesthetic-document-object",
+        "title": "Aesthetic: The Document as Physical Object",
+        "category": "aesthetic",
+        "summary": "Certificates are handled as objects with weight, smell, storage and damage: ink that has browned, a seal that has cracked, a page that has been folded too many times to lie flat. Making the document physical prevents it from becoming abstract bureaucracy and gives the archive a sensory presence the reader can dread. The aesthetic payoff is that a signature can be shown to be a thing that can be looked at, and still not be checked.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aesthetic-ordinary-crossing",
+        "title": "Aesthetic: The Rendered Ordinary Crossing",
+        "category": "aesthetic",
+        "summary": "Short passages that render a completely unremarkable crossing with full sensory care - weather, load, the sound underfoot, the small courtesies of a queue. Their function is to establish what is at stake without ever saying so, and to build the reader's own habit of trust so that later revelations operate on an acquired reflex. These passages must never be used as foreshadowing; they must be genuinely ordinary or they stop working.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "aesthetic-retroactive-reread",
+        "title": "Aesthetic: Engineered Retroactive Re-Reading",
+        "category": "aesthetic",
+        "summary": "The series' signature formal pleasure: scenes constructed so that later information changes their meaning without changing their facts. This requires early scenes to be complete on first reading and load-bearing on second, so that the reader's memory is itself audited. Used well it makes the whole series feel like an archive the reader has been permitted to search; used as trickery it becomes a betrayal of the plainness the prose has promised.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx-earned-trust",
+        "title": "Reader Experience: Earned Trust",
+        "category": "reader_experience",
+        "summary": "The governing promise, and the hardest thing in the architecture to deliver because it cannot be granted by plot. The reader must finish a Book having decided to rely on a judgement they could not verify, and having been right in a way that still cost something. Earned trust is not relief and not safety; relief ends when danger passes, whereas this feeling persists as a permanent low hum of understanding what was risked. The series fails if it ever substitutes reassurance for this.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx-secondhand-doubt",
+        "title": "Reader Experience: Secondhand Doubt",
+        "category": "reader_experience",
+        "summary": "The permanent, low-grade suspicion that comes from knowing that everything the reader is told about a span has passed through a person with an interest. It is deliberately not paranoia: the reader is given no reason to doubt in most scenes, which is precisely the condition of the crossing public. The experience is sustained by structural means, not by planting clues, so that it survives even in Books where nothing is actually wrong.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx-civic-warmth",
+        "title": "Reader Experience: Civic Warmth",
+        "category": "reader_experience",
+        "summary": "The genuine pleasure of a working commons: a bridge that carries a town, a guild that is competent, strangers who rely on each other without meeting. This experience is what makes the series optimistic rather than merely grim, and it must be established as authentic before it can be made costly. Its later function is to make the reader resist revelations the way the public does, which is what turns information into drama.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx-somatic-load",
+        "title": "Reader Experience: Somatic Load",
+        "category": "reader_experience",
+        "summary": "The body-level experience of a span: cold on the ears, vibration through the soles, the specific nausea of a member moving when it should not. This experience gives the series its fear a physical address and prevents the certification from ever becoming purely argumentative. Its climax use is at Book 12, where the reader's body must be allowed to feel that the Old Span is a real thing independent of any decision made about it.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "rx-forty-year-tremor",
+        "title": "Reader Experience: The Forty-Year Tremor",
+        "category": "reader_experience",
+        "summary": "The specific Book 12 affect: the vertigo of understanding that a thing you have used your whole life, and that everyone around you has used their whole lives, was never actually warranted. Not betrayal exactly, and not grief; closer to discovering the floor was never there and that you had been walking on the air of other people's agreement. This experience is the emotional payoff of eleven Books of ordinary crossings and cannot be manufactured without them.",
+        "scope": "book_12_decision",
+        "parent_id": null
+      },
+      {
+        "id": "theme-signature-not-proof",
+        "title": "Theme: A Signature Is Not a Proof",
+        "category": "theme",
+        "summary": "The series' most insistent idea: a certificate is a social instrument that substitutes a person for a demonstration. It can be excellent and still not be evidence, and the difference between those two facts is the whole subject. This theme is not a rebuke of certification - the series must never use it as one - but an insistence that certification be understood as an act of reliance rather than a transfer of knowledge.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "theme-risk-has-a-name",
+        "title": "Theme: Risk Must Have a Name",
+        "category": "theme",
+        "summary": "Every real risk in this world is carried by someone specific, and the central political act is not eliminating risk but naming its bearer. Where risk is unnamed it is not absent, only unacknowledged, and unacknowledged risk is what produces the forty-year tremor. The series' terminal moral position is procedural rather than sentimental: the goal is a regime in which a wrong certificate has a visible person behind it, not a regime in which there are no wrong certificates.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "theme-use-is-the-test",
+        "title": "Theme: Use Is the Only Test Nobody Wrote",
+        "category": "theme",
+        "summary": "Soundness is finally decided by the willingness of a stranger to cross, which means the final authority in this world is a practice rather than a person or an office. This theme honours the author's criterion without letting it become a slogan, and it generates the series' political conclusion: certification that does not name and address its users is a fiction maintained at their expense.",
+        "scope": "whole_story",
+        "parent_id": null
+      },
+      {
+        "id": "theme-authority-without-overrule",
+        "title": "Theme: Authority That Cannot Be Overruled Must Be Self-Binding",
+        "category": "theme",
+        "summary": "Because the crown can neither certify nor overrule, the guild is the only institution in its world whose authority has no external check. That makes self-binding the central political virtue, and its absence the central danger. The theme runs against the flattering reading of guild autonomy: a body that cannot be overruled is not free, it is uninsured, and its only protection is the quality of its own refusals.",
+        "scope": "whole_story",
+        "parent_id": null
+      }
+    ],
+    "links": [
+      {
+        "id": "link-transfer-owns-unverifiable",
+        "source": "engine-risk-transfer",
+        "target": "engine-unverifiable-certificate",
+        "function": "Makes the signer the only thing a crossing party can actually judge"
+      },
+      {
+        "id": "link-transfer-feeds-precedent",
+        "source": "engine-risk-transfer",
+        "target": "engine-precedent-memory",
+        "function": "Every completed transfer becomes a standing obligation later decisions must honour or break"
+      },
+      {
+        "id": "link-transfer-requires-succession",
+        "source": "engine-risk-transfer",
+        "target": "engine-succession",
+        "function": "Continuous transfer needs a supply of new people willing to become exposed"
+      },
+      {
+        "id": "link-transfer-needs-public",
+        "source": "engine-risk-transfer",
+        "target": "engine-crossing-public",
+        "function": "Completes the transfer only when a stranger who did not build crosses"
+      },
+      {
+        "id": "link-transfer-erases-labor",
+        "source": "engine-risk-transfer",
+        "target": "engine-compressed-labor",
+        "function": "Compresses many uncredited judgements into one signable name"
+      },
+      {
+        "id": "link-transfer-prices-name",
+        "source": "engine-risk-transfer",
+        "target": "engine-standing-market",
+        "function": "Turns a name into the only collateral the system can price"
+      },
+      {
+        "id": "link-transfer-invites-capture",
+        "source": "engine-risk-transfer",
+        "target": "engine-capture-pressure",
+        "function": "The transfer that protects builders makes the signing function worth owning"
+      },
+      {
+        "id": "link-load-disputes-transfer",
+        "source": "engine-material-load",
+        "target": "engine-risk-transfer",
+        "function": "Physical behaviour is indifferent to signatures and can void them without notice"
+      },
+      {
+        "id": "link-unverifiable-allows-seal",
+        "source": "engine-unverifiable-certificate",
+        "target": "trope-bought-seal",
+        "function": "Unverifiable judgement is purchasable judgement, so the seal can be bought"
+      },
+      {
+        "id": "link-market-corrupts-verification",
+        "source": "engine-standing-market",
+        "target": "engine-unverifiable-certificate",
+        "function": "A traded reputation becomes indistinguishable from a judged one"
+      },
+      {
+        "id": "link-precedent-arms-old-span",
+        "source": "engine-precedent-memory",
+        "target": "structure-book-12-crucible",
+        "function": "Forty years of reliance is precedent, which is what makes closure a decision"
+      },
+      {
+        "id": "link-succession-yields-heir",
+        "source": "engine-succession",
+        "target": "trope-successor-inherits-doubt",
+        "function": "Transmission through care is how a compromised standard outlives its author"
+      },
+      {
+        "id": "link-public-supplies-stranger",
+        "source": "engine-crossing-public",
+        "target": "structure-criterion-test",
+        "function": "Furnishes the stranger whose crossing is the one test the guild did not write"
+      },
+      {
+        "id": "link-labor-shrinks-signature",
+        "source": "engine-compressed-labor",
+        "target": "theme-signature-not-proof",
+        "function": "Shows the signature standing on judgements it cannot represent"
+      },
+      {
+        "id": "link-capture-menaces-self-rule",
+        "source": "engine-capture-pressure",
+        "target": "thread-guild-self-rule",
+        "function": "Offers the guild comfort instead of authority and lets it drift"
+      },
+      {
+        "id": "link-capture-cheapens-warrant",
+        "source": "engine-capture-pressure",
+        "target": "genre-disaster",
+        "function": "Cheaper warrants raise the chance of a certified span that fails"
+      },
+      {
+        "id": "link-reflexive-turns-on-succession",
+        "source": "trope-criterion-reflexive",
+        "target": "engine-succession",
+        "function": "Exposes that making a signer is the guild's one unwitnessed act"
+      },
+      {
+        "id": "link-load-feeds-craft-genre",
+        "source": "engine-material-load",
+        "target": "genre-craft-thriller",
+        "function": "Supplies the invisible failure modes that make inspection suspenseful"
+      },
+      {
+        "id": "link-signing-trope-exposes-ward",
+        "source": "trope-signing-as-exposure",
+        "target": "rx-earned-trust",
+        "function": "Renders the moment of exposure the reader must later decide to honour"
+      },
+      {
+        "id": "link-seal-trope-provokes-anger",
+        "source": "trope-bought-seal",
+        "target": "rx-secondhand-doubt",
+        "function": "Teaches the reader that every claim has passed through an interest"
+      },
+      {
+        "id": "link-first-crosser-feeds-load",
+        "source": "trope-first-crosser",
+        "target": "rx-somatic-load",
+        "function": "Puts the burden into a body at a specific hour on a specific span"
+      },
+      {
+        "id": "link-crowd-trope-delivers-tremor",
+        "source": "trope-crowd-crosses",
+        "target": "rx-forty-year-tremor",
+        "function": "Makes the crowd's knowing use the emotional payoff of forty years"
+      },
+      {
+        "id": "link-prose-aesthetic-holds-promise",
+        "source": "aesthetic-load-bearing-prose",
+        "target": "rx-earned-trust",
+        "function": "Plain, weight-justifying prose lets trust be felt without being asserted"
+      },
+      {
+        "id": "link-inspection-directs-attention",
+        "source": "aesthetic-inspection-attention",
+        "target": "rx-secondhand-doubt",
+        "function": "Trains the reader to look at joints and never at the certifier"
+      },
+      {
+        "id": "link-document-object-grounds-theme",
+        "source": "aesthetic-document-object",
+        "target": "theme-signature-not-proof",
+        "function": "A physical, inspectable document that still cannot be checked"
+      },
+      {
+        "id": "link-ordinary-crossing-builds-warmth",
+        "source": "aesthetic-ordinary-crossing",
+        "target": "rx-civic-warmth",
+        "function": "Builds the reader's own habit of trust before it is spent"
+      },
+      {
+        "id": "link-reread-engine-audits-memory",
+        "source": "aesthetic-retroactive-reread",
+        "target": "structure-retroactive-audit",
+        "function": "Formal means for making the reader re-read what they already accepted"
+      },
+      {
+        "id": "link-promise-requires-rotation",
+        "source": "rx-earned-trust",
+        "target": "structure-risk-rotation-spine",
+        "function": "The promise can only be kept if the bearer of risk changes every Book"
+      },
+      {
+        "id": "link-rotation-carries-thread",
+        "source": "structure-risk-rotation-spine",
+        "target": "thread-risk-bearer-rotation",
+        "function": "Implements the commitment that each Book relocates the burden"
+      },
+      {
+        "id": "link-gate-drives-certificate-tail",
+        "source": "structure-book-decision-gate",
+        "target": "thread-wrong-certificate-tail",
+        "function": "Each gated act lengthens the tail of an earlier signature"
+      },
+      {
+        "id": "link-fuse-feeds-crucible",
+        "source": "thread-old-span-fuse",
+        "target": "structure-book-12-crucible",
+        "function": "Seeds forty years of ordinary use so the discovery re-reads background"
+      },
+      {
+        "id": "link-crucible-pays-tremor",
+        "source": "structure-book-12-crucible",
+        "target": "rx-forty-year-tremor",
+        "function": "Converts eleven Books of background habit into one vertiginous recognition"
+      },
+      {
+        "id": "link-aftermath-names-bearer",
+        "source": "structure-aftermath-horizon",
+        "target": "theme-risk-has-a-name",
+        "function": "Carries the cost of naming rather than celebrating the naming"
+      },
+      {
+        "id": "link-theme-use-grounds-test",
+        "source": "theme-use-is-the-test",
+        "target": "structure-criterion-test",
+        "function": "Makes the stranger's crossing the operative instrument in every Book"
+      },
+      {
+        "id": "link-theme-authority-needs-capture-answer",
+        "source": "theme-authority-without-overrule",
+        "target": "engine-capture-pressure",
+        "function": "Frames self-binding as the only defence an unoverrulable body has"
+      },
+      {
+        "id": "link-procedural-governs-tribunal",
+        "source": "genre-procedural",
+        "target": "genre-tribunal",
+        "function": "A signature with no appeal mechanism is what makes a forum necessary"
+      },
+      {
+        "id": "link-tribunal-cannot-sign",
+        "source": "genre-tribunal",
+        "target": "genre-procedural",
+        "function": "The forum can find facts but cannot produce the act that resolves anything"
+      },
+      {
+        "id": "link-craft-arms-procedure",
+        "source": "genre-craft-thriller",
+        "target": "genre-procedural",
+        "function": "Physical risk gives the procedural its teeth and its deadlines"
+      },
+      {
+        "id": "link-inquiry-outruns-procedure",
+        "source": "genre-evidence-inquiry",
+        "target": "genre-procedural",
+        "function": "Inquiry wants a cause; procedure only wants a signer, and they diverge"
+      },
+      {
+        "id": "link-apprenticeship-feeds-procedure",
+        "source": "genre-apprenticeship",
+        "target": "genre-procedural",
+        "function": "Succession is the procedure's only input and its unaudited assumption"
+      },
+      {
+        "id": "link-civic-contradicts-procedure",
+        "source": "genre-civic-life",
+        "target": "genre-procedural",
+        "function": "Unremarkable daily use quietly contradicts the solemnity of certification"
+      },
+      {
+        "id": "link-civic-converges-disaster",
+        "source": "genre-civic-life",
+        "target": "genre-disaster",
+        "function": "When the ordinary crossing breaks, daily life and catastrophe are one scene"
+      },
+      {
+        "id": "link-disaster-pressures-craft",
+        "source": "genre-disaster",
+        "target": "genre-craft-thriller",
+        "function": "Permanent possibility of collapse keeps every inspection scene nervous"
+      }
+    ],
+    "phases": [
+      {
+        "id": "phase-first-signature",
+        "title": "The Signature Is Worth a Body",
+        "order": 0,
+        "scope": "opening_books_duration_unknown",
+        "genres": [
+          {
+            "genre": "Institutional certification procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "Craft and structural thriller",
+            "role": "supporting"
+          },
+          {
+            "genre": "Civic daily-life",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "joy",
+              "fear",
+              "surprise"
+            ],
+            "trope_functions": [
+              "signing as public exposure",
+              "the first crosser"
+            ],
+            "structural_function": "Teaches the reader the cost model before any of it is abused: a signature moves consequence onto one person, permanently, and no clause exists that can move it back. The phase must make this feel elegant. Its pleasure is the pleasure of a well-designed institution, and the reader's enjoyment is the trap that later Books spend."
+          },
+          {
+            "genre_node_id": "genre-craft-thriller",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "the first crosser"
+            ],
+            "structural_function": "Establishes that the span is a physical object with its own opinions, so that later moral questions always have a body underneath them."
+          },
+          {
+            "genre_node_id": "genre-civic-life",
+            "basic_emotions": [
+              "joy"
+            ],
+            "trope_functions": [
+              "the crowd that crosses anyway"
+            ],
+            "structural_function": "Seeds the background habit of crossing that Book 12 will eventually convert into knowledge."
+          }
+        ],
+        "reader_experience": "Sweet unease. Delight at an elegant system, undercut by the growing awareness that the elegance depends on someone agreeing to be wrong in public.",
+        "aesthetic": "Formal register, plain declaratives, documents quoted at length, attention directed at hands, seals and joints rather than at faces.",
+        "narrative_function": "Establishes the governing engine and its cost structure without yet testing it. The phase's job is to make the reader want this system to work, because everything afterward depends on that wish being real.",
+        "transition": "Once the reader understands what a signature actually costs, the first purchased one becomes legible as theft rather than error.",
+        "parallel_with": []
+      },
+      {
+        "id": "phase-bought-seal",
+        "title": "The Bought Seal",
+        "order": 1,
+        "scope": "early_middle_duration_unknown",
+        "genres": [
+          {
+            "genre": "Evidence inquiry",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "Civic daily-life",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-evidence-inquiry",
+            "basic_emotions": [
+              "surprise",
+              "anger"
+            ],
+            "trope_functions": [
+              "the bought seal"
+            ],
+            "structural_function": "Delivers the series' first re-allocation: the burden was never really on the builder, and the signer has been the only exposed party all along. The inquiry must fail to settle soundness, establishing the genre's permanent limitation in the same breath as its first success."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the bought seal"
+            ],
+            "structural_function": "Shows the purchase conducted through ordinary procedure - fees, hospitality, a signature made faster - so that fraud reads as an administrative norm rather than an exception."
+          }
+        ],
+        "reader_experience": "The pleasure of understanding arriving as a slight nausea. The reader is ahead of the characters and finds that being ahead changes nothing about what anyone must do.",
+        "aesthetic": "Documents become objects with brown ink and cracked seals; the prose stays plain even in revelation, refusing the relief of a dramatic register.",
+        "narrative_function": "Converts the reader's admiration into complicity by showing that the mechanism they found elegant is exactly what made the purchase possible. Risk does not move in this phase; the phase reveals where risk already sat.",
+        "transition": "The discovery relocates understanding rather than burden, so the next phase must make the burden physical.",
+        "parallel_with": [
+          "phase-first-signature"
+        ]
+      },
+      {
+        "id": "phase-first-crosser",
+        "title": "The First Crosser",
+        "order": 2,
+        "scope": "middle_duration_unknown",
+        "genres": [
+          {
+            "genre": "Craft and structural thriller",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "supporting"
+          },
+          {
+            "genre": "Structural disaster",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-craft-thriller",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [
+              "the first crosser"
+            ],
+            "structural_function": "Puts the burden into one body at one hour, converting an institutional question into a physical one and giving the series its most reliable source of short-horizon tension."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "fear",
+              "joy"
+            ],
+            "trope_functions": [
+              "signing as public exposure",
+              "the first crosser"
+            ],
+            "structural_function": "Reveals a hidden defect in the cost model: once the signer is the first to cross, the guild's risk management becomes a personality test, and dispositions rather than standards decide who is exposed."
+          },
+          {
+            "genre_node_id": "genre-disaster",
+            "basic_emotions": [
+              "fear",
+              "surprise"
+            ],
+            "trope_functions": [],
+            "structural_function": "Holds collapse at the edge of possibility so that the crossing scene has an outcome the reader genuinely cannot predict."
+          }
+        ],
+        "reader_experience": "Somatic and narrow. The world contracts to a span at night, and the reader notices they have stopped caring about the argument and started caring about the load.",
+        "aesthetic": "Inspection attention at full strength: cold, vibration, water paths, the sound a member makes when it should not. Very little dialogue.",
+        "narrative_function": "Brings fear to the surface as the primary emotion and demonstrates that the architecture's cost model has a flaw the guild has never priced. The phase's honest pleasure is that a crossing can hold, and holding is not the same as being vindicated.",
+        "transition": "If one person can be made to carry everything, the next question is what happens when no single person is available to carry it.",
+        "parallel_with": []
+      },
+      {
+        "id": "phase-guild-defendant",
+        "title": "The Guild Becomes the Defendant",
+        "order": 3,
+        "scope": "middle_duration_unknown",
+        "genres": [
+          {
+            "genre": "Tribunal drama without an overlord",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "Civic daily-life",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-tribunal",
+            "basic_emotions": [
+              "anger",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the bought seal",
+              "the criterion turned on itself"
+            ],
+            "structural_function": "Collectivizes the burden and immediately demonstrates the trouble with that: shared liability feels like no liability, and the guild's honest answer - that it is everyone's problem - is exactly what an exposed public cannot accept."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "anger"
+            ],
+            "trope_functions": [
+              "the bought seal"
+            ],
+            "structural_function": "Forecloses the obvious resolution: the forum can condemn a ward and cannot unmake a signature, so the span remains exactly as legal after the verdict as before it."
+          }
+        ],
+        "reader_experience": "Frustrated moral clarity. The reader knows who behaved badly and watches the only available process fail to produce anything that changes a single crossing.",
+        "aesthetic": "Institutional rooms, long tables, papers read aloud. Deliberately unglamorous, with the flatness of a proceeding that has no power to conclude.",
+        "narrative_function": "Moves the burden from a person to a body, which is the author's required relocation, and pays the cost of that move by making the reader feel the diffusion as a loss rather than a relief.",
+        "transition": "A body that cannot answer will eventually be asked to answer by the only party left holding the exposure.",
+        "parallel_with": [
+          "phase-public-underwrites"
+        ]
+      },
+      {
+        "id": "phase-public-underwrites",
+        "title": "The Public Underwrites",
+        "order": 4,
+        "scope": "middle_duration_unknown",
+        "genres": [
+          {
+            "genre": "Civic daily-life",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "supporting"
+          },
+          {
+            "genre": "Evidence inquiry",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-civic-life",
+            "basic_emotions": [
+              "joy",
+              "anger"
+            ],
+            "trope_functions": [
+              "the crowd that crosses anyway"
+            ],
+            "structural_function": "Turns the background habit into a party. The public discovers it has always performed the final test and has therefore always held the exposure, and the warmth that made the series optimistic is now the thing that makes the accusation land."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "anger",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the first crosser"
+            ],
+            "structural_function": "Reveals that the guild's certification has always been an address to no one in particular, and that a public which knows it is the underwriter can no longer be reassured - it must be spoken to."
+          }
+        ],
+        "reader_experience": "A shift of footing. The reader's loyalty to the guild is exposed as a preference for being managed, and the crowd becomes both more sympathetic and less safe.",
+        "aesthetic": "Weather, queues and goods; the ordinary crossing rendered with full care immediately after an accusation, so that habit and knowledge occupy the same paragraph.",
+        "narrative_function": "Relocates the burden to the party that has factually carried it all along, which is the single most important preparation for Book 12 and the reason the finale can be a re-allocation rather than a verdict.",
+        "transition": "Once the public is a party, the guild's own right to exist becomes a question the public can ask.",
+        "parallel_with": [
+          "phase-guild-defendant"
+        ]
+      },
+      {
+        "id": "phase-who-certifies-the-certifier",
+        "title": "Who Certifies the Certifier",
+        "order": 5,
+        "scope": "late_middle_duration_unknown",
+        "genres": [
+          {
+            "genre": "Apprenticeship bildungsroman",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "Evidence inquiry",
+            "role": "supporting"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-apprenticeship",
+            "basic_emotions": [
+              "sadness",
+              "anger"
+            ],
+            "trope_functions": [
+              "the successor who inherits doubt"
+            ],
+            "structural_function": "Relocates the burden to the next generation and reveals that making a signer is the guild's only uncertified act. The criterion turns reflexive: an apprentice is a stranger to the standards they inherit, and nobody outside the guild has ever said they may sign."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "anger",
+              "fear"
+            ],
+            "trope_functions": [
+              "the criterion turned on itself"
+            ],
+            "structural_function": "Exposes that the guild's continuity has been secured by transmitting a purchased standard with real care, which is the series' best non-villainous failure mode and its most uncomfortable one."
+          }
+        ],
+        "reader_experience": "Grief for competency. The reader watches decent people faithfully pass on something compromised and cannot locate the moment anyone chose it.",
+        "aesthetic": "Instruction, correction, a vouch given aloud. Physical detail narrows to the distance between a master's hand and an apprentice's.",
+        "narrative_function": "Completes the rotation of bearers by handing the burden forward in time rather than sideways, and establishes that the guild's deepest vulnerability is generational rather than individual.",
+        "transition": "A guild that cannot audit its own reproduction is a guild that can be bought by endowing it, which is the next temptation and the most attractive one.",
+        "parallel_with": []
+      },
+      {
+        "id": "phase-efficient-lie",
+        "title": "The Efficient Lie",
+        "order": 6,
+        "scope": "late_duration_unknown",
+        "genres": [
+          {
+            "genre": "Tribunal drama without an overlord",
+            "role": "supporting"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "governing"
+          },
+          {
+            "genre": "Structural disaster",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-tribunal",
+            "basic_emotions": [
+              "fear",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the bought seal"
+            ],
+            "structural_function": "Stages the series' great temptation as a reasonable proposal rather than a threat: standardized, funded, insured, comfortable certification performed by people who carry nothing. The offer is the position the series must refuse, and it must be genuinely good."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "disgust",
+              "fear"
+            ],
+            "trope_functions": [
+              "signing as public exposure",
+              "the criterion turned on itself"
+            ],
+            "structural_function": "Demonstrates that the guild can survive by ceasing to mean anything, which is the only form of abolition the crown can actually achieve and the only form the guild can accept without a fight."
+          },
+          {
+            "genre_node_id": "genre-disaster",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [],
+            "structural_function": "Keeps material load present as the reason the comfort is tempting, so the refusal cannot be made on principle alone."
+          }
+        ],
+        "reader_experience": "Genuine seduction. The reader wants the offer accepted and can feel themselves wanting it, which is the phase's entire purpose.",
+        "aesthetic": "Warm rooms, good light, competent people being kind. The prose is allowed its only genuine ornateness here, because elegance is the tell.",
+        "narrative_function": "Makes the series' anti-resolution - that certification is meaningless - into an attractive, funded, administratively coherent position, so that refusing it costs the guild its comfort rather than its existence.",
+        "transition": "The refusal leaves the guild with an authority it cannot justify and one span whose paper cannot be defended.",
+        "parallel_with": []
+      },
+      {
+        "id": "phase-old-span",
+        "title": "The Old Span",
+        "order": 7,
+        "scope": "book_12",
+        "genres": [
+          {
+            "genre": "Tribunal drama without an overlord",
+            "role": "locally_dominant"
+          },
+          {
+            "genre": "Evidence inquiry",
+            "role": "supporting"
+          },
+          {
+            "genre": "Civic daily-life",
+            "role": "supporting"
+          },
+          {
+            "genre": "Structural disaster",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-tribunal",
+            "basic_emotions": [
+              "anger",
+              "sadness",
+              "fear"
+            ],
+            "trope_functions": [
+              "the bought seal",
+              "the crowd that crosses anyway"
+            ],
+            "structural_function": "Forces the series' one real verdict and then removes it: the only ward whose signature can bind the Old Span was bought, no substitute signer exists, and a fabricated finding would repeat the original crime in cleaner dress. The forum therefore has to invent an act that is not a verdict."
+          },
+          {
+            "genre_node_id": "genre-evidence-inquiry",
+            "basic_emotions": [
+              "surprise",
+              "disgust"
+            ],
+            "trope_functions": [
+              "the bought seal"
+            ],
+            "structural_function": "Establishes payment and method while deliberately failing to establish soundness, which is what leaves the decision genuinely undecidable by evidence and therefore genuinely a decision."
+          },
+          {
+            "genre_node_id": "genre-civic-life",
+            "basic_emotions": [
+              "sadness",
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "the crowd that crosses anyway"
+            ],
+            "structural_function": "Converts forty years of ordinary use into a fact with standing: the public has been the span's real underwriter since before anyone now living could refuse, and it is therefore the only party with the authority to accept the load knowingly."
+          },
+          {
+            "genre_node_id": "genre-disaster",
+            "basic_emotions": [
+              "fear"
+            ],
+            "trope_functions": [],
+            "structural_function": "Refuses to let the re-allocation be costless: the span is a real object in unknown condition and no agreement among people makes it safer."
+          }
+        ],
+        "reader_experience": "The forty-year tremor: the vertigo of learning that a crossing performed every day of your life was never warranted, and that the agreement of strangers was carrying you.",
+        "aesthetic": "Documentary plainness against physical dread. The original certificate is read in full, then the span is walked, and the walking is longer than the reading.",
+        "narrative_function": "Book 12's decision, made structurally specific. The guild declines to issue a soundness finding it lacks standing to issue, publishes the complete basis of the compromised certificate rather than a conclusion, withdraws the signature visibly rather than quietly, and addresses the crossing public as the party that has actually borne the risk for forty years, asking it to accept the load with open eyes. The span stays open, unwarranted and knowingly borne. Costs are concrete and distributed: the ward who moves this loses standing permanently, consent is not unanimous, some refuse to cross, and material load remains indifferent to every argument made about it.",
+        "transition": "What follows is not restored trust but an accurately labelled one, and the last Books must carry that labelling as a burden rather than a triumph.",
+        "parallel_with": []
+      },
+      {
+        "id": "phase-what-a-crossing-is-worth",
+        "title": "What a Crossing Is Worth",
+        "order": 8,
+        "scope": "books_13_14",
+        "genres": [
+          {
+            "genre": "Civic daily-life",
+            "role": "governing"
+          },
+          {
+            "genre": "Institutional certification procedural",
+            "role": "supporting"
+          },
+          {
+            "genre": "Apprenticeship bildungsroman",
+            "role": "background"
+          }
+        ],
+        "genre_activations": [
+          {
+            "genre_node_id": "genre-civic-life",
+            "basic_emotions": [
+              "joy",
+              "sadness"
+            ],
+            "trope_functions": [
+              "the crowd that crosses anyway"
+            ],
+            "structural_function": "Shows a commons that has learned to name its bearers: crossings continue, are less comfortable, and are no longer free of knowledge. This is the series' optimism, delivered procedurally rather than sentimentally."
+          },
+          {
+            "genre_node_id": "genre-procedural",
+            "basic_emotions": [
+              "joy",
+              "fear"
+            ],
+            "trope_functions": [
+              "signing as public exposure"
+            ],
+            "structural_function": "Institutes the only reform the architecture permits: a signature that states whose risk it is, so that certification survives by becoming accurate rather than by becoming trusted."
+          },
+          {
+            "genre_node_id": "genre-apprenticeship",
+            "basic_emotions": [
+              "sadness",
+              "surprise"
+            ],
+            "trope_functions": [
+              "the successor who inherits doubt"
+            ],
+            "structural_function": "Closes the succession question honestly: the next generation inherits a standard with a known flaw and an audit they can actually perform, which is better than innocence and worse than certainty."
+          }
+        ],
+        "reader_experience": "Earned trust at last, and colder than expected: the satisfaction of relying on a named person whose exposure you can see and whose competence you still cannot verify.",
+        "aesthetic": "Return of the rendered ordinary crossing, now with one line that would not have been there in Book 1, and nothing else changed.",
+        "narrative_function": "Delivers the governing promise without declaring victory. The series must end with certification intact, meaningful, and visibly insufficient, and with the reader having chosen to cross anyway - which is the only ending that honours all three author commitments at once.",
+        "transition": null,
+        "parallel_with": []
+      }
+    ],
+    "open_questions": [
+      "How long does a certificate last? The series needs to know whether a ward's signature is perpetual or term-limited, because the Old Span's forty years only becomes a decision if the answer is not obvious.",
+      "Can a signature be withdrawn by anyone other than the ward who made it, and can it be withdrawn after that ward's death? This decides whether Book 12 has an available legal instrument or only a moral one.",
+      "Is certification solitary or collegial? Whether a single ward signs alone, or two must, or a guild body must concur, changes the entire risk architecture and the entire guilt architecture.",
+      "Is the crossing public ever able to refuse a certificate collectively - a recognized refusal, not a riot? The series' ending depends on whether public consent is a right the world already has or one it has to take.",
+      "Is the crown's exclusion constitutional, or merely practical? The brief establishes that the crown cannot certify and cannot overrule; whether that is a settlement or a fact of nature determines whether the series has an external political clock.",
+      "May the series stage an actual collapse on the page? A single catastrophic failure would change what every later certificate means, and it is not clear whether the author wants physics to have that much authority.",
+      "Is being paid by a contractor a crime, a shame, or merely bad practice? The Old Span decision changes character entirely depending on whether the payment was illegal, merely dishonourable, or entirely normal.",
+      "Does the guild keep records complete enough to audit retroactively? If its archive is patchy, the series is about ignorance; if its archive is complete, the series is about what people chose not to read.",
+      "Do the fourteen Books follow one continuous cast across decades, or rotate casts by generation with the guild as the constant? The succession engine supports both, but the reader's relationship to inherited blame differs sharply.",
+      "Whose judgement is actually being signed - the ward's own inspection, or the ward's confidence in the people who inspected for them? The series treats the signature as one person's, and the brief does not settle how much of it is theirs."
+    ],
+    "opportunities": [
+      {
+        "id": "opp-reader-as-last-stranger",
+        "title": "Make the reader the final stranger who crosses",
+        "why_it_matters": "The governing criterion needs a person who did not build the bridge to cross it. A fourteen-Book series can arrange for that person to be the reader: the final Book's certification is presented with no authoritative narration of whether the span is sound, and the reader's willingness to keep reading is the crossing. This would make earned trust a formal property of the series rather than a described feeling, and it would let the optimism survive without the narrator asserting that everything is fine.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Extremely high. It converts the series' central epistemic limit from a frustration into the mechanism of its payoff, and it is the only device that could make the reader's own decision the final test the guild never wrote.",
+        "intention_fidelity": "High. It serves the stated reader experience directly and does not weaken any author commitment, but it does require disciplined refusal of narrator authority in the last Book, which is a real stylistic cost.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "opp-inheritable-signature-right",
+        "title": "Let the right to sign become inheritable property",
+        "why_it_matters": "If a ward's name can pass to an heir, the series gains its sharpest test of commitment three from the opposite direction: an inherited signature would make certification more stable and more meaningless at the same time, and it would let the Old Span's compromised name arrive in the present as an inheritance rather than only as a scandal. This is a bounded addition to the standing market engine and does not disturb the governing center.",
+        "scope": "theme",
+        "relationship": "deepens",
+        "artistic_potential": "Strong. It gives the succession books a material stake and makes the guild's reproduction visibly patrimonial rather than merely sentimental.",
+        "intention_fidelity": "Moderate to high. It intensifies the author's second commitment without contradicting the first, but it risks making the guild read as a hereditary caste, which would tilt the series toward a different political subject.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "interpretations": [
+      {
+        "id": "interp-signature-transfers-liability",
+        "interpretation": "A ward's signature is read here as a transfer of liability rather than an assertion of fact. To sign is to accept that if the span is wrong, you are the one it happens to: you lose standing, your judgement becomes the object of inquiry, and no builder money, guild fund or crown instrument stands between your name and the consequence. The certificate's truth-value matters far less than the fact that one named person has publicly agreed to be wrong.",
+        "affects": [
+          "engine-risk-transfer",
+          "trope-signing-as-exposure",
+          "theme-risk-has-a-name",
+          "structure-book-decision-gate",
+          "structure-book-12-crucible"
+        ],
+        "consequences": "Makes signing a bodily exposure rather than a professional opinion, which is what lets the series relocate risk every Book simply by relocating a name. Fraud becomes a kind of theft of someone else's body, so a bought signature is not an error but an assault. It also makes the crown's exclusion material rather than legal: no royal instrument can produce a person who will be wrong.",
+        "alternative": "Read the signature as a truth-claim about the span with liability resting on the institution. That would make the guild a standards bureaucracy and shift the series from a study of exposure to a procedural about engineering quality.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-use-completes-the-certificate",
+        "interpretation": "The governing criterion is treated as a structural law rather than a motto: a bridge is sound only when someone who did not build it crosses. Read this way the certificate is not completed at the signing but at a stranger's first crossing, and is re-completed every ordinary morning thereafter. The guild's authority is genuine and never final - it holds the pen, not the verdict.",
+        "affects": [
+          "engine-crossing-public",
+          "structure-criterion-test",
+          "trope-crowd-crosses",
+          "structure-book-12-crucible",
+          "theme-use-is-the-test"
+        ],
+        "consequences": "Gives fourteen Books a renewable source of legitimacy the guild does not own, and makes Book 12's re-allocation available rather than clever: if use has always been the completing act, the forty-year crossing public is already a party to the certificate and can be addressed as one. It also makes the optimism structural, since trust is completed daily by strangers regardless of what any institution says.",
+        "alternative": "Read the criterion as a moral standard applied to wards rather than to certificates - soundness as a standard of care. That preserves the guild as sole authority and turns Book 12 into a verdict, which is coherent but forecloses the re-allocation this architecture is built around.",
+        "author_decision_required": true
+      },
+      {
+        "id": "interp-crown-exclusion-is-material",
+        "interpretation": "The crown's inability to certify or overrule is treated as a material fact rather than a fragile constitutional settlement. There is no substitute instrument: a sovereign can command, fund, imprison and license, but cannot make a span legal by wanting it. Capture therefore operates by owning signers, never by replacing the signature.",
+        "affects": [
+          "engine-capture-pressure",
+          "thread-guild-self-rule",
+          "theme-authority-without-overrule"
+        ],
+        "consequences": "Sovereignty pressure becomes slow seduction rather than war, which is what lets the series stay optimistic without a siege plot. Contractors buy wards from below, the crown buys the guild's comfort from above, and legitimate abolition is off the table. This removes an external collapse threat the brief does not supply.",
+        "alternative": "Treat the exclusion as a settlement that could be repealed, which would give the series an external constitutional clock and a very different Book 12 - one where the Old Span decision is also a fight over who may decide at all.",
+        "author_decision_required": true
+      },
+      {
+        "id": "interp-forty-years-is-ambiguous-evidence",
+        "interpretation": "Forty years of daily use is real but non-conclusive evidence: not proof of soundness and not mass delusion. The crossing public has repeatedly loaded the span with strangers and it has held, which is genuine information about the material and no information at all about the certificate. The series must be able to hold both facts at once without resolving them by fiat.",
+        "affects": [
+          "structure-book-12-crucible",
+          "engine-material-load",
+          "rx-forty-year-tremor"
+        ],
+        "consequences": "Gives Book 12 an honest middle it can occupy, and prevents the series from awarding the public either vindication or contempt. It also obliges the architecture to keep material load as an independent engine, since without a physical reality the ambiguity collapses into pure politics.",
+        "alternative": "Treat long survival as presumptive soundness, which would make closure absurd, or as legally irrelevant, which would make the forty years a lie the series then has to call a lie.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-wards-are-made-by-wards",
+        "interpretation": "Wards are authorized by other wards. The guild reproduces its own authority through supervised exposure, and that reproduction is itself an uncertified act: nobody outside the guild ever signs off on who is fit to sign. This is the load-bearing invention of phase six and the reason the criterion can be turned reflexively on the guild.",
+        "affects": [
+          "engine-succession",
+          "trope-successor-inherits-doubt",
+          "trope-criterion-reflexive"
+        ],
+        "consequences": "Makes succession a risk-allocation problem rather than a training subplot: every generation inherits an assumption it cannot audit, transmitted by people who sincerely believe it. This supplies the series' best non-villainous failure mode - competent, caring people faithfully passing on a purchased standard.",
+        "alternative": "Make wards by examination, state charter or popular election. That would install an external auditor and dissolve the pressure that makes both Book 12 and the reflexive criterion hard.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-book-12-is-the-center",
+        "interpretation": "Book 12 is read as the load-bearing center of the fourteen-Book structure: Books 1 to 11 accrue the conditions of the Old Span decision, Book 12 spends them, and Books 13 and 14 carry its cost. The Old Span must therefore be present from early on as a monument of ordinary use, though its compromised certificate need not be.",
+        "affects": [
+          "thread-old-span-fuse",
+          "structure-book-12-crucible",
+          "structure-aftermath-horizon",
+          "structure-retroactive-audit"
+        ],
+        "consequences": "Creates a specific seeding obligation: the span's forty years, its daily traffic and the name on its certificate must be established long before the payment surfaces, and the crossing must be a rendered habit rather than a mentioned fact. It also forbids treating Book 12 as a late twist, which would make the re-allocation feel like a device instead of a culmination.",
+        "alternative": "Distribute weight evenly so no Book is structurally central. That would lower the finale's claim on the reader and require the Old Span to be one case among many, which the brief's specificity argues against.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-no-genre-declared",
+        "interpretation": "The brief names no genre, so every genre contract here is a working framing derived from the material's own mechanics: certification procedure, a forum that cannot overrule, craft risk, evidence inquiry, apprenticeship, civic daily life, and structural disaster. They were selected for how they allocate risk, not for market positioning, and none of them is presented as an author commitment.",
+        "affects": [
+          "genre-procedural",
+          "genre-tribunal",
+          "genre-craft-thriller",
+          "genre-evidence-inquiry",
+          "genre-apprenticeship",
+          "genre-civic-life",
+          "genre-disaster"
+        ],
+        "consequences": "Genre roles are revisable without disturbing engines, emotions or phases, because the contracts were derived from mechanics rather than imposed on them. If the author names a governing genre later, these should be re-derived rather than defended.",
+        "alternative": "Treat the material as a legal thriller with engineering interludes, or as a disaster series with procedural pacing. Either would change which emotion governs and would make erosion of trust the primary plot rather than the primary subject.",
+        "author_decision_required": false
+      }
+    ],
+    "emotion_targets": [
+      {
+        "id": "fear-strangers-judgement",
+        "emotion": "fear",
+        "role": "primary",
+        "intended_effect": "Make the act of crossing feel like a wager on someone else's competence, held at a level the reader notices in the body rather than in argument.",
+        "eliciting_condition": "A span is certified by a person the crossing party cannot check, and the decision to cross must be made without evidence - only a name, a seal and a habit.",
+        "aesthetic_strategy": "Inspection attention directed at joints and undersides; prose that never certifies its own descriptions; documents quoted in full so the reader sees how little they establish.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "fear-span-load",
+        "emotion": "fear",
+        "role": "supporting",
+        "intended_effect": "Give the abstraction a body: the reader should feel structure as weight, cold and sound before they ever argue about it.",
+        "eliciting_condition": "A span moves where it should not, or is described under a load larger than the one its certificate names, at a moment when no one present can confirm what is happening.",
+        "aesthetic_strategy": "Concrete sensation under the soles and against the ears; almost no dialogue; sentences short enough to be read at the pace of walking.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "joy-crossing-holds",
+        "emotion": "joy",
+        "role": "primary",
+        "intended_effect": "Deliver the series' actual promise: the relief and lift of a crossing that holds, given as something earned rather than granted.",
+        "eliciting_condition": "A person who did not build the span completes a crossing that could plausibly have failed, and the reader has been given no guarantee in advance.",
+        "aesthetic_strategy": "Withhold reassurance until the far side; then render the ordinary continuation of the day rather than a celebration, so the joy sits inside life rather than above it.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "joy-civic-competence",
+        "emotion": "joy",
+        "role": "supporting",
+        "intended_effect": "Make the commons genuinely lovable, so that what is later revealed to be compromised is felt as a loss rather than a confirmation.",
+        "eliciting_condition": "An institution performs well and invisibly, and the reader sees people being carried by competence they will never thank.",
+        "aesthetic_strategy": "Rendered ordinary crossings; small courtesies; the pleasure of a well-kept record and a bridge that simply works.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "anger-bought-signature",
+        "emotion": "anger",
+        "role": "primary",
+        "intended_effect": "Convert understanding into accusation, aimed at a person and a transaction rather than at a system, so the anger has somewhere to land before it is asked to spread.",
+        "eliciting_condition": "A certificate is shown to have been paid for by the party whose work it certifies, in ordinary and courteous terms, by a ward who may even have believed the span was fine.",
+        "aesthetic_strategy": "Administrative detail as the vehicle of outrage: fees, hospitality, a favour returned, all recorded plainly and without editorial comment.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "anger-institutional-capture",
+        "emotion": "anger",
+        "role": "supporting",
+        "intended_effect": "Turn the reader's anger from a person toward a body that protects itself, without supplying a villain to absorb it.",
+        "eliciting_condition": "The guild responds to a compromised certificate by managing its own continuity - procedure, delay, an internal finding that changes nothing about any crossing.",
+        "aesthetic_strategy": "Institutional rooms and flat prose; a verdict read aloud and followed immediately by the sound of ordinary traffic.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "disgust-at-own-crossing",
+        "emotion": "disgust",
+        "role": "contrasting",
+        "intended_effect": "Catch the reader in the act: make them notice that they want the bridge to stay open and that this wanting is the same appetite that made the fraud profitable.",
+        "eliciting_condition": "The reader knows a span is unwarranted and finds themselves relieved when it is not closed, because closure would cost the people they have been following.",
+        "aesthetic_strategy": "Place the reader's sympathetic characters on the side of continued use; withhold any narratorial absolution; let the next ordinary crossing scene do the work.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "disgust-at-the-purchase",
+        "emotion": "disgust",
+        "role": "local",
+        "intended_effect": "A brief, precise recoil at the transaction itself, which the series must use sparingly or it becomes moral posturing.",
+        "eliciting_condition": "A payment for a signature is described in its full ordinariness - a fee, a receipt, a ward who says the work was done and only the timing was sold.",
+        "aesthetic_strategy": "Material specificity about money and paper; no comment from the narration; one image that will not leave the reader alone.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "sadness-inherited-liability",
+        "emotion": "sadness",
+        "role": "supporting",
+        "intended_effect": "Produce grief for competence itself: the specific sadness of watching careful people transmit something compromised without ever choosing to.",
+        "eliciting_condition": "An apprentice discovers that the standard they were taught with real care was purchased before they were born, and their teacher did not know either.",
+        "aesthetic_strategy": "Instruction scenes rendered with tenderness, then re-read; the physical distance between a master's hand and an apprentice's as the recurring image.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "sadness-forty-unknowing-years",
+        "emotion": "sadness",
+        "role": "local",
+        "intended_effect": "Give Book 12 its weight of time: sorrow not for a betrayal but for forty years of unwitting reliance that cannot be given back.",
+        "eliciting_condition": "The crossing public learns that the span they have used daily for forty years was never warranted, and that nothing about their own experience was false except its meaning.",
+        "aesthetic_strategy": "Accumulated ordinary crossings paid off in a single quiet passage; the certificate read in full; the span walked for longer than the reading took.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "surprise-the-warrant-was-bought",
+        "emotion": "surprise",
+        "role": "local",
+        "intended_effect": "Deliver the series' few genuine jolts, and make each one change the meaning of prior material rather than merely adding a fact.",
+        "eliciting_condition": "A signature already relied upon is shown to have been purchased, and the reader recognises that they were given the evidence earlier and read it as ordinary.",
+        "aesthetic_strategy": "Engineered retroactive re-reading: early scenes complete on first pass and load-bearing on second, with no withheld narration.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "surprise-warrant-versus-reality",
+        "emotion": "surprise",
+        "role": "local",
+        "intended_effect": "Break the reader's assumption that paper and physics agree, in either direction, without letting the break become a trick.",
+        "eliciting_condition": "A span behaves contrary to its certificate - holding when the certificate is worthless, or failing when the certificate is sound - in a scene where the reader had already settled their expectation.",
+        "aesthetic_strategy": "Physical detail that contradicts the document and is presented with the same flatness as the document; no narratorial remark on the irony.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "fear-of-no-certifier",
+        "emotion": "fear",
+        "role": "contrasting",
+        "intended_effect": "Make the series' great temptation frightening as well as attractive: a world with efficient, funded, meaningless certification is also a world with nobody answerable.",
+        "eliciting_condition": "A comfortable, standardized certification regime is offered, and the reader sees that no individual in it can be wrong in a way that costs them anything.",
+        "aesthetic_strategy": "Warm rooms, good light and kind competent people, against a scene in which nobody's name means anything; elegance as the tell.",
+        "provenance": "agent_proposed"
+      },
+      {
+        "id": "joy-of-being-trusted",
+        "emotion": "joy",
+        "role": "contrasting",
+        "intended_effect": "Supply the sweetness that corrupts: the reader must understand why a ward would want to be believed, and why that wanting is dangerous.",
+        "eliciting_condition": "A ward is believed - by an apprentice, a town, a colleague - and the belief is warm, undeserved in the precise sense that nobody could check it, and deeply pleasurable.",
+        "aesthetic_strategy": "Small scenes of being relied upon, rendered without irony, placed immediately before the moment the reliance becomes purchasable.",
+        "provenance": "agent_proposed"
+      }
+    ],
+    "complex_emotions": [
+      {
+        "id": "complex-emotion-earned-trust",
+        "title": "Earned trust",
+        "basic_emotions": [
+          "joy",
+          "fear"
+        ],
+        "context": "A crossing that holds, made by someone who could not verify it and knew they could not, where the decision to rely on a named stranger turned out to be right and the cost of having decided stays visible. Distinct from relief because relief ends when the danger passes, while this persists as a permanent understanding of what was risked."
+      },
+      {
+        "id": "complex-emotion-complicit-faith",
+        "title": "Complicit faith",
+        "basic_emotions": [
+          "fear",
+          "disgust"
+        ],
+        "context": "Crossing a span you now suspect because the alternative is a life you cannot live - a market you cannot reach, a child's school on the other bank, a shift you cannot miss. The crossing is rational, necessary and self-disgusting at once, and the series uses it to stop the public from becoming either victims or fools."
+      },
+      {
+        "id": "complex-emotion-inherited-liability",
+        "title": "Inherited liability",
+        "basic_emotions": [
+          "sadness",
+          "anger"
+        ],
+        "context": "Discovering that the confidence you were trained into was borrowed from someone who sold it, and that your teacher did not know. The anger has no available target, which is what turns it into the specific grief of the succession Books."
+      },
+      {
+        "id": "complex-emotion-bought-confidence",
+        "title": "Bought confidence",
+        "basic_emotions": [
+          "joy",
+          "disgust"
+        ],
+        "context": "The pleasure of a span that is genuinely well built and whose warrant was genuinely purchased. The reader cannot un-enjoy the thing or un-know the payment, and the coexistence of the two is the closest the series comes to moral nausea without a villain."
+      },
+      {
+        "id": "complex-emotion-vindicated-doubt",
+        "title": "Vindicated doubt",
+        "basic_emotions": [
+          "surprise",
+          "fear"
+        ],
+        "context": "Being right to distrust, and paying for having been right - a road closed, a relationship ended, a span shut that someone needed. The series uses this to prevent distrust from becoming a virtue; suspicion is sometimes accurate and always expensive."
+      },
+      {
+        "id": "complex-emotion-hard-consent",
+        "title": "Hard consent",
+        "basic_emotions": [
+          "joy",
+          "sadness",
+          "fear"
+        ],
+        "context": "Book 12's affect and the series' terminal emotional position: choosing to bear a risk with open eyes, alongside people who choose differently. It is neither relief nor dread and contains no innocence - only the particular steadiness of a burden that is finally, accurately, someone's."
+      }
+    ],
+    "genre_contracts": [
+      {
+        "genre_node_id": "genre-procedural",
+        "role": "governing",
+        "emotion_target_ids": [
+          "fear-strangers-judgement",
+          "joy-crossing-holds",
+          "anger-bought-signature",
+          "disgust-at-own-crossing"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-earned-trust",
+          "complex-emotion-complicit-faith"
+        ],
+        "trope_functions": [
+          "signing as public exposure",
+          "the first crosser",
+          "the criterion turned on itself"
+        ],
+        "narrative_engine": "A renewable cycle with no escalation required: an act of certification is required, the ward must be found or made willing, the record is written, and the record never stops being challengeable. Each cycle changes nothing about the world's rules and everything about who is exposed, which is what allows fourteen Books of the same mechanism.",
+        "structural_pattern": "Repetition with variable bearer. Each Book opens on a span that needs a signature and closes on an irreversible allocation of consequence; the pattern is legible early and the interest lies in who ends up carrying it and by what means they were persuaded.",
+        "aesthetic_strategies": [
+          "load-bearing prose with no unearned lyricism",
+          "documents quoted at length as dramatic objects",
+          "inspection attention directed at joints and undersides",
+          "plain register maintained even at revelation"
+        ],
+        "payoff_expectations": [
+          "every signature shown being made must eventually be shown to have cost something",
+          "a certificate questioned must produce a specific named bearer, not a general anxiety",
+          "procedure must never resolve a span's soundness, only its legality",
+          "the final certification must be shown in full and left genuinely unverifiable"
+        ]
+      },
+      {
+        "genre_node_id": "genre-tribunal",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "anger-institutional-capture",
+          "disgust-at-the-purchase",
+          "sadness-forty-unknowing-years",
+          "fear-of-no-certifier"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-vindicated-doubt",
+          "complex-emotion-hard-consent"
+        ],
+        "trope_functions": [
+          "the bought seal",
+          "the criterion turned on itself",
+          "the crowd that crosses anyway"
+        ],
+        "narrative_engine": "A forum that can establish fault and cannot establish soundness. Every hearing produces a finding that leaves a span exactly as legal as it was that morning, generating a renewable gap between what the reader has learned and what has changed. Escalation comes from the widening of who must attend, not from harsher penalties.",
+        "structural_pattern": "Accusation, exposure, non-resolution. The pattern deliberately frustrates the genre's usual payoff, and its repetition trains the reader to stop expecting the forum to be the answer.",
+        "aesthetic_strategies": [
+          "institutional rooms and long tables, unglamorous lighting",
+          "findings read aloud and followed by ordinary traffic noise",
+          "flat, procedural diction deliberately denied rhetorical climax"
+        ],
+        "payoff_expectations": [
+          "a verdict that condemns a person and cannot unbind a span",
+          "a forum that must invent an act which is not a verdict",
+          "self-binding shown as the only defence an unoverrulable body has"
+        ]
+      },
+      {
+        "genre_node_id": "genre-craft-thriller",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "fear-span-load",
+          "joy-crossing-holds",
+          "disgust-at-own-crossing",
+          "surprise-warrant-versus-reality"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-complicit-faith",
+          "complex-emotion-bought-confidence"
+        ],
+        "trope_functions": [
+          "the first crosser",
+          "signing as public exposure"
+        ],
+        "narrative_engine": "Judgement under irreversible exposure. Inspection cannot confirm safety, only find reasons not to sign, so every scene generates tension from the asymmetry between evidence and decision rather than from physical jeopardy. Renews every Book because every span is a fresh refusal to be known.",
+        "structural_pattern": "Approach, inspection, decision, crossing. The crossing is the fixed point and must vary in manner - at night, with a crowd, by proxy, refused - or the pattern becomes liturgy.",
+        "aesthetic_strategies": [
+          "somatic detail: cold, vibration, sound of a member under load",
+          "extremely sparse dialogue during inspection",
+          "sentences paced to walking speed"
+        ],
+        "payoff_expectations": [
+          "a crossing that holds without proving anything",
+          "a collapse that does not correlate with the certificate",
+          "a first crosser who is changed by having done it"
+        ]
+      },
+      {
+        "genre_node_id": "genre-evidence-inquiry",
+        "role": "local",
+        "emotion_target_ids": [
+          "surprise-the-warrant-was-bought",
+          "anger-bought-signature",
+          "disgust-at-the-purchase",
+          "sadness-inherited-liability"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-vindicated-doubt",
+          "complex-emotion-inherited-liability"
+        ],
+        "trope_functions": [
+          "the bought seal",
+          "the successor who inherits doubt"
+        ],
+        "narrative_engine": "Reopening a completed certificate. Payments, correspondence and the gap between what was measured and what was signed are always recoverable, and recovering them always establishes motive and method while never establishing soundness. The engine renews by targeting older and more load-bearing signatures.",
+        "structural_pattern": "Retroactive audit, deepening documentary strata, and a deliberate refusal of the exculpatory finding. Each inquiry ends with more certainty about people and none about the bridge.",
+        "aesthetic_strategies": [
+          "documents as physical objects with brown ink and cracked seals",
+          "no narratorial comment on irony",
+          "administrative detail carrying the emotional charge"
+        ],
+        "payoff_expectations": [
+          "the purchase established beyond doubt and the soundness left untouched",
+          "an early innocuous detail re-read as the evidence it always was",
+          "an inquiry that closes a road rather than opening one"
+        ]
+      },
+      {
+        "genre_node_id": "genre-apprenticeship",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "sadness-inherited-liability",
+          "joy-of-being-trusted",
+          "anger-institutional-capture",
+          "fear-strangers-judgement"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-inherited-liability",
+          "complex-emotion-earned-trust"
+        ],
+        "trope_functions": [
+          "the successor who inherits doubt",
+          "the criterion turned on itself",
+          "the first crosser"
+        ],
+        "narrative_engine": "Making a signer. Each generation is taught by exposure, vouched for by someone whose own warrant is unaudited, and then asked to vouch in turn. The engine renews across decades without a reset because the guild, not a cast, is the continuous character.",
+        "structural_pattern": "Instruction, supervised exposure, vouch, inheritance of an unexamined assumption. The pattern's fourth beat is what the series keeps returning to, since it is the beat nobody inside the guild ever sees.",
+        "aesthetic_strategies": [
+          "tenderness in instruction scenes, later re-read coldly",
+          "the distance between a master's hand and an apprentice's as recurring image",
+          "vouching rendered as speech, not ceremony"
+        ],
+        "payoff_expectations": [
+          "an apprentice who discovers the standard was purchased before they were born",
+          "a guild revealed as a hereditary body in practice if not in law",
+          "a final generation that can audit what it inherits"
+        ]
+      },
+      {
+        "genre_node_id": "genre-civic-life",
+        "role": "supporting",
+        "emotion_target_ids": [
+          "joy-civic-competence",
+          "disgust-at-own-crossing",
+          "sadness-forty-unknowing-years",
+          "joy-crossing-holds"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-complicit-faith",
+          "complex-emotion-hard-consent"
+        ],
+        "trope_functions": [
+          "the crowd that crosses anyway"
+        ],
+        "narrative_engine": "Habit as a renewable resource. People cross because crossing is what mornings are, so the engine generates its material from ordinary repetition, and every repetition accumulates weight that later revelations can convert into knowledge. It never runs out because the habit never stops needing to be performed.",
+        "structural_pattern": "Rendered ordinary crossing, small friction, continuation. Deployed as background until the public becomes a party, at which point the same pattern is re-used with knowledge added and nothing else changed.",
+        "aesthetic_strategies": [
+          "weather, queues, goods and children rendered with full care",
+          "no foreshadowing inside ordinary passages",
+          "one changed line at the end of the series and no other alteration"
+        ],
+        "payoff_expectations": [
+          "a crowd that crosses knowingly rather than innocently",
+          "an ordinary crossing made unbearable by a single sentence of context",
+          "warmth preserved after it becomes costly"
+        ]
+      },
+      {
+        "genre_node_id": "genre-disaster",
+        "role": "tertiary",
+        "emotion_target_ids": [
+          "fear-span-load",
+          "surprise-warrant-versus-reality",
+          "sadness-forty-unknowing-years",
+          "fear-of-no-certifier"
+        ],
+        "complex_emotion_ids": [
+          "complex-emotion-complicit-faith"
+        ],
+        "trope_functions": [
+          "the crowd that crosses anyway",
+          "the first crosser"
+        ],
+        "narrative_engine": "Permanent possibility rather than incident. Because a span can always fail, every procedural scene is nervously underwritten, and the threat renews without being spent. Used as actual event it arbitrates absolutely, so the series must ration it to preserve the moral questions.",
+        "structural_pattern": "Held pressure with rare release. When released, it arrives without regard to who was right, and the aftermath is administered rather than mourned.",
+        "aesthetic_strategies": [
+          "sound and dust instead of spectacle",
+          "aftermath rendered administratively, at document speed",
+          "no narratorial verdict on whose fault the collapse proves"
+        ],
+        "payoff_expectations": [
+          "a failure that settles nothing about the argument that preceded it",
+          "a span that holds and thereby proves nothing",
+          "physical reality given final authority exactly once, if at all"
+        ]
+      }
+    ],
+    "genre_interactions": [
+      {
+        "id": "interaction-procedural-enables-tribunal",
+        "source_genre_id": "genre-procedural",
+        "target_genre_id": "genre-tribunal",
+        "kind": "enables",
+        "mechanism": "Because a signature has no appeal mechanism and the crown cannot overrule, fault has nowhere to go except an internal forum. The procedural's one-way act thus manufactures the tribunal's necessity and supplies it with a body of records to argue over.",
+        "risk": "The forum can begin to feel like a substitute for certification, which would let the series resolve questions it has promised to leave open."
+      },
+      {
+        "id": "interaction-tribunal-constrains-procedural",
+        "source_genre_id": "genre-tribunal",
+        "target_genre_id": "genre-procedural",
+        "kind": "constrains",
+        "mechanism": "A forum that can find facts but cannot sign anything is permanently unable to close a Book through judgment, so it forces the procedural to end on an allocation of exposure rather than a conclusion. This is the structural reason the series' Books terminate on bearers instead of verdicts.",
+        "risk": "Repeated non-resolution can read as authorial withholding rather than institutional truth."
+      },
+      {
+        "id": "interaction-craft-reinforces-procedural",
+        "source_genre_id": "genre-craft-thriller",
+        "target_genre_id": "genre-procedural",
+        "kind": "reinforces",
+        "mechanism": "Physical risk gives the signature its weight: the reader has felt the load, so the act of accepting liability is concrete rather than administrative. The craft frame supplies the deadline and the body that the procedural frame would otherwise lack.",
+        "risk": "If inspection becomes too exciting, the certification recedes and the series reads as engineering adventure."
+      },
+      {
+        "id": "interaction-disaster-pressures-craft",
+        "source_genre_id": "genre-disaster",
+        "target_genre_id": "genre-craft-thriller",
+        "kind": "creates_tension",
+        "mechanism": "The standing possibility of collapse makes every careful inspection scene anxious, because the reader knows the span has opinions that no amount of attention can fully settle. Fear is supplied by the frame rather than by the scene.",
+        "risk": "Overuse converts suspense into fatalism and drains the smaller, better tension of a joint that might merely be wrong."
+      },
+      {
+        "id": "interaction-civic-contrasts-procedural",
+        "source_genre_id": "genre-civic-life",
+        "target_genre_id": "genre-procedural",
+        "kind": "contrasts",
+        "mechanism": "The solemnity of certification is set against a queue in the rain, and the contrast is the series' sharpest argument: the act the institution treats as sacred is the act the public performs without thinking. The contrast makes both registers legible at once.",
+        "risk": "Played too broadly it becomes satire, which would let the reader off the hook of having enjoyed the crossing."
+      },
+      {
+        "id": "interaction-civic-converges-disaster",
+        "source_genre_id": "genre-civic-life",
+        "target_genre_id": "genre-disaster",
+        "kind": "converges",
+        "mechanism": "When the ordinary crossing breaks, the two frames become a single scene: the catastrophe is not a spectacle but a morning interrupted, and daily-life's accumulated ordinary weight is what makes the disaster land. This convergence is the series' most efficient use of everything it has banked.",
+        "risk": "A convergence used early spends the accumulated weight that Book 12 requires."
+      },
+      {
+        "id": "interaction-inquiry-tensions-procedural",
+        "source_genre_id": "genre-evidence-inquiry",
+        "target_genre_id": "genre-procedural",
+        "kind": "creates_tension",
+        "mechanism": "Inquiry wants a cause and procedure only wants a signer. The two drives pull a Book in different directions, and the friction is productive: the reader is given a motive to pursue and an institution that cannot act on it.",
+        "risk": "If inquiry ever proves soundness, the whole architecture collapses into a mystery with a solution."
+      },
+      {
+        "id": "interaction-inquiry-enables-tribunal",
+        "source_genre_id": "genre-evidence-inquiry",
+        "target_genre_id": "genre-tribunal",
+        "kind": "enables",
+        "mechanism": "Payments and correspondence are what let a forum act at all, since the guild can only discipline what it can document. Inquiry supplies the tribunal with the only currency it accepts.",
+        "risk": "Documentary completeness can make the guild look more competent than the architecture wants it to be."
+      },
+      {
+        "id": "interaction-apprenticeship-enables-procedural",
+        "source_genre_id": "genre-apprenticeship",
+        "target_genre_id": "genre-procedural",
+        "kind": "enables",
+        "mechanism": "Succession is the procedure's only input: without new people willing to be exposed, certification has no future and the guild's authority decays into an archive. The apprenticeship frame therefore supplies the governing frame's continuity across decades.",
+        "risk": "Training material can crowd out the risk-allocation question if the apprentice's competence rather than their exposure becomes the subject."
+      },
+      {
+        "id": "interaction-procedural-constrains-apprenticeship",
+        "source_genre_id": "genre-procedural",
+        "target_genre_id": "genre-apprenticeship",
+        "kind": "constrains",
+        "mechanism": "The guild's standards limit who may be made and when, so the bildungsroman is never free to be about self-discovery. An apprentice's growth is measured in exposures accepted, not in insights achieved.",
+        "risk": "A strictly instrumental apprenticeship can flatten the warmth that makes the succession Books bearable."
+      },
+      {
+        "id": "interaction-tribunal-constrains-disaster",
+        "source_genre_id": "genre-tribunal",
+        "target_genre_id": "genre-disaster",
+        "kind": "constrains",
+        "mechanism": "A forum can delay a closure while it deliberates, which means legal process itself holds the public inside a span's exposure. The tribunal therefore cannot be treated as the safe option, and disaster can be caused by propriety rather than negligence.",
+        "risk": "If used too neatly, it suggests the answer is faster procedure, which is the series' temptation in institutional clothing."
+      },
+      {
+        "id": "interaction-craft-reinforces-civic",
+        "source_genre_id": "genre-craft-thriller",
+        "target_genre_id": "genre-civic-life",
+        "kind": "reinforces",
+        "mechanism": "A well-made span makes ordinary life warm: the craft frame's competence, once established, is what allows the civic frame's pleasure to be authentic rather than nostalgic. The reader's affection for the daily crossing is built out of structural knowledge they were taught to admire.",
+        "risk": "The pleasure can become sentimentality about workmanship, which the compressed-labor engine exists to correct."
+      }
+    ]
+  },
+  "candidate_request_sha256": "49a58bf066cf6389ff6862222ed443bae0b63877275d612ba526087152226424",
+  "review": null,
+  "governing_objective": {
+    "authority": "author_expressed",
+    "story_vision": "A fourteen-Book optimistic series about a guild of bridge-wards who certify that a\nbridge is sound. A ward's signature is what makes a span legal; the crown cannot\ncertify and cannot overrule. The intended reader experience is earned trust in a\ncertification you cannot verify yourself: every crossing is an act of faith in a\nstranger's judgement.\n\nAuthor commitments:\n1. The guild's authority comes from the ward's signature, not from the crown.\n2. Every Book must change who bears the risk of a wrong certificate.\n3. The series must not resolve by declaring that certification is meaningless.\n\nThe governing criterion: a bridge is sound only if a person who did not build it\nwill cross it.\n\nBook 12 must decide whether to close the Old Span, whose certificate was signed by\na ward later shown to have been paid by the contractor who built it. The crossing\npublic has used that bridge daily for forty years.",
+    "instruction": null,
+    "note": "The author's expressed creative objective for this working proposal. It is not accepted Story Identity, and the candidate summary is an interpretation of it rather than the objective itself."
+  },
+  "premise_status": {
+    "authority": "working_architecture_not_canon",
+    "author_expressed": {
+      "source": "story_vision_and_author_named_emotion_targets",
+      "emotion_targets": [],
+      "note": "A source-origin claim only: the author's own text names this emotion. It is not acceptance of the agent's elaboration."
+    },
+    "accepted": {
+      "source": null,
+      "commitments": {}
+    },
+    "provisional_agent_interpretation": {
+      "summary": true,
+      "nodes": [
+        "aesthetic-document-object",
+        "aesthetic-inspection-attention",
+        "aesthetic-load-bearing-prose",
+        "aesthetic-ordinary-crossing",
+        "aesthetic-retroactive-reread",
+        "engine-capture-pressure",
+        "engine-compressed-labor",
+        "engine-crossing-public",
+        "engine-material-load",
+        "engine-precedent-memory",
+        "engine-risk-transfer",
+        "engine-standing-market",
+        "engine-succession",
+        "engine-unverifiable-certificate",
+        "genre-apprenticeship",
+        "genre-civic-life",
+        "genre-craft-thriller",
+        "genre-disaster",
+        "genre-evidence-inquiry",
+        "genre-procedural",
+        "genre-tribunal",
+        "rx-civic-warmth",
+        "rx-earned-trust",
+        "rx-forty-year-tremor",
+        "rx-secondhand-doubt",
+        "rx-somatic-load",
+        "structure-aftermath-horizon",
+        "structure-book-12-crucible",
+        "structure-book-decision-gate",
+        "structure-criterion-test",
+        "structure-retroactive-audit",
+        "structure-risk-rotation-spine",
+        "theme-authority-without-overrule",
+        "theme-risk-has-a-name",
+        "theme-signature-not-proof",
+        "theme-use-is-the-test",
+        "thread-guild-self-rule",
+        "thread-old-span-fuse",
+        "thread-public-faith",
+        "thread-risk-bearer-rotation",
+        "thread-wrong-certificate-tail",
+        "trope-bought-seal",
+        "trope-criterion-reflexive",
+        "trope-crowd-crosses",
+        "trope-first-crosser",
+        "trope-signing-as-exposure",
+        "trope-successor-inherits-doubt"
+      ],
+      "links": [
+        "link-aftermath-names-bearer",
+        "link-apprenticeship-feeds-procedure",
+        "link-capture-cheapens-warrant",
+        "link-capture-menaces-self-rule",
+        "link-civic-contradicts-procedure",
+        "link-civic-converges-disaster",
+        "link-craft-arms-procedure",
+        "link-crowd-trope-delivers-tremor",
+        "link-crucible-pays-tremor",
+        "link-disaster-pressures-craft",
+        "link-document-object-grounds-theme",
+        "link-first-crosser-feeds-load",
+        "link-fuse-feeds-crucible",
+        "link-gate-drives-certificate-tail",
+        "link-inquiry-outruns-procedure",
+        "link-inspection-directs-attention",
+        "link-labor-shrinks-signature",
+        "link-load-disputes-transfer",
+        "link-load-feeds-craft-genre",
+        "link-market-corrupts-verification",
+        "link-ordinary-crossing-builds-warmth",
+        "link-precedent-arms-old-span",
+        "link-procedural-governs-tribunal",
+        "link-promise-requires-rotation",
+        "link-prose-aesthetic-holds-promise",
+        "link-public-supplies-stranger",
+        "link-reflexive-turns-on-succession",
+        "link-reread-engine-audits-memory",
+        "link-rotation-carries-thread",
+        "link-seal-trope-provokes-anger",
+        "link-signing-trope-exposes-ward",
+        "link-succession-yields-heir",
+        "link-theme-authority-needs-capture-answer",
+        "link-theme-use-grounds-test",
+        "link-transfer-erases-labor",
+        "link-transfer-feeds-precedent",
+        "link-transfer-invites-capture",
+        "link-transfer-needs-public",
+        "link-transfer-owns-unverifiable",
+        "link-transfer-prices-name",
+        "link-transfer-requires-succession",
+        "link-tribunal-cannot-sign",
+        "link-unverifiable-allows-seal"
+      ],
+      "note": "Every node, link and the summary are noncanonical working material proposed by the agent."
+    },
+    "unresolved": {
+      "open_questions": [
+        "How long does a certificate last? The series needs to know whether a ward's signature is perpetual or term-limited, because the Old Span's forty years only becomes a decision if the answer is not obvious.",
+        "Can a signature be withdrawn by anyone other than the ward who made it, and can it be withdrawn after that ward's death? This decides whether Book 12 has an available legal instrument or only a moral one.",
+        "Is certification solitary or collegial? Whether a single ward signs alone, or two must, or a guild body must concur, changes the entire risk architecture and the entire guilt architecture.",
+        "Is the crossing public ever able to refuse a certificate collectively - a recognized refusal, not a riot? The series' ending depends on whether public consent is a right the world already has or one it has to take.",
+        "Is the crown's exclusion constitutional, or merely practical? The brief establishes that the crown cannot certify and cannot overrule; whether that is a settlement or a fact of nature determines whether the series has an external political clock.",
+        "May the series stage an actual collapse on the page? A single catastrophic failure would change what every later certificate means, and it is not clear whether the author wants physics to have that much authority.",
+        "Is being paid by a contractor a crime, a shame, or merely bad practice? The Old Span decision changes character entirely depending on whether the payment was illegal, merely dishonourable, or entirely normal.",
+        "Does the guild keep records complete enough to audit retroactively? If its archive is patchy, the series is about ignorance; if its archive is complete, the series is about what people chose not to read.",
+        "Do the fourteen Books follow one continuous cast across decades, or rotate casts by generation with the guild as the constant? The succession engine supports both, but the reader's relationship to inherited blame differs sharply.",
+        "Whose judgement is actually being signed - the ward's own inspection, or the ward's confidence in the people who inspected for them? The series treats the signature as one person's, and the brief does not settle how much of it is theirs."
+      ]
+    }
+  },
+  "collaboration": null,
+  "opportunities": {
+    "authority": "noncanonical_opportunity",
+    "count": 2,
+    "items": [
+      {
+        "id": "opp-reader-as-last-stranger",
+        "title": "Make the reader the final stranger who crosses",
+        "why_it_matters": "The governing criterion needs a person who did not build the bridge to cross it. A fourteen-Book series can arrange for that person to be the reader: the final Book's certification is presented with no authoritative narration of whether the span is sound, and the reader's willingness to keep reading is the crossing. This would make earned trust a formal property of the series rather than a described feeling, and it would let the optimism survive without the narrator asserting that everything is fine.",
+        "scope": "series",
+        "relationship": "deepens",
+        "artistic_potential": "Extremely high. It converts the series' central epistemic limit from a frustration into the mechanism of its payoff, and it is the only device that could make the reader's own decision the final test the guild never wrote.",
+        "intention_fidelity": "High. It serves the stated reader experience directly and does not weaken any author commitment, but it does require disciplined refusal of narrator authority in the last Book, which is a real stylistic cost.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      },
+      {
+        "id": "opp-inheritable-signature-right",
+        "title": "Let the right to sign become inheritable property",
+        "why_it_matters": "If a ward's name can pass to an heir, the series gains its sharpest test of commitment three from the opposite direction: an inherited signature would make certification more stable and more meaningless at the same time, and it would let the Old Span's compromised name arrive in the present as an inheritance rather than only as a scandal. This is a bounded addition to the standing market engine and does not disturb the governing center.",
+        "scope": "theme",
+        "relationship": "deepens",
+        "artistic_potential": "Strong. It gives the succession books a material stake and makes the guild's reproduction visibly patrimonial rather than merely sentimental.",
+        "intention_fidelity": "Moderate to high. It intensifies the author's second commitment without contradicting the first, but it risks making the guild read as a hereditary caste, which would tilt the series toward a different political subject.",
+        "requires_author_decision": false,
+        "provisional_primary": false
+      }
+    ],
+    "comparison": {
+      "governing_purpose_authority": "author_expressed",
+      "alternative_count": 2,
+      "alternatives": [
+        {
+          "id": "opp-reader-as-last-stranger",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        },
+        {
+          "id": "opp-inheritable-signature-right",
+          "relationship": "deepens",
+          "requires_author_decision": false,
+          "provisional_primary": false
+        }
+      ],
+      "requires_author_decision": [],
+      "provisional_primary": null,
+      "working_selection_is_not_acceptance": true,
+      "note": "Artistic potential and intention fidelity are separate claims. An alternative is not better because it is more developed, and the expressed direction is not superior because it came first. Any alternative that would replace the author's purpose requires an explicit author decision. A provisional primary direction is a working selection under delegated goal discovery, never accepted Story Identity."
+    },
+    "note": "Incidental creative possibilities the agent noticed while doing the requested work. They are not defects, not required author decisions, and not accepted narrative meaning. Ignoring them is a complete response."
+  },
+  "working_interpretations": {
+    "authority": "agent_interpretation",
+    "count": 7,
+    "items": [
+      {
+        "id": "interp-signature-transfers-liability",
+        "interpretation": "A ward's signature is read here as a transfer of liability rather than an assertion of fact. To sign is to accept that if the span is wrong, you are the one it happens to: you lose standing, your judgement becomes the object of inquiry, and no builder money, guild fund or crown instrument stands between your name and the consequence. The certificate's truth-value matters far less than the fact that one named person has publicly agreed to be wrong.",
+        "affects": [
+          "engine-risk-transfer",
+          "trope-signing-as-exposure",
+          "theme-risk-has-a-name",
+          "structure-book-decision-gate",
+          "structure-book-12-crucible"
+        ],
+        "consequences": "Makes signing a bodily exposure rather than a professional opinion, which is what lets the series relocate risk every Book simply by relocating a name. Fraud becomes a kind of theft of someone else's body, so a bought signature is not an error but an assault. It also makes the crown's exclusion material rather than legal: no royal instrument can produce a person who will be wrong.",
+        "alternative": "Read the signature as a truth-claim about the span with liability resting on the institution. That would make the guild a standards bureaucracy and shift the series from a study of exposure to a procedural about engineering quality.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-use-completes-the-certificate",
+        "interpretation": "The governing criterion is treated as a structural law rather than a motto: a bridge is sound only when someone who did not build it crosses. Read this way the certificate is not completed at the signing but at a stranger's first crossing, and is re-completed every ordinary morning thereafter. The guild's authority is genuine and never final - it holds the pen, not the verdict.",
+        "affects": [
+          "engine-crossing-public",
+          "structure-criterion-test",
+          "trope-crowd-crosses",
+          "structure-book-12-crucible",
+          "theme-use-is-the-test"
+        ],
+        "consequences": "Gives fourteen Books a renewable source of legitimacy the guild does not own, and makes Book 12's re-allocation available rather than clever: if use has always been the completing act, the forty-year crossing public is already a party to the certificate and can be addressed as one. It also makes the optimism structural, since trust is completed daily by strangers regardless of what any institution says.",
+        "alternative": "Read the criterion as a moral standard applied to wards rather than to certificates - soundness as a standard of care. That preserves the guild as sole authority and turns Book 12 into a verdict, which is coherent but forecloses the re-allocation this architecture is built around.",
+        "author_decision_required": true
+      },
+      {
+        "id": "interp-crown-exclusion-is-material",
+        "interpretation": "The crown's inability to certify or overrule is treated as a material fact rather than a fragile constitutional settlement. There is no substitute instrument: a sovereign can command, fund, imprison and license, but cannot make a span legal by wanting it. Capture therefore operates by owning signers, never by replacing the signature.",
+        "affects": [
+          "engine-capture-pressure",
+          "thread-guild-self-rule",
+          "theme-authority-without-overrule"
+        ],
+        "consequences": "Sovereignty pressure becomes slow seduction rather than war, which is what lets the series stay optimistic without a siege plot. Contractors buy wards from below, the crown buys the guild's comfort from above, and legitimate abolition is off the table. This removes an external collapse threat the brief does not supply.",
+        "alternative": "Treat the exclusion as a settlement that could be repealed, which would give the series an external constitutional clock and a very different Book 12 - one where the Old Span decision is also a fight over who may decide at all.",
+        "author_decision_required": true
+      },
+      {
+        "id": "interp-forty-years-is-ambiguous-evidence",
+        "interpretation": "Forty years of daily use is real but non-conclusive evidence: not proof of soundness and not mass delusion. The crossing public has repeatedly loaded the span with strangers and it has held, which is genuine information about the material and no information at all about the certificate. The series must be able to hold both facts at once without resolving them by fiat.",
+        "affects": [
+          "structure-book-12-crucible",
+          "engine-material-load",
+          "rx-forty-year-tremor"
+        ],
+        "consequences": "Gives Book 12 an honest middle it can occupy, and prevents the series from awarding the public either vindication or contempt. It also obliges the architecture to keep material load as an independent engine, since without a physical reality the ambiguity collapses into pure politics.",
+        "alternative": "Treat long survival as presumptive soundness, which would make closure absurd, or as legally irrelevant, which would make the forty years a lie the series then has to call a lie.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-wards-are-made-by-wards",
+        "interpretation": "Wards are authorized by other wards. The guild reproduces its own authority through supervised exposure, and that reproduction is itself an uncertified act: nobody outside the guild ever signs off on who is fit to sign. This is the load-bearing invention of phase six and the reason the criterion can be turned reflexively on the guild.",
+        "affects": [
+          "engine-succession",
+          "trope-successor-inherits-doubt",
+          "trope-criterion-reflexive"
+        ],
+        "consequences": "Makes succession a risk-allocation problem rather than a training subplot: every generation inherits an assumption it cannot audit, transmitted by people who sincerely believe it. This supplies the series' best non-villainous failure mode - competent, caring people faithfully passing on a purchased standard.",
+        "alternative": "Make wards by examination, state charter or popular election. That would install an external auditor and dissolve the pressure that makes both Book 12 and the reflexive criterion hard.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-book-12-is-the-center",
+        "interpretation": "Book 12 is read as the load-bearing center of the fourteen-Book structure: Books 1 to 11 accrue the conditions of the Old Span decision, Book 12 spends them, and Books 13 and 14 carry its cost. The Old Span must therefore be present from early on as a monument of ordinary use, though its compromised certificate need not be.",
+        "affects": [
+          "thread-old-span-fuse",
+          "structure-book-12-crucible",
+          "structure-aftermath-horizon",
+          "structure-retroactive-audit"
+        ],
+        "consequences": "Creates a specific seeding obligation: the span's forty years, its daily traffic and the name on its certificate must be established long before the payment surfaces, and the crossing must be a rendered habit rather than a mentioned fact. It also forbids treating Book 12 as a late twist, which would make the re-allocation feel like a device instead of a culmination.",
+        "alternative": "Distribute weight evenly so no Book is structurally central. That would lower the finale's claim on the reader and require the Old Span to be one case among many, which the brief's specificity argues against.",
+        "author_decision_required": false
+      },
+      {
+        "id": "interp-no-genre-declared",
+        "interpretation": "The brief names no genre, so every genre contract here is a working framing derived from the material's own mechanics: certification procedure, a forum that cannot overrule, craft risk, evidence inquiry, apprenticeship, civic daily life, and structural disaster. They were selected for how they allocate risk, not for market positioning, and none of them is presented as an author commitment.",
+        "affects": [
+          "genre-procedural",
+          "genre-tribunal",
+          "genre-craft-thriller",
+          "genre-evidence-inquiry",
+          "genre-apprenticeship",
+          "genre-civic-life",
+          "genre-disaster"
+        ],
+        "consequences": "Genre roles are revisable without disturbing engines, emotions or phases, because the contracts were derived from mechanics rather than imposed on them. If the author names a governing genre later, these should be re-derived rather than defended.",
+        "alternative": "Treat the material as a legal thriller with engineering interludes, or as a disaster series with procedural pacing. Either would change which emotion governs and would make erosion of trust the primary plot rather than the primary subject.",
+        "author_decision_required": false
+      }
+    ],
+    "requires_author_decision": [
+      "interp-use-completes-the-certificate",
+      "interp-crown-exclusion-is-material"
+    ],
+    "note": "Consequential readings the agent is using while proposing this architecture. They are recommendations, not author-established commitments, and none becomes canon without the existing acceptance path."
+  },
+  "author_emotion_grounding": []
+}
