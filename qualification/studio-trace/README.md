@@ -18,9 +18,9 @@ The candidate recorded **7 interpretations** and was rejected:
 
 > `interpretation 'interp-use-completes-the-certificate' affects unknown nodes: phase-public-underwrites, phase-old-span`
 
-`affects` resolves against **node** ids; the model referenced **phase** ids. The repair removed phase ids from `affects` and changed nothing else. Preserved at `attempt-1-rejected/`.
+`affects` resolves against **node** ids; the model referenced **phase** ids. The rejected candidate contained **four phase IDs and one complex-emotion ID** in four interpretations' `affects` arrays. The repair removed these five non-node references and changed nothing else. The complete original and repaired candidates are preserved at [`artifacts/candidate-attempt1-rejected.json`](artifacts/candidate-attempt1-rejected.json) and [`artifacts/candidate-2.json`](artifacts/candidate-2.json).
 
-This is a real, narrow representational finding: the model naturally reached for phase-level dependencies that `affects` cannot express. The existing validation caught it correctly. **No semantic content was altered by the repair.**
+This is a real, narrow representational finding: the model naturally reached for phase-level and complex-emotion dependencies that node-only `affects` cannot express. The existing validation correctly rejected non-node references. **No semantic content was altered by the repair.**
 
 ## Attempt 2 — admitted
 
@@ -57,7 +57,7 @@ No intervention was tested, because no consequential omission occurred. The prio
 
 ## The one finding worth carrying forward
 
-`affects` is node-only. Phase-level dependencies are not representable, and a capable agent reached for them unprompted. That is a bounded, testable representational question — worth more than another prompt experiment, and it is a schema question rather than a reasoning one.
+`affects` is node-only. The rejected candidate referenced **four phase IDs and one complex-emotion ID** while recording consequential working interpretations. Whether typed non-node dependencies would benefit an actual reader or authoring consumer is unqualified. The rejection was mechanically correct and does not, on its own, warrant expanding the schema or reopening the completed reasoning investigation.
 
 ## T10
 
