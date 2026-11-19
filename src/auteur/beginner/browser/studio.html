@@ -4,6 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Auteur — Living Story Studio (prototype)</title>
+  <script>
+    // Only this page is certain to arrive. If a Studio script or style is not delivered, say so plainly
+    // rather than leaving a half-loaded canvas that looks usable. Nothing is opened or saved in that case.
+    (function () {
+      var missing = [];
+      function report() {
+        var status = document.getElementById("status");
+        if (status && missing.length) status.textContent = "Studio did not load completely (" + missing.join(", ") +
+          " could not be loaded from the local server). Reload the page; nothing was opened or saved.";
+      }
+      window.addEventListener("error", function (event) {
+        var tag = event.target && event.target.tagName;
+        if (tag !== "SCRIPT" && tag !== "LINK") return;
+        missing.push(String(event.target.src || event.target.href).split("/").pop());
+        window.AuteurStudioIncompleteLoad = missing;
+        report();
+      }, true);
+      document.addEventListener("DOMContentLoaded", report);
+    })();
+  </script>
   <link rel="stylesheet" href="/studio.css">
   <link rel="stylesheet" href="/studio_architecture_revision.css">
   <link rel="stylesheet" href="/studio_architecture_creative.css">
