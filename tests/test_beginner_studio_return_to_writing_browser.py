@@ -194,6 +194,55 @@ def test_selecting_another_scene_inspects_it_until_its_editor_is_opened_explicit
         studio.close()
 
 
+def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900)
+    page = studio.page
+    try:
+        page.get_by_role("button", name="Story Realization").click()
+        page.locator('#nodes .node[data-item-id="scene-crossing"]').click()
+        page.get_by_role("button", name="Open scene editor").click()
+        page.locator("#scene-text").evaluate("t => { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }")
+        page.keyboard.type(" Saved line.")
+        wait_for_saved(page, studio.store, OPENING + " Saved line.")
+
+        # Another writer advances the working document, so the next versioned save is rejected for real.
+        studio.store.apply(
+            "create-item", expected_revision=studio.store.load().revision, command_id="other-tab",
+            payload={"item": {"id": "other-tab-note", "title": "Written elsewhere"}, "position": {"x": 500, "y": 500}},
+        )
+        page.keyboard.type(" Unsaved line.")
+        page.wait_for_function("document.querySelector('#status').textContent.includes('SAVE FAILED')")
+
+        page.locator('#nodes .node[data-item-id="char-mara"]').click()
+        assert "SAVE FAILED" in page.locator("#status").inner_text()
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == OPENING + " Saved line. Unsaved line."
+        assert "SAVE FAILED" in page.locator("#status").inner_text()
+        assert "saved locally" not in page.locator("#status").inner_text()
+        assert scene_text(studio.store) == OPENING + " Saved line."
+        assert any(item.id == "other-tab-note" for item in studio.store.load().items)
+    finally:
+        studio.close()
+
+
+def test_text_changed_while_paused_is_not_given_a_stale_cursor(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900)
+    page = studio.page
+    try:
+        page.get_by_role("button", name="Story Realization").click()
+        page.locator('#nodes .node[data-item-id="scene-crossing"]').click()
+        page.get_by_role("button", name="Open scene editor").click()
+        page.locator("#scene-text").evaluate("t => { t.focus(); t.setSelectionRange(4, 4); }")
+        page.locator('#nodes .node[data-item-id="char-mara"]').click()
+        page.locator('#nodes .node[data-item-id="scene-crossing"]').click()
+        page.locator("#content").fill("Rewritten while paused.")
+        page.get_by_role("button", name="Return to Writing").click()
+        assert studio.selection() == [23, 23, "scene-text"]
+        assert "changed while you were away" in page.locator("#status").inner_text()
+    finally:
+        studio.close()
+
+
 def test_keyboard_narrow_journey_inspects_from_editor_and_returns_focus(tmp_path, browser):
     studio = Studio(browser, tmp_path, 390, 844)
     page = studio.page
