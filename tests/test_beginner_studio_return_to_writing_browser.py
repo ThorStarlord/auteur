@@ -274,6 +274,13 @@ def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(t
             page.get_by_role("button", name="Explore architecture").click()
             follow_trope_from_genre(page)
         assert "SAVE FAILED" in page.locator("#status").inner_text()
+        # While paused, the return offer never claims the unsaved text is kept.
+        assert "Not saved" in page.locator("#writing-return").inner_text()
+        assert "keeps your text" not in page.locator("#writing-return").inner_text()
+        # Retry refuses to overwrite the newer version; nothing is reported as saved.
+        page.get_by_role("button", name="Retry saving").click()
+        page.wait_for_function("document.querySelector('#status').textContent.includes('Cannot retry safely')")
+        assert "Not saved" in page.locator("#writing-return").inner_text()
         page.get_by_role("button", name="Return to Writing").click()
         assert page.locator("#scene-text").input_value() == OPENING + " Saved line. Unsaved line."
         assert "SAVE FAILED" in page.locator("#status").inner_text()
@@ -531,5 +538,167 @@ def test_return_keeps_the_architecture_focus_chosen_for_realization(tmp_path, br
         assert studio.selection() == [start, end, "scene-text"]
         assert focus.inner_text() == f"Architecture focus: {GENRE}"
         studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+# --- #605: authoring continuity when saving, sources or navigation fail ---------------------------------
+
+LEAVE_GUARDED = ("() => { const e = new Event('beforeunload', {cancelable: true});"
+                 " window.dispatchEvent(e); return e.defaultPrevented; }")
+COVERED_BY_EDITOR = ("() => [2, 20, 40, 54].map(y => { const e = document.elementFromPoint(window.innerWidth / 2, y);"
+                     " return !!(e && e.closest('#scene-panel')); })")
+
+
+def test_only_durable_text_is_called_saved_and_rapid_round_trips_keep_one_origin(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        start_writing(studio)
+        page.keyboard.type(" tail")
+        page.get_by_role("button", name="Explore architecture").click()
+        live = page.locator("#scene-text").input_value()
+        # Live-only edits are not announced as saved, and leaving is guarded until they are durable.
+        assert "saved locally" not in page.locator("#status").inner_text()
+        assert page.evaluate(LEAVE_GUARDED) and scene_text(studio.store) != live
+        wait_for_persisted(page, studio.store, live)
+        page.wait_for_function("document.querySelector('#status').textContent.includes('saved locally')")
+        assert not page.evaluate(LEAVE_GUARDED)
+
+        # Rapid repeated round trips: every edit lands, in order, and only one origin ever exists.
+        page.get_by_role("button", name="Return to Writing").click()
+        for n in range(4):
+            page.keyboard.type(f" r{n}")
+            page.get_by_role("button", name="Explore architecture").click()
+            assert page.locator("#writing-return").count() == 1
+            page.get_by_role("button", name="Return to Writing").click()
+        page.keyboard.type(" end")
+        live = page.locator("#scene-text").input_value()
+        assert " tail r0 r1 r2 r3 end. The fog" in live
+        wait_for_persisted(page, studio.store, live)
+        saved_focus = page.evaluate("JSON.parse(localStorage.getItem('auteur:studio:focus:ferry-story'))")
+        assert saved_focus["editorOpen"] and saved_focus["writing"] is None
+
+        # A fresh browser session re-enters the durable text; the paused-writing offer is browser-local.
+        fresh = browser.new_page(viewport={"width": 1440, "height": 900})
+        try:
+            fresh.goto(page.url)
+            fresh.wait_for_function("document.querySelector('#status').textContent.includes('Working canvas loaded')")
+            fresh.get_by_role("button", name="Story Realization").click()
+            fresh.locator('#nodes .node[data-item-id="scene-crossing"]').click()
+            assert fresh.locator("#content").input_value() == live
+            assert fresh.locator("#writing-return").is_hidden()
+        finally:
+            fresh.close()
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+@pytest.mark.parametrize("width,height,expanded", [(390, 844, False), (1440, 900, True)])
+def test_full_width_writing_covers_the_page_so_scrolled_controls_never_show_or_take_clicks(
+    tmp_path, browser, width, height, expanded,
+):
+    studio = Studio(browser, tmp_path, width, height, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        if expanded:
+            page.get_by_role("button", name="Focus writing").click()
+            page.locator("#scene-text").evaluate("(t, r) => { t.focus(); t.setSelectionRange(r[0], r[1]); }", [start, end])
+        page.get_by_role("button", name="Explore architecture").click()
+        follow_trope_from_genre(page)
+        page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+        assert page.evaluate("window.scrollY") > 100
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.evaluate(COVERED_BY_EDITOR) == [True, True, True, True]
+        assert studio.selection() == [start, end, "scene-text"]
+        assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+@pytest.mark.parametrize("width,height", [(390, 844), (1440, 900)])
+def test_double_clicked_return_resumes_once_and_keeps_the_prose_focused(tmp_path, browser, width, height):
+    studio = Studio(browser, tmp_path, width, height, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        page.evaluate("window.scrollTo(0, 0)")
+        # At 390px the second click lands where the editor shows Return to canvas.
+        page.get_by_role("button", name="Return to Writing").dblclick()
+        assert page.locator("#scene-panel").is_visible()
+        assert studio.selection() == [start, end, "scene-text"]
+        page.keyboard.type("X")
+        assert page.locator("#scene-text").input_value() == written[:start] + "X" + written[end:]
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+def test_reentry_after_the_architecture_changed_never_reopens_a_similar_explanation(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        follow_trope_from_genre(page)
+        wait_for_persisted(page, studio.store, written)
+
+        # Between sessions, another session applies a revision whose trope keeps its key and a similar title.
+        complete_working_architecture(studio.store, "The keeper who will not leave her post", "Sharpen her refusal.")
+        page.reload()
+        page.wait_for_function(
+            "document.querySelector('#status').textContent.includes('Previous semantic source changed')"
+        )
+        assert page.locator('[data-architecture-facet="overview"]').get_attribute("aria-pressed") == "true"
+        assert page.locator("#studio-explanatory-hero").is_hidden()
+        assert page.locator("#writing-return").is_visible()
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == written
+        assert studio.selection() == [start, end, "scene-text"]
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+def test_read_only_book_overview_pauses_writing_instead_of_dropping_it(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_text("More tools", exact=True).click()
+        page.get_by_role("button", name="Book overview").click()
+        page.locator("#writing-return").wait_for()
+        assert page.locator("#scene-panel").is_hidden()
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == written
+        assert studio.selection() == [start, end, "scene-text"]
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+def test_paused_scene_removed_elsewhere_is_announced_and_recoverable(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        wait_for_persisted(page, studio.store, written)
+        studio.store.apply("delete-item", expected_revision=studio.store.load().revision, command_id="elsewhere",
+                           payload={"item_id": "scene-crossing"})
+        page.reload()
+        studio.wait_loaded()
+        assert "The scene you paused was removed" in page.locator("#status").inner_text()
+        assert page.locator("#writing-return").is_hidden()
+        page.get_by_role("button", name="Restore removed idea").click()
+        page.locator("#writing-return").wait_for()
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == written
+        assert studio.selection() == [start, end, "scene-text"]
+        wait_for_persisted(page, studio.store, written)
     finally:
         studio.close()

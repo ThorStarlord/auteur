@@ -103,13 +103,17 @@ a { color:#2d6242; }
 body.scene-docked .studio { margin-right:min(50vw,740px); grid-template-columns:minmax(0,1fr); }
 body.scene-docked #inspector { display:none; }
 .scene-panel { inset:55px 0 35px auto; width:min(50vw,740px); border-left:1px solid #d6cfbd; box-shadow:-4px 0 20px #00000016; padding:15px; }
-.scene-panel.expanded { left:0; right:0; width:100%; border-left:none; }
+/* Full-width writing starts at the viewport top: once the page scrolls, the top bar no longer fills that band,
+   and page controls behind it would show and take clicks there. */
+.scene-panel.expanded { top:0; left:0; right:0; width:100%; border-left:none; }
 .scene-top { position:sticky; top:0; background:#f8f5ee; z-index:1; padding:4px 0; }
 .scene-top-actions { display:flex; gap:8px; }
 /* Return to Writing: one paused scene stays named beside the workspace tabs, in Realization and Architecture alike. */
 .writing-return { position:sticky; top:0; z-index:3; padding:9px 14px; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:2px 14px; background:#f8f5ee; border-bottom:1px solid #e3dccb; border-left:4px solid #d9b67c; }
 .writing-return p { margin:0; grid-column:1; }
-@media (max-width:700px) { .writing-return-hint { display:none; } }
+@media (max-width:700px) { .writing-return:not(.unsaved) .writing-return-hint { display:none; } }
+.writing-return.unsaved { border-left-color:#a8432f; }
+.writing-return.unsaved .writing-return-hint { color:#8a3831; font-weight:600; }
 .writing-return-kicker { display:block; font-size:.72rem; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:#865b24; }
 .writing-return-title { display:block; font:1.02rem/1.35 Georgia,serif; color:#292922; overflow-wrap:anywhere; }
 .writing-return-hint { font-size:.78rem; color:#665e54; }
@@ -135,7 +139,7 @@ body.scene-docked #inspector { display:none; }
 .visually-hidden { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 #scene-text { min-height:38vh; }
 #use-scene-as-intent { margin-bottom:8px; }
-@media (max-width:900px) { body.scene-docked .studio { margin-right:0; } .scene-panel { left:0; right:0; width:100%; border-left:0; } }
+@media (max-width:900px) { body.scene-docked .studio { margin-right:0; } .scene-panel { top:0; left:0; right:0; width:100%; border-left:0; } }
 .more-tools:not([open]) .more-tools-content { display:none; }
 
 /* Author-led architecture intent: one flexible brief, not a required questionnaire. */
