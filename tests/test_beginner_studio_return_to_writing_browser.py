@@ -767,8 +767,17 @@ def test_native_undo_survives_a_pause_but_never_restores_text_changed_meanwhile(
         page.get_by_role("button", name="Explore architecture").click()
         follow_trope_from_genre(page)
         page.get_by_role("button", name="Return to Writing").click()
-        page.keyboard.press("Control+z")
-        assert page.locator("#scene-text").input_value() == OPENING  # the typed insertion is undone
+        # Chromium groups typing into undo steps by timing, so the insertion may take several steps to undo;
+        # every intermediate state must still be the typed insertion shortened, never other text.
+        cut = OPENING.index(".")
+        for _ in range(10):
+            page.keyboard.press("Control+z")
+            text = page.locator("#scene-text").input_value()
+            assert text[:cut] == OPENING[:cut] and text[-len(OPENING) + cut:] == OPENING[cut:]
+            assert INSERT.startswith(text[cut:len(text) - len(OPENING) + cut])
+            if text == OPENING:
+                break
+        assert page.locator("#scene-text").input_value() == OPENING  # the typed insertion is fully undone
         # Text changed while paused replaces the history: undo cannot bring back the superseded prose.
         page.locator('#nodes .node[data-item-id="char-mara"]').click()
         page.locator('#nodes .node[data-item-id="scene-crossing"]').click()

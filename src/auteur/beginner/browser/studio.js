@@ -784,6 +784,8 @@
     });
   }
   function activateCanvas(canvasId) {
+    // An incompletely loaded page (reported by studio.html) must never open, and so never save, a canvas.
+    if (window.AuteurStudioIncompleteLoad && window.AuteurStudioIncompleteLoad.length) return Promise.resolve();
     if (revisionReviewBridge) revisionReviewBridge.update(null, null);
     if (graphSelectionController) graphSelectionController.clear();
     if (creativePanel) creativePanel.reset();

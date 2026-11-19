@@ -1036,6 +1036,13 @@ class _RequestHandler(BaseHTTPRequestHandler):
         self._send_json(200, projection_to_dict(projection, workspace_id=workspace_id))
 
 
+class _StudioHTTPServer(ThreadingHTTPServer):
+    # One Studio page requests about twenty scripts and styles at once, and browsers open several connections
+    # per host. With the stdlib listen queue of 5, Windows refuses the overflow whenever accept is briefly busy,
+    # leaving a half-loaded page. A deeper queue only lets connections wait; request handling is unchanged.
+    request_queue_size = 128
+
+
 class BeginnerWorkspaceServer:
     def __init__(
         self,
@@ -1056,7 +1063,7 @@ class BeginnerWorkspaceServer:
                 "studio_development_default": studio_development_default,
             },
         )
-        self._httpd = ThreadingHTTPServer(("127.0.0.1", port), handler)
+        self._httpd = _StudioHTTPServer(("127.0.0.1", port), handler)
         self.port = int(self._httpd.server_address[1])
         self._thread: threading.Thread | None = None
 
