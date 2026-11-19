@@ -12,6 +12,7 @@
   state.selectedPhase = null; state.lastWorkingSelection = null;
   // The one writing task paused by a temporary inspection (presentation only; never prose).
   state.writingOrigin = null; state.pausedSceneMissing = null; state.writingReturnClick = null;
+  state.pauseAnnouncement = null;
   state.explanationArrival = null; state.explanationInspectRequested = false;
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
@@ -176,7 +177,10 @@
         remote.revision = doc.revision;
         remote.savedSnapshot = JSON.stringify(payload);
         state.deleted = doc.deleted || {}; showRecoveryAction();
-        if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
+        var saved = "Working canvas saved locally · revision " + remote.revision;
+        // The pause saves at once; keep its announcement and add the confirmation instead of replacing it.
+        if (!remote.failed) status($("status").textContent === state.pauseAnnouncement
+          ? state.pauseAnnouncement + " " + saved + "." : saved);
         renderWritingReturn();
       });
     }).catch(function (error) {
@@ -2521,7 +2525,8 @@
     if ($("scene-panel").hidden) return;
     var item = selected(), field = $("scene-text");
     if (item && item.kind === "scene") {
-      captureScene(); scheduleSave();
+      // A pause is a navigation boundary: save now, not when a re-armed typing debounce next fires.
+      captureScene(); clearTimeout(remote.timer); remote.timer = null; queueSave();
       state.writingOrigin = { sceneId: item.id, start: field.selectionStart || 0,
         end: field.selectionEnd || 0, direction: field.selectionDirection === "backward" ? "backward" : "forward",
         scrollTop: field.scrollTop || 0, expanded: $("scene-panel").classList.contains("expanded"),
@@ -2554,9 +2559,10 @@
   function announcePause(activity) {
     var scene = writingOriginScene();
     if (!scene) return;
-    status(remote.failed
-      ? "SAVE FAILED: “" + scene.title + "” is not saved; its text stays in this page. Export it before leaving."
-      : activity + ". Return to Writing resumes “" + scene.title + "” where you left off.");
+    state.pauseAnnouncement = remote.failed ? null
+      : activity + ". Return to Writing resumes “" + scene.title + "” where you left off.";
+    status(state.pauseAnnouncement ||
+      "SAVE FAILED: “" + scene.title + "” is not saved; its text stays in this page. Export it before leaving.");
   }
   function exploreArchitecture() {
     switchWorkspace("architecture");

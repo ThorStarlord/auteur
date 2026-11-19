@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import time
 
 import pytest
 from playwright.sync_api import sync_playwright
@@ -557,11 +558,11 @@ def test_only_durable_text_is_called_saved_and_rapid_round_trips_keep_one_origin
     try:
         start_writing(studio)
         page.keyboard.type(" tail")
-        page.get_by_role("button", name="Explore architecture").click()
         live = page.locator("#scene-text").input_value()
-        # Live-only edits are not announced as saved, and leaving is guarded until they are durable.
-        assert "saved locally" not in page.locator("#status").inner_text()
+        # While edits exist only in the page (typing debounce pending), leaving is guarded.
         assert page.evaluate(LEAVE_GUARDED) and scene_text(studio.store) != live
+        # A pause is a navigation boundary: the edit is saved then, and only then announced as saved.
+        page.get_by_role("button", name="Explore architecture").click()
         wait_for_persisted(page, studio.store, live)
         page.wait_for_function("document.querySelector('#status').textContent.includes('saved locally')")
         assert not page.evaluate(LEAVE_GUARDED)
@@ -575,9 +576,12 @@ def test_only_durable_text_is_called_saved_and_rapid_round_trips_keep_one_origin
             page.get_by_role("button", name="Return to Writing").click()
             assert page.locator("#writing-return").is_hidden()
         page.keyboard.type(" end")
+        page.get_by_role("button", name="Explore architecture").click()
         live = page.locator("#scene-text").input_value()
         assert " tail r0 r1 r2 r3 end. The fog" in live
+        # Each pause saved at its boundary, so the page can vanish now without a final debounce outstanding.
         wait_for_persisted(page, studio.store, live)
+        page.get_by_role("button", name="Return to Writing").click()
         saved_focus = page.evaluate("JSON.parse(localStorage.getItem('auteur:studio:focus:ferry-story'))")
         assert saved_focus["editorOpen"] and saved_focus["writing"] is None
 
@@ -592,7 +596,21 @@ def test_only_durable_text_is_called_saved_and_rapid_round_trips_keep_one_origin
             assert fresh.locator("#writing-return").is_hidden()
         finally:
             fresh.close()
+
+        # Rapid navigation, then an abrupt end that bypasses the leave guard (a crash or kill): the edit
+        # typed before the first pause was saved at that boundary, not left to a re-armed debounce.
+        page.keyboard.type(" last")
+        page.get_by_role("button", name="Explore architecture").click()
+        page.get_by_role("button", name="Return to Writing").click()
+        page.get_by_role("button", name="Explore architecture").click()
+        abrupt = page.locator("#scene-text").input_value()
         studio.assert_no_authority_or_generation()
+        page.close()
+        for _ in range(80):
+            if scene_text(studio.store) == abrupt:
+                break
+            time.sleep(0.1)
+        assert scene_text(studio.store) == abrupt
     finally:
         studio.close()
 
