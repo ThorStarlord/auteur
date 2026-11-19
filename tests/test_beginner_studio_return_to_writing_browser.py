@@ -102,14 +102,21 @@ def scene_text(store, item_id="scene-crossing"):
     return next(item.content for item in store.load().items if item.id == item_id)
 
 
-def wait_for_saved(page, store, expected):
-    # The store is the evidence; a pause announcement may replace an earlier "saved locally" status.
+def wait_for_persisted(page, store, expected):
+    # The store is the evidence; a pause announcement may already have replaced "saved locally".
     for _ in range(80):
         if scene_text(store) == expected:
             break
         page.wait_for_timeout(100)
     assert scene_text(store) == expected
     assert "SAVE FAILED" not in page.locator("#status").inner_text()
+
+
+def wait_for_saved(page, store, expected):
+    page.wait_for_function(
+        "document.querySelector('#status').textContent.includes('saved locally')"
+    )
+    wait_for_persisted(page, store, expected)
 
 
 class Studio:
@@ -241,8 +248,9 @@ def test_selecting_another_scene_inspects_it_until_its_editor_is_opened_explicit
         studio.close()
 
 
-def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(tmp_path, browser):
-    studio = Studio(browser, tmp_path, 1440, 900)
+@pytest.mark.parametrize("pause", ["inspect item", "explore architecture"])
+def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(tmp_path, browser, pause):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=pause == "explore architecture")
     page = studio.page
     try:
         page.get_by_role("button", name="Story Realization").click()
@@ -260,7 +268,11 @@ def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(t
         page.keyboard.type(" Unsaved line.")
         page.wait_for_function("document.querySelector('#status').textContent.includes('SAVE FAILED')")
 
-        page.locator('#nodes .node[data-item-id="char-mara"]').click()
+        if pause == "inspect item":
+            page.locator('#nodes .node[data-item-id="char-mara"]').click()
+        else:
+            page.get_by_role("button", name="Explore architecture").click()
+            follow_trope_from_genre(page)
         assert "SAVE FAILED" in page.locator("#status").inner_text()
         page.get_by_role("button", name="Return to Writing").click()
         assert page.locator("#scene-text").input_value() == OPENING + " Saved line. Unsaved line."
@@ -362,7 +374,7 @@ def test_architecture_investigation_follows_a_source_link_and_returns_to_the_sce
         bar = page.locator("#writing-return")
         assert bar.is_visible() and "The night crossing" in bar.inner_text()
         assert "Return to Writing resumes “The night crossing”" in page.locator("#status").inner_text()
-        wait_for_saved(page, studio.store, written)
+        wait_for_persisted(page, studio.store, written)
 
         follow_trope_from_genre(page)
         arrival = page.locator("#studio-semantic-arrival").inner_text()
@@ -431,7 +443,7 @@ def test_keyboard_narrow_focus_writing_investigation_restores_range_scroll_and_m
         assert page.locator("#scene-panel").is_hidden()
         assert page.evaluate("document.activeElement.dataset.architectureFacet") == "overview"
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
-        wait_for_saved(page, studio.store, written)
+        wait_for_persisted(page, studio.store, written)
 
         page.keyboard.press("Tab")
         page.keyboard.press("Tab")
@@ -470,20 +482,25 @@ def test_architecture_source_change_while_investigating_is_announced_and_writing
         page.get_by_role("button", name="Narrative Architecture").click()
         bar = page.locator("#writing-return")
         assert page.locator("#scene-panel").is_hidden() and bar.is_visible()
-        wait_for_saved(page, studio.store, written)
+        wait_for_persisted(page, studio.store, written)
         follow_trope_from_genre(page)
 
-        # Another session applies a revised working architecture whose trope has a similar title.
-        complete_working_architecture(studio.store, "The keeper who will not leave her post",
-                                      "Sharpen the keeper's refusal.")
+        # Another session applies a revised working architecture whose trope keeps its key and a similar title.
+        revised = "The keeper who will not leave her post"
+        complete_working_architecture(studio.store, revised, "Sharpen the keeper's refusal.")
         page.get_by_role("button", name="Check agent result").click()
         page.wait_for_function(
             "document.querySelector('#status').textContent.includes('Previous semantic source changed')"
         )
+        # The stale explanation is not swapped for its same-key successor: the overview is shown instead.
+        assert page.locator('[data-architecture-facet="overview"]').get_attribute("aria-pressed") == "true"
+        assert page.locator("#studio-explanatory-hero").is_hidden()
         assert page.locator("#studio-semantic-arrival").is_hidden()
         assert page.locator("#studio-semantic-trail").is_hidden()
-        assert TROPE not in page.locator("#studio-explanatory-hero").inner_text()
         assert bar.is_visible()
+        page.locator('[data-architecture-facet="tropes"]').click()
+        assert page.locator(".studio-explanation-title").inner_text() == revised
+        assert page.locator("#studio-semantic-arrival").is_hidden()
 
         page.reload()
         studio.wait_loaded()
@@ -493,6 +510,26 @@ def test_architecture_source_change_while_investigating_is_announced_and_writing
         assert page.locator("#scene-text").input_value() == written
         assert studio.selection() == [start, end, "scene-text"]
         assert scene_text(studio.store) == written
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
+def test_return_keeps_the_architecture_focus_chosen_for_realization(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        page.locator('#nodes .node.candidate[data-item-id="gothic_mystery"]').click()
+        page.get_by_role("button", name="Develop this in Story Realization").click()
+        focus = page.locator("#realization-focus-label")
+        assert page.locator("#workspace-realization").get_attribute("aria-pressed") == "true"
+        assert focus.inner_text() == f"Architecture focus: {GENRE}"
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == written
+        assert studio.selection() == [start, end, "scene-text"]
+        assert focus.inner_text() == f"Architecture focus: {GENRE}"
         studio.assert_no_authority_or_generation()
     finally:
         studio.close()

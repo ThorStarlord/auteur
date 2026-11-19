@@ -291,8 +291,12 @@
   }
   function applyArchitectureProjection(projection, openGraph) {
     if (state.architectureRequestSha && state.architectureRequestSha !== projection.candidate_request_sha256) {
-      if (state.facetHistory.length || state.facetSelection)
-        status("Previous semantic source changed; navigation history cleared. Working story remains unchanged.");
+      if (state.facetHistory.length || state.facetSelection) {
+        status("Previous semantic source changed; navigation history cleared and the overview shown. " +
+          "Working story remains unchanged.");
+        // Never present a same-key entry of the new source as the explanation the author was reading.
+        if (["genres", "tropes", "structure"].includes(state.architectureFacet)) state.architectureFacet = "overview";
+      }
       state.facetHistory = []; state.explanationArrival = null; state.explanationInspectRequested = false;
       state.unfoldingInspected = null; state.unfoldingOffset = 0;
       if (state.unfoldingFocus && state.unfoldingFocus.kind === "candidate") state.unfoldingFocus = null;
@@ -1658,7 +1662,7 @@
   }
   function switchWorkspace(next) {
     if (next === state.workspace) return;
-    var writing = next === "architecture" && !$("scene-panel").hidden;
+    var pausing = next === "architecture" && !$("scene-panel").hidden;
     if (next === "architecture") {
       // Investigating Architecture pauses the writing task; Return to Writing resumes it.
       pauseWriting();
@@ -1676,7 +1680,7 @@
     state.workspace = next;
     $("layer-view").value = state.view;
     render(); rememberFocus();
-    if (writing) announcePause("Exploring Narrative Architecture");
+    if (pausing) announcePause("Exploring Narrative Architecture");
   }
 
   // Read-only, source-scoped projections. No new trope/structure identity is created.
@@ -2547,8 +2551,8 @@
     // Leaving Architecture keeps its own exploration trail for a later visit.
     switchWorkspace("realization");
     var revealed = revealWorking(scene);
-    state.selected = scene.id; state.selectedDerived = null; state.selectedCandidate = null;
-    state.selectedRealization = null;
+    // Architecture's own selection (and any Realization focus taken from it) stays as the author left it.
+    state.selected = scene.id; state.selectedDerived = null; state.selectedRealization = null;
     render();
     var unchanged = origin.fingerprint === textFingerprint(scene.content);
     displayScene(unchanged ? origin.start : scene.content.length, origin.expanded);
@@ -2894,8 +2898,6 @@
   });
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
-    var investigating = ["architecture", "genre_timeline"].includes(this.value) && !$("scene-panel").hidden;
-    if (investigating) pauseWriting();
     state.view = this.value;
     state.workspace = ["architecture", "genre_timeline"].includes(state.view) ? "architecture" : "realization";
     if (state.workspace === "realization") state.lastRealizationView = state.view;
@@ -2903,7 +2905,6 @@
     if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
     else render();
     rememberFocus();
-    if (investigating) announcePause("Exploring Narrative Architecture");
   });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
