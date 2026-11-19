@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_architecture import (
     complete_architecture, project_architecture,
 )
@@ -118,7 +117,8 @@ def test_stress_packet_marks_hidden_tail_and_item_25(tmp_path):
     assert len(source["working_items"][0]["full_content_sha256"]) == 64
     assert "s2-stress-25" not in req["user"]
 
-    # Same-length changes outside the visible excerpt must invalidate the request.
+    # A same-length change outside the visible excerpt is never silently missed. Under owner
+    # decision A (#612) manuscript prose is downstream writing: it is reported, not invalidating.
     before = store.load()
     first = next(item for item in before.items if item.id == "s2-stress-01")
     new_text = first.content[:-1] + ("X" if first.content[-1] != "X" else "Y")
@@ -128,11 +128,10 @@ def test_stress_packet_marks_hidden_tail_and_item_25(tmp_path):
             "item": first.model_copy(update={"content": new_text}).model_dump(mode="json")
         },
     )
-    with pytest.raises(BeginnerConcurrencyError, match="source vision or working story changed"):
-        complete_architecture(
-            store, _respond({"request": req}, _architecture_candidate()),
-        )
-    assert project_architecture(store)["candidate"] is None
+    completed = complete_architecture(store, _respond({"request": req}, _architecture_candidate()))
+    assert completed["status"] == "ready"
+    assert completed["downstream_changed"] is True
+    assert completed["changed_sources"] == []
 
 
 def test_c1_is_delayed_and_working_review_can_reach_realization(tmp_path):

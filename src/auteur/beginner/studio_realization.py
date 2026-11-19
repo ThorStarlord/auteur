@@ -21,7 +21,8 @@ from auteur.host_agent import (
 from .persistence import BeginnerConcurrencyError, _FilesystemLock
 from .studio_store import CanvasStore
 from .studio_architecture import (
-    _candidate as architecture_current, _current_candidate_is_stale, _digest, _read, _source,
+    _candidate as architecture_current, _current_candidate_is_stale, _dependency_parts, _digest, _read,
+    _recorded_scene_ids, _source,
 )
 from .studio_architecture_graph_intent import GraphAnchor, resolve_anchors
 
@@ -182,6 +183,37 @@ def _source_snapshot(
     return result
 
 
+def _dependencies(
+    store: CanvasStore, focus_ids: list[str], previous: dict | None, anchors: list[dict] | None,
+    source_scene_ids: list[str] | None = None,
+) -> dict[str, str]:
+    """Freshness format 3: the Architecture baseline, request scope and governing sources only.
+
+    Copying a proposal into the working canvas or writing scene prose is downstream
+    development of this candidate and never makes it stale.
+    """
+    architecture = architecture_current(store)
+    if not architecture:
+        raise ValueError("develop Narrative Architecture before generating Story Realization")
+    components, _ = _dependency_parts(store, source_scene_ids)
+    return {"architecture": architecture["request_sha256"],
+            "scope": _digest({"focus_ids": focus_ids, "previous": previous, "anchors": anchors}),
+            **components}
+
+
+def _dependencies_changed(
+    store: CanvasStore, settings: dict, source: dict, previous: dict | None,
+) -> list[str]:
+    """Names of the recorded dependencies that changed; empty when the candidate is fresh."""
+    recorded = settings["dependency_components"]
+    try:
+        now = _dependencies(store, source["focus_ids"], previous, source.get("creative_anchors"),
+                            _recorded_scene_ids(recorded))
+    except ValueError:
+        return ["architecture"]
+    return [name for name, digest in recorded.items() if now.get(name) != digest]
+
+
 def _source_format(original: dict) -> int:
     """Honor the source projection used when a prior agent request was staged."""
     return 2 if original.get("working_source_format") == 2 else 1
@@ -220,25 +252,33 @@ def project_realization(store: CanvasStore) -> dict:
         request = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(request and (not current or current["request_sha256"] != request.request_sha256))
     review = _read(_root(store) / "requests" / request.request_sha256 / "review.json") if pending else None
-    stale = False
+    stale, changed = False, []
     if current and not pending:
         source_request = load_host_agent_request(
             _root(store) / "requests" / current["request_sha256"] / "request.json"
         )
         original = json.loads(source_request.user)["source"]
-        try:
-            latest = _source_snapshot(
-                store, original["focus_ids"], original["previous_realization"],
-                source_format=_source_format(original),
-                anchors=original.get("creative_anchors"),
+        if source_request.settings.get("freshness_format") == 3:
+            changed = _dependencies_changed(
+                store, source_request.settings, original, original["previous_realization"],
             )
-            stale = _digest(latest) != current["source_sha256"]
-        except ValueError:
-            stale = True
+            stale = bool(changed)
+        else:
+            try:
+                latest = _source_snapshot(
+                    store, original["focus_ids"], original["previous_realization"],
+                    source_format=_source_format(original),
+                    anchors=original.get("creative_anchors"),
+                )
+                stale = _digest(latest) != current["source_sha256"]
+            except ValueError:
+                stale = True
     return {
         "status": "review_ready" if review else "awaiting_host_agent" if pending
                   else "stale" if stale else "ready" if current else "not_started",
         "request": request.model_dump() if pending and not review else None,
+        # Format 3 only: which recorded dependency made the candidate stale.
+        "changed_sources": changed,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
         # The exact Architecture response the current candidate was built on, for adoption provenance.
@@ -277,6 +317,10 @@ def prepare_realization(
             candidate_id="realization-" + _digest({"source": sha, "user": user})[:24],
             role="studio_realization", system=_SYSTEM, user=user,
             settings={"canvas_id": store.canvas_id, "source_sha256": sha,
+                      "freshness_format": 3,
+                      "dependency_components": _dependencies(
+                          store, context["focus_ids"], previous, context.get("creative_anchors"),
+                      ),
                       "operation": "revise" if instruction.strip() else "develop"},
         )
         path = _root(store)
@@ -324,9 +368,16 @@ def complete_realization(store: CanvasStore, payload: dict) -> dict:
             source_format=_source_format(original_source),
             anchors=original_source.get("creative_anchors"),
         )
-        if _digest(source) != request.settings["source_sha256"]:
+        changed = (_dependencies_changed(store, request.settings, original_source, previous)
+                   if request.settings.get("freshness_format") == 3
+                   else ["working_story"] if _digest(source) != request.settings["source_sha256"] else [])
+        if changed:
             write_host_agent_response(base / "stale_response.json", response)
-            raise BeginnerConcurrencyError("Story Vision or architecture changed; stale realization retained")
+            raise BeginnerConcurrencyError(
+                "Story Vision or architecture changed; stale realization retained"
+                if changed == ["working_story"] else
+                "a source this realization depends on changed (" + ", ".join(changed) + "); stale realization retained"
+            )
         _assert_refs(proposal, source)
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
@@ -362,11 +413,13 @@ def apply_realization_review(store: CanvasStore, request_sha256: str) -> dict:
             raise BeginnerConcurrencyError("realization baseline changed; review again")
         request = load_host_agent_request(_root(store) / "requests" / request_sha256 / "request.json")
         source = json.loads(request.user)["source"]
-        if _digest(_source_snapshot(
-            store, source["focus_ids"], current["candidate"],
-            source_format=_source_format(source),
-            anchors=source.get("creative_anchors"),
-        )) != request.settings["source_sha256"]:
+        if (_dependencies_changed(store, request.settings, source, current["candidate"])
+                if request.settings.get("freshness_format") == 3
+                else _digest(_source_snapshot(
+                    store, source["focus_ids"], current["candidate"],
+                    source_format=_source_format(source),
+                    anchors=source.get("creative_anchors"),
+                )) != request.settings["source_sha256"]):
             raise BeginnerConcurrencyError("architecture or working source changed; review again")
         _atomic_json_write(_root(store) / "current.json", {
             "request_sha256": request_sha256, "source_sha256": review["source_sha256"],

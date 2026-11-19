@@ -430,7 +430,11 @@
       : projection.status === "guidance_changed"
       ? "Narrative design guidance changed; review or regenerate. Your Story Vision is unchanged."
       : projection.status === "stale"
-      ? "Working architecture is outdated relative to your Story Vision. Regenerate or revise before developing concrete story material."
+      ? "Working architecture is outdated: " + changedSourcesText(projection.changed_sources) +
+        " changed since it was developed. Regenerate or revise before developing concrete story material."
+      : projection.status === "ready" && projection.downstream_changed
+      ? "Agent proposal ready · working, not accepted story. Your scenes or copied story material changed since " +
+        "it was developed; that does not make it outdated. Revise it if your writing changes the story's direction."
       : projection.status === "ready" ? "Agent proposal ready · working, not accepted story."
       : "Describe a vision and ask the coding agent to develop the architecture.";
     updateArchitectureScopes();
@@ -557,6 +561,21 @@
   function realizationUrl() {
     return "/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/realization";
   }
+  // Names the governing dependency that changed; a legacy request records only "working_story".
+  function changedSourcesText(changed) {
+    var names = (changed || []).map(function (name) {
+      if (name === "story_vision") return "your Story Vision";
+      if (name === "accepted_identity") return "your accepted story identity";
+      if (name === "working_sources") return "your working ideas that guide it";
+      if (name === "architecture") return "the working architecture";
+      if (name.indexOf("scene:") === 0) {
+        var scene = state.items.find(function (item) { return item.id === name.slice(6); });
+        return scene ? "the scene “" + scene.title + "” it was built from" : "a scene it was built from (now deleted)";
+      }
+      return "your Story Vision or working material";
+    });
+    return names.length ? names.join(", ") : "your Story Vision or working material";
+  }
   function realizationElement(id) {
     return state.realization && state.realization.elements.find(function (element) { return element.id === id; });
   }
@@ -595,7 +614,7 @@
       : projection.status === "awaiting_host_agent"
       ? "Awaiting the coding agent. No concrete story material has been accepted."
       : projection.status === "stale"
-      ? "This concrete proposal is stale relative to the current creative sources."
+      ? "This concrete proposal is stale: " + changedSourcesText(projection.changed_sources) + " changed since it was developed."
       : projection.status === "ready"
       ? "Working concrete story proposal ready. Not accepted."
       : "Develop concrete characters, locations, plots or events from the architecture.";

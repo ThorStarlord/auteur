@@ -466,6 +466,114 @@ def _intention_fingerprint(store: CanvasStore) -> str:
     return _digest(_creative_intentions(store))
 
 
+_REALIZATION_COPY_KIND = "realization_element"
+# A scene's manuscript and Quick Draft fields are downstream writing (owner decision A, #612);
+# its identity (existence, kind, title, group, role) is what an architecture can depend on.
+_SCENE_MANUSCRIPT_FIELDS = ("content", "scene_premise", "scene_intent", "quick_draft_session_id")
+
+
+def _dependency_parts(
+    store: CanvasStore, source_scene_ids: list[str] | None = None,
+) -> tuple[dict[str, str], str]:
+    """Freshness format 3: digest each governing dependency separately so staleness can name it.
+
+    Governing: the Story Vision, accepted Identity, the author's own working notes,
+    characters, places and questions with the connections among them, and the identity of
+    each author scene the request was built from (``source_scene_ids``; ``None`` means every
+    current author scene). Downstream, reported but never invalidating: every scene's
+    manuscript and drafting fields, items copied from a Story Realization proposal, scenes
+    created after the request, and connections touching them.
+    Agent-proposed provisional concepts and continuing intentions keep their own handling.
+    """
+    canvas = store.load()
+    governing, scenes, downstream = [], {}, []
+    for item in canvas.items:
+        if (item.id == "story-vision" or item.group == _PROVISIONAL_CONCEPT_GROUP
+                or item.intention_status is not None):
+            continue
+        origin = item.proposal_origin
+        if origin is not None and origin.source_kind == _REALIZATION_COPY_KIND:
+            downstream.append(item.model_dump(mode="json"))
+        elif item.kind == "scene":
+            scenes[item.id] = {"kind": item.kind, "title": item.title, "group": item.group,
+                               "architecture_role": item.architecture_role}
+            downstream.append({"id": item.id, **{field: getattr(item, field) for field in _SCENE_MANUSCRIPT_FIELDS}})
+        else:
+            governing.append({"id": item.id, "kind": item.kind, "title": item.title, "group": item.group,
+                              "content": item.content, "architecture_role": item.architecture_role})
+    recorded = sorted(scenes) if source_scene_ids is None else source_scene_ids
+    downstream.extend({"id": scene_id, **view} for scene_id, view in scenes.items() if scene_id not in recorded)
+    governing_ids = {entry["id"] for entry in governing} | set(recorded)
+    edges = [{"source": edge.source, "target": edge.target, "label": edge.label} for edge in canvas.connections]
+    vision = next((item.content for item in canvas.items if item.id == "story-vision"), "")
+    components = {
+        "story_vision": _digest(vision),
+        "accepted_identity": _digest(_accepted_story_design_context(store)),
+        "working_sources": _digest({"items": governing, "connections": [
+            edge for edge in edges if edge["source"] in governing_ids and edge["target"] in governing_ids
+        ]}),
+        **{"scene:" + scene_id: _digest(scenes.get(scene_id)) for scene_id in recorded},
+    }
+    return components, _digest({"items": downstream, "connections": [
+        edge for edge in edges if edge["source"] not in governing_ids or edge["target"] not in governing_ids
+    ]})
+
+
+def _dependency_settings(store: CanvasStore) -> dict:
+    components, downstream = _dependency_parts(store)
+    return {
+        "freshness_format": 3,
+        "source_sha256": _digest(components),
+        "source_components": components,
+        "downstream_sha256": downstream,
+    }
+
+
+def _recorded_scene_ids(components: dict[str, str]) -> list[str]:
+    return [name.removeprefix("scene:") for name in components if name.startswith("scene:")]
+
+
+def _changed_dependencies(store: CanvasStore, settings: dict, request_user: str) -> list[str]:
+    """Author-governed sources changed since a request was prepared, in its own recorded format."""
+    if settings.get("freshness_format") == 3:
+        recorded = settings["source_components"]
+        now, _ = _dependency_parts(store, _recorded_scene_ids(recorded))
+        return [name for name, digest in recorded.items() if now.get(name) != digest]
+    if settings.get("freshness_format") == 2:
+        changed = _author_source_fingerprint(store, json.loads(request_user)) != settings["source_sha256"]
+    else:
+        changed = _source_fingerprint(store, request_user) != settings["source_sha256"]
+    return ["working_story"] if changed else []
+
+
+def _downstream_changed(store: CanvasStore, settings: dict) -> bool:
+    """Writing and copied proposals since the request: worth reconsidering, never invalidating."""
+    if settings.get("freshness_format") != 3:
+        return False
+    return _dependency_parts(store, _recorded_scene_ids(settings["source_components"]))[1] != (
+        settings["downstream_sha256"]
+    )
+
+
+def _guidance_changed(store: CanvasStore, settings: dict, request_user: str, expected: str | None = None) -> bool:
+    if settings.get("freshness_format") not in (2, 3):
+        return False
+    expected = expected or settings.get("design_guidance_sha256")
+    user = json.loads(request_user)
+    return bool(expected) and _digest(
+        _design_context_parts(store, _user_working_context(store, user))[1]
+    ) != expected
+
+
+def _stale_message(changed: list[str]) -> str:
+    names = {"story_vision": "Story Vision", "accepted_identity": "accepted story identity",
+             "working_sources": "working ideas that guide the architecture"}
+    labels = sorted({names.get(name, "a source scene" if name.startswith("scene:") else "working story")
+                     for name in changed})
+    return ("the author's source vision or working story changed (" + ", ".join(labels)
+            + "); response retained as stale evidence")
+
+
 def _author_working_context(working: dict) -> dict:
     """Strip agent-proposed provisional notes and continuing intentions from the author-source fingerprint."""
     filtered = dict(working)
@@ -684,6 +792,9 @@ omitted_working_* counts to distinguish visible evidence from missing text.
 Working items in group "provisional-concepts" are project-scoped agent proposals,
 not shared ontology definitions and not author commitments. Reuse them for this
 story provisionally; never present them as accepted general vocabulary.
+Working items listed in realization_copy_item_ids were copied by the author from
+Story Realization proposals built on an earlier architecture. They are downstream
+development, not new architectural direction, unless the revision instruction says so.
 creative_intentions are the author's own continuing creative directions. They are
 working and noncanonical: active and provisional intentions direct the current
 design work, while superseded and withdrawn intentions are history and must not be
@@ -831,25 +942,22 @@ All material is a noncanonical proposal; never accept Identity, Structure or pro
 
 
 
-def _current_candidate_freshness(store: CanvasStore, current: dict) -> str:
-    """Distinguish author-source change from an interpretive-guidance change."""
+def _candidate_freshness(store: CanvasStore, current: dict) -> dict:
+    """Distinguish governing-source change from guidance change and from downstream writing."""
     request = load_host_agent_request(
         _root(store) / "requests" / current["request_sha256"] / "request.json"
     )
     settings = request.settings
-    if settings.get("freshness_format") == 2:
-        user = json.loads(request.user)
-        if _author_source_fingerprint(store, user) != current["source_sha256"]:
-            return "stale"
-        expected_guidance = current.get(
-            "design_guidance_sha256", settings.get("design_guidance_sha256"),
-        )
-        if expected_guidance and _digest(_design_context_parts(
-            store, _user_working_context(store, user),
-        )[1]) != expected_guidance:
-            return "guidance_changed"
-        return "ready"
-    return "stale" if _source_fingerprint(store, request.user) != current["source_sha256"] else "ready"
+    changed = _changed_dependencies(store, settings, request.user)
+    if changed:
+        return {"status": "stale", "changed_sources": changed}
+    if _guidance_changed(store, settings, request.user, current.get("design_guidance_sha256")):
+        return {"status": "guidance_changed"}
+    return {"status": "ready", "downstream_changed": _downstream_changed(store, settings)}
+
+
+def _current_candidate_freshness(store: CanvasStore, current: dict) -> str:
+    return _candidate_freshness(store, current)["status"]
 
 
 def _current_candidate_is_stale(store: CanvasStore, current: dict | None) -> bool:
@@ -869,16 +977,21 @@ def project_architecture(store: CanvasStore) -> dict:
         req = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
     pending = bool(req and (not current or current["request_sha256"] != req.request_sha256))
     review = _read(_root(store) / "requests" / req.request_sha256 / "review.json") if pending else None
+    freshness = {}
     if review:
         status = "review_ready"
     elif pending:
         status = "awaiting_host_agent"
     elif current:
-        status = _current_candidate_freshness(store, current)
+        freshness = _candidate_freshness(store, current)
+        status = freshness["status"]
     else:
         status = "not_started"
     return {
         "status": status,
+        # Which governing dependency made the candidate stale, and whether downstream writing changed since.
+        "changed_sources": freshness.get("changed_sources", []),
+        "downstream_changed": freshness.get("downstream_changed", False),
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
@@ -1354,22 +1467,21 @@ def prepare_architecture(
         context = _source(store, previous=previous)
         if not context["vision"].strip() and not context["working_items"]:
             raise ValueError("write a Story Vision or a working idea first")
-        accepted, guidance, design_context = _design_context_parts(store, context)
-        source_sha = _digest({
-            "working_context": _author_working_context(context),
-            "accepted_story_identity": accepted,
-        })
-        guidance_sha = _digest(guidance)
+        _, guidance, design_context = _design_context_parts(store, context)
         settings = {
             "canvas_id": store.canvas_id,
-            "source_sha256": source_sha,
-            "design_guidance_sha256": guidance_sha,
+            **_dependency_settings(store),
+            "design_guidance_sha256": _digest(guidance),
             "intention_sha256": _intention_fingerprint(store),
-            "freshness_format": 2,
             "operation": "revise" if instruction.strip() else "develop",
         }
+        copied = [
+            item.id for item in store.load().items
+            if item.proposal_origin is not None and item.proposal_origin.source_kind == _REALIZATION_COPY_KIND
+        ]
         user = json.dumps({
-            "freshness_format": 2,
+            "freshness_format": 3,
+            **({"realization_copy_item_ids": copied} if copied else {}),
             "working_context": context,
             "narrative_design_context": design_context,
             "revision_instruction": instruction,
@@ -1489,23 +1601,14 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         submitted = json.loads(request.user)
         instruction = submitted["revision_instruction"]
         settings = request.settings
-        if settings.get("freshness_format") == 2:
-            user = json.loads(request.user)
-            author_changed = _author_source_fingerprint(store, user) != settings["source_sha256"]
-            guidance_changed = (
-                _digest(_design_context_parts(
-                    store, _user_working_context(store, user),
-                )[1]) != settings["design_guidance_sha256"]
-            )
-        else:
-            author_changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
-            guidance_changed = False
+        author_changed = _changed_dependencies(store, settings, request.user)
         if author_changed:
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
+                _stale_message(author_changed) if settings.get("freshness_format") == 3 else
                 "the author's source vision or working story changed; response retained as stale evidence"
             )
-        if guidance_changed:
+        if _guidance_changed(store, settings, request.user):
             write_host_agent_response(base / "stale_response.json", response)
             raise BeginnerConcurrencyError(
                 "the narrative design guidance changed; response retained as stale evidence"
@@ -1532,7 +1635,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         }
         if submitted.get("collaboration"):
             record["collaboration"] = submitted["collaboration"]
-        if settings.get("freshness_format") == 2:
+        if settings.get("freshness_format") in (2, 3):
             record["design_guidance_sha256"] = settings["design_guidance_sha256"]
         if instruction.strip():
             record.update(build_architecture_review(
@@ -1571,22 +1674,20 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
             settings = request.settings
-            if settings.get("freshness_format") == 2:
-                user = json.loads(request.user)
-                changed = (
-                    _author_source_fingerprint(store, user) != settings["source_sha256"]
-                    or _digest(_design_context_parts(
-                        store, _user_working_context(store, user),
-                    )[1]) != settings["design_guidance_sha256"]
-                    or (
-                        settings.get("intention_sha256")
-                        and _intention_fingerprint(store) != settings["intention_sha256"]
-                    )
+            changed = bool(
+                _changed_dependencies(store, settings, request.user)
+                or _guidance_changed(store, settings, request.user)
+                or (
+                    settings.get("freshness_format") in (2, 3) and settings.get("intention_sha256")
+                    and _intention_fingerprint(store) != settings["intention_sha256"]
                 )
-            else:
-                changed = _source_fingerprint(store, request.user) != settings["source_sha256"]
+            )
             if changed:
+                named = _changed_dependencies(store, settings, request.user)
                 raise BeginnerConcurrencyError(
+                    "working context changed: " + _stale_message(named).replace(
+                        "; response retained as stale evidence", "; review again")
+                    if settings.get("freshness_format") == 3 and named else
                     "working context changed: story vision, intentions or design context changed; review again"
                 )
             record = {

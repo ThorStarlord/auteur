@@ -128,7 +128,8 @@ def test_manuscript_first_realization_marks_partial_source_without_inventing_tex
     assert "working_source_format" not in legacy
     assert "content_is_excerpt" not in legacy["working_items"][0]
 
-    # Editing unseen prose must invalidate the pending request, not become canon.
+    # Editing unseen prose is manuscript drafting (owner decision A, #612): it no longer invalidates
+    # the pending request, and the completed candidate stays a working proposal, never canon.
     prior = store.load()
     item = next(item for item in prior.items if item.id == "frozen-scene")
     updated = item.model_copy(update={"content": text[:-1] + "y"})
@@ -136,8 +137,18 @@ def test_manuscript_first_realization_marks_partial_source_without_inventing_tex
         "update-item", expected_revision=prior.revision, command_id="change-tail",
         payload={"item": updated.model_dump(mode="json")},
     )
-    with pytest.raises(BeginnerConcurrencyError, match="stale realization"):
-        complete_realization(store, respond(prepared, candidate()))
+    completed = complete_realization(store, respond(prepared, candidate()))
+    assert completed["status"] == "ready"
+    assert completed["changed_sources"] == []
+    # A governing change while pending still rejects it.
+    again = prepare_realization(store, ["growth"])
+    vision = next(item for item in store.load().items if item.id == "story-vision")
+    store.apply(
+        "update-item", expected_revision=store.load().revision, command_id="change-vision",
+        payload={"item": vision.model_copy(update={"content": vision.content + " Revised."}).model_dump(mode="json")},
+    )
+    with pytest.raises(BeginnerConcurrencyError, match=r"stale realization retained"):
+        complete_realization(store, respond(again, candidate()))
     assert not (tmp_path / "story_identity.yaml").exists()
     assert not (tmp_path / "blueprint.yaml").exists()
 
