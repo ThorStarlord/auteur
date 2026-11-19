@@ -7,6 +7,7 @@ import time
 import pytest
 from playwright.sync_api import sync_playwright
 
+from auteur.beginner.persistence import BeginnerPersistenceError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture,
@@ -100,6 +101,12 @@ def seeded_store(root):
 
 
 def scene_text(store, item_id="scene-crossing"):
+    # On Windows, reading canvas.json while the server atomically replaces it can fail transiently.
+    for _ in range(20):
+        try:
+            return next(item.content for item in store.load().items if item.id == item_id)
+        except BeginnerPersistenceError:
+            time.sleep(0.05)
     return next(item.content for item in store.load().items if item.id == item_id)
 
 
