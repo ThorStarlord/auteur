@@ -281,6 +281,7 @@ def test_rejected_save_keeps_live_text_and_never_reports_success_across_return(t
         page.get_by_role("button", name="Retry saving").click()
         page.wait_for_function("document.querySelector('#status').textContent.includes('Cannot retry safely')")
         assert "Not saved" in page.locator("#writing-return").inner_text()
+        assert page.evaluate(LEAVE_GUARDED)
         page.get_by_role("button", name="Return to Writing").click()
         assert page.locator("#scene-text").input_value() == OPENING + " Saved line. Unsaved line."
         assert "SAVE FAILED" in page.locator("#status").inner_text()
@@ -570,8 +571,9 @@ def test_only_durable_text_is_called_saved_and_rapid_round_trips_keep_one_origin
         for n in range(4):
             page.keyboard.type(f" r{n}")
             page.get_by_role("button", name="Explore architecture").click()
-            assert page.locator("#writing-return").count() == 1
+            assert page.locator("#writing-return-title").inner_text() == "“The night crossing”"
             page.get_by_role("button", name="Return to Writing").click()
+            assert page.locator("#writing-return").is_hidden()
         page.keyboard.type(" end")
         live = page.locator("#scene-text").input_value()
         assert " tail r0 r1 r2 r3 end. The fog" in live
@@ -610,8 +612,11 @@ def test_full_width_writing_covers_the_page_so_scrolled_controls_never_show_or_t
         follow_trope_from_genre(page)
         page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
         assert page.evaluate("window.scrollY") > 100
-        page.get_by_role("button", name="Return to Writing").click()
+        page.get_by_role("button", name="Return to Writing").focus()
+        page.keyboard.press("Enter")
         assert page.evaluate(COVERED_BY_EDITOR) == [True, True, True, True]
+        assert page.locator("#status").get_attribute("aria-live") == "polite"
+        assert "Returned to writing" in page.locator("#status").inner_text()
         assert studio.selection() == [start, end, "scene-text"]
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
         studio.assert_no_authority_or_generation()
@@ -633,6 +638,10 @@ def test_double_clicked_return_resumes_once_and_keeps_the_prose_focused(tmp_path
         assert studio.selection() == [start, end, "scene-text"]
         page.keyboard.type("X")
         assert page.locator("#scene-text").input_value() == written[:start] + "X" + written[end:]
+        # Only the continuation of that double-click is absorbed: selecting a word right after still works.
+        page.locator("#scene-text").dblclick(position={"x": 60, "y": 30})
+        selected = page.evaluate("(t => t.selectionEnd - t.selectionStart)(document.querySelector('#scene-text'))")
+        assert selected > 0  # an absorbed double-click would leave only the first click's caret
         studio.assert_no_authority_or_generation()
     finally:
         studio.close()
@@ -681,6 +690,75 @@ def test_read_only_book_overview_pauses_writing_instead_of_dropping_it(tmp_path,
         studio.close()
 
 
+def test_transient_save_failure_is_reported_and_an_explicit_retry_confirms_the_text(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        start_writing(studio)
+        # The next save never reaches the server (a dropped local connection); the store stays untouched.
+        page.route("**/commands/replace-working-document", lambda route: route.abort(), times=1)
+        page.keyboard.type(" kept")
+        page.wait_for_function("document.querySelector('#status').textContent.includes('SAVE FAILED')")
+        live = page.locator("#scene-text").input_value()
+        page.get_by_role("button", name="Explore architecture").click()
+        assert "Not saved" in page.locator("#writing-return").inner_text()
+        assert page.evaluate(LEAVE_GUARDED) and " kept" not in scene_text(studio.store)
+        page.get_by_role("button", name="Retry saving").focus()
+        page.keyboard.press("Enter")
+        wait_for_persisted(page, studio.store, live)
+        page.wait_for_function("document.querySelector('#status').textContent.includes('saved locally')")
+        assert "keeps your text" in page.locator("#writing-return").inner_text()
+        assert not page.evaluate(LEAVE_GUARDED)
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == live
+    finally:
+        studio.close()
+
+
+def test_native_undo_survives_a_pause_but_never_restores_text_changed_meanwhile(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        written, _, _ = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        follow_trope_from_genre(page)
+        page.get_by_role("button", name="Return to Writing").click()
+        page.keyboard.press("Control+z")
+        assert page.locator("#scene-text").input_value() == OPENING  # the typed insertion is undone
+        # Text changed while paused replaces the history: undo cannot bring back the superseded prose.
+        page.locator('#nodes .node[data-item-id="char-mara"]').click()
+        page.locator('#nodes .node[data-item-id="scene-crossing"]').click()
+        page.locator("#content").fill("Rewritten while paused.")
+        page.get_by_role("button", name="Return to Writing").click()
+        page.keyboard.press("Control+z")
+        assert page.locator("#scene-text").input_value() == "Rewritten while paused."
+    finally:
+        studio.close()
+
+
+def test_unavailable_architecture_shows_no_substitute_and_writing_still_returns(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        written, start, end = start_writing(studio)
+        page.get_by_role("button", name="Explore architecture").click()
+        follow_trope_from_genre(page)
+        # The working architecture becomes unavailable (removed from the project) while it is being read.
+        (tmp_path / ".auteur/beginner/studio/canvases" / CANVAS / "architecture/current.json").unlink()
+        page.get_by_role("button", name="Check agent result").click()
+        page.wait_for_function(
+            "document.querySelector('#status').textContent.includes('Previous semantic source changed')"
+        )
+        assert page.locator("#studio-semantic-arrival").is_hidden()
+        assert TROPE not in page.locator("main").inner_text()
+        page.get_by_role("button", name="Return to Writing").click()
+        assert page.locator("#scene-text").input_value() == written
+        assert studio.selection() == [start, end, "scene-text"]
+        studio.assert_no_authority_or_generation()
+    finally:
+        studio.close()
+
+
 def test_paused_scene_removed_elsewhere_is_announced_and_recoverable(tmp_path, browser):
     studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
     page = studio.page
@@ -694,11 +772,12 @@ def test_paused_scene_removed_elsewhere_is_announced_and_recoverable(tmp_path, b
         studio.wait_loaded()
         assert "The scene you paused was removed" in page.locator("#status").inner_text()
         assert page.locator("#writing-return").is_hidden()
+        # Recoverable through the existing removed-items journal; no origin outlives its scene.
+        page.get_by_role("button", name="Story Realization").click()
         page.get_by_role("button", name="Restore removed idea").click()
-        page.locator("#writing-return").wait_for()
-        page.get_by_role("button", name="Return to Writing").click()
+        page.get_by_role("button", name="Open scene editor").click()
+        assert page.locator("#scene-heading").inner_text() == "The night crossing"
         assert page.locator("#scene-text").input_value() == written
-        assert studio.selection() == [start, end, "scene-text"]
         wait_for_persisted(page, studio.store, written)
     finally:
         studio.close()

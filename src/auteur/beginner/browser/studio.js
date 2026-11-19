@@ -7,10 +7,11 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
+  // Architecture response a restored explanation selection belongs to (browser-local focus record).
+  state.restoredArchitectureSha = null;
   state.selectedPhase = null; state.lastWorkingSelection = null;
   // The one writing task paused by a temporary inspection (presentation only; never prose).
-  state.writingOrigin = null; state.pausedSceneMissing = false; state.restoredFacetSource = null;
-  state.writingReturnedAt = -Infinity;
+  state.writingOrigin = null; state.pausedSceneMissing = null; state.writingReturnClick = null;
   state.explanationArrival = null; state.explanationInspectRequested = false;
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
@@ -176,6 +177,7 @@
         remote.savedSnapshot = JSON.stringify(payload);
         state.deleted = doc.deleted || {}; showRecoveryAction();
         if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
+        renderWritingReturn();
       });
     }).catch(function (error) {
       remote.failed = true;
@@ -204,7 +206,7 @@
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
         // The exact response an explanation selection belongs to, so re-entry never reads it against another.
-        source: state.architectureRequestSha || state.restoredFacetSource || null,
+        source: state.architectureRequestSha || state.restoredArchitectureSha || null,
         unfoldingFocus: state.unfoldingFocus,
         fullDisplay: state.fullArchitectureDisplay, fullGenre: state.fullArchitectureGenre,
         phase: state.selectedPhase, search: $("find-nodes").value,
@@ -230,7 +232,12 @@
     state.architectureFacet = facets.includes(saved.facet) ? saved.facet :
       (state.view === "genre_timeline" ? "timeline" : "overview");
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
-    state.restoredFacetSource = typeof saved.source === "string" ? saved.source : null;
+    state.restoredArchitectureSha = typeof saved.source === "string" ? saved.source : null;
+    // A selection recorded without its source cannot be checked, so reopen at the overview, never a guess.
+    if (state.facetSelection && !state.restoredArchitectureSha &&
+        ["genres", "tropes", "structure"].includes(state.architectureFacet)) {
+      state.facetSelection = null; state.architectureFacet = "overview";
+    }
     state.unfoldingFocus = saved.unfoldingFocus && ["working","candidate"].includes(saved.unfoldingFocus.kind) &&
       typeof saved.unfoldingFocus.id === "string" ? saved.unfoldingFocus : null;
     state.fullArchitectureDisplay = ["focus","full","review"].includes(saved.fullDisplay) ? saved.fullDisplay : "focus";
@@ -243,11 +250,11 @@
     state.lastWorkingSelection = state.selected;
     var paused = !saved.editorOpen && saved.writing, pausedId = paused && typeof paused.sceneId === "string" && paused.sceneId;
     var present = !!pausedId && state.items.some(function (item) { return item.id === pausedId && item.kind === "scene"; });
-    // A paused scene removed elsewhere stays recoverable: restoring it from the journal brings Return to Writing back.
-    var removed = !!pausedId && !present && !!state.deleted[pausedId] && !!state.deleted[pausedId].item &&
-      state.deleted[pausedId].item.kind === "scene";
-    state.pausedSceneMissing = !!pausedId && !present;
-    state.writingOrigin = (present || removed) &&
+    // A paused scene removed elsewhere is announced, not silently forgotten; no origin outlives its scene.
+    var tombstone = pausedId && !present ? state.deleted[pausedId] : null;
+    state.pausedSceneMissing = !pausedId || present ? null
+      : tombstone && tombstone.item && tombstone.item.kind === "scene" ? "removed" : "gone";
+    state.writingOrigin = present &&
       Number.isInteger(paused.start) && Number.isInteger(paused.end) && paused.start >= 0 && paused.end >= paused.start
       ? { sceneId: paused.sceneId, start: paused.start, end: paused.end,
           direction: paused.direction === "backward" ? "backward" : "forward",
@@ -299,8 +306,8 @@
     return Math.max(3, Math.min(7, Math.ceil(Math.sqrt(count * 1.5))));
   }
   function applyArchitectureProjection(projection, openGraph) {
-    var previousSource = state.architectureRequestSha || state.restoredFacetSource;
-    state.restoredFacetSource = null;
+    var previousSource = state.architectureRequestSha || state.restoredArchitectureSha;
+    state.restoredArchitectureSha = null;
     if (previousSource && previousSource !== projection.candidate_request_sha256) {
       if (state.facetHistory.length || state.facetSelection) {
         status("Previous semantic source changed; navigation history cleared and the overview shown. " +
@@ -693,7 +700,7 @@
     state.candidatePositions = {}; state.selectedCandidate = null;
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
     state.realizationPositions = {}; state.selectedRealization = null; state.writingOrigin = null;
-    state.pausedSceneMissing = false;
+    state.pausedSceneMissing = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "architecture"; state.workspace = "architecture"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -713,9 +720,11 @@
     }
     loadArchitecture();
     loadRealization();
-    status("Working canvas loaded · saved locally · revision " + remote.revision + (!state.pausedSceneMissing ? ""
-      : state.writingOrigin ? ". The scene you paused was removed; Restore removed idea can bring it back."
-      : ". The scene you paused is no longer on this canvas; nothing else was changed."));
+    var missing = {
+      removed: ". The scene you paused was removed; Restore removed idea can bring it back, then reopen it.",
+      gone: ". The scene you paused is no longer on this canvas; nothing else was changed."
+    }[state.pausedSceneMissing] || "";
+    status("Working canvas loaded · saved locally · revision " + remote.revision + missing);
   }
   function hasUnsavedChanges() {
     return remote.ready &&
@@ -857,7 +866,7 @@
       return fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson);
     }).then(function (doc) {
       if (doc.revision !== remote.revision) {
-        remote.failed = true; $("retry-save").hidden = false; showRecoveryAction();
+        remote.failed = true; $("retry-save").hidden = false; showRecoveryAction(); renderWritingReturn();
         throw new Error("Another tab changed this canvas. Export current notes; recovery cannot overwrite the new version.");
       }
       var deletedIds = Object.keys(doc.deleted || {});
@@ -885,7 +894,7 @@
     if (!remote.ready) { window.location.reload(); return; }
     fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson).then(function (doc) {
       if (doc.revision !== remote.revision) throw new Error("Another tab changed this canvas. Export your notes; do not overwrite newer content.");
-      remote.failed = false; $("retry-save").hidden = true; renderWritingReturn(); queueSave();
+      remote.failed = false; $("retry-save").hidden = true; queueSave();
     }).catch(function (error) { status("Cannot retry safely: " + error.message); });
   }
   var svgNS = "http://www.w3.org/2000/svg";
@@ -2560,7 +2569,7 @@
     $("layer-view").value = "create"; $("find-nodes").value = "";
     return " Showing all working ideas so “" + item.title + "” is visible.";
   }
-  function returnToWriting() {
+  function returnToWriting(event) {
     var origin = state.writingOrigin, scene = writingOriginScene();
     if (!scene) {
       state.writingOrigin = null; renderWritingReturn(); rememberFocus();
@@ -2575,7 +2584,7 @@
     render();
     var unchanged = origin.fingerprint === textFingerprint(scene.content);
     displayScene(unchanged ? origin.start : scene.content.length, origin.expanded);
-    state.writingReturnedAt = performance.now();
+    state.writingReturnClick = event && event.detail ? { x: event.clientX, y: event.clientY, at: performance.now() } : null;
     var field = $("scene-text");
     if (unchanged) {
       field.setSelectionRange(origin.start, origin.end, origin.direction);
@@ -2937,10 +2946,13 @@
   $("close-scene").addEventListener("click", sceneSave);
   $("return-to-writing").addEventListener("click", returnToWriting);
   // A double-clicked Return to Writing must not hand its second click to the editor that replaced it,
-  // where it would blur the restored prose or press an editor button such as Return to canvas.
+  // where it would blur the restored prose or press an editor button such as Return to canvas. Only that
+  // continuation is absorbed: a multi-click at the same spot within the platform double-click interval.
   ["mousedown", "click"].forEach(function (type) {
     $("scene-panel").addEventListener(type, function (event) {
-      if (event.detail > 1 && performance.now() - state.writingReturnedAt < 1000) {
+      var origin = state.writingReturnClick;
+      if (origin && event.detail > 1 && performance.now() - origin.at < 600 &&
+          Math.abs(event.clientX - origin.x) < 6 && Math.abs(event.clientY - origin.y) < 6) {
         event.preventDefault(); event.stopPropagation();
       }
     }, true);
