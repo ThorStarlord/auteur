@@ -351,7 +351,15 @@
         <nav id="scene-connections" class="scene-connections" hidden aria-labelledby="scene-connections-label">
           <span id="scene-connections-label" class="scene-connections-label">Connected on your canvas</span>
           <ul id="scene-connection-list"></ul>
-        </nav></div>
+        </nav>
+        <section id="scene-proposal" class="scene-proposal" hidden aria-labelledby="scene-proposal-label">
+          <h3 id="scene-proposal-label" class="scene-connections-label">From an agent proposal · not accepted story</h3>
+          <p id="scene-proposal-notice" class="muted" role="status"></p>
+          <div class="scene-proposal-group"><span class="scene-connections-label">Related in Architecture</span>
+            <ul id="scene-architecture-refs"></ul></div>
+          <div class="scene-proposal-group"><span class="scene-connections-label">Relationships the proposal suggested</span>
+            <ul id="scene-suggested-relationships"></ul></div>
+        </section></div>
       <p>Exploratory text only. Nothing here becomes accepted story material automatically.</p>
       <label for="scene-premise">Working story premise (required only for generation)</label>
       <textarea id="scene-premise" rows="3" maxlength="4000" placeholder="What is this story about?"></textarea>
