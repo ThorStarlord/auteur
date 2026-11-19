@@ -784,6 +784,8 @@
     });
   }
   function activateCanvas(canvasId) {
+    // An incompletely loaded page (reported by studio.html) must never open, and so never save, a canvas.
+    if (window.AuteurStudioIncompleteLoad && window.AuteurStudioIncompleteLoad.length) return Promise.resolve();
     if (revisionReviewBridge) revisionReviewBridge.update(null, null);
     if (graphSelectionController) graphSelectionController.clear();
     if (creativePanel) creativePanel.reset();
@@ -829,8 +831,6 @@
     });
   }
   function openRemote() {
-    // An incompletely loaded page (reported by studio.html) must not open or save the canvas.
-    if (window.AuteurStudioIncompleteLoad && window.AuteurStudioIncompleteLoad.length) return;
     var canvas = new URLSearchParams(window.location.search).get("canvas");
     if (canvas) {
       if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(canvas)) {

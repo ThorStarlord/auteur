@@ -53,7 +53,7 @@ def test_a_refused_studio_script_is_reported_instead_of_a_silent_half_loaded_can
         assert "Reload" in page.locator("#status").inner_text()
         page.wait_for_timeout(500)
         assert "did not load completely" in page.locator("#status").inner_text()
-        assert not any("replace-working-document" in url for url in writes)
+        assert writes == []  # the canvas is neither opened nor saved
     finally:
         page.close()
         server.stop()
