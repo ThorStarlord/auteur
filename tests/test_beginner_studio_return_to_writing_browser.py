@@ -698,6 +698,25 @@ def test_reentry_after_the_architecture_changed_never_reopens_a_similar_explanat
         studio.close()
 
 
+def test_explanation_recorded_without_its_source_reopens_at_the_overview(tmp_path, browser):
+    studio = Studio(browser, tmp_path, 1440, 900, architecture=True)
+    page = studio.page
+    try:
+        page.get_by_role("button", name="Narrative Architecture").click()
+        follow_trope_from_genre(page)
+        # A focus record written before #605 carries the selection but not the response it belongs to.
+        page.evaluate("""() => { const key = 'auteur:studio:focus:ferry-story';
+            const saved = JSON.parse(localStorage.getItem(key)); delete saved.source;
+            localStorage.setItem(key, JSON.stringify(saved)); }""")
+        page.reload()
+        studio.wait_loaded()
+        assert page.locator('[data-architecture-facet="overview"]').get_attribute("aria-pressed") == "true"
+        assert page.locator("#studio-explanatory-hero").is_hidden()
+        assert studio.errors == []
+    finally:
+        studio.close()
+
+
 def test_read_only_book_overview_pauses_writing_instead_of_dropping_it(tmp_path, browser):
     studio = Studio(browser, tmp_path, 1440, 900)
     page = studio.page
