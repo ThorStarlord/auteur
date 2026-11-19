@@ -140,7 +140,8 @@ def _select_working_sources(canvas, *, focus_id: str, focus_kind: str, author_re
 
     def kept_for_focus(item) -> bool:
         origin = item.proposal_origin
-        return bool(origin and origin.focus_id == focus_id)
+        # A Realization copy's focus_id names its proposal element, not an architecture focus.
+        return bool(origin and origin.source_kind != "realization_element" and origin.focus_id == focus_id)
 
     ranked = []
     for index, item in enumerate(items):

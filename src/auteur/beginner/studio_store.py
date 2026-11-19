@@ -8,9 +8,9 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from .persistence import (
     BeginnerConcurrencyError,
@@ -39,15 +39,39 @@ class ProposalOrigin(BaseModel):
     source_ref: str = Field(min_length=1, max_length=300, pattern=r"^[a-zA-Z0-9_./:-]+$")
     source_kind: Literal[
         "architecture_proposal", "genre_contract", "proposal_edge", "phase",
-        "host_agent_suggestion", "creative_alternative"
+        "host_agent_suggestion", "creative_alternative", "realization_element"
     ]
     focus_id: str = Field(min_length=1, max_length=120, pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$")
+    # Realization adoption only. request_sha is the Story Realization request, focus_id its element;
+    # these record the Architecture response it was built on, the nodes it cited, and its freshness at copy.
+    architecture_request_sha: str | None = Field(
+        default=None, min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$",
+    )
+    architecture_refs: list[Annotated[str, Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")]] | None = Field(
+        default=None, min_length=1, max_length=12,
+    )
+    stale_at_adoption: bool | None = None
 
     @model_validator(mode="after")
     def valid_source_ref(self) -> "ProposalOrigin":
         if any(segment in {".", ".."} for segment in self.source_ref.split("/")):
             raise ValueError("proposal source path traversal is not allowed")
+        realization = (self.architecture_request_sha, self.architecture_refs, self.stale_at_adoption)
+        if self.source_kind == "realization_element":
+            if None in realization or self.source_ref != "realization/elements/" + self.focus_id:
+                raise ValueError("a Realization origin records its element, Architecture source and freshness")
+        elif realization != (None, None, None):
+            raise ValueError("Architecture source fields belong only to a Realization origin")
         return self
+
+    @model_serializer(mode="wrap")
+    def _omit_unused(self, handler):
+        # Origins without Realization fields serialize exactly as before, keeping recorded digests stable.
+        data = handler(self)
+        for key in ("architecture_request_sha", "architecture_refs", "stale_at_adoption"):
+            if data.get(key) is None:
+                data.pop(key, None)
+        return data
 
 
 

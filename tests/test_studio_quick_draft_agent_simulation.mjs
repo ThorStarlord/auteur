@@ -34,7 +34,8 @@ function simulatedAuthor(vision = "Each storm renews the town's promise to care 
   const state = {
     items: [{id: 'story-vision', kind: 'note', title: 'Story Vision', content: vision}],
     positions: {}, selected: null, selectedRealization: scene.id,
-    realizationRequestSha: 'a'.repeat(64), view: 'realization_candidates',
+    realizationRequestSha: 'a'.repeat(64), realizationArchitectureSha: 'c'.repeat(64),
+    view: 'realization_candidates', deleted: {},
   };
   const remote = {ready: true, failed: false};
   const posts = [], notices = [];
@@ -87,10 +88,17 @@ test('simulated author copies focused scene, edits inputs, explicitly requests Q
   const f = simulatedAuthor();
   const item = f.copy();
   assert.equal(item.scene_intent, 'Neighbors decide which repairs should be made before nightfall.');
-  assert.match(item.content, /Architecture refs: reciprocal_care/);
+  // Provenance is structured; the manuscript starts empty (#611).
+  assert.equal(item.content, '');
+  assert.deepEqual(item.proposal_origin, {
+    request_sha: 'a'.repeat(64), source_ref: 'realization/elements/assembly_scene',
+    source_kind: 'realization_element', focus_id: 'assembly_scene',
+    architecture_request_sha: 'c'.repeat(64), architecture_refs: ['reciprocal_care'],
+    stale_at_adoption: false,
+  });
   assert.equal(f.posts.length, 0);
   f.click('use-scene-as-intent');
-  assert.match(f.$('generation-status').textContent, /provenance footer/);
+  assert.match(f.$('generation-status').textContent, /Write some scene notes first/);
   assert.equal(f.$('scene-intent').value, item.scene_intent);
   f.handlers.generateScene();
   assert.match(f.$('generation-status').textContent, /premise and a scene intent/);
@@ -142,11 +150,39 @@ test('simulated stale Realization can be copied without hiding its stale source'
   assert.equal(copied.scene_intent,
     'Neighbors decide which repairs should be made before nightfall.');
   assert.equal(f.state.items.length, 2);
-  assert.match(copied.content, /Source freshness at copy: STALE relative to current creative materials/);
-  assert.match(copied.content, /Origin: working realization [a-f0-9]{64}\/assembly_scene\. Not accepted story\.$/);
+  assert.equal(copied.content, '');
+  assert.equal(copied.proposal_origin.stale_at_adoption, true);
   assert.match(f.notices.at(-1), /Source is STALE relative to current creative materials/);
+  assert.equal(f.posts.length, 0);
+});
+
+test('copying the same proposal again selects the existing working copy', () => {
+  const f = simulatedAuthor();
+  const first = f.copy();
+  f.state.selectedRealization = 'assembly_scene';
+  f.handlers.copyRealization();
+  assert.equal(f.state.items.filter(x => x.kind === 'scene').length, 1);
+  assert.equal(f.state.selected, first.id);
+  assert.match(f.notices.at(-1), /Already copied/);
+});
+
+test('a copy without the proposal source identity is refused', () => {
+  const f = simulatedAuthor();
+  f.state.realizationArchitectureSha = null;
+  f.handlers.copyRealization();
+  assert.equal(f.state.items.length, 1);
+  assert.match(f.notices.at(-1), /source identity is unavailable/);
+});
+
+test('a legacy copied scene with a provenance footer is still not sent as intent', () => {
+  const f = simulatedAuthor();
+  const item = f.copy();
+  // Historical copies kept their footer in the manuscript; it is author data and stays.
+  item.group = 'Story Realization';
+  f.$('scene-text').value = 'Neighbors decide.\n\nArchitecture refs: reciprocal_care' +
+    '\nOrigin: working realization ' + 'a'.repeat(64) + '/assembly_scene. Not accepted story.';
   f.click('use-scene-as-intent');
   assert.match(f.$('generation-status').textContent, /provenance footer/);
-  assert.equal(f.$('scene-intent').value, copied.scene_intent);
+  assert.equal(f.$('scene-intent').value, item.scene_intent);
   assert.equal(f.posts.length, 0);
 });
