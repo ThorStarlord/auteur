@@ -882,6 +882,15 @@
       if (state.items.some(function (item) { return item.id === itemId; })) {
         throw new Error("Working item already exists. No recovery performed.");
       }
+      var origin = tombstone.item.proposal_origin;
+      var twin = origin && state.items.find(function (item) {
+        var o = item.proposal_origin;
+        return o && o.request_sha === origin.request_sha && o.source_ref === origin.source_ref &&
+          o.focus_id === origin.focus_id;
+      });
+      if (twin) {
+        throw new Error("“" + twin.title + "” is already a working copy of the same proposal. No recovery performed.");
+      }
       state.items.push(tombstone.item);
       state.positions[itemId] = tombstone.position;
       (tombstone.connections || []).forEach(function (edge) {
@@ -1642,9 +1651,6 @@
       state.view = "create"; state.lastRealizationView = "create"; $("layer-view").value = state.view;
       state.selectedRealization = null; state.selected = existing.id; render(); rememberFocus();
       status("Already copied as “" + existing.title + "”. Showing your working copy; nothing duplicated."); return;
-    }
-    if (Object.keys(state.deleted).some(function (key) { return sameOrigin(state.deleted[key].item); })) {
-      status("Your copy of this proposal was deleted. Restore it instead; nothing duplicated."); return;
     }
     if (!state.realizationRequestSha || !state.realizationArchitectureSha) {
       status("This proposal's source identity is unavailable. Nothing was copied."); return;

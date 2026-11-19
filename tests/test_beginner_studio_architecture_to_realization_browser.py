@@ -269,6 +269,10 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         page.locator("#workspace-realization").click()
         page.locator("#layer-view").select_option("realization_candidates")
         page.locator('#nodes .node.realization[data-item-id="assembly_scene"]').click()
+        # Leaving the open editor saves it first; let that save settle before copying.
+        page.wait_for_function(
+            'document.querySelector("#status").textContent.includes("Working canvas saved locally")'
+        )
         page.locator("#realization-copy").click()
         assert "Already copied" in page.locator("#status").inner_text()
         assert [item.title for item in store.load().items].count("Assembly after the storm") == 1
@@ -397,6 +401,67 @@ def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
         assert not (tmp_path / "story_identity.yaml").exists()
         assert not (tmp_path / "blueprint.yaml").exists()
         assert not (tmp_path / "chapters").exists()
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+
+
+def test_legacy_footer_is_kept_and_a_duplicate_copy_is_never_restored(tmp_path, browser):
+    """A historical footer stays author data; restoring a twin copy is refused, not a failed save (#611)."""
+    store = store_with_architecture(tmp_path, "legacy-copy")
+    pending = prepare_realization(store, ["allocation_engine"])
+    request = HostAgentRequest(**pending["request"])
+    proposal = {
+        "schema_version": 1, "summary": "A provisional scene.",
+        "elements": [{"id": "assembly", "kind": "scene", "title": "Assembly",
+                      "description": "Neighbors decide.", "architecture_refs": ["allocation_engine"]}],
+        "links": [], "architecture_feedback": [], "open_questions": [],
+    }
+    complete_realization(store, build_host_agent_response(
+        request, json.dumps(proposal), runtime="browser-test", model="fixture").model_dump())
+    footer = ("Neighbors decide.\n\nArchitecture refs: allocation_engine\nOrigin: working realization "
+              + request.request_sha256 + "/assembly. Not accepted story.")
+    store.apply("create-item", expected_revision=store.load().revision, command_id="legacy", payload={
+        "item": {"id": "legacy", "kind": "scene", "title": "Old copy", "group": "Story Realization",
+                 "content": footer, "scene_intent": "Neighbors decide."},
+        "position": {"x": 300, "y": 300}})
+    server = BeginnerWorkspaceServer(tmp_path, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    saved = 'document.querySelector("#status").textContent.includes("saved locally")'
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas=legacy-copy")
+        page.wait_for_function('!document.querySelector("#canvas-picker").disabled')
+        page.locator("#workspace-realization").click()
+        page.locator('#nodes .node[data-item-id="legacy"]').click()
+        page.locator("#write").click()
+        assert page.locator("#scene-text").input_value() == footer
+        page.locator("#use-scene-as-intent").click()
+        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        page.locator("#save-scene").click()
+        page.wait_for_function(saved)
+        assert next(item for item in store.load().items if item.id == "legacy").content == footer
+
+        def copy_proposal():
+            page.locator("#layer-view").select_option("realization_candidates")
+            page.locator('#nodes .node.realization[data-item-id="assembly"]').click()
+            page.locator("#realization-copy").click()
+            page.wait_for_function(saved)
+
+        copy_proposal()
+        page.once("dialog", lambda dialog: dialog.accept())
+        page.get_by_role("button", name="Remove working item").click()
+        page.wait_for_function('!document.querySelector("#restore-deleted").hidden')
+        copy_proposal()
+        page.locator("#restore-deleted").click()
+        page.wait_for_function('document.querySelector("#status").textContent.includes("Recovery unavailable")')
+        assert "already a working copy of the same proposal" in page.locator("#status").inner_text()
+        assert page.locator("#retry-save").is_hidden()
+        copies = [item for item in store.load().items
+                  if item.proposal_origin and item.proposal_origin.focus_id == "assembly"]
+        assert len(copies) == 1
     finally:
         page.close()
         server.stop()
