@@ -570,6 +570,7 @@
     state.realizationStale = projection.status === "stale";
     state.realizationReview = projection.review || null;
     state.realizationRequestSha = projection.candidate_request_sha256;
+    state.realizationArchitectureSha = projection.candidate_architecture_request_sha256 || null;
     state.realizationPositions = {};
     if (state.realization) state.realization.elements.forEach(function (element, i, all) {
       var cols = layoutColumns(all.length);
@@ -1631,18 +1632,36 @@
   function copyRealization() {
     var source = realizationElement(state.selectedRealization);
     if (!source || !remote.ready || remote.failed) return;
+    var sameOrigin = function (entry) {
+      var o = entry.proposal_origin;
+      return o && o.source_kind === "realization_element" &&
+        o.request_sha === state.realizationRequestSha && o.focus_id === source.id;
+    };
+    var existing = state.items.find(sameOrigin);
+    if (existing) {
+      state.view = "create"; state.lastRealizationView = "create"; $("layer-view").value = state.view;
+      state.selectedRealization = null; state.selected = existing.id; render(); rememberFocus();
+      status("Already copied as “" + existing.title + "”. Showing your working copy; nothing duplicated."); return;
+    }
+    if (Object.keys(state.deleted).some(function (key) { return sameOrigin(state.deleted[key].item); })) {
+      status("Your copy of this proposal was deleted. Restore it instead; nothing duplicated."); return;
+    }
+    if (!state.realizationRequestSha || !state.realizationArchitectureSha) {
+      status("This proposal's source identity is unavailable. Nothing was copied."); return;
+    }
     if (state.items.length >= 200) { status("Working canvas item limit reached."); return; }
     var kind = source.kind === "location" ? "place" :
       ["character", "scene"].includes(source.kind) ? source.kind : "note";
-    var item = {id:id("item"), kind:kind, title:source.title,
-      group:"Story Realization", content:source.description +
-      "\n\nArchitecture refs: " + source.architecture_refs.join(", ") +
-      (state.realizationStale ? "\nSource freshness at copy: STALE relative to current creative materials." : "") +
-      "\nOrigin: working realization " + (state.realizationRequestSha || "unknown") +
-      "/" + source.id + ". Not accepted story."};
-    // Copy the concrete scene's proposal text into editable generation intent,
-    // not its provenance annotation. Quick Draft still requires an explicit
-    // author-reviewed premise and a separate request action.
+    // Provenance is structured, never written into the author's text. A scene's
+    // manuscript starts empty: the proposal stays editable generation intent, and
+    // Quick Draft still requires an author-reviewed premise and a separate request.
+    var item = {id:id("item"), kind:kind, title:source.title, group:"Story Realization",
+      content: kind === "scene" ? "" : source.description,
+      proposal_origin: {request_sha: state.realizationRequestSha,
+        source_ref: "realization/elements/" + source.id, source_kind: "realization_element",
+        focus_id: source.id, architecture_request_sha: state.realizationArchitectureSha,
+        architecture_refs: source.architecture_refs.slice(0, 12),
+        stale_at_adoption: !!state.realizationStale}};
     if (kind === "scene") item.scene_intent = source.description;
     state.items.push(item); state.positions[item.id] = availablePosition();
     state.selected = item.id; state.selectedRealization = null;
@@ -1650,7 +1669,7 @@
     $("layer-view").value = state.view;
     render(); queueSave(); rememberFocus();
     var copyStatus = kind === "scene"
-      ? "Copied a proposed scene with editable intent. Review its source, choose a premise and explicitly request Quick Draft; nothing accepted."
+      ? "Copied a proposed scene with editable intent and an empty manuscript. Review its source, choose a premise and explicitly request Quick Draft; nothing accepted."
       : "Copied to editable working ideas without accepting any story facts.";
     if (state.realizationStale) {
       copyStatus += " Source is STALE relative to current creative materials; check it before relying on the copied idea.";

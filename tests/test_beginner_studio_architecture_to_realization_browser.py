@@ -192,16 +192,26 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         page.locator("#write").click()
 
         # The model's concrete proposal stays editable and working only.
-        # The generation intent must never contain appended provenance labels.
+        # Provenance is structured (#611): the manuscript starts empty, and the
+        # proposal text is editable generation intent without provenance labels.
         assert page.locator("#scene-intent").input_value() == scene
         assert page.locator("#scene-premise").input_value() == ""
-        assert "Architecture refs: allocation_engine" in page.locator("#scene-text").input_value()
-        assert "Architecture refs:" not in page.locator("#scene-intent").input_value()
-        # Reusing notes must not silently place machine provenance in a model prompt.
+        assert page.locator("#scene-text").input_value() == ""
         page.locator("#use-scene-as-intent").click()
-        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        assert "Write some scene notes first" in page.locator("#generation-status").inner_text()
         assert page.locator("#scene-intent").input_value() == scene
         assert quick_draft_requests == []
+        copied_origin = next(
+            item for item in store.load().items if item.title == "Assembly after the storm"
+        ).proposal_origin
+        assert copied_origin.model_dump(mode="json") == {
+            "request_sha": pending["request"]["request_sha256"],
+            "source_ref": "realization/elements/assembly_scene",
+            "source_kind": "realization_element", "focus_id": "assembly_scene",
+            "architecture_request_sha": json.loads(pending["request"]["user"])["source"][
+                "architecture_request_sha256"],
+            "architecture_refs": ["allocation_engine"], "stale_at_adoption": False,
+        }
 
         # Premise is NOT inferred from a Story Vision that might only describe mood.
         page.locator("#generate-scene").click()
@@ -243,6 +253,7 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         assert copied[0].scene_premise == authored_premise
         assert copied[0].scene_intent == authored_scene
         assert copied[0].quick_draft_session_id
+        assert copied[0].proposal_origin == copied_origin
         assert not (tmp_path / "story_identity.yaml").exists()
         assert not (tmp_path / "blueprint.yaml").exists()
         assert not (tmp_path / "chapters").exists()
@@ -253,6 +264,14 @@ def test_realization_scene_carries_editable_intent_to_quick_draft(tmp_path, brow
         assert page.locator("#scene-premise").input_value() == authored_premise
         assert page.locator("#scene-intent").input_value() == authored_scene
         assert page.locator("#refresh-draft").is_visible()
+
+        # Copying the same proposal again after re-entry selects the working copy.
+        page.locator("#workspace-realization").click()
+        page.locator("#layer-view").select_option("realization_candidates")
+        page.locator('#nodes .node.realization[data-item-id="assembly_scene"]').click()
+        page.locator("#realization-copy").click()
+        assert "Already copied" in page.locator("#status").inner_text()
+        assert [item.title for item in store.load().items].count("Assembly after the storm") == 1
     finally:
         page.close()
         server.stop()
@@ -358,13 +377,10 @@ def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
         page.locator('#nodes .node.realization[data-item-id="stale_assembly"]').click()
         assert "stale" in page.locator("#realization-status").inner_text().lower()
         page.locator("#realization-copy").click()
+        assert "Source is STALE" in page.locator("#status").inner_text()
         page.locator("#write").click()
-        notes = page.locator("#scene-text").input_value()
-        assert "Source freshness at copy: STALE relative to current creative materials." in notes
-        assert "Origin: working realization" in notes
-        assert page.locator("#scene-intent").input_value() == scene
-        page.locator("#use-scene-as-intent").click()
-        assert "provenance footer" in page.locator("#generation-status").inner_text()
+        # The stale source is recorded structurally (#611), never in the manuscript.
+        assert page.locator("#scene-text").input_value() == ""
         assert page.locator("#scene-intent").input_value() == scene
         page.locator("#save-scene").click()
         page.wait_for_function(
@@ -374,7 +390,9 @@ def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
         stored = store.load()
         copies = [item for item in stored.items if item.title == "An old proposed assembly"]
         assert len(copies) == 1
-        assert "Source freshness at copy: STALE" in copies[0].content
+        assert copies[0].content == ""
+        assert copies[0].proposal_origin.stale_at_adoption is True
+        assert copies[0].proposal_origin.focus_id == "stale_assembly"
         assert copies[0].scene_intent == scene
         assert not (tmp_path / "story_identity.yaml").exists()
         assert not (tmp_path / "blueprint.yaml").exists()

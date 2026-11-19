@@ -201,6 +201,13 @@ def _diff(old: dict, new: dict) -> dict:
     return result
 
 
+def _built_on_architecture(store: CanvasStore, current: dict | None) -> str | None:
+    if not current:
+        return None
+    request = load_host_agent_request(_root(store) / "requests" / current["request_sha256"] / "request.json")
+    return json.loads(request.user)["source"]["architecture_request_sha256"]
+
+
 def project_realization(store: CanvasStore) -> dict:
     store.load()
     pointer = _read(_root(store) / "latest_request.json")
@@ -234,6 +241,8 @@ def project_realization(store: CanvasStore) -> dict:
         "request": request.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
+        # The exact Architecture response the current candidate was built on, for adoption provenance.
+        "candidate_architecture_request_sha256": _built_on_architecture(store, current),
         "review": review,
     }
 
