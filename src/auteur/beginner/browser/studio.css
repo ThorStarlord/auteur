@@ -106,6 +106,32 @@ body.scene-docked #inspector { display:none; }
 .scene-panel.expanded { left:0; right:0; width:100%; border-left:none; }
 .scene-top { position:sticky; top:0; background:#f8f5ee; z-index:1; padding:4px 0; }
 .scene-top-actions { display:flex; gap:8px; }
+/* Return to Writing: a paused scene stays named above any inspection; connected items open from the editor. */
+.writing-return { position:sticky; top:-16px; z-index:2; margin:-16px -16px 4px; padding:12px 16px; display:grid; gap:6px; background:#f8f5ee; border-bottom:1px solid #e3dccb; border-left:4px solid #d9b67c; }
+.writing-return p { margin:0; }
+.writing-return-kicker { display:block; font-size:.72rem; font-weight:650; letter-spacing:.06em; text-transform:uppercase; color:#865b24; }
+.writing-return-title { display:block; font:1.02rem/1.35 Georgia,serif; color:#292922; overflow-wrap:anywhere; }
+.writing-return-hint { font-size:.78rem; color:#665e54; }
+#return-to-writing { justify-self:start; min-height:40px; padding:8px 14px; background:#305e41; border-color:#305e41; color:#fff; font-weight:600; }
+#return-to-writing:hover { background:#264d35; }
+/* The writing surface stays above canvas tool menus, which otherwise float over a full-width editor. */
+.scene-panel { z-index:7; }
+.scene-top { flex-wrap:wrap; }
+.scene-connections { flex-basis:100%; min-width:0; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin:2px 0 6px; }
+.scene-connections-label { font-size:.78rem; color:#665e54; }
+.scene-connections ul { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px; }
+.scene-connection { display:inline-flex; align-items:baseline; gap:6px; min-height:36px; padding:6px 11px; border-radius:999px; border:1px solid #bfc9c2; background:#fff; font-size:.82rem; text-align:left; }
+.scene-connection[data-kind="character"] { border-color:#bba4d6; background:#f9f5ff; }
+.scene-connection[data-kind="scene"] { border-color:#d9b67c; background:#fff9ee; }
+.scene-connection[data-kind="place"] { border-color:#98b7b2; background:#f4faf9; }
+.scene-connection[data-kind="question"] { border-color:#c8a1a1; background:#fff5f5; }
+.scene-connection-title { font-weight:600; overflow-wrap:anywhere; }
+.scene-connection-why { font-size:.74rem; color:#68665e; }
+@media (max-width:900px) {
+  .scene-connections { gap:4px 8px; }
+  .scene-connection { min-height:32px; padding:4px 9px; font-size:.78rem; gap:5px; }
+}
+.visually-hidden { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 #scene-text { min-height:38vh; }
 #use-scene-as-intent { margin-bottom:8px; }
 @media (max-width:900px) { body.scene-docked .studio { margin-right:0; } .scene-panel { left:0; right:0; width:100%; border-left:0; } }

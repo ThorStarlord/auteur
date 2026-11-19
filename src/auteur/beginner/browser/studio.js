@@ -8,6 +8,8 @@
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
   state.selectedPhase = null; state.lastWorkingSelection = null;
+  // The one writing task paused by a temporary inspection (presentation only; never prose).
+  state.writingOrigin = null;
   state.explanationArrival = null; state.explanationInspectRequested = false;
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
@@ -203,7 +205,7 @@
         fullDisplay: state.fullArchitectureDisplay, fullGenre: state.fullArchitectureGenre,
         phase: state.selectedPhase, search: $("find-nodes").value,
         editorOpen: open, expanded: open && $("scene-panel").classList.contains("expanded"),
-        caret: field.selectionStart || 0
+        caret: field.selectionStart || 0, writing: open ? null : state.writingOrigin
       }));
     } catch (error) { status("Your canvas is saved; this browser cannot remember the current focus: " + error.message); }
   }
@@ -234,6 +236,15 @@
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
     state.lastWorkingSelection = state.selected;
+    var paused = saved.writing;
+    state.writingOrigin = !saved.editorOpen && paused && typeof paused.sceneId === "string" &&
+      state.items.some(function (item) { return item.id === paused.sceneId && item.kind === "scene"; }) &&
+      Number.isInteger(paused.start) && Number.isInteger(paused.end) && paused.start >= 0 && paused.end >= paused.start
+      ? { sceneId: paused.sceneId, start: paused.start, end: paused.end,
+          direction: paused.direction === "backward" ? "backward" : "forward",
+          scrollTop: Math.max(0, Number(paused.scrollTop) || 0), expanded: paused.expanded === true,
+          fingerprint: typeof paused.fingerprint === "string" ? paused.fingerprint : null }
+      : null;
     if (["create", "relationships", "all"].includes(state.view) && !visibleWorking(selected())) {
       state.view = "create"; state.focusGroup = "";
     }
@@ -666,7 +677,7 @@
     state.selectedPhase = null;
     state.candidatePositions = {}; state.selectedCandidate = null;
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
-    state.realizationPositions = {}; state.selectedRealization = null;
+    state.realizationPositions = {}; state.selectedRealization = null; state.writingOrigin = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "architecture"; state.workspace = "architecture"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -1014,7 +1025,7 @@
   function newItem(kind) {
     if (!remote.ready || remote.failed) { status("Cannot edit while local canvas is unavailable. Export your notes if needed."); return; }
     if (state.items.length >= 200) { status("The working canvas has reached its 200-item safety bound."); return; }
-    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    pauseWriting();
     var pos = availablePosition();
     var item = { id: id("item"), kind: kind, title: kind === "note" ? "New idea" : "New " + kind,
       content: "", group: state.focusGroup };
@@ -1173,7 +1184,7 @@
       }).catch(function (error) { status("Impact preview unavailable: " + error.message); });
   }
   function chooseDerived(nodeId) {
-    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    pauseWriting();
     state.selected = null; state.selectedDerived = nodeId; state.selectedCandidate = null;
     var chapterButton = $("book-open-chapter");
     var selectedNode = state.derived && state.derived.nodes.find(function (node) { return node.id === nodeId; });
@@ -1387,6 +1398,7 @@
     });
   }
   function renderInspector() {
+    renderWritingReturn();
     var source = state.workspace === "realization" && state.derived &&
       state.derived.nodes.find(function (n) { return n.id === state.selectedDerived; });
     if (source && (!visibleDerived(source) || !matches(source))) source = null;
@@ -1568,19 +1580,24 @@
       row.append(summary, remove); list.appendChild(row);
     });
   }
+  // Selecting another item while writing is a temporary inspection: it pauses the
+  // writing task (offering Return to Writing) and never swaps the editor's scene.
   function choose(itemId) {
     var writing = !$("scene-panel").hidden;
-    if (writing) { captureScene(); scheduleSave(); }
+    if (writing && itemId === state.selected) { $("scene-text").focus(); return; }
+    if (writing) pauseWriting();
     state.selected = itemId; state.selectedDerived = null; state.selectedCandidate = null;
     Array.prototype.forEach.call(document.querySelectorAll(".node"), function (node) {
       node.setAttribute("aria-pressed", String(node.dataset.itemId === itemId));
     });
     renderInspector();
-    if (writing) {
-      if (selected() && selected().kind === "scene") displayScene();
-      else concealScene();
-    }
     rememberFocus();
+    var pausedScene = writing && writingOriginScene();
+    if (pausedScene && selected()) {
+      status(remote.failed
+        ? "SAVE FAILED: “" + pausedScene.title + "” is not saved; its text stays in this page. Export it before leaving."
+        : "Inspecting “" + selected().title + "”. Return to Writing resumes “" + pausedScene.title + "” where you left off.");
+    }
   }
 
   function copyRealization() {
@@ -1640,7 +1657,7 @@
     requestArchitecture($("architecture-instruction").value);
   }
   function chooseRealization(id) {
-    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    pauseWriting();
     state.selectedRealization = id; state.selected = null; state.selectedDerived = null;
     renderInspector(); rememberFocus();
   }
@@ -2431,7 +2448,10 @@
   }
   function displayScene(caret, expanded) {
     var item = selected(); if (!item || item.kind !== "scene") return;
+    // Opening any scene is the active writing task, so no paused origin remains.
+    state.writingOrigin = null;
     $("scene-heading").textContent = item.title;
+    renderSceneConnections(item);
     $("scene-text").value = item.content;
     $("scene-premise").value = item.scene_premise || "";
     $("scene-intent").value = item.scene_intent || "";
@@ -2444,6 +2464,7 @@
       : "Working prose can be written here without requesting generation.";
     $("refresh-draft").hidden = !item.quick_draft_session_id;
     $("scene-panel").hidden = false;
+    renderWritingReturn();
     document.body.classList.add("scene-docked");
     $("scene-panel").classList.toggle("expanded", !!expanded);
     $("expand-scene").textContent = expanded ? "Split view" : "Focus writing";
@@ -2459,6 +2480,7 @@
   function sceneOpen() {
     var item = selected(); if (!item || item.kind !== "scene") return;
     if (!$("scene-panel").hidden) { $("scene-text").focus(); return; }
+    if (writingOriginScene() === item) { returnToWriting(); return; }
     saveCurrent(); displayScene();
   }
   function sceneSave() {
@@ -2466,6 +2488,95 @@
     captureScene(); $("content").value = item.content;
     concealScene(); render(); queueSave(); rememberFocus();
     status("Working prose updated. This editor does not submit generation or acceptance.");
+  }
+  // Return to Writing: a paused writing task is presentation-only orientation. The scene
+  // text is captured into the working document before pausing; the origin never holds prose
+  // or story authority, and only the one interrupted task is kept (no nested history).
+  function pauseWriting() {
+    if ($("scene-panel").hidden) return;
+    var item = selected(), field = $("scene-text");
+    if (item && item.kind === "scene") {
+      captureScene(); scheduleSave();
+      state.writingOrigin = { sceneId: item.id, start: field.selectionStart || 0,
+        end: field.selectionEnd || 0, direction: field.selectionDirection === "backward" ? "backward" : "forward",
+        scrollTop: field.scrollTop || 0, expanded: $("scene-panel").classList.contains("expanded"),
+        fingerprint: textFingerprint(item.content) };
+    }
+    concealScene();
+  }
+  // Identifies whether the prose changed while paused, without storing any of it.
+  function textFingerprint(text) {
+    var hash = 5381;
+    for (var i = 0; i < text.length; i += 1) hash = ((hash * 33) ^ text.charCodeAt(i)) >>> 0;
+    return text.length + ":" + hash.toString(36);
+  }
+  function writingOriginScene() {
+    var origin = state.writingOrigin;
+    return origin && state.items.find(function (item) { return item.id === origin.sceneId && item.kind === "scene"; });
+  }
+  // Ticket 01 offers the return inside Story Realization only; Architecture investigation is a later ticket.
+  function renderWritingReturn() {
+    var scene = writingOriginScene();
+    $("writing-return").hidden = !scene || !$("scene-panel").hidden || state.workspace !== "realization";
+    $("writing-return-title").textContent = scene ? "“" + scene.title + "”" : "";
+  }
+  function revealWorking(item) {
+    if (visibleWorking(item)) return "";
+    state.view = "create"; state.lastRealizationView = "create"; state.focusGroup = "";
+    $("layer-view").value = "create"; $("find-nodes").value = "";
+    return " Showing all working ideas so “" + item.title + "” is visible.";
+  }
+  function returnToWriting() {
+    var origin = state.writingOrigin, scene = writingOriginScene();
+    if (!scene || state.workspace !== "realization") {
+      if (!scene) { state.writingOrigin = null; renderWritingReturn(); rememberFocus(); }
+      status(scene ? "Open Story Realization to return to “" + scene.title + "”."
+        : "The scene you were writing is no longer on this canvas. Nothing else was changed.");
+      return;
+    }
+    var revealed = revealWorking(scene);
+    state.selected = scene.id; state.selectedDerived = null; state.selectedCandidate = null;
+    state.selectedRealization = null;
+    render();
+    var unchanged = origin.fingerprint === textFingerprint(scene.content);
+    displayScene(unchanged ? origin.start : scene.content.length, origin.expanded);
+    var field = $("scene-text");
+    if (unchanged) {
+      field.setSelectionRange(origin.start, origin.end, origin.direction);
+      field.scrollTop = origin.scrollTop;
+    }
+    rememberFocus();
+    var where = unchanged ? " where you left off." : ". The text changed while you were away, so the cursor is at the end.";
+    status((remote.failed
+      ? "Returned to “" + scene.title + "”. SAVE FAILED: your text is still here; export it before leaving."
+      : "Returned to writing “" + scene.title + "”" + where) + revealed);
+  }
+  function renderSceneConnections(scene) {
+    var list = $("scene-connection-list"); list.replaceChildren();
+    state.connections.forEach(function (edge) {
+      if (edge.source !== scene.id && edge.target !== scene.id) return;
+      var otherId = edge.source === scene.id ? edge.target : edge.source;
+      var other = state.items.find(function (entry) { return entry.id === otherId; });
+      if (!other) return;
+      var entry = document.createElement("li"), button = document.createElement("button");
+      button.type = "button"; button.className = "scene-connection"; button.dataset.kind = other.kind;
+      var verb = document.createElement("span"); verb.className = "visually-hidden"; verb.textContent = "Inspect ";
+      var name = document.createElement("span"); name.className = "scene-connection-title"; name.textContent = other.title;
+      button.append(verb, name);
+      if (edge.label) {
+        var why = document.createElement("span"); why.className = "scene-connection-why"; why.textContent = edge.label;
+        button.append(" ", why);
+      }
+      button.addEventListener("click", function () {
+        var revealed = revealWorking(other);
+        choose(other.id); render();
+        if (revealed && !remote.failed) status($("status").textContent + revealed);
+        var back = $("return-to-writing");
+        if (!$("writing-return").hidden) { back.focus(); back.scrollIntoView({ block: "nearest" }); }
+      });
+      entry.appendChild(button); list.appendChild(entry);
+    });
+    $("scene-connections").hidden = !list.children.length;
   }
   function exportCanvas() {
     var data = { schema_version: 1, items: state.items, connections: state.connections, positions: state.positions,
@@ -2754,7 +2865,7 @@
   });
   $("arrange-group").addEventListener("click", arrangeVisible);
   $("group-filter").addEventListener("change", function () {
-    if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+    pauseWriting();
     state.focusGroup = this.value;
     if (selected() && !visibleWorking(selected())) state.selected = null;
     render(); rememberFocus();
@@ -2788,6 +2899,7 @@
   $("connect").addEventListener("click", connect);
   $("write").addEventListener("click", sceneOpen);
   $("close-scene").addEventListener("click", sceneSave);
+  $("return-to-writing").addEventListener("click", returnToWriting);
   $("expand-scene").addEventListener("click", function () {
     var expanded = !$("scene-panel").classList.contains("expanded");
     $("scene-panel").classList.toggle("expanded", expanded);
