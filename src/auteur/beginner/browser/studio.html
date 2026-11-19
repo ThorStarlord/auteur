@@ -20,6 +20,12 @@
         <button id="workspace-architecture" aria-pressed="true" type="button">Narrative Architecture</button>
         <button id="workspace-realization" aria-pressed="false" type="button">Story Realization</button>
       </nav>
+      <section id="writing-return" class="writing-return" hidden aria-labelledby="writing-return-label">
+        <p><span id="writing-return-label" class="writing-return-kicker">Writing paused</span>
+          <span id="writing-return-title" class="writing-return-title"></span></p>
+        <p class="writing-return-hint">Inspecting items or exploring the architecture keeps your text and place in this scene.</p>
+        <button id="return-to-writing" type="button" aria-describedby="writing-return-title">Return to Writing</button>
+      </section>
       <section id="architecture-context" class="architecture-context" aria-label="Architecture overview">
         <strong>Architecture map</strong><span id="architecture-context-summary">Explore the provisional structure and its relationships.</span>
       </section>
@@ -267,12 +273,6 @@
       <p id="canvas-help" class="help">Choose a node to inspect it. Drag to arrange; arrow keys move a focused node. Connect notes in the inspector. Changes save locally. Export JSON for a portable backup.</p>
     </section>
     <aside id="inspector" aria-label="Selected story item">
-      <section id="writing-return" class="writing-return" hidden aria-labelledby="writing-return-label">
-        <p><span id="writing-return-label" class="writing-return-kicker">Writing paused</span>
-          <span id="writing-return-title" class="writing-return-title"></span></p>
-        <p class="writing-return-hint">Inspecting other items keeps your text and place in this scene.</p>
-        <button id="return-to-writing" type="button" aria-describedby="writing-return-title">Return to Writing</button>
-      </section>
       <h2>Story details</h2>
       <p class="muted" id="inspector-empty">Select or create an item to edit it.</p>
       <section id="book-orientation" hidden aria-label="Read-only Book orientation">
@@ -327,7 +327,7 @@
   </main>
   <section id="scene-panel" class="scene-panel" hidden aria-label="Working scene editor">
     <div class="scene-inner">
-      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><div class="scene-top-actions"><button id="expand-scene" type="button" aria-pressed="false">Focus writing</button><button id="close-scene" type="button">Return to canvas</button></div>
+      <div class="scene-top"><h2 id="scene-heading">Working scene</h2><div class="scene-top-actions"><button id="expand-scene" type="button" aria-pressed="false">Focus writing</button><button id="scene-explore-architecture" type="button">Explore architecture</button><button id="close-scene" type="button">Return to canvas</button></div>
         <nav id="scene-connections" class="scene-connections" hidden aria-labelledby="scene-connections-label">
           <span id="scene-connections-label" class="scene-connections-label">Connected on your canvas</span>
           <ul id="scene-connection-list"></ul>

@@ -1592,12 +1592,7 @@
     });
     renderInspector();
     rememberFocus();
-    var pausedScene = writing && writingOriginScene();
-    if (pausedScene && selected()) {
-      status(remote.failed
-        ? "SAVE FAILED: “" + pausedScene.title + "” is not saved; its text stays in this page. Export it before leaving."
-        : "Inspecting “" + selected().title + "”. Return to Writing resumes “" + pausedScene.title + "” where you left off.");
-    }
+    if (writing && selected()) announcePause("Inspecting “" + selected().title + "”");
   }
 
   function copyRealization() {
@@ -1663,8 +1658,10 @@
   }
   function switchWorkspace(next) {
     if (next === state.workspace) return;
+    var writing = next === "architecture" && !$("scene-panel").hidden;
     if (next === "architecture") {
-      if (!$("scene-panel").hidden) { captureScene(); concealScene(); scheduleSave(); }
+      // Investigating Architecture pauses the writing task; Return to Writing resumes it.
+      pauseWriting();
       if (state.workspace === "realization") {
         state.lastRealizationView = state.view;
         if (state.selected) state.lastWorkingSelection = state.selected;
@@ -1679,6 +1676,7 @@
     state.workspace = next;
     $("layer-view").value = state.view;
     render(); rememberFocus();
+    if (writing) announcePause("Exploring Narrative Architecture");
   }
 
   // Read-only, source-scoped projections. No new trope/structure identity is created.
@@ -2514,11 +2512,24 @@
     var origin = state.writingOrigin;
     return origin && state.items.find(function (item) { return item.id === origin.sceneId && item.kind === "scene"; });
   }
-  // Ticket 01 offers the return inside Story Realization only; Architecture investigation is a later ticket.
+  // One return offer beside the workspace tabs, so it stays reachable in every Realization and
+  // Architecture view (Architecture explanations hide the inspector).
   function renderWritingReturn() {
     var scene = writingOriginScene();
-    $("writing-return").hidden = !scene || !$("scene-panel").hidden || state.workspace !== "realization";
+    $("writing-return").hidden = !scene || !$("scene-panel").hidden;
     $("writing-return-title").textContent = scene ? "“" + scene.title + "”" : "";
+  }
+  function announcePause(activity) {
+    var scene = writingOriginScene();
+    if (!scene) return;
+    status(remote.failed
+      ? "SAVE FAILED: “" + scene.title + "” is not saved; its text stays in this page. Export it before leaving."
+      : activity + ". Return to Writing resumes “" + scene.title + "” where you left off.");
+  }
+  function exploreArchitecture() {
+    switchWorkspace("architecture");
+    var facet = document.querySelector('[data-architecture-facet][aria-pressed="true"]');
+    (facet && facet.offsetParent ? facet : $("workspace-architecture")).focus();
   }
   function revealWorking(item) {
     if (visibleWorking(item)) return "";
@@ -2528,12 +2539,13 @@
   }
   function returnToWriting() {
     var origin = state.writingOrigin, scene = writingOriginScene();
-    if (!scene || state.workspace !== "realization") {
-      if (!scene) { state.writingOrigin = null; renderWritingReturn(); rememberFocus(); }
-      status(scene ? "Open Story Realization to return to “" + scene.title + "”."
-        : "The scene you were writing is no longer on this canvas. Nothing else was changed.");
+    if (!scene) {
+      state.writingOrigin = null; renderWritingReturn(); rememberFocus();
+      status("The scene you were writing is no longer on this canvas. Nothing else was changed.");
       return;
     }
+    // Leaving Architecture keeps its own exploration trail for a later visit.
+    switchWorkspace("realization");
     var revealed = revealWorking(scene);
     state.selected = scene.id; state.selectedDerived = null; state.selectedCandidate = null;
     state.selectedRealization = null;
@@ -2882,6 +2894,8 @@
   });
   $("preview-impact").addEventListener("click", previewImpact);
   $("layer-view").addEventListener("change", function () {
+    var investigating = ["architecture", "genre_timeline"].includes(this.value) && !$("scene-panel").hidden;
+    if (investigating) pauseWriting();
     state.view = this.value;
     state.workspace = ["architecture", "genre_timeline"].includes(state.view) ? "architecture" : "realization";
     if (state.workspace === "realization") state.lastRealizationView = state.view;
@@ -2889,6 +2903,7 @@
     if (this.value === "book" && !$("book-heading").textContent.startsWith("Chapter")) loadBook();
     else render();
     rememberFocus();
+    if (investigating) announcePause("Exploring Narrative Architecture");
   });
   $("zoom").addEventListener("input", function () { state.zoom = Number(this.value) / 100; transform(); scheduleSave(); });
   $("save").addEventListener("click", saveCurrent);
@@ -2900,6 +2915,7 @@
   $("write").addEventListener("click", sceneOpen);
   $("close-scene").addEventListener("click", sceneSave);
   $("return-to-writing").addEventListener("click", returnToWriting);
+  $("scene-explore-architecture").addEventListener("click", exploreArchitecture);
   $("expand-scene").addEventListener("click", function () {
     var expanded = !$("scene-panel").classList.contains("expanded");
     $("scene-panel").classList.toggle("expanded", expanded);
