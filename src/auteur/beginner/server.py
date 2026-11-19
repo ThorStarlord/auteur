@@ -62,6 +62,7 @@ from .studio_architecture_inquiry import (
 from .studio_mentor import complete_mentor, prepare_mentor, project_mentor
 from .studio_realization import (
     apply_realization_review, complete_realization, prepare_realization, project_realization,
+    realization_proposal_source,
 )
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
@@ -589,6 +590,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     self._send_json(200, project_realization(CanvasStore(self.project_root, parts[4])))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "realization" and parts[6] == "requests"):
+                try:
+                    source = realization_proposal_source(CanvasStore(self.project_root, parts[4]), parts[7])
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                if source is None:
+                    raise BeginnerRequestError(404, "proposal source unavailable")
+                self._send_json(200, source)
                 return
             if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5] == "mentor"):

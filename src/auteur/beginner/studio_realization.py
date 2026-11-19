@@ -233,6 +233,29 @@ def _diff(old: dict, new: dict) -> dict:
     return result
 
 
+def realization_proposal_source(store: CanvasStore, request_sha256: str) -> dict | None:
+    """The exact, immutable Story Realization response a working copy came from; None when unavailable.
+
+    Read-only: copied items resolve their proposed relationships here by origin identity, never by title.
+    """
+    if not re.fullmatch(r"[a-f0-9]{64}", request_sha256 or ""):
+        raise ValueError("valid realization request SHA is required")
+    store.load()
+    response = _read(_root(store) / "requests" / request_sha256 / "response.json")
+    if not response:
+        return None
+    try:
+        candidate = RealizationCandidate.model_validate_json(response["text"])
+    except (KeyError, TypeError, ValueError):
+        return None  # a damaged source is reported as unavailable, never guessed at
+    return {
+        "request_sha256": request_sha256,
+        "authority": "noncanonical_working_proposal",
+        "elements": [{"id": item.id, "kind": item.kind, "title": item.title} for item in candidate.elements],
+        "links": [link.model_dump(mode="json") for link in candidate.links],
+    }
+
+
 def _built_on_architecture(store: CanvasStore, current: dict | None) -> str | None:
     if not current:
         return None

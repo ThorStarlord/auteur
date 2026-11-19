@@ -340,6 +340,9 @@
         (!old.key || architectureFacetEntries(old.facet).some(function (e) { return e.key === old.key; }));
     });
     state.architectureRequestSha = projection.candidate_request_sha256;
+    // An editor restored before the Architecture arrived re-reads its proposal context against it.
+    var writingScene = !$("scene-panel").hidden && selected();
+    if (writingScene) renderSceneProposal(writingScene);
     if (ensureRevisionReviewBridge()) revisionReviewBridge.update(projection, remote.canvasId);
     state.candidatePositions = {};
     if (state.architecture) {
@@ -2527,6 +2530,7 @@
     state.writingOrigin = null;
     $("scene-heading").textContent = item.title;
     renderSceneConnections(item);
+    renderSceneProposal(item, true);
     $("scene-text").value = item.content;
     $("scene-premise").value = item.scene_premise || "";
     $("scene-intent").value = item.scene_intent || "";
@@ -2647,6 +2651,126 @@
     status((remote.failed
       ? "Returned to “" + scene.title + "”. SAVE FAILED: your text is still here; export it before leaving."
       : "Returned to writing “" + scene.title + "”" + where) + revealed);
+  }
+  // A copied proposal's exact source, read once per Realization request; relationships stay
+  // suggestions until the author keeps one. Identity is the origin, never a title.
+  state.proposalSources = {};
+  function proposalSource(sha, retry) {
+    var known = state.proposalSources[sha];
+    if (!known || (retry && known.status === "error")) {
+      state.proposalSources[sha] = {status: "loading"};
+      fetch("/api/beginner/studio/canvases/" + remote.canvasId + "/realization/requests/" + sha)
+        .then(function (response) {
+          if (response.status === 404) return {status: "unavailable"};
+          return apiJson(response).then(function (body) { return {status: "available", source: body}; });
+        })
+        .catch(function () { return {status: "error"}; })
+        .then(function (result) {
+          state.proposalSources[sha] = result;
+          var open = selected();
+          if (!$("scene-panel").hidden && open && open.proposal_origin && open.proposal_origin.request_sha === sha) {
+            renderSceneProposal(open);
+          }
+        });
+    }
+    return state.proposalSources[sha];
+  }
+  function proposalCopy(sha, elementId) {
+    return state.items.find(function (item) {
+      var o = item.proposal_origin;
+      return o && o.source_kind === "realization_element" && o.request_sha === sha && o.focus_id === elementId;
+    });
+  }
+  function keptOnCanvas(a, b, label) {
+    return state.connections.some(function (edge) {
+      return edge.label === label &&
+        ((edge.source === a && edge.target === b) || (edge.source === b && edge.target === a));
+    });
+  }
+  // Bounded, collision-resistant connection id from the exact source link (pattern ^[a-z0-9][a-z0-9_-]*$).
+  function keptConnectionId(sha, linkId) {
+    var hash = 2166136261;
+    for (var i = 0; i < linkId.length; i++) { hash ^= linkId.charCodeAt(i); hash = Math.imul(hash, 16777619) >>> 0; }
+    return "kept-" + sha.slice(0, 12) + "-" + hash.toString(16) + "-" + linkId.slice(0, 48);
+  }
+  function keepSuggestedRelationship(scene, link, partner, sha) {
+    if (!remote.ready || remote.failed) {
+      status("This working canvas cannot save right now, so nothing was kept. Export your work before recovery."); return;
+    }
+    if (keptOnCanvas(scene.id, partner.id, link.function)) return;
+    var mine = scene.proposal_origin.focus_id === link.source;
+    state.connections.push({id: keptConnectionId(sha, link.id),
+      source: mine ? scene.id : partner.id, target: mine ? partner.id : scene.id, label: link.function});
+    render(); queueSave(); renderSceneConnections(scene); renderSceneProposal(scene);
+    var keptNote = document.querySelector('#scene-suggested-relationships [data-kept="' + link.id + '"]');
+    if (keptNote) keptNote.focus();
+    status("Kept “" + link.function + "” with “" + partner.title + "” as your working connection. Not accepted story.");
+  }
+  function openArchitectureRef(nodeId) {
+    if (!candidateNode(nodeId)) { status("That Architecture node is no longer in the current working architecture."); return; }
+    switchWorkspace("architecture");
+    var projector = window.AuteurStudioExplanations, packet = projector &&
+      projector.project(state.architecture, state.architectureRequestSha, null);
+    var entry = null, facet = null;
+    ["genres", "tropes", "structure"].some(function (name) {
+      entry = packet && (packet[name] || []).find(function (e) { return e.nodeId === nodeId; });
+      facet = name; return !!entry;
+    });
+    if (entry) { visitFacet(facet, entry.key, nodeId); return; }
+    // No explanation view for this kind of node: inspect it in the graph, still recorded in the trail.
+    visitFacet(state.architectureFacet === "timeline" ? "structure" : state.architectureFacet, null, nodeId);
+  }
+  function renderSceneProposal(scene, retry) {
+    var origin = scene.proposal_origin, panel = $("scene-proposal");
+    panel.hidden = !(origin && origin.source_kind === "realization_element");
+    if (panel.hidden) return;
+    var notices = [], refs = $("scene-architecture-refs"), suggestions = $("scene-suggested-relationships");
+    refs.replaceChildren(); suggestions.replaceChildren();
+    if (origin.stale_at_adoption) notices.push("It was copied while its proposal was outdated relative to your creative sources.");
+    var revised = state.architectureRequestSha && origin.architecture_request_sha !== state.architectureRequestSha;
+    if (!state.architecture) notices.push("No working architecture is available to explain its references.");
+    else if (revised) notices.push("The Architecture was revised since this proposal was made; references open the current version, which may differ.");
+    origin.architecture_refs.forEach(function (nodeId) {
+      var node = state.architecture && candidateNode(nodeId), li = document.createElement("li");
+      if (!node) {
+        li.className = "muted"; li.textContent = nodeId + " (not in the current working architecture)";
+        refs.appendChild(li); return;
+      }
+      var button = document.createElement("button"); button.type = "button"; button.className = "scene-connection";
+      button.textContent = node.title + (revised ? " (current version)" : "");
+      button.addEventListener("click", function () { openArchitectureRef(nodeId); });
+      li.appendChild(button); refs.appendChild(li);
+    });
+    var source = proposalSource(origin.request_sha, retry);
+    if (source.status === "unavailable") notices.push("The original proposal is unavailable, so its suggested relationships cannot be shown.");
+    if (source.status === "error") notices.push("Its suggested relationships could not be loaded. Reopen the scene to try again.");
+    (source.status === "available" ? source.source.links : []).forEach(function (link) {
+      if (link.source !== origin.focus_id && link.target !== origin.focus_id) return;
+      var otherId = link.source === origin.focus_id ? link.target : link.source;
+      var other = source.source.elements.find(function (e) { return e.id === otherId; });
+      var partner = proposalCopy(origin.request_sha, otherId);
+      var li = document.createElement("li"), text = document.createElement("span");
+      text.className = "scene-suggestion";
+      text.textContent = "Suggested: " + link.function + " · " + (partner ? partner.title : (other ? other.title : otherId)) +
+        (partner ? "" : " (still only a proposal)");
+      li.appendChild(text);
+      if (partner && keptOnCanvas(scene.id, partner.id, link.function)) {
+        var kept = document.createElement("span"); kept.className = "muted"; kept.textContent = "Connected on your canvas";
+        kept.dataset.kept = link.id; kept.tabIndex = -1;
+        li.appendChild(kept);
+      } else if (partner) {
+        var keep = document.createElement("button"); keep.type = "button"; keep.textContent = "Keep as working connection";
+        keep.setAttribute("aria-label", "Keep as working connection: “" + link.function + "” with " + partner.title);
+        keep.addEventListener("click", function () { keepSuggestedRelationship(scene, link, partner, origin.request_sha); });
+        li.appendChild(keep);
+      }
+      suggestions.appendChild(li);
+    });
+    if (source.status === "available" && !suggestions.children.length) {
+      var none = document.createElement("li"); none.className = "muted"; none.textContent = "None for this proposal.";
+      suggestions.appendChild(none);
+    }
+    $("scene-proposal-notice").textContent = notices.join(" ");
   }
   function renderSceneConnections(scene) {
     var list = $("scene-connection-list"); list.replaceChildren();
