@@ -7,9 +7,12 @@
   state.architecture = null; state.candidatePositions = {}; state.selectedCandidate = null;
   state.architectureFocus = ""; state.architectureCenter = null;
   state.architectureFacet = "overview"; state.facetSelection = null; state.facetHistory = [];
+  // Architecture response a restored explanation selection belongs to (browser-local focus record).
+  state.restoredArchitectureSha = null;
   state.selectedPhase = null; state.lastWorkingSelection = null;
   // The one writing task paused by a temporary inspection (presentation only; never prose).
-  state.writingOrigin = null;
+  state.writingOrigin = null; state.pausedSceneMissing = null; state.writingReturnClick = null;
+  state.pauseAnnouncement = null;
   state.explanationArrival = null; state.explanationInspectRequested = false;
   state.unfoldingFocus = null; state.unfoldingInspected = null;
   state.unfoldingOffset = 0; state.unfoldingSaving = false;
@@ -174,11 +177,16 @@
         remote.revision = doc.revision;
         remote.savedSnapshot = JSON.stringify(payload);
         state.deleted = doc.deleted || {}; showRecoveryAction();
-        if (!remote.failed) status("Working canvas saved locally · revision " + remote.revision);
+        var saved = "Working canvas saved locally · revision " + remote.revision;
+        // The pause saves at once; keep its announcement and add the confirmation instead of replacing it.
+        if (!remote.failed) status($("status").textContent === state.pauseAnnouncement
+          ? state.pauseAnnouncement + " " + saved + "." : saved);
+        renderWritingReturn();
       });
     }).catch(function (error) {
       remote.failed = true;
       $("retry-save").hidden = false;
+      renderWritingReturn();
       status("SAVE FAILED: " + error.message + ". Do not reload; export your work before recovery.");
     });
     return remote.queue;
@@ -201,6 +209,8 @@
         candidate: state.selectedCandidate, realization: state.selectedRealization, scope: state.architectureFocus,
         neighborhood: state.architectureCenter,
         facet: state.architectureFacet, facetSelection: state.facetSelection,
+        // The exact response an explanation selection belongs to, so re-entry never reads it against another.
+        source: state.architectureRequestSha || state.restoredArchitectureSha || null,
         unfoldingFocus: state.unfoldingFocus,
         fullDisplay: state.fullArchitectureDisplay, fullGenre: state.fullArchitectureGenre,
         phase: state.selectedPhase, search: $("find-nodes").value,
@@ -226,6 +236,12 @@
     state.architectureFacet = facets.includes(saved.facet) ? saved.facet :
       (state.view === "genre_timeline" ? "timeline" : "overview");
     state.facetSelection = typeof saved.facetSelection === "string" ? saved.facetSelection : null;
+    state.restoredArchitectureSha = typeof saved.source === "string" ? saved.source : null;
+    // A selection recorded without its source cannot be checked, so reopen at the overview, never a guess.
+    if (state.facetSelection && !state.restoredArchitectureSha &&
+        ["genres", "tropes", "structure"].includes(state.architectureFacet)) {
+      state.facetSelection = null; state.architectureFacet = "overview";
+    }
     state.unfoldingFocus = saved.unfoldingFocus && ["working","candidate"].includes(saved.unfoldingFocus.kind) &&
       typeof saved.unfoldingFocus.id === "string" ? saved.unfoldingFocus : null;
     state.fullArchitectureDisplay = ["focus","full","review"].includes(saved.fullDisplay) ? saved.fullDisplay : "focus";
@@ -236,9 +252,13 @@
       ? "genre_timeline" : "architecture";
     if (state.items.some(function (item) { return item.id === saved.selected; })) state.selected = saved.selected;
     state.lastWorkingSelection = state.selected;
-    var paused = saved.writing;
-    state.writingOrigin = !saved.editorOpen && paused && typeof paused.sceneId === "string" &&
-      state.items.some(function (item) { return item.id === paused.sceneId && item.kind === "scene"; }) &&
+    var paused = !saved.editorOpen && saved.writing, pausedId = paused && typeof paused.sceneId === "string" && paused.sceneId;
+    var present = !!pausedId && state.items.some(function (item) { return item.id === pausedId && item.kind === "scene"; });
+    // A paused scene removed elsewhere is announced, not silently forgotten; no origin outlives its scene.
+    var tombstone = pausedId && !present ? state.deleted[pausedId] : null;
+    state.pausedSceneMissing = !pausedId || present ? null
+      : tombstone && tombstone.item && tombstone.item.kind === "scene" ? "removed" : "gone";
+    state.writingOrigin = present &&
       Number.isInteger(paused.start) && Number.isInteger(paused.end) && paused.start >= 0 && paused.end >= paused.start
       ? { sceneId: paused.sceneId, start: paused.start, end: paused.end,
           direction: paused.direction === "backward" ? "backward" : "forward",
@@ -290,7 +310,9 @@
     return Math.max(3, Math.min(7, Math.ceil(Math.sqrt(count * 1.5))));
   }
   function applyArchitectureProjection(projection, openGraph) {
-    if (state.architectureRequestSha && state.architectureRequestSha !== projection.candidate_request_sha256) {
+    var previousSource = state.architectureRequestSha || state.restoredArchitectureSha;
+    state.restoredArchitectureSha = null;
+    if (previousSource && previousSource !== projection.candidate_request_sha256) {
       if (state.facetHistory.length || state.facetSelection) {
         status("Previous semantic source changed; navigation history cleared and the overview shown. " +
           "Working story remains unchanged.");
@@ -682,6 +704,7 @@
     state.candidatePositions = {}; state.selectedCandidate = null;
     state.realization = null; state.realizationReview = null; state.realizationStale = false;
     state.realizationPositions = {}; state.selectedRealization = null; state.writingOrigin = null;
+    state.pausedSceneMissing = null;
     state.items = doc.items; state.connections = doc.connections; state.positions = doc.positions;
     state.view = "architecture"; state.workspace = "architecture"; state.focusGroup = "";
     state.selected = state.items.length ? state.items[0].id : null;
@@ -701,7 +724,11 @@
     }
     loadArchitecture();
     loadRealization();
-    status("Working canvas loaded · saved locally · revision " + remote.revision);
+    var missing = {
+      removed: ". The scene you paused was removed; Restore removed idea can bring it back, then reopen it.",
+      gone: ". The scene you paused is no longer on this canvas; nothing else was changed."
+    }[state.pausedSceneMissing] || "";
+    status("Working canvas loaded · saved locally · revision " + remote.revision + missing);
   }
   function hasUnsavedChanges() {
     return remote.ready &&
@@ -843,7 +870,7 @@
       return fetch("/api/beginner/studio/canvases/" + remote.canvasId).then(apiJson);
     }).then(function (doc) {
       if (doc.revision !== remote.revision) {
-        remote.failed = true; $("retry-save").hidden = false; showRecoveryAction();
+        remote.failed = true; $("retry-save").hidden = false; showRecoveryAction(); renderWritingReturn();
         throw new Error("Another tab changed this canvas. Export current notes; recovery cannot overwrite the new version.");
       }
       var deletedIds = Object.keys(doc.deleted || {});
@@ -1080,7 +1107,7 @@
           var index = graph.nodes.slice(0, i).filter(function (n) { return n.kind === node.kind; }).length;
           state.derivedPositions[node.id] = { x: baseX + (index % 3) * 188, y: 90 + Math.floor(index / 3) * 115 };
         });
-        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
+        pauseWriting();
         state.selected = null;
         state.view = graph.nodes.some(function (n) { return n.kind === "character"; }) ? "relationships" : "lenses";
         $("layer-view").value = state.view;
@@ -1136,7 +1163,7 @@
       fillBookList("book-pending", book.pending_updates, "No pending updates.");
       fillBookList("book-attention", book.needs_attention, "Nothing needs attention.");
       $("book-orientation").hidden = false;
-      if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
+      pauseWriting();
       state.workspace = "realization";
       state.view = "book"; state.selected = null; state.selectedDerived = null;
       $("layer-view").value = "book";
@@ -1181,7 +1208,7 @@
               source_ref: "provenance", authority: "HYPOTHETICAL / READ ONLY" });
           });
         });
-        if (!$("scene-panel").hidden) { captureScene(); concealScene(); queueSave(); }
+        pauseWriting();
         state.view = "impact"; $("layer-view").value = "impact"; state.selected = null; state.selectedDerived = null;
         render();
         status("Hypothetical dependency paths only. Nothing has been revised or accepted.");
@@ -2498,7 +2525,8 @@
     if ($("scene-panel").hidden) return;
     var item = selected(), field = $("scene-text");
     if (item && item.kind === "scene") {
-      captureScene(); scheduleSave();
+      // A pause is a navigation boundary: save now, not when a re-armed typing debounce next fires.
+      captureScene(); clearTimeout(remote.timer); remote.timer = null; queueSave();
       state.writingOrigin = { sceneId: item.id, start: field.selectionStart || 0,
         end: field.selectionEnd || 0, direction: field.selectionDirection === "backward" ? "backward" : "forward",
         scrollTop: field.scrollTop || 0, expanded: $("scene-panel").classList.contains("expanded"),
@@ -2522,13 +2550,19 @@
     var scene = writingOriginScene();
     $("writing-return").hidden = !scene || !$("scene-panel").hidden;
     $("writing-return-title").textContent = scene ? "“" + scene.title + "”" : "";
+    // Never claim the text is kept once a save has failed: it then exists only in this page.
+    $("writing-return").classList.toggle("unsaved", remote.failed);
+    $("writing-return-hint").textContent = remote.failed
+      ? "Not saved: the latest changes to this scene exist only in this page. Export before leaving."
+      : "Inspecting items or exploring the architecture keeps your text and place in this scene.";
   }
   function announcePause(activity) {
     var scene = writingOriginScene();
     if (!scene) return;
-    status(remote.failed
-      ? "SAVE FAILED: “" + scene.title + "” is not saved; its text stays in this page. Export it before leaving."
-      : activity + ". Return to Writing resumes “" + scene.title + "” where you left off.");
+    state.pauseAnnouncement = remote.failed ? null
+      : activity + ". Return to Writing resumes “" + scene.title + "” where you left off.";
+    status(state.pauseAnnouncement ||
+      "SAVE FAILED: “" + scene.title + "” is not saved; its text stays in this page. Export it before leaving.");
   }
   function exploreArchitecture() {
     switchWorkspace("architecture");
@@ -2541,7 +2575,7 @@
     $("layer-view").value = "create"; $("find-nodes").value = "";
     return " Showing all working ideas so “" + item.title + "” is visible.";
   }
-  function returnToWriting() {
+  function returnToWriting(event) {
     var origin = state.writingOrigin, scene = writingOriginScene();
     if (!scene) {
       state.writingOrigin = null; renderWritingReturn(); rememberFocus();
@@ -2556,6 +2590,7 @@
     render();
     var unchanged = origin.fingerprint === textFingerprint(scene.content);
     displayScene(unchanged ? origin.start : scene.content.length, origin.expanded);
+    state.writingReturnClick = event && event.detail ? { x: event.clientX, y: event.clientY, at: performance.now() } : null;
     var field = $("scene-text");
     if (unchanged) {
       field.setSelectionRange(origin.start, origin.end, origin.direction);
@@ -2916,6 +2951,18 @@
   $("write").addEventListener("click", sceneOpen);
   $("close-scene").addEventListener("click", sceneSave);
   $("return-to-writing").addEventListener("click", returnToWriting);
+  // A double-clicked Return to Writing must not hand its second click to the editor that replaced it,
+  // where it would blur the restored prose or press an editor button such as Return to canvas. Only that
+  // continuation is absorbed: a multi-click at the same spot within the platform double-click interval.
+  ["mousedown", "click"].forEach(function (type) {
+    $("scene-panel").addEventListener(type, function (event) {
+      var origin = state.writingReturnClick;
+      if (origin && event.detail > 1 && performance.now() - origin.at < 600 &&
+          Math.abs(event.clientX - origin.x) < 6 && Math.abs(event.clientY - origin.y) < 6) {
+        event.preventDefault(); event.stopPropagation();
+      }
+    }, true);
+  });
   $("scene-explore-architecture").addEventListener("click", exploreArchitecture);
   $("expand-scene").addEventListener("click", function () {
     var expanded = !$("scene-panel").classList.contains("expanded");
