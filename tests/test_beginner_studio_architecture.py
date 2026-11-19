@@ -12,7 +12,7 @@ from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.server import BeginnerWorkspaceServer
 from auteur.beginner.studio_architecture import (
     ArchitectureCandidate, ArchitectureLink, _design_guidance_fingerprint, _digest,
-    _legacy_narrative_design_context, _source, _source_fingerprint,
+    _changed_dependencies, _downstream_changed, _legacy_narrative_design_context, _source, _source_fingerprint,
     apply_architecture_review, complete_architecture,
     main, prepare_architecture, project_architecture,
 )
@@ -105,7 +105,8 @@ def test_prose_first_architecture_request_labels_truncated_and_omitted_sources(t
     assert "working item IDs" in prepared["request"]["system"]
     assert "missing text" in prepared["request"]["system"]
 
-    # Same-length edits entirely outside the excerpt are still source changes.
+    # Same-length edits entirely outside the excerpt are still detected: under owner decision A
+    # (#612) manuscript prose is downstream writing, reported without invalidating.
     before = store.load()
     item = next(item for item in before.items if item.id == "working-scene-0")
     modified = item.model_copy(update={"content": item.content[:-1] + "b"})
@@ -113,9 +114,10 @@ def test_prose_first_architecture_request_labels_truncated_and_omitted_sources(t
         "update-item", expected_revision=before.revision, command_id="edit-unread-tail",
         payload={"item": modified.model_dump(mode="json")},
     )
-    assert _source_fingerprint(store, prepared["request"]["user"]) != (
-        prepared["request"]["settings"]["source_sha256"]
-    )
+    assert _changed_dependencies(
+        store, prepared["request"]["settings"], prepared["request"]["user"],
+    ) == []
+    assert _downstream_changed(store, prepared["request"]["settings"]) is True
 
 
 def test_legacy_architecture_request_fingerprint_uses_original_source_projection(tmp_path):
@@ -186,9 +188,9 @@ def test_architecture_request_carries_source_grounded_ontology_not_hidden_author
     assert function_schema["maxLength"] == 120
     assert "UNKNOWN" in guidance["unknown_policy"]
     assert request["working_context"]["vision"].startswith("A long fantasy")
-    assert waiting["request"]["settings"]["source_sha256"] == _source_fingerprint(
-        store, waiting["request"]["user"],
-    )
+    assert _changed_dependencies(
+        store, waiting["request"]["settings"], waiting["request"]["user"],
+    ) == []
 
 
 def test_accepted_story_preferences_and_target_experience_are_grounded(tmp_path):
@@ -274,11 +276,14 @@ def test_new_request_separates_author_source_and_design_guidance_fingerprints(tm
     waiting = prepare_architecture(store)
     settings = waiting["request"]["settings"]
     user = json.loads(waiting["request"]["user"])
-    assert settings["freshness_format"] == 2
+    # New requests record governing dependencies separately (freshness format 3, #612).
+    assert settings["freshness_format"] == 3
     assert len(settings["source_sha256"]) == 64
+    assert set(settings["source_components"]) == {"story_vision", "accepted_identity", "working_sources"}
+    assert settings["source_sha256"] == _digest(settings["source_components"])
     assert len(settings["design_guidance_sha256"]) == 64
-    assert user["freshness_format"] == 2
-    assert _source_fingerprint(store, waiting["request"]["user"]) == settings["source_sha256"]
+    assert user["freshness_format"] == 3
+    assert _changed_dependencies(store, settings, waiting["request"]["user"]) == []
     assert _design_guidance_fingerprint(
         store, waiting["request"]["user"],
     ) == settings["design_guidance_sha256"]
