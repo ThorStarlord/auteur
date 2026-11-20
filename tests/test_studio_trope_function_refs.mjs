@@ -63,7 +63,8 @@ test('a phase activation reference resolves to the phase function entry and reac
       trope_functions: ['Winning costs the heir.'],
       trope_function_refs: [{function_index: 0, trope_node_id: 'pyrrhic'}], structural_function: 'Race.'}]}];
   const p = plain(api.project(c, 'sha', null));
-  const phaseLink = p.links.find(l => l.sourceRef === 'phases/war/genre_activations/thriller/trope_function_refs/0');
+  const phaseLink = p.links.find(l => l.sourceRef === 'phases/war/genre_activations/thriller#0/trope_function_refs/0');
+  assert.equal(phaseLink && phaseLink.sourceKind, 'phase');
   assert.ok(phaseLink, 'phase reference must produce a link, not be dropped');
   assert.equal(phaseLink.fromKey, 'phase-trope:war:thriller:0');
   assert.equal(phaseLink.targetKey, 'trope-node:pyrrhic');
