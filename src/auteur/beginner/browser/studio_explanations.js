@@ -67,6 +67,29 @@
       link('genres','genre:'+edge.source_genre_id,'genres','genre:'+edge.target_genre_id,verbs[0],
         'genre_interactions/'+edge.id,'genre_interaction',why||null,verbs[1]);
     });
+    // Source-qualified: a contextual function realises a trope node's shared identity. Only the
+    // recorded reference creates this link; the function text and the node stay distinct entries.
+    function tropeRefs(refs,functionKeyOf,sourceBase){
+      (refs||[]).forEach(function(ref,k){
+        var fromKey=functionKeyOf(ref.function_index);
+        if(!keys['tropes:'+fromKey])return;
+        link('tropes',fromKey,'tropes','trope-node:'+ref.trope_node_id,'realises trope',
+          sourceBase+'/trope_function_refs/'+k,'genre_contract',
+          'This is one genre-specific function of the trope; the trope itself is shared across uses.',
+          'performed as a function here');
+      });
+    }
+    contracts.forEach(function(c){
+      tropeRefs(c.trope_function_refs,function(i){return 'trope:'+c.genre_node_id+':'+i;},
+        'genre_contracts/'+c.genre_node_id);
+    });
+    phases.forEach(function(p){
+      (p.genre_activations||[]).forEach(function(a){
+        tropeRefs(a.trope_function_refs,function(i){
+          return 'phase-trope:'+p.id+':'+a.genre_node_id+':'+i;},
+          'phases/'+p.id+'/genre_activations/'+a.genre_node_id);
+      });
+    });
     // Story order, as the timeline list orders it (`order` is a required integer).
     phases.slice().sort(function(x,y){return x.order-y.order;}).forEach(function(p){
       record('timeline',{key:'phase:'+p.id,title:p.title,detail:p.narrative_function||'',phaseId:p.id,
