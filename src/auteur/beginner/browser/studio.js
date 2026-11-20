@@ -2766,7 +2766,8 @@
     if (panel.hidden) return;
     var notices = [], refs = $("scene-architecture-refs"), suggestions = $("scene-suggested-relationships");
     refs.replaceChildren(); suggestions.replaceChildren();
-    if (origin.stale_at_adoption) notices.push("It was copied while its proposal was outdated relative to your creative sources.");
+    // Persistent, owned by this scene's panel: later save confirmations in the status line never replace it.
+    if (origin.stale_at_adoption) notices.push("Copied while its proposal was stale: check it before relying on the copied idea.");
     var revised = state.architectureRequestSha && origin.architecture_request_sha !== state.architectureRequestSha;
     if (!state.architecture) notices.push("No working architecture is available to explain its references.");
     else if (revised) notices.push("The Architecture was revised since this proposal was made; references open the current version, which may differ.");
