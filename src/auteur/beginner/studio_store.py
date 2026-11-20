@@ -19,6 +19,7 @@ from .persistence import (
     _atomic_create,
     _atomic_write,
     _contained_path,
+    _retry_windows_sharing,
     _safe_segment,
 )
 
@@ -186,9 +187,13 @@ class CanvasStore:
         return _contained_path(self.directory, name, containment_root=self.project_root)
 
     def load(self) -> WorkingCanvas:
+        # Deliberately unlocked: apply() and create() call load() while holding
+        # .canvas.lock, and that lock is not reentrant. A read that meets a save's
+        # replace on Windows is retried; the file is always a whole document.
         path = self._path("canvas.json")
         try:
-            return WorkingCanvas.model_validate_json(path.read_text(encoding="utf-8"), strict=True)
+            text = _retry_windows_sharing(lambda: path.read_text(encoding="utf-8"))
+            return WorkingCanvas.model_validate_json(text, strict=True)
         except FileNotFoundError:
             raise
         except (OSError, ValueError) as exc:

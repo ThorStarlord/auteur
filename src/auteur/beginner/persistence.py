@@ -11,7 +11,7 @@ import tempfile
 import threading
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, BinaryIO, Callable, Literal, TypeAlias, cast
+from typing import TYPE_CHECKING, BinaryIO, Callable, Literal, TypeAlias, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from pydantic_core import PydanticSerializationError
@@ -288,7 +288,35 @@ def _validate_session(session: SessionEnvelope) -> SessionEnvelope:
         raise BeginnerPersistenceError(f"invalid session envelope: {exc}") from exc
 
 
+_SHARING_RETRY_SECONDS = 1.0
+
+_T = TypeVar("_T")
+
+
+def _retry_windows_sharing(operation: Callable[[], _T]) -> _T:
+    """Retry a Windows file-sharing refusal for a bounded time.
+
+    Windows refuses ``os.replace`` while another handle has the target open, and
+    refuses opening a file that is being replaced; both surface as
+    ``PermissionError``. They clear when the other operation finishes. Any other
+    error, any other platform, or a refusal that outlasts the bound is raised
+    unchanged.
+    """
+    deadline = time.monotonic() + _SHARING_RETRY_SECONDS
+    delay = 0.001
+    while True:
+        try:
+            return operation()
+        except PermissionError:
+            if os.name != "nt" or time.monotonic() >= deadline:
+                raise
+            time.sleep(delay)
+            delay = min(delay * 2, 0.05)
+
+
 def _atomic_write(path: Path, payload: str) -> None:
+    """Replace ``path`` atomically. Callers hold the path's lock, so a retried
+    replace still carries the state that was checked under that lock."""
     temporary_path: Path | None = None
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -299,7 +327,8 @@ def _atomic_write(path: Path, payload: str) -> None:
             temporary.write(payload)
             temporary.flush()
             os.fsync(temporary.fileno())
-        os.replace(temporary_path, path)
+        source = temporary_path
+        _retry_windows_sharing(lambda: os.replace(source, path))
         _sync_directory_after_commit(path.parent)
         temporary_path = None
     except OSError as exc:
