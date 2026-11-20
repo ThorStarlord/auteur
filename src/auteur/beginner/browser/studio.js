@@ -356,7 +356,7 @@
       });
     }
     var readerRoot = $("architecture-reader");
-    readerRoot.hidden = !state.architecture;
+    syncArchitectureReader();
     if (state.architecture && window.AuteurStudioArchitectureReader) {
       window.AuteurStudioArchitectureReader.render(
         readerRoot, window.AuteurStudioArchitectureReader.project(state.architecture, {
@@ -2206,8 +2206,15 @@
   function adoptUnfolding(ghost) {
     return unfoldingController && unfoldingController.adopt(ghost);
   }
+  // The readable overview belongs to the Architecture Overview only: other perspectives
+  // and Story Realization start their own surface at the top of the work area.
+  function syncArchitectureReader() {
+    $("architecture-reader").hidden = !state.architecture || state.workspace !== "architecture" ||
+      state.architectureFacet !== "overview" || state.view === "book";
+  }
   function render() {
     var designing = state.workspace === "architecture";
+    syncArchitectureReader();
     $("architecture-context").hidden = !designing;
     $("architecture-work-area").classList.toggle("is-architecture", designing);
     $("architecture-legend").hidden = !designing || state.view !== "architecture";

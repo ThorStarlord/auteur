@@ -305,6 +305,64 @@
     root.appendChild(list);
   }
 
+  function joinLimited(items, limit, separator) {
+    var between = separator || ' · ';
+    var shown = items.slice(0, limit).join(between);
+    return items.length > limit ? shown + between + '+' + (items.length - limit) + ' more' : shown;
+  }
+
+  // One line per narrative system, so the author grasps the design before any long section.
+  function glanceLines(projection) {
+    var lines = [];
+    if (projection.emotions.length) {
+      lines.push('Emotional promise: ' + joinLimited(projection.emotions.map(function (emotion) {
+        // Who named it matters as much as the label; the full report gives the detail.
+        var origin = emotion.provenance !== 'author_declared' ? ''
+          : emotion.groundingKnown && !emotion.emotionNamedByAuthor ? ', you described it' : ', yours';
+        return emotion.label + ' (' + emotion.role + origin + ')';
+      }), 6));
+    }
+    var engines = projection.mechanisms.filter(function (item) { return item.category === 'engine'; });
+    if (engines.length) {
+      lines.push('Narrative engines: ' + joinLimited(engines.map(function (item) { return item.title; }), 4));
+    }
+    if (projection.genres.length) {
+      lines.push('Genres: ' + joinLimited(projection.genres.map(function (genre) {
+        return genre.title + ' (' + genre.role + ')';
+      }), 5));
+    }
+    var interactions = projection.relationships.filter(function (item) { return item.kind === 'genre_interaction'; });
+    if (interactions.length) {
+      // Kinds are GenreInteraction.kind; reinforces/enables/constrains read correctly as-is.
+      var verbs = {creates_tension: 'creates tension with', contrasts: 'contrasts with', converges: 'converges with'};
+      lines.push('How genres interact: ' + joinLimited(interactions.map(function (item) {
+        return item.from + ' ' + (verbs[item.function] || item.function.replace(/_/g, ' ')) + ' ' + item.to;
+      }), 3));
+    }
+    if (projection.structure.length) {
+      lines.push('Development: ' + projection.structure.length + ' phase'
+        + (projection.structure.length === 1 ? '' : 's') + ' — '
+        + joinLimited(projection.structure.map(function (phase) { return phase.title; }), 6, ' → '));
+    }
+    // Anything that is the author's call stays named on the first screen, never only inside the disclosure.
+    projection.opportunities.filter(function (item) { return item.requiresAuthorDecision; }).forEach(function (item) {
+      lines.push('Your decision — would replace your purpose: ' + excerpt(item.title, 120));
+    });
+    projection.opportunities.filter(function (item) {
+      return item.provisionalPrimary && !item.requiresAuthorDecision;
+    }).forEach(function (item) {
+      lines.push('Agent’s provisional primary direction (under your delegated goal discovery): '
+        + excerpt(item.title, 120));
+    });
+    projection.interpretations.filter(function (item) { return item.requiresDecision; }).forEach(function (item) {
+      lines.push('Your decision — reading the agent is using: ' + excerpt(item.interpretation, 120));
+    });
+    if (projection.uncertainties.length) {
+      lines.push('Open questions: ' + projection.uncertainties.length);
+    }
+    return lines;
+  }
+
   function render(root, projection, doc) {
     if (!root || typeof root.replaceChildren !== 'function') {
       throw new Error('Architecture reader requires a render root');
@@ -313,6 +371,8 @@
     if (!documentRef || typeof documentRef.createElement !== 'function') {
       throw new Error('Architecture reader requires a document');
     }
+    var wasOpen = typeof root.querySelector === 'function'
+      && !!root.querySelector('.architecture-reader-full[open]');
     root.replaceChildren();
     root.appendChild(make(documentRef, 'h2', 'architecture-reader-title', 'Your narrative architecture'));
     root.appendChild(make(documentRef, 'p', 'architecture-reader-authority',
@@ -323,7 +383,16 @@
       projection.summary || 'No architecture summary is available.'));
     if (projection.status === 'empty') return;
 
+    addSection(documentRef, root, 'At a glance', glanceLines(projection));
     addSection(documentRef, root, 'What this proposal is', describeStatus(projection));
+
+    // The complete linear text stays available (and is the non-visual equivalent of the graph),
+    // but it no longer pushes the graph and perspectives below the first screen.
+    var full = make(documentRef, 'details', 'architecture-reader-full');
+    full.open = wasOpen;
+    full.appendChild(make(documentRef, 'summary', 'architecture-reader-full-toggle', 'Read the full architecture'));
+    root.appendChild(full);
+    root = full;
 
     addSection(documentRef, root, 'Emotional promise', projection.emotions.map(function (emotion) {
       var line = emotion.label + ' · ' + emotion.role + ' — ' + emotion.intendedEffect;
