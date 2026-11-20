@@ -381,8 +381,10 @@ def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
         page.locator('#nodes .node.realization[data-item-id="stale_assembly"]').click()
         assert "stale" in page.locator("#realization-status").inner_text().lower()
         page.locator("#realization-copy").click()
-        assert "Source is STALE" in page.locator("#status").inner_text()
         page.locator("#write").click()
+        # The status line is transient; a later save confirmation must not erase the source warning (#624).
+        page.locator("#scene-proposal-notice").wait_for()
+        assert "Copied while its proposal was stale" in page.locator("#scene-proposal-notice").inner_text()
         # The stale source is recorded structurally (#611), never in the manuscript.
         assert page.locator("#scene-text").input_value() == ""
         assert page.locator("#scene-intent").input_value() == scene
@@ -391,6 +393,8 @@ def test_stale_realization_copy_retains_provenance_warning(tmp_path, browser):
             'document.querySelector("#status").textContent'
             '.includes("Working canvas saved locally")'
         )
+        # The save confirmation has replaced the status line; the source warning must still be visible.
+        assert "Copied while its proposal was stale" in page.locator("#scene-proposal-notice").inner_text()
         stored = store.load()
         copies = [item for item in stored.items if item.title == "An old proposed assembly"]
         assert len(copies) == 1
