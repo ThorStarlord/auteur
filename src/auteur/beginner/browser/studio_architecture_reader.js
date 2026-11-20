@@ -305,9 +305,10 @@
     root.appendChild(list);
   }
 
-  function joinLimited(items, limit) {
-    var shown = items.slice(0, limit).join(' · ');
-    return items.length > limit ? shown + ' · +' + (items.length - limit) + ' more' : shown;
+  function joinLimited(items, limit, separator) {
+    var between = separator || ' · ';
+    var shown = items.slice(0, limit).join(between);
+    return items.length > limit ? shown + between + '+' + (items.length - limit) + ' more' : shown;
   }
 
   // One line per narrative system, so the author grasps the design before any long section.
@@ -337,7 +338,7 @@
     if (projection.structure.length) {
       lines.push('Development: ' + projection.structure.length + ' phase'
         + (projection.structure.length === 1 ? '' : 's') + ' — '
-        + joinLimited(projection.structure.map(function (phase) { return phase.title; }), 6).replace(/ · /g, ' → '));
+        + joinLimited(projection.structure.map(function (phase) { return phase.title; }), 6, ' → '));
     }
     var decisions = projection.interpretations.filter(function (item) { return item.requiresDecision; }).length
       + projection.opportunities.filter(function (item) { return item.requiresAuthorDecision; }).length;

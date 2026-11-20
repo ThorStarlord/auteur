@@ -212,6 +212,16 @@ test('reader opens with one line per narrative system and keeps the full text on
   }
 });
 
+test('reader development line keeps phase titles intact and shortens long lists', () => {
+  const api = load();
+  const phases = ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map((letter, order) => ({
+    id: 'p' + order, title: 'Book 1 · ' + letter, order, narrative_function: 'x'}));
+  const container = element('section');
+  api.render(container, api.project({...sample, phases}), documentStub());
+  assert.match(textOf(container),
+    /Development: 7 phases — Book 1 · A → Book 1 · B → Book 1 · C → Book 1 · D → Book 1 · E → Book 1 · F → \+1 more/);
+});
+
 test('reader keeps the full architecture open across a re-render', () => {
   const api = load();
   const container = element('section');
