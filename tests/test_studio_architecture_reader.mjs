@@ -184,6 +184,45 @@ test('reader renders text-first sections and never injects HTML', () => {
   assert.doesNotMatch(source, /\bfetch\s*\(|XMLHttpRequest|accept_story|acceptStoryIdentity/);
 });
 
+test('reader opens with one line per narrative system and keeps the full text one disclosure away', () => {
+  const api = load();
+  const decided = {...sample, interpretations: [{id: 'reading', interpretation: 'Memory is currency.',
+    affects: ['wonder-engine'], consequences: 'Discovery costs memory.', author_decision_required: true}]};
+  const container = element('section');
+  api.render(container, api.project(decided), documentStub());
+  const glanceIndex = container.children.findIndex(child => child.textContent === 'At a glance');
+  const glance = textOf(container.children[glanceIndex + 1]);
+  assert.match(glance, /Emotional promise: joy \(primary\) · fear \(supporting\)/);
+  assert.match(glance, /Narrative engines: Wonder engine/);
+  assert.match(glance, /Genres: Wonder \(governing\) · Dread \(supporting\)/);
+  assert.match(glance, /How genres interact: Dread constrains Wonder/);
+  assert.match(glance, /Development: 2 phases — Opening → Middle/);
+  assert.match(glance, /Needs your decision: 1/);
+  assert.match(glance, /Open questions: 1/);
+  // Every long section lives inside the collapsed "Read the full architecture" disclosure.
+  const full = container.children.find(child => child.tag === 'details');
+  assert.equal(full.className, 'architecture-reader-full');
+  assert.equal(full.open, false);
+  assert.equal(full.children[0].tag, 'summary');
+  assert.match(full.children[0].textContent, /Read the full architecture/);
+  for (const heading of ['Emotional promise', 'Genres and their work', 'Functional tropes', 'Relationships',
+    'Readings the agent is using', 'Open questions']) {
+    assert.ok(full.children.some(child => child.tag === 'h3' && child.textContent.startsWith(heading)), heading);
+    assert.ok(!container.children.some(child => child.tag === 'h3' && child.textContent.startsWith(heading)), heading);
+  }
+});
+
+test('reader keeps the full architecture open across a re-render', () => {
+  const api = load();
+  const container = element('section');
+  container.querySelector = selector => selector === '.architecture-reader-full[open]' &&
+    container.children.find(child => child.tag === 'details' && child.open) || null;
+  api.render(container, api.project(sample), documentStub());
+  container.children.find(child => child.tag === 'details').open = true;
+  api.render(container, api.project(sample), documentStub());
+  assert.equal(container.children.find(child => child.tag === 'details').open, true);
+});
+
 test('reader render handles an empty projection with an honest message', () => {
   const api = load();
   const container = element('section');
