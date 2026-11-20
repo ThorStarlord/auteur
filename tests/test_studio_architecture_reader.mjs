@@ -187,17 +187,25 @@ test('reader renders text-first sections and never injects HTML', () => {
 test('reader opens with one line per narrative system and keeps the full text one disclosure away', () => {
   const api = load();
   const decided = {...sample, interpretations: [{id: 'reading', interpretation: 'Memory is currency.',
-    affects: ['wonder-engine'], consequences: 'Discovery costs memory.', author_decision_required: true}]};
+    affects: ['wonder-engine'], consequences: 'Discovery costs memory.', author_decision_required: true}],
+  opportunities: [
+    {id: 'rival', title: 'Make dread the governing promise', why_it_matters: 'Stronger.', relationship: 'replaces',
+     requires_author_decision: true},
+    {id: 'primary', title: 'A wonder-first series', why_it_matters: 'Delegated.', relationship: 'deepens',
+     provisional_primary: true}]};
   const container = element('section');
   api.render(container, api.project(decided), documentStub());
   const glanceIndex = container.children.findIndex(child => child.textContent === 'At a glance');
   const glance = textOf(container.children[glanceIndex + 1]);
-  assert.match(glance, /Emotional promise: joy \(primary\) · fear \(supporting\)/);
+  // The author-declared fear target is marked; the agent-proposed joy target is not.
+  assert.match(glance, /Emotional promise: joy \(primary\) · fear \(supporting, yours\)/);
+  assert.match(glance, /Your decision — would replace your purpose: Make dread the governing promise/);
+  assert.match(glance, /provisional primary direction \(under your delegated goal discovery\): A wonder-first series/);
+  assert.match(glance, /Your decision — reading the agent is using: Memory is currency\./);
   assert.match(glance, /Narrative engines: Wonder engine/);
   assert.match(glance, /Genres: Wonder \(governing\) · Dread \(supporting\)/);
   assert.match(glance, /How genres interact: Dread constrains Wonder/);
   assert.match(glance, /Development: 2 phases — Opening → Middle/);
-  assert.match(glance, /Needs your decision: 1/);
   assert.match(glance, /Open questions: 1/);
   // Every long section lives inside the collapsed "Read the full architecture" disclosure.
   const full = container.children.find(child => child.tag === 'details');

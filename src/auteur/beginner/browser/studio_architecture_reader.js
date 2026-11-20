@@ -316,7 +316,10 @@
     var lines = [];
     if (projection.emotions.length) {
       lines.push('Emotional promise: ' + joinLimited(projection.emotions.map(function (emotion) {
-        return emotion.label + ' (' + emotion.role + ')';
+        // Who named it matters as much as the label; the full report gives the detail.
+        var origin = emotion.provenance !== 'author_declared' ? ''
+          : emotion.groundingKnown && !emotion.emotionNamedByAuthor ? ', you described it' : ', yours';
+        return emotion.label + ' (' + emotion.role + origin + ')';
       }), 6));
     }
     var engines = projection.mechanisms.filter(function (item) { return item.category === 'engine'; });
@@ -325,11 +328,12 @@
     }
     if (projection.genres.length) {
       lines.push('Genres: ' + joinLimited(projection.genres.map(function (genre) {
-        return genre.title + (genre.role ? ' (' + genre.role + ')' : '');
+        return genre.title + ' (' + genre.role + ')';
       }), 5));
     }
     var interactions = projection.relationships.filter(function (item) { return item.kind === 'genre_interaction'; });
     if (interactions.length) {
+      // Kinds are GenreInteraction.kind; reinforces/enables/constrains read correctly as-is.
       var verbs = {creates_tension: 'creates tension with', contrasts: 'contrasts with', converges: 'converges with'};
       lines.push('How genres interact: ' + joinLimited(interactions.map(function (item) {
         return item.from + ' ' + (verbs[item.function] || item.function.replace(/_/g, ' ')) + ' ' + item.to;
@@ -340,9 +344,19 @@
         + (projection.structure.length === 1 ? '' : 's') + ' — '
         + joinLimited(projection.structure.map(function (phase) { return phase.title; }), 6, ' → '));
     }
-    var decisions = projection.interpretations.filter(function (item) { return item.requiresDecision; }).length
-      + projection.opportunities.filter(function (item) { return item.requiresAuthorDecision; }).length;
-    if (decisions) lines.push('Needs your decision: ' + decisions + ' (see the full architecture)');
+    // Anything that is the author's call stays named on the first screen, never only inside the disclosure.
+    projection.opportunities.filter(function (item) { return item.requiresAuthorDecision; }).forEach(function (item) {
+      lines.push('Your decision — would replace your purpose: ' + excerpt(item.title, 120));
+    });
+    projection.opportunities.filter(function (item) {
+      return item.provisionalPrimary && !item.requiresAuthorDecision;
+    }).forEach(function (item) {
+      lines.push('Agent’s provisional primary direction (under your delegated goal discovery): '
+        + excerpt(item.title, 120));
+    });
+    projection.interpretations.filter(function (item) { return item.requiresDecision; }).forEach(function (item) {
+      lines.push('Your decision — reading the agent is using: ' + excerpt(item.interpretation, 120));
+    });
     if (projection.uncertainties.length) {
       lines.push('Open questions: ' + projection.uncertainties.length);
     }
