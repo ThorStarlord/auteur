@@ -1,0 +1,2000 @@
+{
+ "generator": "scripts/qualification/atelier_study_capture.py",
+ "browser": "headless Chromium (Playwright)",
+ "note": "Machine measurements of the served Studio; not a human usability evaluation.",
+ "pageErrors": [],
+ "runs": [
+  {
+   "canvas": "atelier-small",
+   "treatment": "A",
+   "focus": "genres|genre:literary_mystery",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 985,
+      "frames": 56,
+      "meanFrameMs": 17.6,
+      "maxFrameMs": 50,
+      "zoom": 0.46,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 11
+      },
+      "quietLabels": 5,
+      "verbLabels": {
+       "shown": 4,
+       "total": 20
+      },
+      "composition": {
+       "visible": 16,
+       "first": 15,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 13,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 1076,
+        "height": 762
+       },
+       "meanReach": 456,
+       "maxReach": 748
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1587,
+      "frames": 95,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 0.45,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 17
+      },
+      "quietLabels": 34,
+      "verbLabels": {
+       "shown": 2,
+       "total": 20
+      },
+      "composition": {
+       "visible": 51,
+       "first": 15,
+       "second": 35,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 243,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 1095,
+        "height": 766
+       },
+       "meanReach": 456,
+       "maxReach": 748
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:fantasy",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 890,
+      "frames": 54,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.7,
+      "zoom": 0.46,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 10
+      },
+      "quietLabels": 2,
+      "verbLabels": {
+       "shown": 5,
+       "total": 14
+      },
+      "composition": {
+       "visible": 12,
+       "first": 11,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 4,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 1076,
+        "height": 762
+       },
+       "meanReach": 604,
+       "maxReach": 870
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "A",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 645,
+      "frames": 39,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 0.5,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 3
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 68
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-small",
+   "treatment": "B",
+   "focus": "genres|genre:literary_mystery",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1012,
+      "frames": 59,
+      "meanFrameMs": 17.5,
+      "maxFrameMs": 50.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 16
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 6,
+       "total": 20
+      },
+      "composition": {
+       "visible": 16,
+       "first": 15,
+       "second": 0,
+       "moved": 15,
+       "meanMove": 395,
+       "maxMove": 742,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 556,
+        "height": 232
+       },
+       "meanReach": 196,
+       "maxReach": 205
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1367,
+      "frames": 82,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 51
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 7,
+       "total": 20
+      },
+      "composition": {
+       "visible": 51,
+       "first": 15,
+       "second": 35,
+       "moved": 50,
+       "meanMove": 584,
+       "maxMove": 1065,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 976,
+        "height": 490
+       },
+       "meanReach": 196,
+       "maxReach": 205
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:fantasy",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 947,
+      "frames": 43,
+      "meanFrameMs": 22.2,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 6,
+       "total": 14
+      },
+      "composition": {
+       "visible": 12,
+       "first": 11,
+       "second": 0,
+       "moved": 11,
+       "meanMove": 545,
+       "maxMove": 912,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 556,
+        "height": 172
+       },
+       "meanReach": 193,
+       "maxReach": 198
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "B",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 650,
+      "frames": 36,
+      "meanFrameMs": 18.1,
+      "maxFrameMs": 33.3,
+      "zoom": 0.5,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 3
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 68
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-small",
+   "treatment": "C",
+   "focus": "genres|genre:literary_mystery",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1302,
+      "frames": 78,
+      "meanFrameMs": 16.9,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 16
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 9,
+       "total": 20
+      },
+      "composition": {
+       "visible": 16,
+       "first": 15,
+       "second": 0,
+       "moved": 9,
+       "meanMove": 515,
+       "maxMove": 785,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 675,
+        "height": 410
+       },
+       "meanReach": 218,
+       "maxReach": 338
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1560,
+      "frames": 94,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 51
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 6,
+       "total": 20
+      },
+      "composition": {
+       "visible": 51,
+       "first": 15,
+       "second": 35,
+       "moved": 43,
+       "meanMove": 645,
+       "maxMove": 1072,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 976,
+        "height": 571
+       },
+       "meanReach": 218,
+       "maxReach": 338
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:fantasy",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1230,
+      "frames": 65,
+      "meanFrameMs": 19,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 8,
+       "total": 14
+      },
+      "composition": {
+       "visible": 12,
+       "first": 11,
+       "second": 0,
+       "moved": 9,
+       "meanMove": 616,
+       "maxMove": 900,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 619,
+        "height": 410
+       },
+       "meanReach": 214,
+       "maxReach": 342
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "C",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 647,
+      "frames": 35,
+      "meanFrameMs": 18.6,
+      "maxFrameMs": 33.4,
+      "zoom": 0.5,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 3
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 68
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "A",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1239,
+      "frames": 56,
+      "meanFrameMs": 22.1,
+      "maxFrameMs": 50,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 15
+      },
+      "quietLabels": 10,
+      "verbLabels": {
+       "shown": 10,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 18,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 2500,
+        "height": 1515
+       },
+       "meanReach": 907,
+       "maxReach": 1827
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1601,
+      "frames": 86,
+      "meanFrameMs": 18.6,
+      "maxFrameMs": 50.1,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 28
+      },
+      "quietLabels": 33,
+      "verbLabels": {
+       "shown": 8,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 146,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 2548,
+        "height": 1522
+       },
+       "meanReach": 907,
+       "maxReach": 1827
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1056,
+      "frames": 45,
+      "meanFrameMs": 23.9,
+      "maxFrameMs": 50,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 6,
+      "verbLabels": {
+       "shown": 3,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 10,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 1744,
+        "height": 1515
+       },
+       "meanReach": 834,
+       "maxReach": 1510
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "A",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 661,
+      "frames": 24,
+      "meanFrameMs": 28.3,
+      "maxFrameMs": 50,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "B",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1057,
+      "frames": 41,
+      "meanFrameMs": 26.3,
+      "maxFrameMs": 50.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 25
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 9,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 24,
+       "meanMove": 823,
+       "maxMove": 1645,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 556,
+        "height": 352
+       },
+       "meanReach": 210,
+       "maxReach": 237
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1390,
+      "frames": 56,
+      "meanFrameMs": 24.8,
+      "maxFrameMs": 66.6,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 61
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 11,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 60,
+       "meanMove": 1081,
+       "maxMove": 2149,
+       "labelOverlaps": 8,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 976,
+        "height": 540
+       },
+       "meanReach": 218,
+       "maxReach": 285
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1026,
+      "frames": 32,
+      "meanFrameMs": 32.8,
+      "maxFrameMs": 66.6,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 18
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 5,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 17,
+       "meanMove": 752,
+       "maxMove": 1536,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 556,
+        "height": 262
+       },
+       "meanReach": 198,
+       "maxReach": 211
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "B",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 661,
+      "frames": 19,
+      "meanFrameMs": 36.1,
+      "maxFrameMs": 83.4,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "C",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1361,
+      "frames": 59,
+      "meanFrameMs": 23.6,
+      "maxFrameMs": 50.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 25
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 9,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 20,
+       "meanMove": 939,
+       "maxMove": 1642,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 647,
+        "height": 507
+       },
+       "meanReach": 220,
+       "maxReach": 351
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1583,
+      "frames": 70,
+      "meanFrameMs": 22.5,
+      "maxFrameMs": 50.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 61
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 11,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 54,
+       "meanMove": 1159,
+       "maxMove": 2143,
+       "labelOverlaps": 4,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 976,
+        "height": 624
+       },
+       "meanReach": 229,
+       "maxReach": 351
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1330,
+      "frames": 36,
+      "meanFrameMs": 37.6,
+      "maxFrameMs": 100.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 18
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 7,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 16,
+       "meanMove": 787,
+       "maxMove": 1507,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 555,
+        "height": 401
+       },
+       "meanReach": 201,
+       "maxReach": 277
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "C",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 658,
+      "frames": 19,
+      "meanFrameMs": 36.1,
+      "maxFrameMs": 66.6,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "desktop"
+  },
+  {
+   "canvas": "atelier-small",
+   "treatment": "B",
+   "focus": "genres|genre:literary_mystery",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1001,
+      "frames": 59,
+      "meanFrameMs": 17.2,
+      "maxFrameMs": 33.3,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 16
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 16,
+       "first": 15,
+       "second": 0,
+       "moved": 15,
+       "meanMove": 421,
+       "maxMove": 910,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 522
+       },
+       "meanReach": 330,
+       "maxReach": 514
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1362,
+      "frames": 82,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 51
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 51,
+       "first": 15,
+       "second": 35,
+       "moved": 50,
+       "meanMove": 477,
+       "maxMove": 910,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 1502
+       },
+       "meanReach": 330,
+       "maxReach": 514
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:fantasy",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 947,
+      "frames": 46,
+      "meanFrameMs": 20.7,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 1,
+       "total": 14
+      },
+      "composition": {
+       "visible": 12,
+       "first": 11,
+       "second": 0,
+       "moved": 11,
+       "meanMove": 740,
+       "maxMove": 1136,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 410
+       },
+       "meanReach": 278,
+       "maxReach": 406
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "B",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 658,
+      "frames": 39,
+      "meanFrameMs": 17.1,
+      "maxFrameMs": 33.3,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 3
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 68
+   },
+   "viewport": "narrow"
+  },
+  {
+   "canvas": "atelier-small",
+   "treatment": "C",
+   "focus": "genres|genre:literary_mystery",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1313,
+      "frames": 80,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 16
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 16,
+       "first": 15,
+       "second": 0,
+       "moved": 15,
+       "meanMove": 421,
+       "maxMove": 910,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 522
+       },
+       "meanReach": 330,
+       "maxReach": 514
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:literary_mystery",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1563,
+      "frames": 94,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.8,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 51
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 51,
+       "first": 15,
+       "second": 35,
+       "moved": 50,
+       "meanMove": 477,
+       "maxMove": 910,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 1502
+       },
+       "meanReach": 330,
+       "maxReach": 514
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:fantasy",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1245,
+      "frames": 66,
+      "meanFrameMs": 19,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 1,
+       "total": 14
+      },
+      "composition": {
+       "visible": 12,
+       "first": 11,
+       "second": 0,
+       "moved": 11,
+       "meanMove": 740,
+       "maxMove": 1136,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 410
+       },
+       "meanReach": 278,
+       "maxReach": 406
+      },
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "C",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 644,
+      "frames": 39,
+      "meanFrameMs": 16.7,
+      "maxFrameMs": 16.7,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 3
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 68,
+      "relations": 82
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 68
+   },
+   "viewport": "narrow"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "A",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1223,
+      "frames": 58,
+      "meanFrameMs": 21.3,
+      "maxFrameMs": 66.7,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 15
+      },
+      "quietLabels": 10,
+      "verbLabels": {
+       "shown": 10,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 18,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 2500,
+        "height": 1515
+       },
+       "meanReach": 907,
+       "maxReach": 1827
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1591,
+      "frames": 82,
+      "meanFrameMs": 19.3,
+      "maxFrameMs": 50,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 28
+      },
+      "quietLabels": 33,
+      "verbLabels": {
+       "shown": 8,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 146,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 2548,
+        "height": 1522
+       },
+       "meanReach": 907,
+       "maxReach": 1827
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "A",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1057,
+      "frames": 45,
+      "meanFrameMs": 23.9,
+      "maxFrameMs": 66.7,
+      "zoom": 0.35,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 12
+      },
+      "quietLabels": 6,
+      "verbLabels": {
+       "shown": 3,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 0,
+       "meanMove": 0,
+       "maxMove": 0,
+       "labelOverlaps": 10,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 1744,
+        "height": 1515
+       },
+       "meanReach": 834,
+       "maxReach": 1510
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "A",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 650,
+      "frames": 29,
+      "meanFrameMs": 22.6,
+      "maxFrameMs": 33.4,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "narrow"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "B",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1051,
+      "frames": 41,
+      "meanFrameMs": 25.8,
+      "maxFrameMs": 50.1,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 25
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 24,
+       "meanMove": 762,
+       "maxMove": 1855,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 774
+       },
+       "meanReach": 450,
+       "maxReach": 761
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1386,
+      "frames": 81,
+      "meanFrameMs": 17.3,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 61
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 60,
+       "meanMove": 887,
+       "maxMove": 1931,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 1782
+       },
+       "meanReach": 450,
+       "maxReach": 761
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "B",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1033,
+      "frames": 27,
+      "meanFrameMs": 39.1,
+      "maxFrameMs": 66.7,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 18
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 17,
+       "meanMove": 577,
+       "maxMove": 1027,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 578
+       },
+       "meanReach": 356,
+       "maxReach": 568
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "B",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 654,
+      "frames": 29,
+      "meanFrameMs": 23.2,
+      "maxFrameMs": 33.4,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "narrow"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "C",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1362,
+      "frames": 65,
+      "meanFrameMs": 21.4,
+      "maxFrameMs": 50,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 25
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 24,
+       "meanMove": 762,
+       "maxMove": 1855,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 774
+       },
+       "meanReach": 450,
+       "maxReach": 761
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 1571,
+      "frames": 94,
+      "meanFrameMs": 16.8,
+      "maxFrameMs": 33.4,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 61
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 60,
+       "meanMove": 887,
+       "maxMove": 1931,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 1782
+       },
+       "meanReach": 450,
+       "maxReach": 761
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 1329,
+      "frames": 55,
+      "meanFrameMs": 24.4,
+      "maxFrameMs": 50,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 18
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 17,
+       "meanMove": 577,
+       "maxMove": 1027,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 294,
+        "height": 578
+       },
+       "meanReach": 356,
+       "maxReach": 568
+      },
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "C",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 648,
+      "frames": 27,
+      "meanFrameMs": 24.4,
+      "maxFrameMs": 33.4,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": false,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "narrow"
+  },
+  {
+   "canvas": "atelier-dense",
+   "treatment": "C",
+   "focus": "genres|genre:genre-procedural",
+   "steps": [
+    {
+     "step": "select",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 31,
+      "frames": 0,
+      "meanFrameMs": 0,
+      "maxFrameMs": 0,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 25
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 9,
+       "total": 32
+      },
+      "composition": {
+       "visible": 25,
+       "first": 24,
+       "second": 0,
+       "moved": 20,
+       "meanMove": 939,
+       "maxMove": 1642,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 647,
+        "height": 507
+       },
+       "meanReach": 220,
+       "maxReach": 351
+      },
+      "reducedMotion": true,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "deeper",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-procedural",
+      "depth": 2,
+      "action": "deeper",
+      "settleMs": 37,
+      "frames": 0,
+      "meanFrameMs": 0,
+      "maxFrameMs": 0,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 61
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 11,
+       "total": 32
+      },
+      "composition": {
+       "visible": 61,
+       "first": 24,
+       "second": 36,
+       "moved": 54,
+       "meanMove": 1159,
+       "maxMove": 2143,
+       "labelOverlaps": 4,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 976,
+        "height": 624
+       },
+       "meanReach": 229,
+       "maxReach": 351
+      },
+      "reducedMotion": true,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "follow",
+     "metrics": {
+      "treatment": "C",
+      "focus": "genres|genre:genre-tribunal",
+      "depth": 1,
+      "action": "select",
+      "settleMs": 19,
+      "frames": 0,
+      "meanFrameMs": 0,
+      "maxFrameMs": 0,
+      "zoom": 1,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 18
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 7,
+       "total": 20
+      },
+      "composition": {
+       "visible": 18,
+       "first": 17,
+       "second": 0,
+       "moved": 16,
+       "meanMove": 787,
+       "maxMove": 1507,
+       "labelOverlaps": 0,
+       "firstEdgeCrossings": 0,
+       "extent": {
+        "width": 555,
+        "height": 401
+       },
+       "meanReach": 201,
+       "maxReach": 277
+      },
+      "reducedMotion": true,
+      "concepts": 156,
+      "relations": 215
+     }
+    },
+    {
+     "step": "return",
+     "metrics": {
+      "treatment": "C",
+      "focus": null,
+      "depth": 1,
+      "action": "return",
+      "settleMs": 17,
+      "frames": 0,
+      "meanFrameMs": 0,
+      "maxFrameMs": 0,
+      "zoom": 0.26,
+      "renderedLabelOverlaps": {
+       "count": 0,
+       "labels": 7
+      },
+      "quietLabels": 0,
+      "verbLabels": {
+       "shown": 0,
+       "total": 0
+      },
+      "composition": null,
+      "reducedMotion": true,
+      "concepts": 156,
+      "relations": 215
+     }
+    }
+   ],
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "atlas": {
+    "concepts": 156
+   },
+   "viewport": "desktop, prefers-reduced-motion"
+  }
+ ]
+}
