@@ -69,6 +69,29 @@ test('a declared trope-to-reader-experience link is navigable; genre targets sti
   assert.equal(linksOf('tropes', 'trope:thriller:0').filter(l => l.targetFacet === 'emotions').length, 0);
 });
 
+test('a phase reads its genres as "activates"; a repeated activation stays one link; unknown kinds stay generic', () => {
+  const fromPhase = linksOf('timeline', 'phase:early');
+  assert.ok(fromPhase.some(l => l.targetKey === 'genre:thriller' && l.relationVerb === 'activates'));
+  const twice = JSON.parse(JSON.stringify(candidate));
+  twice.phases[0].genre_activations.push({genre_node_id: 'thriller', basic_emotions: ['joy'], structural_function: 'Again.'});
+  twice.genre_interactions.push({id: 'odd', source_genre_id: 'mystery', target_genre_id: 'thriller', kind: 'mirrors',
+    mechanism: 'Unknown kind.'});
+  const p = api.project(twice, 'sha', null);
+  const active = p.links.filter(l => l.relationVerb === 'active in');
+  assert.equal(active.filter(l => l.targetKey === 'phase:late' && l.fromKey === 'genre:thriller').length, 1);
+  assert.equal(new Set(active.map(l => l.id)).size, active.length);
+  const odd = JSON.parse(JSON.stringify(api.linksFor(p, {facet: 'genres', key: 'genre:thriller'})))
+    .find(l => l.sourceRef === 'genre_interactions/odd');
+  assert.equal(odd.relationVerb, 'related through “mirrors”');
+});
+
+test('a candidate without genre contracts yields no genre or phase links', () => {
+  const bare = {nodes: [{id: 'g', title: 'G', category: 'genre'}], phases: [{id: 'p', title: 'P', order: 1,
+    narrative_function: 'x', genre_activations: [{genre_node_id: 'g', basic_emotions: [], structural_function: 's'}]}]};
+  const links = JSON.parse(JSON.stringify(api.project(bare, 'sha', null).links));
+  assert.deepEqual(links.filter(l => l.fromFacet === 'genres' || l.targetFacet === 'genres'), []);
+});
+
 test('the genre explanation groups relationships by perspective and shows why each holds', () => {
   const root = new Element();
   views.renderGenre(root, packet, 'genre:thriller', () => {}, () => {});
@@ -82,4 +105,9 @@ test('the genre explanation groups relationships by perspective and shows why ea
     'Across the story']);
   assert.ok(notes.includes('Deadlines stop verification. Risk: Fairness erodes too early.'));
   assert.ok(notes.includes('fear · First weaponised truth.'));
+  // Each reason is announced with its button.
+  const described = [];
+  (function visit(node) { if (node.attributes['aria-describedby']) described.push(node.attributes['aria-describedby']);
+    node.children.forEach(visit); })(root);
+  assert.ok(described.length >= notes.length);
 });

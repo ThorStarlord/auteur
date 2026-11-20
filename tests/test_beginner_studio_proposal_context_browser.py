@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import time
 
 import pytest
 from playwright.sync_api import sync_playwright
@@ -118,6 +119,10 @@ def test_copied_scene_offers_suggested_relationships_and_its_architecture(tmp_pa
         assert page.locator("#scene-connections").is_hidden()
 
         page.get_by_role("button", name="Keep as working connection: “point of view” with Ines Varga").click()
+        # "saved locally" can come from the earlier copy's save finishing late, so wait for this save itself.
+        deadline = time.monotonic() + 10
+        while not store.load().connections and time.monotonic() < deadline:
+            time.sleep(0.05)
         page.wait_for_function(saved)
         kept = store.load().connections
         assert [(e.source, e.target, e.label) for e in kept] == [(scene_id, ines_id, "point of view")]

@@ -1981,12 +1981,19 @@
       });
       // Phases name basic emotions, not targets: say exactly that.
       var target = (state.architecture.emotion_targets || []).find(function (t) { return t.id === entry.targetId; });
-      (state.architecture.phases || []).slice().sort(function (x, y) { return x.order - y.order; })
+      var naming = (state.architecture.phases || []).slice().sort(function (x, y) { return x.order - y.order; })
         .filter(function (p) {
           return target && (p.genre_activations || []).some(function (active) {
             return (active.basic_emotions || []).includes(target.emotion);
           });
-        }).forEach(function (p) {
+        });
+      if (naming.length) {
+        var phaseNote = document.createElement("p");
+        phaseNote.textContent = "Phases whose genre activations name the basic emotion " + target.emotion +
+          " (not a claim about this target specifically):";
+        links.appendChild(phaseNote);
+      }
+      naming.forEach(function (p) {
           action("Phase naming " + target.emotion + ": " + p.title, function () {
             visitFacet("timeline", "phase:" + p.id, null);
           });

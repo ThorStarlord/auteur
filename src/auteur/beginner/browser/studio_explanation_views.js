@@ -8,6 +8,7 @@
     var block=el('section',cls||'studio-explanation-card');
     block.append(el('div','studio-explanation-label',caption),el('p','',value));parent.append(block);
   }
+  var whyCount=0;
   function semanticButton(parent,link,projection,onNavigate){
     var target=api.resolve(projection,link.targetFacet,link.targetKey,projection.requestSha);
     if(!target)return;
@@ -16,7 +17,11 @@
     button.addEventListener('click',function(){onNavigate(link);});
     parent.append(button);
     // The recorded reason (mechanism, risk, local function) is what makes the relationship meaningful.
-    if(link.reason)parent.append(el('p','studio-semantic-why',link.reason));
+    if(link.reason){
+      // Announced with the button, so the mechanism or risk is not visual-only.
+      var why=el('p','studio-semantic-why',link.reason);why.id='why-'+(++whyCount);
+      button.setAttribute('aria-describedby',why.id);parent.append(why);
+    }
   }
   var groupOrder=[['genres','Genres'],['emotions','Reader emotions'],['tropes','Tropes'],
     ['structure','Structure and engines'],['timeline','Across the story']];

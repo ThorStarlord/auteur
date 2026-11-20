@@ -67,14 +67,18 @@
       link('genres','genre:'+edge.source_genre_id,'genres','genre:'+edge.target_genre_id,verbs[0],
         'genre_interactions/'+edge.id,'genre_interaction',why||null,verbs[1]);
     });
-    phases.slice().sort(function(x,y){return (x.order||0)-(y.order||0);}).forEach(function(p){
+    // Story order, as the timeline list orders it (`order` is a required integer).
+    phases.slice().sort(function(x,y){return x.order-y.order;}).forEach(function(p){
       record('timeline',{key:'phase:'+p.id,title:p.title,detail:p.narrative_function||'',phaseId:p.id,
         sourceRef:'phases/'+p.id,role:'phase'});
+      var activeGenres={};
       (p.genre_activations||[]).forEach(function(a){
         var id=a.genre_node_id;
         var local=[(a.basic_emotions||[]).join(', '),a.structural_function].filter(Boolean).join(' · ');
-        link('genres','genre:'+id,'timeline','phase:'+p.id,'active in','phases/'+p.id+'/genre_activations/'+id,
-          'phase',local||null,'activates');
+        // One link per genre and phase keeps link ids unique; a repeated activation is still in the phase inspector.
+        if(!activeGenres[id])link('genres','genre:'+id,'timeline','phase:'+p.id,'active in',
+          'phases/'+p.id+'/genre_activations/'+id,'phase',local||null,'activates');
+        activeGenres[id]=true;
         (a.trope_functions||[]).forEach(function(t,i){
           var key='phase-trope:'+p.id+':'+id+':'+i,src='phases/'+p.id+'/genre_activations/'+id+'/trope_functions/'+i;
           record('tropes',{key:key,title:t,detail:t,ownerGenreId:id,phaseId:p.id,sourceRef:src,role:'phase trope'});

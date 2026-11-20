@@ -86,8 +86,10 @@ def test_genre_interactions_phases_and_emotional_links_are_navigable_and_return(
         page.locator('[data-architecture-facet="genres"]').click()
         page.locator("#architecture-facet-list button", has_text="Succession thriller").click()
         related = hero.locator(".studio-explanation-related")
-        assert related.locator("h4").all_inner_texts() == [
-            "GENRES", "READER EMOTIONS", "TROPES", "STRUCTURE AND ENGINES", "ACROSS THE STORY"]
+        assert related.locator("h4").all_text_contents() == [
+            "Genres", "Reader emotions", "Tropes", "Structure and engines", "Across the story"]
+        why = related.locator(".studio-semantic-why", has_text="Deadlines stop").get_attribute("id")
+        assert related.locator(f'button[aria-describedby="{why}"]').inner_text().startswith("Explore Records mystery")
         text = related.inner_text()
         assert "Records mystery · constrains" in text
         assert "Deadlines stop the archivist verifying evidence. Risk: Readers stop trying to solve it." in text
@@ -119,9 +121,14 @@ def test_genre_interactions_phases_and_emotional_links_are_navigable_and_return(
         inspector = page.locator("#inspector").inner_text()
         assert "Grief with defiant hope" in inspector and "Reader experience (graph node)" in inspector
         assert "aims to evoke" in page.locator("#studio-semantic-arrival").inner_text()
+        page.get_by_role("button", name="← Previous context").click()
+        assert hero.locator("h2").inner_text() == "Pyrrhic victory"
+        page.locator('[data-architecture-facet="emotions"]').click()
 
         # An emotion target lists the phases that name its basic emotion.
         page.locator("#architecture-facet-list button", has_text="fear").first.click()
+        assert "name the basic emotion fear (not a claim about this target specifically)" in page.locator(
+            "#inspector").inner_text()
         phase_buttons = page.locator("#inspector button", has_text="Phase naming fear").all_inner_texts()
         assert phase_buttons == ["Phase naming fear: Book 1 · The second reading",
                                  "Phase naming fear: Book 2 · The spring-tide war"]
