@@ -70,8 +70,13 @@ def test_a_save_waits_for_a_reader_that_still_has_the_file_open(tmp_path):
     store = CanvasStore(tmp_path, "held")
     store.create()
     held = (store.directory / "canvas.json").open("rb")
-    threading.Timer(0.1, held.close).start()
-    assert save(store, 0, "after the reader").revision == 1
+    release = threading.Timer(0.1, held.close)
+    release.start()
+    try:
+        assert save(store, 0, "after the reader").revision == 1
+    finally:
+        release.join()
+        held.close()
     assert store.load().items[0].content == "after the reader"
 
 
@@ -107,8 +112,11 @@ def test_a_load_retries_a_sharing_refusal_but_not_other_failures(tmp_path, monke
     monkeypatch.setattr(Path, "read_text", refused_twice)
     assert store.load().revision == 0 and len(calls) == 3
 
+    def always_refused(path, *args, **kwargs):
+        raise PermissionError(13, "Permission denied")
+
     monkeypatch.setattr(persistence, "_SHARING_RETRY_SECONDS", 0.1)
-    monkeypatch.setattr(Path, "read_text", lambda *a, **k: (_ for _ in ()).throw(PermissionError(13, "denied")))
+    monkeypatch.setattr(Path, "read_text", always_refused)
     with pytest.raises(BeginnerPersistenceError, match="could not read canvas"):
         store.load()
 
