@@ -1788,6 +1788,10 @@
             " · Narrative approximation, not an emotion equation.",
           origin:"complex_emotions/" + e.id});
       });
+      (a.nodes || []).filter(function (n) { return n.category === "reader_experience"; }).forEach(function (n) {
+        add({key:"emotion-node:" + n.id, title:n.title, kind:"Reader experience (graph node)",
+          detail:n.summary, origin:"nodes/" + n.id, nodeId:n.id});
+      });
     }
     if (facet === "genres") {
       contracts.forEach(function (c) {
@@ -1973,6 +1977,35 @@
         var node = candidateNode(c.genre_node_id);
         action("Targeted by genre: " + (node ? node.title : c.genre_node_id), function () {
           visitFacet("genres", null, c.genre_node_id);
+        });
+      });
+      // Phases name basic emotions, not targets: say exactly that.
+      var target = (state.architecture.emotion_targets || []).find(function (t) { return t.id === entry.targetId; });
+      var naming = (state.architecture.phases || []).slice().sort(function (x, y) { return x.order - y.order; })
+        .filter(function (p) {
+          return target && (p.genre_activations || []).some(function (active) {
+            return (active.basic_emotions || []).includes(target.emotion);
+          });
+        });
+      if (naming.length) {
+        var phaseNote = document.createElement("p");
+        phaseNote.textContent = "Phases whose genre activations name the basic emotion " + target.emotion +
+          " (not a claim about this target specifically):";
+        links.appendChild(phaseNote);
+      }
+      naming.forEach(function (p) {
+          action("Phase naming " + target.emotion + ": " + p.title, function () {
+            visitFacet("timeline", "phase:" + p.id, null);
+          });
+        });
+    }
+    if (entry.key && entry.key.indexOf("emotion-node:") === 0 && window.AuteurStudioExplanations) {
+      var projector = window.AuteurStudioExplanations;
+      var packet = projector.project(state.architecture, state.architectureRequestSha, null);
+      projector.linksFor(packet, {facet:"emotions", key:entry.key}).forEach(function (l) {
+        var other = projector.resolve(packet, l.targetFacet, l.targetKey, state.architectureRequestSha);
+        if (other) action(other.title + " · " + l.relationVerb, function () {
+          visitFacet(l.targetFacet, l.targetKey, other.nodeId || null, l);
         });
       });
     }

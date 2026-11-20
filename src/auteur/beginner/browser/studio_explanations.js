@@ -11,12 +11,12 @@
     function add(facet,entry){packet[facet].push(entry);return entry;}
     var keys={};
     function record(facet,entry){keys[facet+':'+entry.key]=entry;return add(facet,entry);}
-    function link(fromFacet,fromKey,toFacet,toKey,verb,sourceRef,sourceKind,details){
+    function link(fromFacet,fromKey,toFacet,toKey,verb,sourceRef,sourceKind,details,reverseVerb){
       if(!sourceRef||!verb)return;
       packet.links.push({id:requestSha+':'+sourceRef+':'+fromKey+':'+toKey,
         fromFacet:fromFacet,fromKey:fromKey,targetFacet:toFacet,targetKey:toKey,
-        relationVerb:verb,sourceRef:sourceRef,sourceKind:sourceKind||'architecture_proposal',
-        supportStatus:'source_backed_proposal',explanation:details||verb,requestSha:requestSha});
+        relationVerb:verb,reverseVerb:reverseVerb||null,sourceRef:sourceRef,sourceKind:sourceKind||'architecture_proposal',
+        supportStatus:'source_backed_proposal',explanation:details||verb,reason:details||null,requestSha:requestSha});
     }
     nodes.forEach(function(n){
       if(n.category==='genre'){
@@ -28,6 +28,8 @@
         sourceRef:'nodes/'+n.id,role:'node',ownerGenreId:null});
       if(['structure','engine'].includes(n.category))record('structure',{key:'structure-node:'+n.id,title:n.title,
         detail:n.summary||'',nodeId:n.id,sourceRef:'nodes/'+n.id,role:n.category});
+      if(n.category==='reader_experience')record('emotions',{key:'emotion-node:'+n.id,title:n.title,
+        detail:n.summary||'',nodeId:n.id,sourceRef:'nodes/'+n.id,role:'reader experience'});
     });
     contracts.forEach(function(c){
       var id=c.genre_node_id,g='genre:'+id;
@@ -55,11 +57,28 @@
     (c.emotion_targets||[]).forEach(function(t){
       record('emotions',{key:'emotion:'+t.id,title:t.emotion,detail:t.intended_effect||'',sourceRef:'emotion_targets/'+t.id,role:t.role});
     });
-    phases.forEach(function(p){
+    // Recorded genre interactions are typed relationships; mechanism and risk say why they hold.
+    var interactionVerbs={creates_tension:['creates tension with','in tension with'],contrasts:['contrasts with','contrasts with'],
+      converges:['converges with','converges with'],reinforces:['reinforces','reinforced by'],
+      enables:['enables','enabled by'],constrains:['constrains','constrained by']};
+    (c.genre_interactions||[]).forEach(function(edge){
+      var verbs=interactionVerbs[edge.kind]||[String(edge.kind||'').replace(/_/g,' '),null];
+      var why=(edge.mechanism||'')+(edge.risk?' Risk: '+edge.risk:'');
+      link('genres','genre:'+edge.source_genre_id,'genres','genre:'+edge.target_genre_id,verbs[0],
+        'genre_interactions/'+edge.id,'genre_interaction',why||null,verbs[1]);
+    });
+    // Story order, as the timeline list orders it (`order` is a required integer).
+    phases.slice().sort(function(x,y){return x.order-y.order;}).forEach(function(p){
       record('timeline',{key:'phase:'+p.id,title:p.title,detail:p.narrative_function||'',phaseId:p.id,
         sourceRef:'phases/'+p.id,role:'phase'});
+      var activeGenres={};
       (p.genre_activations||[]).forEach(function(a){
         var id=a.genre_node_id;
+        var local=[(a.basic_emotions||[]).join(', '),a.structural_function].filter(Boolean).join(' · ');
+        // One link per genre and phase keeps link ids unique; a repeated activation is still in the phase inspector.
+        if(!activeGenres[id])link('genres','genre:'+id,'timeline','phase:'+p.id,'active in',
+          'phases/'+p.id+'/genre_activations/'+id,'phase',local||null,'activates');
+        activeGenres[id]=true;
         (a.trope_functions||[]).forEach(function(t,i){
           var key='phase-trope:'+p.id+':'+id+':'+i,src='phases/'+p.id+'/genre_activations/'+id+'/trope_functions/'+i;
           record('tropes',{key:key,title:t,detail:t,ownerGenreId:id,phaseId:p.id,sourceRef:src,role:'phase trope'});
@@ -77,7 +96,7 @@
       var n=nmap[nodeId];if(!n)return null;
       var facet=types[n.category];if(!facet)return null;
       if(facet==='genres')return {facet:facet,key:contracts.some(function(c){return c.genre_node_id===nodeId;})?'genre:'+nodeId:'genre-node:'+nodeId};
-      return {facet:facet,key:(facet==='tropes'?'trope-node:':'structure-node:')+nodeId};
+      return {facet:facet,key:({tropes:'trope-node:',emotions:'emotion-node:'}[facet]||'structure-node:')+nodeId};
     }
     (c.links||[]).forEach(function(e,i){
       var from=nodeRef(e.source),to=nodeRef(e.target);
@@ -98,7 +117,8 @@
     packet.links.forEach(function(l){
       if(l.fromFacet===ref.facet&&l.fromKey===ref.key)output.push(Object.assign({},l,{direction:'forward'}));
       else if(l.targetFacet===ref.facet&&l.targetKey===ref.key){
-        output.push(Object.assign({},l,{id:l.id,direction:'reverse',relationVerb:'related through “'+l.relationVerb+'”',
+        output.push(Object.assign({},l,{id:l.id,direction:'reverse',
+          relationVerb:l.reverseVerb||'related through “'+l.relationVerb+'”',
           fromFacet:l.targetFacet,fromKey:l.targetKey,targetFacet:l.fromFacet,targetKey:l.fromKey}));
       }
     });

@@ -321,6 +321,9 @@ body.scene-docked #inspector { display:none; }
   border:1px solid #bfa7d3; text-align:left; text-decoration:underline; overflow-wrap:anywhere; }
 .studio-semantic-link:focus-visible,.studio-semantic-trail button:focus-visible {
   outline:3px solid #2d705a; outline-offset:2px; }
+.studio-explanation-group { margin:12px 0 2px; font-size:.78rem; text-transform:uppercase;
+  letter-spacing:.04em; color:#5a4870; }
+.studio-semantic-why { margin:0 0 8px 14px; color:#4f4a58; font-size:.84rem; overflow-wrap:anywhere; }
 .studio-explanation-mechanism { border:1px solid #d0dfe2; background:#f5fafb; border-radius:10px;
   padding:12px; margin:9px 0; display:flex; flex-wrap:wrap; align-items:center; gap:9px; }
 .studio-explanation-inspect { background:#faf7fe; margin-top:12px; font-size:.84rem; }
