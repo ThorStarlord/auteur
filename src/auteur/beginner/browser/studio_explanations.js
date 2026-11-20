@@ -83,13 +83,6 @@
       tropeRefs(c.trope_function_refs,function(i){return 'trope:'+c.genre_node_id+':'+i;},
         'genre_contracts/'+c.genre_node_id);
     });
-    phases.forEach(function(p){
-      (p.genre_activations||[]).forEach(function(a){
-        tropeRefs(a.trope_function_refs,function(i){
-          return 'phase-trope:'+p.id+':'+a.genre_node_id+':'+i;},
-          'phases/'+p.id+'/genre_activations/'+a.genre_node_id);
-      });
-    });
     // Story order, as the timeline list orders it (`order` is a required integer).
     phases.slice().sort(function(x,y){return x.order-y.order;}).forEach(function(p){
       record('timeline',{key:'phase:'+p.id,title:p.title,detail:p.narrative_function||'',phaseId:p.id,
@@ -107,6 +100,9 @@
           record('tropes',{key:key,title:t,detail:t,ownerGenreId:id,phaseId:p.id,sourceRef:src,role:'phase trope'});
           link('timeline','phase:'+p.id,'tropes',key,'uses local trope function',src,'phase');
         });
+        // Recorded after this activation's own function entries exist, so the references resolve.
+        tropeRefs(a.trope_function_refs,function(i){return 'phase-trope:'+p.id+':'+id+':'+i;},
+          'phases/'+p.id+'/genre_activations/'+id);
         if(a.structural_function){
           var key='phase-structure:'+p.id+':'+id,src='phases/'+p.id+'/genre_activations/'+id+'/structural_function';
           record('structure',{key:key,title:a.structural_function,detail:a.structural_function,

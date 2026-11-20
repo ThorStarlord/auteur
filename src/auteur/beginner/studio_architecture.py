@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_serializer, model_validator
 
 from auteur.narrative_ontology.architecture_preferences import (
     CausalDistributionPreference, ComplexityPreference, EngineHierarchyPreference,
@@ -118,6 +118,14 @@ class GenreContract(BaseModel):
     complex_emotion_ids: list[str] = Field(default_factory=list, max_length=12)
     trope_functions: list[str] = Field(min_length=1, max_length=12)
     trope_function_refs: list[TropeFunctionRef] = Field(default_factory=list, max_length=12)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_trope_refs(self, handler):
+        # Proposals without references serialize exactly as before, so revision diffs see no change.
+        data = handler(self)
+        if not data.get("trope_function_refs"):
+            data.pop("trope_function_refs", None)
+        return data
     narrative_engine: str = Field(min_length=1, max_length=1200)
     structural_pattern: str = Field(min_length=1, max_length=1200)
     aesthetic_strategies: list[str] = Field(default_factory=list, max_length=12)
@@ -141,6 +149,13 @@ class GenreActivation(BaseModel):
     basic_emotions: list[BasicEmotion] = Field(default_factory=list, max_length=6)
     trope_functions: list[str] = Field(default_factory=list, max_length=8)
     trope_function_refs: list[TropeFunctionRef] = Field(default_factory=list, max_length=8)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_trope_refs(self, handler):
+        data = handler(self)
+        if not data.get("trope_function_refs"):
+            data.pop("trope_function_refs", None)
+        return data
     structural_function: str = Field(min_length=1, max_length=700)
 
 
@@ -290,6 +305,13 @@ class ArchitectureCandidate(BaseModel):
         if any(ref not in phases or ref == phase.id
                for phase in self.phases for ref in phase.parallel_with):
             raise ValueError("phase parallel_with references missing or identical phase")
+        # Trope references are checked for every version: a field accepted without checks would bypass them.
+        trope_ids = {node.id for node in self.nodes if node.category == "trope"}
+        for genre in self.genre_contracts:
+            _validate_trope_refs(genre.trope_functions, genre.trope_function_refs, trope_ids)
+        for phase in self.phases:
+            for activation in phase.genre_activations:
+                _validate_trope_refs(activation.trope_functions, activation.trope_function_refs, trope_ids)
         if self.schema_version == 2:
             # Architecture-only proposals carry mechanisms. Character and relationship instances belong to
             # other operations, so the shared category type stays broader than this validator allows.
@@ -307,16 +329,11 @@ class ArchitectureCandidate(BaseModel):
                    next(n for n in self.nodes if n.id == genre.genre_node_id).category != "genre"
                    for genre in self.genre_contracts):
                 raise ValueError("genre contracts must reference genre nodes")
-            trope_ids = {node.id for node in self.nodes if node.category == "trope"}
             for genre in self.genre_contracts:
                 if any(ref not in target_ids for ref in genre.emotion_target_ids):
                     raise ValueError("genre references unknown basic-emotion target")
                 if any(ref not in complex_ids for ref in genre.complex_emotion_ids):
                     raise ValueError("genre references unknown complex emotion")
-                _validate_trope_refs(genre.trope_functions, genre.trope_function_refs, trope_ids)
-            for phase in self.phases:
-                for activation in phase.genre_activations:
-                    _validate_trope_refs(activation.trope_functions, activation.trope_function_refs, trope_ids)
             if len({edge.id for edge in self.genre_interactions}) != len(self.genre_interactions):
                 raise ValueError("duplicate genre interaction identifier")
             if any(edge.source_genre_id not in contracts or edge.target_genre_id not in contracts

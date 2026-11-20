@@ -55,3 +55,18 @@ test('a reference that names no recorded function or node creates no link', () =
   const p = plain(api.project(c, 'sha', null));
   assert.equal(p.links.filter(l => l.sourceRef.includes('trope_function_refs')).length, 0);
 });
+
+test('a phase activation reference resolves to the phase function entry and reaches the same trope node', () => {
+  const c = candidate();
+  c.phases = [{id: 'war', title: 'The war', order: 1, narrative_function: 'War.',
+    genre_activations: [{genre_node_id: 'thriller', basic_emotions: ['fear'],
+      trope_functions: ['Winning costs the heir.'],
+      trope_function_refs: [{function_index: 0, trope_node_id: 'pyrrhic'}], structural_function: 'Race.'}]}];
+  const p = plain(api.project(c, 'sha', null));
+  const phaseLink = p.links.find(l => l.sourceRef === 'phases/war/genre_activations/thriller/trope_function_refs/0');
+  assert.ok(phaseLink, 'phase reference must produce a link, not be dropped');
+  assert.equal(phaseLink.fromKey, 'phase-trope:war:thriller:0');
+  assert.equal(phaseLink.targetKey, 'trope-node:pyrrhic');
+  const reached = plain(api.linksFor(p, {facet: 'tropes', key: 'trope-node:pyrrhic'}));
+  assert.equal(reached.length, 3);
+});

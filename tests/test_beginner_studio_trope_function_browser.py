@@ -84,7 +84,7 @@ def test_one_trope_reaches_each_genre_specific_function_and_returns(tmp_path, br
         page.locator("#architecture-facet-list button", has_text="Pyrrhic victory").click()
         # The shared trope lists each genre-specific function that realises it, with its own source.
         reached = hero.locator("button.studio-semantic-link", has_text="performed as a function here")
-        assert reached.count() == 2
+        assert reached.count() == 3
         assert "Pyrrhic victory" in hero.inner_text()
 
         # Trope -> one genre-specific function: the link names the function, not a merged trope.
@@ -95,7 +95,7 @@ def test_one_trope_reaches_each_genre_specific_function_and_returns(tmp_path, br
         # Previous Context returns to the trope it came from.
         trail.locator("button", has_text="Previous context").evaluate("button => button.click()")
         assert "Pyrrhic victory" in hero.inner_text()
-        assert reached.count() == 2
+        assert reached.count() == 3
 
         # Keyboard: the phase link opens the timeline and Previous Context returns.
         page.locator('[data-architecture-facet="genres"]').click()

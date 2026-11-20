@@ -78,3 +78,18 @@ def test_unknown_fields_on_a_reference_are_rejected():
     with pytest.raises(ValidationError):
         ArchitectureCandidate.model_validate(with_refs([{"function_index": 0, "trope_node_id": "pyrrhic",
                                                          "confidence": 0.9}]))
+
+def test_references_are_checked_on_every_schema_version_not_only_v2():
+    candidate = with_refs([{"function_index": 0, "trope_node_id": "missing"}])
+    candidate["schema_version"] = 1
+    with pytest.raises(ValidationError, match="names no trope node"):
+        ArchitectureCandidate.model_validate(candidate)
+
+
+def test_stored_output_of_a_proposal_without_references_is_identical_to_before():
+    dumped = ArchitectureCandidate.model_validate(base()).model_dump(mode="json")
+    contract = dumped["genre_contracts"][0]
+    assert "trope_function_refs" not in contract
+    referenced = ArchitectureCandidate.model_validate(with_refs([{"function_index": 0, "trope_node_id": "pyrrhic"}]))
+    assert referenced.model_dump(mode="json")["genre_contracts"][0]["trope_function_refs"] == [
+        {"function_index": 0, "trope_node_id": "pyrrhic"}]
