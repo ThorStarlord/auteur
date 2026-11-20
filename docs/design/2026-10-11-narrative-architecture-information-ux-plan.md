@@ -1,7 +1,7 @@
 # Narrative Architecture Studio — Information Hierarchy and High-Density UX
 
 **Decision date:** 2026-10-11  
-**Status:** Owner-selected UX direction; UX-0–UX-5 implemented on stacked draft PRs #387–#392, not merged or runtime-qualified  
+**Status:** Owner-selected UX direction. The UX-0–UX-5 code is on `main` (integrated by `c6d533ea`); the stacked draft PRs #387–#392 themselves remain unmerged and are superseded where later work changed them. Follow-up increments are recorded in section 13.  
 **Target:** Living Story Studio, local-first Browser, Narrative Architecture workspace  
 **Baseline:** Stacked experimental Studio branch ending in PR #385; preserve PR #375–#385 capabilities  
 **Owner boundary:** Presentation/projection only; no new narrative authority, canonical state, rollout or merge decision.
@@ -77,6 +77,12 @@ The existing v2 genre contracts contain **trope_functions and structural_pattern
 - Introduce stable IDs or a backwards-compatible v3 optional reference only if a real user task needs cross-genre trope identity, cross-facet editing or persistence of those links. Keep older v1/v2 proposal files readable.
 
 This meets the current visibility need without starting a competing universal ontology or duplicating semantics.
+
+**Decision (owner-approved, #623, 2026-11-20): optional reference in schema v2, not a v3.** A trope function is text, and an `ArchitectureLink` joins two nodes, so v2 cannot say which trope node a genre's or phase's function realises. The approved smaller compatible extension is an optional `trope_function_refs` field on genre contracts and phase activations: `{function_index, trope_node_id}`.
+- The reference names a real trope node of the exact candidate and an existing function index. Duplicates, unknown nodes and unknown fields are rejected on every schema version.
+- The trope node (identity), the contextual function (text in one genre contract or activation), and the phase use stay distinct. A reference never makes them equal, and nothing is matched by name.
+- Historical proposals without the field are unchanged, and empty references are omitted from stored output so revision diffs see no change.
+- Not decided here: cross-revision trope lineage. A reference names a node in the same response only. Stable identity across revisions needs a separate owner decision.
 
 ## 5. Visual hierarchy, layout, and interaction
 
@@ -272,4 +278,6 @@ The following changes are **committed as stacked draft pull requests**, not merg
 
 **Current verification ceiling:** Connected JavaScript syntax checks and HTML ID/reference inspections were executed for the changed source, and focused regression tests were committed. Python test execution, actual HTTP smoke tests, browser rendering, keyboard and narrow-screen accessibility checks, and a paladin/dense-series task walkthrough **have not been executed in this workspace**. No claim of tested end-user usability or production readiness follows from these PRs.
 
-**Next executable responsibility:** In an isolated local checkout of the exact #392 head, run the focused Studio tests including the new files, smoke-test the actual served UI on desktop and narrow mobile width, and follow the representative scenarios in section 10. Repair observed regressions in the smallest PR. Verify the full base stack against current `main` and only then decide readiness/merge order; do not spend GitHub Actions billing credits unnecessarily.
+**Later delivery (2026-11-19 to 2026-11-20, on `main`):** [#619](https://github.com/ThorStarlord/auteur/issues/619) (PR #621) short readable overview first, each perspective on the first screen; [#620](https://github.com/ThorStarlord/auteur/issues/620) (PR #622) genre interactions, phase activations and declared reader-experience links navigable; [#623](https://github.com/ThorStarlord/auteur/issues/623) (PR #625) optional source-qualified trope-function references; [#624](https://github.com/ThorStarlord/auteur/issues/624) (PR #626) stale-source notice wording.
+
+**Historical next step (superseded by the above):** In an isolated local checkout of the exact #392 head, run the focused Studio tests including the new files, smoke-test the actual served UI on desktop and narrow mobile width, and follow the representative scenarios in section 10. Repair observed regressions in the smallest PR. Verify the full base stack against current `main` and only then decide readiness/merge order; do not spend GitHub Actions billing credits unnecessarily.

@@ -67,12 +67,28 @@
       link('genres','genre:'+edge.source_genre_id,'genres','genre:'+edge.target_genre_id,verbs[0],
         'genre_interactions/'+edge.id,'genre_interaction',why||null,verbs[1]);
     });
+    // Source-qualified: a contextual function realises a trope node's shared identity. Only the
+    // recorded reference creates this link; the function text and the node stay distinct entries.
+    function tropeRefs(refs,functionKeyOf,sourceBase,sourceKind){
+      (refs||[]).forEach(function(ref,k){
+        var fromKey=functionKeyOf(ref.function_index);
+        if(!keys['tropes:'+fromKey])return;
+        link('tropes',fromKey,'tropes','trope-node:'+ref.trope_node_id,'realises trope',
+          sourceBase+'/trope_function_refs/'+k,sourceKind,
+          'This is one genre-specific function of the trope; the trope itself is shared across uses.',
+          'performed as a function here');
+      });
+    }
+    contracts.forEach(function(c){
+      tropeRefs(c.trope_function_refs,function(i){return 'trope:'+c.genre_node_id+':'+i;},
+        'genre_contracts/'+c.genre_node_id,'genre_contract');
+    });
     // Story order, as the timeline list orders it (`order` is a required integer).
     phases.slice().sort(function(x,y){return x.order-y.order;}).forEach(function(p){
       record('timeline',{key:'phase:'+p.id,title:p.title,detail:p.narrative_function||'',phaseId:p.id,
         sourceRef:'phases/'+p.id,role:'phase'});
       var activeGenres={};
-      (p.genre_activations||[]).forEach(function(a){
+      (p.genre_activations||[]).forEach(function(a,ai){
         var id=a.genre_node_id;
         var local=[(a.basic_emotions||[]).join(', '),a.structural_function].filter(Boolean).join(' · ');
         // One link per genre and phase keeps link ids unique; a repeated activation is still in the phase inspector.
@@ -84,6 +100,10 @@
           record('tropes',{key:key,title:t,detail:t,ownerGenreId:id,phaseId:p.id,sourceRef:src,role:'phase trope'});
           link('timeline','phase:'+p.id,'tropes',key,'uses local trope function',src,'phase');
         });
+        // Recorded after this activation's own function entries exist, so the references resolve.
+        // The activation position keeps two activations of one genre in one phase from sharing link ids.
+        tropeRefs(a.trope_function_refs,function(i){return 'phase-trope:'+p.id+':'+id+':'+i;},
+          'phases/'+p.id+'/genre_activations/'+id+'#'+ai,'phase');
         if(a.structural_function){
           var key='phase-structure:'+p.id+':'+id,src='phases/'+p.id+'/genre_activations/'+id+'/structural_function';
           record('structure',{key:key,title:a.structural_function,detail:a.structural_function,

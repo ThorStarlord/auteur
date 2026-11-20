@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_serializer, model_validator
 
 from auteur.narrative_ontology.architecture_preferences import (
     CausalDistributionPreference, ComplexityPreference, EngineHierarchyPreference,
@@ -99,6 +99,17 @@ class ComplexEmotion(BaseModel):
         return self
 
 
+class TropeFunctionRef(BaseModel):
+    """Names the trope node whose conceptual identity one contextual trope function realises.
+
+    The function stays local to its owner (a genre contract or a phase activation); the node
+    stays the shared trope identity. The reference never makes the two equal.
+    """
+    model_config = ConfigDict(extra="forbid", strict=True)
+    function_index: int = Field(ge=0, le=11)
+    trope_node_id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,79}$")
+
+
 class GenreContract(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     genre_node_id: str
@@ -106,6 +117,15 @@ class GenreContract(BaseModel):
     emotion_target_ids: list[str] = Field(default_factory=list, max_length=20)
     complex_emotion_ids: list[str] = Field(default_factory=list, max_length=12)
     trope_functions: list[str] = Field(min_length=1, max_length=12)
+    trope_function_refs: list[TropeFunctionRef] = Field(default_factory=list, max_length=12)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_trope_refs(self, handler):
+        # Proposals without references serialize exactly as before, so revision diffs see no change.
+        data = handler(self)
+        if not data.get("trope_function_refs"):
+            data.pop("trope_function_refs", None)
+        return data
     narrative_engine: str = Field(min_length=1, max_length=1200)
     structural_pattern: str = Field(min_length=1, max_length=1200)
     aesthetic_strategies: list[str] = Field(default_factory=list, max_length=12)
@@ -128,6 +148,14 @@ class GenreActivation(BaseModel):
     genre_node_id: str
     basic_emotions: list[BasicEmotion] = Field(default_factory=list, max_length=6)
     trope_functions: list[str] = Field(default_factory=list, max_length=8)
+    trope_function_refs: list[TropeFunctionRef] = Field(default_factory=list, max_length=8)
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_trope_refs(self, handler):
+        data = handler(self)
+        if not data.get("trope_function_refs"):
+            data.pop("trope_function_refs", None)
+        return data
     structural_function: str = Field(min_length=1, max_length=700)
 
 
@@ -208,6 +236,17 @@ class ArchitectureInterpretation(BaseModel):
     author_decision_required: bool = False
 
 
+def _validate_trope_refs(functions: list[str], refs: list[TropeFunctionRef], trope_ids: set[str]) -> None:
+    indexes = [ref.function_index for ref in refs]
+    if len(set(indexes)) != len(indexes):
+        raise ValueError("a trope function is referenced more than once")
+    for ref in refs:
+        if ref.function_index >= len(functions):
+            raise ValueError("trope function reference points past its function list")
+        if ref.trope_node_id not in trope_ids:
+            raise ValueError(f"trope function reference names no trope node: {ref.trope_node_id!r}")
+
+
 class ArchitectureCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     schema_version: Literal[1, 2]
@@ -266,6 +305,13 @@ class ArchitectureCandidate(BaseModel):
         if any(ref not in phases or ref == phase.id
                for phase in self.phases for ref in phase.parallel_with):
             raise ValueError("phase parallel_with references missing or identical phase")
+        # Trope references are checked for every version: a field accepted without checks would bypass them.
+        trope_ids = {node.id for node in self.nodes if node.category == "trope"}
+        for genre in self.genre_contracts:
+            _validate_trope_refs(genre.trope_functions, genre.trope_function_refs, trope_ids)
+        for phase in self.phases:
+            for activation in phase.genre_activations:
+                _validate_trope_refs(activation.trope_functions, activation.trope_function_refs, trope_ids)
         if self.schema_version == 2:
             # Architecture-only proposals carry mechanisms. Character and relationship instances belong to
             # other operations, so the shared category type stays broader than this validator allows.
@@ -909,13 +955,16 @@ aesthetic_strategy,provenance}; emotion one of six basics;
 role primary/supporting/contrasting/local; provenance author_declared (author-stated, see above)/agent_proposed.
 complex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.
 genre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,
-trope_functions,narrative_engine,structural_pattern,aesthetic_strategies,
+trope_functions,trope_function_refs,narrative_engine,structural_pattern,aesthetic_strategies,
 payoff_expectations}; genre_node_id identifies one genre node.
+trope_function_refs (optional): [{function_index,trope_node_id}] names the trope node (category
+trope) that one entry of trope_functions realises. Only when the trope node clearly is that
+conceptual trope; the function text stays local to this genre. Never guess a link by name.
 genre_interaction: {id,source_genre_id,target_genre_id,kind,mechanism,risk}.
 phase: {id,title,order,scope,genres,genre_activations,reader_experience,
 aesthetic,narrative_function,transition,parallel_with}.
 genre: {genre,role}; role governing/locally_dominant/supporting/background.
-genre_activation: {genre_node_id,basic_emotions,trope_functions,structural_function}.
+genre_activation: {genre_node_id,basic_emotions,trope_functions,trope_function_refs,structural_function}.
 Unknown lengths stay unknown; phase order is NOT a chapter or act number.
 Do not fabricate genre commitments when the brief does not establish them.
 Keep stable IDs across revisions, preserve unaffected choices, explain uncertainty.
