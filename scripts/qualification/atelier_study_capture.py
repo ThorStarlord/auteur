@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import time
 from pathlib import Path
 
@@ -124,7 +125,12 @@ def main() -> None:
                 context.close()
                 Path(name).rename(args.out / "video" / f"dense-{treatment}.webm")
         browser.close()
-    manifest = {"generator": "scripts/qualification/atelier_study_capture.py", "browser": "headless Chromium (Playwright)",
+    repo = Path(__file__).resolve().parents[2]
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "src"], cwd=repo,
+                                capture_output=True, text=True).stdout.strip())
+    manifest = {"generator": "scripts/qualification/atelier_study_capture.py", "sourceHead": head,
+                "sourceTreeDirty": dirty, "browser": "headless Chromium (Playwright)",
                 "note": "Machine measurements of the served Studio; not a human usability evaluation.",
                 "pageErrors": errors, "runs": runs}
     (args.out / "metrics.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")

@@ -199,8 +199,9 @@ allowlist entry for the three new assets.
 ## Evidence
 
 `docs/qualification-evidence/atelier-study-20261120/metrics.json` is generated
-by `atelier_study_capture.py` against the served Studio in headless Chromium.
-It holds 12 runs with 0 page errors. These are machine measurements, not a
+by `atelier_study_capture.py` against the served Studio in headless Chromium,
+from source head `c85d6e67` with a clean source tree. It holds 12
+runs with 0 page errors. These are machine measurements, not a
 human usability evaluation. Screenshots of all seven task steps and recordings
 of the dense walk for A, B and C were captured with the same script and are
 published outside the repository, because no binary evidence is committed here.
@@ -210,18 +211,18 @@ certification procedural*):
 
 | viewport | specimen | treatment | first-order | moved | mean travel px | quiet labels | quiet at depth 2 | verbs shown | mean reach px | settle ms | frame mean/worst ms | return drift | camera restored |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| desktop | small | A | 15 | 0 | 0 | 5 | 34 | 4/20 | 456 | 985 | 17.6/50 | 0 | yes |
-| desktop | small | B | 15 | 15 | 395 | 0 | 0 | 6/20 | 196 | 1012 | 17.5/50.1 | 0 | yes |
-| desktop | small | C | 15 | 9 | 515 | 0 | 0 | 9/20 | 218 | 1302 | 16.9/33.4 | 0 | yes |
-| desktop | dense | A | 24 | 0 | 0 | 10 | 33 | 10/32 | 907 | 1239 | 22.1/50 | 0 | yes |
-| desktop | dense | B | 24 | 24 | 823 | 0 | 0 | 9/32 | 210 | 1057 | 26.3/50.1 | 0 | yes |
-| desktop | dense | C | 24 | 20 | 939 | 0 | 0 | 9/32 | 220 | 1361 | 23.6/50.1 | 0 | yes |
-| narrow | small | B | 15 | 15 | 421 | 0 | 0 | 0/20 | 330 | 1001 | 17.2/33.3 | 0 | yes |
-| narrow | small | C | 15 | 15 | 421 | 0 | 0 | 0/20 | 330 | 1313 | 16.7/16.8 | 0 | yes |
-| narrow | dense | A | 24 | 0 | 0 | 10 | 33 | 10/32 | 907 | 1223 | 21.3/66.7 | 0 | yes |
-| narrow | dense | B | 24 | 24 | 762 | 0 | 0 | 0/32 | 450 | 1051 | 25.8/50.1 | 0 | yes |
-| narrow | dense | C | 24 | 24 | 762 | 0 | 0 | 0/32 | 450 | 1362 | 21.4/50 | 0 | yes |
-| desktop, reduced motion | dense | C | 24 | 20 | 939 | 0 | 0 | 9/32 | 220 | 31 | 0/0 | 0 | yes |
+| desktop | small | A | 15 | 0 | 0 | 5 | 34 | 4/20 | 456 | 992 | 17.9/50 | 0 | yes |
+| desktop | small | B | 15 | 15 | 395 | 0 | 0 | 6/20 | 196 | 998 | 17.5/50 | 0 | yes |
+| desktop | small | C | 15 | 9 | 515 | 0 | 0 | 9/20 | 218 | 1313 | 17.1/50.1 | 0 | yes |
+| desktop | dense | A | 24 | 0 | 0 | 10 | 33 | 10/32 | 907 | 1230 | 22.8/50 | 0 | yes |
+| desktop | dense | B | 24 | 24 | 823 | 0 | 0 | 9/32 | 210 | 1061 | 26.7/50 | 0 | yes |
+| desktop | dense | C | 24 | 20 | 939 | 0 | 0 | 9/32 | 220 | 1363 | 24/50 | 0 | yes |
+| narrow | small | B | 15 | 15 | 421 | 0 | 0 | 0/20 | 330 | 1001 | 17.2/33.4 | 0 | yes |
+| narrow | small | C | 15 | 15 | 421 | 0 | 0 | 0/20 | 330 | 1303 | 16.7/16.8 | 0 | yes |
+| narrow | dense | A | 24 | 0 | 0 | 10 | 33 | 10/32 | 907 | 1222 | 21.8/50 | 0 | yes |
+| narrow | dense | B | 24 | 24 | 762 | 0 | 0 | 0/32 | 450 | 1053 | 24.6/33.4 | 0 | yes |
+| narrow | dense | C | 24 | 24 | 762 | 0 | 0 | 0/32 | 450 | 1353 | 21.2/50.1 | 0 | yes |
+| desktop, reduced motion | dense | C | 24 | 20 | 939 | 0 | 0 | 9/32 | 220 | 32 | 0/0 | 0 | yes |
 
 - **Travel and reach** are in world pixels at reading scale. *Reach* is the
   distance from the focus to a first-order neighbour. *Settle* runs from the
