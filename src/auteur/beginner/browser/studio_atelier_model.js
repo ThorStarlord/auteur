@@ -12,6 +12,8 @@
     tropes:'Trope',structure:'Structure',other:'Narrative idea'};
   var COVERED={genre:'genres',trope:'tropes',structure:'structure',engine:'structure',reader_experience:'emotions'};
   var TREATMENTS={A:'Progressive revelation',B:'Spatial choreography',C:'Contextual unfolding'};
+  // A is the world, B the magnifying glass; C is kept only as a research comparison.
+  var MODES={atlas:'Living atlas',constellation:'Focused constellation'};
 
   function hash(text){var h=2166136261;text=String(text);
     for(var i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0)/4294967295;}
@@ -130,18 +132,23 @@
       adjacency[r.to].push({relation:r,other:r.from,direction:'reverse',
         verb:r.reverseVerb||('related through “'+r.verb+'”')});
     });
+    // Prominence is the count of documented relationships, a recorded fact rather than a judgement.
+    var maxDegree=1;concepts.forEach(function(x){x.degree=adjacency[x.id].length;maxDegree=Math.max(maxDegree,x.degree);});
     var timeline=concepts.filter(function(x){return x.facet==='timeline';})
       .sort(function(a,b){return (a.order||0)-(b.order||0)||a.id.localeCompare(b.id);});
     return {requestSha:requestSha||null,summary:c.summary||'',concepts:concepts,byId:byId,
-      relations:relations,relById:relById,adjacency:adjacency,timeline:timeline,packet:packet,candidate:c};
+      relations:relations,relById:relById,adjacency:adjacency,timeline:timeline,maxDegree:maxDegree,packet:packet,candidate:c};
   }
 
   /* ---------- Atlas: a stable "narrative score" ----------
      Bands hold kinds of narrative idea; the story-time spine runs left to right in recorded
      phase order. A concept's horizontal place follows the phases it is recorded as related to,
-     so nearness reflects recorded phase activity only — never an inferred relationship. */
+     so nearness reflects recorded phase activity only — never an inferred relationship.
+     The score is laid out for the stage it is first read on: rows are spaced so that resting
+     names have room at the whole-story view, then the layout never changes while exploring. */
   var BAND_ORDER=['genres','emotions','timeline','tropes','structure','other'];
-  var LABEL_W=176,ROW_H=32,MOTE_GAP=15;
+  var LABEL_W=176,ROW_H=32,MOTE_GAP=15,REST_LABEL_PX=128,REST_ROW_PX=34,MOTE_PX=8;
+  var GUTTER_WIDE=150,GUTTER_NARROW=96,ATLAS_LEFT=150;
   // Minimal squared displacement with a minimum gap (isotonic regression, pool adjacent violators).
   function spread(wanted,gap,minX){
     var blocks=[];
@@ -155,8 +162,43 @@
     if(out.length&&out[0]<minX){var shift=minX-out[0];out=out.map(function(x){return x+shift;});}
     return out;
   }
+  // The whole-story view: band names keep a gutter, the score fills the rest of the stage.
+  // On a phone the score fits its height and the author travels along story time.
+  function restCamera(atlas,view){
+    var narrow=view.width<600,gutter=narrow?GUTTER_NARROW:GUTTER_WIDE,z;
+    if(narrow){
+      z=clamp((view.height-24)/atlas.height,0.3,1.05);
+      return {cx:ATLAS_LEFT+(view.width/2-gutter)/z,cy:atlas.height/2,z:z};
+    }
+    var room=view.width-gutter-24;
+    z=clamp(Math.min(room/(atlas.width-ATLAS_LEFT),(view.height-24)/atlas.height),0.26,1.05);
+    var spare=Math.max(0,room-(atlas.width-ATLAS_LEFT)*z)/2;
+    return {cx:ATLAS_LEFT-(gutter+spare-view.width/2)/z,cy:atlas.height/2,z:z};
+  }
   function layoutAtlas(model,options){
-    var positions={},rooms={},margin={left:200,right:150,top:70,bottom:70};
+    options=options||{};
+    var view=options.view&&options.view.width>0&&options.view.height>0?options.view:null;
+    var narrow=!!(view&&view.width<600);
+    var o={labelW:LABEL_W,rowH:ROW_H,moteGap:MOTE_GAP,aspect:narrow?0:options.aspect};
+    // On a phone the score is travelled along story time at a fixed reading zoom; it only has to fit
+    // the stage's height, so its spacing is set once for that zoom.
+    if(narrow){var zr=0.4;o.labelW=REST_LABEL_PX/zr;o.rowH=REST_ROW_PX/zr*0.9;o.moteGap=MOTE_PX/zr;}
+    var atlas=layoutOnce(model,o);
+    // A few deterministic passes settle the spacing that suits the whole-story zoom.
+    for(var k=0;view&&!narrow&&k<4;k++){
+      var z=restCamera(atlas,view).z;
+      var want={labelW:clamp(REST_LABEL_PX/z,LABEL_W*0.94,LABEL_W*2.6),rowH:clamp(REST_ROW_PX/z,ROW_H,ROW_H*2.8),
+        moteGap:clamp(MOTE_PX/z,MOTE_GAP,MOTE_GAP*2.2)};
+      if(Math.abs(want.labelW-o.labelW)<4&&Math.abs(want.rowH-o.rowH)<1.5)break;
+      o.labelW=want.labelW;o.rowH=want.rowH;o.moteGap=want.moteGap;
+      atlas=layoutOnce(model,o);
+    }
+    atlas.design={labelW:Math.round(o.labelW),rowH:Math.round(o.rowH),narrow:narrow,
+      view:view?{width:view.width,height:view.height}:null};
+    return atlas;
+  }
+  function layoutOnce(model,o){
+    var positions={},rooms={},margin={left:200,right:150,top:44+o.rowH*1.25,bottom:70},LW=o.labelW,RH=o.rowH,MG=o.moteGap;
     var phases=model.timeline,groups=[],phaseGap=phases.length>8?238:phases.length>4?262:300,groupGap=70;
     phases.forEach(function(p){
       var scope=p.scope||'whole_story',last=groups[groups.length-1];
@@ -196,7 +238,7 @@
         .sort(function(a,b){return a.title.localeCompare(b.title);});
       rest.forEach(function(cn,i){desired[cn.id]=x0+(x1-x0)*(rest.length===1?0.5:i/(rest.length-1));});
     });
-    // Bands stack top to bottom; landmarks take labelled rows, motes gather in small
+    // Bands stack top to bottom; landmarks take staggered rows, motes gather in small
     // sunflower clouds around the place they belong to.
     var y=margin.top,bands=[],maxX=x1;
     BAND_ORDER.forEach(function(facet){
@@ -204,24 +246,24 @@
       if(!members.length)return;
       var band={facet:facet,label:FACET_LABEL[facet],y0:y,count:members.length};
       if(facet==='timeline'){
-        var spineY=y+46;members.forEach(function(p){positions[p.id]={x:desired[p.id],y:spineY};rooms[p.id]=phaseGap;});
-        band.y1=spineY+64;band.spineY=spineY;bands.push(band);y=band.y1+26;return;
+        var spineY=y+Math.max(46,RH*1.3);members.forEach(function(p){positions[p.id]={x:desired[p.id],y:spineY};rooms[p.id]=phaseGap;});
+        band.y1=spineY+Math.max(64,RH*2.1);band.spineY=spineY;bands.push(band);y=band.y1+26;return;
       }
       var landmarks=members.filter(function(cn){return cn.tier===1;})
         .sort(function(a,b){return desired[a.id]-desired[b.id]||a.id.localeCompare(b.id);});
       // Few rows, each spread with minimal displacement from where its concepts want to be.
-      var gap=LABEL_W*0.94,span=Math.max(x1-x0+LABEL_W*1.5,640);
+      var gap=LW*0.94,span=Math.max(x1-x0+LW*1.2,640);
       var rowCount=landmarks.length?Math.max(1,Math.ceil(landmarks.length*gap/span)):0;
       for(var r=0;r<rowCount;r++){
         var row=landmarks.filter(function(_,i){return i%rowCount===r;});
         // Use the room the band offers: a looser row keeps more of each name readable.
         var rowGap=Math.max(gap,Math.min(gap*1.7,span/Math.max(row.length,1)));
-        var xs=spread(row.map(function(cn){return desired[cn.id]-LABEL_W*0.42;}),rowGap,margin.left);
-        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+30+r*ROW_H};
-          rooms[cn.id]=i<row.length-1?Math.min(xs[i+1]-xs[i],LABEL_W*1.3):LABEL_W*1.3;
-          maxX=Math.max(maxX,xs[i]+LABEL_W);});
+        var xs=spread(row.map(function(cn){return desired[cn.id]-LW*0.42;}),rowGap,margin.left);
+        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+30+r*RH};
+          rooms[cn.id]=i<row.length-1?Math.min(xs[i+1]-xs[i],LW*1.3):LW*1.3;
+          maxX=Math.max(maxX,xs[i]+LW);});
       }
-      var cloudTop=y+30+Math.max(rowCount,landmarks.length?1:0)*ROW_H+(landmarks.length?6:-10);
+      var cloudTop=y+30+Math.max(rowCount,landmarks.length?1:0)*RH+(landmarks.length?6:-10);
       var motes=members.filter(function(cn){return cn.tier===2;}),clouds={},order=[];
       motes.forEach(function(cn){
         var owner=cn.phaseId?'phase:'+cn.phaseId:cn.ownerGenreId?'genre:'+cn.ownerGenreId:'free:'+cn.id;
@@ -231,14 +273,14 @@
       order.sort(function(a,b){return clouds[a].x-clouds[b].x||a.localeCompare(b);});
       var placedClouds=[],cloudDepth=0;
       order.forEach(function(key){
-        var cloud=clouds[key],n=cloud.items.length,radius=MOTE_GAP*Math.sqrt(n)*0.62+6;
+        var cloud=clouds[key],n=cloud.items.length,radius=MG*Math.sqrt(n)*0.62+6;
         var cx=cloud.x,cy=cloudTop+radius;
-        placedClouds.forEach(function(o){
-          if(Math.abs(o.x-cx)<o.r+radius+14)cx=o.x+o.r+radius+14;
+        placedClouds.forEach(function(o2){
+          if(Math.abs(o2.x-cx)<o2.r+radius+14)cx=o2.x+o2.r+radius+14;
         });
         placedClouds.push({x:cx,r:radius});
         cloud.items.forEach(function(cn,i){
-          var angle=i*2.39996323,dist=i?MOTE_GAP*0.62*Math.sqrt(i+0.5):0;
+          var angle=i*2.39996323,dist=i?MG*0.62*Math.sqrt(i+0.5):0;
           positions[cn.id]={x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist};
         });
         cloudDepth=Math.max(cloudDepth,radius*2);maxX=Math.max(maxX,cx+radius);
@@ -248,15 +290,81 @@
     });
     var width=maxX+margin.right,height=y+margin.bottom-30;
     // A wide score is given vertical air to match the stage's proportions (computed once, then stable).
-    var aspect=options&&options.aspect>0?options.aspect:1.4,stretch=Math.min(2.4,Math.max(1,width/aspect/height));
+    var aspect=o.aspect>0?o.aspect:0,stretch=aspect?Math.min(2.4,Math.max(1,width/aspect/height)):1;
     if(stretch>1.02){
       Object.keys(positions).forEach(function(id){positions[id]={x:positions[id].x,y:positions[id].y*stretch};});
       bands.forEach(function(b){b.y0*=stretch;b.y1*=stretch;if(b.spineY)b.spineY*=stretch;});
       height*=stretch;
     }
     var books=groups.map(function(g){return {scope:g.scope,label:human(g.scope),x0:g.x0,x1:g.x1};});
-    return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,
+    return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,phaseGap:phaseGap,
       spine:phases.map(function(p){return positions[p.id];})};
+  }
+
+  /* ---------- Label placement around fixed glyphs ----------
+     Cartographic point labelling: each label tries a few positions around its glyph, most
+     important labels first. A label that cannot be set without overprinting another label, a
+     glyph or the stage furniture stays quiet (its glyph remains; hover, focus and the folio name it).
+     Glyphs never move to make room. Pure and deterministic, in screen pixels. */
+  function placeRect(place,x,y,g,w,h){
+    var d=g*0.62;
+    switch(place){
+      case 'e':return {x0:x+g,y0:y-h/2,x1:x+g+w,y1:y+h/2};
+      case 'w':return {x0:x-g-w,y0:y-h/2,x1:x-g,y1:y+h/2};
+      case 's':return {x0:x-w/2,y0:y+g,x1:x+w/2,y1:y+g+h};
+      case 'n':return {x0:x-w/2,y0:y-g-h,x1:x+w/2,y1:y-g};
+      case 'ne':return {x0:x+d,y0:y-d-h,x1:x+d+w,y1:y-d};
+      case 'se':return {x0:x+d,y0:y+d,x1:x+d+w,y1:y+d+h};
+      case 'nw':return {x0:x-d-w,y0:y-d-h,x1:x-d,y1:y-d};
+      case 'sw':return {x0:x-d-w,y0:y+d,x1:x-d,y1:y+d+h};
+      default:return {x0:x-w/2,y0:y-h/2,x1:x+w/2,y1:y+h/2};
+    }
+  }
+  function placeLabels(items,obstacles,bounds){
+    var CELL=64,grid={},result={};
+    function cells(r,fn){
+      for(var cx=Math.floor(r.x0/CELL);cx<=Math.floor(r.x1/CELL);cx++)
+        for(var cy=Math.floor(r.y0/CELL);cy<=Math.floor(r.y1/CELL);cy++)fn(cx+','+cy);
+    }
+    function add(r,owner,soft){var box={r:r,owner:owner,soft:soft===true||soft==='hood'?soft:false};cells(r,function(k){(grid[k]||(grid[k]=[])).push(box);});}
+    // soft:true obstacles (faint glyphs) may be covered by an item that allows it; soft:'hood' ones
+    // (furniture already faded behind a focus) only by the focus neighbourhood itself.
+    function hit(r,item,allowSoft){
+      var found=false;
+      cells(r,function(k){if(found||!grid[k])return;
+        found=grid[k].some(function(b){
+          if(b.owner===item.id)return false;
+          if(b.soft===true&&allowSoft)return false;
+          if(b.soft==='hood'&&item.overSoft===true)return false;
+          return r.x0<b.r.x1&&b.r.x0<r.x1&&r.y0<b.r.y1&&b.r.y0<r.y1;});});
+      return found;
+    }
+    (obstacles||[]).forEach(function(o){add(o.rect,o.owner||null,o.soft);});
+    var b=bounds||{x0:-Infinity,y0:-Infinity,x1:Infinity,y1:Infinity};
+    items.slice().sort(function(p,q){return q.priority-p.priority||(p.id<q.id?-1:p.id>q.id?1:0);}).forEach(function(item){
+      var anchors=item.anchors||[{x:item.x,y:item.y}],chosen=null;
+      function search(allowSoft){
+        for(var v=0;v<item.variants.length;v++){
+          var variant=item.variants[v];
+          for(var a=0;a<anchors.length;a++)for(var p=0;p<item.places.length;p++){
+            var r=placeRect(item.places[p],anchors[a].x,anchors[a].y,item.gap||0,variant.w,variant.h);
+            if(r.x0<b.x0||r.y0<b.y0||r.x1>b.x1||r.y1>b.y1)continue;
+            if(hit(r,item,allowSoft))continue;
+            return {place:item.places[p],variant:variant.key,anchor:a,rect:r};
+          }
+        }
+        return null;
+      }
+      // A label first looks for a place that covers nothing; only then may it cover a faint glyph.
+      chosen=search(false)||(item.overSoft?search(true):null);
+      if(!chosen&&item.required){
+        var v0=item.variants[0],a0=anchors[0];
+        chosen={place:item.places[0],variant:v0.key,anchor:0,rect:placeRect(item.places[0],a0.x,a0.y,item.gap||0,v0.w,v0.h),forced:true};
+      }
+      if(chosen)add(chosen.rect,item.id,false);
+      result[item.id]=chosen;
+    });
+    return result;
   }
 
   /* ---------- Neighbourhoods and compositions ---------- */
@@ -430,6 +538,7 @@
   }
 
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
-    TREATMENTS:TREATMENTS,buildModel:buildModel,layoutAtlas:layoutAtlas,neighbourhood:neighbourhood,
-    compose:compose,measure:measure,labelRect:labelRect,shorten:shorten,human:human,capital:capital};
+    TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
+    neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital};
 })(window);

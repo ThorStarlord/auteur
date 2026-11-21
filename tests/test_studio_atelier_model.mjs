@@ -110,3 +110,50 @@ test('second-order exploration is bounded and reports what it leaves out', () =>
   assert.ok(hood.second.every((id) => hood.levels[id] === 2));
   assert.ok(hood.hiddenSecond >= 0);
 });
+
+// Label placement: glyphs never move to make room; a placed label never overprints another label or a
+// glyph it may not cover, and the most important label is placed first.
+function overlap(a, b) { return a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1; }
+
+test('label placement never overprints and honours priority', () => {
+  const M = load();
+  const model = M.buildModel(DENSE, 'sha-test');
+  const view = {width: 846, height: 630};
+  const atlas = M.layoutAtlas(model, {aspect: view.width / view.height, view});
+  const again = M.layoutAtlas(M.buildModel(DENSE, 'sha-test'), {aspect: view.width / view.height, view});
+  assert.deepEqual(plain(again.positions), plain(atlas.positions), 'viewport-aware layout is deterministic');
+  const cam = M.restCamera(atlas, view);
+  assert.ok((atlas.width - 150) * cam.z <= view.width, 'the whole story fits the stage at rest');
+  const screen = (p) => ({x: (p.x - cam.cx) * cam.z + view.width / 2, y: (p.y - cam.cy) * cam.z + view.height / 2});
+  const obstacles = [], items = [];
+  for (const cn of model.concepts) {
+    const a = screen(atlas.positions[cn.id]);
+    obstacles.push({rect: {x0: a.x - 5, y0: a.y - 5, x1: a.x + 5, y1: a.y + 5}, owner: cn.id, soft: cn.tier === 2});
+    if (cn.tier === 1) items.push({id: cn.id, x: a.x, y: a.y, gap: 8, priority: cn.degree, overSoft: 'fallback',
+      places: ['e', 'w', 'se', 'ne', 'sw', 'nw', 's', 'n'], variants: [{key: 0, w: 96, h: 26}]});
+  }
+  const bounds = {x0: 4, y0: 4, x1: view.width - 4, y1: view.height - 4};
+  const placed = M.placeLabels(items, obstacles, bounds);
+  assert.deepEqual(plain(M.placeLabels(items, obstacles, bounds)), plain(placed), 'placement is deterministic');
+  const rects = Object.entries(placed).filter(([, r]) => r).map(([id, r]) => ({id, ...r.rect}));
+  assert.ok(rects.length > items.length / 2, `most landmarks are named at rest (${rects.length} of ${items.length})`);
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) assert.ok(!overlap(rects[i], rects[j]), `${rects[i].id} / ${rects[j].id}`);
+    for (const o of obstacles) if (!o.soft && o.owner !== rects[i].id) assert.ok(!overlap(rects[i], o.rect), `${rects[i].id} covers ${o.owner}`);
+    assert.ok(rects[i].x0 >= bounds.x0 && rects[i].x1 <= bounds.x1 && rects[i].y0 >= bounds.y0 && rects[i].y1 <= bounds.y1);
+  }
+  // Two labels competing for one place: the more important one keeps it, the other moves aside or stays quiet.
+  const duel = M.placeLabels([
+    {id: 'minor', x: 100, y: 100, gap: 6, priority: 1, places: ['e'], variants: [{key: 0, w: 80, h: 20}]},
+    {id: 'major', x: 100, y: 100, gap: 6, priority: 9, places: ['e'], variants: [{key: 0, w: 80, h: 20}]}], [], null);
+  assert.equal(duel.major.place, 'e');
+  assert.equal(duel.minor, null);
+  // Faded furniture ('hood') may be covered only by the focus neighbourhood itself.
+  const furniture = [{rect: {x0: 0, y0: 90, x1: 200, y1: 110}, owner: 'ui', soft: 'hood'}];
+  const ambient = M.placeLabels([{id: 'a', x: 50, y: 100, gap: 6, priority: 1, overSoft: 'fallback', places: ['e'],
+    variants: [{key: 0, w: 60, h: 18}]}], furniture, null);
+  const near = M.placeLabels([{id: 'n', x: 50, y: 100, gap: 6, priority: 1, overSoft: true, places: ['e'],
+    variants: [{key: 0, w: 60, h: 18}]}], furniture, null);
+  assert.equal(ambient.a, null);
+  assert.equal(near.n.place, 'e');
+});

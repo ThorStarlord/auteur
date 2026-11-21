@@ -76,26 +76,42 @@ def test_default_studio_has_no_study(served, browser):
         page.close()
 
 
-def test_opted_in_study_explores_and_returns_without_writing(served, browser):
+def test_living_atlas_reveals_in_place_and_constellation_returns_without_writing(served, browser):
     before = revision(served)
     page = browser.new_page(viewport={"width": 1440, "height": 900})
     errors = []
     page.on("pageerror", lambda error: errors.append(str(error)))
     try:
-        page.goto(f"{served}/studio.html?canvas=atelier&atelier=C", wait_until="networkidle")
-        page.wait_for_selector("#studio-atelier .atl-star", timeout=20000)
+        page.goto(f"{served}/studio.html?canvas=atelier&atelier", wait_until="networkidle")
+        page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
         assert page.locator("#studio-mode-atelier").get_attribute("aria-pressed") == "true"
         assert page.locator("#viewport").is_hidden()
+        # The living atlas is the default way of looking; research treatment C is not offered.
+        assert page.locator('#studio-atelier .atl-mode[data-mode="atlas"]').get_attribute("aria-pressed") == "true"
+        assert page.locator('#studio-atelier .atl-mode[data-mode="constellation"]').is_disabled()
+        assert page.locator('#studio-atelier .atl-mode[data-mode="research"]').count() == 0
         rest = page.evaluate("document.getElementById('studio-atelier').atelierStudy.snapshot()")
+        resting = page.evaluate("document.getElementById('studio-atelier').atelierStudy.metrics()")
+        assert resting["labels"]["restNamed"] > resting["labels"]["restLandmarks"] / 2
+        assert resting["renderedLabelOverlaps"]["count"] == 0
         focus = '.atl-star[data-id="genres|genre:literary_mystery"]'
         selected = page.evaluate(SETTLE, [focus])
-        assert selected["focus"] == "genres|genre:literary_mystery"
-        assert selected["composition"]["first"] > 5
+        assert selected["focus"] == "genres|genre:literary_mystery" and selected["mode"] == "atlas"
+        assert selected["composition"]["first"] > 5 and selected["composition"]["moved"] == 0
+        assert selected["renderedLabelOverlaps"]["count"] == 0
+        revealed = page.evaluate("document.getElementById('studio-atelier').atelierStudy.snapshot()")
+        # Progressive revelation moves nothing and never zooms out to contain the neighbourhood.
+        assert revealed["positions"] == rest["positions"]
+        assert revealed["camera"]["z"] == rest["camera"]["z"]
         assert page.locator("#studio-atelier .atl-folio-title").inner_text() == "Literary mystery"
         # The folio lists every documented relationship (a neighbour may be related more than once).
         assert page.locator("#studio-atelier .atl-rel").count() >= selected["composition"]["first"]
-        for treatment in "AB":
-            page.locator(f'#studio-atelier .atl-treatment[data-treatment="{treatment}"]').click()
+        examined = page.evaluate(SETTLE, [".atl-look [data-key=look]"])
+        assert examined["mode"] == "constellation" and examined["composition"]["moved"] > 0
+        assert page.locator("#studio-atelier .atl-mode-chip").is_visible()
+        back = page.evaluate(SETTLE, [".atl-look [data-key=look]"])
+        assert back["mode"] == "atlas" and back["focus"] == "genres|genre:literary_mystery"
+        assert page.evaluate("document.getElementById('studio-atelier').atelierStudy.snapshot()")["positions"] == rest["positions"]
         page.evaluate(SETTLE, [".atl-folio .atl-return"])
         after = page.evaluate("document.getElementById('studio-atelier').atelierStudy.snapshot()")
         assert after["focus"] is None
