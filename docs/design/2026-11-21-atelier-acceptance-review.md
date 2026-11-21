@@ -298,3 +298,10 @@ Questions:
 
 Stop the server with `Ctrl+C`. Remove the worktree with
 `git -C H:\GithubRepositories\auteur worktree remove H:\auteur-atelier-review`.
+
+## Resolution (added 2026-11-21)
+
+The seven consequential findings above, B1 to B7, were addressed inside the existing
+design by the [author-experience refinement](2026-11-21-atelier-author-experience-refinement.md).
+That document records the before and after evidence and what remains open. This review
+is kept as written; author acceptance is still pending.

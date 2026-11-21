@@ -1,0 +1,1457 @@
+{
+ "generator": "windowed (headed) Playwright Chromium on this machine; in-page requestAnimationFrame intervals between an action and atelier:settled; 3 rounds per step",
+ "machine": "Windows 10, NVIDIA GeForce RTX 5060 Ti (ANGLE D3D11), 60 Hz",
+ "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5060 Ti (0x00002D04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "note": "Live measurements in a normal browser window on real hardware, not headless and not a human evaluation.",
+ "beforeAcceptanceReview": {
+  "source": "6fc59cbf (PR #627)",
+  "stage": "883x666 (Atelier below the Overview)",
+  "raw": "../atelier-acceptance-20261121/live-frame-times.json"
+ },
+ "beforePerformanceFix": {
+  "source": "d83ca721 (atlas-first full-width stage, before the rendering change)",
+  "summary": {
+   "atelier-dense A select": {
+    "meanMs": [
+     22.4,
+     30.5
+    ],
+    "worstMs": [
+     66.7,
+     133.4
+    ],
+    "framesOver33ms": [
+     9,
+     11
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A deeper ]": {
+    "meanMs": [
+     16.8,
+     18.7
+    ],
+    "worstMs": [
+     33.3,
+     66.7
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow": {
+    "meanMs": [
+     20.7,
+     22.9
+    ],
+    "worstMs": [
+     50,
+     66.7
+    ],
+    "framesOver33ms": [
+     5,
+     7
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow back": {
+    "meanMs": [
+     17.9,
+     18.2
+    ],
+    "worstMs": [
+     33.4,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     4
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B examine E": {
+    "meanMs": [
+     32,
+     34.8
+    ],
+    "worstMs": [
+     83.4,
+     99.9
+    ],
+    "framesOver33ms": [
+     11,
+     12
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B leave Esc": {
+    "meanMs": [
+     45.8,
+     80
+    ],
+    "worstMs": [
+     116.7,
+     133.3
+    ],
+    "framesOver33ms": [
+     8,
+     9
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A return Esc": {
+    "meanMs": [
+     24,
+     24.5
+    ],
+    "worstMs": [
+     50,
+     83.2
+    ],
+    "framesOver33ms": [
+     2,
+     7
+    ],
+    "rounds": 3
+   },
+   "atelier-small A select": {
+    "meanMs": [
+     17.6,
+     19.7
+    ],
+    "worstMs": [
+     33.4,
+     50.1
+    ],
+    "framesOver33ms": [
+     0,
+     6
+    ],
+    "rounds": 3
+   },
+   "atelier-small A deeper ]": {
+    "meanMs": [
+     16.7,
+     17
+    ],
+    "worstMs": [
+     17,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow": {
+    "meanMs": [
+     17.8,
+     19.3
+    ],
+    "worstMs": [
+     33.4,
+     83.3
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow back": {
+    "meanMs": [
+     16.7,
+     17.1
+    ],
+    "worstMs": [
+     16.8,
+     33.3
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small B examine E": {
+    "meanMs": [
+     20.6,
+     23.8
+    ],
+    "worstMs": [
+     50,
+     66.6
+    ],
+    "framesOver33ms": [
+     6,
+     7
+    ],
+    "rounds": 3
+   },
+   "atelier-small B leave Esc": {
+    "meanMs": [
+     16.7,
+     17.4
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-small A return Esc": {
+    "meanMs": [
+     16.7,
+     17
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   }
+  }
+ },
+ "diagnosis": {
+  "note": "Dense specimen, select -> examine -> leave -> return, 2-3 rounds per variant, one CSS feature disabled at a time on d83ca721 (exp1) and the fix compared on 49defdec (exp2). Values are mean ms / worst ms per step.",
+  "featureOff": {
+   "baseline": {
+    "select": {
+     "mean": 25.4,
+     "worst": 183.3,
+     "over33": 7.5,
+     "frames": 63.5
+    },
+    "examine": {
+     "mean": 31.8,
+     "worst": 100.1,
+     "over33": 10.0,
+     "frames": 37.5
+    },
+    "leave": {
+     "mean": 61.2,
+     "worst": 200,
+     "over33": 7.5,
+     "frames": 13.0
+    },
+    "return": {
+     "mean": 24.4,
+     "worst": 66.7,
+     "over33": 3.0,
+     "frames": 33.0
+    }
+   },
+   "no-star-layers": {
+    "select": {
+     "mean": 25.5,
+     "worst": 100.1,
+     "over33": 8.5,
+     "frames": 63.0
+    },
+    "examine": {
+     "mean": 35.2,
+     "worst": 100,
+     "over33": 12.0,
+     "frames": 34.0
+    },
+    "leave": {
+     "mean": 54.6,
+     "worst": 150,
+     "over33": 8.5,
+     "frames": 16.5
+    },
+    "return": {
+     "mean": 23.5,
+     "worst": 66.7,
+     "over33": 4.0,
+     "frames": 34.0
+    }
+   },
+   "no-lens": {
+    "select": {
+     "mean": 24.1,
+     "worst": 150,
+     "over33": 8.0,
+     "frames": 66.5
+    },
+    "examine": {
+     "mean": 29.4,
+     "worst": 100,
+     "over33": 11.0,
+     "frames": 41.5
+    },
+    "leave": {
+     "mean": 44.8,
+     "worst": 150,
+     "over33": 8.5,
+     "frames": 20.5
+    },
+    "return": {
+     "mean": 25.7,
+     "worst": 66.7,
+     "over33": 4.5,
+     "frames": 31.5
+    }
+   },
+   "no-dashes": {
+    "select": {
+     "mean": 24.5,
+     "worst": 200,
+     "over33": 6.5,
+     "frames": 65.5
+    },
+    "examine": {
+     "mean": 25.0,
+     "worst": 83.4,
+     "over33": 4.5,
+     "frames": 48.0
+    },
+    "leave": {
+     "mean": 56.7,
+     "worst": 150.2,
+     "over33": 7.5,
+     "frames": 15.5
+    },
+    "return": {
+     "mean": 25.1,
+     "worst": 83.2,
+     "over33": 4.0,
+     "frames": 32.5
+    }
+   },
+   "no-mute-edges": {
+    "select": {
+     "mean": 19.9,
+     "worst": 83.4,
+     "over33": 4.0,
+     "frames": 79.5
+    },
+    "examine": {
+     "mean": 24.0,
+     "worst": 66.7,
+     "over33": 7.0,
+     "frames": 49.0
+    },
+    "leave": {
+     "mean": 17.9,
+     "worst": 33.3,
+     "over33": 0.0,
+     "frames": 46.0
+    },
+    "return": {
+     "mean": 17.8,
+     "worst": 50,
+     "over33": 1.0,
+     "frames": 46.0
+    }
+   },
+   "no-text-shadow": {
+    "select": {
+     "mean": 24.0,
+     "worst": 133.4,
+     "over33": 8.0,
+     "frames": 66.5
+    },
+    "examine": {
+     "mean": 31.8,
+     "worst": 100,
+     "over33": 11.0,
+     "frames": 37.0
+    },
+    "leave": {
+     "mean": 60.0,
+     "worst": 149.9,
+     "over33": 8.0,
+     "frames": 14.0
+    },
+    "return": {
+     "mean": 25.7,
+     "worst": 83.4,
+     "over33": 5.5,
+     "frames": 30.5
+    }
+   },
+   "no-stage-gradient": {
+    "select": {
+     "mean": 25.7,
+     "worst": 216.7,
+     "over33": 8.0,
+     "frames": 62.5
+    },
+    "examine": {
+     "mean": 31.9,
+     "worst": 100.1,
+     "over33": 10.0,
+     "frames": 38.0
+    },
+    "leave": {
+     "mean": 47.6,
+     "worst": 149.9,
+     "over33": 8.5,
+     "frames": 18.5
+    },
+    "return": {
+     "mean": 24.2,
+     "worst": 66.7,
+     "over33": 4.5,
+     "frames": 34.0
+    }
+   },
+   "no-transitions": {
+    "select": {
+     "mean": 17.9,
+     "worst": 100,
+     "over33": 1.5,
+     "frames": 87.5
+    },
+    "examine": {
+     "mean": 20.8,
+     "worst": 66.7,
+     "over33": 3.5,
+     "frames": 57.5
+    },
+    "leave": {
+     "mean": 16.7,
+     "worst": 16.8,
+     "over33": 0.0,
+     "frames": 49.0
+    },
+    "return": {
+     "mean": 17.4,
+     "worst": 33.4,
+     "over33": 0.0,
+     "frames": 46.0
+    }
+   }
+  },
+  "fixVariants": {
+   "refined": {
+    "select": {
+     "mean": 19.4,
+     "worst": 116.6,
+     "over33": 3.3333333333333335,
+     "frames": 80.33333333333333
+    },
+    "examine": {
+     "mean": 22.7,
+     "worst": 50.1,
+     "over33": 5.333333333333333,
+     "frames": 53.333333333333336
+    },
+    "leave": {
+     "mean": 17.1,
+     "worst": 33.4,
+     "over33": 0.0,
+     "frames": 48.333333333333336
+    },
+    "return": {
+     "mean": 17.0,
+     "worst": 49.9,
+     "over33": 0.3333333333333333,
+     "frames": 47.666666666666664
+    }
+   },
+   "refined+svg-layer": {
+    "select": {
+     "mean": 18.3,
+     "worst": 83.3,
+     "over33": 2.6666666666666665,
+     "frames": 85.0
+    },
+    "examine": {
+     "mean": 25.6,
+     "worst": 66.6,
+     "over33": 8.0,
+     "frames": 47.0
+    },
+    "leave": {
+     "mean": 17.1,
+     "worst": 33.3,
+     "over33": 0.0,
+     "frames": 48.333333333333336
+    },
+    "return": {
+     "mean": 16.7,
+     "worst": 33.4,
+     "over33": 0.0,
+     "frames": 48.666666666666664
+    }
+   },
+   "refined+no-edge-transitions": {
+    "select": {
+     "mean": 17.7,
+     "worst": 100,
+     "over33": 1.3333333333333333,
+     "frames": 87.0
+    },
+    "examine": {
+     "mean": 21.8,
+     "worst": 50.1,
+     "over33": 4.0,
+     "frames": 55.0
+    },
+    "leave": {
+     "mean": 16.9,
+     "worst": 33.3,
+     "over33": 0.0,
+     "frames": 49.0
+    },
+    "return": {
+     "mean": 16.8,
+     "worst": 33.3,
+     "over33": 0.0,
+     "frames": 49.0
+    }
+   }
+  }
+ },
+ "afterFirstFix": {
+  "source": "48808598",
+  "summary": {
+   "atelier-dense A select": {
+    "meanMs": [
+     16.9,
+     21.4
+    ],
+    "worstMs": [
+     33.2,
+     116.7
+    ],
+    "framesOver33ms": [
+     0,
+     5
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A deeper ]": {
+    "meanMs": [
+     16.7,
+     16.8
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow": {
+    "meanMs": [
+     16.9,
+     17.4
+    ],
+    "worstMs": [
+     33.3,
+     50.1
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow back": {
+    "meanMs": [
+     16.5,
+     16.8
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B examine E": {
+    "meanMs": [
+     21.8,
+     23
+    ],
+    "worstMs": [
+     49.9,
+     50
+    ],
+    "framesOver33ms": [
+     4,
+     5
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B leave Esc": {
+    "meanMs": [
+     17,
+     17
+    ],
+    "worstMs": [
+     33.3,
+     33.3
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A return Esc": {
+    "meanMs": [
+     17,
+     17
+    ],
+    "worstMs": [
+     33.2,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-small A select": {
+    "meanMs": [
+     16.7,
+     17.1
+    ],
+    "worstMs": [
+     16.8,
+     50
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-small A deeper ]": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow": {
+    "meanMs": [
+     16.4,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow back": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.9
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small B examine E": {
+    "meanMs": [
+     16.7,
+     17.4
+    ],
+    "worstMs": [
+     16.8,
+     50
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-small B leave Esc": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A return Esc": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   }
+  },
+  "pageErrors": []
+ },
+ "final": {
+  "source": "9a2c36bb",
+  "summary": {
+   "atelier-dense A select": {
+    "meanMs": [
+     16.9,
+     21.6
+    ],
+    "worstMs": [
+     33.3,
+     100
+    ],
+    "framesOver33ms": [
+     0,
+     7
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A deeper ]": {
+    "meanMs": [
+     16.7,
+     17.1
+    ],
+    "worstMs": [
+     16.8,
+     50
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow": {
+    "meanMs": [
+     16.7,
+     18
+    ],
+    "worstMs": [
+     16.8,
+     66.7
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A follow back": {
+    "meanMs": [
+     16.8,
+     17.8
+    ],
+    "worstMs": [
+     33.2,
+     66.7
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B examine E": {
+    "meanMs": [
+     23,
+     24
+    ],
+    "worstMs": [
+     50,
+     50.2
+    ],
+    "framesOver33ms": [
+     6,
+     9
+    ],
+    "rounds": 3
+   },
+   "atelier-dense B leave Esc": {
+    "meanMs": [
+     16.7,
+     17
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-dense A return Esc": {
+    "meanMs": [
+     17,
+     18.1
+    ],
+    "worstMs": [
+     33.3,
+     66.8
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-small A select": {
+    "meanMs": [
+     16.7,
+     17.3
+    ],
+    "worstMs": [
+     16.8,
+     49.9
+    ],
+    "framesOver33ms": [
+     0,
+     2
+    ],
+    "rounds": 3
+   },
+   "atelier-small A deeper ]": {
+    "meanMs": [
+     16.7,
+     17
+    ],
+    "worstMs": [
+     16.8,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow": {
+    "meanMs": [
+     16.7,
+     16.9
+    ],
+    "worstMs": [
+     16.8,
+     33.3
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A follow back": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small B examine E": {
+    "meanMs": [
+     16.9,
+     17.2
+    ],
+    "worstMs": [
+     33.3,
+     33.4
+    ],
+    "framesOver33ms": [
+     0,
+     1
+    ],
+    "rounds": 3
+   },
+   "atelier-small B leave Esc": {
+    "meanMs": [
+     17,
+     17
+    ],
+    "worstMs": [
+     33.3,
+     33.3
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   },
+   "atelier-small A return Esc": {
+    "meanMs": [
+     16.7,
+     16.7
+    ],
+    "worstMs": [
+     16.8,
+     16.8
+    ],
+    "framesOver33ms": [
+     0,
+     0
+    ],
+    "rounds": 3
+   }
+  },
+  "pageErrors": [],
+  "steps": [
+   {
+    "label": "atelier-dense A select",
+    "settleMs": 1489,
+    "frames": 75,
+    "meanMs": 21.6,
+    "p95Ms": 50.1,
+    "worstMs": 100,
+    "over20": 9,
+    "over33": 7,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A deeper ]",
+    "settleMs": 1751,
+    "frames": 108,
+    "meanMs": 17.1,
+    "p95Ms": 16.8,
+    "worstMs": 50,
+    "over20": 2,
+    "over33": 1,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow -> timeline|phase:phase-first-signature",
+    "settleMs": 1044,
+    "frames": 64,
+    "meanMs": 18,
+    "p95Ms": 16.9,
+    "worstMs": 66.7,
+    "over20": 3,
+    "over33": 1,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow back",
+    "settleMs": 1449,
+    "frames": 87,
+    "meanMs": 17.8,
+    "p95Ms": 16.8,
+    "worstMs": 66.7,
+    "over20": 4,
+    "over33": 1,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B examine E",
+    "settleMs": 1116,
+    "frames": 52,
+    "meanMs": 24,
+    "p95Ms": 50,
+    "worstMs": 50.1,
+    "over20": 19,
+    "over33": 6,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B leave Esc",
+    "settleMs": 718,
+    "frames": 50,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A return Esc",
+    "settleMs": 733,
+    "frames": 51,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "rest",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A select",
+    "settleMs": 1437,
+    "frames": 89,
+    "meanMs": 16.9,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 2,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A deeper ]",
+    "settleMs": 1715,
+    "frames": 110,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow -> timeline|phase:phase-first-signature",
+    "settleMs": 1030,
+    "frames": 68,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow back",
+    "settleMs": 1419,
+    "frames": 90,
+    "meanMs": 17.2,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 3,
+    "over33": 2,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B examine E",
+    "settleMs": 1087,
+    "frames": 53,
+    "meanMs": 23,
+    "p95Ms": 50,
+    "worstMs": 50.2,
+    "over20": 15,
+    "over33": 6,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B leave Esc",
+    "settleMs": 701,
+    "frames": 48,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 1,
+    "over33": 1,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A return Esc",
+    "settleMs": 714,
+    "frames": 46,
+    "meanMs": 18.1,
+    "p95Ms": 16.8,
+    "worstMs": 66.8,
+    "over20": 2,
+    "over33": 2,
+    "mode": "rest",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A select",
+    "settleMs": 1438,
+    "frames": 89,
+    "meanMs": 17.6,
+    "p95Ms": 33.2,
+    "worstMs": 33.4,
+    "over20": 5,
+    "over33": 4,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A deeper ]",
+    "settleMs": 1713,
+    "frames": 111,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow -> timeline|phase:phase-first-signature",
+    "settleMs": 1024,
+    "frames": 68,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A follow back",
+    "settleMs": 1426,
+    "frames": 92,
+    "meanMs": 16.8,
+    "p95Ms": 16.8,
+    "worstMs": 33.2,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B examine E",
+    "settleMs": 1096,
+    "frames": 53,
+    "meanMs": 23,
+    "p95Ms": 33.5,
+    "worstMs": 50,
+    "over20": 18,
+    "over33": 9,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense B leave Esc",
+    "settleMs": 712,
+    "frames": 51,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-dense A return Esc",
+    "settleMs": 712,
+    "frames": 48,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 1,
+    "over33": 1,
+    "mode": "rest",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A select",
+    "settleMs": 1172,
+    "frames": 76,
+    "meanMs": 17.3,
+    "p95Ms": 16.8,
+    "worstMs": 49.9,
+    "over20": 2,
+    "over33": 2,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A deeper ]",
+    "settleMs": 1710,
+    "frames": 110,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow -> timeline|phase:strange_coast",
+    "settleMs": 957,
+    "frames": 63,
+    "meanMs": 16.9,
+    "p95Ms": 16.7,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow back",
+    "settleMs": 1163,
+    "frames": 78,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B examine E",
+    "settleMs": 1019,
+    "frames": 66,
+    "meanMs": 17.2,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 2,
+    "over33": 0,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B leave Esc",
+    "settleMs": 685,
+    "frames": 48,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A return Esc",
+    "settleMs": 790,
+    "frames": 56,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "rest",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A select",
+    "settleMs": 1165,
+    "frames": 78,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A deeper ]",
+    "settleMs": 1725,
+    "frames": 110,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 2,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow -> timeline|phase:strange_coast",
+    "settleMs": 973,
+    "frames": 66,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow back",
+    "settleMs": 1155,
+    "frames": 76,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B examine E",
+    "settleMs": 1027,
+    "frames": 66,
+    "meanMs": 17.2,
+    "p95Ms": 16.8,
+    "worstMs": 33.4,
+    "over20": 2,
+    "over33": 1,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B leave Esc",
+    "settleMs": 695,
+    "frames": 48,
+    "meanMs": 17,
+    "p95Ms": 16.7,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A return Esc",
+    "settleMs": 696,
+    "frames": 50,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "rest",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A select",
+    "settleMs": 1163,
+    "frames": 76,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A deeper ]",
+    "settleMs": 1705,
+    "frames": 109,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow -> timeline|phase:strange_coast",
+    "settleMs": 962,
+    "frames": 65,
+    "meanMs": 16.7,
+    "p95Ms": 16.7,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A follow back",
+    "settleMs": 1153,
+    "frames": 75,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B examine E",
+    "settleMs": 1036,
+    "frames": 69,
+    "meanMs": 16.9,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "constellation",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small B leave Esc",
+    "settleMs": 698,
+    "frames": 49,
+    "meanMs": 17,
+    "p95Ms": 16.8,
+    "worstMs": 33.3,
+    "over20": 1,
+    "over33": 0,
+    "mode": "atlas",
+    "scrollShift": 0
+   },
+   {
+    "label": "atelier-small A return Esc",
+    "settleMs": 695,
+    "frames": 49,
+    "meanMs": 16.7,
+    "p95Ms": 16.8,
+    "worstMs": 16.8,
+    "over20": 0,
+    "over33": 0,
+    "mode": "rest",
+    "scrollShift": 0
+   }
+  ]
+ }
+}

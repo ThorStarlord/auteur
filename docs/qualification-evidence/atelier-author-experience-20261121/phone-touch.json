@@ -1,0 +1,153 @@
+{
+ "generator": "Playwright Chromium, 390x844, is_mobile, has_touch; swipes through CDP Input.dispatchTouchEvent (Chrome input pipeline)",
+ "sourceHead": "9a2c36bb",
+ "note": "Emulated touch, not a real device. A tap made during the momentum of an emulated flick is swallowed (as a tap stops a fling on a phone), so taps run on a fresh page.",
+ "dense": {
+  "verticalSwipe": {
+   "pageScrolled": 285,
+   "cameraUnchanged": true
+  },
+  "horizontalDrag": {
+   "pageScrolled": 0,
+   "cameraMovedX": 866.7,
+   "cameraMovedY": 0.0
+  },
+  "focusTappedDirectly": true,
+  "tapSelected": true,
+  "tapPoint": {
+   "x": 271.70001220703125,
+   "y": 88.4124984741211
+  },
+  "reveal": {
+   "focus": "genres|genre:genre-procedural",
+   "moved": 0,
+   "zoomKept": true,
+   "labels": 15,
+   "labelOverlaps": 0,
+   "clippedAtSides": 0,
+   "stageHeight": 523
+  },
+  "constellation": {
+   "mode": "constellation",
+   "neighbours": 24,
+   "named": 24,
+   "phaseOrderTopToBottom": [
+    "timeline|phase:phase-first-signature",
+    "timeline|phase:phase-bought-seal",
+    "timeline|phase:phase-first-crosser",
+    "timeline|phase:phase-guild-defendant",
+    "timeline|phase:phase-public-underwrites",
+    "timeline|phase:phase-who-certifies-the-certifier",
+    "timeline|phase:phase-efficient-lie",
+    "timeline|phase:phase-what-a-crossing-is-worth"
+   ],
+   "labels": 25,
+   "labelOverlaps": 0,
+   "clippedAtSides": 0,
+   "stageHeight": 1486
+  },
+  "leaveControl": {
+   "visibleAtTop": true,
+   "size": [
+    133,
+    26
+   ]
+  },
+  "leaveHit": "BUTTON.atl-lensbar-leave",
+  "leaveEvents": [
+   "pointerdown",
+   "pointerup",
+   "doc-click:atl-lensbar-leave",
+   "click"
+  ],
+  "leave": {
+   "mode": "atlas",
+   "positionsRestored": true,
+   "cameraRestored": true,
+   "stageHeightRestored": 523
+  },
+  "return": {
+   "mode": "atlas",
+   "focus": null,
+   "positionsRestored": true,
+   "cameraRestored": true
+  },
+  "constellationSwipe": {
+   "pageScrolled": 335,
+   "stillConstellation": true
+  },
+  "pageErrors": []
+ },
+ "small": {
+  "verticalSwipe": {
+   "pageScrolled": 285,
+   "cameraUnchanged": true
+  },
+  "horizontalDrag": {
+   "pageScrolled": 0,
+   "cameraMovedX": 696.3,
+   "cameraMovedY": 0.0
+  },
+  "focusTappedDirectly": true,
+  "tapSelected": true,
+  "tapPoint": {
+   "x": 376.79998779296875,
+   "y": 89.4124984741211
+  },
+  "reveal": {
+   "focus": "genres|genre:literary_mystery",
+   "moved": 0,
+   "zoomKept": true,
+   "labels": 17,
+   "labelOverlaps": 0,
+   "clippedAtSides": 0,
+   "stageHeight": 523
+  },
+  "constellation": {
+   "mode": "constellation",
+   "neighbours": 15,
+   "named": 15,
+   "phaseOrderTopToBottom": [
+    "timeline|phase:strange_coast",
+    "timeline|phase:first_erasure",
+    "timeline|phase:archive_revelation",
+    "timeline|phase:choice_of_maps"
+   ],
+   "labels": 16,
+   "labelOverlaps": 0,
+   "clippedAtSides": 0,
+   "stageHeight": 1036
+  },
+  "leaveControl": {
+   "visibleAtTop": true,
+   "size": [
+    133,
+    26
+   ]
+  },
+  "leaveHit": "BUTTON.atl-lensbar-leave",
+  "leaveEvents": [
+   "pointerdown",
+   "pointerup",
+   "doc-click:atl-lensbar-leave",
+   "click"
+  ],
+  "leave": {
+   "mode": "atlas",
+   "positionsRestored": true,
+   "cameraRestored": true,
+   "stageHeightRestored": 523
+  },
+  "return": {
+   "mode": "atlas",
+   "focus": null,
+   "positionsRestored": true,
+   "cameraRestored": true
+  },
+  "constellationSwipe": {
+   "pageScrolled": 335,
+   "stillConstellation": true
+  },
+  "pageErrors": []
+ }
+}
