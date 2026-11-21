@@ -602,9 +602,62 @@
     return o(p,q,r)!==o(p,q,u)&&o(r,u,p)!==o(r,u,q);
   }
 
+  /* ---------- Narrative structure and story pathways (read-only) ----------
+     Only what the records state. A role comes from a genre contract's own `role`; a structural
+     anchor is a node other nodes record as their parent; an interpretation is an agent reading,
+     never an author decision. Connectivity (degree) is never used here. */
+  function narrativeStructure(model){
+    var roles={},contains={},partOf={},interpretations={},anchors=[],governing=[];
+    model.concepts.forEach(function(cn){
+      if(cn.facet==='genres'&&cn.record&&cn.record.genre_node_id&&cn.record.role){
+        roles[cn.id]={role:String(cn.record.role),sourceRef:'genre_contracts/'+cn.record.genre_node_id+'/role',status:'agent proposal'};
+        if(cn.record.role==='governing')governing.push(cn.id);
+      }
+    });
+    model.relations.forEach(function(r){
+      if(r.sourceKind!=='node_hierarchy')return;
+      (contains[r.to]=contains[r.to]||[]).push({id:r.from,relation:r.id});
+      partOf[r.from]={id:r.to,relation:r.id};
+    });
+    Object.keys(contains).forEach(function(id){if(!partOf[id])anchors.push(id);});
+    var byNode={};model.concepts.forEach(function(cn){if(cn.nodeId&&cn.tier===1)byNode[cn.nodeId]=cn.id;});
+    ((model.candidate||{}).interpretations||[]).forEach(function(it){
+      if(!it||!it.id)return;
+      var entry={id:it.id,text:it.interpretation||'',consequences:it.consequences||'',alternative:it.alternative||'',
+        decisionRequired:it.author_decision_required===true,sourceRef:'interpretations/'+it.id,status:'agent interpretation'};
+      (it.affects||[]).forEach(function(nodeId){var id=byNode[nodeId];if(id)(interpretations[id]=interpretations[id]||[]).push(entry);});
+    });
+    return {roles:roles,contains:contains,partOf:partOf,anchors:anchors,governing:governing,interpretations:interpretations};
+  }
+  // A concept's recorded participation in each phase, in story order. A phase is 'recorded' only
+  // when a relation joins the concept and that phase, or the concept is a function recorded inside
+  // it; every other phase is 'none'. Chains through other concepts are never counted.
+  function storyPathway(model,id){
+    var cn=model.byId[id];if(!cn)return null;
+    var ownGenre=cn.facet==='genres'&&cn.nodeId?cn.nodeId:null;
+    var phases=model.timeline.map(function(ph,i){
+      var rec=ph.record||{},pid=rec.id||ph.key.replace(/^phase:/,''),out={phase:ph.id,order:i,status:'none',kind:null,relations:[],locals:[],phaseRole:null};
+      if(ph.id===id){out.status='self';return out;}
+      (model.adjacency[id]||[]).forEach(function(a){if(a.other===ph.id){out.relations.push(a.relation.id);out.kind='direct';}});
+      if(cn.tier===2&&cn.phaseId===pid){out.kind='recorded-in';}
+      if(ownGenre)(model.adjacency[ph.id]||[]).forEach(function(a){
+        var x=model.byId[a.other];
+        if(x&&x.tier===2&&x.phaseId===pid&&x.ownerGenreId===ownGenre)out.locals.push({id:x.id,relation:a.relation.id});
+      });
+      if(ownGenre)(rec.genres||[]).forEach(function(g,j){
+        if(!out.phaseRole&&g&&(g.genre===ownGenre||g.genre===cn.recordTitle)&&g.role)
+          out.phaseRole={role:String(g.role),sourceRef:'phases/'+pid+'/genres/'+j};
+      });
+      if(out.kind)out.status='recorded';
+      return out;
+    });
+    var recorded=phases.filter(function(x){return x.status==='recorded';}).length;
+    return {focus:id,phases:phases,recorded:recorded,absent:phases.filter(function(x){return x.status==='none';}).length,available:recorded>0};
+  }
+
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
-    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel,bookScope:bookScope,
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel,bookScope:bookScope,narrativeStructure:narrativeStructure,storyPathway:storyPathway,
     PHONE_LIST:PHONE_LIST};
 })(window);

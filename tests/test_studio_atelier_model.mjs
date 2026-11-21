@@ -229,3 +229,39 @@ test('presented names drop only redundant kind prefixes, and Book headings read 
   const atlas = M.layoutAtlas(model, {aspect: 1.4});
   assert.ok(atlas.books.every((b) => !/duration|_/i.test(b.label)), 'no raw scope tokens in Book headings');
 });
+
+test('narrative structure and story pathways state only recorded facts, never degree', () => {
+  const M = load();
+  const dense = M.buildModel(DENSE, 'sha');
+  const s = M.narrativeStructure(dense);
+  // Counterexample: the governing genre is not the most connected, and roles still follow the contract.
+  const fixture = structuredClone(SMALL);
+  const gov = fixture.genre_contracts.find((g) => g.role === 'governing');
+  const sup = fixture.genre_contracts.find((g) => g.role === 'supporting');
+  fixture.links = fixture.links.filter((l) => l.source !== gov.genre_node_id && l.target !== gov.genre_node_id);
+  for (let i = 0; i < 12; i += 1) fixture.links.push({id: 'extra-' + i, source: sup.genre_node_id, target: fixture.nodes[i % fixture.nodes.length].id, function: 'recorded test link ' + i});
+  const fm = M.buildModel(fixture, 'sha');
+  const govId = 'genres|genre:' + gov.genre_node_id, supId = 'genres|genre:' + sup.genre_node_id;
+  assert.ok(fm.byId[supId].degree > fm.byId[govId].degree);
+  const fs = M.narrativeStructure(fm);
+  assert.deepEqual(plain(fs.governing), [govId]);
+  assert.equal(fs.roles[supId].role, 'supporting');
+  assert.equal(fs.roles[govId].sourceRef, 'genre_contracts/' + gov.genre_node_id + '/role');
+  // Structural anchor from recorded parent_id only; interpretations stay agent readings.
+  assert.ok(s.anchors.includes('structure|structure-node:engine-risk-transfer'));
+  assert.equal(s.contains['structure|structure-node:engine-risk-transfer'].length, 8); // 6 engines + 2 tropes record it as parent
+  for (const list of Object.values(s.interpretations)) for (const it of list) assert.equal(it.status, 'agent interpretation');
+  // Every pathway segment resolves to a recorded relation; unsupported phases are 'none', not inferred.
+  for (const cn of dense.concepts) {
+    const p = M.storyPathway(dense, cn.id);
+    for (const ph of p.phases) {
+      for (const r of ph.relations) assert.ok(dense.relById[r], r);
+      for (const l of ph.locals) assert.ok(dense.relById[l.relation] && dense.byId[l.id]);
+      if (ph.status === 'none') assert.equal(ph.relations.length + ph.locals.length, 0);
+      if (ph.phaseRole) assert.ok(resolve(DENSE, ph.phaseRole.sourceRef));
+    }
+  }
+  const civic = M.storyPathway(dense, 'genres|genre:genre-civic-life');
+  assert.deepEqual(plain(civic.phases.map((x) => x.status === 'recorded' ? 1 : 0)), [1, 0, 0, 0, 1, 0, 0, 1, 1]);
+  assert.equal(M.storyPathway(dense, 'structure|structure-node:engine-risk-transfer').available, false);
+});
