@@ -320,7 +320,7 @@
   .atl-modes{width:100%}
   .atl .atl-mode{flex:1;justify-content:center;padding:7px 8px}
   .atl-hint{display:none}
-  .atl-ribbon{font-size:13px;line-height:19px;padding:6px 12px;height:52px;white-space:normal;
+  .atl-ribbon{font-size:13px;line-height:19px;padding:6px 12px;height:50px;white-space:normal;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .atl-folio-title{font-size:1.36rem}
   .atl-band-label{font-size:8.5px;padding-left:8px;gap:5px}
