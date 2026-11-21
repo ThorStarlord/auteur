@@ -383,9 +383,17 @@
       }
       // A label first looks for a place that covers nothing; only then may it cover a faint glyph.
       chosen=search(false)||(item.overSoft?search(true):null);
+      // A required label that fits nowhere takes the place that covers the fewest others.
       if(!chosen&&item.required){
-        var v0=item.variants[0],a0=anchors[0];
-        chosen={place:item.places[0],variant:v0.key,anchor:0,rect:placeRect(item.places[0],a0.x,a0.y,item.gap||0,v0.w,v0.h),forced:true};
+        var best=null;
+        item.variants.forEach(function(variant){anchors.forEach(function(an,ai){item.places.forEach(function(pl){
+          var r=placeRect(pl,an.x,an.y,item.gap||0,variant.w,variant.h),covered=0,seen=[];
+          cells(r,function(k){(grid[k]||[]).forEach(function(bx){if(bx.owner!==item.id&&seen.indexOf(bx)<0&&
+            r.x0<bx.r.x1&&bx.r.x0<r.x1&&r.y0<bx.r.y1&&bx.r.y0<r.y1){seen.push(bx);covered+=bx.soft?0.2:1;}});});
+          var out=(r.x0<b.x0||r.y0<b.y0||r.x1>b.x1||r.y1>b.y1)?100:0;
+          if(!best||covered+out<best.score)best={score:covered+out,place:pl,variant:variant.key,anchor:ai,rect:r,forced:true};
+        });});});
+        chosen=best;
       }
       if(chosen)add(chosen.rect,item.id,false);
       result[item.id]=chosen;

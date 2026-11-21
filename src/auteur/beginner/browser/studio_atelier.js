@@ -547,7 +547,8 @@
       return {style:'nearVerb',lines:t.lines,kicker:verb,w:Math.ceil(Math.max(t.w-2*st.px,textWidth(verb,st.kicker)))+2*st.px+1,h:t.h+st.klh};
     }
     function specsFor(cn,st,z){
-      if(st==='focus')return [focusSpec(cn)];
+      // The title card has a narrower, taller form for crowded places, so it can avoid covering a neighbour.
+      if(st==='focus'){var wide=focusSpec(cn),slim=cardSpec(cn,wide.style,170);return slim.w<wide.w-20?[wide,slim]:[wide];}
       if(st==='near'&&S.mode==='constellation'&&narrow())return [verbSpec(cn)];
       // Relationship pills: the whole name when there is room, then two lines, then a phrase cut at a word.
       if(st==='near')return [spec('near',cn.name,220,3),spec('near',cn.name,196,2),spec('near',M.shorten(cn.name,30),196,1)];
@@ -607,7 +608,9 @@
           examining&&narrow()?['e']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
-          item.places=examining&&narrow()?['e','n','s']:examining||narrow()?['s','n']:['s','n','e','w'];}
+          item.places=examining&&narrow()?['e','n','s']:examining||narrow()?['s','n']:['s','n','e','w','se','sw','ne','nw'];
+          // In the atlas the card may stand a little off its mark rather than cover a neighbour.
+          if(!examining&&!narrow())item.anchors=[{x:a.x,y:a.y},{x:a.x,y:a.y+24},{x:a.x,y:a.y-24},{x:a.x+28,y:a.y},{x:a.x-28,y:a.y}];}
         else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;
           if(sd==='rail-s'||sd==='rail-n')item.gap=r+9;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
@@ -810,8 +813,9 @@
        and raises one call-out with the complete name above the composition. Every change of composition
        or camera suspends pointer emphasis until the pointer actually moves, so a pointer left where it
        clicked never leaves a stale preview behind. */
+    // Keyboard emphasis follows keyboard navigation (Tab or arrows), not any key pressed while focus rests.
     function keyboardTarget(){
-      var a=document.activeElement;if(!a||!root.contains(a)||!a.matches||!a.matches(':focus-visible'))return null;
+      var a=document.activeElement;if(!S.keyNav||!a||!root.contains(a)||!a.matches||!a.matches(':focus-visible'))return null;
       if(a.classList.contains('atl-star'))return {id:a.dataset.id};
       if(a.classList.contains('atl-rel'))return {rel:a.dataset.rel,id:a.dataset.other};
       if(a.classList.contains('atl-landmark'))return {id:a.dataset.id};
@@ -820,6 +824,8 @@
     function refreshEmphasis(){
       if(!S.model)return;
       var hint=S.hover?{id:S.hover}:(S.folioHint||keyboardTarget());
+      // The focus is already revealed; emphasising it again would only ring what is shown.
+      if(hint&&!hint.rel&&hint.id===S.focus)hint=null;
       if(hint&&hint.rel)previewRelation(hint.rel,hint.id);else preview(hint?hint.id:null);
       setCallout(hint&&hint.id&&hint.id!==S.focus&&starEls[hint.id]?hint.id:null);
     }
@@ -829,7 +835,8 @@
       S.folioHint=rel?{rel:rel.dataset.rel,id:rel.dataset.other}:mark?{id:mark.dataset.id}:null;
       refreshEmphasis();
     }
-    function latchPointer(){S.latched=true;S.hover=null;S.folioHint=null;refreshEmphasis();}
+    function latchPointer(){S.latched=true;S.keyNav=false;S.hover=null;S.folioHint=null;refreshEmphasis();}
+    root.addEventListener('keydown',function(e){if(e.key==='Tab')S.keyNav=true;},true);
     root.addEventListener('pointerover',function(e){if(e.pointerType==='touch'||S.latched||S.dragging)return;pointerTarget(e.target);});
     root.addEventListener('pointerleave',function(){S.ptr=null;if(S.hover||S.folioHint){S.hover=null;S.folioHint=null;refreshEmphasis();}});
     root.addEventListener('pointermove',function(e){
@@ -1182,7 +1189,7 @@
     starLayer.addEventListener('keydown',function(e){
       var star=e.target.closest&&e.target.closest('.atl-star');if(!star)return;
       var id=star.dataset.id,dirs={ArrowRight:0,ArrowDown:Math.PI/2,ArrowLeft:Math.PI,ArrowUp:-Math.PI/2};
-      if(dirs[e.key]!==undefined){e.preventDefault();var next=nearest(id,dirs[e.key]);if(next){setRoving(next);starEls[next].focus({preventScroll:true});ensureVisible(next);}}
+      if(dirs[e.key]!==undefined){e.preventDefault();var next=nearest(id,dirs[e.key]);if(next){setRoving(next);ensureVisible(next);S.keyNav=true;starEls[next].focus({preventScroll:true});}}
       else if(e.key===']'||e.key==='+'||e.code==='BracketRight'){e.preventDefault();deeper(true);}
       else if(e.key==='['||e.key==='-'||e.code==='BracketLeft'){e.preventDefault();deeper(false);}
       else if((e.key==='e'||e.key==='E')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&S.focus){e.preventDefault();if(S.mode==='constellation')leaveConstellation();else examine();}
