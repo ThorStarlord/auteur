@@ -1,0 +1,20 @@
+{
+  "name": "Gate Table",
+  "definition": "A rotating body formed in Book 22 that sets the Hollow Gate's schedule from the gauge. It has seats for each practice and one seat drawn by lot. It holds no record, no shares and no authority over any practice.",
+  "motivating_story_use": "Separates schedule from record after Conflict B; the first coordinating body between communities.",
+  "why_existing_concepts_insufficient": "The Council schedules the Turn and the Reading Hall keeps the record, so neither can coordinate two practices at one outflow without taking the other's role.",
+  "related_concepts": [
+    "Hollow Gate",
+    "Terrace Council",
+    "Reading Hall"
+  ],
+  "proposed_relations": [
+    "Sets the Hollow Gate schedule",
+    "Publishes nothing; the Reading Hall publishes the gauge"
+  ],
+  "compatibility_concerns": [
+    "Its acceptance as a world element is author-reserved",
+    "Under the binding finale alternative its seats are lot-drawn and its authority is time-limited"
+  ],
+  "status": "provisional"
+}
