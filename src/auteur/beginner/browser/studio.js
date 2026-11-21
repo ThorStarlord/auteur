@@ -2429,6 +2429,9 @@
     $("studio-mode-atelier").setAttribute("aria-pressed", String(chosen));
     var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
       state.architectureFacet === "overview";
+    // Opt-in Atelier is the frontispiece; every other Studio mode keeps its normal order.
+    var workspace = document.querySelector(".workspace");
+    if (workspace) workspace.classList.toggle("atelier-first", eligible);
     if (!eligible) { atelierController.hide(); return; }
     $("viewport").hidden = true;
     $("inspector").hidden = !state.atelierInspector;

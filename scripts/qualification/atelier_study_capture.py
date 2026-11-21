@@ -18,7 +18,8 @@ It walks the author journeys of the refinement brief on both recorded specimens:
 plus one run of research treatment C for continuity with the first study. It writes screenshots,
 optional recordings and metrics.json: the study's own settle and label measures and invariant
 checks (positions never move in the living atlas, the camera is kept, restoration is exact).
-The browser is a real headless Chromium; these are measurements, not a human usability evaluation.
+The browser is Chromium (headless by default; `--windowed` for real-compositor frame times);
+these are measurements, not a human usability evaluation.
 """
 
 from __future__ import annotations
@@ -181,12 +182,17 @@ def main() -> None:
     parser.add_argument("--base", default="http://127.0.0.1:8793")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--video", action="store_true", help="also record the dense desktop and narrow journeys")
+    parser.add_argument("--windowed", action="store_true",
+                        help="use a visible Chromium window for real-compositor frame times")
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     manifest = {"desktop": [], "narrow": [], "keyboard": [], "reducedMotion": [], "researchC": []}
     errors = []
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        launch = {"headless": not args.windowed}
+        if args.windowed:
+            launch["args"] = ["--window-size=1440,900"]
+        browser = pw.chromium.launch(**launch)
         page = browser.new_page(viewport={"width": 1440, "height": 900})
         page.on("pageerror", lambda e: errors.append(str(e)))
         for canvas in TASKS:
@@ -224,7 +230,8 @@ def main() -> None:
     dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "src"], cwd=repo,
                                 capture_output=True, text=True).stdout.strip())
     manifest = {"generator": "scripts/qualification/atelier_study_capture.py", "sourceHead": head,
-                "sourceTreeDirty": dirty, "browser": "headless Chromium (Playwright)",
+                "sourceTreeDirty": dirty,
+                "browser": "windowed Chromium (Playwright)" if args.windowed else "headless Chromium (Playwright)",
                 "note": "Machine measurements of the served Studio; not a human usability evaluation.",
                 "pageErrors": errors, **manifest}
     (args.out / "metrics.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")

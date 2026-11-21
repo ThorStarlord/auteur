@@ -26,6 +26,17 @@
   }
   function capital(text){text=String(text||'');return text.charAt(0).toUpperCase()+text.slice(1);}
   function human(text){return String(text||'').replace(/_/g,' ');}
+  // Display titles carry the idea, not the record's kind twice. Provenance keeps the original.
+  function displayTitle(text){
+    return String(text||'').replace(/^(trope|genre|reader experience|phase|structure|character|scene|place|complex emotion)\s*:\s*/i,'');
+  }
+  // A Book running head is editorial furniture, not raw scope data. "duration unknown" is not a title.
+  function bookLabel(scope){
+    var text=String(scope||'').replace(/_/g,' ').replace(/\bduration unknown\b/gi,'').trim();
+    text=text.replace(/\bbooks\s+/gi,'BOOKS ').replace(/\bbook\s+/gi,'BOOK ');
+    text=text.replace(/\b(\d+)\s+(\d+)\b/g,'$1–$2');
+    return text ? text.toUpperCase() : 'BOOK';
+  }
 
   /* ---------- Model: concepts and recorded relationships ---------- */
   function buildModel(candidate,requestSha){
@@ -47,7 +58,7 @@
     }
     function add(facet,entry,extra){
       var id=facet+'|'+entry.key;if(byId[id])return byId[id];
-      var tier=tierOf(facet,entry),title=String(entry.title||entry.key);
+      var tier=tierOf(facet,entry),title=displayTitle(entry.title||entry.key);
       var concept={id:id,facet:facet,key:entry.key,title:title,label:shorten(title,tier===1?40:46),
         detail:entry.detail||'',role:entry.role||'',sourceRef:entry.sourceRef||null,
         nodeId:entry.nodeId||null,phaseId:entry.phaseId||null,ownerGenreId:entry.ownerGenreId||null,
@@ -198,7 +209,8 @@
     return atlas;
   }
   function layoutOnce(model,o){
-    var positions={},rooms={},margin={left:200,right:150,top:44+o.rowH*1.25,bottom:70},LW=o.labelW,RH=o.rowH,MG=o.moteGap;
+    // The top margin holds the Book running head and, below it, a two-line genre label above the first row.
+    var positions={},rooms={},margin={left:200,right:150,top:44+o.rowH*1.25+80,bottom:70},LW=o.labelW,RH=o.rowH,MG=o.moteGap;
     var phases=model.timeline,groups=[],phaseGap=phases.length>8?238:phases.length>4?262:300,groupGap=70;
     phases.forEach(function(p){
       var scope=p.scope||'whole_story',last=groups[groups.length-1];
@@ -254,16 +266,18 @@
       // Few rows, each spread with minimal displacement from where its concepts want to be.
       var gap=LW*0.94,span=Math.max(x1-x0+LW*1.2,640);
       var rowCount=landmarks.length?Math.max(1,Math.ceil(landmarks.length*gap/span)):0;
+      // Genres are the first reading and often set in two lines; give their rows room before the next band.
+      var rowStep=facet==='genres'?Math.max(RH,80):RH;
       for(var r=0;r<rowCount;r++){
         var row=landmarks.filter(function(_,i){return i%rowCount===r;});
         // Use the room the band offers: a looser row keeps more of each name readable.
         var rowGap=Math.max(gap,Math.min(gap*1.7,span/Math.max(row.length,1)));
         var xs=spread(row.map(function(cn){return desired[cn.id]-LW*0.42;}),rowGap,margin.left);
-        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+30+r*RH};
+        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+30+r*rowStep};
           rooms[cn.id]=i<row.length-1?Math.min(xs[i+1]-xs[i],LW*1.3):LW*1.3;
           maxX=Math.max(maxX,xs[i]+LW);});
       }
-      var cloudTop=y+30+Math.max(rowCount,landmarks.length?1:0)*RH+(landmarks.length?6:-10);
+      var cloudTop=y+30+Math.max(rowCount,landmarks.length?1:0)*rowStep+(landmarks.length?6:-10);
       var motes=members.filter(function(cn){return cn.tier===2;}),clouds={},order=[];
       motes.forEach(function(cn){
         var owner=cn.phaseId?'phase:'+cn.phaseId:cn.ownerGenreId?'genre:'+cn.ownerGenreId:'free:'+cn.id;
@@ -296,7 +310,7 @@
       bands.forEach(function(b){b.y0*=stretch;b.y1*=stretch;if(b.spineY)b.spineY*=stretch;});
       height*=stretch;
     }
-    var books=groups.map(function(g){return {scope:g.scope,label:human(g.scope),x0:g.x0,x1:g.x1};});
+    var books=groups.map(function(g){return {scope:g.scope,label:bookLabel(g.scope),x0:g.x0,x1:g.x1};});
     return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,phaseGap:phaseGap,
       spine:phases.map(function(p){return positions[p.id];})};
   }
@@ -459,7 +473,12 @@
     var view0=view||{width:1100,height:640,z:1},n1=hood.first.length,s=1/(view0.z||1);
     var narrow=view0.width<600;
     var rx=clamp(140+n1*7,190,Math.max(190,Math.min(330,view0.width/2-235)));
-    var inner={rx:rx*s,minDx:Math.min(140,rx-40)*s,gap:30*s,ry:150*s};
+    var inner={rx:rx*s,minDx:Math.min(140,rx-40)*s,gap:30*s,ry:150*s,
+      // Story time stays legible inside the constellation: phases run in recorded order within each arc.
+      order:function(id){
+        var cn=model.byId[id];
+        return cn.facet==='timeline'?-1000+model.timeline.indexOf(cn):Math.sin(angles[id]);
+      }};
     var outerOpts=function(){return {rx:(rx+210)*s,minDx:(rx+60)*s,gap:26*s,ry:200*s,slack:2,
       order:function(id){var p=parentOf(model,hood,id);return p&&targets[p]?targets[p].y:f.y;}};};
     var fixed={};fixed[focus]=true;
@@ -540,5 +559,5 @@
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
-    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital};
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel};
 })(window);

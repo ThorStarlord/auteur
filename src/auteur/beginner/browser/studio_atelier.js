@@ -23,16 +23,15 @@
      Each style here is mirrored exactly by a [data-style] rule in studio_atelier.css. */
   var STYLE={
     genre:{font:'600 12.5px '+SERIF,lh:15,px:2,py:1,maxW:152,lines:2},
-    phase:{font:'500 11.5px '+SERIF,lh:13.5,px:2,py:1,maxW:118,lines:3},
-    ordinal:{font:'600 12px '+SERIF,lh:14,px:2,py:0,maxW:44,lines:1},
+    phase:{font:'500 11.5px '+SERIF,lh:13.5,px:2,py:1,maxW:140,lines:4},
     rest:{font:'500 10.5px '+SANS,lh:12.5,px:2,py:1,maxW:128,lines:2},
     mote:{font:'400 10px '+SANS,lh:12,px:2,py:0,maxW:150,lines:1},
-    near:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:196,lines:2},
+    near:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:210,lines:3},
     far:{font:'400 11px '+SANS,lh:13,px:5,py:2,maxW:172,lines:1},
     verb:{font:'italic 11.5px '+SERIF,lh:14,px:4,py:1,maxW:190,lines:1},
     focus:{font:'600 16px '+SERIF,lh:20,px:12,py:7,maxW:236,lines:3,kicker:'700 9.5px '+SANS,klh:15}
   };
-  var FACET_BASE={genres:560,timeline:540,emotions:470,structure:452,tropes:444,other:430};
+  var FACET_BASE={genres:640,timeline:620,emotions:440,structure:452,tropes:444,other:430};
   var GLYPH_R={genres:5.6,emotions:5,timeline:6.5,tropes:6.5,structure:4.8,other:5};
   var AROUND=['e','w','se','ne','sw','nw','s','n'];
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;}
@@ -42,9 +41,6 @@
   function lerp(a,b,k){return {x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k};}
   function prefersReduced(){try{return global.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}}
   var facetOrder={genres:0,emotions:1,timeline:2,tropes:3,structure:4,other:5};
-  function roman(n){var map=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']],out='';
-    if(n>39)return String(n);map.forEach(function(p){while(n>=p[0]){out+=p[1];n-=p[0];}});return out;}
-
   /* ---------- Text measurement ---------- */
   var ctx=null,widths={};
   function textWidth(text,font){
@@ -56,6 +52,9 @@
   function fitLine(text,font,maxW){
     if(textWidth(text,font)<=maxW)return text;
     var s=text;while(s.length>1&&textWidth(s+'…',font)>maxW)s=s.slice(0,-1);
+    // Prefer a word boundary over a mid-word cut when there is enough of the word left.
+    var space=s.lastIndexOf(' ');
+    if(space>s.length*0.55)s=s.slice(0,space);
     return s.replace(/[\s,;:.·]+$/,'')+'…';
   }
   function wrapText(text,style,maxW){
@@ -164,7 +163,8 @@
     // needs to be readable, and never zooms out because a neighbourhood is large.
     function atlasFocusCamera(id,base){
       base=base||S.cam;var v=view(),p=screenOf(S.atlas.positions[id],base);
-      var m={l:(narrow()?96:150)+16,r:56,t:34,b:48},dx=0,dy=0;
+      // A phone title card sits below the glyph, so leave it room instead of letting it clip.
+      var m={l:(narrow()?96:150)+16,r:56,t:narrow()?64:34,b:narrow()?130:110},dx=0,dy=0;
       if(p.x<m.l)dx=p.x-m.l;else if(p.x>v.width-m.r)dx=p.x-(v.width-m.r);
       if(p.y<m.t)dy=p.y-m.t;else if(p.y>v.height-m.b)dy=p.y-(v.height-m.b);
       if(Math.abs(dx)<1&&Math.abs(dy)<1)return null;
@@ -336,8 +336,9 @@
       // Book names never overprint each other: a crowded name waits for a closer zoom.
       var lastEnd=-Infinity;
       atlas.books.forEach(function(bk,i){
-        var t=gridEls.heads[i],x=toScreen({x:bk.x0-half,y:top}).x+8,w=t.textContent.length*6.1+14,show=x>=lastEnd&&x<v.width;
-        t.setAttribute('x',x.toFixed(1));t.setAttribute('y',(yTop-8).toFixed(1));
+        // Leave a clear band between the running head and the score so a two-line genre label can sit above it.
+        var t=gridEls.heads[i],x=toScreen({x:bk.x0-half,y:top}).x+8,w=t.textContent.length*5.2+8,show=x>=lastEnd&&x<v.width;
+        t.setAttribute('x',x.toFixed(1));t.setAttribute('y',(yTop-26).toFixed(1));
         t.style.display=show?'':'none';if(show)lastEnd=x+w;
       });
       if(model.timeline.length){
@@ -483,8 +484,13 @@
     /* ---------- Labels: measured, prioritised, placed around fixed glyphs ---------- */
     function spec(style,text,maxW){var st=STYLE[style],w=wrapText(text,st,maxW);return {style:style,lines:w.lines,w:w.w,h:w.h};}
     function focusSpec(cn){
-      var st=STYLE.focus,maxW=narrow()?Math.min(200,view().width-80):st.maxW,t=wrapText(cn.title,st,maxW);
-      var kick=fitLine((M.FACET_SINGULAR[cn.facet]+(cn.role?' · '+M.human(cn.role):'')).toUpperCase(),st.kicker,maxW);
+      var narrowView=narrow();
+      var st=narrowView?STYLE.focus:Object.assign({},STYLE.focus,{lines:4});
+      var maxW=narrowView?Math.min(220,view().width-64):st.maxW,t=wrapText(cn.title,st,maxW);
+      var kind=M.FACET_SINGULAR[cn.facet],role=cn.role?M.human(cn.role):'';
+      // The kind is already the card's voice; do not repeat it as a role ("Phase · Phase").
+      var kickText=kind+(role&&role.toLowerCase()!==kind.toLowerCase()?' · '+role:'');
+      var kick=fitLine(kickText.toUpperCase(),st.kicker,maxW);
       var kw=textWidth(kick,st.kicker)+kick.length*9.5*0.13;
       return {style:'focus',lines:t.lines,kicker:kick,w:Math.ceil(Math.max(t.w-2*st.px,kw))+2*st.px+1,h:t.h+st.klh};
     }
@@ -493,10 +499,13 @@
       if(st==='near')return [spec('near',cn.label),spec('far',M.shorten(cn.title,22))];
       if(st==='far')return [spec('far',cn.label)];
       if(cn.tier===2)return [spec('mote',M.shorten(cn.title,34))];
-      if(cn.facet==='genres')return [spec('genre',cn.title)];
+      // A wider one-line-first genre label keeps the compact names from going quiet.
+      if(cn.facet==='genres')return [spec('genre',cn.title,190)];
       if(cn.facet==='timeline'){
-        var room=clamp(S.atlas.phaseGap*z+4,62,STYLE.phase.maxW);
-        return [spec('phase',cn.title,room),spec('ordinal',roman(S.model.timeline.indexOf(cn)+1))];
+        var wide=clamp(S.atlas.phaseGap*z+4,96,STYLE.phase.maxW);
+        var narrow=clamp(S.atlas.phaseGap*z+8,80,Math.min(118,wide));
+        // Prefer the full phase name; fall back to a narrower setting of the same name, never a bare numeral.
+        return [spec('phase',cn.title,wide),spec('phase',cn.title,narrow)];
       }
       return [spec('rest',cn.label)];
     }
@@ -517,7 +526,7 @@
       S.atlas.books.forEach(function(bk,i){
         var t=gridEls.heads[i];if(!t||t.style.display==='none')return;
         var x=(bk.x0-half-cam.cx)*cam.z+v.width/2+8;
-        out.push({rect:{x0:x-2,y0:yTop-16,x1:x+t.textContent.length*6.1+6,y1:yTop+4},owner:'ui'});
+        out.push({rect:{x0:x-2,y0:yTop-38,x1:x+t.textContent.length*5.2+6,y1:yTop-22},owner:'ui'});
       });
       return out;
     }
@@ -527,7 +536,7 @@
       var v=view(),cam=final.cam||S.cam,pos=final.pos||S.pos,mix=final.mix!==undefined?final.mix:S.mix,model=S.model;
       var examining=S.mode==='constellation',maxDeg=model.maxDegree||1;
       var obstacles=furniture(cam),items=[],anchors={},specs={},onStage={},radii={},isItem={};
-      var bounds={x0:4,y0:4,x1:v.width-4,y1:v.height-4};
+      var inset=narrow()?10:4,bounds={x0:inset,y0:inset,x1:v.width-inset,y1:v.height-inset};
       model.concepts.forEach(function(cn){
         var p=pos[cn.id],a={x:(p.x-cam.cx)*cam.z+v.width/2,y:(p.y-cam.cy)*cam.z+v.height/2},st=starState(cn.id);
         anchors[cn.id]=a;var sp=specsFor(cn,st,cam.z);specs[cn.id]=sp;
@@ -541,13 +550,15 @@
         var side=S.sides[cn.id]==='left'?['w','nw','sw']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
-          item.places=examining||narrow()?['s','n']:['s','n','e','w'];}
+          // On a phone the title card stays below its glyph, clear of the trail and the top edge.
+          item.places=examining?['s','n']:narrow()?['s']:['s','n','e','w'];}
         else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
         else{
           item.priority=(S.focus?-200:0)+(FACET_BASE[cn.facet]||420)-(cn.tier===2?300:0)+60*weight+(/^(governing|primary)/.test(cn.role||'')?20:0);
-          item.overSoft='fallback';
-          item.places=cn.facet==='timeline'?['s','n']:cn.facet==='genres'?['n','e','w','ne','nw','s']:AROUND;
+          // Genres and phases are the resting hierarchy; they may cover a faint glyph before going quiet.
+          item.overSoft=(cn.facet==='genres'||cn.facet==='timeline')?true:'fallback';
+          item.places=cn.facet==='timeline'?['s','n']:cn.facet==='genres'?['n','e','w','ne','nw','s','se','sw']:AROUND;
         }
         items.push(item);isItem[cn.id]=true;
       });
@@ -596,6 +607,8 @@
     function select(id,opts){
       opts=opts||{};
       if(!S.model||!S.model.byId[id])return;
+      // A click commits attention; the pointer-hover preview must not linger over the new state.
+      preview(null);
       var fromAtlas=!S.focus;
       if(fromAtlas){S.restCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};S.userCam=false;}
       if(opts.trailIndex!==undefined)S.trail=S.trail.slice(0,opts.trailIndex+1);
@@ -669,6 +682,7 @@
     }
     function examine(){
       if(!S.focus||S.mode==='constellation')return;
+      preview(null);
       S.atlasCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};S.mode='constellation';
       S.lastAction={kind:'examine',id:S.focus,at:performance.now()};
       var inStage=stage.contains(document.activeElement);
@@ -680,6 +694,7 @@
     }
     function leaveConstellation(){
       if(S.mode!=='constellation')return;
+      preview(null);root.classList.add('atl-returning');
       S.mode='atlas';S.lastAction={kind:'leave-constellation',id:S.focus,at:performance.now()};
       // The atlas view the author left is restored; if the focus changed meanwhile, it is kept in view.
       var base=S.atlasCam||S.cam,cam=atlasFocusCamera(S.focus,base)||base,inStage=stage.contains(document.activeElement);
@@ -702,7 +717,9 @@
       syncChrome();
     }
     function returnToAtlas(){
+      preview(null);
       if(!S.focus)return;
+      root.classList.add('atl-returning');
       var last=S.focus,reduced=S.reduced,delays={},wasExamining=S.mode==='constellation',hadFocus=root.contains(document.activeElement);
       if(S.hood)S.hood.order.slice().reverse().forEach(function(id,i){delays[id]=reduced?0:Math.min(i*10,180);});
       // Automatic pans are undone; a view the author chose themselves is kept.
@@ -755,6 +772,8 @@
       labelPass();
       Array.prototype.forEach.call(gVerbs.children,function(t){t.classList.remove('is-pending');});
       syncCompass();
+      // The threads were withheld during a return camera; let the settled atlas reassemble.
+      root.classList.remove('atl-returning');
       if(S.mode==='atlas'&&S.focus)S.aCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};
       var frames=S.frames,intervals=[];
       for(var i=1;i<frames.length;i++)intervals.push(frames[i]-frames[i-1]);
@@ -958,8 +977,10 @@
       var marks=el('section','atl-landmarks');
       marks.append(el('h4','atl-section-title','Landmarks · most documented relationships'));
       ['genres','emotions','structure','tropes','other'].forEach(function(facet){
+        // Genres are the resting hierarchy's first reading; do not hide half of them in the folio.
+        var limit=facet==='genres'?7:3;
         var top=model.concepts.filter(function(x){return x.facet===facet&&x.tier===1&&x.degree>0;})
-          .sort(function(a,b){return b.degree-a.degree||a.title.localeCompare(b.title);}).slice(0,3);
+          .sort(function(a,b){return b.degree-a.degree||a.title.localeCompare(b.title);}).slice(0,limit);
         if(!top.length)return;
         var row=el('div','atl-landmark-row');row.append(el('span','atl-landmark-kind atl-facet-'+facet,M.FACET_LABEL[facet]));
         top.forEach(function(cn){var b=el('button','atl-landmark atl-facet-'+facet);b.type='button';b.title=cn.title;
@@ -1058,7 +1079,10 @@
       else if(e.key==='Backspace'&&S.focus){e.preventDefault();back();}
     });
     root.addEventListener('keydown',function(e){
-      if(e.key!=='Escape'||!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
+      if(e.key!=='Escape')return;
+      // Escape always releases a hover preview, even at rest where no selection is active.
+      preview(null);
+      if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();
     });
     function navigable(){
@@ -1091,7 +1115,12 @@
     });
     stage.addEventListener('pointermove',function(e){
       if(!drag||e.pointerId!==drag.id)return;
-      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;
+      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      // On a phone a vertical swipe belongs to the page; the atlas keeps horizontal travel.
+      if(e.pointerType==='touch'&&narrow()&&Math.abs(dy)>Math.abs(dx)){
+        drag=null;stage.classList.remove('is-panning');return;
+      }
+      if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;
       if(drag.moved){S.cam={cx:drag.cx-dx/S.cam.z,cy:drag.cy-dy/S.cam.z,z:S.cam.z};if(S.tw)S.tw.cam=null;paint();stage.classList.add('is-panning');}
     });
     function endDrag(e){
