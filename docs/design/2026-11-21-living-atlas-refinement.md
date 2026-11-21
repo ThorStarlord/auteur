@@ -7,6 +7,17 @@
 not the default Narrative Architecture experience. Making it the default needs a
 separate owner decision.
 
+> **Corrected by the [acceptance review](2026-11-21-atelier-acceptance-review.md)**
+> (same day). Several claims below hold only under the capture's conditions:
+> - "0 overlaps" assumes the pointer is away. Right after a click or `Esc`, the hover
+>   preview forces names that overlap.
+> - "58 of 76 landmarks" excludes unlabelled marks. 59 of 156 concepts are named at
+>   rest.
+> - "Nothing moves" holds inside the stage. A paragraph-length name can push the whole
+>   stage down 21 px.
+> - Only three Book headings show at rest.
+> - Leaving a dense constellation runs at about 20 fps on real hardware too.
+
 ## Owner direction
 
 The owner reviewed the first study and set this direction:
@@ -183,7 +194,10 @@ Keyboard-only run: Tab into the atlas, then arrows, `Enter`, `]`, `E`, `Esc`,
   up to 67 ms. Leaving a dense constellation is the costliest step, averaging
   about 40 ms with a worst frame of about 117 ms, because the camera zooms out
   over the whole score. Two cheap fixes were tried and measured; neither helped,
-  and both were reverted. Nothing was measured on real hardware.
+  and both were reverted. *Update, same day:* the
+  [acceptance review](2026-11-21-atelier-acceptance-review.md) measured it on real
+  hardware in a windowed browser. Leaving a dense constellation runs at about 20 fps
+  there too, and the cost is rasterization and style work, not script.
 - **Not tested.** Screen reader, touch pinch-zoom, and Architectures larger than
   156 concepts.
 
