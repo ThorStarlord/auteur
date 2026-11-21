@@ -155,6 +155,21 @@
     function screenOf(p,cam){var v=view();cam=cam||S.cam;return {x:(p.x-cam.cx)*cam.z+v.width/2,y:(p.y-cam.cy)*cam.z+v.height/2};}
     function toScreen(p){return screenOf(p,S.cam);}
     function narrow(){return view().width<600;}
+    /* Phone constellation: the focus sits near the top-left with its card beside it, and the list of
+       related concepts hangs below. The stage grows to hold the whole list, so the page scrolls to it
+       as any document does; leaving the constellation gives the stage its height back. */
+    var PHONE_FOCUS={x:36,y:130};
+    function fitPhoneStage(on){
+      if(!S.model)return;
+      var want='';
+      if(on&&S.focus&&stage.clientWidth&&stage.clientWidth<600){
+        var h=M.neighbourhood(S.model,S.focus,S.depth),L=M.PHONE_LIST;
+        if(!stage.style.height)S.phoneBaseH=stage.clientHeight;
+        want=Math.max(S.phoneBaseH||0,Math.round(PHONE_FOCUS.y+L.start+h.first.length*L.near+h.second.length*L.far+72))+'px';
+      }
+      if(stage.style.height===want)return;
+      stage.style.height=want;measureView();S.paintedView={width:S.view.width,height:S.view.height};
+    }
     function zoomBy(f,anchor){
       if(!S.model)return;
       var v=view(),ax=anchor?anchor.x:v.width/2,ay=anchor?anchor.y:v.height/2;
@@ -172,7 +187,10 @@
     // needs to be readable, and never zooms out because a neighbourhood is large.
     function atlasFocusCamera(id,base){
       base=base||S.cam;var v=view(),p=screenOf(S.atlas.positions[id],base);
-      var m={l:(narrow()?96:172)+16,r:56,t:34,b:48},dx=0,dy=0;
+      // The focus's title card is centred under it, so the focus keeps half a card clear of each side
+      // (and of the zoom buttons on the right).
+      var half=focusSpec(S.model.byId[id]).w/2+10;
+      var m={l:Math.max((narrow()?96:172)+16,half),r:Math.max(56,half+44),t:34,b:48},dx=0,dy=0;
       if(p.x<m.l)dx=p.x-m.l;else if(p.x>v.width-m.r)dx=p.x-(v.width-m.r);
       if(p.y<m.t)dy=p.y-m.t;else if(p.y>v.height-m.b)dy=p.y-(v.height-m.b);
       if(Math.abs(dx)<1&&Math.abs(dy)<1)return null;
@@ -187,7 +205,7 @@
     // The constellation is composed at reading scale (zoom 1) and framed around its composition.
     function constellationCamera(ids){
       var v=view(),pad=40,t=S.comp.targets,f=t[S.focus];
-      if(narrow())return {z:1,cx:f.x+v.width/2-64,cy:f.y+v.height/2-Math.min(150,v.height*0.3)};
+      if(narrow())return {z:1,cx:f.x+v.width/2-PHONE_FOCUS.x,cy:f.y+v.height/2-PHONE_FOCUS.y};
       var rect=rectOf(ids,t,S.comp.sides,1),w=rect.x1-rect.x0,h=rect.y1-rect.y0;
       var cx=w<=v.width-2*pad?(rect.x0+rect.x1)/2:clamp((rect.x0+rect.x1)/2,f.x-v.width/2+170,f.x+v.width/2-170);
       var cy=h<=v.height-2*pad?(rect.y0+rect.y1)/2:f.y+v.height/2-110;
@@ -589,7 +607,7 @@
           examining&&narrow()?['e']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
-          item.places=examining&&narrow()?['n','s']:examining||narrow()?['s','n']:['s','n','e','w'];}
+          item.places=examining&&narrow()?['e','n','s']:examining||narrow()?['s','n']:['s','n','e','w'];}
         else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;
           if(sd==='rail-s'||sd==='rail-n')item.gap=r+9;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
@@ -655,6 +673,7 @@
       else if(S.focus!==id)S.trail.push(id);
       if(S.trail.length>12)S.trail=S.trail.slice(-12);
       S.focus=id;S.lastFocus=id;S.depth=opts.depth||(fromAtlas||opts.via==='atlas'?1:S.depth===2?2:1);
+      if(S.mode==='constellation')fitPhoneStage(true);
       S.lastAction={kind:'select',id:id,at:performance.now()};
       renderTrail();syncChrome();
       unfold({fresh:true});
@@ -716,6 +735,7 @@
     function deeper(on){
       if(!S.focus)return;
       S.depth=on?2:1;S.lastAction={kind:on?'deeper':'shallower',id:S.focus,at:performance.now()};
+      if(S.mode==='constellation')fitPhoneStage(true);
       unfold({fresh:false,camera:S.mode==='constellation'?undefined:null});renderFolio();
       announce(on?'Second-order connections revealed: '+S.hood.second.length+' concepts.'+
         (S.hood.hiddenSecond?' '+S.hood.hiddenSecond+' more are listed in the index, not drawn.':''):'Showing first-order relationships only.');
@@ -724,6 +744,7 @@
       if(!S.focus||S.mode==='constellation')return;
       S.atlasCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};S.mode='constellation';
       S.lastAction={kind:'examine',id:S.focus,at:performance.now()};
+      fitPhoneStage(true);
       var inStage=stage.contains(document.activeElement);
       syncChrome();renderTrail();unfold({fresh:false,regrow:false});renderFolio();
       if(inStage&&starEls[S.focus])starEls[S.focus].focus({preventScroll:true});
@@ -734,6 +755,7 @@
     function leaveConstellation(){
       if(S.mode!=='constellation')return;
       S.mode='atlas';S.lastAction={kind:'leave-constellation',id:S.focus,at:performance.now()};
+      fitPhoneStage(false);
       // The atlas view the author left is restored; if the focus changed meanwhile, it is kept in view.
       var base=S.atlasCam||S.cam,cam=atlasFocusCamera(S.focus,base)||base,inStage=stage.contains(document.activeElement);
       syncChrome();renderTrail();unfold({fresh:false,regrow:false,camera:cam,cameraDuration:TIMING.back.camera,moveDuration:TIMING.back.move});
@@ -762,6 +784,7 @@
       // Automatic pans are undone; a view the author chose themselves is kept.
       var cam=S.userCam?(wasExamining?S.atlasCam:null):S.restCam;
       S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.sides={};S.depth=1;S.mode='atlas';
+      fitPhoneStage(false);
       S.lastAction={kind:'return',id:last,at:performance.now()};
       applyStates(delays);syncVerbs();syncTethers();syncChrome();renderTrail();lensbar.hidden=true;fitHood.hidden=true;compass.replaceChildren();
       var targets={};S.model.concepts.forEach(function(cn){targets[cn.id]=S.atlas.positions[cn.id];});
@@ -1193,13 +1216,18 @@
     }
     var drag=null,relabelTimer=null;
     stage.addEventListener('pointerdown',function(e){
-      if(e.button!==0||e.target.closest('button,a,nav,.atl-zoom,.atl-lensbar'))return;
-      drag={x:e.clientX,y:e.clientY,cx:S.cam.cx,cy:S.cam.cy,moved:false,id:e.pointerId};
-      stage.setPointerCapture(e.pointerId);
+      // A touch drag may begin on a concept's mark (a tap still selects it; a moving finger cancels the tap).
+      var fromStar=e.pointerType==='touch'&&e.target.closest('.atl-star');
+      if(e.button!==0||(!fromStar&&e.target.closest('button,a,nav,.atl-zoom,.atl-lensbar')))return;
+      // Touch: the stage allows vertical page panning (touch-action: pan-y), so a vertical swipe scrolls
+      // the page and ends here with pointercancel; a horizontal drag travels the atlas along story time.
+      drag={x:e.clientX,y:e.clientY,cx:S.cam.cx,cy:S.cam.cy,moved:false,id:e.pointerId,touch:e.pointerType==='touch'};
+      if(!drag.touch)stage.setPointerCapture(e.pointerId);
     });
     stage.addEventListener('pointermove',function(e){
       if(!drag||e.pointerId!==drag.id)return;
-      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;
+      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      if(drag.touch){dy=0;if(Math.abs(dx)>8)drag.moved=true;}else if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;
       if(drag.moved){if(!S.dragging){S.dragging=true;latchPointer();}
         S.cam={cx:drag.cx-dx/S.cam.z,cy:drag.cy-dy/S.cam.z,z:S.cam.z};if(S.tw)S.tw.cam=null;paint();stage.classList.add('is-panning');}
     });
@@ -1237,7 +1265,7 @@
     function clearExploration(){
       if(S.raf){global.cancelAnimationFrame(S.raf);S.raf=null;}
       S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.atlasCam=null;S.tw=null;
-      S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;S.travelling=false;
+      S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;S.travelling=false;stage.style.height='';
       root.classList.remove('atl-focused','atl-examining','atl-deep','atl-travelling');
       lensbar.hidden=true;fitHood.hidden=true;compass.replaceChildren();
     }

@@ -59,7 +59,8 @@
 
 /* ---------- Stage ---------- */
 .atl-body{display:grid;grid-template-columns:minmax(0,1fr) clamp(290px,27%,370px)}
-.atl-stage{position:relative;overflow:hidden;height:clamp(520px,74vh,880px);touch-action:none;cursor:grab;
+/* Vertical swipes scroll the page; a horizontal drag travels the atlas; pinch zooms the page as usual. */
+.atl-stage{position:relative;overflow:hidden;height:clamp(520px,74vh,880px);touch-action:pan-y pinch-zoom;cursor:grab;
   background:radial-gradient(120% 90% at 50% 38%,#fffdf8 0%,#f9f4ea 58%,#f1e9da 100%)}
 .atl-stage.is-panning{cursor:grabbing}
 .atl-lens{position:absolute;left:0;top:0;width:760px;height:760px;margin:-380px 0 0 -380px;border-radius:50%;pointer-events:none;
@@ -310,8 +311,8 @@
 /* ---------- Narrow screens ---------- */
 @media (max-width:900px){
   .atl-body{grid-template-columns:minmax(0,1fr)}
-  .atl-stage{height:min(66vh,580px);min-height:400px}
-  .atl-folio{height:auto;max-height:none;border-left:0;border-top:1px solid var(--atl-hair);padding:16px}
+  .atl-stage,.studio-atelier-first .atl-stage{height:min(66vh,580px);min-height:400px}
+  .atl-folio,.studio-atelier-first .atl-folio{height:auto;max-height:none;border-left:0;border-top:1px solid var(--atl-hair);padding:16px}
 }
 @media (max-width:600px){
   .atl-bar{padding:11px 12px;gap:9px}
@@ -324,7 +325,18 @@
   .atl-folio-title{font-size:1.36rem}
   .atl-band-label{font-size:8.5px;padding-left:8px;gap:5px}
   .atl-band-count{display:none}
-  .atl-lensbar{bottom:8px;padding:4px 5px 4px 11px;gap:7px}
+  .atl-stage,.studio-atelier-first .atl-stage{height:min(62vh,540px);min-height:380px}
+  .studio-atelier-slot{padding:0 8px 8px}
+  /* The constellation's way back stays at the top of a phone stage, under the trail and clear of the zoom. */
+  .atl-lensbar{top:44px;bottom:auto;left:10px;translate:none;max-width:calc(100% - 64px);padding:4px 5px 4px 11px;gap:7px}
+  .atl-lensbar-title{font-size:.66rem}
+  /* The Studio's depth switch stays one row on a phone, so the atlas starts high on the first screen. */
+  .studio-atelier-slot .studio-full-modes{flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none}
+  .studio-atelier-slot .studio-full-modes>*{flex:none}
+  .studio-atelier-slot .studio-full-modes button{padding:7px 10px;font-size:.82rem}
+  .studio-atelier-slot .studio-full-modes>span{display:none}
+  .atl-bar{gap:7px 10px}
+  .atl-tools{gap:6px}
 }
 
 /* ---------- Motion preferences ---------- */

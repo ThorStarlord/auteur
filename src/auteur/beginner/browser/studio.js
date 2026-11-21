@@ -2452,6 +2452,8 @@
     slot.hidden = !on;
     document.querySelector(".studio").classList.toggle("studio-atelier-first", on);
     if (keep && document.activeElement !== active) active.focus({preventScroll: true});
+    // On a phone the switch is one scrolling row; keep the chosen view's button in sight.
+    if (on && modesNav.scrollWidth > modesNav.clientWidth) modesNav.scrollLeft = Math.max(0, $("studio-mode-atelier").offsetLeft - modesNav.offsetLeft - 8);
     // A switch made from further down the page brings the chosen view into sight.
     var anchor = on ? slot : modesNav, top = anchor.getBoundingClientRect().top;
     if (window.scrollY > 0 && (top < 0 || top > window.innerHeight * 0.6)) anchor.scrollIntoView({block: "start"});

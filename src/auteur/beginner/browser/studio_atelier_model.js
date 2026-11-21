@@ -169,6 +169,8 @@
   var BAND_ORDER=['genres','emotions','timeline','tropes','structure','other'];
   var LABEL_W=176,ROW_H=32,MOTE_GAP=15,REST_LABEL_PX=128,REST_ROW_PX=34,MOTE_PX=8;
   var GUTTER_WIDE=172,GUTTER_NARROW=96,ATLAS_LEFT=150;
+  // Phone constellation list: first row below the focus, then one row per first- and second-order concept.
+  var PHONE_LIST={start:84,near:50,far:44};
   // Minimal squared displacement with a minimum gap (isotonic regression, pool adjacent violators).
   function spread(wanted,gap,minX){
     var blocks=[];
@@ -499,11 +501,11 @@
       if(narrow){
         // Narrow screens: one list beneath the focus title, read top to bottom, grouped by kind and
         // with phases in story order; each item hangs from a single trunk below the focus.
-        var base=stemCount;
+        var pitch=outer?PHONE_LIST.far:PHONE_LIST.near;
         ids.slice().sort(function(a,b){var fa=BAND_ORDER.indexOf(model.byId[a].facet),fb=BAND_ORDER.indexOf(model.byId[b].facet);
           return fa-fb||(storyOrder(model,a)-storyOrder(model,b))||(outer?0:Math.sin(angles[a])-Math.sin(angles[b]))||a.localeCompare(b);})
-          .forEach(function(id,i){targets[id]={x:f.x+(outer?44:22)*s,y:f.y+(118+(base+i)*30)*s};sides[id]='right';});
-        stemCount+=ids.length;return;
+          .forEach(function(id,i){targets[id]={x:f.x+(outer?44:22)*s,y:f.y+(stemY+i*pitch)*s};sides[id]='right';});
+        stemY+=ids.length*pitch;return;
       }
       if(outer){ids.forEach(function(id){var p=parentOf(model,hood,id),t=targets[p]||f;angles[id]=Math.atan2(t.y-f.y,t.x-f.x);});
         arcs(ids,angles,f,outerOpts(),targets,sides);}
@@ -514,7 +516,7 @@
       var n=ids.length,avail=Math.max(260,(view0.width-150)),step=n>1?clamp(avail/(n-1),96,190):0;
       ids.forEach(function(id,i){targets[id]={x:f.x+(i-(n-1)/2)*step*s,y:f.y+176*s};sides[id]=i%2?'rail-n':'rail-s';});
     }
-    var stemCount=0,railIds=[];
+    var stemY=PHONE_LIST.start,railIds=[];
     if(treatment==='B'){
       var others=hood.first;
       if(!narrow&&model.byId[focus].facet!=='timeline'){
@@ -586,5 +588,6 @@
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
-    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,presentedName:presentedName,bookLabel:bookLabel};
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,presentedName:presentedName,bookLabel:bookLabel,
+    PHONE_LIST:PHONE_LIST};
 })(window);
