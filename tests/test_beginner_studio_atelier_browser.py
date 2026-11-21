@@ -133,7 +133,9 @@ def test_atelier_frontispiece_stable_ribbon_and_clear_preview(served, browser):
         page.goto(f"{served}/studio.html?canvas=atelier&atelier", wait_until="networkidle")
         page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
         page.evaluate("window.scrollTo(0, 0)")
-        assert page.evaluate("document.querySelector('.workspace').classList.contains('atelier-first')")
+        # The atlas is the frontispiece in reading order too: it precedes the Story Vision and agent tools.
+        assert page.evaluate("""() => !!(document.querySelector('#studio-atelier').compareDocumentPosition(
+          document.querySelector('.vision-panel')) & Node.DOCUMENT_POSITION_FOLLOWING)""")
         assert page.evaluate(
             "document.querySelector('#studio-atelier').getBoundingClientRect().top + window.scrollY"
         ) < 500
@@ -208,9 +210,8 @@ def test_atelier_phone_scrolls_and_keeps_focus_clear(served, browser):
         page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
         page.evaluate("document.querySelector('#studio-atelier').scrollIntoView({block:'start'})")
         page.wait_for_timeout(300)
-        assert page.evaluate(
-            "getComputedStyle(document.querySelector('#studio-atelier .atl-stage')).touchAction"
-        ) == "pan-y"
+        assert "pan-y" in page.evaluate(
+            "getComputedStyle(document.querySelector('#studio-atelier .atl-stage')).touchAction")
         before = page.evaluate("window.scrollY")
         point = page.evaluate("""() => {
           const box = document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect();

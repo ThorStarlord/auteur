@@ -185,3 +185,47 @@ test('label placement never overprints and honours priority', () => {
   assert.equal(ambient.a, null);
   assert.equal(near.n.place, 'e');
 });
+
+// The Focused Constellation presents the phases it is recorded with in recorded story order: left to right
+// along the rail on a wide stage, top to bottom in the phone list. Nothing is ordered by nearness.
+test('constellation phases follow recorded story chronology', () => {
+  const M = load();
+  const model = M.buildModel(DENSE, 'sha-test');
+  const atlas = M.layoutAtlas(model, {aspect: 1.4});
+  const story = (id) => model.timeline.findIndex((p) => p.id === id);
+  for (const genre of model.concepts.filter((x) => x.facet === 'genres')) {
+    const hood = M.neighbourhood(model, genre.id, 1);
+    const phases = hood.first.filter((id) => model.byId[id].facet === 'timeline');
+    if (phases.length < 2) continue;
+    const wide = M.compose(model, atlas, hood, 'B', {width: 1068, height: 640, z: 1});
+    assert.deepEqual(plain(wide.rail), [...phases].sort((a, b) => story(a) - story(b)), `${genre.id}: rail in story order`);
+    const xs = wide.rail.map((id) => wide.targets[id].x);
+    assert.ok(xs.every((x, i) => i === 0 || x > xs[i - 1]), `${genre.id}: rail runs left to right`);
+    const phone = M.compose(model, atlas, hood, 'B', {width: 390, height: 520, z: 1});
+    const ys = [...phases].sort((a, b) => story(a) - story(b)).map((id) => phone.targets[id].y);
+    assert.ok(ys.every((y, i) => i === 0 || y > ys[i - 1]), `${genre.id}: phone list in story order`);
+  }
+});
+
+// Presentation drops only a leading kind that repeats the interface; recorded titles and relations stay as recorded.
+test('presented names drop only redundant kind prefixes, and Book headings read the recorded scope', () => {
+  const M = load();
+  const model = M.buildModel(DENSE, 'sha-test');
+  const relations = JSON.stringify(model.relations);
+  const byTitle = (t) => model.concepts.find((x) => x.recordTitle === t);
+  assert.equal(byTitle('Trope: The Bought Seal').name, 'The Bought Seal');
+  assert.equal(byTitle('Theme: A Signature Is Not a Proof').name, 'A Signature Is Not a Proof');
+  assert.equal(byTitle('Crossing Public Engine: Use as the Real Test').name, 'Crossing Public Engine: Use as the Real Test');
+  // A name is the recorded title, its words after a redundant kind, or (reader emotions) the title with its recorded role.
+  for (const cn of model.concepts) {
+    const rec = cn.recordTitle.toLowerCase(), name = cn.name.toLowerCase();
+    assert.ok(rec.endsWith(name) || name.startsWith(rec + ' · '), `${cn.id} keeps its recorded words`);
+  }
+  assert.equal(JSON.stringify(model.relations), relations);
+  assert.deepEqual(plain(M.bookScope('opening_books_duration_unknown')), {text: 'Opening Books', durationUnknown: true});
+  assert.deepEqual(plain(M.bookScope('book_12')), {text: 'Book 12', durationUnknown: false});
+  assert.deepEqual(plain(M.bookScope('books_13_14')), {text: 'Books 13–14', durationUnknown: false});
+  assert.equal(M.bookScope(undefined).text, 'Whole story');
+  const atlas = M.layoutAtlas(model, {aspect: 1.4});
+  assert.ok(atlas.books.every((b) => !/duration|_/i.test(b.label)), 'no raw scope tokens in Book headings');
+});

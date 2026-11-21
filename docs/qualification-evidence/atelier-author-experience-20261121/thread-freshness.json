@@ -1,0 +1,86 @@
+{
+ "generator": "windowed Playwright Chromium, dense specimen; after each scenario, every background thread end must lie within 16 px of its concept mark",
+ "sourceHead": "1b13a46d",
+ "scenarios": {
+  "rest": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "interruptedLeave": {
+   "travelling": false,
+   "backOpacity": "0.26",
+   "background": 159,
+   "checked": 159,
+   "stale": 0,
+   "worstEndErrorPx": 8
+  },
+  "rapidSelect": {
+   "travelling": false,
+   "backOpacity": "0.26",
+   "background": 159,
+   "checked": 159,
+   "stale": 0,
+   "worstEndErrorPx": 8
+  },
+  "resizeDuringTravel": {
+   "travelling": false,
+   "backOpacity": "0.26",
+   "background": 159,
+   "checked": 159,
+   "stale": 0,
+   "worstEndErrorPx": 8
+  },
+  "returnAfterResize": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "reducedMotion": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "duringZoom": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "afterZoom": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "duringDrag": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  },
+  "afterDrag": {
+   "travelling": false,
+   "backOpacity": "1",
+   "background": 215,
+   "checked": 215,
+   "stale": 0,
+   "worstEndErrorPx": 9
+  }
+ }
+}

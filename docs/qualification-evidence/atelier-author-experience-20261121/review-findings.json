@@ -1,0 +1,42 @@
+{
+ "generator": "Playwright Chromium; reproduces each consequential finding of the second independent visual review",
+ "sourceHead": "1b13a46d",
+ "checks": {
+  "engineSelect": {
+   "coversOwnMark": false,
+   "neighbours": 10,
+   "quiet": [
+    "Structure: Crossing Public Engine: Use as the Real",
+    "Structure: Standing Market Engine"
+   ],
+   "neighbourMarksUnderCard": 0
+  },
+  "engineDeeper": {
+   "coversOwnMark": false,
+   "neighbours": 10,
+   "quiet": [
+    "Trope: Signing as Public Exposure",
+    "Structure: Succession Engine: Who May Sign Next",
+    "Structure: Crossing Public Engine: Use as the Real",
+    "Structure: Standing Market Engine"
+   ],
+   "neighbourMarksUnderCard": 0
+  },
+  "deepConstellation": {
+   "first": 24,
+   "offStage": 0
+  },
+  "phoneEnter": {
+   "stageTop": 0,
+   "leaveVisible": true
+  },
+  "phoneSideSwipeInConstellation": {
+   "cameraMoved": false
+  },
+  "phoneLeaveFromFolio": {
+   "stageTop": 0,
+   "stageBottom": 524,
+   "stageInView": true
+  }
+ }
+}

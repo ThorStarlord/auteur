@@ -358,3 +358,28 @@ emulated touch swipe. Canvas revision remains unchanged.
 Author acceptance is still pending; no author has used this refinement. Screen-reader, pinch-zoom and
 Architectures larger than 156 concepts remain unverified. The frame figures are from one host/GPU and
 vary between rounds. Default-UI promotion is still the owner decision described above.
+
+## Second refinement and reconciliation (added 2026-11-21)
+
+A second, independently built refinement of the same seven findings
+([the author-experience refinement](2026-11-21-atelier-author-experience-refinement.md))
+was reconciled with the one above when both reached `main`. Where both solved the same
+problem, the integrated Atelier keeps the measured or more complete mechanism:
+- atlas first by moving the study in the document, so reading and Tab order match what
+  is seen;
+- one emphasis precedence with a pointer latch;
+- background threads resting as one group, with leaving a dense constellation measured
+  at about 17 ms per frame;
+- a story-time rail in the constellation;
+- a phone list constellation.
+
+It keeps the first refinement's additions:
+- every genre in the folio;
+- no bare Roman-numeral phase names;
+- no repeated kind in the title card's kicker;
+- stronger resting priority for genres and phases;
+- Esc at rest releasing a hover preview;
+- presentation titles without a redundant kind throughout, with the recorded title kept;
+- the windowed capture option.
+
+The details and evidence are in that document. Author acceptance is still pending.

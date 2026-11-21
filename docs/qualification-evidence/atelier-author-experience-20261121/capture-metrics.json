@@ -1,0 +1,1821 @@
+{
+ "generator": "scripts/qualification/atelier_study_capture.py",
+ "sourceHead": "1b13a46df29c902eb9873dc0c113f03f8ea23d38",
+ "sourceTreeDirty": false,
+ "browser": "headless Chromium (Playwright)",
+ "note": "Machine measurements of the served Studio; not a human usability evaluation.",
+ "pageErrors": [],
+ "desktop": [
+  {
+   "canvas": "atelier-small",
+   "focus": "genres|genre:literary_mystery",
+   "steps": {
+    "rest": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "fit",
+     "settleMs": 22,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "quietLabels": 0,
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "select": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:literary_mystery",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1157,
+     "frames": 66,
+     "meanFrameMs": 17.7,
+     "maxFrameMs": 66.6,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 34
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 34,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 15,
+      "neighboursNamed": 14
+     },
+     "verbLabels": {
+      "shown": 11,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 16,
+      "first": 15,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 6,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1933,
+       "height": 1161
+      },
+      "meanReach": 895,
+      "maxReach": 1529
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "deeper": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:literary_mystery",
+     "depth": 2,
+     "action": "deeper",
+     "settleMs": 1700,
+     "frames": 102,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 45
+     },
+     "quietLabels": 23,
+     "labels": {
+      "placed": 45,
+      "quiet": 23,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 50,
+      "neighboursNamed": 31
+     },
+     "verbLabels": {
+      "shown": 10,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 51,
+      "first": 15,
+      "second": 35,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 176,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1950,
+       "height": 1165
+      },
+      "meanReach": 895,
+      "maxReach": 1529
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "follow-1": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:strange_coast",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 939,
+     "frames": 57,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 35
+     },
+     "quietLabels": 2,
+     "labels": {
+      "placed": 35,
+      "quiet": 2,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 9,
+      "neighboursNamed": 9
+     },
+     "verbLabels": {
+      "shown": 4,
+      "total": 9
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 10,
+      "first": 9,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 6,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1637,
+       "height": 1165
+      },
+      "meanReach": 650,
+      "maxReach": 1529
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "follow-2": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "tropes|phase-trope:strange_coast:literary_mystery:0",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 663,
+     "frames": 40,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 31,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 1,
+      "neighboursNamed": 1
+     },
+     "verbLabels": {
+      "shown": 1,
+      "total": 1
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 2,
+      "first": 1,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 176,
+       "height": 393
+      },
+      "meanReach": 371,
+      "maxReach": 371
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "follow-3-zoomed": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:strange_coast",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 945,
+     "frames": 57,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.524,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 21
+     },
+     "quietLabels": 6,
+     "labels": {
+      "placed": 21,
+      "quiet": 6,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 9,
+      "neighboursNamed": 5
+     },
+     "verbLabels": {
+      "shown": 8,
+      "total": 9
+     },
+     "offStageNeighbours": 1,
+     "composition": {
+      "visible": 10,
+      "first": 9,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 6,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1637,
+       "height": 1165
+      },
+      "meanReach": 650,
+      "maxReach": 1529
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "examine": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:literary_mystery",
+     "depth": 1,
+     "action": "examine",
+     "settleMs": 1018,
+     "frames": 61,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 15
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 15,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 15,
+      "neighboursNamed": 14
+     },
+     "verbLabels": {
+      "shown": 13,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 16,
+      "first": 15,
+      "second": 0,
+      "moved": 15,
+      "meanMove": 807,
+      "maxMove": 1347,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 746,
+       "height": 319
+      },
+      "meanReach": 249,
+      "maxReach": 335
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "examine-follow": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:fantasy",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 948,
+     "frames": 57,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.7,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 12
+     },
+     "quietLabels": 0,
+     "labels": {
+      "placed": 12,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 11,
+      "neighboursNamed": 11
+     },
+     "verbLabels": {
+      "shown": 11,
+      "total": 14
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 12,
+      "first": 11,
+      "second": 0,
+      "moved": 11,
+      "meanMove": 1171,
+      "maxMove": 1610,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 746,
+       "height": 289
+      },
+      "meanReach": 236,
+      "maxReach": 335
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "leave": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:fantasy",
+     "depth": 1,
+     "action": "leave-constellation",
+     "settleMs": 681,
+     "frames": 41,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.336,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 30
+     },
+     "quietLabels": 4,
+     "labels": {
+      "placed": 30,
+      "quiet": 4,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 11,
+      "neighboursNamed": 11
+     },
+     "verbLabels": {
+      "shown": 12,
+      "total": 14
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 12,
+      "first": 11,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 1,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1933,
+       "height": 1161
+      },
+      "meanReach": 1245,
+      "maxReach": 1832
+     },
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    },
+    "return": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "return",
+     "settleMs": 675,
+     "frames": 41,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.336,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "quietLabels": 0,
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 68,
+     "relations": 82
+    }
+   },
+   "revealKeepsPositions": true,
+   "revealKeepsZoom": true,
+   "explorationKeepsPositions": true,
+   "zoomNeverReducedAutomatically": true,
+   "trail": [
+    "genres|genre:literary_mystery",
+    "timeline|phase:strange_coast",
+    "tropes|phase-trope:strange_coast:literary_mystery:0",
+    "timeline|phase:strange_coast"
+   ],
+   "leaveRestoresPositions": true,
+   "leaveKeepsZoom": true,
+   "returnPositionDrift": 0,
+   "cameraRestored": true
+  },
+  {
+   "canvas": "atelier-dense",
+   "focus": "genres|genre:genre-procedural",
+   "steps": {
+    "rest": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "fit",
+     "settleMs": 19,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "quietLabels": 10,
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "select": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1424,
+     "frames": 81,
+     "meanFrameMs": 17.7,
+     "maxFrameMs": 66.7,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 61
+     },
+     "quietLabels": 20,
+     "labels": {
+      "placed": 61,
+      "quiet": 20,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 24,
+      "neighboursNamed": 22
+     },
+     "verbLabels": {
+      "shown": 13,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 17,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2753,
+       "height": 1644
+      },
+      "meanReach": 1229,
+      "maxReach": 2415
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "deeper": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 2,
+     "action": "deeper",
+     "settleMs": 1741,
+     "frames": 102,
+     "meanFrameMs": 17.2,
+     "maxFrameMs": 66.6,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 63
+     },
+     "quietLabels": 38,
+     "labels": {
+      "placed": 63,
+      "quiet": 38,
+      "forced": 1,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 60,
+      "neighboursNamed": 41
+     },
+     "verbLabels": {
+      "shown": 12,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 61,
+      "first": 24,
+      "second": 36,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 156,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2756,
+       "height": 1651
+      },
+      "meanReach": 1229,
+      "maxReach": 2415
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-1": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:phase-first-signature",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1035,
+     "frames": 61,
+     "meanFrameMs": 16.9,
+     "maxFrameMs": 33.4,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 72
+     },
+     "quietLabels": 11,
+     "labels": {
+      "placed": 72,
+      "quiet": 11,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 11,
+      "neighboursNamed": 10
+     },
+     "verbLabels": {
+      "shown": 4,
+      "total": 11
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 12,
+      "first": 11,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 10,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1453,
+       "height": 1651
+      },
+      "meanReach": 663,
+      "maxReach": 1420
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-2": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:phase-bought-seal",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 874,
+     "frames": 53,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 69
+     },
+     "quietLabels": 11,
+     "labels": {
+      "placed": 69,
+      "quiet": 11,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 7,
+      "neighboursNamed": 7
+     },
+     "verbLabels": {
+      "shown": 3,
+      "total": 7
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 8,
+      "first": 7,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 3,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 908,
+       "height": 1644
+      },
+      "meanReach": 623,
+      "maxReach": 882
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-3-zoomed": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-evidence-inquiry",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1127,
+     "frames": 67,
+     "meanFrameMs": 16.9,
+     "maxFrameMs": 33.3,
+     "zoom": 0.391,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 49
+     },
+     "quietLabels": 15,
+     "labels": {
+      "placed": 49,
+      "quiet": 15,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 12,
+      "neighboursNamed": 12
+     },
+     "verbLabels": {
+      "shown": 13,
+      "total": 15
+     },
+     "offStageNeighbours": 2,
+     "composition": {
+      "visible": 15,
+      "first": 14,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 3,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2199,
+       "height": 1644
+      },
+      "meanReach": 1116,
+      "maxReach": 1714
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "examine": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "examine",
+     "settleMs": 1076,
+     "frames": 63,
+     "meanFrameMs": 17.2,
+     "maxFrameMs": 33.4,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 24
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 24,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 24,
+      "neighboursNamed": 23
+     },
+     "verbLabels": {
+      "shown": 24,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 24,
+      "meanMove": 1138,
+      "maxMove": 2030,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 876,
+       "height": 349
+      },
+      "meanReach": 271,
+      "maxReach": 392
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "examine-follow": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:genre-tribunal",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1048,
+     "frames": 62,
+     "meanFrameMs": 17.2,
+     "maxFrameMs": 33.5,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 17
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 17,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 17,
+      "neighboursNamed": 16
+     },
+     "verbLabels": {
+      "shown": 11,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 18,
+      "first": 17,
+      "second": 0,
+      "moved": 17,
+      "meanMove": 1043,
+      "maxMove": 1782,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 693,
+       "height": 334
+      },
+      "meanReach": 249,
+      "maxReach": 259
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "leave": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-tribunal",
+     "depth": 1,
+     "action": "leave-constellation",
+     "settleMs": 705,
+     "frames": 42,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.251,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 61
+     },
+     "quietLabels": 20,
+     "labels": {
+      "placed": 61,
+      "quiet": 20,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 17,
+      "neighboursNamed": 17
+     },
+     "verbLabels": {
+      "shown": 10,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 18,
+      "first": 17,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 9,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2482,
+       "height": 1644
+      },
+      "meanReach": 1113,
+      "maxReach": 2023
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "return": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "return",
+     "settleMs": 698,
+     "frames": 42,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.8,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "quietLabels": 10,
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    }
+   },
+   "revealKeepsPositions": true,
+   "revealKeepsZoom": true,
+   "explorationKeepsPositions": true,
+   "zoomNeverReducedAutomatically": true,
+   "trail": [
+    "genres|genre:genre-procedural",
+    "timeline|phase:phase-first-signature",
+    "timeline|phase:phase-bought-seal",
+    "genres|genre:genre-evidence-inquiry"
+   ],
+   "leaveRestoresPositions": true,
+   "leaveKeepsZoom": true,
+   "returnPositionDrift": 0,
+   "cameraRestored": true
+  }
+ ],
+ "narrow": [
+  {
+   "canvas": "atelier-dense",
+   "viewport": "narrow 390x844",
+   "steps": {
+    "rest": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "fit",
+     "settleMs": 34,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.3,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 15
+     },
+     "quietLabels": 17,
+     "labels": {
+      "placed": 15,
+      "quiet": 17,
+      "forced": 0,
+      "restLandmarks": 32,
+      "restNamed": 15,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "select": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 1450,
+     "frames": 84,
+     "meanFrameMs": 17.3,
+     "maxFrameMs": 66.6,
+     "zoom": 0.3,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 15
+     },
+     "quietLabels": 25,
+     "labels": {
+      "placed": 15,
+      "quiet": 25,
+      "forced": 1,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 15,
+      "neighboursNamed": 2
+     },
+     "verbLabels": {
+      "shown": 2,
+      "total": 32
+     },
+     "offStageNeighbours": 14,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 21,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2500,
+       "height": 1265
+      },
+      "meanReach": 898,
+      "maxReach": 1935
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "examine": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "examine",
+     "settleMs": 1094,
+     "frames": 64,
+     "meanFrameMs": 17.2,
+     "maxFrameMs": 33.3,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 25
+     },
+     "quietLabels": 0,
+     "labels": {
+      "placed": 25,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 24,
+      "neighboursNamed": 24
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 24,
+      "meanMove": 727,
+      "maxMove": 1889,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 198,
+       "height": 1256
+      },
+      "meanReach": 660,
+      "maxReach": 1234
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "leave": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "leave-constellation",
+     "settleMs": 696,
+     "frames": 41,
+     "meanFrameMs": 17.1,
+     "maxFrameMs": 33.4,
+     "zoom": 0.3,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 15
+     },
+     "quietLabels": 25,
+     "labels": {
+      "placed": 15,
+      "quiet": 25,
+      "forced": 1,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 15,
+      "neighboursNamed": 2
+     },
+     "verbLabels": {
+      "shown": 2,
+      "total": 32
+     },
+     "offStageNeighbours": 14,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 21,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2500,
+       "height": 1265
+      },
+      "meanReach": 898,
+      "maxReach": 1935
+     },
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    },
+    "return": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "return",
+     "settleMs": 696,
+     "frames": 42,
+     "meanFrameMs": 16.7,
+     "maxFrameMs": 16.7,
+     "zoom": 0.3,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 15
+     },
+     "quietLabels": 17,
+     "labels": {
+      "placed": 15,
+      "quiet": 17,
+      "forced": 0,
+      "restLandmarks": 32,
+      "restNamed": 15,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": false,
+     "concepts": 156,
+     "relations": 215
+    }
+   },
+   "returnPositionDrift": 0,
+   "cameraRestored": true
+  }
+ ],
+ "keyboard": [
+  {
+   "canvas": "atelier-dense",
+   "start": "timeline|phase:phase-first-signature",
+   "arrowMovedTo": "timeline|phase:phase-bought-seal",
+   "modes": {
+    "select": "atlas",
+    "deeper": "atlas",
+    "examine": "constellation",
+    "leave": "atlas",
+    "return": "rest"
+   },
+   "focusKeptOnConcept": true,
+   "returnPositionDrift": 0,
+   "cameraRestored": true
+  }
+ ],
+ "reducedMotion": [
+  {
+   "canvas": "atelier-dense",
+   "focus": "genres|genre:genre-procedural",
+   "steps": {
+    "rest": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "fit",
+     "settleMs": 36,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "quietLabels": 10,
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "select": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 57,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 61
+     },
+     "quietLabels": 20,
+     "labels": {
+      "placed": 61,
+      "quiet": 20,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 24,
+      "neighboursNamed": 22
+     },
+     "verbLabels": {
+      "shown": 13,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 17,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2753,
+       "height": 1644
+      },
+      "meanReach": 1229,
+      "maxReach": 2415
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "deeper": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 2,
+     "action": "deeper",
+     "settleMs": 55,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 63
+     },
+     "quietLabels": 38,
+     "labels": {
+      "placed": 63,
+      "quiet": 38,
+      "forced": 1,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 60,
+      "neighboursNamed": 41
+     },
+     "verbLabels": {
+      "shown": 12,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 61,
+      "first": 24,
+      "second": 36,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 156,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2756,
+       "height": 1651
+      },
+      "meanReach": 1229,
+      "maxReach": 2415
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-1": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:phase-first-signature",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 29,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 72
+     },
+     "quietLabels": 11,
+     "labels": {
+      "placed": 72,
+      "quiet": 11,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 11,
+      "neighboursNamed": 10
+     },
+     "verbLabels": {
+      "shown": 4,
+      "total": 11
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 12,
+      "first": 11,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 10,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 1453,
+       "height": 1651
+      },
+      "meanReach": 663,
+      "maxReach": 1420
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-2": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "timeline|phase:phase-bought-seal",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 20,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 69
+     },
+     "quietLabels": 11,
+     "labels": {
+      "placed": 69,
+      "quiet": 11,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 7,
+      "neighboursNamed": 7
+     },
+     "verbLabels": {
+      "shown": 3,
+      "total": 7
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 8,
+      "first": 7,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 3,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 908,
+       "height": 1644
+      },
+      "meanReach": 623,
+      "maxReach": 882
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "follow-3-zoomed": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-evidence-inquiry",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 26,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.391,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 49
+     },
+     "quietLabels": 15,
+     "labels": {
+      "placed": 49,
+      "quiet": 15,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 12,
+      "neighboursNamed": 12
+     },
+     "verbLabels": {
+      "shown": 13,
+      "total": 15
+     },
+     "offStageNeighbours": 2,
+     "composition": {
+      "visible": 15,
+      "first": 14,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 3,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2199,
+       "height": 1644
+      },
+      "meanReach": 1116,
+      "maxReach": 1714
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "examine": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:genre-procedural",
+     "depth": 1,
+     "action": "examine",
+     "settleMs": 32,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 24
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 24,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 24,
+      "neighboursNamed": 23
+     },
+     "verbLabels": {
+      "shown": 24,
+      "total": 32
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 25,
+      "first": 24,
+      "second": 0,
+      "moved": 24,
+      "meanMove": 1138,
+      "maxMove": 2030,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 876,
+       "height": 349
+      },
+      "meanReach": 271,
+      "maxReach": 392
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "examine-follow": {
+     "mode": "constellation",
+     "treatment": "B",
+     "focus": "genres|genre:genre-tribunal",
+     "depth": 1,
+     "action": "select",
+     "settleMs": 33,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 1,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 17
+     },
+     "quietLabels": 1,
+     "labels": {
+      "placed": 17,
+      "quiet": 1,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 17,
+      "neighboursNamed": 16
+     },
+     "verbLabels": {
+      "shown": 11,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 18,
+      "first": 17,
+      "second": 0,
+      "moved": 17,
+      "meanMove": 1043,
+      "maxMove": 1782,
+      "labelOverlaps": 0,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 693,
+       "height": 334
+      },
+      "meanReach": 249,
+      "maxReach": 259
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "leave": {
+     "mode": "atlas",
+     "treatment": "A",
+     "focus": "genres|genre:genre-tribunal",
+     "depth": 1,
+     "action": "leave-constellation",
+     "settleMs": 29,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": true,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 61
+     },
+     "quietLabels": 20,
+     "labels": {
+      "placed": 61,
+      "quiet": 20,
+      "forced": 0,
+      "restLandmarks": 0,
+      "restNamed": 0,
+      "neighbours": 17,
+      "neighboursNamed": 17
+     },
+     "verbLabels": {
+      "shown": 10,
+      "total": 20
+     },
+     "offStageNeighbours": 0,
+     "composition": {
+      "visible": 18,
+      "first": 17,
+      "second": 0,
+      "moved": 0,
+      "meanMove": 0,
+      "maxMove": 0,
+      "labelOverlaps": 9,
+      "firstEdgeCrossings": 0,
+      "extent": {
+       "width": 2482,
+       "height": 1644
+      },
+      "meanReach": 1113,
+      "maxReach": 2023
+     },
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    },
+    "return": {
+     "mode": "rest",
+     "treatment": "A",
+     "focus": null,
+     "depth": 1,
+     "action": "return",
+     "settleMs": 21,
+     "frames": 0,
+     "meanFrameMs": 0,
+     "maxFrameMs": 0,
+     "zoom": 0.251,
+     "cameraMoved": false,
+     "renderedLabelOverlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "quietLabels": 10,
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "verbLabels": {
+      "shown": 0,
+      "total": 0
+     },
+     "offStageNeighbours": 0,
+     "composition": null,
+     "reducedMotion": true,
+     "concepts": 156,
+     "relations": 215
+    }
+   },
+   "revealKeepsPositions": true,
+   "revealKeepsZoom": true,
+   "explorationKeepsPositions": true,
+   "zoomNeverReducedAutomatically": true,
+   "trail": [
+    "genres|genre:genre-procedural",
+    "timeline|phase:phase-first-signature",
+    "timeline|phase:phase-bought-seal",
+    "genres|genre:genre-evidence-inquiry"
+   ],
+   "leaveRestoresPositions": true,
+   "leaveKeepsZoom": true,
+   "returnPositionDrift": 0,
+   "cameraRestored": true,
+   "viewport": "desktop, prefers-reduced-motion"
+  }
+ ],
+ "researchC": [
+  {
+   "canvas": "atelier-dense",
+   "select": {
+    "mode": "atlas",
+    "treatment": "C",
+    "focus": "genres|genre:genre-procedural",
+    "depth": 1,
+    "action": "select",
+    "settleMs": 1387,
+    "frames": 82,
+    "meanFrameMs": 17.1,
+    "maxFrameMs": 49.9,
+    "zoom": 1,
+    "cameraMoved": true,
+    "renderedLabelOverlaps": {
+     "count": 0,
+     "labels": 29
+    },
+    "quietLabels": 0,
+    "labels": {
+     "placed": 29,
+     "quiet": 0,
+     "forced": 0,
+     "restLandmarks": 0,
+     "restNamed": 0,
+     "neighbours": 24,
+     "neighboursNamed": 24
+    },
+    "verbLabels": {
+     "shown": 12,
+     "total": 32
+    },
+    "offStageNeighbours": 0,
+    "composition": {
+     "visible": 25,
+     "first": 24,
+     "second": 0,
+     "moved": 23,
+     "meanMove": 1200,
+     "maxMove": 2130,
+     "labelOverlaps": 0,
+     "firstEdgeCrossings": 0,
+     "extent": {
+      "width": 746,
+      "height": 352
+     },
+     "meanReach": 284,
+     "maxReach": 290
+    },
+    "reducedMotion": false,
+    "concepts": 156,
+    "relations": 215
+   }
+  }
+ ]
+}
