@@ -1,0 +1,38 @@
+{
+  "authority": "author_directed_working_intention",
+  "canvas_id": "spring-ledger-30",
+  "intentions": [
+    {
+      "id": "intention-5fbc97e54e90",
+      "title": "Experience brief",
+      "status": "active",
+      "directive": "Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.",
+      "source_ref": "canvas/items/intention-5fbc97e54e90",
+      "authority": "author_directed_working_intention"
+    },
+    {
+      "id": "intention-f4a17a2820db",
+      "title": "Victories change the world",
+      "status": "active",
+      "directive": "Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.",
+      "source_ref": "canvas/items/intention-f4a17a2820db",
+      "authority": "author_directed_working_intention"
+    },
+    {
+      "id": "intention-5a1bfa5884bf",
+      "title": "No escalation; local closure",
+      "status": "active",
+      "directive": "No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.",
+      "source_ref": "canvas/items/intention-5a1bfa5884bf",
+      "authority": "author_directed_working_intention"
+    },
+    {
+      "id": "intention-aba6fb5d675f",
+      "title": "Independent agency across generations",
+      "status": "active",
+      "directive": "Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.",
+      "source_ref": "canvas/items/intention-aba6fb5d675f",
+      "authority": "author_directed_working_intention"
+    }
+  ]
+}

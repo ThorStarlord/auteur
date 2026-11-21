@@ -1,0 +1,1 @@
+Success: SeriesIdentity <scratchpad>\series30\series_probe\placeholder_limited_30.yaml is valid.

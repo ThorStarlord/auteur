@@ -1,0 +1,41 @@
+title: The Spring Ledger (probe, sparse horizon)
+series_type: ongoing
+core_question: Who gives back the water, and must giving be counted?
+target_experience: {primary: "wonder and belonging"}
+global_arc: {beginning: "Stone Hall monopoly", midpoint: "plural legitimacy", ending: "shared accounting of care"}
+book_plans:
+  - book_number: 1
+    title: "The Stone That Would Not Read"
+    series_function: question
+    core_answer: "wonder"
+    target_experience: {primary: "Is the falsified share real?"}
+    story_type: {}
+    central_engine: {want: "wonder", resistance: "Idrun", conflict: "Stone Hall", stakes: "Quillmark flood", change: "barn-house"}
+  - book_number: 6
+    title: "Open Accounts"
+    series_function: complication
+    core_answer: "belonging"
+    target_experience: {primary: "Can shares be owned?"}
+    story_type: {}
+    central_engine: {want: "belonging", resistance: "Idrun", conflict: "Mill Compact", stakes: "thinning", change: "upper cistern"}
+  - book_number: 15
+    title: "Unmeasured Return"
+    series_function: collapse
+    core_answer: "hope"
+    target_experience: {primary: "Which reading binds?"}
+    story_type: {}
+    central_engine: {want: "hope", resistance: "Council", conflict: "legitimacy", stakes: "surfeit", change: "high terraces"}
+  - book_number: 23
+    title: "The Brightwater Fair"
+    series_function: complication
+    core_answer: "belonging"
+    target_experience: {primary: "Can abundance be remembered?"}
+    story_type: {}
+    central_engine: {want: "belonging", resistance: "Hesper", conflict: "forgetting", stakes: "overdraw", change: "lower balance"}
+  - book_number: 30
+    title: "What the Water Keeps"
+    series_function: resolution
+    core_answer: "hope"
+    target_experience: {primary: "Can care be kept without debt?"}
+    story_type: {}
+    central_engine: {want: "hope", resistance: "Valley", conflict: "Long Return", stakes: "flood", change: "lowland settlement"}
