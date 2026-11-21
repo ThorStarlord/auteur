@@ -202,10 +202,10 @@ def test_grouped_report_shows_layer_headers(tmp_path, capsys):
     rc = main(["audit", str(tmp_path)])
 
     captured = capsys.readouterr()
-    assert "Layer 5 — Structural Forces (1 finding)" in captured.out, (
+    assert "Structural Forces (1 finding)" in captured.out, (
         f"Expected structural forces layer header in:\n{captured.out}"
     )
-    assert "Layer 6 — Carriers (1 finding)" in captured.out, (
+    assert "Characters & story elements (1 finding)" in captured.out, (
         f"Expected carriers layer header in:\n{captured.out}"
     )
     assert rc in (0, 1)

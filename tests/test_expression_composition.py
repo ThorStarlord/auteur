@@ -309,7 +309,7 @@ def test_reconciliation_cli_creates_and_shows_report(tmp_path: Path, capsys) -> 
     manuscript.write_text("No markers; manual mapping required.", encoding="utf-8")
     assert main(["expression", "reconcile", "inspect", str(manuscript), "--against", assembly.artifact_id, "--project", str(project)]) == 0
     output = capsys.readouterr().out
-    assert "reconciliation inspection" in output
+    assert "change review inspection" in output
     report = next(project.glob("chapters/07/expression/reconciliation/inspections/*.yaml"))
     import yaml as _yaml
     inspection = _yaml.safe_load(report.read_text(encoding="utf-8"))
