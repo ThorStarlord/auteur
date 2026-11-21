@@ -2,7 +2,8 @@
 
 **Date:** 2026-11-21
 **Answers:** [the visual acceptance review](2026-11-21-atelier-acceptance-review.md), PR #628
-**Builds on:** [the Living Atlas refinement](2026-11-21-living-atlas-refinement.md), PR #627
+**Builds on:** [the Living Atlas refinement](2026-11-21-living-atlas-refinement.md), PR #627,
+reconciled with PR #629 (see below)
 **Visual report:** before and after screenshots, recordings and an owner walkthrough at
 https://claude.ai/artifact/AABw84n8jgKCvka8V48LGn. It is private until the owner shares it.
 **Status:** experimental and opt-in (`studio.html?atelier`). The default Narrative
@@ -133,7 +134,7 @@ The new rules are:
 
 ## Evidence
 
-Source: this branch's final head on `main@36c39055`. Specimens are the two recorded
+Source: this branch's final head `1b13a46d`, reconciled with `main@08279f7c` (PR #629). Specimens are the two recorded
 agent proposals, not author-owned:
 - small: 68 concepts, 82 relationships;
 - dense: 156 concepts, 215 relationships.
@@ -142,14 +143,14 @@ Machine evidence is in `../qualification-evidence/atelier-author-experience-2026
 
 ### Verified behaviour
 
-**Headless capture at `9a2c36bb`, clean tree:**
+**Headless capture at `1b13a46d`, clean tree:**
 - every journey invariant holds on both specimens: revealing and following move
   nothing and keep the zoom, leaving a constellation restores positions and zoom, and
   return leaves 0 px drift;
 - this holds on desktop, at 390×844, keyboard-only and with reduced motion, with
   0 page errors and 0 rendered label overlaps at every step.
 
-| Dense specimen, 1440×900 | Acceptance review (`6fc59cbf`) | Now (`9a2c36bb`) |
+| Dense specimen, 1440×900 | Acceptance review (`6fc59cbf`) | Now (`1b13a46d`) |
 |---|---|---|
 | Atelier stage starts | 1,344 px down the page | 253 px (first screen) |
 | Genres named at rest | 4 of 7 | 7 of 7 |
@@ -187,15 +188,18 @@ state.
 
 ### Measured motion
 
-Windowed Chromium, NVIDIA RTX 5060 Ti, 60 Hz, dense specimen, 3 rounds at `9a2c36bb`.
+Windowed Chromium, NVIDIA RTX 5060 Ti, 60 Hz, dense specimen, 3 rounds at `1b13a46d`.
 Mean / worst frame:
 
 | Step | Before | After |
 |---|---|---|
-| Leave a constellation | 46–80 / 117–150 ms | **16.7–17.0 / 17–33 ms, 0–1 slow frames** |
-| Return to the atlas | 24 / 67 ms | 17.0–18.1 / 33–67 ms |
-| Examine as a constellation | 27–35 / 67–100 ms | 23.0–24.0 / 50 ms |
-| Select a concept | 21–28 / 50–183 ms | 16.9–21.6 / 33–100 ms |
+| Leave a constellation | 46–80 / 117–150 ms | **17.0–18.5 / 33–35 ms, 0–3 slow frames** |
+| Return to the atlas | 24 / 67 ms | 16.7 / 17–32 ms |
+| Examine as a constellation | 27–35 / 67–100 ms | 21.7–23.0 / 35–50 ms |
+| Select a concept | 21–28 / 50–183 ms | 17.2–21.1 / 34–100 ms |
+
+For comparison, PR #629's own windowed measurement on the same host reported 33–38 ms
+mean (100 ms worst) for leaving a constellation.
 
 The small specimen holds 60 fps at every step.
 
@@ -215,7 +219,7 @@ A second read-only reviewer that did not build the Atelier tested the served Stu
   1280 and Book headings are staggered;
 - phone: resolved, but with new problems.
 
-**Consequential findings, all reproduced and fixed** in `9a2c36bb`:
+**Consequential findings, all reproduced and fixed:**
 - the focus title card hid neighbours' names, and after deepening its own mark;
 - a deepened constellation pushed four direct relatives off the stage;
 - on a phone, entering or leaving a constellation left the stage out of view;
@@ -229,6 +233,48 @@ showed part of a third line; a phone drag could run past the story's ends.
 - neighbour pills over faded band labels;
 - labels that re-place when deepening.
 
+## Reconciliation with PR #629
+
+PR #629 addressed the same seven findings independently and reached `main` while this
+work was being built. The two cannot simply stack. They implement atlas-first, hover
+release, the return transition, Book headings, names and phone gestures in different
+ways, and an automatic merge duplicated functions and mechanisms. The integrated Atelier
+is reconstructed on current `main`.
+
+**Kept from this refinement, where both solved the same problem:**
+- atlas first by moving the study in the document, so reading and Tab order match what
+  is seen, rather than reordering with CSS;
+- one emphasis precedence with a pointer latch;
+- background threads resting as one group, measured at about 17 ms per frame against
+  PR #629's 33–38 ms when leaving a dense constellation;
+- the story-time rail;
+- the phone list constellation and gesture model;
+- scored card placement;
+- the fixed-height caption.
+
+**Adopted from PR #629:**
+- presentation titles without a redundant kind everywhere, including the folio and
+  accessible names, with the recorded title kept as `recordTitle`;
+- `bookLabel` as the running-head string, with the worded scope moved to `bookScope`;
+- every genre among the folio's landmarks;
+- no bare Roman-numeral phase names;
+- no repeated kind in the card kicker;
+- stronger resting priority for genres and phases;
+- Esc at rest releasing a hover preview;
+- a safe edge inset and larger phone focus margins;
+- smaller Book running heads;
+- the `--windowed` capture flag.
+
+**PR #629's tests were kept.** Two assertions that named its implementation now check
+the behaviour instead:
+- the `.workspace.atelier-first` class became "the atlas precedes the Story Vision in
+  document order";
+- touch-action exactly `pan-y` became "`pan-y` is allowed".
+
+They exposed two real gaps, both fixed:
+- the first pointer movement of a session now counts as real travel;
+- a phone title card never covers the trail or leaves the stage.
+
 ## Limitations
 
 - **No author has used it.** Every judgement here comes from measurements, tests, the
@@ -236,8 +282,8 @@ showed part of a third line; a phone drag could run past the story's ends.
 - **Density:**
   - At rest, 10 of 76 dense landmarks stay unnamed and are named on hover and in the
     folio. Most tropes and engines are unlabelled marks by design.
-  - At 1280×800 the dense atlas names 54 of 76, three phases show Roman numerals, and
-    one genre is unnamed.
+  - At 1280×800 the dense atlas names fewer landmarks, and a crowded phase name may be
+    shortened (never a bare numeral).
 - **Crowding:**
   - In the densest columns, stacked neighbours can stay unnamed; the selected engine
     loses two of ten.

@@ -1,6 +1,6 @@
 {
  "generator": "Playwright Chromium, 390x844, is_mobile, has_touch; swipes through CDP Input.dispatchTouchEvent (Chrome input pipeline)",
- "sourceHead": "9a2c36bb",
+ "sourceHead": "1b13a46d",
  "note": "Emulated touch, not a real device. A tap made during the momentum of an emulated flick is swallowed (as a tap stops a fling on a phone), so taps run on a fresh page.",
  "dense": {
   "verticalSwipe": {
@@ -98,7 +98,7 @@
    "focus": "genres|genre:literary_mystery",
    "moved": 0,
    "zoomKept": true,
-   "labels": 17,
+   "labels": 15,
    "labelOverlaps": 0,
    "clippedAtSides": 0,
    "stageHeight": 523
