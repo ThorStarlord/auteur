@@ -26,9 +26,10 @@
 .atl-facet-other,.atl-star[data-facet="other"],.atl-tether[data-facet="other"],.atl-edge[data-facet="other"]{--c:var(--atl-other);--t:var(--atl-other-tint);color:var(--atl-other)}
 
 /* ---------- Study bar ---------- */
-.atl-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:13px 16px 12px;
+.atl-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:8px 14px 8px 16px;
   background:linear-gradient(180deg,#fcf9f3,#f3eee3);border-bottom:1px solid var(--atl-hair)}
-.atl-heading{display:flex;flex-direction:column;gap:3px;margin-right:auto;min-width:0}
+.atl-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin-right:auto;min-width:0}
+.atl-heading .atl-eyebrow{order:2}
 .atl-eyebrow{font:700 9.5px/1 var(--atl-sans);letter-spacing:.17em;text-transform:uppercase;color:#8a6c45}
 .atl-title{font:500 1.24rem/1.15 var(--atl-serif);color:var(--atl-ink);letter-spacing:.005em}
 .atl-modes{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:#e9e2d4;flex-wrap:wrap}
@@ -51,8 +52,9 @@
   background:var(--atl-card);border:1px solid var(--atl-hair);border-radius:11px;box-shadow:0 16px 40px rgba(60,44,22,.16)}
 .atl-readout-body dt{color:var(--atl-muted)}
 .atl-readout-body dd{margin:0;color:var(--atl-ink);font-variant-numeric:tabular-nums}
-.atl-ribbon{margin:0;padding:7px 16px;font:14px/1.5 var(--atl-serif);color:#4a4238;
-  background:#faf6ee;border-bottom:1px solid var(--atl-hair)}
+/* The caption has a fixed height, so no name can push the stage down. */
+.atl-ribbon{margin:0;padding:5px 16px;font:14px/21px var(--atl-serif);color:#4a4238;height:32px;box-sizing:border-box;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#faf6ee;border-bottom:1px solid var(--atl-hair)}
 .atl-ribbon-note{font:.72rem/1.5 var(--atl-sans);color:var(--atl-muted)}
 
 /* ---------- Stage ---------- */
@@ -73,6 +75,7 @@
 .atl-meridian{stroke:var(--atl-timeline);stroke-width:1;stroke-dasharray:1 4;opacity:.24}
 .atl-book-label{font:600 9.5px var(--atl-sans);letter-spacing:.12em;fill:var(--atl-timeline);opacity:.72}
 .atl-spine{fill:none;stroke:var(--atl-timeline);stroke-width:2;opacity:.3;stroke-linecap:round}
+.atl-rail{fill:none;stroke:var(--atl-timeline);stroke-width:2;stroke-linecap:round}
 .atl-focused .atl-g-grid{opacity:.6}
 .atl-examining .atl-g-grid,.atl-examining .atl-g-bands,.atl-examining .atl-g-spine{opacity:.22}
 .atl-band-labels{position:absolute;left:0;top:0;width:0;height:100%;z-index:3;pointer-events:none}
@@ -127,18 +130,27 @@
   background:color-mix(in srgb,var(--t) 82%,#fffdf8);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 24%,transparent),0 2px 8px rgba(60,44,22,.07)}
 .atl-text[data-style="far"]{font:400 11px/13px var(--atl-sans);padding:2px 5px;color:#463e34;border-radius:6px;
   background:rgba(255,253,248,.86);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 14%,transparent)}
-.atl-text[data-style="focus"]{padding:7px 12px;text-align:center;border-radius:11px;background:rgba(255,253,248,.97);
+.atl-text[data-style="focus"],.atl-text[data-style="focusLong"]{padding:7px 12px;text-align:center;border-radius:11px;background:rgba(255,253,248,.97);
   box-shadow:0 0 0 1px var(--atl-hair),0 10px 28px rgba(66,48,24,.16)}
-.atl-text[data-style="focus"] .atl-kicker{display:block;font:700 9.5px/15px var(--atl-sans);letter-spacing:.13em;color:var(--c);white-space:pre}
+.atl-text:is([data-style="focus"],[data-style="focusLong"]) .atl-kicker{display:block;font:700 9.5px/15px var(--atl-sans);letter-spacing:.13em;color:var(--c);white-space:pre}
 .atl-text[data-style="focus"] .atl-label{font:600 16px/20px var(--atl-serif);color:var(--atl-ink)}
+.atl-text[data-style="focusLong"] .atl-label{font:600 14px/18px var(--atl-serif);color:var(--atl-ink)}
+/* The call-out: a concept's complete name over the composition, never a re-placed label. */
+.atl-text[data-style="callout"]{padding:5px 8px;border-radius:8px;background:var(--atl-card);color:var(--atl-ink);text-align:left;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 26%,transparent),0 6px 18px rgba(60,44,22,.16)}
+.atl-text[data-style="callout"] .atl-kicker{display:block;font:700 9px/13px var(--atl-sans);letter-spacing:.13em;color:var(--c);white-space:pre}
+.atl-text[data-style="callout"] .atl-label{font:500 12px/15.5px var(--atl-sans)}
+/* Phone constellation: each pill names its relationship above the concept. */
+.atl-text[data-style="nearVerb"]{padding:3px 7px;border-radius:8px;color:var(--atl-ink);text-align:left;
+  background:color-mix(in srgb,var(--t) 82%,#fffdf8);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 24%,transparent),0 2px 8px rgba(60,44,22,.07)}
+.atl-text[data-style="nearVerb"] .atl-kicker{display:block;font:italic 11px/13px var(--atl-serif);color:#6f6457;white-space:pre}
+.atl-text[data-style="nearVerb"] .atl-label{font:500 12px/14.5px var(--atl-sans)}
 .atl-text[data-style="none"]{display:none}
 
-/* At rest the whole score is legible; a quiet label keeps its glyph and is named on demand. */
+/* At rest the whole score is legible; a quiet label keeps its glyph and is named on demand by the call-out.
+   Emphasis (pointer, folio, keyboard) rings glyphs and raises one call-out; it never forces other labels on. */
 .atl-star.is-quiet .atl-text{opacity:0;transition:none}
-.atl .atl-star:is(:hover,:focus-visible,.is-linked){z-index:4}
-.atl-star.is-quiet:is(:hover,:focus-visible,.is-linked) .atl-text{opacity:1;transition-delay:0ms;background:var(--atl-card);border-radius:6px;
-  box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 22%,transparent),0 3px 12px rgba(60,44,22,.14)}
-.atl-star.is-linked .atl-glyph::before{box-shadow:0 0 0 3px color-mix(in srgb,var(--t) 90%,transparent)}
+.atl-star.is-linked .atl-glyph::before,.atl-star.is-callout .atl-glyph::before{box-shadow:0 0 0 3px color-mix(in srgb,var(--t) 90%,transparent)}
 .atl-star.was-focus .atl-glyph{box-shadow:0 0 0 2px var(--atl-paper),0 0 0 3.4px #a39682}
 
 /* Lens: highlight a kind of idea without selecting anything. */
@@ -161,6 +173,8 @@
 /* Focused constellation: the atlas withdraws behind a lens; only the neighbourhood is read. */
 .atl-examining .atl-star.is-dim{opacity:.07;pointer-events:none}
 .atl-examining .atl-star.is-dim .atl-text{opacity:0}
+.atl .atl-star.is-callout{z-index:6}
+.atl .atl-star.is-callout .atl-text{opacity:1;transition-delay:0ms}
 
 /* Relationship threads: present at rest, quiet enough to read through, coloured by the kind of idea reached. */
 .atl-edge{fill:none;stroke:var(--c,var(--atl-hair-ink));stroke-width:.85;opacity:.17;transition:opacity .42s var(--atl-ease),stroke-width .3s}
@@ -178,7 +192,7 @@
   stroke-linejoin:round;opacity:1;transition:opacity .42s var(--atl-ease)}
 .atl-verb.is-pending{opacity:0}
 .atl-verb.is-culled{display:none}
-.atl-tether line{stroke:currentColor;stroke-width:1;stroke-dasharray:1.5 3.5;opacity:.5}
+.atl-tether line{stroke:currentColor;stroke-width:1;stroke-dasharray:1.5 3.5;opacity:.3}
 .atl-tether circle{fill:var(--atl-paper);stroke:currentColor;stroke-width:1.2;opacity:.8}
 .atl-tether{transition:opacity .3s}
 
@@ -223,6 +237,7 @@
 .atl-mode-chip{display:inline-block;margin:0 0 10px;padding:3px 10px;border-radius:999px;background:#2e2936;color:#fbf6ec;
   font:600 .68rem/1.4 var(--atl-sans);letter-spacing:.08em;text-transform:uppercase}
 .atl-folio-title{margin:0 0 10px;font:500 1.6rem/1.18 var(--atl-serif);color:var(--atl-ink);text-wrap:balance}
+.atl-folio-title.is-long{font-size:1.14rem;line-height:1.34;text-wrap:pretty}
 .atl-folio-title:focus{outline:none}
 .atl-folio-detail{margin:0 0 10px;font:15px/1.62 var(--atl-serif);color:#463f36}
 .atl-summary{display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
@@ -262,7 +277,7 @@
 .atl .atl-landmark{display:inline-flex;align-items:baseline;gap:6px;max-width:100%;padding:4px 9px;border-radius:8px;
   border:1px solid color-mix(in srgb,var(--c) 22%,#e4dbcc);background:color-mix(in srgb,var(--t) 45%,#fffdf8);color:var(--atl-ink);text-align:left}
 .atl .atl-landmark:hover{background:var(--t)}
-.atl-landmark-name{font:500 13px/1.3 var(--atl-serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.atl-landmark-name{font:500 13px/1.3 var(--atl-serif);min-width:0}
 .atl-landmark-count{font:600 10.5px/1 var(--atl-sans);color:var(--c);font-variant-numeric:tabular-nums}
 .atl-how{margin:8px 0 0;padding-left:18px;font-size:.8rem;line-height:1.5;color:#5d554a}
 .atl-how li{margin:4px 0}
@@ -273,12 +288,18 @@
 .atl-task ol{margin:6px 0 0;padding-left:20px;font-size:.8rem;line-height:1.6;color:#4f473d}
 .atl-index-group summary{cursor:pointer;padding:5px 0;font-size:.8rem;font-weight:600;color:var(--c)}
 .atl .atl-index-item{display:block;width:100%;padding:4px 8px;text-align:left;border:0;border-radius:6px;background:transparent;
-  font-size:.78rem;color:#463f36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  font-size:.78rem;line-height:1.35;color:#463f36}
 .atl .atl-index-item:hover{background:#f4eee3}
 
 /* Studio integration: the study is one more depth of the same Architecture. */
 #studio-atelier{flex:none;min-width:0}
 #studio-mode-atelier[aria-pressed="true"]{border-color:#3a3343;background:#2e2936;color:#fbf6ec;font-weight:700}
+/* Atlas first: while the Atelier is the chosen view it opens directly beneath the Architecture summary
+   and fills the first screen; the Story Vision, agent tools and written overview follow below. */
+.studio-atelier-slot{padding:0 14px 10px;min-width:0}
+.studio-atelier-slot .studio-full-modes{margin:6px 0 0}
+.studio-atelier-slot .atl{margin-top:6px}
+.studio-atelier-first .atl-stage,.studio-atelier-first .atl-folio{height:clamp(460px,calc(100vh - 292px),920px)}
 
 /* ---------- Narrow screens ---------- */
 @media (max-width:900px){
@@ -292,7 +313,8 @@
   .atl-modes{width:100%}
   .atl .atl-mode{flex:1;justify-content:center;padding:7px 8px}
   .atl-hint{display:none}
-  .atl-ribbon{font-size:13px;padding:7px 12px}
+  .atl-ribbon{font-size:13px;line-height:19px;padding:6px 12px;height:52px;white-space:normal;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .atl-folio-title{font-size:1.36rem}
   .atl-band-label{font-size:8.5px;padding-left:8px;gap:5px}
   .atl-band-count{display:none}

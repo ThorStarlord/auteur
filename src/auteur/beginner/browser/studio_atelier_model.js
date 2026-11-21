@@ -26,6 +26,24 @@
   }
   function capital(text){text=String(text||'');return text.charAt(0).toUpperCase()+text.slice(1);}
   function human(text){return String(text||'').replace(/_/g,' ');}
+  /* Presentation names drop a leading kind that only repeats what the interface already shows
+     ("Trope: The Bought Seal" in the Tropes band). The recorded title is never changed and stays
+     available to the folio, call-outs and assistive names. */
+  var KIND_WORDS={genres:['genre'],emotions:['reader experience','reader emotion','emotion'],timeline:['phase'],
+    tropes:['trope'],structure:['structure'],other:[]};
+  function presentedName(title,facet,category){
+    var m=/^([^:]{2,40}):\s+(\S.*)$/.exec(String(title||''));if(!m)return String(title||'');
+    var kind=m[1].trim().toLowerCase();
+    return kind===human(category).toLowerCase()||(KIND_WORDS[facet]||[]).indexOf(kind)>=0?m[2]:String(title);
+  }
+  /* A recorded Book scope as a heading: "opening_books_duration_unknown" reads "Opening Books"
+     (its unknown duration stays in the folio), "book_12" reads "Book 12", "books_13_14" "Books 13–14". */
+  function bookLabel(scope){
+    var raw=String(scope||'whole_story'),unknown=/_duration_unknown$/.test(raw),s=raw.replace(/_duration_unknown$/,'');
+    var m=/^books?_(\d+)(?:_(\d+))?$/.exec(s);
+    var text=m?(m[2]?'Books '+m[1]+'–'+m[2]:'Book '+m[1]):capital(human(s)).replace(/\bbooks\b/g,'Books').replace(/\bbook\b/g,'Book');
+    return {text:text,durationUnknown:unknown};
+  }
 
   /* ---------- Model: concepts and recorded relationships ---------- */
   function buildModel(candidate,requestSha){
@@ -53,6 +71,8 @@
         nodeId:entry.nodeId||null,phaseId:entry.phaseId||null,ownerGenreId:entry.ownerGenreId||null,
         tier:tier,scope:scopeOf(entry),entry:entry,coverage:entry.coverageMessage||null};
       if(extra)Object.keys(extra).forEach(function(k){concept[k]=extra[k];});
+      if(!concept.name)concept.name=presentedName(concept.title,facet,concept.category||(nmap[concept.nodeId]||{}).category);
+      if(!(extra&&extra.label))concept.label=shorten(concept.name,tier===1?40:46);
       concepts.push(concept);byId[id]=concept;return concept;
     }
     ['genres','emotions','timeline','tropes','structure'].forEach(function(facet){
@@ -60,7 +80,7 @@
         var extra=null;
         if(facet==='emotions'&&/^emotion:/.test(entry.key)){
           var target=(c.emotion_targets||[]).find(function(t){return 'emotion:'+t.id===entry.key;});
-          extra={title:capital(entry.title),label:capital(entry.title)+(entry.role?' · '+entry.role:''),record:target||null};
+          var shown=capital(entry.title)+(entry.role?' · '+entry.role:'');extra={title:capital(entry.title),name:shown,label:shown,record:target||null};
         }
         if(facet==='timeline'){var ph=phaseMap[entry.phaseId];extra={order:ph?ph.order:0,record:ph||null};}
         if(entry.nodeId&&nmap[entry.nodeId])extra=Object.assign(extra||{},{record:nmap[entry.nodeId],category:nmap[entry.nodeId].category});
@@ -148,7 +168,7 @@
      names have room at the whole-story view, then the layout never changes while exploring. */
   var BAND_ORDER=['genres','emotions','timeline','tropes','structure','other'];
   var LABEL_W=176,ROW_H=32,MOTE_GAP=15,REST_LABEL_PX=128,REST_ROW_PX=34,MOTE_PX=8;
-  var GUTTER_WIDE=150,GUTTER_NARROW=96,ATLAS_LEFT=150;
+  var GUTTER_WIDE=172,GUTTER_NARROW=96,ATLAS_LEFT=150;
   // Minimal squared displacement with a minimum gap (isotonic regression, pool adjacent violators).
   function spread(wanted,gap,minX){
     var blocks=[];
@@ -171,7 +191,7 @@
       return {cx:ATLAS_LEFT+(view.width/2-gutter)/z,cy:atlas.height/2,z:z};
     }
     var room=view.width-gutter-24;
-    z=clamp(Math.min(room/(atlas.width-ATLAS_LEFT),(view.height-24)/atlas.height),0.26,1.05);
+    z=clamp(Math.min(room/(atlas.width-ATLAS_LEFT),(view.height-24)/atlas.height),0.2,1.05);
     var spare=Math.max(0,room-(atlas.width-ATLAS_LEFT)*z)/2;
     return {cx:ATLAS_LEFT-(gutter+spare-view.width/2)/z,cy:atlas.height/2,z:z};
   }
@@ -184,13 +204,17 @@
     // the stage's height, so its spacing is set once for that zoom.
     if(narrow){var zr=0.4;o.labelW=REST_LABEL_PX/zr;o.rowH=REST_ROW_PX/zr*0.9;o.moteGap=MOTE_PX/zr;}
     var atlas=layoutOnce(model,o);
-    // A few deterministic passes settle the spacing that suits the whole-story zoom.
-    for(var k=0;view&&!narrow&&k<4;k++){
-      var z=restCamera(atlas,view).z;
+    // A few deterministic passes settle the spacing that suits the whole-story zoom. When the stage
+    // is wider than the score, story time is given the width: phases spread apart rather than leaving
+    // the right of the stage empty, so phase and landmark names have room.
+    for(var k=0;view&&!narrow&&k<6;k++){
+      var z=restCamera(atlas,view).z,room=view.width-GUTTER_WIDE-24,span=Math.max(1,atlas.width-ATLAS_LEFT);
+      var fill=span*z/room,heightBound=(view.height-24)/atlas.height<room/span;
       var want={labelW:clamp(REST_LABEL_PX/z,LABEL_W*0.94,LABEL_W*2.6),rowH:clamp(REST_ROW_PX/z,ROW_H,ROW_H*2.8),
-        moteGap:clamp(MOTE_PX/z,MOTE_GAP,MOTE_GAP*2.2)};
-      if(Math.abs(want.labelW-o.labelW)<4&&Math.abs(want.rowH-o.rowH)<1.5)break;
-      o.labelW=want.labelW;o.rowH=want.rowH;o.moteGap=want.moteGap;
+        moteGap:clamp(MOTE_PX/z,MOTE_GAP,MOTE_GAP*2.2),
+        phaseGap:heightBound&&fill<0.95?clamp(atlas.phaseGap/fill*0.97,atlas.basePhaseGap,atlas.basePhaseGap*2.6):atlas.phaseGap};
+      if(Math.abs(want.labelW-o.labelW)<4&&Math.abs(want.rowH-o.rowH)<1.5&&Math.abs(want.phaseGap-atlas.phaseGap)<6)break;
+      o.labelW=want.labelW;o.rowH=want.rowH;o.moteGap=want.moteGap;o.phaseGap=want.phaseGap;
       atlas=layoutOnce(model,o);
     }
     atlas.design={labelW:Math.round(o.labelW),rowH:Math.round(o.rowH),narrow:narrow,
@@ -199,7 +223,7 @@
   }
   function layoutOnce(model,o){
     var positions={},rooms={},margin={left:200,right:150,top:44+o.rowH*1.25,bottom:70},LW=o.labelW,RH=o.rowH,MG=o.moteGap;
-    var phases=model.timeline,groups=[],phaseGap=phases.length>8?238:phases.length>4?262:300,groupGap=70;
+    var phases=model.timeline,groups=[],basePhaseGap=phases.length>8?238:phases.length>4?262:300,phaseGap=o.phaseGap||basePhaseGap,groupGap=70;
     phases.forEach(function(p){
       var scope=p.scope||'whole_story',last=groups[groups.length-1];
       if(!last||last.scope!==scope)groups.push(last={scope:scope,phases:[]});
@@ -252,18 +276,18 @@
       var landmarks=members.filter(function(cn){return cn.tier===1;})
         .sort(function(a,b){return desired[a.id]-desired[b.id]||a.id.localeCompare(b.id);});
       // Few rows, each spread with minimal displacement from where its concepts want to be.
-      var gap=LW*0.94,span=Math.max(x1-x0+LW*1.2,640);
+      var gap=LW*(facet==='genres'?1.3:0.94),span=Math.max(x1-x0+LW*1.2,640),rowTop=facet==='genres'?Math.max(30,RH*1.85):30;
       var rowCount=landmarks.length?Math.max(1,Math.ceil(landmarks.length*gap/span)):0;
       for(var r=0;r<rowCount;r++){
         var row=landmarks.filter(function(_,i){return i%rowCount===r;});
         // Use the room the band offers: a looser row keeps more of each name readable.
         var rowGap=Math.max(gap,Math.min(gap*1.7,span/Math.max(row.length,1)));
         var xs=spread(row.map(function(cn){return desired[cn.id]-LW*0.42;}),rowGap,margin.left);
-        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+30+r*RH};
+        row.forEach(function(cn,i){positions[cn.id]={x:xs[i],y:y+rowTop+r*RH};
           rooms[cn.id]=i<row.length-1?Math.min(xs[i+1]-xs[i],LW*1.3):LW*1.3;
           maxX=Math.max(maxX,xs[i]+LW);});
       }
-      var cloudTop=y+30+Math.max(rowCount,landmarks.length?1:0)*RH+(landmarks.length?6:-10);
+      var cloudTop=y+rowTop+Math.max(rowCount,landmarks.length?1:0)*RH+(landmarks.length?6:-10);
       var motes=members.filter(function(cn){return cn.tier===2;}),clouds={},order=[];
       motes.forEach(function(cn){
         var owner=cn.phaseId?'phase:'+cn.phaseId:cn.ownerGenreId?'genre:'+cn.ownerGenreId:'free:'+cn.id;
@@ -296,8 +320,8 @@
       bands.forEach(function(b){b.y0*=stretch;b.y1*=stretch;if(b.spineY)b.spineY*=stretch;});
       height*=stretch;
     }
-    var books=groups.map(function(g){return {scope:g.scope,label:human(g.scope),x0:g.x0,x1:g.x1};});
-    return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,phaseGap:phaseGap,
+    var books=groups.map(function(g){var bl=bookLabel(g.scope);return {scope:g.scope,label:bl.text,durationUnknown:bl.durationUnknown,x0:g.x0,x1:g.x1};});
+    return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,phaseGap:phaseGap,basePhaseGap:basePhaseGap,
       spine:phases.map(function(p){return positions[p.id];})};
   }
 
@@ -399,6 +423,9 @@
   function labelRect(model,id,pos,side,focusId,s){
     s=s||1;
     if(id===focusId)return {x0:pos.x-132*s,x1:pos.x+132*s,y0:pos.y-16*s,y1:pos.y+64*s};
+    // Rail names alternate below and above the rail and wrap to at most 196px, so a half-width of 98px.
+    if(side==='rail-s'||side==='rail-n'){var hw=Math.min(98,17+3.5*model.byId[id].label.length)*s;
+      return side==='rail-s'?{x0:pos.x-hw,x1:pos.x+hw,y0:pos.y+10*s,y1:pos.y+48*s}:{x0:pos.x-hw,x1:pos.x+hw,y0:pos.y-48*s,y1:pos.y-10*s};}
     var w=labelWidth(model,id)*s,h=22*s;
     return side==='left'?{x0:pos.x-w,x1:pos.x+10*s,y0:pos.y-h/2,y1:pos.y+h/2}:
       {x0:pos.x-10*s,x1:pos.x+w,y0:pos.y-h/2,y1:pos.y+h/2};
@@ -423,7 +450,7 @@
     }
   }
   /* Two balanced arcs either side of the focus. Each concept keeps the side it lies on in the
-     atlas (west or east) and its vertical order, so the composition stays oriented to the map. */
+     atlas (west or east); within a side, kinds of idea stay together in the atlas's band order. */
   function arcs(ids,angles,center,opts,targets,sides){
     var east=[],west=[];
     ids.forEach(function(id){(Math.cos(angles[id])>=0?east:west).push(id);});
@@ -447,8 +474,11 @@
     return hood.first.find(function(p){return model.adjacency[id].some(function(a){return a.other===p;});});
   }
   /* A — every concept keeps its atlas place. B — the neighbourhood is recomposed into a balanced
-     constellation around the focus. C — relationships are revealed in place, and only neighbours
-     whose place hurts readability (far away or colliding) move into the same oriented arcs. */
+     constellation around the focus: phases it is recorded with run in recorded story order along a
+     story-time rail beneath it, as in the atlas, and the other kinds of idea, which have no recorded
+     order, keep to two arcs grouped by kind. C — relationships are revealed in place, and only
+     neighbours whose place hurts readability (far away or colliding) move into the same oriented arcs. */
+  function storyOrder(model,id){var i=model.timeline.indexOf(model.byId[id]);return i<0?Infinity:i;}
   function compose(model,atlas,hood,treatment,view){
     var targets={},sides={},moved=[],home=atlas.positions,focus=hood.focus,f=home[focus];
     Object.keys(home).forEach(function(id){targets[id]={x:home[id].x,y:home[id].y};});
@@ -463,22 +493,38 @@
     var outerOpts=function(){return {rx:(rx+210)*s,minDx:(rx+60)*s,gap:26*s,ry:200*s,slack:2,
       order:function(id){var p=parentOf(model,hood,id);return p&&targets[p]?targets[p].y:f.y;}};};
     var fixed={};fixed[focus]=true;
+    function kindThenBearing(id){return BAND_ORDER.indexOf(model.byId[id].facet)*10+Math.sin(angles[id]);}
     function place(ids,outer){
       if(!ids.length)return;
       if(narrow){
-        // Narrow screens: one oriented stem beneath the focus title, read top to bottom.
+        // Narrow screens: one list beneath the focus title, read top to bottom, grouped by kind and
+        // with phases in story order; each item hangs from a single trunk below the focus.
         var base=stemCount;
-        ids.slice().sort(function(a,b){return (outer?0:Math.sin(angles[a])-Math.sin(angles[b]))||a.localeCompare(b);})
-          .forEach(function(id,i){targets[id]={x:f.x-118*s+(outer?22*s:0),y:f.y+(108+(base+i)*28)*s};sides[id]='right';});
+        ids.slice().sort(function(a,b){var fa=BAND_ORDER.indexOf(model.byId[a].facet),fb=BAND_ORDER.indexOf(model.byId[b].facet);
+          return fa-fb||(storyOrder(model,a)-storyOrder(model,b))||(outer?0:Math.sin(angles[a])-Math.sin(angles[b]))||a.localeCompare(b);})
+          .forEach(function(id,i){targets[id]={x:f.x+(outer?44:22)*s,y:f.y+(118+(base+i)*30)*s};sides[id]='right';});
         stemCount+=ids.length;return;
       }
       if(outer){ids.forEach(function(id){var p=parentOf(model,hood,id),t=targets[p]||f;angles[id]=Math.atan2(t.y-f.y,t.x-f.x);});
         arcs(ids,angles,f,outerOpts(),targets,sides);}
-      else arcs(ids,angles,f,inner,targets,sides);
+      else arcs(ids,angles,f,Object.assign({order:kindThenBearing},inner,railIds.length?{midY:f.y-46*s}:{}),targets,sides);
     }
-    var stemCount=0;
+    // The story-time rail: recorded phases in recorded order, left to right, beneath the focus.
+    function rail(ids){
+      var n=ids.length,avail=Math.max(260,(view0.width-150)),step=n>1?clamp(avail/(n-1),96,190):0;
+      ids.forEach(function(id,i){targets[id]={x:f.x+(i-(n-1)/2)*step*s,y:f.y+176*s};sides[id]=i%2?'rail-n':'rail-s';});
+    }
+    var stemCount=0,railIds=[];
     if(treatment==='B'){
-      place(hood.first,false);
+      var others=hood.first;
+      if(!narrow&&model.byId[focus].facet!=='timeline'){
+        railIds=hood.first.filter(function(id){return model.byId[id].facet==='timeline';})
+          .sort(function(a,b){return storyOrder(model,a)-storyOrder(model,b)||a.localeCompare(b);});
+        if(railIds.length<2)railIds=[];
+        others=hood.first.filter(function(id){return railIds.indexOf(id)<0;});
+      }
+      place(others,false);
+      if(railIds.length){rail(railIds);railIds.forEach(function(id){fixed[id]=true;});}
       place(hood.second,true);
       if(!narrow)relax(model,visible,targets,sides,fixed,focus,s);
     }else if(treatment==='C'){
@@ -505,7 +551,7 @@
     visible.forEach(function(id){
       if(dist(targets[id],home[id])>1)moved.push(id);
     });
-    return {targets:targets,sides:sides,moved:moved};
+    return {targets:targets,sides:sides,moved:moved,rail:railIds};
   }
   function dist(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
 
@@ -540,5 +586,5 @@
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
-    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital};
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,presentedName:presentedName,bookLabel:bookLabel};
 })(window);

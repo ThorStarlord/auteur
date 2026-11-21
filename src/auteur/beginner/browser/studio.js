@@ -2429,11 +2429,32 @@
     $("studio-mode-atelier").setAttribute("aria-pressed", String(chosen));
     var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
       state.architectureFacet === "overview";
+    placeAtelierFirst(eligible);
     if (!eligible) { atelierController.hide(); return; }
     $("viewport").hidden = true;
     $("inspector").hidden = !state.atelierInspector;
     document.querySelector(".studio").classList.toggle("studio-explanation-full", !state.atelierInspector);
     atelierController.show();
+  }
+  // While the Atelier is the chosen view, the atlas is the Architecture's first surface: the depth
+  // switcher and the study open directly beneath the workflow switch, and the Architecture summary,
+  // Story Vision, agent tools and written overview follow below it. Every other view keeps the
+  // ordinary layout.
+  var atelierHome = null;
+  function placeAtelierFirst(on) {
+    var slot = $("studio-atelier-slot"), modesNav = $("studio-full-modes"), study = $("studio-atelier");
+    if (!slot) return;
+    if (!atelierHome) atelierHome = {modes: [modesNav.parentNode, modesNav.nextSibling], study: [study.parentNode, study.nextSibling]};
+    if (on === (modesNav.parentNode === slot)) return;
+    var active = document.activeElement, keep = active && (modesNav.contains(active) || study.contains(active));
+    if (on) { slot.append(modesNav, study); }
+    else { atelierHome.modes[0].insertBefore(modesNav, atelierHome.modes[1]); atelierHome.study[0].insertBefore(study, atelierHome.study[1]); }
+    slot.hidden = !on;
+    document.querySelector(".studio").classList.toggle("studio-atelier-first", on);
+    if (keep && document.activeElement !== active) active.focus({preventScroll: true});
+    // A switch made from further down the page brings the chosen view into sight.
+    var anchor = on ? slot : modesNav, top = anchor.getBoundingClientRect().top;
+    if (window.scrollY > 0 && (top < 0 || top > window.innerHeight * 0.6)) anchor.scrollIntoView({block: "start"});
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.

@@ -28,9 +28,12 @@
     rest:{font:'500 10.5px '+SANS,lh:12.5,px:2,py:1,maxW:128,lines:2},
     mote:{font:'400 10px '+SANS,lh:12,px:2,py:0,maxW:150,lines:1},
     near:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:196,lines:2},
-    far:{font:'400 11px '+SANS,lh:13,px:5,py:2,maxW:172,lines:1},
+    far:{font:'400 11px '+SANS,lh:13,px:5,py:2,maxW:180,lines:2},
     verb:{font:'italic 11.5px '+SERIF,lh:14,px:4,py:1,maxW:190,lines:1},
-    focus:{font:'600 16px '+SERIF,lh:20,px:12,py:7,maxW:236,lines:3,kicker:'700 9.5px '+SANS,klh:15}
+    focus:{font:'600 16px '+SERIF,lh:20,px:12,py:7,maxW:260,lines:4,kicker:'700 9.5px '+SANS,klh:15},
+    focusLong:{font:'600 14px '+SERIF,lh:18,px:12,py:7,maxW:300,lines:7,kicker:'700 9.5px '+SANS,klh:15},
+    callout:{font:'500 12px '+SANS,lh:15.5,px:8,py:5,maxW:250,lines:8,kicker:'700 9px '+SANS,klh:13},
+    nearVerb:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:260,lines:2,kicker:'italic 11px '+SERIF,klh:13}
   };
   var FACET_BASE={genres:560,timeline:540,emotions:470,structure:452,tropes:444,other:430};
   var GLYPH_R={genres:5.6,emotions:5,timeline:6.5,tropes:6.5,structure:4.8,other:5};
@@ -53,17 +56,19 @@
     if(!ctx)return (widths[k]=text.length*6.4);
     ctx.font=font;return (widths[k]=ctx.measureText(text).width);
   }
+  // A shortened line ends at a word, never inside one, unless a single word is itself too long.
   function fitLine(text,font,maxW){
     if(textWidth(text,font)<=maxW)return text;
     var s=text;while(s.length>1&&textWidth(s+'…',font)>maxW)s=s.slice(0,-1);
-    return s.replace(/[\s,;:.·]+$/,'')+'…';
+    var space=s.lastIndexOf(' ');if(space>s.length*0.4)s=s.slice(0,space);
+    return s.replace(/[\s,;:.·–-]+$/,'')+'…';
   }
-  function wrapText(text,style,maxW){
-    maxW=Math.max(24,maxW||style.maxW);
+  function wrapText(text,style,maxW,maxLines){
+    maxW=Math.max(24,maxW||style.maxW);var limit=maxLines||style.lines;
     var font=style.font,words=String(text||'').split(/\s+/).filter(Boolean),lines=[],cur='';
     words.forEach(function(w){var t=cur?cur+' '+w:w;if(!cur||textWidth(t,font)<=maxW)cur=t;else{lines.push(cur);cur=w;}});
     if(cur)lines.push(cur);
-    if(lines.length>style.lines){var keep=lines.slice(0,style.lines);keep[style.lines-1]=lines.slice(style.lines-1).join(' ');lines=keep;}
+    if(lines.length>limit){var keep=lines.slice(0,limit);keep[limit-1]=lines.slice(limit-1).join(' ');lines=keep;}
     lines=lines.map(function(l){return fitLine(l,font,maxW);});
     var w=0;lines.forEach(function(l){w=Math.max(w,textWidth(l,font));});
     return {lines:lines,w:Math.ceil(w)+2*style.px+1,h:Math.ceil(lines.length*style.lh)+2*style.py};
@@ -78,7 +83,8 @@
       focus:null,depth:1,trail:[],cam:{cx:0,cy:0,z:1},restCam:null,atlasCam:null,userCam:false,pos:{},sides:{},
       hood:null,comp:null,metrics:null,reduced:prefersReduced(),lens:null,roving:null,tw:null,raf:null,frames:[],
       shown:false,pending:binding.initial?Object.assign({examine:requested==='B'},binding.initial):null,
-      lastAction:null,edgeGrow:{},mix:0,sizedOnce:false,verbAt:{},labelStats:null,lastFocus:null};
+      lastAction:null,edgeGrow:{},mix:0,sizedOnce:false,verbAt:{},verbFor:{},labelStats:null,lastFocus:null,
+      hover:null,folioHint:null,callout:null,latched:false,ptr:null,dragging:false};
 
     /* ---------- Static frame ---------- */
     root.replaceChildren();root.classList.add('atl');
@@ -164,7 +170,7 @@
     // needs to be readable, and never zooms out because a neighbourhood is large.
     function atlasFocusCamera(id,base){
       base=base||S.cam;var v=view(),p=screenOf(S.atlas.positions[id],base);
-      var m={l:(narrow()?96:150)+16,r:56,t:34,b:48},dx=0,dy=0;
+      var m={l:(narrow()?96:172)+16,r:56,t:34,b:48},dx=0,dy=0;
       if(p.x<m.l)dx=p.x-m.l;else if(p.x>v.width-m.r)dx=p.x-(v.width-m.r);
       if(p.y<m.t)dy=p.y-m.t;else if(p.y>v.height-m.b)dy=p.y-(v.height-m.b);
       if(Math.abs(dx)<1&&Math.abs(dy)<1)return null;
@@ -179,6 +185,7 @@
     // The constellation is composed at reading scale (zoom 1) and framed around its composition.
     function constellationCamera(ids){
       var v=view(),pad=40,t=S.comp.targets,f=t[S.focus];
+      if(narrow())return {z:1,cx:f.x+v.width/2-64,cy:f.y+v.height/2-Math.min(150,v.height*0.3)};
       var rect=rectOf(ids,t,S.comp.sides,1),w=rect.x1-rect.x0,h=rect.y1-rect.y0;
       var cx=w<=v.width-2*pad?(rect.x0+rect.x1)/2:clamp((rect.x0+rect.x1)/2,f.x-v.width/2+170,f.x+v.width/2-170);
       var cy=h<=v.height-2*pad?(rect.y0+rect.y1)/2:f.y+v.height/2-110;
@@ -188,7 +195,7 @@
       // Glyphs stay put; labels keep their screen size, so fit glyphs plus a label margin.
       var v=view(),pad=36,t=S.atlas.positions,gx0=Infinity,gy0=Infinity,gx1=-Infinity,gy1=-Infinity;
       ids.forEach(function(id){var p=t[id];gx0=Math.min(gx0,p.x);gy0=Math.min(gy0,p.y);gx1=Math.max(gx1,p.x);gy1=Math.max(gy1,p.y);});
-      var over={l:(narrow()?96:150),r:190,t:30,b:80};
+      var over={l:(narrow()?96:172),r:190,t:30,b:80};
       var z=clamp(Math.min((v.width-2*pad-over.l-over.r)/Math.max(gx1-gx0,1),(v.height-2*pad-over.t-over.b)/Math.max(gy1-gy0,1)),0.26,1.2);
       return {z:z,cx:(gx0-over.l/z+gx1+over.r/z)/2,cy:(gy0-over.t/z+gy1+over.b/z)/2};
     }
@@ -235,9 +242,11 @@
       // and each Book named once as a running head.
       var shades=atlas.books.map(function(bk,i){var r=sv('rect',{'class':'atl-book-shade'+(i%2?' is-alt':'')});gGrid.append(r);return r;});
       var meridians=model.timeline.map(function(){var l=sv('line',{'class':'atl-meridian'});gGrid.append(l);return l;});
-      var heads=atlas.books.map(function(bk){var t=sv('text',{'class':'atl-book-label'});t.textContent=M.shorten(bk.label.toUpperCase(),40);gGrid.append(t);return t;});
-      var spinePath=sv('path',{'class':'atl-spine'});gSpine.append(spinePath);
-      gridEls={shades:shades,meridians:meridians,heads:heads,spine:spinePath};
+      var heads=atlas.books.map(function(bk){var t=sv('text',{'class':'atl-book-label'});t.textContent=bk.label.toUpperCase();
+        t.__w=textWidth(t.textContent,'600 9.5px '+SANS)+t.textContent.length*1.14+10;
+        var title=sv('title');title.textContent=bk.label+(bk.durationUnknown?' · duration unknown':'');t.append(title);gGrid.append(t);return t;});
+      var spinePath=sv('path',{'class':'atl-spine'}),railPath=sv('path',{'class':'atl-rail'});gSpine.append(spinePath);gEdges.before(railPath);
+      gridEls={shades:shades,meridians:meridians,heads:heads,spine:spinePath,rail:railPath};
       model.relations.forEach(function(r){
         var p=sv('path',{'class':'atl-edge','data-facet':model.byId[r.to].facet});
         gEdges.append(p);edgeEls[r.id]=p;S.edgeGrow[r.id]=1;
@@ -254,11 +263,10 @@
         var count=model.adjacency[cn.id].length;
         b.setAttribute('aria-label',M.FACET_SINGULAR[cn.facet]+': '+cn.title+'. '+count+' documented relationship'+(count===1?'':'s')+
           '. Agent proposal, not accepted story.');
+        if(cn.category)b.dataset.category=cn.category;
         b.addEventListener('click',function(){if(S.focus!==cn.id)select(cn.id,{via:'atlas'});else focusFolio();});
-        b.addEventListener('pointerenter',function(){preview(cn.id);});
-        b.addEventListener('pointerleave',function(){preview(null);});
-        b.addEventListener('focus',function(){setRoving(cn.id);preview(cn.id);});
-        b.addEventListener('blur',function(){preview(null);});
+        b.addEventListener('focus',function(){setRoving(cn.id);refreshEmphasis();});
+        b.addEventListener('blur',function(){global.setTimeout(refreshEmphasis,0);});
         starLayer.append(b);starEls[cn.id]=b;
       });
       var first=model.timeline[0]||model.concepts[0];if(first)setRoving(first.id);
@@ -284,7 +292,10 @@
         var lift=Math.min(90,Math.abs(dx)*0.26+14)*down;
         c1={x:a.x+dx*0.2,y:a.y+lift};c2={x:b.x-dx*0.2,y:b.y+lift};
       }else{c1={x:a.x,y:a.y+dy*0.5};c2={x:b.x,y:b.y-dy*0.5};}
-      if(mix>0.001){
+      if(mix>0.001&&narrow()&&S.focus&&(r.from===S.focus||r.to===S.focus)){
+        var fp=r.from===S.focus?a:b,op=r.from===S.focus?b:a,corner={x:fp.x,y:op.y};
+        c1=lerp(c1,corner,mix);c2=lerp(c2,corner,mix);
+      }else if(mix>0.001){
         var len=Math.sqrt(dx*dx+dy*dy)||1,bend=Math.min(54,len*0.13)*(hash(r.id)<0.5?-1:1);
         var c={x:(a.x+b.x)/2-dy/len*bend,y:(a.y+b.y)/2+dx/len*bend};
         c1=lerp(c1,{x:a.x+(c.x-a.x)*2/3,y:a.y+(c.y-a.y)*2/3},mix);
@@ -333,17 +344,23 @@
         var x=toScreen(atlas.positions[p.id]).x,l=gridEls.meridians[i];
         l.setAttribute('x1',x.toFixed(1));l.setAttribute('x2',x.toFixed(1));l.setAttribute('y1',yTop.toFixed(1));l.setAttribute('y2',yBot.toFixed(1));
       });
-      // Book names never overprint each other: a crowded name waits for a closer zoom.
-      var lastEnd=-Infinity;
+      // Book names never overprint each other: a crowded name takes the line above, and only when both
+      // lines are taken does it wait for a closer zoom.
+      var lineEnd=[-Infinity,-Infinity];
       atlas.books.forEach(function(bk,i){
-        var t=gridEls.heads[i],x=toScreen({x:bk.x0-half,y:top}).x+8,w=t.textContent.length*6.1+14,show=x>=lastEnd&&x<v.width;
-        t.setAttribute('x',x.toFixed(1));t.setAttribute('y',(yTop-8).toFixed(1));
-        t.style.display=show?'':'none';if(show)lastEnd=x+w;
+        var t=gridEls.heads[i],x=toScreen({x:bk.x0-half,y:top}).x+8,w=t.__w,line=x>=lineEnd[0]?0:x>=lineEnd[1]?1:-1,show=line>=0&&x<v.width;
+        t.__x=x;t.__line=line;t.setAttribute('x',x.toFixed(1));t.setAttribute('y',(yTop-8-(line===1?12:0)).toFixed(1));
+        t.style.display=show?'':'none';if(show)lineEnd[line]=x+w;
       });
       if(model.timeline.length){
         var l=toScreen(atlas.positions[model.timeline[0].id]),r=toScreen(atlas.positions[model.timeline[model.timeline.length-1].id]);
         gridEls.spine.setAttribute('d','M'+(l.x-60*S.cam.z).toFixed(1)+' '+l.y.toFixed(1)+'L'+(r.x+60*S.cam.z).toFixed(1)+' '+r.y.toFixed(1));
       }
+      var railIds=S.comp&&S.comp.rail||[];
+      if(railIds.length>1&&S.mix>0.01){var r0=screen[railIds[0]],r1=screen[railIds[railIds.length-1]];
+        gridEls.rail.setAttribute('d','M'+(r0.x-18).toFixed(1)+' '+r0.y.toFixed(1)+'L'+(r1.x+18).toFixed(1)+' '+r1.y.toFixed(1));
+        gridEls.rail.style.opacity=(S.mix*0.5).toFixed(2);}
+      else gridEls.rail.setAttribute('d','M0 0');
       var radii={};function rad(id){return radii[id]||(radii[id]=glyphRadius(id));}
       model.relations.forEach(function(r){
         var path=edgeEls[r.id],g=edgeGeom(r,screen[r.from],screen[r.to],S.mix,rad(r.from),rad(r.to));
@@ -365,6 +382,7 @@
 
     /* ---------- Motion engine ---------- */
     function animate(spec){
+      if(spec.camera||spec.targets)latchPointer();
       var now=performance.now(),tw=S.tw||{nodes:{},cam:null,edges:{},mix:null};
       if(spec.targets){
         Object.keys(spec.targets).forEach(function(id){
@@ -460,11 +478,15 @@
       root.dataset.lens=S.lens||'';
     }
     function syncVerbs(){
-      gVerbs.replaceChildren();verbEls={};S.verbAt={};
+      gVerbs.replaceChildren();verbEls={};S.verbAt={};S.verbFor={};
       if(!S.hood)return;
+      var onPills=S.mode==='constellation'&&narrow();
       S.hood.edges.filter(function(e){return e.level===1;}).forEach(function(e){
-        var r=e.relation,t=sv('text',{'class':'atl-verb is-pending','text-anchor':'middle','dominant-baseline':'central'});
-        var focusIsTarget=S.hood.levels[r.to]===0;
+        var r=e.relation,focusIsTarget=S.hood.levels[r.to]===0,other=focusIsTarget?r.from:r.to;
+        var verb=focusIsTarget?(r.reverseVerb||('related through “'+r.verb+'”')):r.verb;
+        if(S.hood.levels[other]===1)S.verbFor[other]=S.verbFor[other]?S.verbFor[other]+' · '+verb:verb;
+        if(onPills)return;
+        var t=sv('text',{'class':'atl-verb is-pending','text-anchor':'middle','dominant-baseline':'central'});
         t.textContent=M.shorten(focusIsTarget?(r.reverseVerb||r.verb):r.verb,30);
         gVerbs.append(t);verbEls[r.id]=t;
       });
@@ -481,24 +503,41 @@
     }
 
     /* ---------- Labels: measured, prioritised, placed around fixed glyphs ---------- */
-    function spec(style,text,maxW){var st=STYLE[style],w=wrapText(text,st,maxW);return {style:style,lines:w.lines,w:w.w,h:w.h};}
+    function spec(style,text,maxW,lines){var st=STYLE[style],w=wrapText(text,st,maxW,lines);return {style:style,lines:w.lines,w:w.w,h:w.h};}
+    function kindLine(cn){return (M.FACET_SINGULAR[cn.facet]+(cn.role&&cn.role!==cn.name?' · '+M.human(cn.role):'')).toUpperCase();}
+    // Kicker and wrapped name together, for the title card and the call-out.
+    function cardSpec(cn,style,maxW){
+      var st=STYLE[style],t=wrapText(cn.name,st,maxW);
+      var kick=fitLine(kindLine(cn),st.kicker,maxW),kw=textWidth(kick,st.kicker)+kick.length*9.5*0.13;
+      return {style:style,lines:t.lines,kicker:kick,w:Math.ceil(Math.max(t.w-2*st.px,kw))+2*st.px+1,h:t.h+st.klh};
+    }
+    // The focus wears its whole name; a long one is set smaller rather than cut.
     function focusSpec(cn){
-      var st=STYLE.focus,maxW=narrow()?Math.min(200,view().width-80):st.maxW,t=wrapText(cn.title,st,maxW);
-      var kick=fitLine((M.FACET_SINGULAR[cn.facet]+(cn.role?' · '+M.human(cn.role):'')).toUpperCase(),st.kicker,maxW);
-      var kw=textWidth(kick,st.kicker)+kick.length*9.5*0.13;
-      return {style:'focus',lines:t.lines,kicker:kick,w:Math.ceil(Math.max(t.w-2*st.px,kw))+2*st.px+1,h:t.h+st.klh};
+      var long=cn.name.length>90,style=long?'focusLong':'focus';
+      return cardSpec(cn,style,narrow()?Math.min(STYLE[style].maxW,view().width-64):STYLE[style].maxW);
+    }
+    function verbSpec(cn){
+      var st=STYLE.nearVerb,maxW=Math.min(st.maxW,view().width-90),t=wrapText(cn.name,st,maxW),verb=fitLine(S.verbFor[cn.id]||'',st.kicker,maxW);
+      return {style:'nearVerb',lines:t.lines,kicker:verb,w:Math.ceil(Math.max(t.w-2*st.px,textWidth(verb,st.kicker)))+2*st.px+1,h:t.h+st.klh};
     }
     function specsFor(cn,st,z){
       if(st==='focus')return [focusSpec(cn)];
-      if(st==='near')return [spec('near',cn.label),spec('far',M.shorten(cn.title,22))];
-      if(st==='far')return [spec('far',cn.label)];
-      if(cn.tier===2)return [spec('mote',M.shorten(cn.title,34))];
-      if(cn.facet==='genres')return [spec('genre',cn.title)];
+      if(st==='near'&&S.mode==='constellation'&&narrow())return [verbSpec(cn)];
+      // Relationship pills: the whole name when there is room, then two lines, then a phrase cut at a word.
+      if(st==='near')return [spec('near',cn.name,220,3),spec('near',cn.name,196,2),spec('near',M.shorten(cn.name,30),196,1)];
+      if(st==='far')return [spec('far',cn.name),spec('far',M.shorten(cn.name,28),180,1)];
+      if(cn.tier===2)return [spec('mote',M.shorten(cn.name,34))];
+      if(cn.facet==='genres')return [spec('genre',cn.name),spec('genre',cn.name,112,3)];
       if(cn.facet==='timeline'){
-        var room=clamp(S.atlas.phaseGap*z+4,62,STYLE.phase.maxW);
-        return [spec('phase',cn.title,room),spec('ordinal',roman(S.model.timeline.indexOf(cn)+1))];
+        // Phase names are landmarks: the complete name is preferred, a little wider than its column if the
+        // neighbours leave room, before a shortened one.
+        var room=clamp(S.atlas.phaseGap*z+4,62,STYLE.phase.maxW),wide=Math.min(STYLE.phase.maxW,room*1.3);
+        var whole=function(s){return s.lines.join(' ')===cn.name;};
+        var options=[spec('phase',cn.name,room),spec('phase',cn.name,wide),spec('phase',cn.name,room,4)];
+        return options.filter(whole).concat(options.filter(function(s){return !whole(s);}).slice(0,1),
+          [spec('ordinal',roman(S.model.timeline.indexOf(cn)+1))]);
       }
-      return [spec('rest',cn.label)];
+      return [spec('rest',cn.name)];
     }
     function furniture(cam){
       var out=[],sr=stage.getBoundingClientRect(),v=view();
@@ -516,8 +555,8 @@
       var top=S.atlas.bands.length?S.atlas.bands[0].y0:0,half=S.atlas.phaseGap/2,yTop=(top-8-cam.cy)*cam.z+v.height/2;
       S.atlas.books.forEach(function(bk,i){
         var t=gridEls.heads[i];if(!t||t.style.display==='none')return;
-        var x=(bk.x0-half-cam.cx)*cam.z+v.width/2+8;
-        out.push({rect:{x0:x-2,y0:yTop-16,x1:x+t.textContent.length*6.1+6,y1:yTop+4},owner:'ui'});
+        var x=(bk.x0-half-cam.cx)*cam.z+v.width/2+8,up=t.__line===1?12:0;
+        out.push({rect:{x0:x-2,y0:yTop-16-up,x1:x+t.__w,y1:yTop+4-up},owner:'ui'});
       });
       return out;
     }
@@ -538,11 +577,13 @@
         // Far away, local phrases stay points: named on hover, focus or when the author comes closer.
         if(!sp.length||(!inHood&&cn.tier===2&&cam.z<0.9))return;
         var item={id:cn.id,x:a.x,y:a.y,gap:r+3,variants:sp.map(function(s,i){return {key:i,w:s.w,h:s.h};})};
-        var side=S.sides[cn.id]==='left'?['w','nw','sw']:['e','ne','se'];
+        var sd=S.sides[cn.id],side=sd==='left'?['w','nw','sw']:sd==='rail-s'?['s','se','sw','n']:sd==='rail-n'?['n','ne','nw','s']:
+          examining&&narrow()?['e']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
-          item.places=examining||narrow()?['s','n']:['s','n','e','w'];}
-        else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;}
+          item.places=examining&&narrow()?['n','s']:examining||narrow()?['s','n']:['s','n','e','w'];}
+        else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;
+          if(sd==='rail-s'||sd==='rail-n')item.gap=r+9;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
         else{
           item.priority=(S.focus?-200:0)+(FACET_BASE[cn.facet]||420)-(cn.tier===2?300:0)+60*weight+(/^(governing|primary)/.test(cn.role||'')?20:0);
@@ -579,7 +620,9 @@
       });
       S.labelStats=stats;
     }
-    function applyLabel(star,s,rect,anchor,place){
+    function applyLabel(star,s,rect,anchor,place,transient){
+      if(!transient)star.__placed={s:s,rect:rect,anchor:anchor,place:place};
+      if(!transient&&star.classList.contains('is-callout'))return;
       var key=s.style+'|'+s.lines.join('\n')+'|'+(s.kicker||'');
       if(star.__key!==key){star.__key=key;star.__label.textContent=s.lines.join('\n');star.__kicker.textContent=s.kicker||'';
         star.__text.dataset.style=s.style;}
@@ -588,6 +631,7 @@
       if(t.dataset.place!==place)t.dataset.place=place;
     }
     function clearLabel(star){
+      star.__placed=null;
       if(star.__key==='')return;star.__key='';star.__label.textContent='';star.__kicker.textContent='';
       star.__text.dataset.style='none';star.__text.style.width='0px';star.__text.style.height='0px';
     }
@@ -616,6 +660,7 @@
          document.activeElement.classList.contains('atl-star'))starEls[id].focus({preventScroll:true});
     }
     function unfold(mode){
+      latchPointer();
       var tr=activeTreatment(),T=TIMING[tr],reduced=S.reduced,previous=S.hood,v=view();
       S.hood=M.neighbourhood(S.model,S.focus,S.depth);
       S.comp=M.compose(S.model,S.atlas,S.hood,tr,{width:v.width,height:v.height,z:tr==='A'?S.cam.z:1});
@@ -703,6 +748,7 @@
     }
     function returnToAtlas(){
       if(!S.focus)return;
+      latchPointer();
       var last=S.focus,reduced=S.reduced,delays={},wasExamining=S.mode==='constellation',hadFocus=root.contains(document.activeElement);
       if(S.hood)S.hood.order.slice().reverse().forEach(function(id,i){delays[id]=reduced?0:Math.min(i*10,180);});
       // Automatic pans are undone; a view the author chose themselves is kept.
@@ -726,6 +772,57 @@
       else returnToAtlas();
     }
 
+    /* ---------- Emphasis: pointer, folio and keyboard ----------
+       One precedence for every transient emphasis: the concept under a pointer that has really moved,
+       else a relationship or landmark the pointer rests on in the folio, else what holds visible
+       keyboard focus. Emphasis never re-places labels: it rings the related glyphs, lifts their threads
+       and raises one call-out with the complete name above the composition. Every change of composition
+       or camera suspends pointer emphasis until the pointer actually moves, so a pointer left where it
+       clicked never leaves a stale preview behind. */
+    function keyboardTarget(){
+      var a=document.activeElement;if(!a||!root.contains(a)||!a.matches||!a.matches(':focus-visible'))return null;
+      if(a.classList.contains('atl-star'))return {id:a.dataset.id};
+      if(a.classList.contains('atl-rel'))return {rel:a.dataset.rel,id:a.dataset.other};
+      if(a.classList.contains('atl-landmark'))return {id:a.dataset.id};
+      return null;
+    }
+    function refreshEmphasis(){
+      if(!S.model)return;
+      var hint=S.hover?{id:S.hover}:(S.folioHint||keyboardTarget());
+      if(hint&&hint.rel)previewRelation(hint.rel,hint.id);else preview(hint?hint.id:null);
+      setCallout(hint&&hint.id&&hint.id!==S.focus&&starEls[hint.id]?hint.id:null);
+    }
+    function pointerTarget(t){
+      var star=t&&t.closest?t.closest('.atl-star'):null,rel=t&&t.closest?t.closest('.atl-rel'):null,mark=t&&t.closest?t.closest('.atl-landmark'):null;
+      S.hover=star&&root.contains(star)?star.dataset.id:null;
+      S.folioHint=rel?{rel:rel.dataset.rel,id:rel.dataset.other}:mark?{id:mark.dataset.id}:null;
+      refreshEmphasis();
+    }
+    function latchPointer(){S.latched=true;S.hover=null;S.folioHint=null;refreshEmphasis();}
+    root.addEventListener('pointerover',function(e){if(e.pointerType==='touch'||S.latched||S.dragging)return;pointerTarget(e.target);});
+    root.addEventListener('pointerleave',function(){S.ptr=null;if(S.hover||S.folioHint){S.hover=null;S.folioHint=null;refreshEmphasis();}});
+    root.addEventListener('pointermove',function(e){
+      if(e.pointerType==='touch')return;
+      var p=S.ptr;S.ptr={x:e.clientX,y:e.clientY};
+      // Layout changes under a still pointer produce synthetic moves at the same place; only real travel counts.
+      if(!S.latched||S.dragging||!p||(Math.abs(p.x-e.clientX)<1&&Math.abs(p.y-e.clientY)<1))return;
+      S.latched=false;pointerTarget(document.elementFromPoint(e.clientX,e.clientY));
+    });
+    /* The call-out: one concept at a time shows its complete recorded name, wrapped, above everything. */
+    function setCallout(id){
+      if(S.callout===id)return;
+      var prev=S.callout&&starEls[S.callout];
+      if(prev){prev.classList.remove('is-callout');if(prev.__placed)applyLabel(prev,prev.__placed.s,prev.__placed.rect,prev.__placed.anchor,prev.__placed.place,true);}
+      S.callout=id;var b=id&&starEls[id];if(!b)return;
+      b.classList.add('is-callout');
+      var cn=S.model.byId[id],shown=b.__placed&&!b.classList.contains('is-quiet')?b.__placed.s.lines.join(' '):'';
+      if(shown===cn.name)return;
+      var c=cardSpec(cn,'callout',STYLE.callout.maxW),v=view(),a=toScreen(S.pos[id]),g=glyphRadius(id)+4,place=null,rect=null;
+      ['e','w','s','n','se','ne','sw','nw'].some(function(pl){var r=M.placeRect(pl,a.x,a.y,g,c.w,c.h);
+        if(r.x0>=4&&r.y0>=4&&r.x1<=v.width-4&&r.y1<=v.height-4){place=pl;rect=r;return true;}return false;});
+      if(!rect){place='e';rect=M.placeRect('e',a.x,a.y,g,c.w,c.h);}
+      applyLabel(b,c,rect,a,place,true);
+    }
     /* ---------- Hover preview (atlas and constellation) ---------- */
     function preview(id){
       root.querySelectorAll('.atl-edge.is-preview').forEach(function(p){p.classList.remove('is-preview');});
@@ -858,7 +955,7 @@
       folio.setAttribute('aria-label','Reading of '+cn.title);
       if(examining)folio.append(el('p','atl-mode-chip','Focused constellation · close reading'));
       folio.append(el('p','atl-kicker-line atl-facet-'+cn.facet,M.FACET_SINGULAR[cn.facet]+(cn.role?' · '+M.human(cn.role):'')));
-      folio.append(el('h3','atl-folio-title',cn.title));
+      folio.append(el('h3','atl-folio-title'+(cn.title.length>90?' is-long':''),cn.title));
       var rec=cn.record||{},dl=el('dl','atl-facts');
       if(cn.facet==='genres'&&rec.genre_node_id){
         if(cn.coverage)folio.append(el('p','atl-coverage',cn.coverage));
@@ -872,7 +969,8 @@
       }else if(cn.facet==='timeline'){
         var index=model.timeline.indexOf(cn);
         fact(dl,'Place in story order','Phase '+(index+1)+' of '+model.timeline.length+' (order is not a chapter count)');
-        fact(dl,'Scope',M.human(rec.scope||'whole story'));fact(dl,'Narrative function',rec.narrative_function);
+        var scope=M.bookLabel(rec.scope);fact(dl,'Scope',scope.text+(scope.durationUnknown?' · duration unknown':''));
+        fact(dl,'Narrative function',rec.narrative_function);
         fact(dl,'Reader experience',rec.reader_experience);fact(dl,'Aesthetic',rec.aesthetic);fact(dl,'Transition',rec.transition);
       }else{
         if(cn.detail&&cn.detail!==cn.title)folio.append(el('p','atl-folio-detail',cn.detail));
@@ -934,13 +1032,11 @@
         wrap.append(el('h5','atl-group atl-facet-'+facet,M.FACET_LABEL[facet]+' · '+rows.length));
         rows.forEach(function(a,i){
           var other=model.byId[a.other],b=el('button','atl-rel');b.type='button';b.dataset.other=other.id;b.dataset.rel=a.relation.id;
-          b.append(el('span','atl-rel-verb',a.verb),el('span','atl-rel-target',other.label));
+          b.append(el('span','atl-rel-verb',a.verb),el('span','atl-rel-target',other.name));
           b.title=other.title;
           b.addEventListener('click',function(){select(other.id,{via:'folio'});focusFolio();});
-          b.addEventListener('pointerenter',function(){previewRelation(a.relation.id,other.id);});
-          b.addEventListener('focus',function(){previewRelation(a.relation.id,other.id);});
-          b.addEventListener('pointerleave',function(){preview(null);});
-          b.addEventListener('blur',function(){preview(null);});
+          b.addEventListener('focus',refreshEmphasis);
+          b.addEventListener('blur',function(){global.setTimeout(refreshEmphasis,0);});
           wrap.append(b);
           if(a.relation.reason){var why=el('p','atl-why',a.relation.reason);why.id='atl-why-'+Math.round(hash(a.relation.id+i)*1e9);
             b.setAttribute('aria-describedby',why.id);wrap.append(why);}
@@ -963,10 +1059,10 @@
         if(!top.length)return;
         var row=el('div','atl-landmark-row');row.append(el('span','atl-landmark-kind atl-facet-'+facet,M.FACET_LABEL[facet]));
         top.forEach(function(cn){var b=el('button','atl-landmark atl-facet-'+facet);b.type='button';b.title=cn.title;
-          b.append(el('span','atl-landmark-name',M.shorten(cn.title,34)),el('span','atl-landmark-count',String(cn.degree)));
+          b.append(el('span','atl-landmark-name',cn.name),el('span','atl-landmark-count',String(cn.degree)));
           b.setAttribute('aria-label',cn.title+', '+cn.degree+' documented relationships');
           b.addEventListener('click',function(){select(cn.id,{via:'atlas'});focusFolio();});
-          b.addEventListener('pointerenter',function(){preview(cn.id);});b.addEventListener('pointerleave',function(){preview(null);});
+          b.dataset.id=cn.id;b.addEventListener('focus',refreshEmphasis);b.addEventListener('blur',function(){global.setTimeout(refreshEmphasis,0);});
           row.append(b);});
         marks.append(row);
       });
@@ -1002,7 +1098,7 @@
           .sort(function(a,b){return a.tier-b.tier||(facet==='timeline'?(a.order||0)-(b.order||0):a.title.localeCompare(b.title));});
         if(!members.length)return;
         var d=el('details','atl-index-group');d.append(el('summary','atl-facet-'+facet,M.FACET_LABEL[facet]+' · '+members.length));
-        members.forEach(function(cn){var b=el('button','atl-index-item',cn.label);b.type='button';b.title=cn.title;
+        members.forEach(function(cn){var b=el('button','atl-index-item',cn.name);b.type='button';b.title=cn.title;
           b.addEventListener('click',function(){select(cn.id,{via:'atlas'});focusFolio();});d.append(b);});
         index.append(d);
       });
@@ -1015,7 +1111,7 @@
       S.trail.forEach(function(id,i){
         var cn=S.model.byId[id];if(!cn)return;
         trail.append(el('span','atl-crumb-sep','›'));
-        var b=el('button','atl-crumb atl-facet-'+cn.facet,M.shorten(cn.title,26));b.type='button';b.title=cn.title;
+        var b=el('button','atl-crumb atl-facet-'+cn.facet,M.shorten(cn.name,30));b.type='button';b.title=cn.title;
         if(i===S.trail.length-1){b.setAttribute('aria-current','location');b.disabled=true;}
         else b.addEventListener('click',function(){var hadFocus=root.contains(document.activeElement);select(id,{trailIndex:i});
           if(hadFocus&&starEls[id])starEls[id].focus({preventScroll:true});});
@@ -1038,12 +1134,14 @@
       motion.setAttribute('aria-pressed',String(S.reduced));
       root.classList.toggle('atl-reduced',S.reduced);
       var cn=S.focus&&S.model?S.model.byId[S.focus]:null;
+      var name=cn?M.shorten(cn.name,56):'';
       ribbon.textContent=S.mode==='constellation'?
-        'Focused constellation — the neighbourhood of “'+cn.title+'” is recomposed for close reading; dotted tethers mark where each concept lives in the atlas. Escape returns to the atlas as you left it.':
-        S.research?'Research comparison C · contextual unfolding — relationships are revealed first; only neighbours that are hard to read move closer. Kept for comparison, not proposed for authors.':
-        cn?'Living atlas — “'+cn.title+'” and its documented relationships come forward in place; nothing has moved. Examine it as a constellation for a closer reading.':
-        'Living atlas — the whole working Architecture at once. Select any concept: its documented relationships come forward in place, and nothing moves.';
-      ribbon.append(el('span','atl-ribbon-note',' Positions are presentation, never narrative evidence. Nothing is saved.'));
+        'Focused constellation of “'+name+'” — recomposed for close reading; tethers mark atlas places. Esc returns to the atlas.':
+        S.research?'Research comparison C · contextual unfolding — kept for comparison, not proposed for authors.':
+        cn?'Living atlas — “'+name+'” and its documented relationships, revealed in place. E examines it as a constellation.':
+        'Living atlas — the whole working Architecture. Select a concept to bring its documented relationships forward in place.';
+      ribbon.append(el('span','atl-ribbon-note',' Nothing moves · positions are presentation · nothing is saved.'));
+      ribbon.title=cn?cn.title:'';
     }
     function announce(text){live.textContent='';global.setTimeout(function(){live.textContent=text;},30);}
 
@@ -1092,11 +1190,12 @@
     stage.addEventListener('pointermove',function(e){
       if(!drag||e.pointerId!==drag.id)return;
       var dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;
-      if(drag.moved){S.cam={cx:drag.cx-dx/S.cam.z,cy:drag.cy-dy/S.cam.z,z:S.cam.z};if(S.tw)S.tw.cam=null;paint();stage.classList.add('is-panning');}
+      if(drag.moved){if(!S.dragging){S.dragging=true;latchPointer();}
+        S.cam={cx:drag.cx-dx/S.cam.z,cy:drag.cy-dy/S.cam.z,z:S.cam.z};if(S.tw)S.tw.cam=null;paint();stage.classList.add('is-panning');}
     });
     function endDrag(e){
       if(!drag||e.pointerId!==drag.id)return;
-      var wasClick=!drag.moved;drag=null;stage.classList.remove('is-panning');
+      var wasClick=!drag.moved;drag=null;S.dragging=false;stage.classList.remove('is-panning');
       if(!wasClick){S.userCam=true;S.lastAction={kind:'pan',at:performance.now()};global.clearTimeout(relabelTimer);
         relabelTimer=global.setTimeout(function(){S.frames=[];settle();},90);return;}
       if(S.focus&&e.type==='pointerup'){if(S.mode==='constellation')leaveConstellation();else returnToAtlas();}
