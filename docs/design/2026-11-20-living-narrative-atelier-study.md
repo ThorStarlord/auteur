@@ -6,6 +6,13 @@
 Narrative Architecture experience, and promoting any treatment needs a separate
 owner decision.
 
+> **Superseded in part (2026-11-21).** After reviewing this study, the owner made
+> A the primary Living Atlas and B an optional Focused Constellation, and
+> deprioritised C. The adaptive A/B recommendation below was **not** adopted. See
+> [the refinement](2026-11-21-living-atlas-refinement.md). This document keeps the
+> first comparison as research evidence. Its URL forms (`?atelier=A|B`) now open
+> the living atlas; `?atelier=C` opens the research comparison.
+
 The study asks how Auteur can make a working Narrative Architecture beautiful
 and intellectually rewarding to explore. It is built from a stable global atlas
 and a living local constellation, and it compares three ways to unfold a

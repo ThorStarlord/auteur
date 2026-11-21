@@ -11,3 +11,6 @@ These are measurements of rendered behaviour, not a human usability evaluation.
 Screenshots and recordings from the same run are published outside the
 repository (no binary evidence is committed). Interpretation:
 `docs/design/2026-11-20-living-narrative-atelier-study.md`.
+
+The capture script has since been rewritten for the refinement journeys; this
+manifest came from its first version at `c85d6e67`.
