@@ -51,8 +51,9 @@
   background:var(--atl-card);border:1px solid var(--atl-hair);border-radius:11px;box-shadow:0 16px 40px rgba(60,44,22,.16)}
 .atl-readout-body dt{color:var(--atl-muted)}
 .atl-readout-body dd{margin:0;color:var(--atl-ink);font-variant-numeric:tabular-nums}
-.atl-ribbon{margin:0;padding:7px 16px;font:14px/1.5 var(--atl-serif);color:#4a4238;
-  background:#faf6ee;border-bottom:1px solid var(--atl-hair)}
+.atl-ribbon{box-sizing:border-box;margin:0;padding:7px 16px;font:14px/1.5 var(--atl-serif);color:#4a4238;
+  background:#faf6ee;border-bottom:1px solid var(--atl-hair);height:57px;overflow:hidden;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 .atl-ribbon-note{font:.72rem/1.5 var(--atl-sans);color:var(--atl-muted)}
 
 /* ---------- Stage ---------- */
@@ -68,10 +69,15 @@
 .atl-band{fill:transparent}
 .atl-band.is-alt{fill:rgba(128,104,70,.03)}
 .atl-g-grid,.atl-g-bands{transition:opacity .5s var(--atl-ease)}
+.atl-g-edges,.atl-g-verbs,.atl-g-tethers{transition:opacity .2s var(--atl-ease)}
+/* Returning from a close reading: the camera travels over the score without repainting every thread;
+   the web reassembles when the atlas is still again. */
+.atl.atl-returning .atl-g-edges,.atl.atl-returning .atl-g-verbs,.atl.atl-returning .atl-g-tethers{opacity:0}
+.atl.atl-returning .atl-star{transition-duration:.16s}
 .atl-book-shade{fill:transparent}
 .atl-book-shade.is-alt{fill:rgba(52,80,107,.04)}
 .atl-meridian{stroke:var(--atl-timeline);stroke-width:1;stroke-dasharray:1 4;opacity:.24}
-.atl-book-label{font:600 9.5px var(--atl-sans);letter-spacing:.12em;fill:var(--atl-timeline);opacity:.72}
+.atl-book-label{font:600 8.5px var(--atl-sans);letter-spacing:.08em;fill:var(--atl-timeline);opacity:.72}
 .atl-spine{fill:none;stroke:var(--atl-timeline);stroke-width:2;opacity:.3;stroke-linecap:round}
 .atl-focused .atl-g-grid{opacity:.6}
 .atl-examining .atl-g-grid,.atl-examining .atl-g-bands,.atl-examining .atl-g-spine{opacity:.22}
@@ -116,11 +122,10 @@
 .atl-kicker{display:none}
 .atl-text[data-place="w"],.atl-text[data-place="nw"],.atl-text[data-place="sw"]{text-align:right}
 .atl-text[data-place="n"],.atl-text[data-place="s"],.atl-text[data-place="c"]{text-align:center}
-.atl-text[data-style="genre"],.atl-text[data-style="phase"],.atl-text[data-style="ordinal"],.atl-text[data-style="rest"],.atl-text[data-style="mote"]{
+.atl-text[data-style="genre"],.atl-text[data-style="phase"],.atl-text[data-style="rest"],.atl-text[data-style="mote"]{
   text-shadow:0 0 3px var(--atl-paper),0 0 2px var(--atl-paper),0 0 1px var(--atl-paper)}
 .atl-text[data-style="genre"]{font:600 12.5px/15px var(--atl-serif);padding:1px 2px;color:color-mix(in srgb,var(--atl-genre) 42%,#241e2c)}
 .atl-text[data-style="phase"]{font:500 11.5px/13.5px var(--atl-serif);padding:1px 2px;color:color-mix(in srgb,var(--atl-timeline) 70%,#1d232b)}
-.atl-text[data-style="ordinal"]{font:600 12px/14px var(--atl-serif);padding:0 2px;color:var(--atl-timeline)}
 .atl-text[data-style="rest"]{font:500 10.5px/12.5px var(--atl-sans);padding:1px 2px;color:color-mix(in srgb,var(--c) 30%,#3a332b)}
 .atl-text[data-style="mote"]{font:400 10px/12px var(--atl-sans);padding:0 2px;color:color-mix(in srgb,var(--c) 30%,#5b5246)}
 .atl-text[data-style="near"]{font:500 12px/14.5px var(--atl-sans);padding:3px 7px;color:var(--atl-ink);border-radius:8px;
@@ -279,11 +284,22 @@
 /* Studio integration: the study is one more depth of the same Architecture. */
 #studio-atelier{flex:none;min-width:0}
 #studio-mode-atelier[aria-pressed="true"]{border-color:#3a3343;background:#2e2936;color:#fbf6ec;font-weight:700}
+/* Opt-in Atelier opens as the frontispiece: the map is the first thing an author meets.
+   Authoring controls keep their order below it; the default Studio is untouched. */
+.workspace.atelier-first .studio-workflows{order:-5}
+.workspace.atelier-first .writing-return{order:-4}
+.workspace.atelier-first #architecture-context{order:-3}
+.workspace.atelier-first #architecture-work-area{order:-2}
+/* Inside the surface, the way-of-looking bar and the atlas precede the Overview summary;
+   the summary remains available below for authors who want it. */
+.workspace.atelier-first .architecture-main-surface #studio-full-modes{order:-3}
+.workspace.atelier-first .architecture-main-surface #studio-atelier{order:-2}
 
 /* ---------- Narrow screens ---------- */
 @media (max-width:900px){
   .atl-body{grid-template-columns:minmax(0,1fr)}
-  .atl-stage{height:min(66vh,580px);min-height:400px}
+  /* A vertical swipe over the atlas scrolls the page; horizontal travel still pans the score. */
+  .atl-stage{height:min(66vh,580px);min-height:400px;touch-action:pan-y}
   .atl-folio{height:auto;max-height:none;border-left:0;border-top:1px solid var(--atl-hair);padding:16px}
 }
 @media (max-width:600px){
@@ -292,7 +308,7 @@
   .atl-modes{width:100%}
   .atl .atl-mode{flex:1;justify-content:center;padding:7px 8px}
   .atl-hint{display:none}
-  .atl-ribbon{font-size:13px;padding:7px 12px}
+  .atl-ribbon{font-size:13px;padding:7px 12px;height:76px;-webkit-line-clamp:3}
   .atl-folio-title{font-size:1.36rem}
   .atl-band-label{font-size:8.5px;padding-left:8px;gap:5px}
   .atl-band-count{display:none}

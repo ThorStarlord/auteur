@@ -3,7 +3,9 @@
 **Date:** 2026-11-21
 **Reviews:** [the Living Atlas refinement](2026-11-21-living-atlas-refinement.md), merged in PR #627
 **Source:** `origin/main@6fc59cbf`, served from the tree-identical `c5f09a30`
-**Status:** review only. The Atelier stays experimental and opt-in (`studio.html?atelier`).
+**Status:** review only, followed by a same-day contained refinement of B1–B7 (section at
+the end). The Atelier stays experimental and opt-in (`studio.html?atelier`); default
+promotion remains an owner decision.
 **Visual report:** screenshots, recordings and this walkthrough at
 https://claude.ai/artifact/CvWiHNR7Umr1i9SccYTP9q. It is private until the owner shares it.
 
@@ -298,3 +300,61 @@ Questions:
 
 Stop the server with `Ctrl+C`. Remove the worktree with
 `git -C H:\GithubRepositories\auteur worktree remove H:\auteur-atelier-review`.
+
+## Post-review refinement (same day)
+
+The seven consequential defects were addressed inside the experimental Atelier. The default
+Studio, the focused/full Architecture views and every canvas/revision contract are unchanged.
+
+- **B1 — atlas first.** With `?atelier`, the workflow tabs, Architecture context, way-of-looking
+  bar and atlas now precede the Story Vision and agent controls. The Overview summary remains
+  below the atlas; Focused Unfolding and the default Studio keep their original order.
+- **B2 — preview release.** A real click and `Esc` clear the hover preview immediately, including
+  at rest where no selection is active.
+- **B3 — return travel.** During a return camera move, the thread and verb groups are withheld and
+  reassembled when the atlas settles. This avoids repainting every relationship while the camera
+  crosses the score. Per-concept compositing promotion was kept after a windowed comparison showed
+  that removing it made selection and constellation motion slower.
+- **B4 — names and stage stability.** The ribbon has a fixed, clamped height, so a paragraph-length
+  title cannot move the stage. Names break at word boundaries before ellipsis; phase names are never
+  replaced by a bare numeral. The focus card and long phase names have room to be read.
+- **B5 — resting hierarchy.** All seven genres and all seven Book running heads are visible at
+  1440×900. Raw `duration unknown` is gone; Book heads read `OPENING BOOKS`, `EARLY MIDDLE`,
+  `BOOK 12`, `BOOKS 13–14`. The folio lists all genres, not only the top three.
+- **B6 — story order in the constellation.** Phase neighbours are sorted by recorded story order
+  within each arc, so the old `4, 1, 3, 2` sequence is gone.
+- **B7 — phone.** The stage uses `touch-action: pan-y`, so a vertical swipe scrolls the page while
+  horizontal travel still pans the atlas. The focus card sits below its glyph, clear of the trail,
+  with a safe inset at the stage edge.
+
+### Windowed frame evidence
+
+Measured in a visible Chromium window at 1440×900 on the same host, with the Atelier scrolled into
+view, on the dense specimen (`156` concepts, `215` relationships), three rounds per step. The
+numbers are frame intervals reported by the page, not a synthetic benchmark.
+
+| Step | Baseline `main` mean (ms) | Refined mean (ms) | Refined worst frame (ms) |
+|---|---|---|---|
+| Select (A) | 24.3–29.6 | 24.0–25.6 | 133–150 |
+| Examine (B) | 28.1–29.6 | 27.4–28.1 | 50–67 |
+| Leave B | 22.2–81.7 (median 62.1) | 33.3–38.0 | 100 |
+
+The return is the consequential change: baseline rounds included two 62–82 ms means and 150 ms
+spikes, while the refined rounds stayed at 33–38 ms with a 100 ms worst frame. One baseline round
+(22.2 ms) was faster than the refined rounds, so this is an improvement in consistency and
+worst-case behaviour, not a claim that every frame is faster. Selection and examination remain in
+the same range as baseline.
+
+### Preserved invariants
+
+The final capture (`atelier-final-20261121`) reports zero page errors and still holds every study
+invariant: reveal/deepen/follow move no concept, selection keeps the zoom, leaving a constellation
+restores positions and zoom, return has `0` px drift and the same camera, keyboard-only operation
+keeps focus, and reduced motion settles in `0` frames. The phone test scrolls the page with a real
+emulated touch swipe. Canvas revision remains unchanged.
+
+### Limits
+
+Author acceptance is still pending; no author has used this refinement. Screen-reader, pinch-zoom and
+Architectures larger than 156 concepts remain unverified. The frame figures are from one host/GPU and
+vary between rounds. Default-UI promotion is still the owner decision described above.

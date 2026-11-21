@@ -101,6 +101,34 @@ for (const [name, c] of [['small', SMALL], ['dense', DENSE]]) {
   });
 }
 
+test('Book running heads and display titles are editorial, not raw records', () => {
+  const M = load();
+  assert.equal(M.bookLabel('opening_books_duration_unknown'), 'OPENING BOOKS');
+  assert.equal(M.bookLabel('early_middle_duration_unknown'), 'EARLY MIDDLE');
+  assert.equal(M.bookLabel('book_12'), 'BOOK 12');
+  assert.equal(M.bookLabel('books_13_14'), 'BOOKS 13–14');
+  assert.equal(M.displayTitle('Trope: Signing as Public Exposure'), 'Signing as Public Exposure');
+  assert.equal(M.displayTitle('Reader Experience: Earned Trust'), 'Earned Trust');
+  assert.equal(M.displayTitle('Literary mystery'), 'Literary mystery');
+  const dense = M.buildModel(DENSE, 'sha-test');
+  assert.ok(dense.concepts.every((cn) => !/^(Trope|Reader Experience):\s/i.test(cn.title)));
+});
+
+test('dense: constellation phases keep story order within each arc', () => {
+  const M = load();
+  const model = M.buildModel(DENSE, 'sha-test');
+  const atlas = M.layoutAtlas(model, {aspect: 1.4});
+  const focus = 'genres|genre:genre-procedural';
+  const hood = M.neighbourhood(model, focus, 1);
+  const comp = M.compose(model, atlas, hood, 'B', {width: 846, height: 630, z: 1});
+  const phases = model.timeline.map((p) => p.id).filter((id) => hood.levels[id] === 1);
+  for (const side of ['left', 'right']) {
+    const inColumn = phases.filter((id) => comp.sides[id] === side);
+    const byY = inColumn.slice().sort((a, b) => comp.targets[a].y - comp.targets[b].y);
+    assert.deepEqual(plain(byY), plain(inColumn), `${side} arc keeps story order`);
+  }
+});
+
 test('second-order exploration is bounded and reports what it leaves out', () => {
   const M = load();
   const model = M.buildModel(DENSE, 'sha-test');
