@@ -11,8 +11,8 @@
      binding.root.hidden=!eligible||mode!=='full';
      binding.reviewRoot.hidden=!eligible||mode!=='review';
      binding.focusButton.setAttribute('aria-pressed',String(mode==='focus'));
-     binding.fullButton.setAttribute('aria-pressed',String(mode!=='focus'));
-     if(!eligible||mode==='focus')return false;
+     binding.fullButton.setAttribute('aria-pressed',String(mode==='full'||mode==='review'));
+     if(!eligible||mode==='focus'||mode==='atelier')return false;
      var api=global.AuteurStudioFullArchitecture;
      if(!api){binding.root.hidden=false;binding.root.textContent='Full Architecture sources are unavailable. Working story remains unchanged.';return true;}
      // The current Studio candidate is noncanonical, and no verified Pack or accepted

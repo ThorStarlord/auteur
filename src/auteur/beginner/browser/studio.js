@@ -19,6 +19,13 @@
   state.fullArchitectureDisplay = "focus"; state.fullArchitectureGenre = null;
   state.fullArchitectureEvidence = null;
   var unfoldingController = null, fullArchitectureController = null, mentorDialogueController = null;
+  // Experimental Atelier visual study: opt-in by URL only (?atelier, ?atelier=A|B|C). Presentation only.
+  var atelierParams = new URLSearchParams(window.location.search);
+  var atelierParam = atelierParams.get("atelier");
+  var atelierEnabled = atelierParam !== null && !["0", "off", "false"].includes(atelierParam.toLowerCase());
+  var atelierController = null, atelierOpenAtLoad = atelierEnabled;
+  state.atelierInspector = false;
+  if (atelierEnabled) state.fullArchitectureDisplay = "atelier";
   var revisionReviewBridge = null;
   function ensureRevisionReviewBridge() {
     if (!revisionReviewBridge && window.AuteurStudioRevisionBridge) {
@@ -244,7 +251,9 @@
     }
     state.unfoldingFocus = saved.unfoldingFocus && ["working","candidate"].includes(saved.unfoldingFocus.kind) &&
       typeof saved.unfoldingFocus.id === "string" ? saved.unfoldingFocus : null;
-    state.fullArchitectureDisplay = ["focus","full","review"].includes(saved.fullDisplay) ? saved.fullDisplay : "focus";
+    state.fullArchitectureDisplay = ["focus","full","review"].concat(atelierController ? ["atelier"] : [])
+      .includes(saved.fullDisplay) ? saved.fullDisplay : "focus";
+    if (atelierOpenAtLoad && atelierController) { state.fullArchitectureDisplay = "atelier"; atelierOpenAtLoad = false; }
     state.fullArchitectureGenre = typeof saved.fullGenre === "string" ? saved.fullGenre : null;
     state.selectedPhase = typeof saved.phase === "string" ? saved.phase : null;
     $("find-nodes").value = typeof saved.search === "string" ? saved.search : "";
@@ -2411,6 +2420,20 @@
     drawEdges(); renderStudioExplanation(); renderUnfolding();
     renderInspector(); renderOutline(); showVision(); transform();
     renderFullArchitectureStudio();
+    renderAtelierStudy();
+  }
+  // The Atelier study replaces only the graph surface of the Architecture Overview, and only when opted in.
+  function renderAtelierStudy() {
+    if (!atelierController) return;
+    var chosen = state.fullArchitectureDisplay === "atelier";
+    $("studio-mode-atelier").setAttribute("aria-pressed", String(chosen));
+    var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
+      state.architectureFacet === "overview";
+    if (!eligible) { atelierController.hide(); return; }
+    $("viewport").hidden = true;
+    $("inspector").hidden = !state.atelierInspector;
+    document.querySelector(".studio").classList.toggle("studio-explanation-full", !state.atelierInspector);
+    atelierController.show();
   }
   // Keep the inspector and the working-document model in sync before focus changes.
   // This is working author material only; it cannot accept story canon.
@@ -3011,6 +3034,48 @@
       state.fullArchitectureDisplay="focus";render();rememberFocus();
     }
   });
+  if (atelierEnabled && window.AuteurStudioAtelier) {
+    try {
+      atelierController = window.AuteurStudioAtelier.create({
+        root: $("studio-atelier"),
+        getCandidate: function(){ return state.architecture; },
+        getRequestSha: function(){ return state.architectureRequestSha; },
+        getSourceStatus: function(){ return state.architectureSourceStatus; },
+        treatment: atelierParam.toUpperCase(),
+        initial: {focus: atelierParams.get("focus"), depth: Number(atelierParams.get("depth")) || 1},
+        // Inspecting and explaining reuse the Studio's own source-bound surfaces.
+        onInspect: function(concept){
+          if (!candidateNode(concept.nodeId)) { status("That architecture source is no longer recorded."); return; }
+          chooseCandidate(concept.nodeId); state.atelierInspector = true; render(); rememberFocus();
+          $("inspector").scrollIntoView({block:"nearest"});
+        },
+        inspectorOpen: function(){ return state.atelierInspector; },
+        onCloseInspector: function(){ state.atelierInspector = false; render(); },
+        onExplain: function(concept){
+          visitFacet(concept.facet, concept.key, concept.nodeId || null);
+          status("Opened the full explanation. Return to the Overview to continue the Atelier study where you left it.");
+        },
+        // Creative unfolding stays a separate, author-governed workflow.
+        onUnfold: function(concept){
+          if (!candidateNode(concept.nodeId)) return;
+          state.fullArchitectureDisplay = "focus"; state.atelierInspector = false;
+          chooseCandidate(concept.nodeId); render(); rememberFocus();
+          status("Focused Unfolding opened for “" + concept.title + "”. Suggestions stay provisional until you adopt one.");
+        }
+      });
+    } catch (error) { atelierController = null; status("Atelier study unavailable: " + error.message); }
+  }
+  // Without a working study the Studio keeps its ordinary default.
+  if (!atelierController && state.fullArchitectureDisplay === "atelier") state.fullArchitectureDisplay = "focus";
+  $("studio-mode-atelier").hidden = !atelierController;
+  $("studio-mode-atelier").addEventListener("click", function(){
+    var edit=$("unfolding-author-edit"),item=state.unfoldingFocus&&state.items.find(function(i){return i.id===state.unfoldingFocus.id;});
+    if(item&&!edit.hidden && (($("unfolding-edit-title")&&$("unfolding-edit-title").value!==item.title) ||
+      ($("unfolding-edit-content")&&$("unfolding-edit-content").value!==item.content))) {
+      status("Save working edits before opening the Atelier study.");return;
+    }
+    state.fullArchitectureDisplay = "atelier"; state.atelierInspector = false; render(); rememberFocus();
+  });
   $("studio-load-genre-evidence").addEventListener("click",function(){
     // Deliberately explicit, read-only request: no paid model call or story edit.
     var canvasId=remote.canvasId,sha=state.architectureRequestSha;
@@ -3035,7 +3100,7 @@
       status("Could not read genre evidence: "+error.message+". Working canvas unchanged.");
     }).finally(function(){button.disabled=false;});
   });
-  $("studio-mode-focus").addEventListener("click",function(){fullArchitectureController && fullArchitectureController.render();state.fullArchitectureDisplay="focus";render();rememberFocus();});
+  $("studio-mode-focus").addEventListener("click",function(){fullArchitectureController && fullArchitectureController.render();state.fullArchitectureDisplay="focus";state.atelierInspector=false;render();rememberFocus();});
   $("studio-mode-full").addEventListener("click",function(){
     var edit=$("unfolding-author-edit"),item=state.unfoldingFocus&&state.items.find(function(i){return i.id===state.unfoldingFocus.id;});
     if(item&&!edit.hidden && (($("unfolding-edit-title")&&$("unfolding-edit-title").value!==item.title) ||
