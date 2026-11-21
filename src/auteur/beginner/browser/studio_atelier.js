@@ -560,7 +560,7 @@
           anchors:T.map(function(t){return pointAt(g,t);}),variants:[{key:0,w:s.w,h:s.h}]});
       });
       var placed=M.placeLabels(items,obstacles,bounds);
-      var stats={placed:0,quiet:0,forced:0,restLandmarks:0,restNamed:0,verbsPlaced:0,verbs:Object.keys(verbEls).length};
+      var stats={placed:0,quiet:0,forced:0,restLandmarks:0,restNamed:0,neighbours:0,neighboursNamed:0,verbsPlaced:0,verbs:Object.keys(verbEls).length};
       model.concepts.forEach(function(cn){
         var star=starEls[cn.id],res=placed[cn.id],sp=specs[cn.id],a=anchors[cn.id],st=starState(cn.id);
         if(res){applyLabel(star,sp[res.variant],res.rect,a,res.place);star.classList.remove('is-quiet');stats.placed++;if(res.forced)stats.forced++;}
@@ -570,6 +570,7 @@
           star.classList.add('is-quiet');if(isItem[cn.id])stats.quiet++;
         }else{clearLabel(star);star.classList.remove('is-quiet');}
         if(st==='rest'&&cn.tier===1&&onStage[cn.id]){stats.restLandmarks++;if(res)stats.restNamed++;}
+        if((st==='near'||st==='far')&&onStage[cn.id]){stats.neighbours++;if(res)stats.neighboursNamed++;}
         star.classList.toggle('is-ambient',!!S.focus&&st==='dim'&&!!res);
       });
       Object.keys(verbEls).forEach(function(rid){
@@ -766,7 +767,8 @@
         maxFrameMs:intervals.length?+Math.max.apply(null,intervals).toFixed(1):0,
         zoom:+S.cam.z.toFixed(3),cameraMoved:!!(S.lastAction&&S.lastAction.cameraMoved),
         renderedLabelOverlaps:renderedOverlaps(),quietLabels:st.quiet||0,
-        labels:{placed:st.placed||0,quiet:st.quiet||0,forced:st.forced||0,restLandmarks:st.restLandmarks||0,restNamed:st.restNamed||0},
+        labels:{placed:st.placed||0,quiet:st.quiet||0,forced:st.forced||0,restLandmarks:st.restLandmarks||0,restNamed:st.restNamed||0,
+          neighbours:st.neighbours||0,neighboursNamed:st.neighboursNamed||0},
         verbLabels:{shown:st.verbsPlaced||0,total:st.verbs||0},offStageNeighbours:S.offStage||0,
         composition:base,reducedMotion:S.reduced,concepts:S.model.concepts.length,relations:S.model.relations.length};
       renderReadout();
@@ -817,6 +819,7 @@
       if(m.composition){var c=m.composition;
         row('Neighbourhood',c.first+' first-order · '+c.second+' second-order');
         row('Moved',c.moved+' of '+(c.visible-1)+' · mean '+c.meanMove+'px');
+        row('Neighbours named',m.labels.neighboursNamed+' of '+m.labels.neighbours+' in view');
         row('Camera on select',m.cameraMoved?'panned to keep the focus readable':'unchanged');
         if(m.offStageNeighbours)row('Beyond the view',m.offStageNeighbours+' related concepts (pins at the edge)');}
       row('Labels',m.labels.placed+' set · '+m.labels.quiet+' quiet (glyph kept; named on hover or focus)');
