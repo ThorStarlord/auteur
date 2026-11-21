@@ -965,7 +965,7 @@
         top.forEach(function(cn){var b=el('button','atl-landmark atl-facet-'+facet);b.type='button';b.title=cn.title;
           b.append(el('span','atl-landmark-name',M.shorten(cn.title,34)),el('span','atl-landmark-count',String(cn.degree)));
           b.setAttribute('aria-label',cn.title+', '+cn.degree+' documented relationships');
-          b.addEventListener('click',function(){select(cn.id,{via:'atlas'});});
+          b.addEventListener('click',function(){select(cn.id,{via:'atlas'});focusFolio();});
           b.addEventListener('pointerenter',function(){preview(cn.id);});b.addEventListener('pointerleave',function(){preview(null);});
           row.append(b);});
         marks.append(row);
@@ -973,7 +973,7 @@
       folio.append(marks);
       var how=el('ul','atl-how');
       ['Bands hold kinds of narrative idea; story time runs left to right in recorded phase order, one hairline per phase, Books shaded in turn.',
-       'Across, a concept follows the phases it is recorded with, directly or through its genre. Nearness alone is never a relationship.',
+       'Across, a concept sits near the phases it is recorded with: directly, through its genre, or through its recorded neighbours. Concepts with no such record are spread evenly. Nearness alone is never a relationship.',
        'Threads are recorded proposal relationships, coloured by the kind of idea they reach. Larger marks have more of them.',
        'Small points are local phrases recorded inside a genre or phase; they gain words as you come closer or unfold them.']
         .forEach(function(t){how.append(el('li','',t));});
@@ -981,7 +981,7 @@
       var legend=el('div','atl-legend');legend.setAttribute('role','group');legend.setAttribute('aria-label','Highlight a kind of idea');
       M.FACETS.forEach(function(facet){
         var count=model.concepts.filter(function(x){return x.facet===facet;}).length;if(!count)return;
-        var b=el('button','atl-legend-item atl-facet-'+facet);b.type='button';b.setAttribute('aria-pressed',String(S.lens===facet));
+        var b=el('button','atl-legend-item atl-facet-'+facet);b.type='button';b.dataset.key='lens:'+facet;b.setAttribute('aria-pressed',String(S.lens===facet));
         b.append(el('span','atl-legend-glyph'),el('span','',M.FACET_LABEL[facet]+' · '+count));
         b.addEventListener('click',function(){S.lens=S.lens===facet?null:facet;root.dataset.lens=S.lens||'';renderFolio();});
         legend.append(b);
@@ -1003,7 +1003,7 @@
         if(!members.length)return;
         var d=el('details','atl-index-group');d.append(el('summary','atl-facet-'+facet,M.FACET_LABEL[facet]+' · '+members.length));
         members.forEach(function(cn){var b=el('button','atl-index-item',cn.label);b.type='button';b.title=cn.title;
-          b.addEventListener('click',function(){select(cn.id,{via:'atlas'});});d.append(b);});
+          b.addEventListener('click',function(){select(cn.id,{via:'atlas'});focusFolio();});d.append(b);});
         index.append(d);
       });
       folio.append(index);
@@ -1017,7 +1017,8 @@
         trail.append(el('span','atl-crumb-sep','›'));
         var b=el('button','atl-crumb atl-facet-'+cn.facet,M.shorten(cn.title,26));b.type='button';b.title=cn.title;
         if(i===S.trail.length-1){b.setAttribute('aria-current','location');b.disabled=true;}
-        else b.addEventListener('click',function(){select(id,{trailIndex:i});});
+        else b.addEventListener('click',function(){var hadFocus=root.contains(document.activeElement);select(id,{trailIndex:i});
+          if(hadFocus&&starEls[id])starEls[id].focus({preventScroll:true});});
         trail.append(b);
       });
       lensbar.replaceChildren();
@@ -1105,34 +1106,45 @@
       if(!(e.ctrlKey||e.metaKey)||!S.model)return;e.preventDefault();
       var r=stage.getBoundingClientRect();zoomBy(e.deltaY<0?1.12:0.89,{x:e.clientX-r.left,y:e.clientY-r.top});
     },{passive:false});
+    // The scene is refitted only when the stage it was last fitted for has really changed size.
+    function refit(){
+      if(!S.model||!S.shown)return;
+      measureView();
+      if(!S.sizedOnce){S.sizedOnce=true;S.paintedView={width:S.view.width,height:S.view.height};fitAtlas(false);applyPending();return;}
+      var before=S.paintedView;
+      if(before&&before.width===S.view.width&&before.height===S.view.height)return;
+      S.paintedView={width:S.view.width,height:S.view.height};
+      if(!S.focus){if(!S.userCam)fitAtlas(false);paint();settle();return;}
+      // A focus is recomposed for the new stage at once, without travel.
+      var keep=S.reduced;S.reduced=true;unfold({fresh:false,camera:S.mode==='constellation'?undefined:null});S.reduced=keep;
+    }
     var resizeTimer=null;
     if(global.ResizeObserver)new ResizeObserver(function(){
       if(!S.model||!S.shown)return;global.clearTimeout(resizeTimer);
-      resizeTimer=global.setTimeout(function(){
-        var before=S.view&&S.view.width;measureView();
-        if(!S.sizedOnce){S.sizedOnce=true;fitAtlas(false);applyPending();return;}
-        if(before===S.view.width&&S.view.height===stage.clientHeight&&S.metrics)return;
-        if(!S.focus&&!S.userCam)fitAtlas(false);
-        else if(S.focus&&S.mode==='constellation'){S.cam=constellationCamera(S.hood.order);paint();}
-        paint();settle();
-      },80);
+      resizeTimer=global.setTimeout(refit,80);
     }).observe(stage);
 
     /* ---------- Source binding ---------- */
+    function clearExploration(){
+      if(S.raf){global.cancelAnimationFrame(S.raf);S.raf=null;}
+      S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.atlasCam=null;S.tw=null;
+      S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;
+      root.classList.remove('atl-focused','atl-examining','atl-deep','atl-travelling');
+      lensbar.hidden=true;fitHood.hidden=true;compass.replaceChildren();
+    }
     function update(){
       var candidate=binding.getCandidate(),sha=binding.getRequestSha();
       if(S.model&&sha===S.sha&&candidate===S.candidateRef)return;
       var hadFocus=!!S.focus;
-      S.candidateRef=candidate;
+      S.candidateRef=candidate;clearExploration();
       if(!candidate||!(candidate.nodes||[]).length){S.model=null;S.atlas=null;S.sha=sha;
-        buildEmpty();renderFolio();renderTrail();return;}
+        buildEmpty();syncChrome();renderFolio();renderTrail();return;}
       var v=measureView();
       try{S.model=M.buildModel(candidate,sha);S.atlas=M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
-      catch(error){S.model=null;buildEmpty('The atlas could not be drawn: '+error.message);renderFolio();return;}
+      catch(error){S.model=null;S.atlas=null;buildEmpty('The atlas could not be drawn: '+error.message);syncChrome();renderFolio();renderTrail();return;}
       S.sha=sha;S.pos={};Object.keys(S.atlas.positions).forEach(function(id){S.pos[id]={x:S.atlas.positions[id].x,y:S.atlas.positions[id].y};});
-      S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.tw=null;S.mode='atlas';S.mix=0;S.lastFocus=null;
       empty.hidden=true;buildScene();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
-      if(S.shown&&stage.clientWidth){fitAtlas(false);applyPending();}
+      if(S.shown&&stage.clientWidth){S.sizedOnce=true;S.paintedView={width:v.width,height:v.height};fitAtlas(false);applyPending();}
       renderFolio();
       if(hadFocus)announce('The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.');
     }
@@ -1150,10 +1162,10 @@
         el('p','',message||'Develop a working Architecture proposal, then come back to explore it here.'));
     }
     function show(){
-      var first=!S.shown;S.shown=true;root.hidden=false;measureView();update();
+      var first=!S.shown,built=!!S.model;S.shown=true;root.hidden=false;measureView();update();
       var inspector=!!(binding.inspectorOpen&&binding.inspectorOpen());
       if(inspector!==S.inspectorOpen){S.inspectorOpen=inspector;if(!first)renderFolio();}
-      if(first&&S.model&&stage.clientWidth){S.sizedOnce=true;fitAtlas(false);applyPending();}
+      if(built&&stage.clientWidth)refit();
     }
     function hide(){S.shown=false;root.hidden=true;}
     syncChrome();
