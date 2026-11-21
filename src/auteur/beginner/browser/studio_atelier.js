@@ -123,8 +123,10 @@
       m.append(sv('path',{d:'M1 1.5 L9 5 L1 8.5',fill:'none','class':'atl-arrow atl-arrow-'+f}));defs.append(m);
     });
     var gGrid=sv('g',{'class':'atl-g-grid'}),gBands=sv('g',{'class':'atl-g-bands'}),gSpine=sv('g',{'class':'atl-g-spine'});
-    var gTethers=sv('g',{'class':'atl-g-tethers'}),gEdges=sv('g',{'class':'atl-g-edges'}),gVerbs=sv('g',{'class':'atl-g-verbs'});
-    svg.append(defs,gBands,gGrid,gSpine,gTethers,gEdges,gVerbs);
+    // Threads outside the current neighbourhood live in their own group: it dims as one, and it rests
+    // while the camera travels, so a transition never redraws the whole relationship network per frame.
+    var gTethers=sv('g',{'class':'atl-g-tethers'}),gBack=sv('g',{'class':'atl-g-back'}),gEdges=sv('g',{'class':'atl-g-edges'}),gVerbs=sv('g',{'class':'atl-g-verbs'});
+    svg.append(defs,gBands,gGrid,gSpine,gTethers,gBack,gEdges,gVerbs);
     var bandLabels=el('div','atl-band-labels');bandLabels.setAttribute('aria-hidden','true');
     var starLayer=el('div','atl-stars');starLayer.setAttribute('role','group');
     var trail=el('nav','atl-trail');trail.setAttribute('aria-label','Exploration path');
@@ -225,9 +227,9 @@
       return (GLYPH_R[cn.facet]||5)*(cn.tier===2?(st==='near'||st==='far'?0.8:0.55):1)*gs(cn)*(st==='focus'?1.75:1)+1;
     }
     function buildScene(){
-      starLayer.replaceChildren();gEdges.replaceChildren();gVerbs.replaceChildren();gTethers.replaceChildren();
+      starLayer.replaceChildren();gEdges.replaceChildren();gBack.replaceChildren();gVerbs.replaceChildren();gTethers.replaceChildren();
       gBands.replaceChildren();gSpine.replaceChildren();gGrid.replaceChildren();bandLabels.replaceChildren();
-      starEls={};edgeEls={};verbEls={};tetherEls={};bandEls=[];bandLabelEls=[];bandOf={};S.edgeGrow={};S.verbAt={};
+      starEls={};edgeEls={};verbEls={};tetherEls={};bandEls=[];bandLabelEls=[];bandOf={};S.edgeGrow={};S.verbAt={};S.back={};
       var model=S.model,atlas=S.atlas;
       starLayer.setAttribute('aria-label','Narrative atlas: '+model.concepts.length+' concepts and '+
         model.relations.length+' documented relationships. Arrow keys move between concepts.');
@@ -249,7 +251,7 @@
       gridEls={shades:shades,meridians:meridians,heads:heads,spine:spinePath,rail:railPath};
       model.relations.forEach(function(r){
         var p=sv('path',{'class':'atl-edge','data-facet':model.byId[r.to].facet});
-        gEdges.append(p);edgeEls[r.id]=p;S.edgeGrow[r.id]=1;
+        gBack.append(p);edgeEls[r.id]=p;S.edgeGrow[r.id]=1;S.back[r.id]=true;
       });
       model.concepts.forEach(function(cn){
         var b=el('button','atl-star');b.type='button';b.tabIndex=-1;
@@ -320,8 +322,8 @@
       svg.setAttribute('width',v.width);svg.setAttribute('height',v.height);
       var screen={};
       model.concepts.forEach(function(cn){
-        var p=toScreen(S.pos[cn.id]);screen[cn.id]=p;
-        starEls[cn.id].style.transform='translate('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px)';
+        var p=toScreen(S.pos[cn.id]),b=starEls[cn.id],tf='translate('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px)';screen[cn.id]=p;
+        if(b.__tf!==tf){b.__tf=tf;b.style.transform=tf;}
       });
       bandEls.forEach(function(x){
         var a=toScreen({x:0,y:x.band.y0}),b=toScreen({x:0,y:x.band.y1});
@@ -363,12 +365,14 @@
       else gridEls.rail.setAttribute('d','M0 0');
       var radii={};function rad(id){return radii[id]||(radii[id]=glyphRadius(id));}
       model.relations.forEach(function(r){
+        if(S.travelling&&S.back[r.id])return;
         var path=edgeEls[r.id],g=edgeGeom(r,screen[r.from],screen[r.to],S.mix,rad(r.from),rad(r.to));
         var grow=S.edgeGrow[r.id],reverse=false;
         if(S.hood){var lf=S.hood.levels[r.from],lt=S.hood.levels[r.to];reverse=lf!==undefined&&lt!==undefined&&lt<lf;}
-        path.setAttribute('d',grow<=0.001?'M0 0':cubicPath(g,grow,reverse));
+        var d=grow<=0.001?'M0 0':cubicPath(g,grow,reverse);if(path.__d!==d){path.__d=d;path.setAttribute('d',d);}
         var verb=verbEls[r.id];
-        if(verb){var p=pointAt(g,S.verbAt[r.id]||0.5);verb.setAttribute('x',p.x.toFixed(1));verb.setAttribute('y',p.y.toFixed(1));}
+        if(verb){var p=pointAt(g,S.verbAt[r.id]||0.5),vx=p.x.toFixed(1),vy=p.y.toFixed(1);
+          if(verb.__x!==vx){verb.__x=vx;verb.setAttribute('x',vx);}if(verb.__y!==vy){verb.__y=vy;verb.setAttribute('y',vy);}}
       });
       Object.keys(tetherEls).forEach(function(id){
         var t=tetherEls[id],h=toScreen(atlas.positions[id]),p=screen[id];
@@ -377,7 +381,7 @@
         t.dot.setAttribute('cx',h.x);t.dot.setAttribute('cy',h.y);
         t.g.style.opacity=d<6?'0':'';
       });
-      if(S.focus){var f=screen[S.focus];lensGlow.style.setProperty('--lx',f.x.toFixed(0)+'px');lensGlow.style.setProperty('--ly',f.y.toFixed(0)+'px');}
+      if(S.focus){var f=screen[S.focus],lt='translate('+f.x.toFixed(0)+'px,'+f.y.toFixed(0)+'px)';if(lensGlow.__tf!==lt){lensGlow.__tf=lt;lensGlow.style.transform=lt;}}
     }
 
     /* ---------- Motion engine ---------- */
@@ -410,6 +414,8 @@
         });
       }
       S.tw=tw;S.frames=[];S.motionStart=now;
+      // Only a change of composition rests the background threads; a plain zoom or pan keeps them drawn.
+      if(spec.travel&&(tw.cam||tw.mix||Object.keys(tw.nodes).length)&&!S.travelling){S.travelling=true;root.classList.add('atl-travelling');}
       if(!S.raf)S.raf=global.requestAnimationFrame(tick);
     }
     function tick(now){
@@ -467,7 +473,9 @@
       });
       var edgeLevel={};if(S.hood)S.hood.edges.forEach(function(e){edgeLevel[e.relation.id]=e.level;});
       S.model.relations.forEach(function(r){
-        var p=edgeEls[r.id],lv=edgeLevel[r.id];
+        var p=edgeEls[r.id],lv=edgeLevel[r.id],back=lv===undefined,home=back?gBack:gEdges;
+        if(p.parentNode!==home)home.append(p);
+        if(S.back[r.id]&&!back)p.__d=null;S.back[r.id]=back;
         p.setAttribute('class','atl-edge'+(S.hood?(lv===1?' lv-1':lv===1.5?' lv-15':lv===2?' lv-2':' is-mute'):''));
         var other=S.hood&&S.hood.levels[r.from]===0?r.to:S.hood&&S.hood.levels[r.to]===0?r.from:r.to;
         p.setAttribute('data-facet',S.model.byId[other].facet);
@@ -692,7 +700,7 @@
       lensbar.hidden=S.mode!=='constellation';fitHood.hidden=S.mode!=='atlas';
       labelPass({pos:S.comp.targets,cam:cam||S.cam,mix:mixTo});
       var moveDur=mode.moveDuration||T.move||TIMING.back.move,moveDelay=fresh?T.moveDelay:0,ids=S.hood.order;
-      animate({targets:S.comp.targets,duration:reduced?0:moveDur,
+      animate({travel:true,targets:S.comp.targets,duration:reduced?0:moveDur,
         delay:function(id){var k=ids.indexOf(id);return moveDelay+(k<0?0:Math.min(k*T.moveStagger,260));},
         camera:cam,cameraDuration:camDur,cameraDelay:tr==='C'&&fresh?Math.max(0,T.moveDelay-80):0,
         mix:{to:mixTo,dur:reduced?0:T.camera},edges:edges});
@@ -759,7 +767,7 @@
       var targets={};S.model.concepts.forEach(function(cn){targets[cn.id]=S.atlas.positions[cn.id];});
       var edges={};S.model.relations.forEach(function(r){edges[r.id]={to:1};});
       labelPass({pos:targets,cam:cam||S.cam,mix:0});
-      animate({targets:targets,duration:reduced?0:TIMING.back.move,camera:cam,
+      animate({travel:true,targets:targets,duration:reduced?0:TIMING.back.move,camera:cam,
         cameraDuration:reduced||!cam?0:TIMING.back.camera,edges:edges,mix:{to:0,dur:reduced?0:TIMING.back.move}});
       if(reduced)flushInstant();
       renderFolio();setRoving(last);
@@ -849,6 +857,8 @@
     /* ---------- Settling and study measures ---------- */
     function settle(){
       if(!S.model){return;}
+      // The resting threads are redrawn once for the view that has settled, then fade back in.
+      if(S.travelling){S.travelling=false;root.classList.remove('atl-travelling');paint();}
       labelPass();
       Array.prototype.forEach.call(gVerbs.children,function(t){t.classList.remove('is-pending');});
       syncCompass();
@@ -1227,7 +1237,7 @@
     function clearExploration(){
       if(S.raf){global.cancelAnimationFrame(S.raf);S.raf=null;}
       S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.atlasCam=null;S.tw=null;
-      S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;
+      S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;S.travelling=false;
       root.classList.remove('atl-focused','atl-examining','atl-deep','atl-travelling');
       lensbar.hidden=true;fitHood.hidden=true;compass.replaceChildren();
     }
