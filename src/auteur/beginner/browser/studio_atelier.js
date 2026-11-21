@@ -672,11 +672,12 @@
         ['s',0,46],['n',0,-46],['e',56,0],['w',-56,0],['se',24,24],['sw',-24,24],['ne',24,-24],['nw',-24,-24],
         ['n',28,0],['n',-28,0],['s',28,0],['s',-28,0],['n',56,0],['n',-56,0],['s',56,0],['s',-56,0]];
       function hit(r,b){return r.x0<b.x1&&b.x0<r.x1&&r.y0<b.y1&&b.y0<r.y1;}
-      // Covering a control (trail, zoom, way back) is worst, then a direct relative's mark; a faint second-order mark less so.
+      // A card cut off by the stage edge is worst, then one covering a control (trail, zoom, way back), then a
+      // direct relative's mark; a faint second-order mark matters least.
       function cost(b){if(b.soft==='hood')return 2;if(b.owner==='ui')return 600;var st=starState(b.owner);return st==='far'?40:300;}
       function score(o,i,vr){
         var r=M.placeRect(o[0],a.x+o[1],a.y+o[2],item.gap,vr.w,vr.h);
-        var sc=i*0.01+(r.x0<bounds.x0||r.y0<bounds.y0||r.x1>bounds.x1||r.y1>bounds.y1?500:0)+(hit(r,own)?1000:0);
+        var sc=i*0.01+(r.x0<bounds.x0||r.y0<bounds.y0||r.x1>bounds.x1||r.y1>bounds.y1?2000:0)+(hit(r,own)?1000:0);
         hard.forEach(function(b){if(hit(r,b.rect))sc+=cost(b);});
         var room={x0:r.x0-70,y0:r.y0-16,x1:r.x1+70,y1:r.y1+16};
         hood.forEach(function(p){if(p.x>room.x0&&p.x<room.x1&&p.y>room.y0&&p.y<room.y1)sc+=6;});
