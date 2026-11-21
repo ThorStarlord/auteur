@@ -604,7 +604,8 @@
         // Far away, local phrases stay points: named on hover, focus or when the author comes closer.
         if(!sp.length||(!inHood&&cn.tier===2&&cam.z<0.9))return;
         var item={id:cn.id,x:a.x,y:a.y,gap:r+3,variants:sp.map(function(s,i){return {key:i,w:s.w,h:s.h};})};
-        var sd=S.sides[cn.id],side=sd==='left'?['w','nw','sw']:sd==='rail-s'?['s','se','sw','n']:sd==='rail-n'?['n','ne','nw','s']:
+        // A rail name sits directly above or below its own phase, never diagonally, so order stays unambiguous.
+        var sd=S.sides[cn.id],side=sd==='left'?['w','nw','sw']:sd==='rail-s'?['s','n']:sd==='rail-n'?['n','s']:
           examining&&narrow()?['e']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;

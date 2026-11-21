@@ -521,7 +521,8 @@
     }
     // The story-time rail: recorded phases in recorded order, left to right, beneath the focus.
     function rail(ids){
-      var n=ids.length,avail=Math.max(260,(view0.width-150)),step=n>1?clamp(avail/(n-1),96,190):0;
+      // The rail leaves half a name's width at each end, so every phase can wear its name centred on it.
+      var n=ids.length,avail=Math.max(260,(view0.width-340)),step=n>1?clamp(avail/(n-1),100,190):0;
       ids.forEach(function(id,i){targets[id]={x:f.x+(i-(n-1)/2)*step*s,y:f.y+176*s};sides[id]=i%2?'rail-n':'rail-s';});
     }
     var stemY=PHONE_LIST.start,railIds=[];
