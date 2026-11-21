@@ -113,7 +113,7 @@ This refinement adds three rules:
 ## Evidence
 
 All measurements come from `atelier_study_capture.py`, run in headless Chromium
-against the served Studio at source head `750d84a7` with a clean tree, on the
+against the served Studio at source head `789f5772` with a clean tree, on the
 same two recorded specimens:
 
 - small: 68 concepts, 82 relationships;
@@ -130,7 +130,7 @@ Manifest: `docs/qualification-evidence/atelier-refinement-20261121/metrics.json`
 | Camera on select | re-framed (zoom 0.35) | unchanged | composed at reading scale |
 | Concepts moved | 0 | 0 | 24 |
 | Rendered label overlaps | 0 | 0 | 0 |
-| Settle after select | 1230 ms | 1432 ms | 1087 ms |
+| Settle after select | 1230 ms | 1426 ms | 1081 ms |
 
 On the small specimen, the refined A names 30 of 31 resting landmarks and all
 15 neighbours of *Literary mystery*, with nothing moved. On a 390×844 phone, A
@@ -180,7 +180,7 @@ Keyboard-only run: Tab into the atlas, then arrows, `Enter`, `]`, `E`, `Esc`,
   third of verbs fit in A; the folio lists every relationship with its reason.
 - **Performance.** Frame times are from headless Chromium with software
   rendering. Most steps average 17–24 ms. The first frame of a dense reveal takes
-  up to 83 ms. Leaving a dense constellation is the costliest step, averaging
+  up to 67 ms. Leaving a dense constellation is the costliest step, averaging
   about 40 ms with a worst frame of about 117 ms, because the camera zooms out
   over the whole score. Two cheap fixes were tried and measured; neither helped,
   and both were reverted. Nothing was measured on real hardware.
