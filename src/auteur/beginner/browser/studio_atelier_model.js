@@ -31,19 +31,25 @@
      available to the folio, call-outs and assistive names. */
   var KIND_WORDS={genres:['genre'],emotions:['reader experience','reader emotion','emotion'],timeline:['phase'],
     tropes:['trope'],structure:['structure'],other:[]};
-  function presentedName(title,facet,category){
-    var m=/^([^:]{2,40}):\s+(\S.*)$/.exec(String(title||''));if(!m)return String(title||'');
+  // Kinds that are always the record's own label, never part of an idea's name.
+  var RECORD_KINDS=/^(trope|genre|reader experience|phase|structure|character|scene|place|complex emotion)\s*:\s*/i;
+  function displayTitle(title,facet,category){
+    var text=String(title||''),plain=text.replace(RECORD_KINDS,'');
+    if(plain!==text)return plain;
+    var m=/^([^:]{2,40}):\s+(\S.*)$/.exec(text);if(!m||!facet)return text;
     var kind=m[1].trim().toLowerCase();
-    return kind===human(category).toLowerCase()||(KIND_WORDS[facet]||[]).indexOf(kind)>=0?m[2]:String(title);
+    return kind===human(category).toLowerCase()||(KIND_WORDS[facet]||[]).indexOf(kind)>=0?m[2]:text;
   }
   /* A recorded Book scope as a heading: "opening_books_duration_unknown" reads "Opening Books"
      (its unknown duration stays in the folio), "book_12" reads "Book 12", "books_13_14" "Books 13–14". */
-  function bookLabel(scope){
+  function bookScope(scope){
     var raw=String(scope||'whole_story'),unknown=/_duration_unknown$/.test(raw),s=raw.replace(/_duration_unknown$/,'');
     var m=/^books?_(\d+)(?:_(\d+))?$/.exec(s);
     var text=m?(m[2]?'Books '+m[1]+'–'+m[2]:'Book '+m[1]):capital(human(s)).replace(/\bbooks\b/g,'Books').replace(/\bbook\b/g,'Book');
     return {text:text,durationUnknown:unknown};
   }
+  // The running head itself, as set in small capitals above the score.
+  function bookLabel(scope){return bookScope(scope).text.toUpperCase();}
 
   /* ---------- Model: concepts and recorded relationships ---------- */
   function buildModel(candidate,requestSha){
@@ -65,13 +71,15 @@
     }
     function add(facet,entry,extra){
       var id=facet+'|'+entry.key;if(byId[id])return byId[id];
-      var tier=tierOf(facet,entry),title=String(entry.title||entry.key);
-      var concept={id:id,facet:facet,key:entry.key,title:title,label:shorten(title,tier===1?40:46),
+      var tier=tierOf(facet,entry),recordTitle=String(entry.title||entry.key),title=recordTitle;
+      var concept={id:id,facet:facet,key:entry.key,title:title,recordTitle:recordTitle,label:shorten(title,tier===1?40:46),
         detail:entry.detail||'',role:entry.role||'',sourceRef:entry.sourceRef||null,
         nodeId:entry.nodeId||null,phaseId:entry.phaseId||null,ownerGenreId:entry.ownerGenreId||null,
         tier:tier,scope:scopeOf(entry),entry:entry,coverage:entry.coverageMessage||null};
       if(extra)Object.keys(extra).forEach(function(k){concept[k]=extra[k];});
-      if(!concept.name)concept.name=presentedName(concept.title,facet,concept.category||(nmap[concept.nodeId]||{}).category);
+      // Presentation title: without a kind the interface already shows; the recorded title is kept as recordTitle.
+      concept.title=displayTitle(concept.title,facet,concept.category||(nmap[concept.nodeId]||{}).category);
+      if(!concept.name)concept.name=concept.title;
       if(!(extra&&extra.label))concept.label=shorten(concept.name,tier===1?40:46);
       concepts.push(concept);byId[id]=concept;return concept;
     }
@@ -322,7 +330,7 @@
       bands.forEach(function(b){b.y0*=stretch;b.y1*=stretch;if(b.spineY)b.spineY*=stretch;});
       height*=stretch;
     }
-    var books=groups.map(function(g){var bl=bookLabel(g.scope);return {scope:g.scope,label:bl.text,durationUnknown:bl.durationUnknown,x0:g.x0,x1:g.x1};});
+    var books=groups.map(function(g){var bl=bookScope(g.scope);return {scope:g.scope,label:bl.text,durationUnknown:bl.durationUnknown,x0:g.x0,x1:g.x1};});
     return {positions:positions,rooms:rooms,width:width,height:height,bands:bands,books:books,phaseGap:phaseGap,basePhaseGap:basePhaseGap,
       spine:phases.map(function(p){return positions[p.id];})};
   }
@@ -597,6 +605,6 @@
   global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
-    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,presentedName:presentedName,bookLabel:bookLabel,
+    placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel,bookScope:bookScope,
     PHONE_LIST:PHONE_LIST};
 })(window);

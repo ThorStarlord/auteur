@@ -123,3 +123,130 @@ def test_living_atlas_reveals_in_place_and_constellation_returns_without_writing
     finally:
         page.close()
     assert revision(served) == before
+
+
+def test_atelier_frontispiece_stable_ribbon_and_clear_preview(served, browser):
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    try:
+        page.goto(f"{served}/studio.html?canvas=atelier&atelier", wait_until="networkidle")
+        page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
+        page.evaluate("window.scrollTo(0, 0)")
+        # The atlas is the frontispiece in reading order too: it precedes the Story Vision and agent tools.
+        assert page.evaluate("""() => !!(document.querySelector('#studio-atelier').compareDocumentPosition(
+          document.querySelector('.vision-panel')) & Node.DOCUMENT_POSITION_FOLLOWING)""")
+        assert page.evaluate(
+            "document.querySelector('#studio-atelier').getBoundingClientRect().top + window.scrollY"
+        ) < 500
+        assert all("DURATION UNKNOWN" not in text.upper() for text in page.evaluate(
+            "[...document.querySelectorAll('#studio-atelier .atl-book-label')].map(t => t.textContent)"))
+
+        longest = page.evaluate("""() => {
+          const root = document.getElementById('studio-atelier');
+          let best = null, length = -1;
+          for (const star of root.querySelectorAll('.atl-star')) {
+            const title = star.title || '';
+            if (title.length > length) { length = title.length; best = star.dataset.id; }
+          }
+          return best;
+        }""")
+        rest_ribbon = page.evaluate(
+            "document.querySelector('#studio-atelier .atl-ribbon').getBoundingClientRect().height")
+        rest_stage = page.evaluate(
+            "document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect().top")
+        page.evaluate(SETTLE, ['.atl-star[data-id="' + longest.replace('"', '\\"') + '"]'])
+        assert page.evaluate(
+            "document.querySelector('#studio-atelier .atl-ribbon').getBoundingClientRect().height"
+        ) == rest_ribbon
+        assert page.evaluate(
+            "document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect().top"
+        ) == rest_stage
+
+        # A real pointer click commits attention; the hover preview must not linger.
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(800)
+        glyph = page.evaluate("""() => {
+          const star = document.querySelector('#studio-atelier .atl-star[data-facet="genres"]');
+          const box = star.querySelector('.atl-glyph').getBoundingClientRect();
+          return {x: box.x + box.width / 2, y: box.y + box.height / 2};
+        }""")
+        page.mouse.move(glyph["x"], glyph["y"])
+        page.wait_for_timeout(200)
+        assert page.locator("#studio-atelier .atl-edge.is-preview").count() > 0
+        page.mouse.click(glyph["x"], glyph["y"])
+        page.wait_for_timeout(1500)
+        assert page.locator("#studio-atelier .atl-edge.is-preview").count() == 0
+        assert page.locator("#studio-atelier .atl-star.is-linked").count() == 0
+
+        # Escape at rest also releases a hover preview.
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(800)
+        alternate = page.evaluate("""() => {
+          const stars = document.querySelectorAll('#studio-atelier .atl-star[data-facet="genres"]');
+          const star = stars[1] || stars[0];
+          const box = star.querySelector('.atl-glyph').getBoundingClientRect();
+          return {x: box.x + box.width / 2, y: box.y + box.height / 2};
+        }""")
+        page.mouse.move(alternate["x"], alternate["y"])
+        page.wait_for_timeout(200)
+        assert page.locator("#studio-atelier .atl-edge.is-preview").count() > 0
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(200)
+        assert page.locator("#studio-atelier .atl-edge.is-preview").count() == 0
+        assert errors == []
+    finally:
+        page.close()
+
+
+def test_atelier_phone_scrolls_and_keeps_focus_clear(served, browser):
+    context = browser.new_context(
+        viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+    page = context.new_page()
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    try:
+        page.goto(f"{served}/studio.html?canvas=atelier&atelier", wait_until="networkidle")
+        page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
+        page.evaluate("document.querySelector('#studio-atelier').scrollIntoView({block:'start'})")
+        page.wait_for_timeout(300)
+        assert "pan-y" in page.evaluate(
+            "getComputedStyle(document.querySelector('#studio-atelier .atl-stage')).touchAction")
+        before = page.evaluate("window.scrollY")
+        point = page.evaluate("""() => {
+          const box = document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect();
+          return {x: box.x + box.width / 2, y: box.y + 250};
+        }""")
+        cdp = context.new_cdp_session(page)
+        cdp.send("Input.dispatchTouchEvent", {
+            "type": "touchStart", "touchPoints": [{"x": point["x"], "y": point["y"]}]})
+        for step in range(1, 6):
+            cdp.send("Input.dispatchTouchEvent", {
+                "type": "touchMove", "touchPoints": [{"x": point["x"], "y": point["y"] - step * 40}]})
+            page.wait_for_timeout(30)
+        cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+        page.wait_for_timeout(600)
+        assert page.evaluate("window.scrollY") > before + 20
+
+        page.evaluate(SETTLE, ['.atl-star[data-id="genres|genre:literary_mystery"]'])
+        layout = page.evaluate("""() => {
+          const root = document.getElementById('studio-atelier');
+          const focus = root.querySelector('.atl-star.is-focus .atl-text').getBoundingClientRect();
+          const trail = root.querySelector('.atl-trail').getBoundingClientRect();
+          const stage = root.querySelector('.atl-stage').getBoundingClientRect();
+          return {
+            focus: {top: focus.top, bottom: focus.bottom, left: focus.left, right: focus.right},
+            trail: {top: trail.top, bottom: trail.bottom, left: trail.left, right: trail.right},
+            stage: {top: stage.top, bottom: stage.bottom},
+          };
+        }""")
+        assert layout["focus"]["top"] >= layout["stage"]["top"]
+        assert layout["focus"]["bottom"] <= layout["stage"]["bottom"]
+        assert not (layout["focus"]["top"] < layout["trail"]["bottom"]
+                    and layout["focus"]["bottom"] > layout["trail"]["top"]
+                    and layout["focus"]["left"] < layout["trail"]["right"]
+                    and layout["focus"]["right"] > layout["trail"]["left"])
+        assert errors == []
+    finally:
+        page.close()
+        context.close()

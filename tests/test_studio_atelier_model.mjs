@@ -101,6 +101,34 @@ for (const [name, c] of [['small', SMALL], ['dense', DENSE]]) {
   });
 }
 
+test('Book running heads and display titles are editorial, not raw records', () => {
+  const M = load();
+  assert.equal(M.bookLabel('opening_books_duration_unknown'), 'OPENING BOOKS');
+  assert.equal(M.bookLabel('early_middle_duration_unknown'), 'EARLY MIDDLE');
+  assert.equal(M.bookLabel('book_12'), 'BOOK 12');
+  assert.equal(M.bookLabel('books_13_14'), 'BOOKS 13–14');
+  assert.equal(M.displayTitle('Trope: Signing as Public Exposure'), 'Signing as Public Exposure');
+  assert.equal(M.displayTitle('Reader Experience: Earned Trust'), 'Earned Trust');
+  assert.equal(M.displayTitle('Literary mystery'), 'Literary mystery');
+  const dense = M.buildModel(DENSE, 'sha-test');
+  assert.ok(dense.concepts.every((cn) => !/^(Trope|Reader Experience):\s/i.test(cn.title)));
+});
+
+test('dense: constellation phases keep story order within each arc', () => {
+  const M = load();
+  const model = M.buildModel(DENSE, 'sha-test');
+  const atlas = M.layoutAtlas(model, {aspect: 1.4});
+  const focus = 'genres|genre:genre-procedural';
+  const hood = M.neighbourhood(model, focus, 1);
+  const comp = M.compose(model, atlas, hood, 'B', {width: 846, height: 630, z: 1});
+  const phases = model.timeline.map((p) => p.id).filter((id) => hood.levels[id] === 1);
+  for (const side of ['left', 'right']) {
+    const inColumn = phases.filter((id) => comp.sides[id] === side);
+    const byY = inColumn.slice().sort((a, b) => comp.targets[a].y - comp.targets[b].y);
+    assert.deepEqual(plain(byY), plain(inColumn), `${side} arc keeps story order`);
+  }
+});
+
 test('second-order exploration is bounded and reports what it leaves out', () => {
   const M = load();
   const model = M.buildModel(DENSE, 'sha-test');
@@ -184,17 +212,20 @@ test('presented names drop only redundant kind prefixes, and Book headings read 
   const M = load();
   const model = M.buildModel(DENSE, 'sha-test');
   const relations = JSON.stringify(model.relations);
-  const byTitle = (t) => model.concepts.find((x) => x.title === t);
+  const byTitle = (t) => model.concepts.find((x) => x.recordTitle === t);
   assert.equal(byTitle('Trope: The Bought Seal').name, 'The Bought Seal');
   assert.equal(byTitle('Theme: A Signature Is Not a Proof').name, 'A Signature Is Not a Proof');
   assert.equal(byTitle('Crossing Public Engine: Use as the Real Test').name, 'Crossing Public Engine: Use as the Real Test');
   // A name is the recorded title, its words after a redundant kind, or (reader emotions) the title with its recorded role.
-  for (const cn of model.concepts) assert.ok(cn.title.endsWith(cn.name) || cn.name.startsWith(cn.title + ' · '), `${cn.id} keeps its recorded words`);
+  for (const cn of model.concepts) {
+    const rec = cn.recordTitle.toLowerCase(), name = cn.name.toLowerCase();
+    assert.ok(rec.endsWith(name) || name.startsWith(rec + ' · '), `${cn.id} keeps its recorded words`);
+  }
   assert.equal(JSON.stringify(model.relations), relations);
-  assert.deepEqual(plain(M.bookLabel('opening_books_duration_unknown')), {text: 'Opening Books', durationUnknown: true});
-  assert.deepEqual(plain(M.bookLabel('book_12')), {text: 'Book 12', durationUnknown: false});
-  assert.deepEqual(plain(M.bookLabel('books_13_14')), {text: 'Books 13–14', durationUnknown: false});
-  assert.equal(M.bookLabel(undefined).text, 'Whole story');
+  assert.deepEqual(plain(M.bookScope('opening_books_duration_unknown')), {text: 'Opening Books', durationUnknown: true});
+  assert.deepEqual(plain(M.bookScope('book_12')), {text: 'Book 12', durationUnknown: false});
+  assert.deepEqual(plain(M.bookScope('books_13_14')), {text: 'Books 13–14', durationUnknown: false});
+  assert.equal(M.bookScope(undefined).text, 'Whole story');
   const atlas = M.layoutAtlas(model, {aspect: 1.4});
   assert.ok(atlas.books.every((b) => !/duration|_/i.test(b.label)), 'no raw scope tokens in Book headings');
 });

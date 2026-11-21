@@ -25,7 +25,6 @@
   var STYLE={
     genre:{font:'600 12.5px '+SERIF,lh:15,px:2,py:1,maxW:152,lines:2},
     phase:{font:'500 11.5px '+SERIF,lh:13.5,px:2,py:1,maxW:118,lines:3},
-    ordinal:{font:'600 12px '+SERIF,lh:14,px:2,py:0,maxW:44,lines:1},
     rest:{font:'500 10.5px '+SANS,lh:12.5,px:2,py:1,maxW:128,lines:2},
     mote:{font:'400 10px '+SANS,lh:12,px:2,py:0,maxW:150,lines:1},
     near:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:196,lines:2},
@@ -36,7 +35,7 @@
     callout:{font:'500 12px '+SANS,lh:15.5,px:8,py:5,maxW:250,lines:8,kicker:'700 9px '+SANS,klh:13},
     nearVerb:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:260,lines:2,kicker:'italic 11px '+SERIF,klh:13}
   };
-  var FACET_BASE={genres:560,timeline:540,emotions:470,structure:452,tropes:444,other:430};
+  var FACET_BASE={genres:640,timeline:620,emotions:440,structure:452,tropes:444,other:430};
   var GLYPH_R={genres:5.6,emotions:5,timeline:6.5,tropes:6.5,structure:4.8,other:5};
   var AROUND=['e','w','se','ne','sw','nw','s','n'];
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;}
@@ -46,8 +45,6 @@
   function lerp(a,b,k){return {x:a.x+(b.x-a.x)*k,y:a.y+(b.y-a.y)*k};}
   function prefersReduced(){try{return global.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}}
   var facetOrder={genres:0,emotions:1,timeline:2,tropes:3,structure:4,other:5};
-  function roman(n){var map=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']],out='';
-    if(n>39)return String(n);map.forEach(function(p){while(n>=p[0]){out+=p[1];n-=p[0];}});return out;}
 
   /* ---------- Text measurement ---------- */
   var ctx=null,widths={};
@@ -197,7 +194,8 @@
       // The focus's title card is centred under it, so the focus keeps half a card clear of each side
       // (and of the zoom buttons on the right).
       var half=focusSpec(S.model.byId[id]).w/2+10;
-      var m={l:Math.max((narrow()?96:172)+16,half),r:Math.max(56,half+44),t:34,b:48},dx=0,dy=0;
+      // On a phone the card has room above the focus clear of the trail, or below it (from PR #629).
+      var m={l:Math.max((narrow()?96:172)+16,half),r:Math.max(56,half+44),t:narrow()?64:34,b:narrow()?130:48},dx=0,dy=0;
       if(p.x<m.l)dx=p.x-m.l;else if(p.x>v.width-m.r)dx=p.x-(v.width-m.r);
       if(p.y<m.t)dy=p.y-m.t;else if(p.y>v.height-m.b)dy=p.y-(v.height-m.b);
       if(Math.abs(dx)<1&&Math.abs(dy)<1)return null;
@@ -275,7 +273,7 @@
       var shades=atlas.books.map(function(bk,i){var r=sv('rect',{'class':'atl-book-shade'+(i%2?' is-alt':'')});gGrid.append(r);return r;});
       var meridians=model.timeline.map(function(){var l=sv('line',{'class':'atl-meridian'});gGrid.append(l);return l;});
       var heads=atlas.books.map(function(bk){var t=sv('text',{'class':'atl-book-label'});t.textContent=bk.label.toUpperCase();
-        t.__w=textWidth(t.textContent,'600 9.5px '+SANS)+t.textContent.length*1.14+10;
+        t.__w=textWidth(t.textContent,'600 8.5px '+SANS)+t.textContent.length*0.68+10;
         var title=sv('title');title.textContent=bk.label+(bk.durationUnknown?' · duration unknown':'');t.append(title);gGrid.append(t);return t;});
       var spinePath=sv('path',{'class':'atl-spine'}),railPath=sv('path',{'class':'atl-rail'});gSpine.append(spinePath);gEdges.before(railPath);
       gridEls={shades:shades,meridians:meridians,heads:heads,spine:spinePath,rail:railPath};
@@ -542,7 +540,8 @@
 
     /* ---------- Labels: measured, prioritised, placed around fixed glyphs ---------- */
     function spec(style,text,maxW,lines){var st=STYLE[style],w=wrapText(text,st,maxW,lines);return {style:style,lines:w.lines,w:w.w,h:w.h};}
-    function kindLine(cn){return (M.FACET_SINGULAR[cn.facet]+(cn.role&&cn.role!==cn.name?' · '+M.human(cn.role):'')).toUpperCase();}
+    function kindLine(cn){var kind=M.FACET_SINGULAR[cn.facet],role=cn.role?M.human(cn.role):'';
+      return (kind+(role&&role.toLowerCase()!==kind.toLowerCase()&&role!==cn.name?' · '+role:'')).toUpperCase();}
     // Kicker and wrapped name together, for the title card and the call-out.
     function cardSpec(cn,style,maxW){
       var st=STYLE[style],t=wrapText(cn.name,st,maxW);
@@ -573,8 +572,8 @@
         var room=clamp(S.atlas.phaseGap*z+4,62,STYLE.phase.maxW),wide=Math.min(STYLE.phase.maxW,room*1.3);
         var whole=function(s){return s.lines.join(' ')===cn.name;};
         var options=[spec('phase',cn.name,room),spec('phase',cn.name,wide),spec('phase',cn.name,room,4)];
-        return options.filter(whole).concat(options.filter(function(s){return !whole(s);}).slice(0,1),
-          [spec('ordinal',roman(S.model.timeline.indexOf(cn)+1))]);
+        // Never a bare numeral: a shortened name still says which phase it is.
+        return options.filter(whole).concat(options.filter(function(s){return !whole(s);}).slice(0,1));
       }
       return [spec('rest',cn.name)];
     }
@@ -605,7 +604,7 @@
       var v=view(),cam=final.cam||S.cam,pos=final.pos||S.pos,mix=final.mix!==undefined?final.mix:S.mix,model=S.model;
       var examining=S.mode==='constellation',maxDeg=model.maxDegree||1;
       var obstacles=furniture(cam),items=[],anchors={},specs={},onStage={},radii={},isItem={},focusItem=null;
-      var bounds={x0:4,y0:4,x1:v.width-4,y1:v.height-4};
+      var inset=narrow()?10:4,bounds={x0:inset,y0:inset,x1:v.width-inset,y1:v.height-inset};
       model.concepts.forEach(function(cn){
         var p=pos[cn.id],a={x:(p.x-cam.cx)*cam.z+v.width/2,y:(p.y-cam.cy)*cam.z+v.height/2},st=starState(cn.id);
         anchors[cn.id]=a;var sp=specsFor(cn,st,cam.z);specs[cn.id]=sp;
@@ -622,14 +621,14 @@
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
         if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
           item.places=examining&&narrow()?['e','n','s']:examining||narrow()?['s','n']:['s','n','e','w','se','sw','ne','nw'];
-          if(!examining&&!narrow())focusItem=item;}
+          if(!examining)focusItem=item;}
         else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;
           if(sd==='rail-s'||sd==='rail-n')item.gap=r+9;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
         else{
           item.priority=(S.focus?-200:0)+(FACET_BASE[cn.facet]||420)-(cn.tier===2?300:0)+60*weight+(/^(governing|primary)/.test(cn.role||'')?20:0);
-          item.overSoft='fallback';
-          item.places=cn.facet==='timeline'?['s','n']:cn.facet==='genres'?['n','e','w','ne','nw','s']:AROUND;
+          item.overSoft=cn.facet==='genres'||cn.facet==='timeline'?true:'fallback';
+          item.places=cn.facet==='timeline'?['s','n']:cn.facet==='genres'?['n','e','w','ne','nw','s','se','sw']:AROUND;
         }
         items.push(item);isItem[cn.id]=true;
       });
@@ -670,10 +669,11 @@
       var hood=Object.keys(anchors).filter(function(id){var st=starState(id);return st==='near'||st==='far';}).map(function(id){return anchors[id];});
       var hard=obstacles.filter(function(o){return o.owner!==item.id&&o.soft!==true;});
       var OPT=[['s',0,0],['n',0,0],['e',0,0],['w',0,0],['s',0,22],['n',0,-22],['e',26,0],['w',-26,0],['se',0,0],['sw',0,0],['ne',0,0],['nw',0,0],
-        ['s',0,46],['n',0,-46],['e',56,0],['w',-56,0],['se',24,24],['sw',-24,24],['ne',24,-24],['nw',-24,-24]];
+        ['s',0,46],['n',0,-46],['e',56,0],['w',-56,0],['se',24,24],['sw',-24,24],['ne',24,-24],['nw',-24,-24],
+        ['n',28,0],['n',-28,0],['s',28,0],['s',-28,0],['n',56,0],['n',-56,0],['s',56,0],['s',-56,0]];
       function hit(r,b){return r.x0<b.x1&&b.x0<r.x1&&r.y0<b.y1&&b.y0<r.y1;}
-      // Covering a direct relative's mark or the stage furniture is worst; a faint second-order mark less so.
-      function cost(b){if(b.soft==='hood')return 2;var st=b.owner&&b.owner!=='ui'?starState(b.owner):null;return st==='far'?40:300;}
+      // Covering a control (trail, zoom, way back) is worst, then a direct relative's mark; a faint second-order mark less so.
+      function cost(b){if(b.soft==='hood')return 2;if(b.owner==='ui')return 600;var st=starState(b.owner);return st==='far'?40:300;}
       function score(o,i,vr){
         var r=M.placeRect(o[0],a.x+o[1],a.y+o[2],item.gap,vr.w,vr.h);
         var sc=i*0.01+(r.x0<bounds.x0||r.y0<bounds.y0||r.x1>bounds.x1||r.y1>bounds.y1?500:0)+(hit(r,own)?1000:0);
@@ -885,12 +885,16 @@
     function latchPointer(){S.latched=true;S.keyNav=false;S.hover=null;S.folioHint=null;refreshEmphasis();}
     root.addEventListener('keydown',function(e){if(e.key==='Tab')S.keyNav=true;},true);
     root.addEventListener('pointerover',function(e){if(e.pointerType==='touch'||S.latched||S.dragging)return;pointerTarget(e.target);});
+    // A press also tells where the pointer is, so a click that follows no movement is still a known position.
+    root.addEventListener('pointerdown',function(e){if(e.pointerType!=='touch')S.ptr={x:e.clientX,y:e.clientY};},true);
     root.addEventListener('pointerleave',function(){S.ptr=null;if(S.hover||S.folioHint){S.hover=null;S.folioHint=null;refreshEmphasis();}});
     root.addEventListener('pointermove',function(e){
       if(e.pointerType==='touch')return;
       var p=S.ptr;S.ptr={x:e.clientX,y:e.clientY};
-      // Layout changes under a still pointer produce synthetic moves at the same place; only real travel counts.
-      if(!S.latched||S.dragging||!p||(Math.abs(p.x-e.clientX)<1&&Math.abs(p.y-e.clientY)<1))return;
+      // Layout changes under a still pointer produce synthetic moves at the same place with no movement;
+      // only real travel counts.
+      var travelled=!p||!!(e.movementX||e.movementY)||Math.abs(p.x-e.clientX)>=1||Math.abs(p.y-e.clientY)>=1;
+      if(!S.latched||S.dragging||!travelled)return;
       S.latched=false;pointerTarget(document.elementFromPoint(e.clientX,e.clientY));
     });
     /* The call-out: one concept at a time shows its complete recorded name, wrapped, above everything. */
@@ -1057,7 +1061,7 @@
       }else if(cn.facet==='timeline'){
         var index=model.timeline.indexOf(cn);
         fact(dl,'Place in story order','Phase '+(index+1)+' of '+model.timeline.length+' (order is not a chapter count)');
-        var scope=M.bookLabel(rec.scope);fact(dl,'Scope',scope.text+(scope.durationUnknown?' · duration unknown':''));
+        var scope=M.bookScope(rec.scope);fact(dl,'Scope',scope.text+(scope.durationUnknown?' · duration unknown':''));
         fact(dl,'Narrative function',rec.narrative_function);
         fact(dl,'Reader experience',rec.reader_experience);fact(dl,'Aesthetic',rec.aesthetic);fact(dl,'Transition',rec.transition);
       }else{
@@ -1142,8 +1146,9 @@
       var marks=el('section','atl-landmarks');
       marks.append(el('h4','atl-section-title','Landmarks · most documented relationships'));
       ['genres','emotions','structure','tropes','other'].forEach(function(facet){
+        // Genres are the first reading of the story; the folio names every one of them.
         var top=model.concepts.filter(function(x){return x.facet===facet&&x.tier===1&&x.degree>0;})
-          .sort(function(a,b){return b.degree-a.degree||a.title.localeCompare(b.title);}).slice(0,3);
+          .sort(function(a,b){return b.degree-a.degree||a.title.localeCompare(b.title);}).slice(0,facet==='genres'?7:3);
         if(!top.length)return;
         var row=el('div','atl-landmark-row');row.append(el('span','atl-landmark-kind atl-facet-'+facet,M.FACET_LABEL[facet]));
         top.forEach(function(cn){var b=el('button','atl-landmark atl-facet-'+facet);b.type='button';b.title=cn.title;
@@ -1244,7 +1249,9 @@
       else if(e.key==='Backspace'&&S.focus){e.preventDefault();back();}
     });
     root.addEventListener('keydown',function(e){
-      if(e.key!=='Escape'||!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
+      if(e.key!=='Escape')return;
+      latchPointer();
+      if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();
     });
     function navigable(){
