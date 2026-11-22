@@ -174,7 +174,7 @@ What the cues let an author read, and the baseline does not (judgement, from the
 
 ## Evidence
 
-Produced at `9ccc3755` (clean tree, based on `main@e48a3ecc`); see
+Produced at `2d1c4b31` (clean tree, based on `main@e48a3ecc`); see
 [the evidence folder](../qualification-evidence/atelier-narrative-structure-20261121/README.md).
 
 ```text
@@ -197,11 +197,11 @@ capture (comparison.json)                          positions, cameras, threads i
 ```text
 live, windowed Chromium, dense, 3 rounds
                          synchronous ms, baseline → candidate        worst frame ms, baseline → candidate
-  select Civic          68.6 / 26.4 / 30.0 → 67.7 / 29.4 / 25.7     83 / 33 / 17 → 83 / 17 / 17
-  select Procedural     53.3 / 31.2 / 30.3 → 50.2 / 29.3 / 30.6     50 / 33 / 17 → 50 / 17 / 17
-  return (Esc)          26–28 → 25–30                                17–33 → 17–33
-  switch at rest        candidate only: 19.2–22.6                    16.8
-  switch while selected candidate only: 19.1–24.0                    16.8
+  select Civic          73.3 / 26.7 / 29.4 → 70.5 / 30.3 / 31.9     133 / 17 / 17 → 83 / 33 / 17
+  select Procedural     51.7 / 29.2 / 30.2 → 45.7 / 30.4 / 31.2     33 / 33 / 17 → 33 / 33 / 33
+  return (Esc)          26.5–29.6 → 28.6–35.6                        17–33 → 17–33
+  switch at rest        candidate only: 18.7–22.0                    16.8
+  switch while selected candidate only: 22.0–24.8                    16.8–17.0
   (the first select of a session is slower in both arms; mean frame 16.7–20.6 ms throughout)
 ```
 

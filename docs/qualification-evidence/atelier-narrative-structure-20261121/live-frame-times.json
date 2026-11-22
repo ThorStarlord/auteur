@@ -4,60 +4,130 @@
   "baseline": {
    "select genre-civic-life": {
     "syncMs": [
-     68.6,
-     26.4,
-     30
+     73.3,
+     26.7,
+     29.4
     ],
     "meanFrameMs": [
      20.6,
-     16.9,
+     16.7,
      16.7
     ],
     "worstFrameMs": [
-     83.3,
-     33.4,
+     133.4,
+     16.8,
      16.8
     ]
    },
    "return genre-civic-life": {
     "syncMs": [
-     26.2,
-     28.4,
-     27
+     26.5,
+     29.6,
+     27.6
     ],
     "meanFrameMs": [
-     16.7,
-     16.7,
-     16.7
+     16.9,
+     16.9,
+     16.9
     ],
     "worstFrameMs": [
-     16.8,
-     16.8,
-     16.8
+     33.3,
+     33.3,
+     33.4
     ]
    },
    "select genre-procedural": {
     "syncMs": [
-     53.3,
-     31.2,
-     30.3
+     51.7,
+     29.2,
+     30.2
     ],
     "meanFrameMs": [
-     17.3,
+     16.9,
      16.9,
      16.7
     ],
     "worstFrameMs": [
-     50,
+     33.4,
      33.4,
      16.8
     ]
    },
    "return genre-procedural": {
     "syncMs": [
-     27.5,
-     28.1,
-     28.4
+     28,
+     27.9,
+     28
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.9,
+     16.9
+    ],
+    "worstFrameMs": [
+     17,
+     33.4,
+     33.3
+    ]
+   }
+  },
+  "candidate": {
+   "select genre-civic-life": {
+    "syncMs": [
+     70.5,
+     30.3,
+     31.9
+    ],
+    "meanFrameMs": [
+     18.5,
+     16.9,
+     16.7
+    ],
+    "worstFrameMs": [
+     83.4,
+     33.2,
+     16.8
+    ]
+   },
+   "return genre-civic-life": {
+    "syncMs": [
+     35.6,
+     28.7,
+     30.5
+    ],
+    "meanFrameMs": [
+     16.9,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     33.2,
+     16.8,
+     16.8
+    ]
+   },
+   "select genre-procedural": {
+    "syncMs": [
+     45.7,
+     30.4,
+     31.2
+    ],
+    "meanFrameMs": [
+     17.1,
+     16.9,
+     17.1
+    ],
+    "worstFrameMs": [
+     33.4,
+     33.3,
+     33.4
+    ]
+   },
+   "return genre-procedural": {
+    "syncMs": [
+     29.9,
+     30.8,
+     28.6
     ],
     "meanFrameMs": [
      16.7,
@@ -65,86 +135,16 @@
      16.9
     ],
     "worstFrameMs": [
-     16.9,
+     16.8,
      16.8,
      33.4
-    ]
-   }
-  },
-  "candidate": {
-   "select genre-civic-life": {
-    "syncMs": [
-     67.7,
-     29.4,
-     25.7
-    ],
-    "meanFrameMs": [
-     18.6,
-     16.7,
-     16.7
-    ],
-    "worstFrameMs": [
-     83.3,
-     16.8,
-     16.8
-    ]
-   },
-   "return genre-civic-life": {
-    "syncMs": [
-     26.7,
-     29.5,
-     26.5
-    ],
-    "meanFrameMs": [
-     16.7,
-     16.7,
-     16.7
-    ],
-    "worstFrameMs": [
-     16.9,
-     16.8,
-     16.8
-    ]
-   },
-   "select genre-procedural": {
-    "syncMs": [
-     50.2,
-     29.3,
-     30.6
-    ],
-    "meanFrameMs": [
-     17.1,
-     16.7,
-     16.7
-    ],
-    "worstFrameMs": [
-     50.1,
-     16.8,
-     16.8
-    ]
-   },
-   "return genre-procedural": {
-    "syncMs": [
-     28.7,
-     28.4,
-     24.9
-    ],
-    "meanFrameMs": [
-     16.7,
-     16.9,
-     16.7
-    ],
-    "worstFrameMs": [
-     17.2,
-     33.4,
-     16.8
     ]
    },
    "switch off": {
     "syncMs": [
-     20.5,
-     21.4,
-     19.3
+     22,
+     18.7,
+     19.7
     ],
     "meanFrameMs": [
      16.7,
@@ -159,9 +159,9 @@
    },
    "switch on": {
     "syncMs": [
-     21.4,
-     19.2,
-     22.6
+     19.4,
+     21.2,
+     21.3
     ],
     "meanFrameMs": [
      16.7,
@@ -176,9 +176,9 @@
    },
    "switch off while selected": {
     "syncMs": [
-     22.6,
-     19.1,
-     20.9
+     24.8,
+     22.9,
+     22
     ],
     "meanFrameMs": [
      16.7,
@@ -186,16 +186,16 @@
      16.7
     ],
     "worstFrameMs": [
-     16.8,
+     17,
      16.8,
      16.8
     ]
    },
    "switch on while selected": {
     "syncMs": [
-     24,
-     21.6,
-     22.3
+     22.2,
+     22,
+     24
     ],
     "meanFrameMs": [
      16.7,
