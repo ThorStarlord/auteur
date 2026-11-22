@@ -218,6 +218,8 @@ def _parse_anchor(text: str) -> dict:
                 "reference": {"field": field, "target_kind": target_kind, "target_id": target_id}}
     field, hashmark, index = spec.partition("#")
     if hashmark:  # one entry of a recorded list, numbered from 0 as in its source reference
+        if not field or not index.isdigit():
+            raise ValueError("an entry anchor is kind:id@field#index with a whole-number index")
         return {"kind": kind, "id": identifier, "field": field, "index": int(index)}
     return {"kind": kind, "id": identifier, "field": spec}
 

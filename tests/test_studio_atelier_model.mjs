@@ -348,14 +348,48 @@ test('a revision delta compares recorded identities, never titles, and reports w
   const d = plain(M.revisionDelta(before, after));
   assert.deepEqual(d.added, []);
   assert.deepEqual(d.removed, []);
-  assert.deepEqual(d.reworded.map((x) => x.id), ['tropes|trope:genre-craft-thriller:0']);
-  assert.equal(d.reworded[0].before, 'the first crosser');
+  // The contract's own record changed too (its list and its references); every recorded field counts.
+  assert.deepEqual(d.reworded.map((x) => [x.id, x.titleChanged, x.positional, x.fields]), [
+    ['genres|genre:genre-craft-thriller', false, false, ['trope_functions', 'trope_function_refs']],
+    ['tropes|trope:genre-craft-thriller:0', true, true, []]]);
+  assert.equal(d.reworded[1].before, 'the first crosser');
   assert.deepEqual(d.relationsAdded.map((r) => [r.from, r.verb, r.to, r.sourceRef]), [[
     'tropes|trope:genre-craft-thriller:0', 'realises trope', 'tropes|trope-node:trope-first-crosser',
     'genre_contracts/genre-craft-thriller/trope_function_refs/0']]);
   assert.deepEqual(d.relationsRemoved, []);
-  assert.deepEqual(Object.keys(d.touched).sort(), ['tropes|trope-node:trope-first-crosser', 'tropes|trope:genre-craft-thriller:0']);
+  assert.deepEqual(Object.keys(d.touched).sort(), ['genres|genre:genre-craft-thriller',
+    'tropes|trope-node:trope-first-crosser', 'tropes|trope:genre-craft-thriller:0']);
   // The same records under a new request SHA are no change at all.
   const same = plain(M.revisionDelta(before, M.buildModel(DENSE, 'three')));
   assert.equal(same.reworded.length + same.added.length + same.relationsAdded.length + same.relationsRemoved.length, 0);
+});
+
+test('fields the atlas does not draw still count as changes, and the layout basis follows story order', () => {
+  const M = load();
+  const before = M.buildModel(DENSE, 'one');
+  const c = JSON.parse(JSON.stringify(DENSE));
+  c.genre_contracts.find((g) => g.genre_node_id === 'genre-procedural').payoff_expectations[0] = 'a different payoff';
+  const d = plain(M.revisionDelta(before, M.buildModel(c, 'two')));
+  assert.deepEqual(d.reworded.map((x) => [x.id, x.fields]), [['genres|genre:genre-procedural', ['payoff_expectations']]]);
+  assert.equal(M.layoutBasis(before), M.layoutBasis(M.buildModel(c, 'two')));
+  // Reordering phases changes what the layout is computed from, so the atlas cannot be kept as it was.
+  const r = JSON.parse(JSON.stringify(DENSE));
+  const first = r.phases.find((p) => p.order === 1), last = r.phases.reduce((a, b) => (a.order > b.order ? a : b));
+  [first.order, last.order] = [last.order, first.order];
+  assert.notEqual(M.layoutBasis(before), M.layoutBasis(M.buildModel(r, 'three')));
+  assert.ok(plain(M.revisionDelta(before, M.buildModel(r, 'three'))).reworded.some((x) => x.fields.includes('order')));
+});
+
+test('a reordered list is reported per position, never as the same entry moving', () => {
+  const M = load();
+  const before = M.buildModel(DENSE, 'one');
+  const c = JSON.parse(JSON.stringify(DENSE));
+  const proc = c.genre_contracts.find((g) => g.genre_node_id === 'genre-procedural');
+  proc.trope_functions = [proc.trope_functions[1], proc.trope_functions[0], proc.trope_functions[2]];
+  const d = plain(M.revisionDelta(before, M.buildModel(c, 'two')));
+  const entries = d.reworded.filter((x) => x.positional).map((x) => [x.id, x.before, x.after]);
+  assert.deepEqual(entries, [
+    ['tropes|trope:genre-procedural:0', 'signing as public exposure', 'the first crosser'],
+    ['tropes|trope:genre-procedural:1', 'the first crosser', 'signing as public exposure']]);
+  assert.ok(d.reworded.every((x) => !('moved' in x)));  // no identity is inferred from equal words
 });

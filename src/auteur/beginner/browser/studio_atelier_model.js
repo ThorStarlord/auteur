@@ -709,16 +709,27 @@
   /* What an applied revision changed, by recorded identity. A concept is the same concept when its
      identity is the same (a node id, or a list position for a contract's own entries); equal titles
      never match. Relationships compare by source reference and endpoints, not by request. */
+  // A list entry (a contract's or phase's own phrase) has no identity but its position, as its source
+  // reference says; a node, contract, phase or emotion target has a recorded id.
+  function positional(cn){return !cn.nodeId&&/:\d+$/.test(String(cn.key))&&cn.tier===2;}
+  function fieldsOf(cn){
+    var r=cn.record&&typeof cn.record==='object'?cn.record:{title:cn.recordTitle,detail:(cn.entry||{}).detail||''};
+    var f={};Object.keys(r).forEach(function(k){f[k]=JSON.stringify(r[k]);});return f;
+  }
   function revisionDelta(prev,next){
-    var out={added:[],removed:[],reworded:[],relationsAdded:[],relationsRemoved:[],touched:{}};
+    var out={added:[],removed:[],reworded:[],relationsAdded:[],relationsRemoved:[],touched:{},summaryChanged:false};
     if(!prev||!next)return out;
+    out.summaryChanged=String(prev.summary||'')!==String(next.summary||'');
     var touch=function(id,why){if(!next.byId[id])return;(out.touched[id]=out.touched[id]||[]).indexOf(why)<0&&out.touched[id].push(why);};
     next.concepts.forEach(function(cn){
       var old=prev.byId[cn.id];
       if(!old){out.added.push(cn.id);touch(cn.id,'added');return;}
-      var a=String(old.recordTitle)+'\u0000'+String((old.entry||{}).detail||''),b=String(cn.recordTitle)+'\u0000'+String((cn.entry||{}).detail||'');
-      if(a!==b){out.reworded.push({id:cn.id,before:old.recordTitle,after:cn.recordTitle,
-        detailChanged:String((old.entry||{}).detail||'')!==String((cn.entry||{}).detail||'')});touch(cn.id,'reworded');}
+      // Every recorded field counts, not only the words drawn on the atlas (scope, order, payoffs...).
+      var a=fieldsOf(old),b=fieldsOf(cn),fields=[];
+      Object.keys(a).concat(Object.keys(b)).forEach(function(k){if(fields.indexOf(k)<0&&a[k]!==b[k])fields.push(k);});
+      var titleChanged=String(old.recordTitle)!==String(cn.recordTitle);
+      if(fields.length||titleChanged){out.reworded.push({id:cn.id,before:old.recordTitle,after:cn.recordTitle,titleChanged:titleChanged,
+        fields:fields.filter(function(k){return k!=='title'&&k!=='detail';}),positional:positional(cn)});touch(cn.id,'reworded');}
     });
     prev.concepts.forEach(function(cn){if(!next.byId[cn.id])out.removed.push({id:cn.id,title:cn.recordTitle});});
     var key=function(r){return r.sourceRef+'|'+r.from+'|'+r.to+'|'+r.verb;},was={},now={};
@@ -728,8 +739,15 @@
     prev.relations.forEach(function(r){if(!now[key(r)]){out.relationsRemoved.push(plainRel(r));touch(r.from,'relations');touch(r.to,'relations');}});
     return out;
   }
+  /* What the layout is computed from apart from relationships: story order and scope, and where each
+     concept belongs. When these are unchanged, a revision can keep the atlas the author was reading. */
+  function layoutBasis(model){
+    return JSON.stringify({phases:model.timeline.map(function(p){var r=p.record||{};return [p.id,r.order,r.scope||null];}),
+      concepts:model.concepts.map(function(cn){var r=cn.record||{};return [cn.id,cn.facet,cn.tier,cn.phaseId||null,cn.ownerGenreId||null,
+        r.scope||null,r.category||null];}).sort(function(a,b){return a[0]<b[0]?-1:a[0]>b[0]?1:0;})});
+  }
 
-  global.AuteurStudioAtelierModel={sourceAnchor:sourceAnchor,revisionDelta:revisionDelta,FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
+  global.AuteurStudioAtelierModel={sourceAnchor:sourceAnchor,revisionDelta:revisionDelta,layoutBasis:layoutBasis,positional:positional,FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
     placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel,bookScope:bookScope,narrativeStructure:narrativeStructure,storyPathway:storyPathway,

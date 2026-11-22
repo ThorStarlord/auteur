@@ -1203,9 +1203,9 @@
       var pathway=S.narrative&&cn.facet!=='timeline'?M.storyPathway(model,cn.id):null;
       folio.append(look);
       renderRevisedNote(cn);
-      renderDevelop(cn);
       // What story time records comes straight after the ways of looking, beside the phases it marks.
       if(pathway)renderStoryTime(cn,pathway);
+      renderDevelop(cn);
       if(dl.children.length)folio.append(dl);
       folio.append(provenanceLine(cn));
       if(S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
@@ -1332,7 +1332,7 @@
     }
     /* Creative hand-off: the concept's own recorded source goes to the Studio's existing coding-agent
        inquiry and revision workflow. The atlas keeps its place; nothing here calls an agent or changes a record. */
-    var DEVELOP=[['challenge','Challenge this design'],['explore','Explore possibilities'],['revise','Request a revision']];
+    var DEVELOP=[['challenge','Challenge this design'],['explain','Explain this narrative role'],['explore','Explore possibilities'],['revise','Request a revision']];
     function renderDevelop(cn){
       if(!binding.onDevelop)return;
       var s=M.sourceAnchor(S.model,cn.id),wrap=el('section','atl-develop');wrap.setAttribute('aria-label','Develop with your coding agent');
@@ -1345,8 +1345,8 @@
       wrap.append(about);
       if(s.precision==='activation')wrap.append(el('p','atl-note','The request is anchored on the recorded activation that holds this phrase; name the phrase in your question.'));
       if(s.precision==='field'&&s.anchor.field==='genre_activations')wrap.append(el('p','atl-note','This genre is activated more than once in the phase, so the request is anchored on all of the phase’s activations.'));
-      var row=el('div','atl-develop-actions');
-      DEVELOP.forEach(function(d){
+      var row=el('div','atl-develop-actions'),offered=binding.developOperations?binding.developOperations(s.anchor):['challenge','explore','revise'];
+      DEVELOP.filter(function(d){return offered.indexOf(d[0])>=0&&!(d[0]==='explain'&&offered.indexOf('challenge')>=0);}).forEach(function(d){
         var b=actionButton(row,d[1],function(){binding.onDevelop({conceptId:cn.id,title:cn.title,anchor:JSON.parse(JSON.stringify(s.anchor)),
           precision:s.precision,subject:s.subject,quote:s.quote,sourceRef:s.sourceRef,operation:d[0]});},'develop:'+d[0]);
         b.dataset.operation=d[0];
@@ -1365,11 +1365,13 @@
       box.append(el('h4','atl-section-title','Changed by the revision you applied'));
       var ul=el('ul','atl-revised-list');
       r.delta.reworded.filter(function(x){return x.id===cn.id;}).forEach(function(x){
-        var li=el('li','');
-        if(x.before!==x.after){li.append(el('span','atl-revised-kind','Recorded wording · '),el('del','',x.before),document.createTextNode(' → '),el('ins','',x.after));}
-        else li.append(el('span','atl-revised-kind','Recorded description changed'));
-        ul.append(li);});
-      if(why.indexOf('added')>=0)ul.append(el('li','','Newly recorded by the revision.'));
+        if(x.titleChanged){var li=el('li','');
+          li.append(el('span','atl-revised-kind',x.positional?'Entry at this position · ':'Recorded wording · '),el('del','',x.before),document.createTextNode(' → '),el('ins','',x.after));
+          if(x.positional)li.append(el('span','atl-revised-note',' A list entry is identified only by its position, so this may be a different entry rather than new wording.'));
+          ul.append(li);}
+        if(x.fields.length)ul.append(el('li','',['Recorded fields changed · '+x.fields.map(function(k){return M.human(k);}).join(', ')].join('')));
+        else if(!x.titleChanged)ul.append(el('li','','Recorded description changed.'));});
+      if(why.indexOf('added')>=0)ul.append(el('li','',M.positional(cn)?'A new position in its list.':'Newly recorded by the revision.'));
       var rel=function(list,word,lookup){list.filter(function(x){return x.from===cn.id||x.to===cn.id;}).forEach(function(x){
         var otherId=x.from===cn.id?x.to:x.from,other=model.byId[otherId]||r.prev.byId[otherId];
         var rr=lookup.relById[x.id]||{},verb=x.from===cn.id?x.verb:(rr.reverseVerb||'related through “'+x.verb+'”');
@@ -1392,9 +1394,21 @@
       if(ids.length>24)wrap.append(el('p','atl-note',(ids.length-24)+' more are marked in the atlas.'));
       if(r.delta.removed.length)wrap.append(el('p','atl-note',r.delta.removed.length+' concept'+(r.delta.removed.length===1?' is':'s are')+' no longer recorded: '+
         r.delta.removed.slice(0,6).map(function(x){return x.title;}).join(' · ')));
-      wrap.append(el('p','atl-note','Marked with a dashed ring in the atlas. Working changes only; accepted story is unchanged.'));
+      if(r.delta.summaryChanged)wrap.append(el('p','atl-note','The Architecture summary changed.'));
+      wrap.append(el('p','atl-note','Marked with a dashed ring in the atlas. Working changes only; accepted story is unchanged.'+
+        (r.keptLayout?' Positions are kept from before the revision, so a concept with new relationships may sit away from the phases it now relates to.':'')));
+      if(r.keptLayout)actionButton(wrap,'Lay out the atlas again',relayout,'relayout');
       actionButton(wrap,'Clear revision marks',function(){S.revision=null;syncRevisionMarks();renderFolio();announce('Revision marks cleared.');},'clear-revision');
       return wrap;
+    }
+    // A fresh layout from the current records, on the author's request; marks and selection are kept.
+    function relayout(){
+      if(!S.model)return;var v=measureView(),focus=S.focus,depth=S.depth;
+      S.atlas=M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});if(S.revision)S.revision.keptLayout=false;
+      S.pos={};Object.keys(S.atlas.positions).forEach(function(id){S.pos[id]={x:S.atlas.positions[id].x,y:S.atlas.positions[id].y};});
+      clearExploration();buildScene();syncRevisionMarks();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
+      fitAtlas(false);if(focus)S.pending={focus:focus,depth:depth};applyPending();renderFolio();
+      announce('The atlas was laid out again from the current records.');
     }
     function syncRevisionMarks(){
       if(!S.model)return;var t=S.revision?S.revision.delta.touched:{};
@@ -1680,6 +1694,7 @@
       // is prepared) keeps the author's place and announces nothing.
       if(S.model&&sha&&sha===S.sha&&candidate&&(candidate.nodes||[]).length){S.candidateRef=candidate;return;}
       var hadFocus=!!S.focus,prevModel=S.model,prevAtlas=S.atlas,prevSha=S.sha,keepFocus=S.focus,keepDepth=S.depth;
+      var keepExamine=S.mode==='constellation',keepTrail=S.trail.slice(),keepCam=S.userCam&&S.cam?Object.assign({},S.cam):null;
       var ctx=binding.getRevisionContext?binding.getRevisionContext():null;
       var revised=!!(prevModel&&ctx&&ctx.fromSha===prevSha&&ctx.toSha===sha);
       S.candidateRef=candidate;clearExploration();S.revision=null;
@@ -1688,10 +1703,10 @@
       var v=measureView();
       var keptLayout=false;
       try{S.model=M.buildModel(candidate,sha);S.structure=M.narrativeStructure(S.model);
-        // A revision that records the same concepts keeps the atlas the author was reading: every concept
-        // stays where it was and only threads and words change. New or removed concepts need a new layout.
-        keptLayout=!!(revised&&prevAtlas&&prevModel.concepts.length===S.model.concepts.length&&
-          S.model.concepts.every(function(cn){return !!prevModel.byId[cn.id];}));
+        // A revision that leaves story order, scopes and every concept's place of belonging unchanged keeps
+        // the atlas the author was reading: concepts stay where they were and threads and words change.
+        // Anything else the layout is computed from needs a new layout. The author can always ask for one.
+        keptLayout=!!(revised&&prevAtlas&&M.layoutBasis(prevModel)===M.layoutBasis(S.model));
         S.atlas=keptLayout?prevAtlas:M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
       catch(error){S.model=null;S.atlas=null;buildEmpty('The atlas could not be drawn: '+error.message);syncChrome();renderFolio();renderTrail();return;}
       S.sha=sha;S.pos={};Object.keys(S.atlas.positions).forEach(function(id){S.pos[id]={x:S.atlas.positions[id].x,y:S.atlas.positions[id].y};});
@@ -1700,22 +1715,31 @@
       var kept=false;
       if(revised){
         S.revision={delta:M.revisionDelta(prevModel,S.model),requestedChange:ctx.requestedChange||null,fromSha:prevSha,toSha:sha,prev:prevModel,keptLayout:keptLayout};
-        if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth};kept=true;}
+        if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth,examine:keepExamine,
+          trail:keepTrail.filter(function(id){return !!S.model.byId[id];}),camera:keptLayout?keepCam:null};kept=true;}
       }
       empty.hidden=true;buildScene();syncRevisionMarks();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
       if(S.shown&&stage.clientWidth){S.sizedOnce=true;S.paintedView={width:v.width,height:v.height};fitAtlas(false);applyPending();}
       renderFolio();
-      if(revised){var n=Object.keys(S.revision.delta.touched).length,title=keepFocus&&prevModel.byId[keepFocus]?prevModel.byId[keepFocus].title:null;
-        announce('Your revision was applied to the working Architecture. '+n+' concept'+(n===1?'':'s')+' changed and '+(n===1?'is':'are')+' marked in the atlas. '+
-          (kept?'“'+title+'” is still selected. ':title?'“'+title+'” is no longer recorded, so the whole atlas is shown. ':'')+
-          (keptLayout?'Every concept kept its place. ':'Concepts were added or removed, so the atlas was laid out again. ')+'Accepted story is unchanged.');}
-      else if(hadFocus)announce('The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.');
+      if(revised){var d=S.revision.delta,n=Object.keys(d.touched).length,was=keepFocus&&prevModel.byId[keepFocus];
+        var now=kept?S.model.byId[keepFocus]:null,moved=now&&M.positional(now)&&now.recordTitle!==was.recordTitle;
+        announce('Your revision was applied to the working Architecture. '+
+          (n?n+' concept'+(n===1?'':'s')+' changed and '+(n===1?'is':'are')+' marked in the atlas. ':
+            'No concept or relationship drawn in the atlas changed'+(d.summaryChanged?'; the Architecture summary did. ':'. '))+
+          (moved?'The entry at the same position is selected; it now reads “'+now.title+'”, and a list entry is identified only by its position. ':
+            now?'“'+now.title+'” is still selected. ':was?'“'+was.title+'” is no longer recorded, so the whole atlas is shown. ':'')+
+          (keptLayout?'Every concept kept its place. ':'Story order, scope or the recorded concepts changed, so the atlas was laid out again. ')+
+          'Accepted story is unchanged.');}
+      else if(hadFocus)announce('The working Architecture changed; the atlas was redrawn and your previous focus cleared. The atlas itself saves nothing.');
     }
     function applyPending(){
       var p=S.pending;S.pending=null;
       if(p&&p.focus&&S.model&&S.model.byId[p.focus]){
         var keep=S.reduced;S.reduced=true;select(p.focus,{via:'atlas',depth:p.depth===2?2:1,focusStar:false});
-        if(p.examine)examine();S.reduced=keep;syncChrome();
+        if(p.examine)examine();
+        if(p.trail&&p.trail.length&&p.trail[p.trail.length-1]===p.focus){S.trail=p.trail;renderTrail();}
+        if(p.camera&&S.mode==='atlas'){S.cam=p.camera;S.userCam=true;paint();}
+        S.reduced=keep;syncChrome();
       }else settle();
     }
     function buildEmpty(message){

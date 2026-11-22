@@ -65,20 +65,23 @@
     creativePanel=window.AuteurStudioCreativePanel.createCreativePanel({
       root:$("architecture-creative-agent-panel"),
       onAction:function(payload){
-        state.creativeSentText = payload.authorText;
         if (payload.operation==="inspect" || payload.operation==="trace") {
           creativePanel.setLocalInspection(actions.projectGraphSelection(state.architecture,payload.anchors));
           return;
         }
         creativePanel.setStatus({status:"preparing"});
-        creativeAgentBridge.prepareInquiry(payload).catch(function(error){
+        creativeAgentBridge.prepareInquiry(payload).then(function(){
+          state.creativeSentText = payload.authorText;
+          state.atelierSentInquiry = {key: anchorsKey(payload.anchors), sha: state.architectureRequestSha};
+        }).catch(function(error){
           creativePanel.setStatus({status:"error"});
           status("Graph inquiry not prepared: "+error.message);
         });
       },
       onRevise:function(payload){
-        state.creativeSentText = payload.authorText;
-        requestArchitecture(payload.authorText,buildRevisionIntent(payload.anchors,payload.authorText));
+        requestArchitecture(payload.authorText,buildRevisionIntent(payload.anchors,payload.authorText)).then(function(ok){
+          if (ok) state.creativeSentText = payload.authorText;
+        });
       },
       onUseAlternative:function(payload){
         requestArchitecture(payload.authorText,buildRevisionIntent(payload.anchors,payload.authorText),
@@ -134,11 +137,14 @@
       if (creativePanel.invalidateResult) creativePanel.invalidateResult();
       creativePanel.setStatus({status: "refreshing"});
     }
+    state.atelierInquiryStatus = null;
     fetch("/api/beginner/studio/canvases/" + encodeURIComponent(canvasId) + "/architecture/inquiry")
       .then(apiJson).then(function (projection) {
         if (remote.canvasId !== canvasId || !creativePanel) return;
+        state.atelierInquiryStatus = projection.status || null;
         if (projection.result) creativePanel.setInquiryResult(projection);
         else creativePanel.setStatus(projection);
+        if (atelierController) renderAtelierStudy();
       }).catch(function () {});
   }
   function buildRevisionIntent(anchors, authorText) {
@@ -148,7 +154,7 @@
       anchors: anchors.map(function (a) {
         var ref = {kind: a.kind, id: a.id};
         if (a.field) ref.field = a.field;
-        if (a.field && typeof a.index === "number") ref.index = a.index;
+        if (a.field && Number.isInteger(a.index)) ref.index = a.index;
         if (a.reference) ref.reference = {field: a.reference.field,
           target_kind: a.reference.target_kind, target_id: a.reference.target_id};
         return ref;
@@ -493,7 +499,7 @@
     if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
     else if (hasUnsavedChanges()) queueSave();
     $("architecture-status").textContent = "Saving creative intent and preparing exact coding-agent request...";
-    Promise.resolve(remote.queue).then(function () {
+    return Promise.resolve(remote.queue).then(function () {
       if (remote.failed) throw new Error("The working canvas did not save; no agent request was created.");
       return fetch(architectureUrl() + "/prepare", {
         method: "POST", headers: {"Content-Type": "application/json"},
@@ -504,11 +510,15 @@
             hypothesis_id:selectedAlternative.hypothesisId}} : {}))
       }).then(apiJson);
     }).then(function (projection) {
+      state.architectureRequestIntent = {key: graphIntent ? anchorsKey(graphIntent.anchors) : null,
+        revision: !!(instruction || graphIntent), sha: state.architectureRequestSha};
       applyArchitectureProjection(projection, false);
       $("architecture-handoff").open = true;
       status("Host-agent request prepared. Ask your active coding agent to fulfill it; no provider was called automatically.");
+      return true;
     }).catch(function (error) {
       $("architecture-status").textContent = "Cannot request architecture: " + error.message;
+      return false;
     });
   }
 
@@ -833,6 +843,8 @@
     if (creativePanel) creativePanel.reset();
     if (creativeAgentBridge) creativeAgentBridge.reset();
     lastCreativeReviewSha=null;
+    state.atelierAsk = null; state.atelierInquiryStatus = null; state.atelierRevisionContext = null;
+    state.atelierSentInquiry = null; state.architectureRequestIntent = null; state.creativeSentText = null;
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {
@@ -2435,7 +2447,9 @@
   // The Atelier study replaces only the graph surface of the Architecture Overview, and only when opted in.
   function renderAtelierStudy() {
     if (!atelierController) return;
-    syncAtelierReturn();
+    try { renderAtelierStudyNow(); } finally { syncAtelierReturn(); }
+  }
+  function renderAtelierStudyNow() {
     var chosen = state.fullArchitectureDisplay === "atelier";
     $("studio-mode-atelier").setAttribute("aria-pressed", String(chosen));
     var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
@@ -3094,6 +3108,10 @@
         // The selected concept's own recorded source goes to the existing coding-agent inquiry and
         // revision panel. Nothing is asked or changed until the author writes and sends a request.
         onDevelop: function(request){ developFromAtelier(request); },
+        developOperations: function(anchor){
+          try { return window.AuteurStudioGraphActions.availableGraphActions(state.architecture, [anchor])
+            .map(function (a) { return a.operation; }); } catch (_) { return []; }
+        },
         getWorkingState: atelierWorkingState,
         onShowWorking: showAtelierWorking,
         getRevisionContext: function(){ return state.atelierRevisionContext || null; },
@@ -3118,12 +3136,12 @@
     catch (error) { status("That source is no longer recorded in the working Architecture: " + error.message); return; }
     var operation = request.operation;
     try { creativePanel.setOperation(operation); }
-    catch (_) { operation = "explain"; try { creativePanel.setOperation(operation); } catch (__) { operation = null; } }
+    catch (_) { status("“" + operation + "” is not offered for this kind of source; nothing was prepared."); return; }
     // A question already sent belongs to its own request; an unsent draft is the author's and stays.
     var draft = creativePanel.getAuthorText ? creativePanel.getAuthorText() : "";
     if (draft && draft === state.creativeSentText) creativePanel.setAuthorText("");
     state.atelierAsk = {conceptId: request.conceptId, title: request.title, subject: request.subject,
-      operation: operation, requestSha: state.architectureRequestSha};
+      operation: operation, requestSha: state.architectureRequestSha, key: anchorsKey([request.anchor])};
     var disclosure = $("architecture-creative-graph");
     disclosure.hidden = false; disclosure.open = true;
     syncAtelierReturn();
@@ -3135,25 +3153,34 @@
       "). Write your question or the change you want; the atlas keeps your place.");
     renderAtelierStudy();
   }
-  function atelierAbout(kinds) {
+  function anchorsKey(anchors) {
+    return JSON.stringify((anchors || []).map(function (a) {
+      return [a.kind, a.id, a.field || null, Number.isInteger(a.index) ? a.index : null,
+        a.reference ? [a.reference.field, a.reference.target_kind, a.reference.target_id] : null];
+    }));
+  }
+  function atelierAbout(sent) {
     var ask = state.atelierAsk;
-    return ask && ask.requestSha === state.architectureRequestSha && kinds.indexOf(ask.operation) >= 0
+    return ask && sent && sent.key && sent.key === ask.key && sent.sha === state.architectureRequestSha
       ? " about “" + ask.title + "”" : "";
   }
   function atelierWorkingState() {
     var st = state.architectureSourceStatus;
+    var sent = state.architectureRequestIntent;
     if (state.architectureReview) return {kind: "review",
-      text: "A proposed revision" + atelierAbout(["revise"]) + " is ready for your review. The working Architecture is unchanged until you apply it.",
+      text: "A proposed revision" + atelierAbout(sent) + " is ready for your review. The working Architecture is unchanged until you apply it.",
       action: "Review the proposed revision"};
     if (st === "awaiting_host_agent") return {kind: "awaiting",
-      text: "A revision request" + atelierAbout(["revise"]) + " is waiting for your coding agent. Nothing has changed.",
+      text: (sent && sent.revision ? "A revision request" + atelierAbout(sent) : "A request to your coding agent") +
+        " is waiting for your coding agent. Nothing has changed.",
       action: "Show the request"};
     var inquiry = state.atelierInquiryStatus;
     if (inquiry === "awaiting_host_agent") return {kind: "inquiry",
-      text: "Your question" + atelierAbout(["challenge", "explore", "explain"]) + " is waiting for your coding agent.",
+      text: "A question" + atelierAbout(state.atelierSentInquiry) + " is waiting for your coding agent.",
       action: "Show the question"};
-    if (inquiry === "ready" && state.atelierAsk && state.atelierAsk.operation !== "revise") return {kind: "answer",
-      text: "Your coding agent answered" + atelierAbout(["challenge", "explore", "explain"]) + ". Its answer is an interpretation, not a change to the Architecture.",
+    if (inquiry === "ready") return {kind: "answer",
+      text: "Your coding agent answered a question" + atelierAbout(state.atelierSentInquiry) +
+        ". Its answer is an interpretation, not a change to the Architecture.",
       action: "Read the answer"};
     return null;
   }
@@ -3166,7 +3193,7 @@
     if (target && !target.hidden) target.scrollIntoView({block: "start"});
   }
   function syncAtelierReturn() {
-    var on = !!(atelierController && state.fullArchitectureDisplay === "atelier" && state.atelierAsk);
+    var on = !!(atelierController && state.atelierAsk && !$("studio-atelier").hidden);
     ["architecture-creative-graph", "architecture-review"].forEach(function (id) {
       var host = $(id); if (!host) return;
       var button = host.querySelector(".atelier-return");

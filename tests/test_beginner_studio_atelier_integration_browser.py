@@ -176,7 +176,9 @@ def test_an_applied_revision_returns_to_the_concept_marks_the_change_and_keeps_e
         snap = page.evaluate(SNAP)
         assert snap["focus"] == TROPE
         assert snap["revision"]["keptLayout"] is True and snap["home"] == home
-        assert snap["revision"]["reworded"] == [] and len(snap["revision"]["relationsAdded"]) == 9
+        # Only the records holding the new references changed (4 contracts, 3 phases); no wording did.
+        assert sorted(x.split("|")[0] for x in snap["revision"]["reworded"]) == ["genres"] * 4 + ["timeline"] * 3
+        assert len(snap["revision"]["relationsAdded"]) == 9
         assert CRAFT_FN in snap["revision"]["touched"]
         assert "is-revised" in page.locator(f'#studio-atelier .atl-star[data-id="{CRAFT_FN}"]').get_attribute("class")
         folio = page.evaluate(FOLIO)
@@ -238,6 +240,75 @@ def test_the_ordinary_studio_gains_no_atelier_controls(served, browser):
         time.sleep(0.8)
         assert page.locator(".atelier-return").count() == 0
         assert page.locator("#studio-mode-atelier").is_hidden()
+        assert not errors
+    finally:
+        page.close()
+
+
+def reorder_phases(c):
+    first = next(p for p in c["phases"] if p["order"] == 1)
+    last = max(c["phases"], key=lambda p: p["order"])
+    first["order"], last["order"] = last["order"], first["order"]
+    return c
+
+
+def test_a_revision_that_reorders_story_time_lays_the_atlas_out_again(served, browser):
+    base, store = served
+    page, errors = open_atelier(browser, base)
+    try:
+        develop(page, ENGINE, "revise", "Swap the first and last phase.")
+        page.wait_for_function("document.getElementById('architecture-status').textContent.includes('Awaiting')", timeout=10000)
+        agent_revises(store, reorder_phases)
+        apply_review(page)
+        snap = page.evaluate(SNAP)
+        assert snap["focus"] == ENGINE and snap["revision"]["keptLayout"] is False
+        assert "laid out again" in page.evaluate(LIVE)
+        assert sorted(snap["revision"]["touched"]) == ["timeline|phase:phase-bought-seal", "timeline|phase:phase-what-a-crossing-is-worth"]
+        assert not errors
+    finally:
+        page.close()
+
+
+def test_the_working_line_names_a_concept_only_for_the_request_sent_about_it(served, browser):
+    base, _ = served
+    page, errors = open_atelier(browser, base)
+    try:
+        act(page, lambda: page.evaluate(CLICK, TROPE))
+        act(page, lambda: page.locator('#studio-atelier .atl-develop button[data-operation="revise"]').click())
+        page.keyboard.type("An unsent draft about this trope.")
+        # The author changes their mind and uses the Studio's general revision box instead.
+        page.evaluate("document.querySelector('.architecture-revise').open = true")
+        page.locator("#architecture-instruction").fill("Make the middle Books darker.")
+        page.locator("#architecture-revise").click()
+        page.wait_for_function("document.getElementById('architecture-status').textContent.includes('Awaiting')", timeout=10000)
+        time.sleep(0.5)
+        working = page.locator("#studio-atelier .atl-working").inner_text()
+        assert "waiting for your coding agent" in working and "First Crosser" not in working
+        # The unsent draft is the author's: developing again keeps it.
+        act(page, lambda: page.locator("#architecture-creative-graph .atelier-return").click())
+        act(page, lambda: page.locator('#studio-atelier .atl-develop button[data-operation="challenge"]').click())
+        assert page.locator(f'{PANEL} textarea[aria-label="Your creative intention"]').input_value() == "An unsent draft about this trope."
+        assert not errors
+    finally:
+        page.close()
+
+
+def test_an_emotion_target_offers_only_what_the_studio_supports_and_the_way_back_hides_off_the_atlas(served, browser):
+    base, _ = served
+    page, errors = open_atelier(browser, base)
+    try:
+        emotion = page.evaluate("document.getElementById('studio-atelier').atelierStudy.snapshot().concepts"
+                                ".find(c => c.id.startsWith('emotions|emotion:')).id")
+        act(page, lambda: page.evaluate(CLICK, emotion))
+        ops = page.locator("#studio-atelier .atl-develop button[data-operation]").evaluate_all("bs => bs.map(b => b.dataset.operation)")
+        assert ops == ["explain", "explore", "revise"]
+        act(page, lambda: page.locator('#studio-atelier .atl-develop button[data-operation="explain"]').click())
+        pressed = page.locator(f'{PANEL} [aria-label="Creative actions"] button[aria-pressed="true"]').get_attribute("data-operation")
+        assert pressed == "explain"
+        assert page.locator("#architecture-creative-graph .atelier-return").is_visible()
+        page.locator("#studio-atelier .atl-folio button", has_text="Read the full explanation").click()
+        time.sleep(0.6)
+        assert page.locator("#architecture-creative-graph .atelier-return").is_hidden()  # the atlas is not on screen
         assert not errors
     finally:
         page.close()
