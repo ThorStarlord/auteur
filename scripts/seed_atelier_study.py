@@ -34,11 +34,33 @@ SPECIMENS = {
         "candidate": REPO / "qualification/studio-trace/artifacts/candidate-2.json",
         "vision_file": REPO / "qualification/studio-trace/artifacts/story_vision.txt",
     },
+    # Constructed counterexample for the story-structure comparison: the small specimen with only its
+    # governing and supporting contract roles exchanged. No relationship is added or removed, so the
+    # recorded governing genre (Fantasy, 14 relationships) is less connected than a supporting one
+    # (Literary mystery, 20). The phases keep their own recorded roles. A test fixture, not a story.
+    "atelier-counterexample": {
+        "candidate": REPO / "docs/qualification-evidence/agent-first-ontology-20261103/rich-vision-candidate.json",
+        "vision": ("A coastal mystery about maps that erase memory. Wonder, dread, and earned hope. "
+                   "(Test fixture: the genre contracts' governing and supporting roles are exchanged.)"),
+        "exchange_roles": ("governing", "supporting"),
+    },
 }
+
+
+def exchange_roles(candidate: dict, roles: tuple[str, str]) -> dict:
+    """Swap two genre-contract roles; every other record, including phase roles, is left as recorded."""
+    first, second = roles
+    swap = {first: second, second: first}
+    for contract in candidate.get("genre_contracts", []):
+        if contract.get("role") in swap:
+            contract["role"] = swap[contract["role"]]
+    return candidate
 
 
 def seed(project: Path, canvas_id: str, spec: dict) -> None:
     candidate = json.loads(spec["candidate"].read_text(encoding="utf-8"))
+    if spec.get("exchange_roles"):
+        candidate = exchange_roles(candidate, spec["exchange_roles"])
     vision = spec.get("vision") or spec["vision_file"].read_text(encoding="utf-8").strip()
     store = CanvasStore(project, canvas_id)
     store.create()

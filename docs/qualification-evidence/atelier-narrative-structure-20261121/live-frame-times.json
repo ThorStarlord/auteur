@@ -1,0 +1,213 @@
+{
+ "browser": "windowed Chromium (headed), 1440x900, 3 rounds",
+ "results": {
+  "baseline": {
+   "select genre-civic-life": {
+    "syncMs": [
+     73.3,
+     26.7,
+     29.4
+    ],
+    "meanFrameMs": [
+     20.6,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     133.4,
+     16.8,
+     16.8
+    ]
+   },
+   "return genre-civic-life": {
+    "syncMs": [
+     26.5,
+     29.6,
+     27.6
+    ],
+    "meanFrameMs": [
+     16.9,
+     16.9,
+     16.9
+    ],
+    "worstFrameMs": [
+     33.3,
+     33.3,
+     33.4
+    ]
+   },
+   "select genre-procedural": {
+    "syncMs": [
+     51.7,
+     29.2,
+     30.2
+    ],
+    "meanFrameMs": [
+     16.9,
+     16.9,
+     16.7
+    ],
+    "worstFrameMs": [
+     33.4,
+     33.4,
+     16.8
+    ]
+   },
+   "return genre-procedural": {
+    "syncMs": [
+     28,
+     27.9,
+     28
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.9,
+     16.9
+    ],
+    "worstFrameMs": [
+     17,
+     33.4,
+     33.3
+    ]
+   }
+  },
+  "candidate": {
+   "select genre-civic-life": {
+    "syncMs": [
+     70.5,
+     30.3,
+     31.9
+    ],
+    "meanFrameMs": [
+     18.5,
+     16.9,
+     16.7
+    ],
+    "worstFrameMs": [
+     83.4,
+     33.2,
+     16.8
+    ]
+   },
+   "return genre-civic-life": {
+    "syncMs": [
+     35.6,
+     28.7,
+     30.5
+    ],
+    "meanFrameMs": [
+     16.9,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     33.2,
+     16.8,
+     16.8
+    ]
+   },
+   "select genre-procedural": {
+    "syncMs": [
+     45.7,
+     30.4,
+     31.2
+    ],
+    "meanFrameMs": [
+     17.1,
+     16.9,
+     17.1
+    ],
+    "worstFrameMs": [
+     33.4,
+     33.3,
+     33.4
+    ]
+   },
+   "return genre-procedural": {
+    "syncMs": [
+     29.9,
+     30.8,
+     28.6
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.7,
+     16.9
+    ],
+    "worstFrameMs": [
+     16.8,
+     16.8,
+     33.4
+    ]
+   },
+   "switch off": {
+    "syncMs": [
+     22,
+     18.7,
+     19.7
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     16.8,
+     16.8,
+     16.8
+    ]
+   },
+   "switch on": {
+    "syncMs": [
+     19.4,
+     21.2,
+     21.3
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     16.8,
+     16.8,
+     16.8
+    ]
+   },
+   "switch off while selected": {
+    "syncMs": [
+     24.8,
+     22.9,
+     22
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     17,
+     16.8,
+     16.8
+    ]
+   },
+   "switch on while selected": {
+    "syncMs": [
+     22.2,
+     22,
+     24
+    ],
+    "meanFrameMs": [
+     16.7,
+     16.7,
+     16.7
+    ],
+    "worstFrameMs": [
+     16.8,
+     16.8,
+     16.8
+    ]
+   }
+  }
+ }
+}

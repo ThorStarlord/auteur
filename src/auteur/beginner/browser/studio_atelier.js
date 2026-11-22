@@ -33,8 +33,19 @@
     focus:{font:'600 16px '+SERIF,lh:20,px:12,py:7,maxW:260,lines:4,kicker:'700 9.5px '+SANS,klh:15},
     focusLong:{font:'600 14px '+SERIF,lh:18,px:12,py:7,maxW:300,lines:7,kicker:'700 9.5px '+SANS,klh:15},
     callout:{font:'500 12px '+SANS,lh:15.5,px:8,py:5,maxW:250,lines:8,kicker:'700 9px '+SANS,klh:13},
-    nearVerb:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:260,lines:2,kicker:'italic 11px '+SERIF,klh:13}
+    nearVerb:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:260,lines:2,kicker:'italic 11px '+SERIF,klh:13},
+    // Story-structure comparison: a recorded role or parenthood is named above the resting label, and while
+    // a concept is selected each phase that records it names the role that phase records.
+    landmark:{font:'600 14px '+SERIF,lh:17,px:2,py:1,maxW:176,lines:2,kicker:'700 8.5px '+SANS,klh:12},
+    landmarkName:{font:'600 14px '+SERIF,lh:17,px:2,py:1,maxW:176,lines:2},
+    restRole:{font:'500 10.5px '+SANS,lh:12.5,px:2,py:1,maxW:128,lines:2,kicker:'700 8px '+SANS,klh:11},
+    nearRole:{font:'500 12px '+SANS,lh:14.5,px:7,py:3,maxW:196,lines:2,kicker:'700 8px '+SANS,klh:11},
+    phaseListed:{font:'500 11.5px '+SERIF,lh:13.5,px:4,py:2,maxW:124,lines:3,kicker:'700 8px '+SANS,klh:11}
   };
+  /* Story-structure comparison: a genre mark is sized by the role its contract records, never by how many
+     relationships it has; every other mark keeps one size. Parenthood is shown as a frame, not as size. */
+  var ROLE_GS={governing:1.6,primary:1.6,supporting:1.12,secondary:1.12,tertiary:0.9,local:0.9};
+  var ROLE_REST={governing:260,primary:260,supporting:60,secondary:60,tertiary:30,local:30};
   var FACET_BASE={genres:640,timeline:620,emotions:440,structure:452,tropes:444,other:430};
   var GLYPH_R={genres:5.6,emotions:5,timeline:6.5,tropes:6.5,structure:4.8,other:5};
   var AROUND=['e','w','se','ne','sw','nw','s','n'];
@@ -82,7 +93,8 @@
       hood:null,comp:null,metrics:null,reduced:prefersReduced(),lens:null,roving:null,tw:null,raf:null,frames:[],
       shown:false,pending:binding.initial?Object.assign({examine:requested==='B'},binding.initial):null,
       lastAction:null,edgeGrow:{},mix:0,sizedOnce:false,verbAt:{},verbFor:{},labelStats:null,lastFocus:null,
-      hover:null,folioHint:null,callout:null,latched:false,ptr:null,dragging:false};
+      hover:null,folioHint:null,callout:null,latched:false,ptr:null,dragging:false,
+      narrative:!!(binding.initial&&binding.initial.narrative),structure:null,time:null};
 
     /* ---------- Static frame ---------- */
     root.replaceChildren();root.classList.add('atl');
@@ -105,9 +117,13 @@
     var tools=el('div','atl-tools');
     var motion=el('button','atl-tool','Reduced motion');motion.type='button';
     motion.addEventListener('click',function(){S.reduced=!S.reduced;syncChrome();announce(S.reduced?'Reduced motion on: changes appear without travel.':'Full motion on.');});
+    // Comparison switch for this study: the same atlas, with recorded roles and parenthood given weight.
+    var structureTool=el('button','atl-tool atl-tool-structure','Story structure');structureTool.type='button';
+    structureTool.title='Comparison: genre marks sized by the role their contract records, structural parents framed. Mark size stops counting relationships. Nothing moves.';
+    structureTool.addEventListener('click',function(){setNarrative(!S.narrative);});
     var readout=el('details','atl-readout');var readoutSummary=el('summary','','Study readout');
     var readoutBody=el('dl','atl-readout-body');readout.append(readoutSummary,readoutBody);
-    tools.append(motion,readout);
+    tools.append(structureTool,motion,readout);
     bar.append(heading,modes,tools);
     var ribbon=el('p','atl-ribbon');
     var body=el('div','atl-body');
@@ -249,7 +265,28 @@
     }
 
     /* ---------- Scene ---------- */
-    function gs(cn){return cn.tier===2?1:0.8+0.55*Math.sqrt((cn.degree||0)/(S.model.maxDegree||1));}
+    function gs(cn){
+      if(S.narrative&&S.structure){var role=S.structure.roles[cn.id];return cn.tier===2||!role?1:ROLE_GS[role.role]||1;}
+      return cn.tier===2?1:0.8+0.55*Math.sqrt((cn.degree||0)/(S.model.maxDegree||1));
+    }
+    function isParent(id){return !!(S.structure&&S.structure.contains[id]);}
+    function roleOf(id){return S.structure&&S.structure.roles[id]?S.structure.roles[id].role:null;}
+    // The resting hierarchy of the story-structure comparison: sizes, frames and spoken labels follow records.
+    function syncNarrative(){
+      if(!S.model)return;
+      root.dataset.narrative=S.narrative?'on':'off';
+      S.model.concepts.forEach(function(cn){
+        var b=starEls[cn.id];if(!b)return;
+        b.style.setProperty('--gs',gs(cn).toFixed(3));
+        var role=S.narrative?roleOf(cn.id):null,parent=S.narrative&&isParent(cn.id);
+        if(role)b.dataset.role=role;else delete b.dataset.role;
+        b.classList.toggle('is-parent',parent);
+        var said=b.__aria;
+        if(role)said+=' Recorded role: '+M.human(role)+', in the genre contract.';
+        if(parent)said+=' Recorded structural parent of '+S.structure.contains[cn.id].length+'.';
+        b.setAttribute('aria-label',said);
+      });
+    }
     function glyphRadius(id,st){
       var cn=S.model.byId[id];st=st||starState(id);
       return (GLYPH_R[cn.facet]||5)*(cn.tier===2?(st==='near'||st==='far'?0.8:0.55):1)*gs(cn)*(st==='focus'?1.75:1)+1;
@@ -278,7 +315,7 @@
       var spinePath=sv('path',{'class':'atl-spine'}),railPath=sv('path',{'class':'atl-rail'});gSpine.append(spinePath);gEdges.before(railPath);
       gridEls={shades:shades,meridians:meridians,heads:heads,spine:spinePath,rail:railPath};
       model.relations.forEach(function(r){
-        var p=sv('path',{'class':'atl-edge','data-facet':model.byId[r.to].facet});
+        var p=sv('path',{'class':'atl-edge','data-facet':model.byId[r.to].facet,'data-kind':r.sourceKind});
         gBack.append(p);edgeEls[r.id]=p;S.edgeGrow[r.id]=1;S.back[r.id]=true;
       });
       model.concepts.forEach(function(cn){
@@ -291,8 +328,9 @@
         text.append(kicker,label);b.append(glyph,text);b.__text=text;b.__label=label;b.__kicker=kicker;
         b.title=cn.title;
         var count=model.adjacency[cn.id].length;
-        b.setAttribute('aria-label',M.FACET_SINGULAR[cn.facet]+': '+cn.title+'. '+count+' documented relationship'+(count===1?'':'s')+
-          '. Agent proposal, not accepted story.');
+        b.__aria=M.FACET_SINGULAR[cn.facet]+': '+cn.title+'. '+count+' documented relationship'+(count===1?'':'s')+
+          '. Agent proposal, not accepted story.';
+        b.setAttribute('aria-label',b.__aria);
         if(cn.category)b.dataset.category=cn.category;
         b.addEventListener('click',function(){if(S.focus!==cn.id)select(cn.id,{via:'atlas'});else focusFolio();});
         b.addEventListener('focus',function(){setRoving(cn.id);refreshEmphasis();});
@@ -300,6 +338,7 @@
         starLayer.append(b);starEls[cn.id]=b;
       });
       var first=model.timeline[0]||model.concepts[0];if(first)setRoving(first.id);
+      syncNarrative();
     }
     function setRoving(id){
       if(S.roving&&starEls[S.roving])starEls[S.roving].tabIndex=-1;
@@ -491,6 +530,8 @@
       root.classList.toggle('atl-focused',!!S.focus);
       root.classList.toggle('atl-examining',S.mode==='constellation');
       root.classList.toggle('atl-deep',!!S.focus&&S.depth===2);
+      // Story structure: a phase that lists the selected genre without activating it is marked in place, with
+      // no thread, because the phase records no relationship to draw.
       S.model.concepts.forEach(function(cn){
         var b=starEls[cn.id],st=starState(cn.id);
         b.style.setProperty('--d',(delays&&delays[cn.id]!==undefined?delays[cn.id]:0)+'ms');
@@ -498,6 +539,7 @@
         if(st==='focus')b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
         b.classList.toggle('is-moved',!!(S.comp&&S.comp.moved.indexOf(cn.id)>=0&&st!=='focus'));
         b.classList.toggle('was-focus',!S.focus&&cn.id===S.lastFocus);
+        b.classList.toggle('is-listed',(st==='dim'||st==='far')&&!!phaseCue(cn.id));
       });
       var edgeLevel={};if(S.hood)S.hood.edges.forEach(function(e){edgeLevel[e.relation.id]=e.level;});
       S.model.relations.forEach(function(r){
@@ -553,6 +595,24 @@
       var long=cn.name.length>90,style=long?'focusLong':'focus';
       return cardSpec(cn,style,narrow()?Math.min(STYLE[style].maxW,view().width-64):STYLE[style].maxW);
     }
+    // A label with a short recorded statement above the name.
+    function kickSpec(style,text,kick,maxW,lines){
+      var st=STYLE[style],t=wrapText(text,st,maxW,lines),k=fitLine(kick,st.kicker,maxW||st.maxW);
+      var kw=textWidth(k,st.kicker)+k.length*0.12*parseFloat(/(\d+(?:\.\d+)?)px/.exec(st.kicker)[1]);
+      return {style:style,lines:t.lines,kicker:k,w:Math.ceil(Math.max(t.w-2*st.px,kw))+2*st.px+1,h:t.h+st.klh};
+    }
+    function upper(t){return M.human(t).toUpperCase();}
+    /* Story time inside Progressive Revelation: while Story structure is on and a concept is selected in the
+       atlas, each phase whose record names it says which role that phase records. Phase roles are the
+       phase's own record and may differ from the genre contract's role; "PHASE ROLE" keeps them apart. */
+    function syncTime(){
+      var cn=S.narrative&&S.focus&&S.mode==='atlas'&&!S.research?S.model.byId[S.focus]:null;
+      var p=cn&&cn.facet!=='timeline'?M.storyPathway(S.model,cn.id):null;
+      S.time=p&&p.recorded?{id:cn.id,pathway:p,byPhase:{}}:null;
+      if(S.time)p.phases.forEach(function(ph){S.time.byPhase[ph.phase]=ph;});
+    }
+    function phaseCue(id){var ph=S.time&&S.time.byPhase[id];return ph&&ph.status==='recorded'?ph:null;}
+    function cueKick(ph){return ph.phaseRole?'PHASE ROLE · '+upper(ph.phaseRole.role):'RECORDED IN THIS PHASE';}
     function verbSpec(cn){
       var st=STYLE.nearVerb,maxW=Math.min(st.maxW,view().width-90),t=wrapText(cn.name,st,maxW),verb=fitLine(S.verbFor[cn.id]||'',st.kicker,maxW);
       return {style:'nearVerb',lines:t.lines,kicker:verb,w:Math.ceil(Math.max(t.w-2*st.px,textWidth(verb,st.kicker)))+2*st.px+1,h:t.h+st.klh};
@@ -561,10 +621,26 @@
       // The title card has a narrower, taller form for crowded places, so it can avoid covering a neighbour.
       if(st==='focus'){var wide=focusSpec(cn),slim=cardSpec(cn,wide.style,170);return slim.w<wide.w-20?[wide,slim]:[wide];}
       if(st==='near'&&S.mode==='constellation'&&narrow())return [verbSpec(cn)];
+      var cue=cn.facet==='timeline'?phaseCue(cn.id):null;
+      if(cue&&st==='near'){var k=cueKick(cue);
+        return [kickSpec('nearRole',cn.name,k,220,3),kickSpec('nearRole',cn.name,k,196,2),kickSpec('nearRole',M.shorten(cn.name,30),k,196,1),
+          spec('near',M.shorten(cn.name,30),196,1)];}
+      // A phase that records the concept without a relationship to it (listed only) keeps its own mark, even
+      // when a deeper reveal reaches it through other concepts.
+      if(cue&&(st==='dim'||st==='far'))return [kickSpec('phaseListed',cn.name,cueKick(cue)),kickSpec('phaseListed',M.shorten(cn.name,30),cueKick(cue),124,2)];
       // Relationship pills: the whole name when there is room, then two lines, then a phrase cut at a word.
       if(st==='near')return [spec('near',cn.name,220,3),spec('near',cn.name,196,2),spec('near',M.shorten(cn.name,30),196,1)];
       if(st==='far')return [spec('far',cn.name),spec('far',M.shorten(cn.name,28),180,1)];
       if(cn.tier===2)return [spec('mote',M.shorten(cn.name,34))];
+      if(S.narrative&&st==='rest'){
+        var role=roleOf(cn.id);
+        // Where a crowded score leaves no room for the role line, the name alone is set larger; the call-out,
+        // the folio and the spoken label still state the recorded role.
+        if(role==='governing'||role==='primary')return [kickSpec('landmark',cn.name,upper(role)+' · PROPOSED'),
+          kickSpec('landmark',cn.name,upper(role)+' · PROPOSED',300,1),kickSpec('landmark',cn.name,upper(role)+' · PROPOSED',130,3),
+          spec('landmarkName',cn.name),spec('landmarkName',cn.name,124,3),spec('genre',cn.name)];
+        if(isParent(cn.id))return [kickSpec('restRole',cn.name,'CONTAINS '+S.structure.contains[cn.id].length),spec('rest',cn.name)];
+      }
       if(cn.facet==='genres')return [spec('genre',cn.name),spec('genre',cn.name,112,3)];
       if(cn.facet==='timeline'){
         // Phase names are landmarks: the complete name is preferred, a little wider than its column if the
@@ -619,14 +695,17 @@
         var sd=S.sides[cn.id],side=sd==='left'?['w','nw','sw']:sd==='rail-s'?['s','n']:sd==='rail-n'?['n','s']:
           examining&&narrow()?['e']:['e','ne','se'];
         var weight=Math.sqrt((cn.degree||0)/maxDeg);
-        if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
+        if(st==='dim'&&cn.facet==='timeline'&&phaseCue(cn.id)){item.priority=650;item.overSoft=true;item.places=['s','n'];item.gap=r+4;}
+        else if(st==='focus'){item.priority=1000;item.required=true;item.overSoft=true;item.gap=r+5;
           item.places=examining&&narrow()?['e','n','s']:examining||narrow()?['s','n']:['s','n','e','w','se','sw','ne','nw'];
           if(!examining)focusItem=item;}
         else if(st==='near'){item.priority=800-facetOrder[cn.facet]*3+10*weight;item.overSoft=true;item.places=examining?side:AROUND;
           if(sd==='rail-s'||sd==='rail-n')item.gap=r+9;}
         else if(st==='far'){item.priority=600+5*weight;item.overSoft=true;item.places=examining?side:AROUND;}
         else{
-          item.priority=(S.focus?-200:0)+(FACET_BASE[cn.facet]||420)-(cn.tier===2?300:0)+60*weight+(/^(governing|primary)/.test(cn.role||'')?20:0);
+          // The comparison ranks resting names by recorded role and parenthood only, never by relationship count.
+          item.priority=(S.focus?-200:0)+(FACET_BASE[cn.facet]||420)-(cn.tier===2?300:0)+(S.narrative?
+            (ROLE_REST[roleOf(cn.id)]||0)+(isParent(cn.id)?120:0):60*weight+(/^(governing|primary)/.test(cn.role||'')?20:0));
           item.overSoft=cn.facet==='genres'||cn.facet==='timeline'?true:'fallback';
           item.places=cn.facet==='timeline'?['s','n']:cn.facet==='genres'?['n','e','w','ne','nw','s','se','sw']:AROUND;
         }
@@ -737,7 +816,7 @@
     function unfold(mode){
       latchPointer();
       var tr=activeTreatment(),T=TIMING[tr],reduced=S.reduced,previous=S.hood,v=view();
-      S.hood=M.neighbourhood(S.model,S.focus,S.depth);
+      S.hood=M.neighbourhood(S.model,S.focus,S.depth);syncTime();
       S.comp=M.compose(S.model,S.atlas,S.hood,tr,{width:v.width,height:v.height,z:tr==='A'?S.cam.z:1});
       S.sides=Object.assign({},S.comp.sides);
       Object.keys(S.sides).forEach(function(id){if(S.hood.levels[id]===undefined)delete S.sides[id];});
@@ -828,7 +907,7 @@
     }
     function returnToAtlas(){
       if(!S.focus)return;
-      latchPointer();
+      latchPointer();S.time=null;
       var last=S.focus,reduced=S.reduced,delays={},wasExamining=S.mode==='constellation',hadFocus=root.contains(document.activeElement);
       if(S.hood)S.hood.order.slice().reverse().forEach(function(id,i){delays[id]=reduced?0:Math.min(i*10,180);});
       // Automatic pans are undone; a view the author chose themselves is kept.
@@ -848,6 +927,16 @@
       if(wasExamining)bringStageIntoView();
       announce('Returned to the atlas. “'+S.model.byId[last].title+'” is still in its place.');
     }
+    /* ---------- Story structure comparison ----------
+       The switch changes what the resting atlas gives weight to and what a selection says about story
+       time; it never moves anything, so switching back gives exactly the view it was switched from. */
+    function setNarrative(on){
+      on=!!on;if(S.narrative===on)return;
+      S.narrative=on;S.lastAction={kind:on?'structure-on':'structure-off',at:performance.now()};
+      syncNarrative();syncChrome();if(S.model){syncTime();applyStates();renderFolio();S.frames=[];settle();}
+      announce(on?'Story structure on: genre marks are sized by their recorded contract role and structural parents are framed. Nothing moved.':
+        'Story structure off: mark size counts documented relationships again. Nothing moved.');
+    }
     function back(){
       if(S.trail.length>1)select(S.trail[S.trail.length-2],{trailIndex:S.trail.length-2});
       else if(S.mode==='constellation')leaveConstellation();
@@ -866,7 +955,7 @@
       var a=document.activeElement;if(!S.keyNav||!a||!root.contains(a)||!a.matches||!a.matches(':focus-visible'))return null;
       if(a.classList.contains('atl-star'))return {id:a.dataset.id};
       if(a.classList.contains('atl-rel'))return {rel:a.dataset.rel,id:a.dataset.other};
-      if(a.classList.contains('atl-landmark'))return {id:a.dataset.id};
+      if(a.classList.contains('atl-landmark')||a.classList.contains('atl-st-row'))return {id:a.dataset.id};
       return null;
     }
     function refreshEmphasis(){
@@ -878,7 +967,7 @@
       setCallout(hint&&hint.id&&hint.id!==S.focus&&starEls[hint.id]?hint.id:null);
     }
     function pointerTarget(t){
-      var star=t&&t.closest?t.closest('.atl-star'):null,rel=t&&t.closest?t.closest('.atl-rel'):null,mark=t&&t.closest?t.closest('.atl-landmark'):null;
+      var star=t&&t.closest?t.closest('.atl-star'):null,rel=t&&t.closest?t.closest('.atl-rel'):null,mark=t&&t.closest?t.closest('.atl-landmark,.atl-st-row'):null;
       S.hover=star&&root.contains(star)?star.dataset.id:null;
       S.folioHint=rel?{rel:rel.dataset.rel,id:rel.dataset.other}:mark?{id:mark.dataset.id}:null;
       refreshEmphasis();
@@ -959,7 +1048,8 @@
         labels:{placed:st.placed||0,quiet:st.quiet||0,forced:st.forced||0,restLandmarks:st.restLandmarks||0,restNamed:st.restNamed||0,
           neighbours:st.neighbours||0,neighboursNamed:st.neighboursNamed||0},
         verbLabels:{shown:st.verbsPlaced||0,total:st.verbs||0},offStageNeighbours:S.offStage||0,
-        composition:base,reducedMotion:S.reduced,concepts:S.model.concepts.length,relations:S.model.relations.length};
+        composition:base,reducedMotion:S.reduced,concepts:S.model.concepts.length,relations:S.model.relations.length,
+        narrative:S.narrative,storyTime:S.time?{id:S.time.id,recorded:S.time.pathway.recorded,notRecorded:S.time.pathway.absent}:null};
       renderReadout();
       root.dispatchEvent(new CustomEvent('atelier:settled',{detail:S.metrics}));
     }
@@ -1004,6 +1094,8 @@
       function row(k,v){readoutBody.append(el('dt','',k),el('dd','',v));}
       row('Mode',m.mode==='rest'?'Living atlas · at rest':(m.mode==='constellation'?'Focused constellation (B)':m.treatment==='C'?'Research C · contextual unfolding':'Living atlas · progressive revelation (A)'));
       row('Atlas',m.concepts+' concepts · '+m.relations+' relationships');
+      row('Story structure',m.narrative?'on · sizes follow recorded roles':'off · sizes count relationships');
+      if(m.storyTime)row('Story time',m.storyTime.recorded+' phases record it · '+m.storyTime.notRecorded+' record nothing for it');
       row('Named landmarks',m.labels.restNamed+' of '+m.labels.restLandmarks+' resting landmarks in view');
       if(m.composition){var c=m.composition;
         row('Neighbourhood',c.first+' first-order · '+c.second+' second-order');
@@ -1074,6 +1166,15 @@
         }
         if(cn.nodeId){fact(dl,'Category',M.human(rec.category));fact(dl,'Scope',M.human(rec.scope||'whole story'));}
       }
+      // Story structure: what the records state about this concept's standing, each with its source.
+      var role=S.narrative&&S.structure?S.structure.roles[cn.id]:null;
+      if(role)fact(dl,'Recorded role',M.human(role.role)+' · genre contract ('+role.sourceRef+'), an agent proposal');
+      if(S.narrative&&S.structure){
+        var up=S.structure.partOf[cn.id],kids=S.structure.contains[cn.id];
+        if(up&&model.byId[up.id])fact(dl,'Recorded as part of',model.byId[up.id].title);
+        if(kids)fact(dl,'Recorded as the parent of',kids.length+': '+kids.map(function(k){return model.byId[k.id].title;}).join(' · '));
+        if(kids||up)fact(dl,'Parenthood','A recorded parent link. The atlas frames a parent but does not size or rank it as governing; what the link means for the story is in the proposal’s own words.');
+      }
       // Ways of looking come first: the magnifying glass and the next depth.
       var look=el('div','atl-look');
       if(examining){
@@ -1088,9 +1189,13 @@
       depthButton.setAttribute('aria-pressed',String(S.depth===2));depthButton.disabled=S.depth!==2&&!potential;
       if(S.depth===2)look.append(el('p','atl-note',S.hood.second.length+' second-order concepts drawn faintly'+
         (S.hood.hiddenSecond?'; '+S.hood.hiddenSecond+' more are not drawn.':'.')));
+      var pathway=S.narrative&&cn.facet!=='timeline'?M.storyPathway(model,cn.id):null;
       folio.append(look);
+      // What story time records comes straight after the ways of looking, beside the phases it marks.
+      if(pathway)renderStoryTime(cn,pathway);
       if(dl.children.length)folio.append(dl);
       folio.append(provenanceLine(cn));
+      if(S.narrative&&S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
       renderRelations(cn);
       var src=el('details','atl-source');src.append(el('summary','','Source record · '+(cn.sourceRef||'unavailable')));
       var srcList=el('dl','atl-facts atl-facts-source');
@@ -1113,6 +1218,90 @@
         actionButton(actions,'Hide the Studio inspector',function(){binding.onCloseInspector();});
       var ret=el('button','atl-action atl-return','Return to the whole atlas');ret.type='button';ret.addEventListener('click',returnToAtlas);
       actions.append(ret);folio.append(actions);
+    }
+    /* In story time: each phase in recorded order, with what that phase's record states for the concept
+       and where. A phase with no record says so; that is a gap in the records, not absence from the story.
+       Equal wording is not identity: a phrase is linked to a phase only by a record that refers to it. */
+    function sameWords(cn){
+      if(cn.tier!==2||cn.phaseId)return [];
+      var key=String(cn.name).trim().toLowerCase(),seen={};
+      S.model.concepts.forEach(function(x){if(x.tier===2&&x.phaseId&&x.facet===cn.facet&&String(x.name).trim().toLowerCase()===key)seen[x.phaseId]=true;});
+      return S.model.timeline.filter(function(ph){return seen[(ph.record||{}).id];});
+    }
+    function phaseRow(ph,i,model){
+      var phase=model.byId[ph.phase],li=el('li','atl-st-item'+(ph.status==='recorded'?' is-recorded':' is-unrecorded'));
+      var b=el('button','atl-st-row');b.type='button';b.dataset.id=phase.id;b.dataset.key='st:'+phase.id;
+      b.append(el('span','atl-st-num',String(i+1)),el('span','atl-st-name',phase.name));
+      var what=ph.status!=='recorded'?'Not recorded':ph.phaseRole?'Phase role · '+M.human(ph.phaseRole.role):'Recorded in this phase';
+      if(ph.status==='recorded'&&ph.kinds.indexOf('relation')<0&&ph.kinds.indexOf('recorded-in')<0)what+=' · listed, no activation';
+      b.append(el('span','atl-st-what',what));
+      var alongside=ph.parallel.map(function(id){return model.timeline.indexOf(model.byId[id])+1;}).filter(Boolean);
+      b.setAttribute('aria-label','Phase '+(i+1)+', '+phase.title+': '+what+(alongside.length?'; recorded as parallel with phase '+alongside.join(' and '):'')+'.');
+      b.addEventListener('click',function(){select(phase.id,{via:'folio'});focusFolio();});
+      b.addEventListener('focus',refreshEmphasis);b.addEventListener('blur',function(){global.setTimeout(refreshEmphasis,0);});
+      li.append(b);
+      if(alongside.length)li.append(el('p','atl-st-par','Recorded as running parallel with phase '+alongside.join(' and ')));
+      if(ph.status==='recorded'){
+        // Every marked phase names the records that state it; what they say opens on demand.
+        var src=el('p','atl-st-src');
+        ph.evidence.map(function(e){return e.sourceRef;}).filter(function(r,k,a){return a.indexOf(r)===k;})
+          .forEach(function(r){src.append(el('span','atl-chip atl-chip-source',r));});
+        li.append(src);
+        var more=el('details','atl-st-more');more.append(el('summary','','What this phase records'));
+        ph.evidence.forEach(function(e){
+          more.append(el('p','atl-st-ev',e.kind==='role'?'Listed among the phase’s genres as '+M.human(e.role)+' (the phase’s own record; the genre contract may say otherwise).':
+            e.kind==='recorded-in'?'Recorded inside this phase.':M.capital(e.verb)+(e.reason?': '+e.reason:'.')));
+        });
+        if(ph.locals.length)more.append(el('p','atl-st-ev','Local functions here: '+ph.locals.map(function(l){return model.byId[l.id].name;}).join(' · ')));
+        li.append(more);
+      }
+      return li;
+    }
+    function renderStoryTime(cn,p){
+      var model=S.model,wrap=el('section','atl-storytime');
+      if(!p.available){
+        wrap.append(el('h4','atl-section-title','In story time · no phase record refers to it'));
+        var same=sameWords(cn);
+        wrap.append(el('p','atl-note','No phase record refers to this concept. Auteur does not infer phase participation from chains of other '+
+          'relationships, so this is not evidence that it is absent from the story.'+
+          (same.length?' Local functions in '+(same.length===1?'phase ':'phases ')+same.map(function(ph){return model.timeline.indexOf(ph)+1;}).join(', ')+
+            ' use the same words; without a recorded reference, equal wording is not treated as the same idea.':'')+
+          (S.structure&&(S.structure.contains[cn.id]||S.structure.partOf[cn.id])?' Its recorded structure is listed below and among its relationships.':'')));
+        folio.append(wrap);return;
+      }
+      var list=el('ol','atl-st-list');
+      if(p.recorded===1&&cn.tier===2){
+        // A function recorded inside one phase belongs there; listing every other phase would only repeat that.
+        var at=p.phases.findIndex(function(ph){return ph.status==='recorded';});
+        wrap.append(el('h4','atl-section-title','In story time · recorded in phase '+(at+1)+' of '+p.phases.length));
+        list.start=at+1;list.append(phaseRow(p.phases[at],at,model));
+        wrap.append(list);folio.append(wrap);return;
+      }
+      wrap.append(el('h4','atl-section-title','In story time · '+p.recorded+' of '+p.phases.length+' phases record it'));
+      var parallel=p.phases.some(function(ph){return ph.parallel.length;});
+      wrap.append(el('p','atl-note','Phases in recorded story order'+(parallel?'; some are recorded as running in parallel':'')+'. Order is not recorded causation, '+
+        'and “not recorded” is a gap in the records, not absence from the story.'+
+        (cn.facet==='genres'&&S.structure&&S.structure.roles[cn.id]?' A phase role is that phase’s own record; the genre contract records '+M.human(S.structure.roles[cn.id].role)+'.':'')));
+      p.phases.forEach(function(ph,i){list.append(phaseRow(ph,i,model));});
+      wrap.append(list);folio.append(wrap);
+    }
+    // Agent interpretations that name this concept: readings offered by the agent, never author decisions.
+    function renderInterpretations(list,title){
+      if(!list||!list.length)return;
+      var wrap=el('section','atl-interp');wrap.append(el('h4','atl-section-title',title+' · '+list.length));
+      list.forEach(function(it){
+        var d=el('details','atl-interp-item'),sum=el('summary','');
+        sum.append(el('span','atl-interp-text',M.shorten(it.text,150)));d.append(sum);
+        if(it.text.length>150)d.append(el('p','atl-st-ev',it.text));
+        if(it.consequences)d.append(el('p','atl-st-ev','Consequences: '+it.consequences));
+        if(it.alternative)d.append(el('p','atl-st-ev','Alternative reading: '+it.alternative));
+        var chips=el('p','atl-provenance');
+        chips.append(el('span','atl-chip atl-chip-proposal','Agent interpretation · not author-established'));
+        if(it.decisionRequired)chips.append(el('span','atl-chip atl-chip-decision','The proposal asks for your decision'));
+        chips.append(el('span','atl-chip atl-chip-source','Source · '+it.sourceRef));
+        d.append(chips);wrap.append(d);
+      });
+      folio.append(wrap);
     }
     function actionButton(parent,text,fn,key){var b=el('button','atl-action',text);b.type='button';if(key)b.dataset.key=key;b.addEventListener('click',fn);parent.append(b);return b;}
     function renderRelations(cn){
@@ -1143,9 +1332,11 @@
       folio.append(el('h3','atl-folio-title','The shape of this story'));
       if(model.summary)folio.append(el('p','atl-folio-detail atl-summary',model.summary));
       if(status&&status!=='ready')folio.append(el('p','atl-coverage','Source status: '+M.human(status)+'. The atlas reads the current working proposal as it is.'));
+      if(S.narrative)renderStructureFolio();
       // Landmarks: the most connected ideas of each kind, by count of documented relationships.
       var marks=el('section','atl-landmarks');
-      marks.append(el('h4','atl-section-title','Landmarks · most documented relationships'));
+      marks.append(el('h4','atl-section-title',S.narrative?'Most connected · documented relationships':'Landmarks · most documented relationships'));
+      if(S.narrative)marks.append(el('p','atl-note','A count of documented relationships measures connectivity, not importance.'));
       ['genres','emotions','structure','tropes','other'].forEach(function(facet){
         // Genres are the first reading of the story; the folio names every one of them.
         var top=model.concepts.filter(function(x){return x.facet===facet&&x.tier===1&&x.degree>0;})
@@ -1164,6 +1355,7 @@
       var how=el('ul','atl-how');
       ['Bands hold kinds of narrative idea; story time runs left to right in recorded phase order, one hairline per phase, Books shaded in turn.',
        'Across, a concept sits near the phases it is recorded with: directly, through its genre, or through its recorded neighbours. Concepts with no such record are spread evenly. Nearness alone is never a relationship.',
+       S.narrative?'Threads are recorded proposal relationships, coloured by the kind of idea they reach. With Story structure on, a larger genre mark has a larger role in its contract, a framed mark is a recorded structural parent, and size no longer counts relationships.':
        'Threads are recorded proposal relationships, coloured by the kind of idea they reach. Larger marks have more of them.',
        'Small points are local phrases recorded inside a genre or phase; they gain words as you come closer or unfold them.']
         .forEach(function(t){how.append(el('li','',t));});
@@ -1184,6 +1376,7 @@
        'Reveal deeper connections to see what its neighbours are recorded with.',
        'Examine as constellation to recompose one neighbourhood for close reading.',
        'Escape, or Return, brings back the whole atlas exactly where you were.']
+        .concat(S.narrative?['With Story structure on, selecting a genre also marks the role each phase records for it, in place; the folio lists every phase in story order with its sources.']:[])
         .forEach(function(t){steps.append(el('li','',t));});
       ways.append(steps);folio.append(ways);
       var index=el('section','atl-index');index.append(el('h4','atl-section-title','Atlas index'));
@@ -1197,6 +1390,41 @@
         index.append(d);
       });
       folio.append(index);
+    }
+    // Recorded story structure at rest: genre roles from their contracts and recorded structural parents.
+    function renderStructureFolio(){
+      var model=S.model,s=S.structure,wrap=el('section','atl-structure');
+      wrap.append(el('h4','atl-section-title','Recorded story structure'));
+      var order=['governing','primary','supporting','secondary','tertiary','local'],roles={};
+      Object.keys(s.roles).forEach(function(id){var r=s.roles[id].role;(roles[r]=roles[r]||[]).push(id);});
+      Object.keys(roles).sort(function(a,b){var x=order.indexOf(a),y=order.indexOf(b);return (x<0?99:x)-(y<0?99:y)||a.localeCompare(b);}).forEach(function(r){
+        var row=el('div','atl-landmark-row');row.append(el('span','atl-landmark-kind atl-facet-genres',M.capital(M.human(r))+' genre'+(roles[r].length>1?'s':'')));
+        roles[r].forEach(function(id){row.append(markButton(model.byId[id],'genres',s.roles[id].sourceRef));});
+        wrap.append(row);
+      });
+      var parents=Object.keys(s.contains).sort(function(a,b){return s.contains[b].length-s.contains[a].length||a.localeCompare(b);});
+      if(parents.length){
+        var row=el('div','atl-landmark-row');row.append(el('span','atl-landmark-kind atl-facet-structure','Structural parents'));
+        parents.forEach(function(id){var b=markButton(model.byId[id],model.byId[id].facet,'contains '+s.contains[id].length);
+          b.querySelector('.atl-landmark-count').textContent='contains '+s.contains[id].length;row.append(b);});
+        wrap.append(row);
+      }
+      if(!Object.keys(s.roles).length&&!parents.length)wrap.append(el('p','atl-note','This proposal records no genre roles or structural parents.'));
+      wrap.append(el('p','atl-note','Roles come from each genre contract'+(parents.length?' and parents from recorded parent links':'')+'; these are the agent proposal’s, not author decisions.'+
+        (parents.length?' The atlas frames a parent but does not size or rank it as governing; what a parent link means for the story is in the proposal’s own words.':'')));
+      folio.append(wrap);
+      // An interpretation that names two or more of the role-bearing genres speaks to the roles themselves.
+      var seen={},about=[];
+      Object.keys(s.roles).forEach(function(id){(s.interpretations[id]||[]).forEach(function(it){seen[it.id]=(seen[it.id]||0)+1;if(seen[it.id]===2)about.push(it);});});
+      renderInterpretations(about,'Agent interpretations about these roles');
+    }
+    function markButton(cn,facet,note){
+      var b=el('button','atl-landmark atl-facet-'+facet);b.type='button';b.title=cn.title+(note?' · '+note:'');
+      b.append(el('span','atl-landmark-name',cn.name),el('span','atl-landmark-count',''));
+      b.setAttribute('aria-label',cn.title+(note?', '+note:''));b.dataset.id=cn.id;
+      b.addEventListener('click',function(){select(cn.id,{via:'atlas'});focusFolio();});
+      b.addEventListener('focus',refreshEmphasis);b.addEventListener('blur',function(){global.setTimeout(refreshEmphasis,0);});
+      return b;
     }
     function renderTrail(){
       trail.replaceChildren();
@@ -1226,6 +1454,7 @@
       if(modeButtons.research)modeButtons.research.setAttribute('aria-pressed',String(S.research&&S.mode==='atlas'));
       root.dataset.treatment=activeTreatment();root.dataset.mode=S.mode;
       motion.setAttribute('aria-pressed',String(S.reduced));
+      structureTool.setAttribute('aria-pressed',String(S.narrative));root.dataset.narrative=S.narrative?'on':'off';
       root.classList.toggle('atl-reduced',S.reduced);
       var cn=S.focus&&S.model?S.model.byId[S.focus]:null;
       var name=cn?M.shorten(cn.name,56):'';
@@ -1332,7 +1561,7 @@
     /* ---------- Source binding ---------- */
     function clearExploration(){
       if(S.raf){global.cancelAnimationFrame(S.raf);S.raf=null;}
-      S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.atlasCam=null;S.tw=null;
+      S.focus=null;S.hood=null;S.comp=null;S.trail=[];S.depth=1;S.sides={};S.restCam=null;S.atlasCam=null;S.tw=null;S.time=null;
       S.mode='atlas';S.mix=0;S.lastFocus=null;S.userCam=false;S.travelling=false;stage.style.height='';
       root.classList.remove('atl-focused','atl-examining','atl-deep','atl-travelling');
       lensbar.hidden=true;fitHood.hidden=true;compass.replaceChildren();
@@ -1345,7 +1574,7 @@
       if(!candidate||!(candidate.nodes||[]).length){S.model=null;S.atlas=null;S.sha=sha;
         buildEmpty();syncChrome();renderFolio();renderTrail();return;}
       var v=measureView();
-      try{S.model=M.buildModel(candidate,sha);S.atlas=M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
+      try{S.model=M.buildModel(candidate,sha);S.structure=M.narrativeStructure(S.model);S.atlas=M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
       catch(error){S.model=null;S.atlas=null;buildEmpty('The atlas could not be drawn: '+error.message);syncChrome();renderFolio();renderTrail();return;}
       S.sha=sha;S.pos={};Object.keys(S.atlas.positions).forEach(function(id){S.pos[id]={x:S.atlas.positions[id].x,y:S.atlas.positions[id].y};});
       empty.hidden=true;buildScene();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
@@ -1379,7 +1608,10 @@
       setReducedMotion:function(on){S.reduced=!!on;syncChrome();},
       fitAtlas:function(){fitAtlas(false);settle();},
       metrics:function(){return S.metrics;},
+      setNarrative:setNarrative,
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
+        narrative:S.narrative,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,
+          role:p.phaseRole&&p.phaseRole.role,sources:p.evidence.map(function(e){return e.sourceRef;}),relations:p.relations.slice(),parallel:p.parallel.slice()};})}:null,
         camera:Object.assign({},S.cam),restCamera:S.restCam&&Object.assign({},S.restCam),
         positions:S.model?Object.keys(S.pos).reduce(function(o,id){o[id]={x:Math.round(S.pos[id].x),y:Math.round(S.pos[id].y)};return o;},{}):{},
         home:S.atlas?Object.keys(S.atlas.positions).reduce(function(o,id){o[id]={x:Math.round(S.atlas.positions[id].x),y:Math.round(S.atlas.positions[id].y)};return o;},{}):{},

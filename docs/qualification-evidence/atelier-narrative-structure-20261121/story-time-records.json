@@ -1,0 +1,222 @@
+{
+ "what": "For each concept that two or more phase records name directly: the phases Progressive Revelation already joins to it by a recorded relation, the phases that only list it with a role, the gaps, and the role each phase records. Computed from the model (studio_atelier_model.js) at the evidence commit.",
+ "specimens": {
+  "small": {
+   "namedConcepts": 27,
+   "withDirectRecordsInTwoOrMorePhases": 3,
+   "concepts": [
+    {
+     "concept": "Literary mystery",
+     "facet": "genres",
+     "relations": 20,
+     "phases": 4,
+     "recorded": 4,
+     "shownInProgressiveRevelation": 4,
+     "listedOnly": 0,
+     "notRecorded": 0,
+     "phaseRoles": [
+      "governing",
+      "governing",
+      "governing",
+      "governing"
+     ],
+     "relatedConceptsInProgressiveRevelation": 15
+    },
+    {
+     "concept": "Fantasy",
+     "facet": "genres",
+     "relations": 14,
+     "phases": 4,
+     "recorded": 4,
+     "shownInProgressiveRevelation": 4,
+     "listedOnly": 0,
+     "notRecorded": 0,
+     "phaseRoles": [
+      "supporting",
+      "supporting",
+      "supporting",
+      "supporting"
+     ],
+     "relatedConceptsInProgressiveRevelation": 11
+    },
+    {
+     "concept": "Horror",
+     "facet": "genres",
+     "relations": 14,
+     "phases": 4,
+     "recorded": 4,
+     "shownInProgressiveRevelation": 4,
+     "listedOnly": 0,
+     "notRecorded": 0,
+     "phaseRoles": [
+      "background",
+      "locally_dominant",
+      "supporting",
+      "supporting"
+     ],
+     "relatedConceptsInProgressiveRevelation": 12
+    }
+   ]
+  },
+  "dense": {
+   "namedConcepts": 67,
+   "withDirectRecordsInTwoOrMorePhases": 7,
+   "concepts": [
+    {
+     "concept": "Institutional certification procedural",
+     "facet": "genres",
+     "relations": 32,
+     "phases": 9,
+     "recorded": 8,
+     "shownInProgressiveRevelation": 8,
+     "listedOnly": 0,
+     "notRecorded": 1,
+     "phaseRoles": [
+      "governing",
+      "governing",
+      "supporting",
+      "governing",
+      "supporting",
+      "governing",
+      "governing",
+      "-",
+      "supporting"
+     ],
+     "relatedConceptsInProgressiveRevelation": 24
+    },
+    {
+     "concept": "Tribunal drama without an overlord",
+     "facet": "genres",
+     "relations": 20,
+     "phases": 9,
+     "recorded": 3,
+     "shownInProgressiveRevelation": 3,
+     "listedOnly": 0,
+     "notRecorded": 6,
+     "phaseRoles": [
+      "-",
+      "-",
+      "-",
+      "locally_dominant",
+      "-",
+      "-",
+      "supporting",
+      "locally_dominant",
+      "-"
+     ],
+     "relatedConceptsInProgressiveRevelation": 17
+    },
+    {
+     "concept": "Craft and structural thriller",
+     "facet": "genres",
+     "relations": 18,
+     "phases": 9,
+     "recorded": 2,
+     "shownInProgressiveRevelation": 2,
+     "listedOnly": 0,
+     "notRecorded": 7,
+     "phaseRoles": [
+      "supporting",
+      "-",
+      "locally_dominant",
+      "-",
+      "-",
+      "-",
+      "-",
+      "-",
+      "-"
+     ],
+     "relatedConceptsInProgressiveRevelation": 16
+    },
+    {
+     "concept": "Evidence inquiry",
+     "facet": "genres",
+     "relations": 15,
+     "phases": 9,
+     "recorded": 4,
+     "shownInProgressiveRevelation": 2,
+     "listedOnly": 2,
+     "notRecorded": 5,
+     "phaseRoles": [
+      "-",
+      "locally_dominant",
+      "-",
+      "-",
+      "background",
+      "supporting",
+      "-",
+      "supporting",
+      "-"
+     ],
+     "relatedConceptsInProgressiveRevelation": 14
+    },
+    {
+     "concept": "Apprenticeship bildungsroman",
+     "facet": "genres",
+     "relations": 16,
+     "phases": 9,
+     "recorded": 2,
+     "shownInProgressiveRevelation": 2,
+     "listedOnly": 0,
+     "notRecorded": 7,
+     "phaseRoles": [
+      "-",
+      "-",
+      "-",
+      "-",
+      "-",
+      "locally_dominant",
+      "-",
+      "-",
+      "background"
+     ],
+     "relatedConceptsInProgressiveRevelation": 14
+    },
+    {
+     "concept": "Civic daily-life",
+     "facet": "genres",
+     "relations": 18,
+     "phases": 9,
+     "recorded": 6,
+     "shownInProgressiveRevelation": 4,
+     "listedOnly": 2,
+     "notRecorded": 3,
+     "phaseRoles": [
+      "background",
+      "background",
+      "-",
+      "background",
+      "locally_dominant",
+      "-",
+      "-",
+      "supporting",
+      "governing"
+     ],
+     "relatedConceptsInProgressiveRevelation": 16
+    },
+    {
+     "concept": "Structural disaster",
+     "facet": "genres",
+     "relations": 18,
+     "phases": 9,
+     "recorded": 3,
+     "shownInProgressiveRevelation": 3,
+     "listedOnly": 0,
+     "notRecorded": 6,
+     "phaseRoles": [
+      "-",
+      "-",
+      "background",
+      "-",
+      "-",
+      "-",
+      "background",
+      "background",
+      "-"
+     ],
+     "relatedConceptsInProgressiveRevelation": 16
+    }
+   ]
+  }
+ }
+}
