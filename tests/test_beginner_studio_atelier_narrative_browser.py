@@ -255,6 +255,9 @@ def test_no_story_time_cue_without_a_phase_record_that_refers_to_the_concept(bro
     act(small, lambda: small.evaluate(CLICK, "tropes|trope:literary_mystery:0"))
     text = folio(small)
     assert "no phase record refers to it" in text and "phases 1, 3, 4 use the same words" in text
+    # The small specimen records no parallel phases, so the folio does not mention any.
+    act(small, lambda: small.evaluate(CLICK, "genres|genre:horror"))
+    assert "in story time · 4 of 4 phases record it" in folio(small) and "parallel" not in folio(small)
     assert small.locator("#studio-atelier .atl-star.is-listed").count() == 0
     # The baseline says nothing about story time.
     base, base_errors = open_atelier(browser, served, "dense")

@@ -1278,7 +1278,8 @@
         wrap.append(list);folio.append(wrap);return;
       }
       wrap.append(el('h4','atl-section-title','In story time · '+p.recorded+' of '+p.phases.length+' phases record it'));
-      wrap.append(el('p','atl-note','Phases in recorded story order; some are recorded as running in parallel. Order is not recorded causation, '+
+      var parallel=p.phases.some(function(ph){return ph.parallel.length;});
+      wrap.append(el('p','atl-note','Phases in recorded story order'+(parallel?'; some are recorded as running in parallel':'')+'. Order is not recorded causation, '+
         'and “not recorded” is a gap in the records, not absence from the story.'+
         (cn.facet==='genres'&&S.structure&&S.structure.roles[cn.id]?' A phase role is that phase’s own record; the genre contract records '+M.human(S.structure.roles[cn.id].role)+'.':'')));
       p.phases.forEach(function(ph,i){list.append(phaseRow(ph,i,model));});
