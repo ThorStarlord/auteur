@@ -539,7 +539,7 @@
         if(st==='focus')b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
         b.classList.toggle('is-moved',!!(S.comp&&S.comp.moved.indexOf(cn.id)>=0&&st!=='focus'));
         b.classList.toggle('was-focus',!S.focus&&cn.id===S.lastFocus);
-        b.classList.toggle('is-listed',st==='dim'&&!!phaseCue(cn.id));
+        b.classList.toggle('is-listed',(st==='dim'||st==='far')&&!!phaseCue(cn.id));
       });
       var edgeLevel={};if(S.hood)S.hood.edges.forEach(function(e){edgeLevel[e.relation.id]=e.level;});
       S.model.relations.forEach(function(r){
@@ -625,7 +625,9 @@
       if(cue&&st==='near'){var k=cueKick(cue);
         return [kickSpec('nearRole',cn.name,k,220,3),kickSpec('nearRole',cn.name,k,196,2),kickSpec('nearRole',M.shorten(cn.name,30),k,196,1),
           spec('near',M.shorten(cn.name,30),196,1)];}
-      if(cue&&st==='dim')return [kickSpec('phaseListed',cn.name,cueKick(cue)),kickSpec('phaseListed',M.shorten(cn.name,30),cueKick(cue),124,2)];
+      // A phase that records the concept without a relationship to it (listed only) keeps its own mark, even
+      // when a deeper reveal reaches it through other concepts.
+      if(cue&&(st==='dim'||st==='far'))return [kickSpec('phaseListed',cn.name,cueKick(cue)),kickSpec('phaseListed',M.shorten(cn.name,30),cueKick(cue),124,2)];
       // Relationship pills: the whole name when there is room, then two lines, then a phrase cut at a word.
       if(st==='near')return [spec('near',cn.name,220,3),spec('near',cn.name,196,2),spec('near',M.shorten(cn.name,30),196,1)];
       if(st==='far')return [spec('far',cn.name),spec('far',M.shorten(cn.name,28),180,1)];
@@ -1217,8 +1219,6 @@
       var ret=el('button','atl-action atl-return','Return to the whole atlas');ret.type='button';ret.addEventListener('click',returnToAtlas);
       actions.append(ret);folio.append(actions);
     }
-    /* In story time: each phase in recorded order, with what that phase's record states for the concept
-       and where. A phase with no record says so; that is a gap in the records, not absence from the story. */
     /* In story time: each phase in recorded order, with what that phase's record states for the concept
        and where. A phase with no record says so; that is a gap in the records, not absence from the story.
        Equal wording is not identity: a phrase is linked to a phase only by a record that refers to it. */

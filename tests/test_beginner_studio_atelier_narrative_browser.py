@@ -227,6 +227,11 @@ def test_selection_names_each_phase_role_in_place_without_new_threads(browser, s
     assert "6 of 9 phases record it" in text and "order is not recorded causation" in text
     assert "phases/phase-bought-seal/genres/2" in text and "recorded as running parallel with phase 2" in text
     assert "the genre contract records supporting" in text
+    # Revealing deeper connections reaches the listed phases through other concepts; they keep their own mark.
+    act(page, lambda: page.locator('#studio-atelier [data-key="depth"]').click())
+    for phase in phases:
+        listed = phase["status"] == "recorded" and not phase["relations"]
+        assert ("is-listed" in page.evaluate(LABEL, phase["phase"])["classes"]) == listed
 
     act(page, lambda: page.keyboard.press("Escape"))
     assert page.evaluate(SNAP)["focus"] is None and page.locator("#studio-atelier .atl-star.is-listed").count() == 0
