@@ -1,0 +1,51 @@
+[
+ {
+  "actions": [
+   "Read the full explanation",
+   "Return to the whole atlas"
+  ],
+  "step": "function selected"
+ },
+ {
+  "payoffLines": [
+   "READER PAYOFFS"
+  ],
+  "payoffSourced": false,
+  "step": "genre payoffs"
+ },
+ {
+  "actions": [
+   "Open in Studio inspector",
+   "Read the full explanation",
+   "Develop new possibilities (Focused Unfolding)",
+   "Return to the whole atlas"
+  ],
+  "mentionsFunctions": false,
+  "step": "trope selected"
+ },
+ {
+  "open": true,
+  "topInViewport": 1153,
+  "viewport": 900,
+  "chips": "node · trope-first-crosser",
+  "focus": "tropes|trope-node:trope-first-crosser",
+  "step": "inspector route"
+ },
+ {
+  "focus": null,
+  "announce": "The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.",
+  "step": "revision prepared"
+ },
+ {
+  "result": "{\"status\": \"review_ready\"}",
+  "step": "agent answers"
+ },
+ {
+  "focus": null,
+  "homePositionsMoved": 156,
+  "homePositions": 156,
+  "announce": "The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.",
+  "atelierTopInViewport": -2020,
+  "step": "revision applied"
+ }
+]
