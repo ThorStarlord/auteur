@@ -12,7 +12,7 @@
     if(!Array.isArray(anchors)||anchors.length<1||anchors.length>3)throw Error('One to three anchors required');
     if(typeof authorText!=='string'||!authorText.trim()||authorText.length>4000)throw Error('Meaningful bounded author intention required');
     return{version:1,canvas_id:canvasId(),operation,expected_candidate_request_sha256:sha,
-      anchors:anchors.map(a=>{const copy={kind:a.kind,id:a.id};if(a.field)copy.field=a.field;
+      anchors:anchors.map(a=>{const copy={kind:a.kind,id:a.id};if(a.field)copy.field=a.field;if(a.field&&Number.isInteger(a.index))copy.index=a.index;
         if(a.reference)copy.reference={field:a.reference.field,target_kind:a.reference.target_kind,target_id:a.reference.target_id};return copy}),author_text:authorText};
   };
   async function prepareInquiry({anchors,operation,authorText}){

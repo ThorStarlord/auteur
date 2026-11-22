@@ -11,11 +11,12 @@
   const kindMap={node:'nodes',link:'links',genre_interaction:'genre_interactions',emotion_target:'emotion_targets',
    complex_emotion:'complex_emotions',genre_contract:'genre_contracts',phase:'phases'};
   const idKey=kind=>kind==='genre_contract'?'genre_node_id':'id';
-  const same=(a,b)=>a.kind===b.kind&&a.id===b.id&&(a.field||'')===(b.field||'')&&
+  const same=(a,b)=>a.kind===b.kind&&a.id===b.id&&(a.field||'')===(b.field||'')&&(a.index??null)===(b.index??null)&&
    JSON.stringify(a.reference||null)===JSON.stringify(b.reference||null);
   function exists(a){const c=getCandidate();if(!c||c.schema_version!==2)return false;
    const row=(c[kindMap[a.kind]]||[]).find(x=>x[idKey(a.kind)]===a.id);if(!row)return false;
    if(a.field&&!Object.prototype.hasOwnProperty.call(row,a.field))return false;
+   if(a.index!=null&&(!a.field||!Array.isArray(row[a.field])||!Number.isInteger(a.index)||a.index<0||a.index>=row[a.field].length))return false;
    if(a.reference){const field=a.reference.field,v=row[field];
     const values=field==='genre_activations'?Array.isArray(v)?v.map(x=>x.genre_node_id):[]:
        field==='parent_id'?(v?[v]:[]):Array.isArray(v)?v:[];
@@ -25,6 +26,7 @@
   function select(anchor,{append=false}={}){
    if(destroyed) return [];
    const next={kind:anchor.kind,id:anchor.id};if(anchor.field)next.field=anchor.field;
+   if(anchor.field&&anchor.index!=null)next.index=anchor.index;
    if(anchor.reference)next.reference={...anchor.reference};
    if(!exists(next))throw Error('Selected source not recorded on current candidate');
    if(getRequestSha()!==sourceSha){sourceSha=getRequestSha();anchors=[];onSelect([]);}

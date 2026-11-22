@@ -75,3 +75,10 @@ test('reset invalidates late responses after canvas switch',async()=>{
   finish({status:'ready'});await promise;
   assert.equal(seen.length,0);
 });
+test('one selected list entry keeps its index through inquiry and revision packets',async()=>{
+  const s=setup(),entry={kind:'genre_contract',id:'craft',field:'trope_functions',index:1};
+  await s.bridge.prepareInquiry({operation:'challenge',authorText:'Is this function earning its place?',anchors:[entry]});
+  await s.bridge.prepareRevision({authorText:'Change only this function.',anchors:[entry]});
+  assert.deepEqual(JSON.parse(JSON.stringify(s.calls[0].payload.anchors)),[entry]);
+  assert.deepEqual(JSON.parse(JSON.stringify(s.calls[1].payload.graph_intent.anchors)),[entry]);
+});

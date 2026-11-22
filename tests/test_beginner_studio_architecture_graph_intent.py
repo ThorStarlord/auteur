@@ -160,3 +160,53 @@ def test_reference_target_must_exist_and_be_of_correct_kind():
                   "reference": {"field": "emotion_target_ids",
                                 "target_kind": "node",
                                 "target_id": "engine"}}])
+
+
+def _with_functions():
+    source = candidate()
+    source["genre_contracts"][0]["trope_functions"] = ["the first crosser", "a bought seal"]
+    return source
+
+
+def test_one_entry_of_a_recorded_list_is_an_exact_anchor():
+    # A contextual trope function is one entry of the contract's list; selecting it must not widen to the list.
+    result = resolve([{"kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 1}],
+                     source=_with_functions())
+    anchor = result["anchors"][0]
+    assert anchor["field"] == "trope_functions" and anchor["index"] == 1
+    assert anchor["entryValue"] == "a bought seal"
+    assert anchor["entrySourceRef"] == "genre_contracts/0/trope_functions/1"
+    assert anchor["fieldValue"] == ["the first crosser", "a bought seal"]  # the surrounding record stays visible
+
+
+def test_entry_anchor_fails_closed_when_absent_or_not_a_list():
+    with pytest.raises(ValueError, match="entry not recorded"):
+        resolve([{"kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 2}],
+                source=_with_functions())
+    with pytest.raises(ValueError, match="entry not recorded"):
+        resolve([{"kind": "genre_contract", "id": "mystery", "field": "narrative_engine", "index": 0}])
+    with pytest.raises(ValidationError):
+        GraphIntent.model_validate(intent([{"kind": "genre_contract", "id": "mystery", "index": 0}]))
+    with pytest.raises(ValidationError):
+        GraphIntent.model_validate(intent([{"kind": "genre_contract", "id": "mystery",
+                                            "field": "trope_functions", "index": -1}]))
+
+
+def test_entry_and_whole_field_are_distinct_anchors_and_old_intents_still_resolve():
+    both = resolve([{"kind": "genre_contract", "id": "mystery", "field": "trope_functions"},
+                    {"kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 0}],
+                   operation="compare", source=_with_functions())
+    assert [a.get("index") for a in both["anchors"]] == [None, 0]
+    assert "entryValue" not in both["anchors"][0]
+    with pytest.raises(ValidationError):  # the same entry twice is still a duplicate
+        GraphIntent.model_validate(intent([
+            {"kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 0},
+            {"kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 0}], operation="compare"))
+
+
+def test_host_agent_cli_names_one_entry_with_the_same_notation():
+    from auteur.beginner.studio_architecture_inquiry import _parse_anchor
+    assert _parse_anchor("genre_contract:mystery@trope_functions#1") == {
+        "kind": "genre_contract", "id": "mystery", "field": "trope_functions", "index": 1}
+    assert _parse_anchor("genre_contract:mystery@trope_functions") == {
+        "kind": "genre_contract", "id": "mystery", "field": "trope_functions"}

@@ -208,7 +208,7 @@ def superseded_history(store, baseline_sha: str | None) -> list[dict]:
 def _parse_anchor(text: str) -> dict:
     kind, separator, rest = text.partition(":")
     if not separator or not rest:
-        raise ValueError("anchor must be kind:id, kind:id@field or kind:id@ref:field:target_kind:target_id")
+        raise ValueError("anchor must be kind:id, kind:id@field, kind:id@field#index or kind:id@ref:field:target_kind:target_id")
     if "@" not in rest:
         return {"kind": kind, "id": rest}
     identifier, _, spec = rest.partition("@")
@@ -216,6 +216,11 @@ def _parse_anchor(text: str) -> dict:
         _, field, target_kind, target_id = spec.split(":", 3)
         return {"kind": kind, "id": identifier,
                 "reference": {"field": field, "target_kind": target_kind, "target_id": target_id}}
+    field, hashmark, index = spec.partition("#")
+    if hashmark:  # one entry of a recorded list, numbered from 0 as in its source reference
+        if not field or not index.isdigit():
+            raise ValueError("an entry anchor is kind:id@field#index with a whole-number index")
+        return {"kind": kind, "id": identifier, "field": field, "index": int(index)}
     return {"kind": kind, "id": identifier, "field": spec}
 
 
@@ -413,7 +418,7 @@ def main(argv: list[str] | None = None) -> int:
     prepare.add_argument("--target", choices=("current", "pending_review"), default="current",
                          help="Examine the applied architecture or the pending un-applied revision")
     prepare.add_argument("--anchor", action="append", default=[],
-                         help="kind:id, kind:id@field, or kind:id@ref:field:target_kind:target_id")
+                         help="kind:id, kind:id@field, kind:id@field#index, or kind:id@ref:field:target_kind:target_id")
     prepare.add_argument("--text-file", type=Path, required=True)
     complete = commands.add_parser("complete-file")
     complete.add_argument("--response-file", type=Path, required=True)

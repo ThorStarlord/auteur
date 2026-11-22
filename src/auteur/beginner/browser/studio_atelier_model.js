@@ -668,7 +668,86 @@
     return {focus:id,phases:phases,recorded:recorded,absent:phases.filter(function(x){return x.status==='none';}).length,available:recorded>0};
   }
 
-  global.AuteurStudioAtelierModel={FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
+  /* ---------- Creative hand-off: one concept, its own recorded source ----------
+     The anchor is the typed address the Studio's inquiry and revision contract resolves on the server.
+     It is as precise as the record allows: one entry of a contract list, one recorded activation, or
+     the whole record. A concept never borrows the address of another concept with the same words. */
+  function sourceAnchor(model,id){
+    var cn=model&&model.byId[id];if(!cn)return {anchor:null,reason:'This concept is not recorded in the current working Architecture.'};
+    var c=model.candidate||{},key=String(cn.key),e=cn.entry||{},m;
+    var out=function(anchor,precision,subject,quote,sourceRef){
+      return {anchor:anchor,precision:precision,subject:subject,quote:quote==null?null:String(quote),sourceRef:sourceRef||cn.sourceRef||null};};
+    var contractName=function(g){var n=(c.nodes||[]).find(function(x){return x.id===g;});return n?n.title:g;};
+    if(cn.nodeId&&/^(genre-node|trope-node|structure-node|emotion-node|node):/.test(key))
+      return out({kind:'node',id:cn.nodeId},'record','The recorded '+human((cn.record||{}).category||'concept'),null,'nodes/'+cn.nodeId);
+    if((m=/^genre:(.+)$/.exec(key)))return out({kind:'genre_contract',id:m[1]},'record','The genre contract of '+contractName(m[1]),null);
+    if(/^trope:/.test(key)&&e.ownerGenreId&&!e.phaseId){
+      var i=Number(String(e.sourceRef).split('/').pop());
+      return out({kind:'genre_contract',id:e.ownerGenreId,field:'trope_functions',index:i},'entry',
+        'Trope function '+(i+1)+' of the '+contractName(e.ownerGenreId)+' contract',e.title,e.sourceRef);
+    }
+    if(/^structure:/.test(key)&&e.ownerGenreId&&!e.phaseId){
+      var field=String(e.sourceRef).split('/').pop();
+      return out({kind:'genre_contract',id:e.ownerGenreId,field:field},'field',
+        capital(human(field))+' of the '+contractName(e.ownerGenreId)+' contract',e.title,e.sourceRef);
+    }
+    if(/^phase-(trope|structure):/.test(key)&&e.phaseId&&e.ownerGenreId){
+      var phase=(c.phases||[]).find(function(p){return p.id===e.phaseId;})||{};
+      var count=(phase.genre_activations||[]).filter(function(a){return a.genre_node_id===e.ownerGenreId;}).length;
+      var what=(/^phase-trope/.test(key)?'local trope function':'local structural function')+' of '+contractName(e.ownerGenreId)+' in '+(phase.title||e.phaseId);
+      // A genre activated twice in one phase cannot be told apart by reference; say so rather than guess.
+      if(count===1)return out({kind:'phase',id:e.phaseId,reference:{field:'genre_activations',target_kind:'genre_contract',target_id:e.ownerGenreId}},
+        'activation','The recorded activation holding this '+what,e.title,e.sourceRef);
+      return out({kind:'phase',id:e.phaseId,field:'genre_activations'},'field',
+        'All genre activations of '+(phase.title||e.phaseId)+' (this genre is activated more than once there)',e.title,e.sourceRef);
+    }
+    if((m=/^emotion:(.+)$/.exec(key)))return out({kind:'emotion_target',id:m[1]},'record','The recorded reader-emotion target',null);
+    if((m=/^complex:(.+)$/.exec(key)))return out({kind:'complex_emotion',id:m[1]},'record','The recorded complex emotion',null);
+    if((m=/^phase:(.+)$/.exec(key)))return out({kind:'phase',id:m[1]},'record','The recorded phase',null);
+    return {anchor:null,reason:'This concept has no recorded address the inquiry contract accepts.'};
+  }
+  /* What an applied revision changed, by recorded identity. A concept is the same concept when its
+     identity is the same (a node id, or a list position for a contract's own entries); equal titles
+     never match. Relationships compare by source reference and endpoints, not by request. */
+  // A list entry (a contract's or phase's own phrase) has no identity but its position, as its source
+  // reference says; a node, contract, phase or emotion target has a recorded id.
+  function positional(cn){return !cn.nodeId&&/:\d+$/.test(String(cn.key))&&cn.tier===2;}
+  function fieldsOf(cn){
+    var r=cn.record&&typeof cn.record==='object'?cn.record:{title:cn.recordTitle,detail:(cn.entry||{}).detail||''};
+    var f={};Object.keys(r).forEach(function(k){f[k]=JSON.stringify(r[k]);});return f;
+  }
+  function revisionDelta(prev,next){
+    var out={added:[],removed:[],reworded:[],relationsAdded:[],relationsRemoved:[],touched:{},summaryChanged:false};
+    if(!prev||!next)return out;
+    out.summaryChanged=String(prev.summary||'')!==String(next.summary||'');
+    var touch=function(id,why){if(!next.byId[id])return;(out.touched[id]=out.touched[id]||[]).indexOf(why)<0&&out.touched[id].push(why);};
+    next.concepts.forEach(function(cn){
+      var old=prev.byId[cn.id];
+      if(!old){out.added.push(cn.id);touch(cn.id,'added');return;}
+      // Every recorded field counts, not only the words drawn on the atlas (scope, order, payoffs...).
+      var a=fieldsOf(old),b=fieldsOf(cn),fields=[];
+      Object.keys(a).concat(Object.keys(b)).forEach(function(k){if(fields.indexOf(k)<0&&a[k]!==b[k])fields.push(k);});
+      var titleChanged=String(old.recordTitle)!==String(cn.recordTitle);
+      if(fields.length||titleChanged){out.reworded.push({id:cn.id,before:old.recordTitle,after:cn.recordTitle,titleChanged:titleChanged,
+        fields:fields.filter(function(k){return k!=='title'&&k!=='detail';}),positional:positional(cn)});touch(cn.id,'reworded');}
+    });
+    prev.concepts.forEach(function(cn){if(!next.byId[cn.id])out.removed.push({id:cn.id,title:cn.recordTitle});});
+    var key=function(r){return r.sourceRef+'|'+r.from+'|'+r.to+'|'+r.verb;},was={},now={};
+    prev.relations.forEach(function(r){was[key(r)]=r;});next.relations.forEach(function(r){now[key(r)]=r;});
+    var plainRel=function(r){return {from:r.from,to:r.to,verb:r.verb,sourceRef:r.sourceRef,id:r.id};};
+    next.relations.forEach(function(r){if(!was[key(r)]){out.relationsAdded.push(plainRel(r));touch(r.from,'relations');touch(r.to,'relations');}});
+    prev.relations.forEach(function(r){if(!now[key(r)]){out.relationsRemoved.push(plainRel(r));touch(r.from,'relations');touch(r.to,'relations');}});
+    return out;
+  }
+  /* What the layout is computed from apart from relationships: story order and scope, and where each
+     concept belongs. When these are unchanged, a revision can keep the atlas the author was reading. */
+  function layoutBasis(model){
+    return JSON.stringify({phases:model.timeline.map(function(p){var r=p.record||{};return [p.id,r.order,r.scope||null];}),
+      concepts:model.concepts.map(function(cn){var r=cn.record||{};return [cn.id,cn.facet,cn.tier,cn.phaseId||null,cn.ownerGenreId||null,
+        r.scope||null,r.category||null];}).sort(function(a,b){return a[0]<b[0]?-1:a[0]>b[0]?1:0;})});
+  }
+
+  global.AuteurStudioAtelierModel={sourceAnchor:sourceAnchor,revisionDelta:revisionDelta,layoutBasis:layoutBasis,positional:positional,FACETS:FACETS,FACET_LABEL:FACET_LABEL,FACET_SINGULAR:FACET_SINGULAR,
     TREATMENTS:TREATMENTS,MODES:MODES,buildModel:buildModel,layoutAtlas:layoutAtlas,restCamera:restCamera,
     neighbourhood:neighbourhood,compose:compose,measure:measure,labelRect:labelRect,placeRect:placeRect,
     placeLabels:placeLabels,shorten:shorten,human:human,capital:capital,displayTitle:displayTitle,bookLabel:bookLabel,bookScope:bookScope,narrativeStructure:narrativeStructure,storyPathway:storyPathway,

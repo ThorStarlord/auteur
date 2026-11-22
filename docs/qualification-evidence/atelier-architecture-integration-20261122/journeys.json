@@ -1,0 +1,189 @@
+[
+ {
+  "focus": "tropes|trope-node:trope-first-crosser",
+  "uses": [
+   "RECORDED CONTEXTUAL FUNCTIONS",
+   "SAME WORDS, NOT RECORDED AS THIS TROPE",
+   "9 local phrases (Institutional certification procedural · Craft and structural thriller · Apprenticeship bildungsroman · Structural disaster · The Signature Is Worth a Body · The First Crosser · The Public Underwrites) repeat its words. Equal wording is not a recorded link, so the atlas does not join them; a revision could record which ones realise it."
+  ],
+  "step": "A1 select shared trope"
+ },
+ {
+  "chips": "node · trope-first-crosser",
+  "operation": "Request holistic revision",
+  "focusKept": "tropes|trope-node:trope-first-crosser",
+  "scrolledTo": 1091,
+  "activeIsQuestion": "Your creative intention",
+  "step": "A2 hand-off to coding-agent panel"
+ },
+ {
+  "focusKept": "tropes|trope-node:trope-first-crosser",
+  "working": "A revision request about “The First Crosser” is waiting for your coding agent. Nothing has changed.\n\nShow the request",
+  "announce": "Trope “The First Crosser”: 2 documented relationships, revealed in place.",
+  "step": "A3 revision request prepared"
+ },
+ {
+  "result": "{\"status\": \"review_ready\"}",
+  "step": "A4 coding agent answers"
+ },
+ {
+  "working": "A proposed revision about “The First Crosser” is ready for your review. The working Architecture is unchanged until you apply it.\n\nReview the proposed revision",
+  "diff": [
+   "Requested change: Record which of these genre and phase functions realise The First Crosser. Change nothing else.",
+   "Revised architecture summary (not causal rationale): A fourteen-Book optimistic architecture whose governing engine is risk transfer, not detection and not politics. A ward's signature is the act that moves the consequence of being wrong off the builder, off the crown, and onto one named person who cannot indemnify herself. Every other mechanism in this proposal exists to distribute, disguise, dispute, or finally share that transfer. Causal organization is proposed as a primary engine with layered subordinates - an agent proposal, because the brief declares no engine hierarchy, complexity or causal distribution: the signature-burden engine owns the series, and beneath it sit the unverifiable-certificate engine (trust only ever reaches a signer secondhand), precedent memory (what an old signature still binds), succession (who is permitted to sign next), the crossing-public engine (use as the only test the guild did not write), the compressed-labor engine (one name summarizing judgements made by people who are never named), the standing market (a reputation is an asset, therefore a thing that can be bought), and capture pressure (crown and contractors buying the function of certification while refusing its liability). Two layers are deliberately outside that ownership. Material load - the span itself, indifferent to paper - is the unparented dispute: a span can be certified and fail, or purchased and hold, and the series must live with both. Capture pressure is a competing claimant rather than a servant, which is why the crown's exclusion never becomes a war. The emotional promise is earned trust: not relief, not safety, but the specific joy-plus-fear of having decided to rely on a stranger and having been right, with the cost still visible. The progression runs from elegant unease, through anger at purchase, into somatic fear, disgust at institutions, grief for forty unknowing years, and out into a hard, shared consent rather than restored innocence. Book 12 is the structural center: the false binary of close-or-keep is replaced by the recognition that only a ward can unbind a span, the only ward whose signature binds the Old Span was bought, and therefore no verdict is available - so the decision becomes a re-allocation of risk to the party that has actually been underwriting it for forty years, the crossing public, knowingly and at visible cost. The series never says certification is meaningless; it says a certificate must name its true bearer. No basic-emotion word appears in the brief, so every emotion target here is agent_proposed; no genre is declared, so every genre contract is a working framing. All of this is a noncanonical proposal.",
+   "phase - The First Crosser: Brings fear to the surface as the primary emotion and demonstrates that the architecture's cost model has a flaw the guild has never priced. The phase's honest pleasure is that a crossing can hold, and holding is not the same as being vindicated. | Reader experience: Somatic and narrow. The world contracts to a span at night, and the reader notices they have stopped caring about the argument and started caring about the load. | Transition: If one person can be made to carry everything, the next question is what happens when no single person is available to carry it. -> Brings fear to the surface as the primary emotion and demonstrates that the architecture's cost model has a flaw the guild has never priced. The phase's honest pleasure is that a crossing can hold, and holding is not the same as being vindicated. | Reader experience: Somatic and narrow. The world contracts to a span at night, and the reader notices they have stopped caring about the argument and started caring about the load. | Transition: If one person can be made to carry everything, the next question is what happens when no single person is available to carry it.",
+   "phase - The Signature Is Worth a Body: Establishes the governing engine and its cost structure without yet testing it. The phase's job is to make the reader want this system to work, because everything afterward depends on that wish being real. | Reader experience: Sweet unease. Delight at an elegant system, undercut by the growing awareness that the elegance depends on someone agreeing to be wrong in public. | Transition: Once the reader understands what a signature actually costs, the first purchased one becomes legible as theft rather than error. -> Establishes the governing engine and its cost structure without yet testing it. The phase's job is to make the reader want this system to work, because everything afterward depends on that wish being real. | Reader experience: Sweet unease. Delight at an elegant system, undercut by the growing awareness that the elegance depends on someone agreeing to be wrong in public. | Transition: Once the reader understands what a signature actually costs, the first purchased one becomes legible as theft rather than error.",
+   "phase - The Public Underwrites: Relocates the burden to the party that has factually carried it all along, which is the single most important preparation for Book 12 and the reason the finale can be a re-allocation rather than a verdict. | Reader experience: A shift of footing. The reader's loyalty to the guild is exposed as a preference for being managed, and the crowd becomes both more sympathetic and less safe. | Transition: Once the public is a party, the guild's own right to exist becomes a question the public can ask. -> Relocates the burden to the party that has factually carried it all along, which is the single most important preparation for Book 12 and the reason the finale can be a re-allocation rather than a verdict. | Reader experience: A shift of footing. The reader's loyalty to the guild is exposed as a preference for being managed, and the crowd becomes both more sympathetic and less safe. | Transition: Once the public is a party, the guild's own right to exist becomes a question the public can ask.",
+   "genre contract - genre-apprenticeship: Role: supporting; engine: Making a signer. Each generation is taught by exposure, vouched for by someone whose own warrant is unaudited, and then asked to vouch in turn. The engine renews across decades without a reset because the guild, not a cast, is the continuous character.; structure: Instruction, supervised exposure, vouch, inheritance of an unexamined assumption. The pattern's fourth beat is what the series keeps returning to, since it is the beat nobody inside the guild ever sees. -> Role: supporting; engine: Making a signer. Each generation is taught by exposure, vouched for by someone whose own warrant is unaudited, and then asked to vouch in turn. The engine renews across decades without a reset because the guild, not a cast, is the continuous character.; structure: Instruction, supervised exposure, vouch, inheritance of an unexamined assumption. The pattern's fourth beat is what the series keeps returning to, since it is the beat nobody inside the guild ever sees.",
+   "genre contract - genre-craft-thriller: Role: supporting; engine: Judgement under irreversible exposure. Inspection cannot confirm safety, only find reasons not to sign, so every scene generates tension from the asymmetry between evidence and decision rather than from physical jeopardy. Renews every Book because every span is a fresh refusal to be known.; structure: Approach, inspection, decision, crossing. The crossing is the fixed point and must vary in manner - at night, with a crowd, by proxy, refused - or the pattern becomes liturgy. -> Role: supporting; engine: Judgement under irreversible exposure. Inspection cannot confirm safety, only find reasons not to sign, so every scene generates tension from the asymmetry between evidence and decision rather than from physical jeopardy. Renews every Book because every span is a fresh refusal to be known.; structure: Approach, inspection, decision, crossing. The crossing is the fixed point and must vary in manner - at night, with a crowd, by proxy, refused - or the pattern becomes liturgy.",
+   "genre contract - genre-disaster: Role: tertiary; engine: Permanent possibility rather than incident. Because a span can always fail, every procedural scene is nervously underwritten, and the threat renews without being spent. Used as actual event it arbitrates absolutely, so the series must ration it to preserve the moral questions.; structure: Held pressure with rare release. When released, it arrives without regard to who was right, and the aftermath is administered rather than mourned. -> Role: tertiary; engine: Permanent possibility rather than incident. Because a span can always fail, every procedural scene is nervously underwritten, and the threat renews without being spent. Used as actual event it arbitrates absolutely, so the series must ration it to preserve the moral questions.; structure: Held pressure with rare release. When released, it arrives without regard to who was right, and the aftermath is administered rather than mourned."
+  ],
+  "focusKept": "tropes|trope-node:trope-first-crosser",
+  "step": "A5 review ready"
+ },
+ {
+  "scrollY": 168,
+  "activeStar": "tropes|trope-node:trope-first-crosser",
+  "step": "A6 back to the atlas before applying"
+ },
+ {
+  "focus": "tropes|trope-node:trope-first-crosser",
+  "revision": {
+   "keptLayout": true,
+   "touched": [
+    "genres|genre:genre-procedural",
+    "genres|genre:genre-craft-thriller",
+    "genres|genre:genre-apprenticeship",
+    "genres|genre:genre-disaster",
+    "timeline|phase:phase-first-signature",
+    "timeline|phase:phase-first-crosser",
+    "timeline|phase:phase-public-underwrites",
+    "tropes|trope:genre-procedural:1",
+    "tropes|trope-node:trope-first-crosser",
+    "tropes|trope:genre-craft-thriller:0",
+    "tropes|trope:genre-apprenticeship:2",
+    "tropes|trope:genre-disaster:1",
+    "tropes|phase-trope:phase-first-signature:genre-procedural:1",
+    "tropes|phase-trope:phase-first-signature:genre-craft-thriller:0",
+    "tropes|phase-trope:phase-first-crosser:genre-craft-thriller:0",
+    "tropes|phase-trope:phase-first-crosser:genre-procedural:1",
+    "tropes|phase-trope:phase-public-underwrites:genre-procedural:0"
+   ],
+   "reworded": [
+    "genres|genre:genre-procedural",
+    "genres|genre:genre-craft-thriller",
+    "genres|genre:genre-apprenticeship",
+    "genres|genre:genre-disaster",
+    "timeline|phase:phase-first-signature",
+    "timeline|phase:phase-first-crosser",
+    "timeline|phase:phase-public-underwrites"
+   ],
+   "relationsAdded": [
+    "genre_contracts/genre-procedural/trope_function_refs/0",
+    "genre_contracts/genre-craft-thriller/trope_function_refs/0",
+    "genre_contracts/genre-apprenticeship/trope_function_refs/0",
+    "genre_contracts/genre-disaster/trope_function_refs/0",
+    "phases/phase-first-signature/genre_activations/genre-procedural#0/trope_function_refs/0",
+    "phases/phase-first-signature/genre_activations/genre-craft-thriller#1/trope_function_refs/0",
+    "phases/phase-first-crosser/genre_activations/genre-craft-thriller#0/trope_function_refs/0",
+    "phases/phase-first-crosser/genre_activations/genre-procedural#1/trope_function_refs/0",
+    "phases/phase-public-underwrites/genre_activations/genre-procedural#1/trope_function_refs/0"
+   ],
+   "relationsRemoved": [],
+   "removed": []
+  },
+  "uses": [
+   "Relationship added · performed as a function here the first crosser (Institutional certification procedural contract) Source · genre_contracts/genre-procedural/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (Craft and structural thriller contract) Source · genre_contracts/genre-craft-thriller/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (Apprenticeship bildungsroman contract) Source · genre_contracts/genre-apprenticeship/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (Structural disaster contract) Source · genre_contracts/genre-disaster/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (The Signature Is Worth a Body · Institutional certification procedural) Source · phases/phase-first-signature/genre_activations/genre-procedural#0/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (The Signature Is Worth a Body · Craft and structural thriller) Source · phases/phase-first-signature/genre_activations/genre-craft-thriller#1/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (The First Crosser · Craft and structural thriller) Source · phases/phase-first-crosser/genre_activations/genre-craft-thriller#0/trope_function_refs/0",
+   "Relationship added · performed as a function here the first crosser (The First Crosser · Institutional certification procedural) Source · phases/phase-first-crosser/genre_activations/genre-procedural#1/trope_function_refs/0"
+  ],
+  "announce": "Your revision was applied to the working Architecture. 17 concepts changed and are marked in the atlas. “The First Crosser” is still selected. Every concept kept its place. Accepted story is unchanged.",
+  "homePositionsMoved": 0,
+  "homePositions": 156,
+  "step": "A7 applied and returned"
+ },
+ {
+  "focus": "tropes|trope:genre-craft-thriller:0",
+  "trail": [
+   "tropes|trope-node:trope-first-crosser",
+   "tropes|trope:genre-craft-thriller:0"
+  ],
+  "develop": "Trope function 1 of the Craft and structural thriller contract\nthe first crosser\nSource · genre_contracts/genre-craft-thriller/trope_functions/0",
+  "step": "A8 into one contextual function"
+ },
+ {
+  "focus": "tropes|trope-node:trope-first-crosser",
+  "step": "A9 back to the shared trope (exploration path)"
+ },
+ {
+  "chips": "genre_contract · genre-craft-thriller / trope_functions · entry 1",
+  "focusKept": "tropes|trope:genre-craft-thriller:0",
+  "requestAnchorHasEntry": true,
+  "requestEntryRef": true,
+  "step": "A10 one-function revision requested"
+ },
+ {
+  "result": "{\"status\": \"review_ready\"}",
+  "step": "A11 coding agent answers"
+ },
+ {
+  "diff": [
+   "Requested change: Rewrite only this Craft thriller function: the first crosser should be the craftsman's own apprentice. Keep it realising The First Crosser; leave every other use alone.",
+   "Revised architecture summary (not causal rationale): A fourteen-Book optimistic architecture whose governing engine is risk transfer, not detection and not politics. A ward's signature is the act that moves the consequence of being wrong off the builder, off the crown, and onto one named person who cannot indemnify herself. Every other mechanism in this proposal exists to distribute, disguise, dispute, or finally share that transfer. Causal organization is proposed as a primary engine with layered subordinates - an agent proposal, because the brief declares no engine hierarchy, complexity or causal distribution: the signature-burden engine owns the series, and beneath it sit the unverifiable-certificate engine (trust only ever reaches a signer secondhand), precedent memory (what an old signature still binds), succession (who is permitted to sign next), the crossing-public engine (use as the only test the guild did not write), the compressed-labor engine (one name summarizing judgements made by people who are never named), the standing market (a reputation is an asset, therefore a thing that can be bought), and capture pressure (crown and contractors buying the function of certification while refusing its liability). Two layers are deliberately outside that ownership. Material load - the span itself, indifferent to paper - is the unparented dispute: a span can be certified and fail, or purchased and hold, and the series must live with both. Capture pressure is a competing claimant rather than a servant, which is why the crown's exclusion never becomes a war. The emotional promise is earned trust: not relief, not safety, but the specific joy-plus-fear of having decided to rely on a stranger and having been right, with the cost still visible. The progression runs from elegant unease, through anger at purchase, into somatic fear, disgust at institutions, grief for forty unknowing years, and out into a hard, shared consent rather than restored innocence. Book 12 is the structural center: the false binary of close-or-keep is replaced by the recognition that only a ward can unbind a span, the only ward whose signature binds the Old Span was bought, and therefore no verdict is available - so the decision becomes a re-allocation of risk to the party that has actually been underwriting it for forty years, the crossing public, knowingly and at visible cost. The series never says certification is meaningless; it says a certificate must name its true bearer. No basic-emotion word appears in the brief, so every emotion target here is agent_proposed; no genre is declared, so every genre contract is a working framing. All of this is a noncanonical proposal.",
+   "genre contract - genre-craft-thriller: Role: supporting; engine: Judgement under irreversible exposure. Inspection cannot confirm safety, only find reasons not to sign, so every scene generates tension from the asymmetry between evidence and decision rather than from physical jeopardy. Renews every Book because every span is a fresh refusal to be known.; structure: Approach, inspection, decision, crossing. The crossing is the fixed point and must vary in manner - at night, with a crowd, by proxy, refused - or the pattern becomes liturgy. -> Role: supporting; engine: Judgement under irreversible exposure. Inspection cannot confirm safety, only find reasons not to sign, so every scene generates tension from the asymmetry between evidence and decision rather than from physical jeopardy. Renews every Book because every span is a fresh refusal to be known.; structure: Approach, inspection, decision, crossing. The crossing is the fixed point and must vary in manner - at night, with a crowd, by proxy, refused - or the pattern becomes liturgy."
+  ],
+  "step": "A12 review"
+ },
+ {
+  "focus": "tropes|trope:genre-craft-thriller:0",
+  "revision": {
+   "keptLayout": true,
+   "touched": [
+    "genres|genre:genre-craft-thriller",
+    "tropes|trope:genre-craft-thriller:0"
+   ],
+   "reworded": [
+    "genres|genre:genre-craft-thriller",
+    "tropes|trope:genre-craft-thriller:0"
+   ],
+   "relationsAdded": [],
+   "relationsRemoved": [],
+   "removed": []
+  },
+  "revised": "CHANGED BY THE REVISION YOU APPLIED\nEntry at this position · the first crosser → the first crosser is the craftsman's own apprentice, crossing work she helped sign\nA list entry is identified only by its position, so this may be a different entry rather than new wording.\n\nCompared with the working version before the revision you applied. A working change, not accepted story; the Architecture records only its current version.",
+  "step": "A13 applied, returned to the function"
+ },
+ {
+  "focus": "structure|structure-node:engine-risk-transfer",
+  "interp": true,
+  "develop": "The recorded engine\nSource · nodes/engine-risk-transfer",
+  "step": "B1 select engine"
+ },
+ {
+  "working": "A question is waiting for your coding agent.\n\nShow the question",
+  "focusKept": "structure|structure-node:engine-risk-transfer",
+  "step": "B2 question prepared"
+ },
+ {
+  "working": "Your coding agent answered a question about “The Signature Burden Engine (governing center)”. Its answer is an interpretation, not a change to the Architecture.\n\nRead the answer",
+  "result": "Agent interpretation — noncanonical\n\nThe engine's own record says reversals come from re-opening a completed transfer rather than from raising stakes, and its recorded link to the Precedent Memory Engine says every completed transfer becomes a standing obligation. No phase record names the engine, so the Architecture does not say where a re-opening first becomes visible. Reading the phases' own functions, the Guild-as-defendant and old-span phases are where a past signature is examined in public",
+  "step": "B3 answer"
+ },
+ {
+  "focus": "structure|structure-node:engine-risk-transfer",
+  "scrollY": 168,
+  "step": "B4 returned"
+ },
+ {
+  "canvasRevisionBefore": 1,
+  "canvasRevisionAfter": 3,
+  "acceptedFilesUnchanged": true,
+  "pageErrors": [],
+  "step": "integrity"
+ }
+]

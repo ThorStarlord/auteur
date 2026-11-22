@@ -486,3 +486,7 @@ body.scene-docked #inspector { display:none; }
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+/* Atelier study only: return from the coding-agent panel or review to the atlas where the author left it. */
+.atelier-return{display:block;margin:6px 0 8px;padding:5px 12px;border-radius:999px;border:1px solid #cdbfe0;
+  background:#f6f1fa;color:#4d3d66;font-weight:600;cursor:pointer}
+.atelier-return:hover{background:#eee5f7}

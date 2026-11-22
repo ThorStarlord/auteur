@@ -1,0 +1,25 @@
+{
+ "main": {
+  "selectSyncMs": {
+   "median": 19.6,
+   "max": 50.9,
+   "n": 12
+  },
+  "lastSettle": {
+   "meanFrameMs": 16.7,
+   "maxFrameMs": 16.8
+  }
+ },
+ "candidate": {
+  "selectSyncMs": {
+   "median": 19.8,
+   "max": 60.4,
+   "n": 12
+  },
+  "lastSettle": {
+   "meanFrameMs": 16.7,
+   "maxFrameMs": 16.8
+  }
+ },
+ "note": "Windowed Chromium, NVIDIA RTX 5060 Ti, 60 Hz; click to folio rendered, 4 concepts x 3 rounds per arm; main = 21a4506c, candidate = 8ea9b22a"
+}

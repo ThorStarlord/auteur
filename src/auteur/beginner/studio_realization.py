@@ -133,6 +133,8 @@ def _anchor_ref(anchor: dict) -> str:
     ref = f"{anchor['kind']}:{anchor['id']}"
     if anchor.get("field"):
         ref += "@" + anchor["field"]
+        if anchor.get("index") is not None:
+            ref += f"#{anchor['index']}"
     if anchor.get("reference"):
         record = anchor["reference"]
         ref += f"@{record['field']}:{record['target_kind']}:{record['target_id']}"
