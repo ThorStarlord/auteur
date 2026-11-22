@@ -3065,7 +3065,9 @@
         getRequestSha: function(){ return state.architectureRequestSha; },
         getSourceStatus: function(){ return state.architectureSourceStatus; },
         treatment: atelierParam.toUpperCase(),
-        initial: {focus: atelierParams.get("focus"), depth: Number(atelierParams.get("depth")) || 1},
+        initial: {focus: atelierParams.get("focus"), depth: Number(atelierParams.get("depth")) || 1,
+          // Story-structure comparison inside the study (&narrative); off unless asked for.
+          narrative: atelierParams.has("narrative") && atelierParams.get("narrative") !== "0"},
         // Inspecting and explaining reuse the Studio's own source-bound surfaces.
         onInspect: function(concept){
           if (!candidateNode(concept.nodeId)) { status("That architecture source is no longer recorded."); return; }

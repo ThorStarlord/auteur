@@ -630,25 +630,34 @@
     return {roles:roles,contains:contains,partOf:partOf,anchors:anchors,governing:governing,interpretations:interpretations};
   }
   // A concept's recorded participation in each phase, in story order. A phase is 'recorded' only
-  // when a relation joins the concept and that phase, or the concept is a function recorded inside
-  // it; every other phase is 'none'. Chains through other concepts are never counted.
+  // when the phase record itself states it: a relation joins the concept and that phase (a genre's
+  // activation), the phase lists the genre with a role, or the concept is a function recorded inside
+  // the phase. Every other phase is 'none': not recorded, which is not the same as absent from the
+  // story. Chains through other concepts are never counted, and story order is not causation.
   function storyPathway(model,id){
     var cn=model.byId[id];if(!cn)return null;
     var ownGenre=cn.facet==='genres'&&cn.nodeId?cn.nodeId:null;
     var phases=model.timeline.map(function(ph,i){
-      var rec=ph.record||{},pid=rec.id||ph.key.replace(/^phase:/,''),out={phase:ph.id,order:i,status:'none',kind:null,relations:[],locals:[],phaseRole:null};
+      var rec=ph.record||{},pid=rec.id||ph.key.replace(/^phase:/,''),
+        out={phase:ph.id,order:i,status:'none',kinds:[],evidence:[],relations:[],locals:[],phaseRole:null};
       if(ph.id===id){out.status='self';return out;}
-      (model.adjacency[id]||[]).forEach(function(a){if(a.other===ph.id){out.relations.push(a.relation.id);out.kind='direct';}});
-      if(cn.tier===2&&cn.phaseId===pid){out.kind='recorded-in';}
+      (model.adjacency[id]||[]).forEach(function(a){if(a.other!==ph.id)return;
+        out.relations.push(a.relation.id);
+        out.evidence.push({kind:'relation',verb:a.verb,sourceRef:a.relation.sourceRef,reason:a.relation.reason||null});});
+      if(cn.tier===2&&cn.phaseId===pid)out.evidence.push({kind:'recorded-in',sourceRef:cn.sourceRef});
+      // A phase names a genre by its node id or its recorded title; nothing looser is matched.
+      if(ownGenre)(rec.genres||[]).forEach(function(g,j){
+        if(!out.phaseRole&&g&&g.role&&(g.genre===ownGenre||g.genre===cn.recordTitle)){
+          out.phaseRole={role:String(g.role),sourceRef:'phases/'+pid+'/genres/'+j};
+          out.evidence.push({kind:'role',role:String(g.role),sourceRef:out.phaseRole.sourceRef});
+        }
+      });
       if(ownGenre)(model.adjacency[ph.id]||[]).forEach(function(a){
         var x=model.byId[a.other];
-        if(x&&x.tier===2&&x.phaseId===pid&&x.ownerGenreId===ownGenre)out.locals.push({id:x.id,relation:a.relation.id});
+        if(x&&x.tier===2&&x.phaseId===pid&&x.ownerGenreId===ownGenre)out.locals.push({id:x.id,relation:a.relation.id,sourceRef:x.sourceRef});
       });
-      if(ownGenre)(rec.genres||[]).forEach(function(g,j){
-        if(!out.phaseRole&&g&&(g.genre===ownGenre||g.genre===cn.recordTitle)&&g.role)
-          out.phaseRole={role:String(g.role),sourceRef:'phases/'+pid+'/genres/'+j};
-      });
-      if(out.kind)out.status='recorded';
+      out.evidence.forEach(function(e){if(out.kinds.indexOf(e.kind)<0)out.kinds.push(e.kind);});
+      if(out.evidence.length)out.status='recorded';
       return out;
     });
     var recorded=phases.filter(function(x){return x.status==='recorded';}).length;

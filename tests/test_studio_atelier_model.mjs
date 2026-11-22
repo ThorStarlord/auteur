@@ -257,11 +257,24 @@ test('narrative structure and story pathways state only recorded facts, never de
     for (const ph of p.phases) {
       for (const r of ph.relations) assert.ok(dense.relById[r], r);
       for (const l of ph.locals) assert.ok(dense.relById[l.relation] && dense.byId[l.id]);
-      if (ph.status === 'none') assert.equal(ph.relations.length + ph.locals.length, 0);
+      if (ph.status === 'none') assert.equal(ph.relations.length + ph.locals.length + ph.evidence.length, 0);
+      // Every occurrence names the record that states it.
+      for (const e of ph.evidence) assert.ok(resolve(DENSE, e.sourceRef.split('#')[0]) !== undefined, e.sourceRef);
       if (ph.phaseRole) assert.ok(resolve(DENSE, ph.phaseRole.sourceRef));
     }
   }
+  // Civic daily-life: activated in phases 1, 5, 8, 9 and listed with a role in 2 and 4; background to governing.
   const civic = M.storyPathway(dense, 'genres|genre:genre-civic-life');
-  assert.deepEqual(plain(civic.phases.map((x) => x.status === 'recorded' ? 1 : 0)), [1, 0, 0, 0, 1, 0, 0, 1, 1]);
-  assert.equal(M.storyPathway(dense, 'structure|structure-node:engine-risk-transfer').available, false);
+  assert.deepEqual(plain(civic.phases.map((x) => x.status === 'recorded' ? 1 : 0)), [1, 1, 0, 1, 1, 0, 0, 1, 1]);
+  assert.deepEqual(plain(civic.phases.map((x) => x.phaseRole && x.phaseRole.role)),
+    ['background', 'background', null, 'background', 'locally_dominant', null, null, 'supporting', 'governing']);
+  assert.deepEqual(plain(civic.phases[1].kinds), ['role']);
+  assert.deepEqual(plain(civic.phases[0].kinds), ['relation', 'role']);
+  // The central mechanism has recorded structure but no phase records it: no pathway, not 'absent'.
+  const engine = M.storyPathway(dense, 'structure|structure-node:engine-risk-transfer');
+  assert.equal(engine.available, false);
+  assert.ok(engine.phases.every((x) => x.status === 'none'));
+  // A function recorded inside one phase occurs there only.
+  const local = dense.concepts.find((x) => x.tier === 2 && x.phaseId);
+  assert.equal(M.storyPathway(dense, local.id).recorded, 1);
 });

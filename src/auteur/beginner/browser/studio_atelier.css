@@ -297,6 +297,55 @@
   font-size:.78rem;line-height:1.35;color:#463f36}
 .atl .atl-index-item:hover{background:#f4eee3}
 
+/* ---------- Story structure comparison (opt-in inside the study) ----------
+   Recorded genre roles size genre marks; a recorded structural parent wears a frame, which says
+   "contains", not "matters more". Each resting label style here mirrors its STYLE entry exactly. */
+.atl-text:is([data-style="landmark"],[data-style="restRole"],[data-style="phaseTrace"]) .atl-kicker{display:block;white-space:pre;letter-spacing:.12em;color:var(--c)}
+.atl-text[data-style="landmark"],.atl-text[data-style="landmarkName"],.atl-text[data-style="restRole"]{padding:1px 2px;
+  text-shadow:0 0 3px var(--atl-paper),0 0 2px var(--atl-paper),0 0 1px var(--atl-paper)}
+.atl-text[data-style="landmark"] .atl-kicker{font:700 8.5px/12px var(--atl-sans)}
+.atl-text[data-style="landmarkName"]{font:600 14px/17px var(--atl-serif);color:color-mix(in srgb,var(--atl-genre) 52%,#1e1926)}
+.atl-text[data-style="landmark"] .atl-label{font:600 14px/17px var(--atl-serif);color:color-mix(in srgb,var(--atl-genre) 52%,#1e1926)}
+.atl-text[data-style="restRole"] .atl-kicker{font:700 8px/11px var(--atl-sans)}
+.atl-text[data-style="restRole"] .atl-label{font:500 10.5px/12.5px var(--atl-sans);color:color-mix(in srgb,var(--c) 30%,#3a332b)}
+.atl[data-narrative="on"] .atl-star[data-role="governing"] .atl-glyph::before,
+.atl[data-narrative="on"] .atl-star[data-role="primary"] .atl-glyph::before{box-shadow:0 0 0 2px var(--atl-paper),0 0 0 3.2px color-mix(in srgb,var(--c) 55%,transparent)}
+.atl[data-narrative="on"] .atl-star.is-parent .atl-glyph::after{content:"";position:absolute;left:50%;top:50%;width:17px;height:17px;
+  transform:translate(-50%,-50%);border:1.4px solid var(--c);border-radius:3px;opacity:.7;pointer-events:none}
+.atl[data-narrative="on"]:not(.atl-focused) .atl-g-back .atl-edge[data-kind="node_hierarchy"]{stroke-width:1.15;opacity:.34}
+/* Story-time trace: the phases speak; everything else steps back without moving. */
+.atl-text[data-style="phaseTrace"]{padding:2px 4px;border-radius:6px;background:rgba(255,253,248,.94);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 32%,transparent)}
+.atl-text[data-style="phaseTrace"] .atl-kicker{font:700 8px/11px var(--atl-sans)}
+.atl-text[data-style="phaseTrace"] .atl-label{font:600 11.5px/13.5px var(--atl-serif);color:var(--atl-ink)}
+.atl.atl-tracing .atl-star.is-untraced{opacity:.16}
+.atl.atl-tracing .atl-star.is-untraced .atl-text{opacity:0}
+.atl.atl-tracing .atl-edge.is-untraced{opacity:.05}
+.atl.atl-tracing .atl-g-back{opacity:.1}
+.atl.atl-tracing .atl-spine{opacity:.1}
+.atl.atl-tracing .atl-verb{display:none}
+.atl.atl-tracing .atl-star.is-occurs .atl-glyph,.atl.atl-tracing .atl-star.is-occurs:not(.is-quiet) .atl-text{opacity:1}
+.atl.atl-tracing .atl-star.is-occurs .atl-glyph::before{background:var(--c);box-shadow:0 0 0 3px var(--t),0 0 0 4px color-mix(in srgb,var(--c) 40%,transparent)}
+.atl.atl-tracing .atl-star.is-unrecorded .atl-glyph{opacity:.8}
+.atl.atl-tracing .atl-star.is-unrecorded .atl-glyph::before{background:transparent;box-shadow:none;outline:1.5px dashed color-mix(in srgb,var(--c) 70%,transparent);outline-offset:-1.5px}
+.atl.atl-tracing .atl-star.is-unrecorded:not(.is-quiet) .atl-text{opacity:.78;background:transparent;box-shadow:none;outline:1px dashed color-mix(in srgb,var(--c) 40%,transparent);outline-offset:-1px}
+.atl.atl-tracing .atl-star.is-unrecorded .atl-kicker{color:#857a6b}
+.atl-storytime .atl-st-list{list-style:none;margin:6px 0 0;padding:0}
+.atl-st-item{margin:2px 0}
+.atl .atl-st-row{display:grid;grid-template-columns:1.6em minmax(0,1fr) auto;align-items:baseline;gap:6px;width:100%;padding:6px 8px;
+  text-align:left;border:0;border-radius:8px;background:transparent;color:var(--atl-ink)}
+.atl .atl-st-row:hover,.atl .atl-st-row:focus-visible{background:#f4eee3}
+.atl-st-num{font:600 11px/1.3 var(--atl-sans);color:var(--atl-timeline);font-variant-numeric:tabular-nums}
+.atl-st-name{font:500 13px/1.32 var(--atl-serif);min-width:0}
+.atl-st-what{font:700 9.5px/1.3 var(--atl-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--atl-timeline)}
+.atl-st-item.is-unrecorded .atl-st-name,.atl-st-item.is-unrecorded .atl-st-what{color:#9a8f80}
+.atl-st-item.is-unrecorded .atl-st-num{color:#b3a998}
+.atl-st-src{display:flex;flex-wrap:wrap;gap:3px 5px;margin:0 0 2px 2.6em}
+.atl-st-src .atl-chip{font-size:.62rem;padding:2px 7px}
+.atl-st-more{margin:0 0 6px 2.6em}
+.atl-st-more summary{cursor:pointer;font-size:.72rem;color:#7a6f63}
+.atl-st-ev{margin:4px 0 0;font:12.5px/1.45 var(--atl-serif);color:#5a5247}
+
 /* Studio integration: the study is one more depth of the same Architecture. */
 #studio-atelier{flex:none;min-width:0}
 #studio-mode-atelier[aria-pressed="true"]{border-color:#3a3343;background:#2e2936;color:#fbf6ec;font-weight:700}
