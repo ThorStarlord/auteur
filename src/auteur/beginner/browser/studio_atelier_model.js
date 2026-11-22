@@ -640,6 +640,10 @@
     var phases=model.timeline.map(function(ph,i){
       var rec=ph.record||{},pid=rec.id||ph.key.replace(/^phase:/,''),
         out={phase:ph.id,order:i,status:'none',kinds:[],evidence:[],relations:[],locals:[],phaseRole:null};
+      // Phases recorded as running alongside this one (either side may record it): story order is not a strict sequence.
+      out.parallel=[];
+      (model.adjacency[ph.id]||[]).forEach(function(a){
+        if(a.relation.sourceKind==='phase'&&a.relation.verb==='runs parallel with'&&out.parallel.indexOf(a.other)<0)out.parallel.push(a.other);});
       if(ph.id===id){out.status='self';return out;}
       (model.adjacency[id]||[]).forEach(function(a){if(a.other!==ph.id)return;
         out.relations.push(a.relation.id);

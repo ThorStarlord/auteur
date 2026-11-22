@@ -270,6 +270,10 @@ test('narrative structure and story pathways state only recorded facts, never de
     ['background', 'background', null, 'background', 'locally_dominant', null, null, 'supporting', 'governing']);
   assert.deepEqual(plain(civic.phases[1].kinds), ['role']);
   assert.deepEqual(plain(civic.phases[0].kinds), ['relation', 'role']);
+  // Recorded parallel phases are carried with each phase, from either side's record.
+  assert.deepEqual(plain(civic.phases[0].parallel), ['timeline|phase:phase-bought-seal']);
+  assert.deepEqual(plain(civic.phases[1].parallel), ['timeline|phase:phase-first-signature']);
+  assert.deepEqual(plain(civic.phases[2].parallel), []);
   // The central mechanism has recorded structure but no phase records it: no pathway, not 'absent'.
   const engine = M.storyPathway(dense, 'structure|structure-node:engine-risk-transfer');
   assert.equal(engine.available, false);

@@ -1,11 +1,11 @@
-"""Served Studio: the Atelier's story-structure comparison and its story-time trace.
+"""Served Studio: the Atelier's story-structure comparison.
 
 The comparison is opt-in inside the opt-in study. It sizes genre marks by the role their contract
-records (never by relationship count), frames recorded structural parents without making them look
-more important, and can trace a concept through the phases whose records name it. Nothing moves, no
-path joins separated phases, every marked phase resolves to a recorded source, and nothing is written.
+records (never by relationship count) and frames recorded structural parents without making them look
+more important. With it on, selecting a concept also names, in place, the role each phase records for
+it, and marks a phase that lists it without activating it; no thread is added and nothing moves. Every
+marked phase resolves to a recorded source, and nothing is written.
 """
-import copy
 import json
 import os
 import time
@@ -23,8 +23,10 @@ from auteur.host_agent import HostAgentRequest, build_host_agent_response
 REPO = Path(__file__).resolve().parents[1]
 DENSE = REPO / "qualification/studio-trace/artifacts/candidate-2.json"
 SMALL = REPO / "docs/qualification-evidence/agent-first-ontology-20261103/rich-vision-candidate.json"
+SMALL_VISION = "A coastal mystery about maps that erase memory. Wonder, dread, and earned hope."
 CIVIC = "genres|genre:genre-civic-life"
 ENGINE = "structure|structure-node:engine-risk-transfer"
+PHASE = "timeline|phase:"
 
 
 def counterexample():
@@ -62,8 +64,8 @@ def served(tmp_path_factory):
     root = tmp_path_factory.mktemp("atelier-narrative")
     seed(root, "dense", json.loads(DENSE.read_text(encoding="utf-8")),
          (REPO / "qualification/studio-trace/artifacts/story_vision.txt").read_text(encoding="utf-8").strip())
-    seed(root, "counter", counterexample(),
-         "A coastal mystery about maps that erase memory. Wonder, dread, and earned hope. (Test fixture.)")
+    seed(root, "small", json.loads(SMALL.read_text(encoding="utf-8")), SMALL_VISION)
+    seed(root, "counter", counterexample(), SMALL_VISION + " (Test fixture.)")
     server = BeginnerWorkspaceServer(root, port=0)
     thread = server.start_in_thread()
     yield f"http://127.0.0.1:{server.port}"
@@ -80,13 +82,19 @@ ARM = """() => { const r = document.getElementById('studio-atelier');
   window.__settled = new Promise(res => r.addEventListener('atelier:settled', e => res(e.detail), {once: true})); }"""
 WAIT = "Promise.race([window.__settled, new Promise(r => setTimeout(() => r(null), 8000))])"
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
-SCALE = """(id) => parseFloat(getComputedStyle(document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]')).getPropertyValue('--gs'))"""
-KICKER = """(id) => { const s = document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]');
+METRICS = "document.getElementById('studio-atelier').atelierStudy.metrics()"
+STAR = """'#studio-atelier .atl-star[data-id="' + id + '"]'"""
+SCALE = "(id) => parseFloat(getComputedStyle(document.querySelector(" + STAR + ")).getPropertyValue('--gs'))"
+LABEL = """(id) => { const s = document.querySelector(""" + STAR + """);
   return {style: s.querySelector('.atl-text').dataset.style, kicker: s.querySelector('.atl-kicker').textContent,
-    shown: getComputedStyle(s.querySelector('.atl-kicker')).display !== 'none'}; }"""
-CLICK = """(id) => document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]').click()"""
-GLYPH = """(id) => { const b = document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"] .atl-glyph').getBoundingClientRect();
+    shown: getComputedStyle(s.querySelector('.atl-kicker')).display !== 'none', classes: s.className}; }"""
+CLICK = "(id) => document.querySelector(" + STAR + ").click()"
+GLYPH = """(id) => { const b = document.querySelector(""" + STAR + """ + ' .atl-glyph').getBoundingClientRect();
   return {x: b.left + b.width / 2, y: b.top + b.height / 2}; }"""
+CLIPPED = """() => { const s = document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect();
+  return [...document.querySelectorAll('#studio-atelier .atl-star .atl-text')]
+    .filter(t => parseFloat(getComputedStyle(t).opacity) > 0.3 && t.getBoundingClientRect().width > 0)
+    .filter(t => { const r = t.getBoundingClientRect(); return r.left < s.left - 1 || r.right > s.right + 1; }).length; }"""
 
 
 def open_atelier(browser, base, canvas, query="", width=1440, height=900):
@@ -95,7 +103,7 @@ def open_atelier(browser, base, canvas, query="", width=1440, height=900):
     page.on("pageerror", lambda error: errors.append(str(error)))
     page.goto(f"{base}/studio.html?canvas={canvas}&atelier{query}", wait_until="networkidle")
     page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
-    page.wait_for_function("document.getElementById('studio-atelier').atelierStudy.metrics()", timeout=10000)
+    page.wait_for_function(METRICS, timeout=10000)
     return page, errors
 
 
@@ -151,11 +159,18 @@ def test_story_structure_is_opt_in_sizes_by_recorded_role_and_moves_nothing(brow
     assert page.evaluate(SCALE, "genres|genre:genre-procedural") == pytest.approx(1.6)
     assert page.evaluate(SCALE, apprentice) == pytest.approx(1.12)
     assert page.evaluate(SCALE, disaster) == pytest.approx(0.9)
-    # Parenthood is a frame and a stated count, not extra size.
-    engine = page.locator(f'#studio-atelier .atl-star[data-id="{ENGINE}"]')
-    assert "is-parent" in engine.get_attribute("class") and page.evaluate(SCALE, ENGINE) == pytest.approx(1)
-    assert page.evaluate(KICKER, ENGINE) == {"style": "restRole", "kicker": "CONTAINS 8", "shown": True}
-    assert "recorded story structure" in folio(page) and "measures connectivity, not importance" in folio(page)
+    # Parenthood is a frame and a stated count, not extra size, for every recorded parent.
+    parents = page.evaluate("[...document.querySelectorAll('#studio-atelier .atl-star.is-parent')].map(s => s.dataset.id).sort()")
+    assert parents == sorted([ENGINE, "structure|structure-node:engine-unverifiable-certificate",
+                              "structure|structure-node:engine-succession", "structure|structure-node:engine-crossing-public",
+                              "structure|structure-node:structure-criterion-test"])
+    assert all(page.evaluate(SCALE, p) == pytest.approx(1) for p in parents)
+    assert page.evaluate(LABEL, ENGINE)["kicker"] == "CONTAINS 8"
+    text = folio(page)
+    assert "recorded story structure" in text and "measures connectivity, not importance" in text
+    assert "does not size or rank it as governing" in text
+    # The proposal's own interpretation about its genre roles is shown beside them.
+    assert "agent interpretations about these roles · 1" in text and "every genre contract here is a working framing" in text
 
     act(page, lambda: tool.click())
     assert page.evaluate(SCALE, disaster) > page.evaluate(SCALE, apprentice), "switching off restores the baseline"
@@ -170,23 +185,27 @@ def test_counterexample_governing_genre_with_fewer_relationships_is_still_the_go
     concepts = {c["id"]: c for c in page.evaluate(SNAP)["concepts"]}
     assert concepts[governing]["relations"] < concepts[supporting]["relations"]
     assert page.evaluate(SCALE, governing) > page.evaluate(SCALE, supporting)
-    assert page.evaluate(KICKER, governing) == {"style": "landmark", "kicker": "GOVERNING · PROPOSED", "shown": True}
+    label = page.evaluate(LABEL, governing)
+    assert (label["style"], label["kicker"], label["shown"]) == ("landmark", "GOVERNING · PROPOSED", True)
     text = folio(page)
     assert "governing genre\nfantasy" in text and "not author decisions" in text
     assert errors == [] and revision(served, "counter") == before
 
 
-def test_trace_marks_only_recorded_phases_draws_no_new_path_and_restores_the_view(browser, served):
+def test_selection_names_each_phase_role_in_place_without_new_threads(browser, served):
     before = revision(served, "dense")
     candidate = json.loads(DENSE.read_text(encoding="utf-8"))
+    base, base_errors = open_atelier(browser, served, "dense")
+    select(base, CIVIC)
+    baseline = base.evaluate(SNAP)
+    base_threads = base.locator("#studio-atelier .atl-edge.lv-1").count()
+
     page, errors = open_atelier(browser, served, "dense", "&narrative")
     select(page, CIVIC)
     selected = page.evaluate(SNAP)
-    paths = page.locator("#studio-atelier svg path").count()
-    act(page, lambda: page.click('#studio-atelier [data-key="trace"]'))
-    traced = page.evaluate(SNAP)
-    assert view(traced) == view(selected) and traced["focus"] == CIVIC
-    phases = traced["trace"]["phases"]
+    assert view(selected) == view(baseline), "the same selection, the same view"
+    assert page.locator("#studio-atelier .atl-edge.lv-1").count() == base_threads, "no thread is added"
+    phases = selected["storyTime"]["phases"]
     assert [p["status"] for p in phases] == ["recorded", "recorded", "none", "recorded", "recorded",
                                              "none", "none", "recorded", "recorded"]
     assert [p["role"] for p in phases] == ["background", "background", None, "background", "locally_dominant",
@@ -195,72 +214,69 @@ def test_trace_marks_only_recorded_phases_draws_no_new_path_and_restores_the_vie
         assert (phase["status"] == "recorded") == bool(phase["sources"])
         for ref in phase["sources"]:
             assert resolve(candidate, ref) is not None, ref
-        # A thread is kept only where the phase records an activation of the genre.
-        assert bool(phase["relations"]) == any("/genre_activations/" in ref for ref in phase["sources"])
-    # Nothing is drawn between phases: no new path, and only the four recorded activations stay lit.
-    assert page.locator("#studio-atelier svg path").count() == paths
-    assert page.locator("#studio-atelier .atl-edge.is-traced").count() == 4
-    kickers = [page.evaluate(KICKER, p["phase"])["kicker"] for p in phases]
-    assert kickers == ["BACKGROUND", "BACKGROUND", "NOT RECORDED", "BACKGROUND", "LOCALLY DOMINANT",
-                       "NOT RECORDED", "NOT RECORDED", "SUPPORTING", "GOVERNING"]
+        label = page.evaluate(LABEL, phase["phase"])
+        if phase["relations"]:
+            # Activated: the phase's existing pill names the role the phase records.
+            assert label["style"] == "nearRole" and label["kicker"] == "PHASE ROLE · " + phase["role"].replace("_", " ").upper()
+        elif phase["status"] == "recorded":
+            # Listed without an activation: marked in place, with no thread to draw.
+            assert "is-listed" in label["classes"] and label["style"] == "phaseListed"
+        else:
+            assert "is-listed" not in label["classes"] and "is-near" not in label["classes"]
     text = folio(page)
-    assert "6 of 9 phases record it" in text and "story order is not recorded causation" in text
-    assert "phases/phase-bought-seal/genres/2" in text
+    assert "6 of 9 phases record it" in text and "order is not recorded causation" in text
+    assert "phases/phase-bought-seal/genres/2" in text and "recorded as running parallel with phase 2" in text
+    assert "the genre contract records supporting" in text
 
-    # Escape steps back one level: the trace ends, the selection and view are exactly as before.
     act(page, lambda: page.keyboard.press("Escape"))
-    after = page.evaluate(SNAP)
-    assert after["trace"] is None and after["focus"] == CIVIC and view(after) == view(selected)
-    assert page.locator("#studio-atelier.atl-tracing").count() == 0
-    assert page.locator("#studio-atelier .atl-star.is-occurs, #studio-atelier .atl-star.is-unrecorded").count() == 0
-    act(page, lambda: page.keyboard.press("Escape"))
-    assert page.evaluate(SNAP)["focus"] is None
-    assert errors == [] and revision(served, "dense") == before
+    assert page.evaluate(SNAP)["focus"] is None and page.locator("#studio-atelier .atl-star.is-listed").count() == 0
+    assert errors == [] and base_errors == [] and revision(served, "dense") == before
 
 
-def test_no_trace_is_offered_without_direct_phase_records(browser, served):
+def test_no_story_time_cue_without_a_phase_record_that_refers_to_the_concept(browser, served):
     page, errors = open_atelier(browser, served, "dense", "&narrative")
     select(page, ENGINE)
-    assert page.locator('#studio-atelier [data-key="trace"]').count() == 0
+    assert page.locator("#studio-atelier .atl-star.is-listed").count() == 0
     text = folio(page)
-    assert "0 of 9 phases record it" in text and "not evidence that it is absent from the story" in text
-    assert "recorded as the parent of\n8:" in text and "containment, not importance" in text
-    # A function recorded inside a single phase occurs there only: no trace across story time.
-    local = next(c["id"] for c in page.evaluate(SNAP)["concepts"] if c["id"].startswith("structure|phase-structure:"))
+    assert "no phase record refers to it" in text and "not evidence that it is absent from the story" in text
+    assert "recorded as the parent of\n8:" in text and "does not size or rank it as governing" in text
+    # A function recorded inside one phase is shown in that phase only.
+    local = "structure|phase-structure:phase-public-underwrites:genre-civic-life"
     act(page, lambda: page.evaluate(CLICK, local))
-    assert page.locator('#studio-atelier [data-key="trace"]').count() == 0
-    assert "1 of 9 phases record it" in folio(page)
-    # The baseline never offers a trace at all.
+    assert "recorded in phase 5 of 9" in folio(page)
+    assert page.locator("#studio-atelier .atl-storytime .atl-st-item").count() == 1
+    # A contract function whose words recur in phase functions is not linked to them by equal wording.
+    small, small_errors = open_atelier(browser, served, "small", "&narrative")
+    act(small, lambda: small.evaluate(CLICK, "tropes|trope:literary_mystery:0"))
+    text = folio(small)
+    assert "no phase record refers to it" in text and "phases 1, 3, 4 use the same words" in text
+    assert small.locator("#studio-atelier .atl-star.is-listed").count() == 0
+    # The baseline says nothing about story time.
     base, base_errors = open_atelier(browser, served, "dense")
     select(base, CIVIC)
-    assert base.locator('#studio-atelier [data-key="trace"]').count() == 0
-    assert "in story time" not in folio(base)
-    assert errors == [] and base_errors == []
+    assert "in story time" not in folio(base) and base.locator("#studio-atelier .atl-star.is-listed").count() == 0
+    assert errors == [] and small_errors == [] and base_errors == []
 
 
-def test_trace_by_keyboard_and_at_phone_width(browser, served):
+def test_story_time_by_keyboard_and_at_phone_width(browser, served):
     page, errors = open_atelier(browser, served, "dense", "&narrative")
     select(page, CIVIC)
-    button = page.locator('#studio-atelier [data-key="trace"]')
-    button.focus()
+    page.locator('#studio-atelier [data-key="depth"]').focus()
+    page.keyboard.press("Tab")
+    first = PHASE + "phase-first-signature"
+    assert page.evaluate("document.activeElement.dataset.key") == "st:" + first
+    # Keyboard focus on a story-time row emphasises its phase in the atlas, as hover would.
+    assert "is-linked" in page.evaluate(LABEL, first)["classes"]
     act(page, lambda: page.keyboard.press("Enter"))
-    assert page.evaluate(SNAP)["trace"]["id"] == CIVIC
-    again = page.locator('#studio-atelier [data-key="trace"]')
-    assert again.get_attribute("aria-pressed") == "true" and page.evaluate("document.activeElement.dataset.key") == "trace"
-    act(page, lambda: page.keyboard.press("Escape"))
-    assert page.evaluate(SNAP)["trace"] is None and page.evaluate("document.activeElement.dataset.key") == "trace"
+    assert page.evaluate(SNAP)["focus"] == first
 
+    base, base_errors = open_atelier(browser, served, "dense", "", 390, 844)
+    act(base, lambda: base.evaluate(CLICK, CIVIC))
     phone, phone_errors = open_atelier(browser, served, "dense", "&narrative", 390, 844)
-    # A phone selection pans the camera to keep the focus readable; the trace starts from the settled view.
     act(phone, lambda: phone.evaluate(CLICK, CIVIC))
-    selected = view(phone.evaluate(SNAP))
-    act(phone, lambda: phone.locator('#studio-atelier [data-key="trace"]').click())
-    assert view(phone.evaluate(SNAP)) == selected
+    assert view(phone.evaluate(SNAP)) == view(base.evaluate(SNAP))
     assert phone.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
+    assert phone.evaluate(METRICS)["renderedLabelOverlaps"]["count"] == 0
     # A phase name that does not fit stays quiet; none is shown cut by the stage edge.
-    assert phone.evaluate("""() => { const s = document.querySelector('#studio-atelier .atl-stage').getBoundingClientRect();
-      return [...document.querySelectorAll('#studio-atelier .atl-star .atl-text')]
-        .filter(t => parseFloat(getComputedStyle(t).opacity) > 0.3 && t.getBoundingClientRect().width > 0)
-        .filter(t => { const r = t.getBoundingClientRect(); return r.left < s.left - 1 || r.right > s.right + 1; }).length; }""") == 0
-    assert phone.evaluate("document.getElementById('studio-atelier').atelierStudy.metrics().renderedLabelOverlaps.count") == 0
-    assert errors == [] and phone_errors == []
+    assert phone.evaluate(CLIPPED) == 0
+    assert errors == [] and base_errors == [] and phone_errors == []
