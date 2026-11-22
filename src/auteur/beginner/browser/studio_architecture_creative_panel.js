@@ -30,7 +30,7 @@
     b.setAttribute('aria-pressed',String(operation===a.operation));b.title=a.description||'';
     b.addEventListener('click',()=>choose(a.operation));menu.append(b);}}
   function setSelection(next,available){anchors=next.slice();actions=(available||[]).slice();
-    chips.replaceChildren();for(const a of anchors){const item=make('span',a.kind+' · '+a.id+(a.field?' / '+a.field:''));
+    chips.replaceChildren();for(const a of anchors){const item=make('span',a.kind+' · '+a.id+(a.field?' / '+a.field:'')+(a.index!=null?' · entry '+(a.index+1):''));
       item.title=a.sourceRef||'Source reference will be verified on the server';item.className='creative-anchor-chip';chips.append(item)}
     if(!actions.some(a=>a.operation===operation))operation=actions.find(a=>agentOperations.has(a.operation))?.operation||actions[0]?.operation||'explore';
     updateMenu();updateSubmit();

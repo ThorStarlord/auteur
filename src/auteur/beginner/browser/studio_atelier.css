@@ -392,3 +392,32 @@
 @media (prefers-reduced-motion:no-preference){
 .atl.atl-reduced .atl-star,.atl.atl-reduced .atl-edge,.atl.atl-reduced .atl-glyph,.atl.atl-reduced .atl-glyph::before,
 .atl.atl-reduced .atl-text,.atl.atl-reduced .atl-lens{transition-duration:.12s!important;transition-delay:0s!important}}
+/* ---------- Creative hand-off and return (Architecture integration) ----------
+   The folio names the exact recorded source a question or revision will carry; the Studio's own
+   coding-agent panel does the asking. A revision the author applied is marked, never adopted. */
+.atl-develop{margin:10px 0 12px;padding:9px 11px 8px;border-radius:10px;background:#f6f1fa;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--atl-genre) 18%,transparent)}
+.atl-develop .atl-section-title{margin-top:0}
+.atl-develop-about{margin:2px 0 6px;font:13px/1.45 var(--atl-serif);color:#463f36}
+.atl-develop-subject{display:block;font:600 12px/1.4 var(--atl-sans);color:#4d3d66}
+.atl-develop-quote{display:block;margin:3px 0 4px;font-style:italic}
+.atl-develop-actions{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px}
+.atl-revised{margin:10px 0 12px;padding:8px 11px;border-radius:10px;background:#eef5f1;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--atl-focus) 22%,transparent)}
+.atl-revised .atl-section-title{margin-top:0;color:var(--atl-focus)}
+.atl-revised-list{margin:2px 0 4px;padding-left:1.1em;font:13px/1.45 var(--atl-serif);color:#3e3830}
+.atl-revised-list li{margin:3px 0}
+.atl-revised-kind{font:600 11px/1.4 var(--atl-sans);color:#4f6b5f}
+.atl-revised-list del{color:#8d7f70}
+.atl-revised-list ins{text-decoration:none;background:#dcefe5;padding:0 2px;border-radius:3px}
+.atl-revised-list .atl-chip{font-size:.62rem;padding:2px 7px}
+.atl-revised-index{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.atl-working{margin:0 0 10px;padding:7px 10px;border-radius:9px;background:#fbf3e2;
+  box-shadow:inset 0 0 0 1px #ead6ad;font:12.5px/1.45 var(--atl-sans);color:#5d4a26}
+.atl-working-text{margin:0 0 4px}
+.atl-working-review{background:#eef5f1;box-shadow:inset 0 0 0 1px #bcd8ca;color:#2f5546}
+.atl-sourced-list{margin:0;padding-left:1.15em}
+.atl-sourced-list li{margin:2px 0}
+.atl-sourced-list .atl-chip{margin-left:6px;font-size:.6rem;padding:1px 6px}
+.atl-star.is-revised .atl-glyph{outline:1.4px dashed var(--atl-focus);outline-offset:4px;border-radius:50%}
+.atl-rel-owner{display:block;font:500 11px/1.35 var(--atl-sans);color:#857a6b}

@@ -70,3 +70,14 @@ test('duplicate and oversized anchor sets fail closed',()=>{
   assert.throws(()=>api().projectGraphSelection(fixture(),[{kind:'node',id:'engine'},{kind:'node',id:'engine'}]),/Duplicate/);
   assert.throws(()=>api().projectGraphSelection(fixture(),new Array(4).fill({kind:'node',id:'engine'})),/one to three/i);
 });
+test('one entry of a recorded list is addressed exactly and never widens to the list',()=>{
+  const c=fixture();c.genre_contracts[0].trope_functions=['the first crosser','a bought seal'];
+  const view=api().projectGraphSelection(c,[{kind:'genre_contract',id:'mystery',field:'trope_functions',index:1}]);
+  assert.equal(view.anchors[0].entryValue,'a bought seal');
+  assert.equal(view.anchors[0].entrySourceRef,'genre_contracts/0/trope_functions/1');
+  assert.throws(()=>api().projectGraphSelection(c,[{kind:'genre_contract',id:'mystery',field:'trope_functions',index:2}]),/Entry not recorded/);
+  assert.throws(()=>api().projectGraphSelection(c,[{kind:'genre_contract',id:'mystery',field:'narrative_engine',index:0}]),/Entry not recorded/);
+  const both=api().projectGraphSelection(c,[{kind:'genre_contract',id:'mystery',field:'trope_functions'},
+    {kind:'genre_contract',id:'mystery',field:'trope_functions',index:0}]);
+  assert.equal(both.anchors.length,2);
+});

@@ -31,7 +31,12 @@
     var record=rows[i];
     var result={kind:a.kind,id:a.id,sourceRef:cfg[0]+'/'+i,record:record,
       label:record.title||record.emotion||record.id||record.genre_node_id||a.id};
-    if(a.field){if(!Object.prototype.hasOwnProperty.call(record,a.field))throw Error('Component field not recorded');result.field=a.field;result.componentValue=record[a.field];}
+    if(a.index!==undefined&&a.index!==null&&!a.field)throw Error('Entry index needs its field');
+    if(a.field){if(!Object.prototype.hasOwnProperty.call(record,a.field))throw Error('Component field not recorded');result.field=a.field;result.componentValue=record[a.field];
+      // One entry of a recorded list (a single contextual trope function), never the whole list.
+      if(a.index!==undefined&&a.index!==null){var list=record[a.field];
+        if(!Array.isArray(list)||!Number.isInteger(a.index)||a.index<0||a.index>=list.length)throw Error('Entry not recorded');
+        result.index=a.index;result.entryValue=list[a.index];result.entrySourceRef=cfg[0]+'/'+i+'/'+a.field+'/'+a.index;}}
     if(a.reference){
       var type=REFERENCES.find(x=>x[0]===a.kind&&x[1]===a.reference.field&&x[2]===a.reference.target_kind);
       if(!type)throw Error('Reference type not recorded');
@@ -77,7 +82,7 @@
     if(!candidate||candidate.schema_version!==2)throw Error('ArchitectureCandidate v2 required');
     if(!Array.isArray(selections)||!selections.length||selections.length>3)throw Error('Select one to three anchors');
     var anchors=selections.map(a=>address(candidate,a));
-    var keys=anchors.map(a=>[a.kind,a.id,a.field||'',a.reference?.field||'',a.reference?.target_id||''].join(':'));
+    var keys=anchors.map(a=>[a.kind,a.id,a.field||'',a.index??'',a.reference?.field||'',a.reference?.target_id||''].join(':'));
     if(new Set(keys).size!==keys.length)throw Error('Duplicate graph selection');
     var all=explicit(candidate);
     var recordedRelations=all.filter(r=>anchors.some(a=>incident(r,a)));

@@ -48,12 +48,17 @@ class GraphAnchor(BaseModel):
     kind: AnchorKind
     id: str = Field(min_length=1,max_length=80)
     field: str | None = Field(default=None,max_length=80)
+    # One entry of a recorded list field (for example one contextual trope function of a genre
+    # contract). Optional: anchors without it keep their whole-field meaning.
+    index: int | None = Field(default=None,ge=0,le=63)
     reference: GraphReference | None = None
 
     @model_validator(mode='after')
     def exclusive(self):
         if self.field is not None and self.reference is not None:
             raise ValueError('choose either a field or qualified reference')
+        if self.index is not None and self.field is None:
+            raise ValueError('an entry index needs the recorded list field it belongs to')
         return self
 
 class GraphIntent(BaseModel):
@@ -76,7 +81,7 @@ class GraphIntent(BaseModel):
             raise ValueError('connect_to_ask requires exactly two anchors')
         if self.operation == 'compare' and len(self.anchors) < 2:
             raise ValueError('compare requires at least two anchors')
-        identifiers=[(a.kind,a.id,a.field,
+        identifiers=[(a.kind,a.id,a.field,a.index,
             (a.reference.field,a.reference.target_kind,a.reference.target_id) if a.reference else None)
             for a in self.anchors]
         if len(identifiers)!=len(set(identifiers)):
@@ -165,6 +170,12 @@ def resolve_anchors(candidate: dict, anchors: list[GraphAnchor]) -> list[dict]:
             if anchor.field not in FIELDS[anchor.kind] or anchor.field not in record:
                 raise ValueError('field not recorded on selected element')
             resolved.update(field=anchor.field,fieldValue=record[anchor.field])
+            if anchor.index is not None:
+                values=record[anchor.field]
+                if not isinstance(values,list) or anchor.index>=len(values):
+                    raise ValueError('entry not recorded in the selected field')
+                resolved.update(index=anchor.index,entryValue=values[anchor.index],
+                    entrySourceRef=f'{coll}/{i}/{anchor.field}/{anchor.index}')
         if anchor.reference:
             ref=anchor.reference
             if REFERENCE_TARGETS.get((anchor.kind,ref.field))!=ref.target_kind:

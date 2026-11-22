@@ -282,3 +282,80 @@ test('narrative structure and story pathways state only recorded facts, never de
   const local = dense.concepts.find((x) => x.tier === 2 && x.phaseId);
   assert.equal(M.storyPathway(dense, local.id).recorded, 1);
 });
+
+function loadWithActions() {
+  const sandbox = {window: {}};
+  runInNewContext(read(new URL('studio_explanations.js', browser)), sandbox);
+  runInNewContext(read(new URL('studio_atelier_model.js', browser)), sandbox);
+  runInNewContext(read(new URL('studio_architecture_graph_actions.js', browser)), sandbox);
+  return {M: sandbox.window.AuteurStudioAtelierModel, A: sandbox.window.AuteurStudioGraphActions};
+}
+
+test('every atlas concept hands its own recorded source to the inquiry contract, at its own precision', () => {
+  const {M, A} = loadWithActions();
+  for (const c of [SMALL, DENSE]) {
+    const model = M.buildModel(c, 'sha');
+    let anchored = 0;
+    for (const cn of model.concepts) {
+      const s = M.sourceAnchor(model, cn.id);
+      assert.ok(s.anchor, cn.id + ' has no anchor: ' + s.reason);
+      // The Studio's own resolver accepts it, so the server will too.
+      const view = A.projectGraphSelection(c, [plain(s.anchor)]);
+      assert.equal(view.anchors.length, 1);
+      anchored += 1;
+    }
+    assert.equal(anchored, model.concepts.length);
+  }
+  const model = M.buildModel(DENSE, 'sha');
+  // A contract trope function is one entry, not the whole list, and not the trope node it repeats.
+  const fn = plain(M.sourceAnchor(model, 'tropes|trope:genre-craft-thriller:0'));
+  assert.deepEqual(fn.anchor, {kind: 'genre_contract', id: 'genre-craft-thriller', field: 'trope_functions', index: 0});
+  assert.equal(fn.precision, 'entry');
+  assert.equal(fn.quote, 'the first crosser');
+  assert.equal(fn.sourceRef, 'genre_contracts/genre-craft-thriller/trope_functions/0');
+  const node = plain(M.sourceAnchor(model, 'tropes|trope-node:trope-first-crosser'));
+  assert.deepEqual(node.anchor, {kind: 'node', id: 'trope-first-crosser'});
+  // A phase-local function is addressed through its recorded activation.
+  const local = plain(M.sourceAnchor(model, 'tropes|phase-trope:phase-first-crosser:genre-craft-thriller:0'));
+  assert.deepEqual(local.anchor, {kind: 'phase', id: 'phase-first-crosser',
+    reference: {field: 'genre_activations', target_kind: 'genre_contract', target_id: 'genre-craft-thriller'}});
+  assert.equal(local.precision, 'activation');
+  assert.deepEqual(plain(M.sourceAnchor(model, 'structure|structure:genre-procedural:1').anchor),
+    {kind: 'genre_contract', id: 'genre-procedural', field: 'structural_pattern'});
+  assert.equal(M.sourceAnchor(model, 'nothing|here').anchor, null);
+});
+
+test('a phase that activates one genre twice is addressed as the whole activation list, and says so', () => {
+  const {M, A} = loadWithActions();
+  const c = JSON.parse(JSON.stringify(DENSE));
+  const phase = c.phases.find((p) => p.id === 'phase-first-crosser');
+  phase.genre_activations.push(JSON.parse(JSON.stringify(phase.genre_activations.find((a) => a.genre_node_id === 'genre-craft-thriller'))));
+  const model = M.buildModel(c, 'sha');
+  const s = plain(M.sourceAnchor(model, 'tropes|phase-trope:phase-first-crosser:genre-craft-thriller:0'));
+  assert.deepEqual(s.anchor, {kind: 'phase', id: 'phase-first-crosser', field: 'genre_activations'});
+  assert.equal(s.precision, 'field');
+  assert.equal(A.projectGraphSelection(c, [s.anchor]).anchors.length, 1);
+});
+
+test('a revision delta compares recorded identities, never titles, and reports what the records changed', () => {
+  const M = load();
+  const before = M.buildModel(DENSE, 'one');
+  const c = JSON.parse(JSON.stringify(DENSE));
+  const craft = c.genre_contracts.find((g) => g.genre_node_id === 'genre-craft-thriller');
+  craft.trope_functions[0] = 'a stranger crossing tests the craftsman before any certificate does';
+  craft.trope_function_refs = [{function_index: 0, trope_node_id: 'trope-first-crosser'}];
+  const after = M.buildModel(c, 'two');
+  const d = plain(M.revisionDelta(before, after));
+  assert.deepEqual(d.added, []);
+  assert.deepEqual(d.removed, []);
+  assert.deepEqual(d.reworded.map((x) => x.id), ['tropes|trope:genre-craft-thriller:0']);
+  assert.equal(d.reworded[0].before, 'the first crosser');
+  assert.deepEqual(d.relationsAdded.map((r) => [r.from, r.verb, r.to, r.sourceRef]), [[
+    'tropes|trope:genre-craft-thriller:0', 'realises trope', 'tropes|trope-node:trope-first-crosser',
+    'genre_contracts/genre-craft-thriller/trope_function_refs/0']]);
+  assert.deepEqual(d.relationsRemoved, []);
+  assert.deepEqual(Object.keys(d.touched).sort(), ['tropes|trope-node:trope-first-crosser', 'tropes|trope:genre-craft-thriller:0']);
+  // The same records under a new request SHA are no change at all.
+  const same = plain(M.revisionDelta(before, M.buildModel(DENSE, 'three')));
+  assert.equal(same.reworded.length + same.added.length + same.relationsAdded.length + same.relationsRemoved.length, 0);
+});

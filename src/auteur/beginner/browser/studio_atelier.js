@@ -1121,6 +1121,14 @@
     }
     function fact(dl,label,value){if(!value||(Array.isArray(value)&&!value.length))return;
       dl.append(el('dt','',label),el('dd','',Array.isArray(value)?value.join(' · '):String(value)));}
+    // A recorded list whose entries each keep their own source (an agent proposal, not a plan or commitment).
+    function sourcedList(dl,label,values,base){
+      if(!Array.isArray(values)||!values.length)return;
+      var dd=el('dd','atl-sourced'),ol=el('ol','atl-sourced-list');
+      values.forEach(function(v,i){var li=el('li','',String(v));li.append(el('span','atl-chip atl-chip-source','Source · '+base+i));ol.append(li);});
+      dd.append(ol,el('p','atl-note','Agent proposal: payoffs the proposal hopes for, not recorded setups or commitments of a Series or Book plan.'));
+      dl.append(el('dt','',label),dd);
+    }
     function renderFolio(){
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
       renderFolioContent();
@@ -1135,6 +1143,7 @@
           el('p','atl-folio-detail','Develop a working Architecture proposal in the Studio, then return to this study. The study only reads what the proposal records.'));
         return;
       }
+      renderWorking();
       if(!S.focus)return renderAtlasFolio(status);
       var cn=S.model.byId[S.focus],model=S.model,examining=S.mode==='constellation';
       folio.setAttribute('aria-label','Reading of '+cn.title);
@@ -1145,7 +1154,8 @@
       if(cn.facet==='genres'&&rec.genre_node_id){
         if(cn.coverage)folio.append(el('p','atl-coverage',cn.coverage));
         fact(dl,'Narrative engine',rec.narrative_engine);fact(dl,'Structural pattern',rec.structural_pattern);
-        fact(dl,'Reader payoffs',rec.payoff_expectations);fact(dl,'Aesthetic strategies',rec.aesthetic_strategies);
+        sourcedList(dl,'Proposed reader payoffs',rec.payoff_expectations,'genre_contracts/'+rec.genre_node_id+'/payoff_expectations/');
+        fact(dl,'Aesthetic strategies',rec.aesthetic_strategies);
       }else if(cn.facet==='emotions'&&rec.intended_effect!==undefined){
         fact(dl,'Intended effect',rec.intended_effect);fact(dl,'Eliciting condition',rec.eliciting_condition);
         fact(dl,'Aesthetic strategy',rec.aesthetic_strategy);fact(dl,'Provenance',M.human(rec.provenance));
@@ -1165,6 +1175,7 @@
           fact(dl,'Status','A local phrase without its own identity; equal wording elsewhere is not assumed to be the same idea.');
         }
         if(cn.nodeId){fact(dl,'Category',M.human(rec.category));fact(dl,'Scope',M.human(rec.scope||'whole story'));}
+        if(cn.nodeId&&rec.category==='trope')renderTropeUses(cn,dl);
       }
       // Story structure: what the records state about this concept's standing, each with its source.
       var role=S.narrative&&S.structure?S.structure.roles[cn.id]:null;
@@ -1191,11 +1202,13 @@
         (S.hood.hiddenSecond?'; '+S.hood.hiddenSecond+' more are not drawn.':'.')));
       var pathway=S.narrative&&cn.facet!=='timeline'?M.storyPathway(model,cn.id):null;
       folio.append(look);
+      renderRevisedNote(cn);
+      renderDevelop(cn);
       // What story time records comes straight after the ways of looking, beside the phases it marks.
       if(pathway)renderStoryTime(cn,pathway);
       if(dl.children.length)folio.append(dl);
       folio.append(provenanceLine(cn));
-      if(S.narrative&&S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
+      if(S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
       renderRelations(cn);
       var src=el('details','atl-source');src.append(el('summary','','Source record · '+(cn.sourceRef||'unavailable')));
       var srcList=el('dl','atl-facts atl-facts-source');
@@ -1222,6 +1235,20 @@
     /* In story time: each phase in recorded order, with what that phase's record states for the concept
        and where. A phase with no record says so; that is a gap in the records, not absence from the story.
        Equal wording is not identity: a phrase is linked to a phase only by a record that refers to it. */
+    /* A shared trope and its contextual functions: only a recorded trope-function reference joins them.
+       Phrases that repeat the trope's words are counted separately and are not drawn or linked. */
+    function renderTropeUses(cn,dl){
+      var model=S.model,realised=model.adjacency[cn.id].filter(function(a){return a.relation.verb==='realises trope'&&a.direction==='reverse';});
+      var linked={};realised.forEach(function(a){linked[a.other]=true;});
+      var name=String(cn.name).trim().toLowerCase();
+      var same=model.concepts.filter(function(x){return x.tier===2&&x.facet==='tropes'&&!linked[x.id]&&String(x.name).trim().toLowerCase()===name;});
+      fact(dl,'Recorded contextual functions',realised.length?realised.length+' function'+(realised.length===1?'':'s')+' recorded as realising this trope (listed among its relationships)':
+        'None recorded. No genre or phase record names this trope as the one its function realises.');
+      if(same.length)fact(dl,'Same words, not recorded as this trope',same.length+' local phrase'+(same.length===1?'':'s')+' ('+
+        same.map(function(x){var o=x.phaseId?model.byId['timeline|phase:'+x.phaseId]:model.byId['genres|genre:'+x.ownerGenreId];return o?o.name:x.sourceRef;})
+          .filter(function(v,i,a){return a.indexOf(v)===i;}).join(' · ')+
+        ') repeat its words. Equal wording is not a recorded link, so the atlas does not join them; a revision could record which ones realise it.');
+    }
     function sameWords(cn){
       if(cn.tier!==2||cn.phaseId)return [];
       var key=String(cn.name).trim().toLowerCase(),seen={};
@@ -1303,6 +1330,84 @@
       });
       folio.append(wrap);
     }
+    /* Creative hand-off: the concept's own recorded source goes to the Studio's existing coding-agent
+       inquiry and revision workflow. The atlas keeps its place; nothing here calls an agent or changes a record. */
+    var DEVELOP=[['challenge','Challenge this design'],['explore','Explore possibilities'],['revise','Request a revision']];
+    function renderDevelop(cn){
+      if(!binding.onDevelop)return;
+      var s=M.sourceAnchor(S.model,cn.id),wrap=el('section','atl-develop');wrap.setAttribute('aria-label','Develop with your coding agent');
+      wrap.append(el('h4','atl-section-title','Develop with your coding agent'));
+      if(!s.anchor){wrap.append(el('p','atl-note',s.reason));folio.append(wrap);return;}
+      var about=el('p','atl-develop-about');
+      about.append(el('span','atl-develop-subject',s.subject));
+      if(s.quote)about.append(el('q','atl-develop-quote',M.shorten(s.quote,160)));
+      about.append(el('span','atl-chip atl-chip-source','Source · '+(s.sourceRef||'unavailable')));
+      wrap.append(about);
+      if(s.precision==='activation')wrap.append(el('p','atl-note','The request is anchored on the recorded activation that holds this phrase; name the phrase in your question.'));
+      if(s.precision==='field'&&s.anchor.field==='genre_activations')wrap.append(el('p','atl-note','This genre is activated more than once in the phase, so the request is anchored on all of the phase’s activations.'));
+      var row=el('div','atl-develop-actions');
+      DEVELOP.forEach(function(d){
+        var b=actionButton(row,d[1],function(){binding.onDevelop({conceptId:cn.id,title:cn.title,anchor:JSON.parse(JSON.stringify(s.anchor)),
+          precision:s.precision,subject:s.subject,quote:s.quote,sourceRef:s.sourceRef,operation:d[0]});},'develop:'+d[0]);
+        b.dataset.operation=d[0];
+      });
+      wrap.append(row,el('p','atl-note','Opens the Studio’s coding-agent panel below with this exact source; you write the question. Asking never changes the Architecture. A revision is prepared for your review and applies to the working Architecture only when you choose. The atlas keeps your place.'));
+      folio.append(wrap);
+    }
+    // Where a local phrase is recorded: its genre contract, or its phase and genre.
+    function ownerName(x){
+      if(!x||x.tier!==2)return null;var m=S.model,g=x.ownerGenreId&&m.byId['genres|genre:'+x.ownerGenreId],ph=x.phaseId&&m.byId['timeline|phase:'+x.phaseId];
+      return ph?ph.name+(g?' · '+g.name:''):g?g.name+' contract':null;
+    }
+    function renderRevisedNote(cn){
+      var r=S.revision,why=r&&r.delta.touched[cn.id];if(!why)return;
+      var model=S.model,box=el('section','atl-revised');box.setAttribute('aria-label','Changed by the revision you applied');
+      box.append(el('h4','atl-section-title','Changed by the revision you applied'));
+      var ul=el('ul','atl-revised-list');
+      r.delta.reworded.filter(function(x){return x.id===cn.id;}).forEach(function(x){
+        var li=el('li','');
+        if(x.before!==x.after){li.append(el('span','atl-revised-kind','Recorded wording · '),el('del','',x.before),document.createTextNode(' → '),el('ins','',x.after));}
+        else li.append(el('span','atl-revised-kind','Recorded description changed'));
+        ul.append(li);});
+      if(why.indexOf('added')>=0)ul.append(el('li','','Newly recorded by the revision.'));
+      var rel=function(list,word,lookup){list.filter(function(x){return x.from===cn.id||x.to===cn.id;}).forEach(function(x){
+        var otherId=x.from===cn.id?x.to:x.from,other=model.byId[otherId]||r.prev.byId[otherId];
+        var rr=lookup.relById[x.id]||{},verb=x.from===cn.id?x.verb:(rr.reverseVerb||'related through “'+x.verb+'”');
+        var li=el('li','');li.append(el('span','atl-revised-kind',word),document.createTextNode(verb+' '+(other?other.name+(ownerName(other)?' ('+ownerName(other)+')':''):'a concept no longer recorded')+' '),
+          el('span','atl-chip atl-chip-source','Source · '+x.sourceRef));ul.append(li);});};
+      rel(r.delta.relationsAdded,'Relationship added · ',model);rel(r.delta.relationsRemoved,'Relationship removed · ',r.prev);
+      box.append(ul,el('p','atl-note','Compared with the working version before the revision you applied. A working change, not accepted story; the Architecture records only its current version.'));
+      folio.append(box);
+    }
+    function revisedSummary(){
+      var r=S.revision;if(!r)return null;
+      var ids=Object.keys(r.delta.touched);
+      var wrap=el('section','atl-revised');wrap.setAttribute('aria-label','Your applied revision');
+      wrap.append(el('h4','atl-section-title','Your applied revision · '+ids.length+' concept'+(ids.length===1?'':'s')+' changed'));
+      if(r.requestedChange)wrap.append(el('p','atl-folio-detail','You asked: “'+M.shorten(r.requestedChange,220)+'”'));
+      var list=el('div','atl-revised-index');
+      ids.slice(0,24).forEach(function(id){var cn=S.model.byId[id];var b=el('button','atl-index-item',cn.name);b.type='button';b.title=cn.title;b.dataset.id=id;
+        b.addEventListener('click',function(){select(id,{via:'atlas'});focusFolio();});list.append(b);});
+      wrap.append(list);
+      if(ids.length>24)wrap.append(el('p','atl-note',(ids.length-24)+' more are marked in the atlas.'));
+      if(r.delta.removed.length)wrap.append(el('p','atl-note',r.delta.removed.length+' concept'+(r.delta.removed.length===1?' is':'s are')+' no longer recorded: '+
+        r.delta.removed.slice(0,6).map(function(x){return x.title;}).join(' · ')));
+      wrap.append(el('p','atl-note','Marked with a dashed ring in the atlas. Working changes only; accepted story is unchanged.'));
+      actionButton(wrap,'Clear revision marks',function(){S.revision=null;syncRevisionMarks();renderFolio();announce('Revision marks cleared.');},'clear-revision');
+      return wrap;
+    }
+    function syncRevisionMarks(){
+      if(!S.model)return;var t=S.revision?S.revision.delta.touched:{};
+      S.model.concepts.forEach(function(cn){var b=starEls[cn.id];if(b)b.classList.toggle('is-revised',!!t[cn.id]);});
+    }
+    /* What is waiting in the Studio's own workflow, stated where the author is looking. */
+    function renderWorking(){
+      var w=binding.getWorkingState?binding.getWorkingState():null;if(!w||!w.kind)return;
+      var box=el('div','atl-working atl-working-'+w.kind);
+      box.append(el('p','atl-working-text',w.text));
+      if(w.action&&binding.onShowWorking)actionButton(box,w.action,function(){binding.onShowWorking(w.kind);},'working');
+      folio.append(box);
+    }
     function actionButton(parent,text,fn,key){var b=el('button','atl-action',text);b.type='button';if(key)b.dataset.key=key;b.addEventListener('click',fn);parent.append(b);return b;}
     function renderRelations(cn){
       var model=S.model,list=model.adjacency[cn.id],wrap=el('section','atl-relations');
@@ -1315,6 +1420,7 @@
         rows.forEach(function(a,i){
           var other=model.byId[a.other],b=el('button','atl-rel');b.type='button';b.dataset.other=other.id;b.dataset.rel=a.relation.id;
           b.append(el('span','atl-rel-verb',a.verb),el('span','atl-rel-target',other.name));
+          var where=ownerName(other);if(where)b.append(el('span','atl-rel-owner',where));
           b.title=other.title;
           b.addEventListener('click',function(){select(other.id,{via:'folio'});focusFolio();});
           b.addEventListener('focus',refreshEmphasis);
@@ -1332,6 +1438,7 @@
       folio.append(el('h3','atl-folio-title','The shape of this story'));
       if(model.summary)folio.append(el('p','atl-folio-detail atl-summary',model.summary));
       if(status&&status!=='ready')folio.append(el('p','atl-coverage','Source status: '+M.human(status)+'. The atlas reads the current working proposal as it is.'));
+      var revised=revisedSummary();if(revised)folio.append(revised);
       if(S.narrative)renderStructureFolio();
       // Landmarks: the most connected ideas of each kind, by count of documented relationships.
       var marks=el('section','atl-landmarks');
@@ -1569,24 +1676,46 @@
     function update(){
       var candidate=binding.getCandidate(),sha=binding.getRequestSha();
       if(S.model&&sha===S.sha&&candidate===S.candidateRef)return;
-      var hadFocus=!!S.focus;
-      S.candidateRef=candidate;clearExploration();
+      // The same request SHA is the same recorded proposal: a re-read (for example while a revision request
+      // is prepared) keeps the author's place and announces nothing.
+      if(S.model&&sha&&sha===S.sha&&candidate&&(candidate.nodes||[]).length){S.candidateRef=candidate;return;}
+      var hadFocus=!!S.focus,prevModel=S.model,prevAtlas=S.atlas,prevSha=S.sha,keepFocus=S.focus,keepDepth=S.depth;
+      var ctx=binding.getRevisionContext?binding.getRevisionContext():null;
+      var revised=!!(prevModel&&ctx&&ctx.fromSha===prevSha&&ctx.toSha===sha);
+      S.candidateRef=candidate;clearExploration();S.revision=null;
       if(!candidate||!(candidate.nodes||[]).length){S.model=null;S.atlas=null;S.sha=sha;
         buildEmpty();syncChrome();renderFolio();renderTrail();return;}
       var v=measureView();
-      try{S.model=M.buildModel(candidate,sha);S.structure=M.narrativeStructure(S.model);S.atlas=M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
+      var keptLayout=false;
+      try{S.model=M.buildModel(candidate,sha);S.structure=M.narrativeStructure(S.model);
+        // A revision that records the same concepts keeps the atlas the author was reading: every concept
+        // stays where it was and only threads and words change. New or removed concepts need a new layout.
+        keptLayout=!!(revised&&prevAtlas&&prevModel.concepts.length===S.model.concepts.length&&
+          S.model.concepts.every(function(cn){return !!prevModel.byId[cn.id];}));
+        S.atlas=keptLayout?prevAtlas:M.layoutAtlas(S.model,{aspect:v.width/v.height,view:v});}
       catch(error){S.model=null;S.atlas=null;buildEmpty('The atlas could not be drawn: '+error.message);syncChrome();renderFolio();renderTrail();return;}
       S.sha=sha;S.pos={};Object.keys(S.atlas.positions).forEach(function(id){S.pos[id]={x:S.atlas.positions[id].x,y:S.atlas.positions[id].y};});
-      empty.hidden=true;buildScene();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
+      // An applied revision of the Architecture the author was reading: compare by recorded identity, mark
+      // what changed, and keep the selected concept when the revision still records it.
+      var kept=false;
+      if(revised){
+        S.revision={delta:M.revisionDelta(prevModel,S.model),requestedChange:ctx.requestedChange||null,fromSha:prevSha,toSha:sha,prev:prevModel,keptLayout:keptLayout};
+        if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth};kept=true;}
+      }
+      empty.hidden=true;buildScene();syncRevisionMarks();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
       if(S.shown&&stage.clientWidth){S.sizedOnce=true;S.paintedView={width:v.width,height:v.height};fitAtlas(false);applyPending();}
       renderFolio();
-      if(hadFocus)announce('The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.');
+      if(revised){var n=Object.keys(S.revision.delta.touched).length,title=keepFocus&&prevModel.byId[keepFocus]?prevModel.byId[keepFocus].title:null;
+        announce('Your revision was applied to the working Architecture. '+n+' concept'+(n===1?'':'s')+' changed and '+(n===1?'is':'are')+' marked in the atlas. '+
+          (kept?'“'+title+'” is still selected. ':title?'“'+title+'” is no longer recorded, so the whole atlas is shown. ':'')+
+          (keptLayout?'Every concept kept its place. ':'Concepts were added or removed, so the atlas was laid out again. ')+'Accepted story is unchanged.');}
+      else if(hadFocus)announce('The working Architecture changed; the atlas was redrawn and your previous focus cleared. Nothing was saved.');
     }
     function applyPending(){
       var p=S.pending;S.pending=null;
       if(p&&p.focus&&S.model&&S.model.byId[p.focus]){
         var keep=S.reduced;S.reduced=true;select(p.focus,{via:'atlas',depth:p.depth===2?2:1,focusStar:false});
-        if(p.examine)examine();S.reduced=keep;
+        if(p.examine)examine();S.reduced=keep;syncChrome();
       }else settle();
     }
     function buildEmpty(message){
@@ -1598,7 +1727,8 @@
     function show(){
       var first=!S.shown,built=!!S.model;S.shown=true;root.hidden=false;measureView();update();
       var inspector=!!(binding.inspectorOpen&&binding.inspectorOpen());
-      if(inspector!==S.inspectorOpen){S.inspectorOpen=inspector;if(!first)renderFolio();}
+      var working=JSON.stringify(binding.getWorkingState?binding.getWorkingState():null);
+      if(inspector!==S.inspectorOpen||working!==S.workingSig){S.inspectorOpen=inspector;S.workingSig=working;if(!first)renderFolio();}
       if(built&&stage.clientWidth)refit();
     }
     function hide(){S.shown=false;root.hidden=true;}
@@ -1609,8 +1739,14 @@
       fitAtlas:function(){fitAtlas(false);settle();},
       metrics:function(){return S.metrics;},
       setNarrative:setNarrative,
+      // Back to the atlas where the author left it: keyboard focus on the selected concept, or the folio.
+      returnFocus:function(){var top=root.getBoundingClientRect().top;
+        if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});var id=S.focus,b=id&&starEls[id];
+        if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
-        narrative:S.narrative,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,
+        narrative:S.narrative,revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
+          reworded:S.revision.delta.reworded.map(function(x){return x.id;}),relationsAdded:S.revision.delta.relationsAdded.map(function(r){return r.sourceRef;}),
+          relationsRemoved:S.revision.delta.relationsRemoved.map(function(r){return r.sourceRef;}),removed:S.revision.delta.removed.map(function(x){return x.id;})}:null,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,
           role:p.phaseRole&&p.phaseRole.role,sources:p.evidence.map(function(e){return e.sourceRef;}),relations:p.relations.slice(),parallel:p.parallel.slice()};})}:null,
         camera:Object.assign({},S.cam),restCamera:S.restCam&&Object.assign({},S.restCam),
         positions:S.model?Object.keys(S.pos).reduce(function(o,id){o[id]={x:Math.round(S.pos[id].x),y:Math.round(S.pos[id].y)};return o;},{}):{},
