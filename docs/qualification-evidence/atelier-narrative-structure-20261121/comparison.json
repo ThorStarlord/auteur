@@ -1,0 +1,2797 @@
+{
+ "server": "http://127.0.0.1:8793",
+ "viewport": [
+  1440,
+  900
+ ],
+ "canvases": {
+  "atelier-dense": {
+   "revisionBefore": 1,
+   "baseline": {
+    "rest": {
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "genres": [
+      {
+       "id": "genres|genre:genre-procedural",
+       "scale": 1.35,
+       "role": null,
+       "label": "Institutional certification procedural",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-tribunal",
+       "scale": 1.235,
+       "role": null,
+       "label": "Tribunal drama without an overlord",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-craft-thriller",
+       "scale": 1.213,
+       "role": null,
+       "label": "Craft and structural thriller",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-evidence-inquiry",
+       "scale": 1.177,
+       "role": null,
+       "label": "Evidence inquiry",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-apprenticeship",
+       "scale": 1.189,
+       "role": null,
+       "label": "Apprenticeship bildungsroman",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-civic-life",
+       "scale": 1.213,
+       "role": null,
+       "label": "Civic daily-life",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-disaster",
+       "scale": 1.213,
+       "role": null,
+       "label": "Structural disaster",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": []
+    },
+    "camera": {
+     "cx": 1512.1890477071177,
+     "cy": 1165.6399999999999,
+     "z": 0.25050615970625584
+    },
+    "cases": {
+     "governing genre": {
+      "concept": "genres|genre:genre-procedural",
+      "relations": 32,
+      "phasesJoinedByProgressiveRevelation": 8,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 24,
+      "neighboursNamed": 22,
+      "labelOverlaps": 0,
+      "threads": 32,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "highly connected supporting genre": {
+      "concept": "genres|genre:genre-tribunal",
+      "relations": 20,
+      "phasesJoinedByProgressiveRevelation": 3,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 17,
+      "neighboursNamed": 17,
+      "labelOverlaps": 0,
+      "threads": 20,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "phase roles change (Civic daily-life)": {
+      "concept": "genres|genre:genre-civic-life",
+      "relations": 18,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 16,
+      "neighboursNamed": 16,
+      "labelOverlaps": 0,
+      "threads": 18,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "tertiary genre with more relationships than a supporting one": {
+      "concept": "genres|genre:genre-disaster",
+      "relations": 18,
+      "phasesJoinedByProgressiveRevelation": 3,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 16,
+      "neighboursNamed": 16,
+      "labelOverlaps": 0,
+      "threads": 18,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "local genre listed in phases without activation": {
+      "concept": "genres|genre:genre-evidence-inquiry",
+      "relations": 15,
+      "phasesJoinedByProgressiveRevelation": 2,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 14,
+      "neighboursNamed": 14,
+      "labelOverlaps": 0,
+      "threads": 15,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "central mechanism without phase records": {
+      "concept": "structure|structure-node:engine-risk-transfer",
+      "relations": 16,
+      "phasesJoinedByProgressiveRevelation": 0,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 10,
+      "neighboursNamed": 8,
+      "labelOverlaps": 0,
+      "threads": 16,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "phase-associated concept with few connections": {
+      "concept": "structure|phase-structure:phase-public-underwrites:genre-civic-life",
+      "relations": 1,
+      "phasesJoinedByProgressiveRevelation": 1,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 1,
+      "neighboursNamed": 1,
+      "labelOverlaps": 0,
+      "threads": 1,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "candidate": {
+    "rest": {
+     "labels": {
+      "placed": 66,
+      "quiet": 10,
+      "forced": 0,
+      "restLandmarks": 76,
+      "restNamed": 66,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 66
+     },
+     "genres": [
+      {
+       "id": "genres|genre:genre-procedural",
+       "scale": 1.6,
+       "role": "governing",
+       "label": "Institutional certification procedural",
+       "kicker": "",
+       "style": "landmarkName",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-tribunal",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Tribunal drama without an overlord",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-craft-thriller",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Craft and structural thriller",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-evidence-inquiry",
+       "scale": 0.9,
+       "role": "local",
+       "label": "Evidence inquiry",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-apprenticeship",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Apprenticeship bildungsroman",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-civic-life",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Civic daily-life",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:genre-disaster",
+       "scale": 0.9,
+       "role": "tertiary",
+       "label": "Structural disaster",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": [
+      {
+       "id": "structure|structure-node:engine-risk-transfer",
+       "scale": 1,
+       "kicker": "CONTAINS 8",
+       "quiet": false
+      },
+      {
+       "id": "structure|structure-node:engine-unverifiable-certificate",
+       "scale": 1,
+       "kicker": "",
+       "quiet": false
+      },
+      {
+       "id": "structure|structure-node:engine-succession",
+       "scale": 1,
+       "kicker": "CONTAINS 1",
+       "quiet": false
+      },
+      {
+       "id": "structure|structure-node:engine-crossing-public",
+       "scale": 1,
+       "kicker": "CONTAINS 1",
+       "quiet": false
+      },
+      {
+       "id": "structure|structure-node:structure-criterion-test",
+       "scale": 1,
+       "kicker": "CONTAINS 1",
+       "quiet": false
+      }
+     ]
+    },
+    "camera": {
+     "cx": 1512.1890477071177,
+     "cy": 1165.6399999999999,
+     "z": 0.25050615970625584
+    },
+    "cases": {
+     "governing genre": {
+      "concept": "genres|genre:genre-procedural",
+      "relations": 32,
+      "phasesJoinedByProgressiveRevelation": 8,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 8,
+      "neighbours": 24,
+      "neighboursNamed": 21,
+      "labelOverlaps": 0,
+      "threads": 32,
+      "storyTimeHeading": "In story time · 8 of 9 phases record it",
+      "storyTime": {
+       "id": "genres|genre:genre-procedural",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-first-signature/genre_activations/genre-procedural",
+          "phases/phase-first-signature/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-first-signature/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-first-signature"
+         ],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-bought-seal/genre_activations/genre-procedural",
+          "phases/phase-bought-seal/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-bought-seal/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-bought-seal"
+         ],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-first-crosser/genre_activations/genre-procedural",
+          "phases/phase-first-crosser/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-first-crosser/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-first-crosser"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-guild-defendant/genre_activations/genre-procedural",
+          "phases/phase-guild-defendant/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-guild-defendant/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-guild-defendant"
+         ],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-public-underwrites/genre_activations/genre-procedural",
+          "phases/phase-public-underwrites/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-public-underwrites/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-public-underwrites"
+         ],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-who-certifies-the-certifier/genre_activations/genre-procedural",
+          "phases/phase-who-certifies-the-certifier/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-who-certifies-the-certifier/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-who-certifies-the-certifier"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-efficient-lie/genre_activations/genre-procedural",
+          "phases/phase-efficient-lie/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-efficient-lie/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-efficient-lie"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-what-a-crossing-is-worth/genre_activations/genre-procedural",
+          "phases/phase-what-a-crossing-is-worth/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-what-a-crossing-is-worth/genre_activations/genre-procedural:genre:genre-procedural:phase:phase-what-a-crossing-is-worth"
+         ],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "highly connected supporting genre": {
+      "concept": "genres|genre:genre-tribunal",
+      "relations": 20,
+      "phasesJoinedByProgressiveRevelation": 3,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 3,
+      "neighbours": 17,
+      "neighboursNamed": 17,
+      "labelOverlaps": 0,
+      "threads": 20,
+      "storyTimeHeading": "In story time · 3 of 9 phases record it",
+      "storyTime": {
+       "id": "genres|genre:genre-tribunal",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "recorded",
+         "role": "locally_dominant",
+         "sources": [
+          "phases/phase-guild-defendant/genre_activations/genre-tribunal",
+          "phases/phase-guild-defendant/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-guild-defendant/genre_activations/genre-tribunal:genre:genre-tribunal:phase:phase-guild-defendant"
+         ],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-efficient-lie/genre_activations/genre-tribunal",
+          "phases/phase-efficient-lie/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-efficient-lie/genre_activations/genre-tribunal:genre:genre-tribunal:phase:phase-efficient-lie"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "recorded",
+         "role": "locally_dominant",
+         "sources": [
+          "phases/phase-old-span/genre_activations/genre-tribunal",
+          "phases/phase-old-span/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-old-span/genre_activations/genre-tribunal:genre:genre-tribunal:phase:phase-old-span"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · LOCALLY DOMINANT",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · LOCALLY DOMINANT",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "phase roles change (Civic daily-life)": {
+      "concept": "genres|genre:genre-civic-life",
+      "relations": 18,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 2,
+      "phasePillsNamingARole": 4,
+      "neighbours": 16,
+      "neighboursNamed": 16,
+      "labelOverlaps": 0,
+      "threads": 18,
+      "storyTimeHeading": "In story time · 6 of 9 phases record it",
+      "storyTime": {
+       "id": "genres|genre:genre-civic-life",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-first-signature/genre_activations/genre-civic-life",
+          "phases/phase-first-signature/genres/2"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-first-signature/genre_activations/genre-civic-life:genre:genre-civic-life:phase:phase-first-signature"
+         ],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-bought-seal/genres/2"
+         ],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-guild-defendant/genres/2"
+         ],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "recorded",
+         "role": "locally_dominant",
+         "sources": [
+          "phases/phase-public-underwrites/genre_activations/genre-civic-life",
+          "phases/phase-public-underwrites/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-public-underwrites/genre_activations/genre-civic-life:genre:genre-civic-life:phase:phase-public-underwrites"
+         ],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-old-span/genre_activations/genre-civic-life",
+          "phases/phase-old-span/genres/2"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-old-span/genre_activations/genre-civic-life:genre:genre-civic-life:phase:phase-old-span"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/phase-what-a-crossing-is-worth/genre_activations/genre-civic-life",
+          "phases/phase-what-a-crossing-is-worth/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-what-a-crossing-is-worth/genre_activations/genre-civic-life:genre:genre-civic-life:phase:phase-what-a-crossing-is-worth"
+         ],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-listed",
+        "style": "phaseListed",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-listed",
+        "style": "phaseListed",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · LOCALLY DOMINANT",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "tertiary genre with more relationships than a supporting one": {
+      "concept": "genres|genre:genre-disaster",
+      "relations": 18,
+      "phasesJoinedByProgressiveRevelation": 3,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 3,
+      "neighbours": 16,
+      "neighboursNamed": 16,
+      "labelOverlaps": 0,
+      "threads": 18,
+      "storyTimeHeading": "In story time · 3 of 9 phases record it",
+      "storyTime": {
+       "id": "genres|genre:genre-disaster",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-first-crosser/genre_activations/genre-disaster",
+          "phases/phase-first-crosser/genres/2"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-first-crosser/genre_activations/genre-disaster:genre:genre-disaster:phase:phase-first-crosser"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-efficient-lie/genre_activations/genre-disaster",
+          "phases/phase-efficient-lie/genres/2"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-efficient-lie/genre_activations/genre-disaster:genre:genre-disaster:phase:phase-efficient-lie"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-old-span/genre_activations/genre-disaster",
+          "phases/phase-old-span/genres/3"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-old-span/genre_activations/genre-disaster:genre:genre-disaster:phase:phase-old-span"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "local genre listed in phases without activation": {
+      "concept": "genres|genre:genre-evidence-inquiry",
+      "relations": 15,
+      "phasesJoinedByProgressiveRevelation": 2,
+      "phasesListedWithoutThread": 2,
+      "phasePillsNamingARole": 2,
+      "neighbours": 14,
+      "neighboursNamed": 14,
+      "labelOverlaps": 0,
+      "threads": 15,
+      "storyTimeHeading": "In story time · 4 of 9 phases record it",
+      "storyTime": {
+       "id": "genres|genre:genre-evidence-inquiry",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "recorded",
+         "role": "locally_dominant",
+         "sources": [
+          "phases/phase-bought-seal/genre_activations/genre-evidence-inquiry",
+          "phases/phase-bought-seal/genres/0"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-bought-seal/genre_activations/genre-evidence-inquiry:genre:genre-evidence-inquiry:phase:phase-bought-seal"
+         ],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/phase-public-underwrites/genres/2"
+         ],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-who-certifies-the-certifier/genres/2"
+         ],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/phase-old-span/genre_activations/genre-evidence-inquiry",
+          "phases/phase-old-span/genres/1"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-old-span/genre_activations/genre-evidence-inquiry:genre:genre-evidence-inquiry:phase:phase-old-span"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · LOCALLY DOMINANT",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-listed",
+        "style": "phaseListed",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-listed",
+        "style": "phaseListed",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "central mechanism without phase records": {
+      "concept": "structure|structure-node:engine-risk-transfer",
+      "relations": 16,
+      "phasesJoinedByProgressiveRevelation": 0,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 10,
+      "neighboursNamed": 8,
+      "labelOverlaps": 0,
+      "threads": 16,
+      "storyTimeHeading": "In story time · no phase record refers to it",
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": true
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     },
+     "phase-associated concept with few connections": {
+      "concept": "structure|phase-structure:phase-public-underwrites:genre-civic-life",
+      "relations": 1,
+      "phasesJoinedByProgressiveRevelation": 1,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 1,
+      "neighbours": 1,
+      "neighboursNamed": 1,
+      "labelOverlaps": 0,
+      "threads": 1,
+      "storyTimeHeading": "In story time · recorded in phase 5 of 9",
+      "storyTime": {
+       "id": "structure|phase-structure:phase-public-underwrites:genre-civic-life",
+       "phases": [
+        {
+         "phase": "timeline|phase:phase-first-signature",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-bought-seal"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-bought-seal",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-first-signature"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-first-crosser",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-guild-defendant",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": [
+          "timeline|phase:phase-public-underwrites"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-public-underwrites",
+         "status": "recorded",
+         "role": null,
+         "sources": [
+          "phases/phase-public-underwrites/genre_activations/genre-civic-life/structural_function",
+          "phases/phase-public-underwrites/genre_activations/genre-civic-life/structural_function"
+         ],
+         "relations": [
+          "92704c86d49d4588999a882d8252bd23d2a8b500618a1f8903782b3ef99a74e6:phases/phase-public-underwrites/genre_activations/genre-civic-life/structural_function:phase:phase-public-underwrites:phase-structure:phase-public-underwrites:genre-civic-life"
+         ],
+         "parallel": [
+          "timeline|phase:phase-guild-defendant"
+         ]
+        },
+        {
+         "phase": "timeline|phase:phase-who-certifies-the-certifier",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-efficient-lie",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-old-span",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:phase-what-a-crossing-is-worth",
+         "status": "none",
+         "role": null,
+         "sources": [],
+         "relations": [],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:phase-first-signature",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-bought-seal",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-first-crosser",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-guild-defendant",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-public-underwrites",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "RECORDED IN THIS PHASE",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-who-certifies-the-certifier",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-efficient-lie",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-old-span",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:phase-what-a-crossing-is-worth",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1512.1890477071177,
+       "cy": 1165.6399999999999,
+       "z": 0.25050615970625584
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "positionsIdentical": true,
+   "restCameraIdentical": true,
+   "selectionCameraIdentical": true,
+   "selectionThreadsIdentical": true,
+   "revisionAfter": 1
+  },
+  "atelier-small": {
+   "revisionBefore": 1,
+   "baseline": {
+    "rest": {
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "genres": [
+      {
+       "id": "genres|genre:literary_mystery",
+       "scale": 1.35,
+       "role": null,
+       "label": "Literary mystery",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:fantasy",
+       "scale": 1.26,
+       "role": null,
+       "label": "Fantasy",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:horror",
+       "scale": 1.26,
+       "role": null,
+       "label": "Horror",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": []
+    },
+    "camera": {
+     "cx": 1132.589370142045,
+     "cy": 869.9992259211239,
+     "z": 0.33563248253564926
+    },
+    "cases": {
+     "governing genre": {
+      "concept": "genres|genre:literary_mystery",
+      "relations": 20,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 15,
+      "neighboursNamed": 14,
+      "labelOverlaps": 0,
+      "threads": 20,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     },
+     "tertiary genre": {
+      "concept": "genres|genre:horror",
+      "relations": 14,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 12,
+      "neighboursNamed": 12,
+      "labelOverlaps": 0,
+      "threads": 14,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     },
+     "contract function whose words recur in phases": {
+      "concept": "tropes|trope:literary_mystery:0",
+      "relations": 1,
+      "phasesJoinedByProgressiveRevelation": 0,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 1,
+      "neighboursNamed": 1,
+      "labelOverlaps": 0,
+      "threads": 1,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "candidate": {
+    "rest": {
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "genres": [
+      {
+       "id": "genres|genre:literary_mystery",
+       "scale": 1.6,
+       "role": "governing",
+       "label": "Literary mystery",
+       "kicker": "GOVERNING · PROPOSED",
+       "style": "landmark",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:fantasy",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Fantasy",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:horror",
+       "scale": 0.9,
+       "role": "tertiary",
+       "label": "Horror",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": []
+    },
+    "camera": {
+     "cx": 1132.589370142045,
+     "cy": 869.9992259211239,
+     "z": 0.33563248253564926
+    },
+    "cases": {
+     "governing genre": {
+      "concept": "genres|genre:literary_mystery",
+      "relations": 20,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 4,
+      "neighbours": 15,
+      "neighboursNamed": 14,
+      "labelOverlaps": 0,
+      "threads": 20,
+      "storyTimeHeading": "In story time · 4 of 4 phases record it",
+      "storyTime": {
+       "id": "genres|genre:literary_mystery",
+       "phases": [
+        {
+         "phase": "timeline|phase:strange_coast",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/strange_coast/genre_activations/literary_mystery",
+          "phases/strange_coast/genres/0"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/strange_coast/genre_activations/literary_mystery:genre:literary_mystery:phase:strange_coast"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:first_erasure",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/first_erasure/genre_activations/literary_mystery",
+          "phases/first_erasure/genres/0"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/first_erasure/genre_activations/literary_mystery:genre:literary_mystery:phase:first_erasure"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:archive_revelation",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/archive_revelation/genre_activations/literary_mystery",
+          "phases/archive_revelation/genres/0"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/archive_revelation/genre_activations/literary_mystery:genre:literary_mystery:phase:archive_revelation"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:choice_of_maps",
+         "status": "recorded",
+         "role": "governing",
+         "sources": [
+          "phases/choice_of_maps/genre_activations/literary_mystery",
+          "phases/choice_of_maps/genres/0"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/choice_of_maps/genre_activations/literary_mystery:genre:literary_mystery:phase:choice_of_maps"
+         ],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · GOVERNING",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     },
+     "tertiary genre": {
+      "concept": "genres|genre:horror",
+      "relations": 14,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 4,
+      "neighbours": 12,
+      "neighboursNamed": 12,
+      "labelOverlaps": 0,
+      "threads": 14,
+      "storyTimeHeading": "In story time · 4 of 4 phases record it",
+      "storyTime": {
+       "id": "genres|genre:horror",
+       "phases": [
+        {
+         "phase": "timeline|phase:strange_coast",
+         "status": "recorded",
+         "role": "background",
+         "sources": [
+          "phases/strange_coast/genre_activations/horror",
+          "phases/strange_coast/genres/2"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/strange_coast/genre_activations/horror:genre:horror:phase:strange_coast"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:first_erasure",
+         "status": "recorded",
+         "role": "locally_dominant",
+         "sources": [
+          "phases/first_erasure/genre_activations/horror",
+          "phases/first_erasure/genres/2"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/first_erasure/genre_activations/horror:genre:horror:phase:first_erasure"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:archive_revelation",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/archive_revelation/genre_activations/horror",
+          "phases/archive_revelation/genres/2"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/archive_revelation/genre_activations/horror:genre:horror:phase:archive_revelation"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:choice_of_maps",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/choice_of_maps/genre_activations/horror",
+          "phases/choice_of_maps/genres/2"
+         ],
+         "relations": [
+          "c75bdb6c8044df38a6adeab094c56008e16d8d02abb46e96f1d855b8a8a98280:phases/choice_of_maps/genre_activations/horror:genre:horror:phase:choice_of_maps"
+         ],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · BACKGROUND",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · LOCALLY DOMINANT",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     },
+     "contract function whose words recur in phases": {
+      "concept": "tropes|trope:literary_mystery:0",
+      "relations": 1,
+      "phasesJoinedByProgressiveRevelation": 0,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 1,
+      "neighboursNamed": 1,
+      "labelOverlaps": 0,
+      "threads": 1,
+      "storyTimeHeading": "In story time · no phase record refers to it",
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-dim",
+        "style": "phase",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "positionsIdentical": true,
+   "restCameraIdentical": true,
+   "selectionCameraIdentical": true,
+   "selectionThreadsIdentical": true,
+   "revisionAfter": 1
+  },
+  "atelier-counterexample": {
+   "revisionBefore": 1,
+   "baseline": {
+    "rest": {
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "genres": [
+      {
+       "id": "genres|genre:literary_mystery",
+       "scale": 1.35,
+       "role": null,
+       "label": "Literary mystery",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:fantasy",
+       "scale": 1.26,
+       "role": null,
+       "label": "Fantasy",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:horror",
+       "scale": 1.26,
+       "role": null,
+       "label": "Horror",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": []
+    },
+    "camera": {
+     "cx": 1132.589370142045,
+     "cy": 869.9992259211239,
+     "z": 0.33563248253564926
+    },
+    "cases": {
+     "governing genre with fewer relationships": {
+      "concept": "genres|genre:fantasy",
+      "relations": 14,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 0,
+      "neighbours": 11,
+      "neighboursNamed": 11,
+      "labelOverlaps": 0,
+      "threads": 14,
+      "storyTimeHeading": null,
+      "storyTime": null,
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "near",
+        "kicker": "",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "candidate": {
+    "rest": {
+     "labels": {
+      "placed": 31,
+      "quiet": 0,
+      "forced": 0,
+      "restLandmarks": 31,
+      "restNamed": 31,
+      "neighbours": 0,
+      "neighboursNamed": 0
+     },
+     "overlaps": {
+      "count": 0,
+      "labels": 31
+     },
+     "genres": [
+      {
+       "id": "genres|genre:literary_mystery",
+       "scale": 1.12,
+       "role": "supporting",
+       "label": "Literary mystery",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:fantasy",
+       "scale": 1.6,
+       "role": "governing",
+       "label": "Fantasy",
+       "kicker": "GOVERNING · PROPOSED",
+       "style": "landmark",
+       "quiet": false
+      },
+      {
+       "id": "genres|genre:horror",
+       "scale": 0.9,
+       "role": "tertiary",
+       "label": "Horror",
+       "kicker": "",
+       "style": "genre",
+       "quiet": false
+      }
+     ],
+     "parents": []
+    },
+    "camera": {
+     "cx": 1132.589370142045,
+     "cy": 869.9992259211239,
+     "z": 0.33563248253564926
+    },
+    "cases": {
+     "governing genre with fewer relationships": {
+      "concept": "genres|genre:fantasy",
+      "relations": 14,
+      "phasesJoinedByProgressiveRevelation": 4,
+      "phasesListedWithoutThread": 0,
+      "phasePillsNamingARole": 4,
+      "neighbours": 11,
+      "neighboursNamed": 11,
+      "labelOverlaps": 0,
+      "threads": 14,
+      "storyTimeHeading": "In story time · 4 of 4 phases record it",
+      "storyTime": {
+       "id": "genres|genre:fantasy",
+       "phases": [
+        {
+         "phase": "timeline|phase:strange_coast",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/strange_coast/genre_activations/fantasy",
+          "phases/strange_coast/genres/1"
+         ],
+         "relations": [
+          "ef93f55e0f70612a5a2abd9ef5b74095509ae225c6274cfe969d01988c0f44c1:phases/strange_coast/genre_activations/fantasy:genre:fantasy:phase:strange_coast"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:first_erasure",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/first_erasure/genre_activations/fantasy",
+          "phases/first_erasure/genres/1"
+         ],
+         "relations": [
+          "ef93f55e0f70612a5a2abd9ef5b74095509ae225c6274cfe969d01988c0f44c1:phases/first_erasure/genre_activations/fantasy:genre:fantasy:phase:first_erasure"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:archive_revelation",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/archive_revelation/genre_activations/fantasy",
+          "phases/archive_revelation/genres/1"
+         ],
+         "relations": [
+          "ef93f55e0f70612a5a2abd9ef5b74095509ae225c6274cfe969d01988c0f44c1:phases/archive_revelation/genre_activations/fantasy:genre:fantasy:phase:archive_revelation"
+         ],
+         "parallel": []
+        },
+        {
+         "phase": "timeline|phase:choice_of_maps",
+         "status": "recorded",
+         "role": "supporting",
+         "sources": [
+          "phases/choice_of_maps/genre_activations/fantasy",
+          "phases/choice_of_maps/genres/1"
+         ],
+         "relations": [
+          "ef93f55e0f70612a5a2abd9ef5b74095509ae225c6274cfe969d01988c0f44c1:phases/choice_of_maps/genre_activations/fantasy:genre:fantasy:phase:choice_of_maps"
+         ],
+         "parallel": []
+        }
+       ]
+      },
+      "phaseLabels": [
+       {
+        "id": "timeline|phase:strange_coast",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:first_erasure",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:archive_revelation",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       },
+       {
+        "id": "timeline|phase:choice_of_maps",
+        "state": "is-near",
+        "style": "nearRole",
+        "kicker": "PHASE ROLE · SUPPORTING",
+        "quiet": false
+       }
+      ],
+      "camera": {
+       "cx": 1132.589370142045,
+       "cy": 869.9992259211239,
+       "z": 0.33563248253564926
+      }
+     }
+    },
+    "pageErrors": []
+   },
+   "positionsIdentical": true,
+   "restCameraIdentical": true,
+   "selectionCameraIdentical": true,
+   "selectionThreadsIdentical": true,
+   "revisionAfter": 1
+  }
+ }
+}
