@@ -3,7 +3,9 @@
 Evidence for [the study](../../design/2026-11-21-atelier-narrative-structure-study.md).
 
 - **Source:** branch `feat/atelier-narrative-pathways` at `2d1c4b31`, a clean tree, based on
-  `main@e48a3ecc`. Every file here was produced at that commit.
+  `main@e48a3ecc`. Every file here was produced at that commit. The next source commit, `42e7acd9`,
+  changes one folio sentence (parallel phases are mentioned only where recorded); nothing measured
+  here depends on it.
 - **Specimens:** two recorded agent proposals and one constructed fixture, seeded by
   `scripts/seed_atelier_study.py`. None is author-owned or accepted story.
   - `atelier-small`: 68 concepts, 82 relationships (coastal literary mystery).
