@@ -1882,7 +1882,7 @@
       again.classList.add('atl-action-primary');box.append(row);
     }
     function renderBookReview(box,n,data,from){
-      var r=data.review,g=B.reviewDigest(r,data.elements,nodeName),ready=data.phase==='review_ready';
+      var r=data.review,g=B.reviewDigest(r,data.elements,nodeName,data.review_elements),ready=data.phase==='review_ready';
       var sec=el('div','atl-book-review');sec.setAttribute('aria-label','Review of the revision of Book '+n);
       var h=el('h5','atl-series-subtitle','Review · working revision '+g.fromRevision+' → '+g.toRevision);h.tabIndex=-1;h.dataset.key='book-review:'+n;sec.append(h);
       sec.append(factList([['You asked',g.instruction],['Scope',g.mode==='holistic'?'the whole Book':g.permitted.join('; ')]]));
@@ -1890,11 +1890,17 @@
         var ul=el('ul','atl-series-elements');g.unexpected.forEach(function(x){ul.append(el('li','',x.text));});u.append(ul);sec.append(u);}
       if(g.changed.length){sec.append(el('p','atl-series-kicker','Changed · '+g.changed.length));
         var cl=el('ul','atl-series-elements');g.changed.forEach(function(c){var li=el('li','');
-          li.append(el('span','atl-series-kind',c.label),el('span','atl-note',c.kind+(c.fields.length?' ('+c.fields.join(', ')+')':'')+'.'));
-          if(c.before!==null&&c.before!==undefined){li.append(el('span','atl-book-before','Before: '+c.before));li.append(el('span','atl-book-after','After: '+c.after));}
+          li.append(el('span','atl-series-kind',c.label),el('span','atl-note',c.kind+'.'));
+          c.worded.forEach(function(w){var head=w.key==='text'?'':w.field[0].toUpperCase()+w.field.slice(1)+' · ';
+            if(w.before!==null)li.append(el('span','atl-book-before',head+'Before: '+w.before));
+            li.append(el('span','atl-book-after',head+(w.before===null?'Now: ':'After: ')+(w.after===null?'(removed)':w.after)));});
+          var other=c.fields.filter(function(f){return !c.worded.some(function(w){return w.field===f;});});
+          if(other.length)li.append(el('span','atl-note','Also changed: '+other.join(', ')+'.'));
           cl.append(li);});sec.append(cl);}
       if(g.added.length){sec.append(el('p','atl-series-kicker','Added · '+g.added.length));var al=el('ul','atl-series-elements');
-        g.added.forEach(function(a){al.append(el('li','',a.label+(a.refersTo.length?' — refers to '+a.refersTo.join('; '):'')));});sec.append(al);}
+        g.added.forEach(function(a){var li=el('li','');li.append(el('span','atl-series-kind',a.label));
+          if(a.text)li.append(el('span','atl-book-after','New: '+a.text));
+          if(a.refersTo.length)li.append(el('span','atl-note','Refers to '+a.refersTo.join('; ')+'.'));al.append(li);});sec.append(al);}
       if(g.removed.length){sec.append(el('p','atl-series-kicker','Removed · '+g.removed.length));var rl=el('ul','atl-series-elements');
         g.removed.forEach(function(x){rl.append(el('li','',x.label));});sec.append(rl);}
       sec.append(el('p','atl-note',X.plural(g.preserved,'other element')+' stay exactly as they are; the owner compared every element by content.'));

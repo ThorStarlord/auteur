@@ -996,7 +996,27 @@ def book_elements(store: CanvasStore, book_number: int) -> list[dict]:
     record = _read(_book_root(store, book_number) / "current.json")
     if record is None:
         return []
-    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    return _element_rows(WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"])))
+
+
+def book_review_elements(store: CanvasStore, book_number: int) -> list[dict] | None:
+    """Read-only: the elements of the pending review's candidate, in the shape `book_elements` uses.
+
+    The review keeps the complete candidate; its projection leaves it out. This lets a reader compare
+    each changed or added element with the working Book without reading the owner's files itself.
+    """
+    _check_number(book_number)
+    base = _book_root(store, book_number)
+    pointer = _read(base / "latest_request.json")
+    if not pointer:
+        return None
+    review = _read(base / "requests" / pointer["request_sha256"] / "review.json")
+    if review is None or "candidate" not in review:
+        return None
+    return _element_rows(WorkingBookArchitecture.model_validate_json(json.dumps(review["candidate"])))
+
+
+def _element_rows(artifact: WorkingBookArchitecture) -> list[dict]:
     decision_ids = {item.id for item in artifact.open_author_decisions}
     index = _index_elements(artifact)
     rows = []
@@ -1008,6 +1028,9 @@ def book_elements(store: CanvasStore, book_number: int) -> list[dict]:
             "content_sha256": entry["hash"],
             "book_refs": sorted(_references_of(index, identifier)),
             "series_refs": sorted(_series_refs_of(index, identifier)),
+            # Every worded field, so a reader can show exactly what a revision changed.
+            "fields": {key: value for key, value in entry["own"].items()
+                       if isinstance(value, str) and key not in ("id", "attribution", "epistemic_status", "provenance")},
         }
         if element is None:
             edge = entry["edge"]

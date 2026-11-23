@@ -29,6 +29,7 @@ from auteur.series.working_book_architecture import (
     book_pending_state,
     book_prepare,
     book_project,
+    book_review_elements,
     book_revision_scope,
     book_series_references,
 )
@@ -107,6 +108,8 @@ def project_book_development(project_root: Path, canvas_id: str, book_number: in
         "phase": phase,
         "pending": pending,
         "review": owner.get("review") if pending is not None else None,
+        # The reviewed candidate's own elements, so the review can show what each change says.
+        "review_elements": book_review_elements(store, book_number) if pending is not None and owner.get("review") else None,
         "request": owner.get("request") if phase in ("awaiting_coding_agent", "stale") else None,
         "handoff": _handoff(project_root, canvas_id, book_number) if pending is not None else None,
     })

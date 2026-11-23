@@ -1,0 +1,5 @@
+Please fulfil the pending Working Book 24 revision request in the Auteur canvas “spring-ledger” (“The new record form lets the craft-mark answer all three needs at once, which makes the mechanism too frictionless. Keep the craft-mark,…”).
+1. Read the request: python -m auteur.series.working_book_architecture --project "<disposable project>" --canvas spring-ledger book-show --book 24
+2. Write the complete revised Book 24 as one JSON object. Change only the permitted elements, and restate each element you change in the explicit form.
+3. Submit it: python -m auteur.series.working_book_architecture --project "<disposable project>" --canvas spring-ledger book-complete-file --book 24 --candidate <revised-book.json>
+Submitting stores a review for me to read; it does not change the working Book. Guide: docs/agents/studio-architecture-bridge.md#working-book-revision-withdrawal-and-apply

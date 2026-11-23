@@ -1,0 +1,29 @@
+{
+  "stage": "A",
+  "viewport": [
+    1440,
+    900
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/books/24/prepare"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "opened Book 24 at the concept",
+      "focus": null,
+      "live": "Series and Book context. Back returns to “Ledger engine”; the atlas keeps your place."
+    },
+    {
+      "step": "composer open, instruction typed",
+      "focus": "book-instruction:24",
+      "live": "Developing Book 24. Write what should change; preparing calls no model and changes nothing in the Book."
+    },
+    {
+      "step": "prepared",
+      "focus": "book-check:24",
+      "live": "Request prepared for your coding agent. Nothing in Book 24 has changed."
+    }
+  ],
+  "scroll_overflow": 0
+}

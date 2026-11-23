@@ -1,0 +1,41 @@
+{
+  "outside_book_files": 16,
+  "changed_outside_book": [],
+  "resume_revision": 1,
+  "resume_freshness": "ready",
+  "lineage": [
+    {
+      "revision": 0,
+      "request_sha256": "bbd106d2f0342e69c8eeb9f68036504c5928b71d62dce675e6edc980cb161be6",
+      "content_sha256": "748f30c98c68066244f6a820a272ee51478d8583ab336465defc2534ac9c82dd",
+      "operation": "develop"
+    },
+    {
+      "revision": 1,
+      "request_sha256": "166bf9d2b656c516cc499e8bab186c23acea58b995ddad8601fab489ab0e6296",
+      "content_sha256": "d54ff85b0350cccc20ac16e52950f3ff95da63768ad26e1397e5a6e439fd5815",
+      "operation": "revise",
+      "baseline_request_sha256": "bbd106d2f0342e69c8eeb9f68036504c5928b71d62dce675e6edc980cb161be6"
+    }
+  ],
+  "applied_review": {
+    "mode": "targeted",
+    "added": [
+      "assume-mark-carries-no-hours",
+      "edge-record-form-no-hours",
+      "edge-refusal-cost-counted"
+    ],
+    "changed": [
+      "edge-capability-hands",
+      "eng-record-form"
+    ],
+    "removed": [],
+    "preserved_count": 86,
+    "representation_only": [],
+    "consequence_candidates": [
+      "edge-capability-lineage"
+    ],
+    "author_decisions": [],
+    "withdrawal": null
+  }
+}

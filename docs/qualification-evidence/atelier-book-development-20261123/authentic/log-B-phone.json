@@ -1,0 +1,22 @@
+{
+  "stage": "B",
+  "viewport": [
+    390,
+    844
+  ],
+  "writes": [],
+  "errors": [],
+  "steps": [
+    {
+      "step": "opened Book 24 at the concept",
+      "focus": null,
+      "live": "Series and Book context. Back returns to “Ledger engine”; the atlas keeps your place."
+    },
+    {
+      "step": "returned later; the coding agent's review is already shown",
+      "focus": null,
+      "live": "Series and Book context. Back returns to “Ledger engine”; the atlas keeps your place."
+    }
+  ],
+  "scroll_overflow": 0
+}

@@ -82,3 +82,20 @@ test('the message for the coding agent names the owner’s commands and promises
   assert.match(message, /does not change the working Book/);
   assert.equal(B.agentMessage(null, 24, 'x'), '');
 });
+
+test('a reworded link and an added element are shown in their own words', () => {
+  const before = [{id: 'edge-hands', collection: 'typed_edges', text: 'Old function.', fields: {function: 'Old function.', dependency: 'pressures', source: 'eng'}}];
+  const after = [{id: 'edge-hands', collection: 'typed_edges', text: 'New function.', fields: {function: 'New function.', dependency: 'pressures', source: 'eng'}},
+    {id: 'assume-new', collection: 'assumptions', text: 'A mark carries no hours.', fields: {text: 'A mark carries no hours.', reversal: 'It does.'}}];
+  const r = {...review, changes: {changed: [{id: 'edge-hands', classification: 'mechanical', fields_changed: ['function']}],
+    added: [{id: 'assume-new', collection: 'assumptions', references: ['edge-hands']}], removed: []}};
+  const g = B.reviewDigest(r, before, null, after);
+  assert.equal(g.changed[0].kind, 'The wording of this link changed');
+  assert.deepEqual(plain(g.changed[0].worded), [{field: 'stated function', key: 'function', before: 'Old function.', after: 'New function.'}]);
+  assert.equal(g.added[0].label, 'Assumption · “A mark carries no hours.”');
+  assert.equal(g.added[0].text, 'A mark carries no hours.');
+  // A link whose words did not change is still only a change of references.
+  const mech = B.reviewDigest({...r, changes: {changed: [{id: 'edge-hands', classification: 'mechanical', fields_changed: ['target']}], added: [], removed: []}},
+    before, null, [{...before[0]}]);
+  assert.equal(mech.changed[0].kind, 'Only its references changed');
+});

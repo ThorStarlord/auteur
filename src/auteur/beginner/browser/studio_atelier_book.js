@@ -15,7 +15,16 @@
     mechanical:'Only its references changed'};
   var FIELD={text:'wording',interpretation:'interpretation',attribution:'what supports it',epistemic_status:'working status',
     provenance:'legacy label',refs:'references',reversal:'reversal',title:'title',question:'question',pressure:'pressure',
-    function:'function',dependency:'dependency',target:'target',source:'source'};
+    function:'stated function',dependency:'kind of link',target:'what it points to',source:'where it starts',
+    condition:'condition',consequence:'consequence',changed_state:'changed state',choice:'choice',
+    new_possibility:'new possibility',rationale:'rationale',name_source:'name source',kind:'kind'};
+  // The worded fields that differ between two readings of one element, the main wording first.
+  function wordedChanges(before,after){
+    var b=before&&before.fields||{},a=after&&after.fields||{},keys=[];
+    Object.keys(b).concat(Object.keys(a)).forEach(function(k){if(keys.indexOf(k)<0&&b[k]!==a[k])keys.push(k);});
+    keys.sort(function(x,y){return (x==='text'?0:x==='function'?1:2)-(y==='text'?0:y==='function'?1:2);});
+    return keys.map(function(k){return {field:FIELD[k]||k.replace(/_/g,' '),key:k,before:b[k]==null?null:b[k],after:a[k]==null?null:a[k]};});
+  }
 
   function clip(text,n){text=String(text==null?'':text).replace(/\s+/g,' ').trim();n=n||90;
     return text.length>n?text.slice(0,n-1).replace(/\s+\S*$/,'')+'…':text;}
@@ -56,19 +65,25 @@
   }
 
   // The owner's review, said in words. Mechanical links stay links to inspect; nothing becomes causation.
-  function reviewDigest(review,elements,conceptName){
-    var map=index(elements),name=conceptName||function(id){return id;};
-    function label(id){return elementLabel(map,id);}
+  function reviewDigest(review,elements,conceptName,reviewElements){
+    // Elements are named from the working Book, and new ones from the reviewed candidate.
+    var map=index(elements),cand=index(reviewElements||[]),name=conceptName||function(id){return id;};
+    var both=Object.assign({},cand,map);
+    function label(id){return elementLabel(both,id);}
     var ch=review.changes||{added:[],changed:[],removed:[]};
     return {
       fromRevision:review.baseline&&review.baseline.revision_number,toRevision:review.revision_number,
       mode:review.mode,instruction:review.instruction,applicable:!!review.applicable,
       permitted:review.permitted_ids?labels(map,review.permitted_ids):null,
-      changed:(ch.changed||[]).map(function(c){return {id:c.id,label:label(c.id),kind:CHANGE[c.classification]||c.classification,
-        classification:c.classification,before:c.before_text,after:c.after_text,
-        fields:(c.fields_changed||[]).map(function(f){return FIELD[f]||f;})};}),
-      added:(ch.added||[]).map(function(a){return {id:a.id,label:kind(a.collection)+' · '+a.id,
-        refersTo:(a.references||[]).map(label)};}),
+      changed:(ch.changed||[]).map(function(c){
+        var worded=cand[c.id]?wordedChanges(map[c.id],cand[c.id]):(c.before_text!=null?[{field:'wording',key:'text',before:c.before_text,after:c.after_text}]:[]);
+        // The owner calls a change with no new statement text mechanical; a link whose stated function changed is reworded.
+        var reworded=c.classification==='mechanical'&&worded.some(function(w){return w.key==='function';});
+        return {id:c.id,label:label(c.id),kind:reworded?'The wording of this link changed':(CHANGE[c.classification]||c.classification),
+          classification:c.classification,before:c.before_text,after:c.after_text,worded:worded,
+          fields:(c.fields_changed||[]).map(function(f){return FIELD[f]||f.replace(/_/g,' ');})};}),
+      added:(ch.added||[]).map(function(a){var e=cand[a.id];return {id:a.id,label:e?elementLabel(cand,a.id):kind(a.collection)+' · '+a.id,
+        text:e?(e.fields&&(e.fields.text||e.fields.function))||e.text||'':'',refersTo:(a.references||[]).map(label)};}),
       removed:(ch.removed||[]).map(function(r){return {id:r.id,label:label(r.id)};}),
       preserved:review.preserved?review.preserved.count:0,
       unexpected:(review.unexpected_changes||[]).map(function(u){return {id:u.id,label:map[u.id]?label(u.id):u.id,
@@ -107,6 +122,6 @@
   function shortSha(sha){return sha?String(sha).slice(0,12):'';}
 
   global.AuteurAtelierBook={CHANGE:CHANGE,elementLabel:elementLabel,labels:labels,phaseLine:phaseLine,staleReason:staleReason,
-    scopeSentence:scopeSentence,reviewDigest:reviewDigest,widenedTargets:widenedTargets,agentMessage:agentMessage,
+    scopeSentence:scopeSentence,reviewDigest:reviewDigest,wordedChanges:wordedChanges,widenedTargets:widenedTargets,agentMessage:agentMessage,
     shortSha:shortSha,clip:clip,kind:kind};
 })(typeof window!=='undefined'?window:this);
