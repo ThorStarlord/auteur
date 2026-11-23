@@ -1,0 +1,73 @@
+Review · working revision 0 → 1
+
+2 changed · 3 added · 0 removed · 86 unchanged
+
+YOU ASKED
+
+The new record form lets the craft-mark answer all three needs at once, which makes the mechanism too frictionless. Keep the craft-mark, but make the cohort's refusal of an hour-count carry a visible cost inside the Ledger engine, and say who bears it.
+
+IT COULD CHANGE
+
+Engine · “Ledger as a new record form: the lineage needs proof of training,…”; and, so their references stay true, Link · “The craft-mark shows who can give return labour; it does not change…”; Link · “A record of outside-lineage repair tests the lineages' monopoly on…”. Every other element stays as it is.
+
+Apply this revision to working Book 24
+
+Applying changes this working Book only. It accepts nothing, and the Architecture, the Series plan and the Directions stay as they are.
+
+Prepare a different request
+
+CHANGED · 2
+
+LINK · “THE CRAFT-MARK SHOWS WHO CAN GIVE RETURN LABOUR; IT DOES NOT CHANGE…”
+The wording of this link changed.
+Stated function · Before: The craft-mark shows who can give return labour; it does not change who is counted for draw.
+Stated function · After: The craft-mark shows who can give return labour but carries no hours, so the return labour the Ledger can assign falls on counted hands alone; it does not change who is counted for draw.
+ENGINE · “LEDGER AS A NEW RECORD FORM: THE LINEAGE NEEDS PROOF OF TRAINING,…”
+Its wording or interpretation changed.
+Before: Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date. The craft-mark answers all three.
+After: Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair, and how much labour it can assign, before the date. The craft-mark answers the first two and only half of the third. It shows who can repair, but it carries no hours, so the Ledger cannot assign any upkeep against it. The cohort's refusal of an hour-count therefore has a cost the Ledger shows, and the counted bear it: chiefly the crewmates from hand-light houses who chose the tally for their families, whose restored draw now comes with the assigned upkeep that the marked crew declined to owe.
+Condition · Before: The lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date.
+Condition · After: The lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair, and how much labour it can assign, before the date. A craft-mark carries no hours, so the Ledger can assign upkeep only to hands entered in the stewardship tally (working assumption).
+Choice · Before: The craft-mark.
+Choice · After: The craft-mark, kept as Hesper proposes it, with no hour-count added to it.
+Consequence · Before: The condition is met in a form that records who can, not who owes.
+Consequence · After: The lineage's and the cohort's needs are met in a form that records who can, not who owes. The Council's need is met only in part: it learns who can repair, but it cannot assign upkeep against a mark, so the pre-date upkeep it assigns is entered against counted hands alone. The crewmates who chose the tally for their families bear that load: the conversion restores their families' draw, and their seasons become the Ledger's first call.
+Changed state · Before: The valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability).
+Changed state · After: The valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability). The tally and the marks are now unequal inside the Ledger: the tally carries assigned obligation and the draw it restores, the marks carry standing without obligation, and the gap between marks cut and hours the Council can assign is visible in its reckoning of readiness.
+New possibility · Before: Any finale mechanism can draw on a public record of capability, and any of them can be undermined if that record is falsified.
+New possibility · After: Any finale mechanism can draw on a public record of capability, and any of them can be undermined if that record is falsified. The counted can now ask why their hands carry what the marked decline to owe: a pressure inside the cohort that the craft-mark does not resolve.
+Working status: asserted → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+
+ADDED · 3
+
+ASSUMPTION · “A CRAFT-MARK PROVES THAT A HAND CAN PERFORM A NAMED REPAIR, BUT IT…”
+New: A craft-mark proves that a hand can perform a named repair, but it carries no hours, so the Ledger cannot assign pre-date upkeep against it; the Council can assign upkeep only to hands entered in the stewardship tally. This is a working change to the record-form mechanism, made at the operator's instruction. It is not an author decision.
+Refers to Assumption · “The craft-mark is a record of capability, cut by teacher and learner…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”.
+LINK · “THE RECORD FORM'S COST EXISTS ONLY WHILE A CRAFT-MARK CARRIES NO…”
+New: The record form's cost exists only while a craft-mark carries no assignable hours.
+Refers to Assumption · “A craft-mark proves that a hand can perform a named repair, but it…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”.
+LINK · “THE CREWMATES WHO CHOSE TO BE COUNTED NOW CARRY THE ASSIGNED UPKEEP…”
+New: The crewmates who chose to be counted now carry the assigned upkeep that the marked crew does not owe.
+Refers to Cost kept visible · “Several crewmates, including the one whose terrace silted, choose to…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”.
+
+86 other elements stay exactly as they are; the owner compared every element by content.
+
+TO RE-READ · 4
+
+Each refers to an element this revision changes. The reference is recorded; whether it still holds is not.
+
+Link · “A record of outside-lineage repair tests the lineages' monopoly on…” → Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+Assumption · “A craft-mark proves that a hand can perform a named repair, but it…” → Assumption · “The craft-mark is a record of capability, cut by teacher and learner…”
+Link · “The crewmates who chose to be counted now carry the assigned upkeep…” → Cost kept visible · “Several crewmates, including the one whose terrace silted, choose to…”
+Engine · “Ledger as a new record form: the lineage needs proof of training,…” → Cost kept visible · “Several crewmates, including the one whose terrace silted, choose to…”
+
+ARCHITECTURE CONCEPTS THESE ELEMENTS CITE · 4
+
+The Architecture is unchanged; check that the Book still fits each concept.
+
+“Ledger engine” · cited by Assumption · “A craft-mark proves that a hand can perform a named repair, but it…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+“Maintenance lineages” · cited by Link · “A record of outside-lineage repair tests the lineages' monopoly on…”
+“Custody of the record” · cited by Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+“Hands and draw” · cited by Link · “The craft-mark shows who can give return labour; it does not change…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+Request identity and baseline
+Apply this revision to working Book 24

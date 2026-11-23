@@ -40,7 +40,9 @@ from auteur.series.continuity_validators import SetupPayoffValidator
 from auteur.series.graph import build_dependency_graph
 from auteur.series.models import SeriesIdentity
 from auteur.series.vertical_slice_store import VerticalSliceStore
-from auteur.series.working_book_architecture import book_numbers, book_series_references
+from auteur.series.working_book_architecture import (
+    book_numbers, book_pending_state, book_project, book_series_references,
+)
 
 SCHEMA = "studio-series-context/1"
 SERIES_PLAN_PATH = "series_identity.yaml"
@@ -315,8 +317,25 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
                            content_hash=view.get("content_sha256")),
             "written_against_request": view["series_request_sha256"],
             "references": refs,
+            "last_applied": view.get("last_applied"),
+            "development": _development(store, number),
         })
     return {**base, "state": "available" if books else "absent", "books": books}
+
+
+def _development(store: CanvasStore, number: int) -> dict[str, Any] | None:
+    """Where this Book's own revision lifecycle stands, read from its owner. None when nothing is pending."""
+    try:
+        pending = book_pending_state(store, number)["pending"]
+        status = book_project(store, number)["status"] if pending else None
+    except Exception as exc:  # noqa: BLE001 - a damaged request is reported, the Book is still shown
+        return {"phase": "unreadable", "reason": _first_line(exc)}
+    if pending is None:
+        return None
+    phase = ("stale" if pending["book_changed"] or pending["context_changed"]
+             else status if status in ("review_ready", "review_blocked") else "awaiting_coding_agent")
+    return {"phase": phase, "request_sha256": pending["request_sha256"], "mode": pending["mode"],
+            "targets": pending["targets"], "operation": pending["operation"]}
 
 
 def _guarded(read, owner: str, label: str) -> dict[str, Any]:

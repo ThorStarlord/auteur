@@ -577,15 +577,31 @@ def _freshness(store: CanvasStore, book_number: int, record: dict) -> dict:
     }
 
 
+class RevisionExpectation(BaseModel):
+    """What a caller read before asking for a revision, checked under the canvas lock.
+
+    `baseline_request_sha256`: the working Book must still be this revision.
+    `pending_request_sha256`: the request waiting now (None when none) must be this one, so a new request
+    replaces only a request the caller knows about. `pending_reviewed` must match whether it has a review.
+    `current_only`: refuse while the Book is out of date with the Series architecture or its source,
+    because applying any revision records the whole Book as written against the current state.
+    """
+    model_config = ConfigDict(extra="forbid")
+    baseline_request_sha256: str
+    pending_request_sha256: str | None
+    pending_reviewed: bool = False
+    current_only: bool = False
+
+
 def book_prepare(
     store: CanvasStore, book_number: int, *, instruction: str | None = None,
-    targets: tuple[str, ...] = (), holistic: bool = False,
+    targets: tuple[str, ...] = (), holistic: bool = False, expect: RevisionExpectation | None = None,
 ) -> dict:
     """Develop a Book when none exists. With an instruction, prepare a reviewed revision of the existing one."""
     _check_number(book_number)
     if instruction is None:
         return _prepare_develop(store, book_number)
-    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic)
+    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic, expect)
 
 
 def _prepare_develop(store: CanvasStore, book_number: int) -> dict:
@@ -970,6 +986,147 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
         "revision_number": record.get("revision_number", 0),
         "open_author_decisions": len(artifact.open_author_decisions),
         "references": [by_node[key] for key in sorted(by_node)],
+        "last_applied": _last_applied(record),
+    }
+
+
+def _last_applied(record: dict) -> dict | None:
+    """The latest applied revision's own summary, as the record keeps it. None for a Book never revised."""
+    applied = record.get("applied_review")
+    if not applied:
+        return None
+    return {
+        "revision_number": record.get("revision_number", 0),
+        "request_sha256": record["request_sha256"],
+        "mode": applied.get("mode"),
+        "added": list(applied.get("added") or []),
+        "changed": list(applied.get("changed") or []),
+        "removed": list(applied.get("removed") or []),
+        "withdrawal": applied.get("withdrawal"),
+    }
+
+
+def book_elements(store: CanvasStore, book_number: int) -> list[dict]:
+    """Read-only: every element and typed edge of the working Book, with its standing and references."""
+    _check_number(book_number)
+    record = _read(_book_root(store, book_number) / "current.json")
+    if record is None:
+        return []
+    return _element_rows(WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"])))
+
+
+def book_review_elements(store: CanvasStore, book_number: int) -> list[dict] | None:
+    """Read-only: the elements of the pending review's candidate, in the shape `book_elements` uses.
+
+    The review keeps the complete candidate; its projection leaves it out. This lets a reader compare
+    each changed or added element with the working Book without reading the owner's files itself.
+    """
+    _check_number(book_number)
+    base = _book_root(store, book_number)
+    pointer = _read(base / "latest_request.json")
+    if not pointer:
+        return None
+    review = _read(base / "requests" / pointer["request_sha256"] / "review.json")
+    if review is None or "candidate" not in review:
+        return None
+    return _element_rows(WorkingBookArchitecture.model_validate_json(json.dumps(review["candidate"])))
+
+
+def _element_rows(artifact: WorkingBookArchitecture) -> list[dict]:
+    decision_ids = {item.id for item in artifact.open_author_decisions}
+    index = _index_elements(artifact)
+    rows = []
+    for identifier, entry in index.items():
+        element = entry["element"]
+        row = {
+            "id": identifier,
+            "collection": entry["collection"],
+            "content_sha256": entry["hash"],
+            "book_refs": sorted(_references_of(index, identifier)),
+            "series_refs": sorted(_series_refs_of(index, identifier)),
+            # Every worded field, so a reader can show exactly what a revision changed.
+            "fields": {key: value for key, value in entry["own"].items()
+                       if isinstance(value, str) and key not in ("id", "attribution", "epistemic_status", "provenance")},
+        }
+        if element is None:
+            edge = entry["edge"]
+            row.update({"text": edge.function, "dependency": edge.dependency.value, "source_element": edge.source,
+                        "target": edge.target.model_dump(mode="json")})
+        else:
+            view = project_element(element, collection=entry["collection"], decision_ids=decision_ids)
+            row.update({"text": getattr(element, "text", None) or getattr(element, "question", None),
+                        "title": getattr(element, "title", None),
+                        "attribution": view["attribution"], "epistemic_status": view["epistemic_status"],
+                        "commitment_authority": view["commitment_authority"], "form": view["form"]})
+        rows.append(row)
+    return rows
+
+
+def book_revision_scope(store: CanvasStore, book_number: int, targets: tuple[str, ...]) -> dict:
+    """Read-only preview of what a targeted revision would permit: the targets and the elements that refer to them.
+
+    It uses the same rule `book_prepare` applies, so the preview and the request agree.
+    """
+    _check_number(book_number)
+    record = _read(_book_root(store, book_number) / "current.json")
+    if record is None:
+        raise ValueError(f"Book {book_number} has no working architecture to revise; develop it first")
+    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    index = _index_elements(artifact)
+    unknown = sorted(identifier for identifier in targets if identifier not in index)
+    if unknown:
+        raise ValueError(f"unknown target elements: {', '.join(unknown)}")
+    dependents = _dependents_of(index, set(targets))
+    return {"targets": sorted(set(targets)), "dependents": sorted(dependents),
+            "permitted_ids": sorted(set(targets) | dependents)}
+
+
+def book_pending_state(store: CanvasStore, book_number: int) -> dict:
+    """Read-only: the pending Book request, if any, and whether it still matches the Book and its context.
+
+    A pending request is the latest prepared request that is not the applied working Book. It is out of
+    date when the working Book it revises changed, or when the Series architecture or the Book's source
+    changed; `book_complete` and `book_apply_review` refuse it then. This reports the same conditions.
+    """
+    _check_number(book_number)
+    base = _book_root(store, book_number)
+    pointer = _read(base / "latest_request.json")
+    current = _read(base / "current.json")
+    if not pointer or (current is not None and current["request_sha256"] == pointer["request_sha256"]):
+        return {"book_number": book_number, "pending": None}
+    sha = pointer["request_sha256"]
+    request = load_host_agent_request(base / "requests" / sha / "request.json")
+    settings = request.settings
+    operation = settings.get("operation", "develop")
+    packet = json.loads(request.user)
+    book_changed = operation != "develop" and (
+        current is None or current["request_sha256"] != settings.get("baseline_request_sha256"))
+    return {
+        "book_number": book_number,
+        "pending": {
+            "request_sha256": sha,
+            "operation": operation,
+            "mode": settings.get("mode"),
+            "instruction": packet.get("instruction") if operation == "revise" else packet.get("rationale"),
+            "targets": list(settings.get("targets") or []),
+            "dependents": list(settings.get("dependents") or []),
+            "permitted_ids": settings.get("allowed_ids"),
+            "attempt": settings.get("attempt"),
+            "baseline": {
+                "request_sha256": settings.get("baseline_request_sha256"),
+                "content_sha256": settings.get("baseline_content_sha256"),
+                "revision_number": settings.get("baseline_revision_number"),
+            },
+            "book_changed": book_changed,
+            "context_changed": _series_changed(store, settings) or _source_changed(store, book_number, settings),
+            # The Book was out of date with the Series architecture or its source when this request was
+            # prepared. Applying records the whole Book as current, so only a whole-Book request is safe then.
+            "baseline_out_of_date": operation != "develop" and current is not None and (
+                current.get("series_request_sha256") != settings.get("series_request_sha256")
+                or current.get("source_sha256") != settings.get("source_sha256")),
+            "completed": (base / "requests" / sha / "review.json").is_file(),
+            "stale_response_kept": (base / "requests" / sha / "stale_response.json").is_file(),
+        },
     }
 
 
@@ -1333,8 +1490,36 @@ def _revision_attempt(base: Path, baseline_sha: str) -> int:
     return count + 1
 
 
+def _check_expectation(store: CanvasStore, book_number: int, base: Path, current: dict,
+                       expect: RevisionExpectation, holistic: bool) -> None:
+    if current["request_sha256"] != expect.baseline_request_sha256:
+        raise BeginnerConcurrencyError(
+            f"the working Book {book_number} changed since you read it (it is now revision "
+            f"{current.get('revision_number', 0)}); read it again before preparing a revision")
+    pointer = _read(base / "latest_request.json")
+    pending = pointer["request_sha256"] if pointer and pointer["request_sha256"] != current["request_sha256"] else None
+    reviewed = bool(pending) and (base / "requests" / pending / "review.json").is_file()
+    if pending and expect.pending_request_sha256 is None:
+        raise BeginnerConcurrencyError(
+            f"another request for Book {book_number} is still waiting "
+            + ("for your review" if reviewed else "for the coding agent")
+            + "; confirm that this request replaces it")
+    if pending != expect.pending_request_sha256 or (pending and reviewed != expect.pending_reviewed):
+        raise BeginnerConcurrencyError(
+            f"the request waiting for Book {book_number} changed since you read it"
+            + (" (your coding agent's review of it is now ready)" if reviewed and not expect.pending_reviewed else "")
+            + "; read it again before replacing it")
+    if expect.current_only and not holistic:
+        settings = {"series_request_sha256": current["series_request_sha256"], "source_sha256": current["source_sha256"]}
+        if _series_changed(store, settings) or _source_changed(store, book_number, settings):
+            raise BeginnerConcurrencyError(
+                f"Book {book_number} is out of date with the working Architecture or its source; applying any "
+                "revision records the whole Book as current, so only a whole-Book revision can be prepared")
+
+
 def _prepare_revision(
     store: CanvasStore, book_number: int, instruction: str, targets: tuple[str, ...], holistic: bool,
+    expect: RevisionExpectation | None = None,
 ) -> dict:
     if not instruction.strip():
         raise ValueError("a revision needs a non-empty instruction")
@@ -1349,6 +1534,8 @@ def _prepare_revision(
         current = _read(base / "current.json")
         if current is None:
             raise ValueError(f"Book {book_number} has no working architecture to revise; develop it first")
+        if expect is not None:
+            _check_expectation(store, book_number, base, current, expect, holistic)
         artifact = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
         index = _index_elements(artifact)
         unknown = sorted(identifier for identifier in targets if identifier not in index)
@@ -1611,6 +1798,8 @@ def main(argv: list[str] | None = None) -> int:
     apply_review.add_argument("--request-sha256", required=True, help="Exact reviewed request SHA-256")
     resume = actions.add_parser("book-resume", help="Read-only re-entry for one Book")
     resume.add_argument("--book", type=int, required=True)
+    show = actions.add_parser("book-show", help="Read-only: the pending request (with its packet) or review for one Book")
+    show.add_argument("--book", type=int, required=True)
     args = parser.parse_args(argv)
     store = CanvasStore(Path(args.project), args.canvas)
     try:
@@ -1630,6 +1819,8 @@ def main(argv: list[str] | None = None) -> int:
             result = book_withdraw(store, args.book, args.element, args.rationale)
         elif args.action == "book-apply-review":
             result = book_apply_review(store, args.book, args.request_sha256)
+        elif args.action == "book-show":
+            result = book_project(store, args.book)
         else:
             result = book_resume(store, args.book)
     except (ValueError, BeginnerConcurrencyError) as exc:

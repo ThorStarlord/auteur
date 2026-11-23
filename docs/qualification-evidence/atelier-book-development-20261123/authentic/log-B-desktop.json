@@ -1,0 +1,37 @@
+{
+  "stage": "B",
+  "viewport": [
+    1440,
+    900
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/books/24/apply"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "opened Book 24 at the concept",
+      "focus": null,
+      "live": "Series and Book context. Back returns to “Ledger engine”; the atlas keeps your place."
+    },
+    {
+      "step": "returned later; the coding agent's review is already shown",
+      "focus": null,
+      "live": "Series and Book context. Back returns to “Ledger engine”; the atlas keeps your place."
+    },
+    {
+      "step": "applied",
+      "focus": "book-note:24",
+      "live": "Applied to working Book 24. Only the working Book changed; the atlas is unchanged."
+    },
+    {
+      "step": "Escape back to the atlas",
+      "focus": "series-open:24",
+      "live": "Back to “Ledger engine”. Your place in the atlas is unchanged."
+    }
+  ],
+  "revision_marks": null,
+  "place_kept_after_apply": true,
+  "place_kept_after_return": true,
+  "scroll_overflow": 0
+}

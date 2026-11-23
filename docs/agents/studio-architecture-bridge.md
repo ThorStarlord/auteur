@@ -155,4 +155,22 @@ Refusals:
 
 Re-preparing an identical scope creates a new attempt, so a corrected candidate can be submitted after a blocked review.
 
+`book-show --book <n>` is read-only. It prints the owner's projection: the status (`awaiting_host_agent`, `review_ready`, `review_blocked`, `ready`, `stale` or `not_started`), the pending request with its full packet while no response has been submitted, and the review once one exists.
+
+### Requests prepared in the Studio
+
+The opt-in Atelier (`studio.html?atelier`) can prepare a Book revision from a selected concept. It uses the same owner. Its server routes, under `/api/beginner/studio/canvases/<canvas>/books/<n>`, are:
+
+- `GET` and `GET scope?targets=`, which are read-only;
+- `POST prepare`, `POST host-agent-response` and `POST apply`. These call `book_prepare`, `book_complete` and `book_apply_review`.
+
+Before calling the owner's prepare, the Studio adds two guards:
+- it refuses when the Book is no longer the revision the author read;
+- it refuses to replace a waiting request unless the author confirms.
+
+When the author asks you to fulfil such a request:
+1. Read it with `book-show`.
+2. Submit the complete revised Book with `book-complete-file`, exactly as above.
+3. Do not prepare or apply. The author reviews the result in the Studio and applies it there.
+
 What applying does not do: it does not write the Series architecture, accepted Identity or Book Direction, intentions, canvas items or the artifact store, and it does not choose an accepted ending. A mechanical reference in a review is a dependency to inspect. It is not evidence of a narrative contradiction. Series consequences are reported with the Series state unchanged, and the Series changes only through its own revision lifecycle.

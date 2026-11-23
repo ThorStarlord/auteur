@@ -7,7 +7,7 @@
    nothing is saved or accepted. */
 (function(global,document){
   'use strict';
-  var M=global.AuteurStudioAtelierModel,X=global.AuteurAtelierSeries,SVG='http://www.w3.org/2000/svg';
+  var M=global.AuteurStudioAtelierModel,X=global.AuteurAtelierSeries,B=global.AuteurAtelierBook,SVG='http://www.w3.org/2000/svg';
   var SERIF='"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif';
   var SANS='system-ui,-apple-system,"Segoe UI",sans-serif';
   var TIMING={
@@ -1134,11 +1134,27 @@
     function renderFolio(){
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
       var onTitle=!!(active&&folio.contains(active)&&active.classList.contains('atl-folio-title')),top=folio.scrollTop;
+      // A field the author is typing in survives a re-render as the same element: its words, caret and
+      // scroll stay exactly where they were, whatever finishes reading in the meantime.
+      var typing=key&&active.tagName==='TEXTAREA'&&!active.readOnly?active:null;
+      var caret=typing?[typing.selectionStart,typing.selectionEnd,typing.selectionDirection,typing.scrollTop]:null;
+      // Disclosures the author opened stay open across a re-render; a step may ask for one to open once.
+      var opened={};folio.querySelectorAll('details[data-key]').forEach(function(x){opened[x.dataset.key]=x.open;});
       renderFolioContent();
+      var force=S.openDetails||{};S.openDetails=null;
+      folio.querySelectorAll('details[data-key]').forEach(function(x){var k=x.dataset.key;
+        if(force[k])x.open=true;else if(opened[k]!==undefined)x.open=opened[k];});
       if(S.folioFor!==S.focus){S.folioFor=S.focus;folio.scrollTop=0;}
       // A re-render under the reader (for example when plans finish reading) keeps the title focused.
       if(onTitle&&!key){var h=folio.querySelector('h3');if(h){h.tabIndex=-1;h.focus({preventScroll:true});folio.scrollTop=top;}}
-      if(key){var again=folio.querySelector('[data-key="'+cssEscape(key)+'"]');if(again)again.focus({preventScroll:true});else focusFolio();}
+      if(key){var again=folio.querySelector('[data-key="'+cssEscape(key)+'"]');
+        if(again&&typing&&again.tagName==='TEXTAREA'){again.replaceWith(typing);again=typing;}
+        if(again){again.focus({preventScroll:true});
+          if(again===typing){try{typing.setSelectionRange(caret[0],caret[1],caret[2]);}catch(_){}typing.scrollTop=caret[3];}}
+        else focusFolio();}
+      // A composer just opened takes the keyboard once it is drawn, after any focus a re-render restores.
+      var dv=S.dev,field=dv&&dv.focusPending&&folio.querySelector('[data-key="book-instruction:'+dv.book+'"]');
+      if(field){dv.focusPending=false;field.focus({preventScroll:false});}
     }
     function renderFolioContent(){
       folio.replaceChildren();
@@ -1427,11 +1443,11 @@
        records to the concept's node id; the project-level plans are shown beside the Architecture, never
        linked to it. Opening this view changes nothing, and Back returns to the concept the author left. */
     var SERIES_MAX_AGE=20000;
-    function readSeries(force,announceResult){
+    function readSeries(force,announceResult,quiet){
       if(!binding.getSeriesContext)return;
       var c=S.seriesCtx;
       // A read already in flight answers this one too; an explicit request is read again after it.
-      if(c&&c.status==='loading'){if(force)S.seriesAgain={announce:!!announceResult};return;}
+      if(c&&c.status==='loading'){if(force)S.seriesAgain={announce:!!announceResult,quiet:!!quiet};return;}
       if(c&&c.status==='ready'&&!force&&!S.seriesStale&&Date.now()-c.readAt.getTime()<SERIES_MAX_AGE)return;
       var prev=c&&c.data?c.data.version:(c&&c.prevVersion)||null,seq=(S.seriesSeq||0)+1;S.seriesSeq=seq;S.seriesStale=false;
       S.seriesCtx={status:'loading',data:c&&c.data||null,prevVersion:prev};
@@ -1442,13 +1458,13 @@
         S.seriesCtx={status:'ready',data:data,readAt:new Date(),prevVersion:prev,changed:changed};
         renderFolio();
         if(announceResult)announce(changed?'Read again: the Book and Series plans changed since you last read them.':'Read again: nothing changed.');
-        else if(changed)announce('The Book and Series plans changed since you last read them.');
+        else if(changed&&!quiet)announce('The Book and Series plans changed since you last read them.');
         againAfter();
       },function(error){
         if(seq!==S.seriesSeq)return;
         S.seriesCtx={status:'error',error:error&&error.message||String(error),data:null,prevVersion:prev};renderFolio();againAfter();
       });
-      function againAfter(){var a=S.seriesAgain;S.seriesAgain=null;if(a)readSeries(true,a.announce);}
+      function againAfter(){var a=S.seriesAgain;S.seriesAgain=null;if(a)readSeries(true,a.announce,a.quiet);}
     }
     function toneLine(t,cls){return el('p','atl-tone atl-tone-'+t.tone+(cls?' '+cls:''),t.text);}
     function chip(text,kind){return el('span','atl-chip'+(kind?' atl-chip-'+kind:''),text);}
@@ -1472,6 +1488,7 @@
           li.append(el('p','atl-series-line','Records a reference to this concept in '+X.refSummary(h.ref)+'.'));
           var st=X.refStanding(h.ref);if(st)li.append(toneLine(st));
           X.bookFreshness(h.book).forEach(function(f){if(f.tone!=='ok')li.append(toneLine(f));});
+          var dl=h.book.development&&B.phaseLine(h.book.development.phase,h.book.book_number);if(dl)li.append(toneLine(dl));
           actionButton(li,'Open Book '+h.book.book_number+' at this concept',function(){openLeaf({book:h.book.book_number});},'series-open:'+h.book.book_number);
           ul.append(li);});
         wrap.append(el('p','atl-series-kicker','Recorded in Book plans'),ul);
@@ -1503,10 +1520,11 @@
     }
     function openLeaf(opts){
       var a=document.activeElement;
+      if(S.dev&&S.dev.from!==S.focus)S.dev=null;
       S.leaf={from:S.focus,book:opts&&opts.book||null,opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop};
       readSeries(true,false);renderFolio();folio.scrollTop=0;focusFolio();
       var from=S.focus&&S.model.byId[S.focus];
-      announce('Series and Book context, read-only.'+(from?' Back returns to “'+from.title+'”; the atlas keeps your place.':''));
+      announce('Series and Book context.'+(from?' Back returns to “'+from.title+'”; the atlas keeps your place.':''));
     }
     function closeLeaf(){
       var l=S.leaf;if(!l)return;S.leaf=null;renderFolio();
@@ -1537,7 +1555,7 @@
       readSeries(false);
       var l=S.leaf,c=S.seriesCtx,d=c&&c.data,from=l.from&&S.model.byId[l.from];
       folio.setAttribute('aria-label','Series and Book context');
-      folio.append(el('p','atl-kicker-line','Series and Book context · read-only'));
+      folio.append(el('p','atl-kicker-line','Series and Book context'));
       var recorded=from&&d?X.forNode(d,from.nodeId).length:0;
       folio.append(el('h3','atl-folio-title',recorded?'Plans that record “'+from.title+'”':'Book and Series plans in this canvas and project'));
       if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. '+(d&&X.unreadableBooks(d).length?
@@ -1550,7 +1568,7 @@
       var status=!c||c.status==='loading'?(d?'Reading the plans again… (showing the read of '+readTime(c)+')':'Reading the plans…'):c.status==='error'?'Could not read the plans: '+c.error:
         (c.changed?'Changed since you last read them. ':'')+'Read at '+readTime(c)+'.';
       folio.append(el('p','atl-note atl-series-status',status));
-      folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance.'));
+      folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.'));
       if(!d)return;
       renderLeafBooks(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
       if(d.separate_owners_note)folio.append(el('p','atl-note',d.separate_owners_note));
@@ -1570,7 +1588,7 @@
       var list=wb.books.slice().sort(function(a,b){return (b.book_number===l.book)-(a.book_number===l.book)||a.book_number-b.book_number;});
       list.forEach(function(b){
         var det=el('details','atl-series-record');det.dataset.book=String(b.book_number);
-        det.open=b.book_number===l.book||list.length===1;
+        det.open=b.book_number===l.book||list.length===1||!!b.development||!!devFor(b.book_number);
         det.append(el('summary','','Book '+b.book_number+(b.title?' · '+b.title:'')));
         if(b.state!=='working'){det.append(toneLine({tone:'bad',text:'Could not be read ('+b.reason+'). Nothing from it is shown.'}));sec.append(det);return;}
         var chips=el('p','atl-provenance');chips.append(chip('Working · agent proposal · not accepted','proposal'));det.append(chips);
@@ -1583,10 +1601,16 @@
             box.append(el('h5','atl-series-subtitle','What Book '+b.book_number+' records about “'+from.title+'”'));
             var st=X.refStanding(ref);if(st)box.append(toneLine(st));
             var ul=el('ul','atl-series-elements');
+            var la=b.last_applied,touched=la?la.changed.concat(la.added):[],gone=la&&la.withdrawal?la.withdrawal.element_id:null;
             ref.elements.forEach(function(e){var li=el('li','');
               li.append(el('span','atl-series-kind',(X.COLLECTION[e.collection]||M.human(e.collection))+(e.via==='name_source'?' · takes its name from this concept':'')));
               li.append(el('span','atl-series-text',e.text));
               li.append(chip(X.AUTHORITY[e.commitment_authority]||M.human(e.commitment_authority),'proposal'));
+              // A Book revision is marked as a change to the working Book, never to the Architecture concept.
+              if(gone===e.id)li.append(chip('Withdrawn in working Book revision '+la.revision_number,'book-changed'));
+              else if(touched.indexOf(e.id)>=0)li.append(chip('Changed in working Book revision '+la.revision_number,'book-changed'));
+              if(binding.books&&e.collection!=='open_author_decisions'){var dv=actionButton(li,'Develop this element',function(){openDevelop(b.book_number,[e.id],false,from);},'book-dev:'+b.book_number+':'+e.id);
+                dv.classList.add('atl-action-quiet');dv.setAttribute('aria-label','Develop this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number);}
               ul.append(li);});
             ref.edges.forEach(function(e){var li=el('li','');
               li.append(el('span','atl-series-kind','Typed edge · '+e.source_element+' '+(X.DEPENDENCY[e.dependency]||e.dependency)+' this concept'));
@@ -1594,6 +1618,11 @@
             box.append(ul);det.append(box);
           }else det.append(el('p','atl-note','Book '+b.book_number+' records no reference to “'+from.title+'”.'));
         }
+        if(b.last_applied)det.append(el('p','atl-note','Working Book revision '+b.last_applied.revision_number+' was applied'+
+          (b.last_applied.changed.length?'; it changed '+X.plural(b.last_applied.changed.length,'element'):'')+
+          (b.last_applied.added.length?'; it added '+X.plural(b.last_applied.added.length,'element'):'')+
+          '. That was a change to this working Book, not to the Architecture.'));
+        renderBookDevelopment(det,b,from);
         var others=(b.references||[]).filter(function(r){return !from||r.node_id!==from.nodeId;});
         if(others.length){
           var o=el('div','atl-series-others');
@@ -1613,9 +1642,374 @@
           '. They stay yours to decide.'));
         var src=el('p','atl-provenance');src.append(sourceChip(b.source),chip('Written against request '+String(b.written_against_request||'').slice(0,10)));det.append(src);
         var how=el('details','atl-series-how');how.append(el('summary','','How this plan is changed'));
-        how.append(el('p','atl-note','Through its own reviewed workflow, not from the atlas: '+wb.owner_route.replace('<n>',String(b.book_number))+
-          ' to re-enter, then book-prepare with --instruction and --target, and book-apply-review after review. The Studio does not edit Book architectures.'));
+        how.append(el('p','atl-note','Through its own owner and its reviewed workflow. Choose an element above and Develop it: the Working Book owner prepares '+
+          'a request for your coding agent, turns its answer into a review, and changes the Book only when you apply that review. The same owner is '+
+          'reachable directly: '+wb.owner_route.replace('<n>',String(b.book_number))+'.'));
         det.append(how);sec.append(det);
+      });
+    }
+    /* Developing a working Book from the concept the author is reading. The Working Book Architecture owner
+       runs the whole lifecycle: it prepares the request, validates the coding agent's response into a review,
+       and applies only the reviewed request, checking the Book and its sources again at that moment. This
+       view shows each step in words and never settles anything itself: no state is assumed after a refused
+       operation, and an answer that arrives for another canvas or Book is dropped. The atlas never moves,
+       and a Book revision never marks an Architecture concept as changed. */
+    function canvasKey(){return binding.getCanvasId?binding.getCanvasId()||'':'';}
+    function bookKey(n){return canvasKey()+'#'+n;}
+    function bookState(n){S.books=S.books||{};return S.books[bookKey(n)]||null;}
+    // Unsent words belong to what they were written for: one draft per Book and scope.
+    function scopeKey(dev){return dev.holistic?'whole':dev.targets.slice().sort().join(',');}
+    function bookDraft(n,key){S.drafts=S.drafts||{};var k=bookKey(n)+'|'+key;return S.drafts[k]||(S.drafts[k]={instruction:''});}
+    function responseDraft(n){S.responses=S.responses||{};var k=bookKey(n);return S.responses[k]||(S.responses[k]={text:''});}
+    function bookNote(n,tone,text,phase){S.notes=S.notes||{};S.notes[bookKey(n)]=tone?{tone:tone,text:text,phase:phase||null}:null;}
+    // A refusal is said where the author is looking and announced, so the live region never says the opposite.
+    function refusal(n,text){bookNote(n,'bad',text);announce(text);}
+    function busy(n){S.busy=S.busy||{};return S.busy[bookKey(n)]||null;}
+    function setBusy(n,what){S.busy=S.busy||{};S.busy[bookKey(n)]=what;}
+    function devFor(n){var d=S.dev;return d&&d.canvas===canvasKey()&&d.book===n?d:null;}
+    function openOnce(key){S.openDetails=S.openDetails||{};S.openDetails[key]=true;}
+    function readBook(n,force,then){
+      if(!binding.books)return;
+      var k=bookKey(n),cur=bookState(n);
+      if(cur&&cur.status==='loading'){if(then)cur.then=(cur.then||[]).concat([then]);return;}
+      if(cur&&cur.status==='ready'&&!force)return;
+      var seq=S.bookSeq=(S.bookSeq||0)+1,canvas=canvasKey();
+      S.books[k]={status:'loading',data:cur&&cur.data||null,readAt:cur&&cur.readAt,seq:seq,then:then?[then]:[]};
+      var call;try{call=Promise.resolve(binding.books.read(n));}catch(error){call=Promise.reject(error);}
+      call.then(function(r){
+        var mine=S.books[k];if(!mine||mine.seq!==seq)return;
+        // An answer for another canvas or Book is not this Book's state.
+        if(r.canvasId!==canvas||canvasKey()!==canvas||!r.data||r.data.book_number!==n){delete S.books[k];return;}
+        S.books[k]={status:'ready',data:r.data,readAt:new Date(),seq:seq};renderFolio();
+        (mine.then||[]).forEach(function(f){f(r.data,mine.data);});
+      },function(error){
+        var mine=S.books[k];if(!mine||mine.seq!==seq)return;
+        S.books[k]={status:'error',error:error&&error.message||String(error),data:mine.data,readAt:mine.readAt,seq:seq};renderFolio();
+      });
+    }
+    function focusKey(key){global.setTimeout(function(){var t=folio.querySelector('[data-key="'+cssEscape(key)+'"]');
+      if(t){t.focus({preventScroll:false});}},0);}
+    function requestScope(n,dev){
+      if(dev.holistic||!dev.targets.length||!binding.books.scope||dev.scope)return;
+      Promise.resolve(binding.books.scope(n,dev.targets)).then(function(r){
+        if(S.dev!==dev||r.canvasId!==canvasKey())return;dev.scope=r.data;renderFolio();
+      },function(error){if(S.dev!==dev)return;dev.scopeError=error&&error.message||String(error);renderFolio();});
+    }
+    function openDevelop(n,targets,holistic,from,seed){
+      S.dev={canvas:canvasKey(),book:n,targets:(targets||[]).slice(),holistic:!!holistic,from:from?from.id:null,
+        replace:!!(seed&&seed.replace),scope:null,focusPending:true};
+      var dev=S.dev,d=bookDraft(n,scopeKey(dev));
+      // The author's own unsent words for this target come first; an earlier request's words fill only an empty draft.
+      if(seed&&seed.instruction&&!d.instruction)d.instruction=seed.instruction;
+      bookNote(n,null);
+      readBook(n,true);requestScope(n,dev);renderFolio();
+      announce('Developing Book '+n+'. Write what should change; preparing calls no model and changes nothing in the Book.');
+    }
+    function closeDevelop(n){var dev=devFor(n);S.dev=null;renderFolio();
+      focusKey(dev&&dev.targets.length===1?'book-dev:'+n+':'+dev.targets[0]:'series-back');}
+    function nodeName(nodeId){var c=conceptForNode(nodeId);return c?c.title:nodeId;}
+    function renderBookDevelopment(det,b,from){
+      if(!binding.books)return;
+      var n=b.book_number,summary=b.development,dev=devFor(n),st=bookState(n),k=bookKey(n),note=S.notes&&S.notes[k];
+      if(!summary&&!dev&&!note)return;
+      if(!st)readBook(n,false);
+      // The context and this Book's own read can disagree only for a moment: the newer read decides.
+      else if(st.status==='ready'&&S.seriesCtx&&S.seriesCtx.readAt&&st.readAt<S.seriesCtx.readAt&&
+        (((summary&&summary.request_sha256)||null)!==(st.data.pending&&st.data.phase!=='none'?st.data.pending.request_sha256:null)||
+         (st.data.book&&st.data.book.revision_number!==b.revision_number)))readBook(n,true);
+      st=bookState(n);
+      var data=st&&st.data,box=el('section','atl-book-dev');box.setAttribute('aria-label','Developing Book '+n);
+      box.append(el('h5','atl-series-subtitle','Developing Book '+n+(data&&data.book?' · working revision '+data.book.revision_number:'')));
+      if(note&&note.phase&&data&&data.phase!==note.phase)note=null;
+      if(note){var np=toneLine(note,'atl-book-note');np.tabIndex=-1;np.dataset.key='book-note:'+n;box.append(np);}
+      if(!data){box.append(el('p','atl-note',st&&st.status==='error'?'Could not read Book '+n+'’s revision state: '+st.error:'Reading Book '+n+'’s revision state…'));
+        if(st&&st.status==='error')actionButton(box,'Try again',function(){readBook(n,true);},'book-retry:'+n);det.append(box);return;}
+      if(data.state==='unreadable'){box.append(toneLine({tone:'bad',text:'Book '+n+' could not be read ('+data.reason+'). Nothing can be prepared for it here.'}));det.append(box);return;}
+      if(data.state!=='working'){box.append(el('p','atl-note','Book '+n+' has no working architecture to revise.'));det.append(box);return;}
+      if(st.status==='error')box.append(toneLine({tone:'bad',text:'Could not read Book '+n+' again: '+st.error+'. Showing the read of '+readTime(st)+'.'}));
+      var phase=data.phase,line=B.phaseLine(phase,n);
+      // The phase is said once: a note about this same step already says it.
+      if(line&&!dev&&!(note&&note.phase===phase))box.append(toneLine(line));
+      if(phase==='stale'&&!dev)renderStale(box,n,data,from);
+      else if(phase==='awaiting_coding_agent'&&!dev)renderAwaiting(box,n,data,from);
+      else if((phase==='review_ready'||phase==='review_blocked')&&!dev)renderBookReview(box,n,data,from);
+      if(dev)renderComposer(box,n,b,data,dev,from);
+      det.append(box);
+    }
+    function scopeWords(n,pending,data){
+      if(!pending)return '';
+      if(pending.mode==='holistic')return 'Any element of Book '+n+'.';
+      var chosen=B.labels(data.elements,pending.targets),rest=B.labels(data.elements,(pending.dependents||[]));
+      return chosen.join('; ')+(rest.length?'; and, so their references stay true, '+rest.join('; '):'')+'. Every other element stays as it is.';
+    }
+    function targetLines(parent,n,data,dev,from){
+      var map={};data.elements.forEach(function(e){map[e.id]=e;});
+      var card=el('div','atl-book-target');
+      card.append(el('p','atl-series-book','Book '+n+(data.book.title?' · '+data.book.title:'')+' · working revision '+data.book.revision_number));
+      if(dev.holistic)card.append(el('p','atl-series-line','The whole Book: your coding agent may change any of its elements.'));
+      dev.targets.forEach(function(id){var e=map[id];if(!e)return;
+        card.append(el('p','atl-series-line',B.kind(e.collection)+(dev.holistic?' you started from':'')));
+        if(e.text)card.append(el('p','atl-series-text',e.text));
+        var p=el('p','atl-provenance');p.append(chip('Working · '+(X.AUTHORITY[e.commitment_authority]||M.human(e.commitment_authority||'element')),'proposal'));card.append(p);
+        if(from&&from.nodeId)card.append(el('p','atl-note',e.series_refs.indexOf(from.nodeId)>=0?
+          'It records a reference to “'+from.title+'”, the concept you came from.':'It records no reference to “'+from.title+'” itself.'));
+      });
+      X.bookFreshness(data.book).forEach(function(f){if(f.tone!=='ok')card.append(toneLine(f));});
+      var ids=el('details','atl-series-how');ids.dataset.key='book-ids:'+n;ids.append(el('summary','','Exact identifiers'));
+      ids.append(factList([['Elements',dev.targets.join(', ')||'whole Book'],['Book request',data.book.request_sha256],
+        ['Book content',data.book.content_sha256],['Architecture node',from&&from.nodeId||''],['Architecture request',data.book.series_request_sha256]]));
+      card.append(ids);parent.append(card);
+    }
+    function renderComposer(box,n,b,data,dev,from){
+      var busyNow=busy(n),outOfDate=data.book.freshness!=='ready';
+      if(outOfDate)dev.holistic=true;
+      var d=bookDraft(n,scopeKey(dev));
+      var form=el('div','atl-book-compose');
+      form.append(el('p','atl-kicker-line',dev.holistic?'Revise the whole Book':'Revise one element'));
+      targetLines(form,n,data,dev,from);
+      var scope=el('fieldset','atl-book-scope');scope.append(el('legend','','How far may the revision reach?'));
+      function radio(value,label,detail){var lab=el('label','atl-book-choice'),r=el('input');r.type='radio';r.name='book-scope-'+n;r.value=value;
+        r.checked=value==='holistic'?dev.holistic:!dev.holistic;r.dataset.key='book-scope:'+n+':'+value;
+        r.addEventListener('change',function(){if(!r.checked)return;
+          // The words move with the author to the other scope, unless that scope already has words of its own.
+          var was=bookDraft(n,scopeKey(dev));dev.holistic=value==='holistic';var now=bookDraft(n,scopeKey(dev));
+          if(!now.instruction&&was.instruction){now.instruction=was.instruction;was.instruction='';}
+          requestScope(n,dev);renderFolio();});
+        lab.append(r,el('span','',label));scope.append(lab);if(detail)scope.append(el('p','atl-note',detail));}
+      if(outOfDate)scope.append(toneLine({tone:'warn',text:'Book '+n+' was written against an earlier working Architecture or source. '+
+        'Applying any revision records the whole Book as written against the current one, so a revision here covers the whole Book: '+
+        'your coding agent may then bring every element up to date, and the review shows each one.'}));
+      if(dev.targets.length&&!outOfDate){
+        var map={};data.elements.forEach(function(e){map[e.id]=e;});
+        radio('targeted',dev.targets.length===1?'Only this element':'Only these elements',dev.scope?B.scopeSentence(dev.scope,map)+
+          (dev.scope.dependents.length?' They are: '+B.labels(map,dev.scope.dependents).join('; ')+'.':''):dev.scopeError?'Could not check which elements refer to it: '+dev.scopeError:'Checking which elements refer to it…');
+      }
+      radio('holistic','The whole Book',outOfDate?'':'Use this only when the change cannot stay inside the chosen element. Your coding agent may then change any element of Book '+n+', and the review shows each one.');
+      form.append(scope);
+      var label=el('label','atl-bookdev-label','What should change?'),ta=el('textarea','atl-book-text');ta.id='atl-book-instruction-'+n;label.htmlFor=ta.id;
+      ta.rows=4;ta.maxLength=4000;ta.value=d.instruction;ta.dataset.key='book-instruction:'+n;
+      ta.placeholder='For example: make the cost of refusing the count visible inside this mechanism.';
+      var count=el('p','atl-note atl-book-count');count.setAttribute('aria-live','polite');
+      function counted(){count.textContent=ta.value.length>3500?ta.value.length+' of 4000 characters':'';}
+      ta.addEventListener('input',function(){d.instruction=ta.value;counted();});counted();
+      form.append(label,ta,count);
+      if(data.pending){
+        var rp=el('label','atl-book-choice'),cb=el('input');cb.type='checkbox';cb.checked=!!dev.replace;cb.dataset.key='book-replace:'+n;
+        cb.addEventListener('change',function(){dev.replace=cb.checked;});
+        var waiting=data.pending.instruction?' (“'+B.clip(data.pending.instruction,80)+'”)':'';
+        rp.append(cb,el('span','',data.phase==='stale'?'Replace the request that no longer matches the Book'+waiting:
+          data.pending.completed?'Replace the waiting request'+waiting+', whose review is ready; that review can then no longer be applied':
+          'Replace the request that is already waiting'+waiting+'; it can then no longer be applied'));
+        form.append(rp);
+      }
+      form.append(el('p','atl-note','Preparing calls no model and changes nothing in Book '+n+'. Your coding agent fulfils the request through the Working Book owner; you review what it proposes, and only Apply changes the working Book.'));
+      var row=el('div','atl-actions');
+      var go=actionButton(row,busyNow==='prepare'?'Preparing…':'Prepare the request for your coding agent',function(){prepareBook(n,dev,from);},'book-prepare:'+n);
+      go.classList.add('atl-action-primary');go.disabled=!!busyNow;
+      actionButton(row,'Not now',function(){closeDevelop(n);},'book-cancel:'+n);
+      if(from&&dev.targets.length===1)askAboutElement(row,from,n,data,dev.targets[0]);
+      form.append(row);box.append(form);
+    }
+    // Investigating instead of revising is a question in the existing coding-agent panel; it is never sent for the author.
+    function askAboutElement(parent,from,n,data,id){
+      if(!binding.onDevelop)return;
+      var s=M.sourceAnchor(S.model,from.id);if(!s.anchor)return;
+      var offered=binding.developOperations?binding.developOperations(s.anchor):['explore'];
+      var op=['explore','challenge','explain'].filter(function(o){return offered.indexOf(o)>=0;})[0];if(!op)return;
+      var e=data.elements.filter(function(x){return x.id===id;})[0];if(!e)return;
+      var b=actionButton(parent,'Ask your coding agent about it instead',function(){
+        binding.onDevelop({conceptId:from.id,title:from.title,anchor:JSON.parse(JSON.stringify(s.anchor)),precision:s.precision,
+          subject:s.subject,quote:s.quote,sourceRef:s.sourceRef,operation:op,
+          draft:'Working Book '+n+' records this '+B.kind(e.collection).toLowerCase()+' ('+id+') about “'+from.title+'”: “'+B.clip(e.text,400)+
+            '”. Does the working Architecture support it, and what would it imply for “'+from.title+'”? This is a question, not a change.'});
+      },'book-ask:'+n+':'+id);
+      b.classList.add('atl-action-quiet');
+    }
+    function prepareBook(n,dev,from){
+      var d=bookDraft(n,scopeKey(dev)),st=bookState(n),data=st&&st.data,k=bookKey(n),canvas=canvasKey();
+      if(busy(n)||!data||data.state!=='working')return;
+      if(!d.instruction.trim()){refusal(n,'Write what should change first. Nothing was prepared.');renderFolio();focusKey('book-instruction:'+n);return;}
+      var body={instruction:d.instruction,targets:dev.holistic?[]:dev.targets,holistic:!!dev.holistic,
+        expected_book_request_sha256:data.book.request_sha256};
+      if(data.pending){if(!dev.replace){refusal(n,'A request for Book '+n+' is already waiting. Tick “Replace…” to prepare this one instead; nothing was prepared.');
+        renderFolio();focusKey('book-replace:'+n);return;}
+        body.replace_pending_request_sha256=data.pending.request_sha256;body.replace_pending_reviewed=!!data.pending.completed;}
+      setBusy(n,'prepare');renderFolio();
+      var call;try{call=Promise.resolve(binding.books.prepare(n,body));}catch(error){call=Promise.reject(error);}
+      call.then(function(r){
+        setBusy(n,null);if(r.canvasId!==canvas||canvasKey()!==canvas)return;
+        S.books[k]={status:'ready',data:r.data,readAt:new Date(),seq:S.bookSeq=(S.bookSeq||0)+1};
+        d.instruction='';if(S.dev===dev)S.dev=null;
+        bookNote(n,'ok','Prepared for your coding agent. Nothing in Book '+n+' has changed. Give it the message below, then check for its response.','awaiting_coding_agent');
+        openOnce('book-agent:'+n);
+        readSeries(true,false,true);renderFolio();focusKey('book-copy:'+n);
+        announce('Request prepared for your coding agent. Nothing in Book '+n+' has changed.');
+      },function(error){
+        setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
+        var message=error&&error.message||String(error);
+        // A waiting request whose review arrived meanwhile is replaced only after the author has seen that.
+        if(/review of it is now ready/.test(message))dev.replace=false;
+        refusal(n,'Not prepared: '+message+'. Your words are kept.');
+        readBook(n,true);renderFolio();focusKey('book-note:'+n);
+      });
+    }
+    function renderAwaiting(box,n,data,from){
+      var p=data.pending;
+      if(p.instruction){box.append(el('p','atl-series-kicker','You asked'),el('p','atl-book-asked',p.instruction));
+        box.append(el('p','atl-series-kicker','It may change'),el('p','atl-note',scopeWords(n,p,data)));}
+      if(p.stale_response_kept)box.append(toneLine({tone:'warn',text:'A response arrived for an earlier state of this Book and was kept as evidence; it was not reviewed.'}));
+      var give=el('details','atl-series-how');give.dataset.key='book-agent:'+n;
+      give.append(el('summary','','What to give your coding agent'));
+      var msg=el('textarea','atl-book-text');msg.readOnly=true;msg.rows=7;msg.value=B.agentMessage(data.handoff,n,data.canvas_id,p);
+      msg.setAttribute('aria-label','Message for your coding agent');give.append(msg);
+      var copy=actionButton(give,'Copy the message',function(){
+        function selectIt(){msg.focus();msg.select();announce('The message is selected; copy it with your keyboard.');}
+        try{global.navigator.clipboard.writeText(msg.value).then(function(){announce('Message copied. Give it to your coding agent.');},selectIt);}catch(_){selectIt();}
+      },'book-copy:'+n);copy.classList.add('atl-action-quiet');
+      give.append(el('p','atl-note','The Studio does not run your coding agent. It fulfils the request with the Working Book owner’s own commands; submitting stores a review and changes nothing in the Book.'));
+      if(data.request){var exact=el('details','atl-series-how');exact.dataset.key='book-exact:'+n;
+        exact.append(el('summary','','The exact request · '+B.shortSha(p.request_sha256)));
+        var raw=el('textarea','atl-book-text');raw.readOnly=true;raw.rows=6;raw.value=JSON.stringify(data.request,null,2);
+        raw.setAttribute('aria-label','Exact host-agent request');exact.append(raw);give.append(exact);}
+      var manual=el('details','atl-series-how');manual.dataset.key='book-manual:'+n;
+      manual.append(el('summary','','Paste the coding agent’s response yourself'));
+      var d=responseDraft(n),resp=el('textarea','atl-book-text');resp.rows=4;resp.value=d.text;resp.dataset.key='book-response:'+n;
+      resp.setAttribute('aria-label','Your coding agent’s response (JSON)');resp.placeholder='The complete response JSON your coding agent produced for this request.';
+      resp.addEventListener('input',function(){d.text=resp.value;});
+      var v=actionButton(manual,busy(n)==='complete'?'Checking…':'Check this response',function(){completeBook(n);},'book-validate:'+n);v.disabled=!!busy(n);
+      manual.insertBefore(resp,v);give.append(manual);box.append(give);
+      var row=el('div','atl-actions');
+      var chk=actionButton(row,'Check for your coding agent’s response',function(){checkResponse(n);},'book-check:'+n);chk.classList.add('atl-action-primary');
+      actionButton(row,'Prepare a different request',function(){openDevelop(n,p.targets,p.mode==='holistic',from,{instruction:p.instruction,replace:true});},'book-redo:'+n);
+      box.append(row);
+    }
+    function checkResponse(n){
+      var before=bookState(n),was=before&&before.data&&before.data.phase,wasSha=before&&before.data&&before.data.pending&&before.data.pending.request_sha256;
+      readSeries(true,false,true);
+      readBook(n,true,function(data){
+        var now=data.phase,nowSha=data.pending&&data.pending.request_sha256;
+        if(wasSha&&nowSha&&wasSha!==nowSha){
+          bookNote(n,'warn','Another request replaced the one shown here before; what it asks is shown below. Your earlier request can no longer be completed.');
+          announce('Another request replaced the one shown here before.');renderFolio();return;}
+        announce(now===was?(now==='awaiting_coding_agent'?'No response yet. Nothing in Book '+n+' has changed.':'Nothing changed.'):
+          (B.phaseLine(now,n)||{text:'Book '+n+' was read again.'}).text);
+        if(now!==was)focusKey(now==='review_ready'||now==='review_blocked'?'book-review:'+n:'book-check:'+n);
+      });
+    }
+    function completeBook(n){
+      var d=responseDraft(n),k=bookKey(n),canvas=canvasKey(),payload;
+      if(busy(n))return;
+      try{payload=JSON.parse(d.text);}catch(_){refusal(n,'The response must be one JSON object, exactly as your coding agent produced it. Nothing was submitted.');renderFolio();focusKey('book-note:'+n);return;}
+      setBusy(n,'complete');renderFolio();
+      Promise.resolve(binding.books.complete(n,payload)).then(function(r){
+        setBusy(n,null);if(r.canvasId!==canvas||canvasKey()!==canvas)return;
+        d.text='';S.books[k]={status:'ready',data:r.data,readAt:new Date(),seq:S.bookSeq=(S.bookSeq||0)+1};
+        bookNote(n,null);readSeries(true,false,true);renderFolio();focusKey('book-review:'+n);
+        announce((B.phaseLine(r.data.phase,n)||{text:'Response checked.'}).text);
+      },function(error){
+        setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
+        refusal(n,'The Working Book owner refused the response: '+String(error&&error.message||error).replace(/[.;\s]*$/,'')+'. Nothing was stored; the request is still open.');
+        readBook(n,true);renderFolio();focusKey('book-note:'+n);
+      });
+    }
+    function renderStale(box,n,data,from){
+      var p=data.pending;
+      box.append(el('p','atl-folio-detail','Why: '+B.staleReason(p)+'.'));
+      if(p.instruction){box.append(el('p','atl-series-kicker','You asked'),el('p','atl-book-asked',p.instruction));}
+      if(p.completed)box.append(el('p','atl-note','Its review was made against that earlier state, so it is not shown as applicable.'));
+      var row=el('div','atl-actions');
+      var again=actionButton(row,'Prepare it again against the current Book',function(){
+        openDevelop(n,p.targets,p.mode==='holistic',from,{instruction:p.operation==='revise'?p.instruction:'',replace:true});},'book-redo:'+n);
+      again.classList.add('atl-action-primary');box.append(row);
+    }
+    function wordedLine(parent,w){
+      var head=w.key==='text'?'':w.field[0].toUpperCase()+w.field.slice(1)+' · ',parts=B.wordDiff(w.before,w.after);
+      if(w.before!==null){var bl=el('span','atl-book-before',head+'Before: ');
+        parts.before.forEach(function(p){bl.append(p[1]?el('del','',p[0]):document.createTextNode(p[0]));});parent.append(bl);}
+      var al=el('span','atl-book-after',head+(w.before===null?'Now: ':'After: '));
+      if(w.after===null)al.append(document.createTextNode('(removed)'));
+      else parts.after.forEach(function(p){al.append(p[1]?el('mark','',p[0]):document.createTextNode(p[0]));});
+      parent.append(al);
+    }
+    function reviewActions(n,data,from,g,end){
+      var r=data.review,row=el('div','atl-actions'),ready=data.phase==='review_ready';
+      if(ready){var ap=actionButton(row,busy(n)==='apply'?'Applying…':'Apply this revision to working Book '+n,function(){applyBook(n,r.request_sha256);},end?'book-apply-end:'+n:'book-apply:'+n);
+        ap.classList.add('atl-action-primary');ap.disabled=!!busy(n);
+        if(!end)row.append(el('p','atl-note','Applying changes this working Book only. It accepts nothing, and the Architecture, the Series plan and the Directions stay as they are.'));}
+      else if(!end){var wide=B.widenedTargets(r,data.elements),seed=data.pending.operation==='revise'?r.instruction:'';
+        if(wide.length&&r.mode!=='holistic'){var w=actionButton(row,'Prepare again, allowing those elements too',function(){
+          openDevelop(n,wide,false,from,{instruction:seed,replace:true});},'book-widen:'+n);w.classList.add('atl-action-primary');}
+        actionButton(row,'Prepare again for the whole Book',function(){openDevelop(n,[],true,from,{instruction:seed,replace:true});},'book-holistic:'+n);}
+      if(!end){var seedText=data.pending.operation==='revise'?r.instruction:'';
+        actionButton(row,'Prepare a different request',function(){openDevelop(n,data.pending.targets,data.pending.mode==='holistic',from,{instruction:seedText,replace:true});},'book-redo:'+n);}
+      return row;
+    }
+    function renderBookReview(box,n,data,from){
+      var r=data.review,g=B.reviewDigest(r,data.elements,nodeName,data.review_elements),ready=data.phase==='review_ready';
+      var sec=el('div','atl-book-review');sec.setAttribute('aria-label','Review of the revision of Book '+n);
+      var h=el('h5','atl-series-subtitle','Review · working revision '+g.fromRevision+' → '+g.toRevision);h.tabIndex=-1;h.dataset.key='book-review:'+n;sec.append(h);
+      // The summary and the decision first; the detail below.
+      sec.append(el('p','atl-book-summary',[g.changed.length+' changed',g.added.length+' added',g.removed.length+' removed',g.preserved+' unchanged'].join(' · ')+
+        (g.unexpected.length?' · '+g.unexpected.length+' outside what you allowed':'')));
+      sec.append(el('p','atl-series-kicker','You asked'),el('p','atl-book-asked',g.instruction));
+      sec.append(el('p','atl-series-kicker','It could change'),el('p','atl-note',g.mode==='holistic'?'Any element of Book '+n+'.':scopeWords(n,data.pending,data)));
+      if(g.unexpected.length){var u=el('div','atl-book-block');u.append(el('p','atl-tone atl-tone-bad','Outside what you allowed — this blocks Apply:'));
+        var ul=el('ul','atl-series-elements');g.unexpected.forEach(function(x){ul.append(el('li','',x.text));});u.append(ul);sec.append(u);}
+      sec.append(reviewActions(n,data,from,g,false));
+      if(g.changed.length){sec.append(el('p','atl-series-kicker','Changed · '+g.changed.length));
+        var cl=el('ul','atl-series-elements'),more=null;
+        g.changed.forEach(function(c,i){var li=el('li','');
+          li.append(el('span','atl-series-kind',c.label),el('span','atl-note',c.kind+'.'));
+          c.worded.forEach(function(w){wordedLine(li,w);});
+          if(c.status)li.append(el('span','atl-note','Working status: '+c.status.before+' → '+c.status.after+'.'));
+          if(c.restated)li.append(el('span','atl-note','Restated in the explicit form, as every changed element written in the older form must be.'));
+          if(c.other.length)li.append(el('span','atl-note','Also changed: '+c.other.join(', ')+'.'));
+          if(i<6)cl.append(li);else{if(!more){more=el('details','atl-series-how');more.dataset.key='book-more:'+n;
+            more.append(el('summary','','Show '+(g.changed.length-6)+' more changed elements'));more.append(el('ul','atl-series-elements'));}
+            more.lastChild.append(li);}});
+        sec.append(cl);if(more)sec.append(more);}
+      if(g.added.length){sec.append(el('p','atl-series-kicker','Added · '+g.added.length));var al=el('ul','atl-series-elements');
+        g.added.forEach(function(a){var li=el('li','');li.append(el('span','atl-series-kind',a.label));
+          if(a.text)li.append(el('span','atl-book-after','New: '+a.text));
+          if(a.refersTo.length)li.append(el('span','atl-note','Refers to '+a.refersTo.join('; ')+'.'));al.append(li);});sec.append(al);}
+      if(g.removed.length){sec.append(el('p','atl-series-kicker','Removed · '+g.removed.length));var rl=el('ul','atl-series-elements');
+        g.removed.forEach(function(x){rl.append(el('li','',x.label));});sec.append(rl);}
+      sec.append(el('p','atl-note',X.plural(g.preserved,'other element')+' stay exactly as they are; the owner compared every element by content.'));
+      if(g.rereadItems.length){sec.append(el('p','atl-series-kicker','To re-read · '+g.rereadItems.length));
+        sec.append(el('p','atl-note','Each refers to an element this revision changes. The reference is recorded; whether it still holds is not.'));
+        var ll=el('ul','atl-series-elements');g.rereadItems.forEach(function(t){ll.append(el('li','',t.label+' → '+t.via.join('; ')));});sec.append(ll);}
+      if(g.seriesItems.length){sec.append(el('p','atl-series-kicker','Architecture concepts these elements cite · '+g.seriesItems.length));
+        sec.append(el('p','atl-note','The Architecture is unchanged; check that the Book still fits each concept.'));
+        var sl=el('ul','atl-series-elements');g.seriesItems.forEach(function(t){sl.append(el('li',t.exists?'':'atl-tone-bad',
+          (t.exists?'“'+t.name+'”':t.name+' — no longer recorded in the working Architecture')+' · cited by '+t.citedBy.join('; ')));});sec.append(sl);}
+      g.decisions.forEach(function(t){sec.append(toneLine({tone:'warn',text:t}));});
+      if(g.authority.length)sec.append(el('p','atl-note','Standing changes: '+g.authority.join(' ')));
+      if(g.unresolvedLabels.length)sec.append(el('p','atl-note','Reworded with no recorded dependency, so what follows from the change is not established: '+g.unresolvedLabels.join('; ')+'.'));
+      var ids=el('details','atl-series-how');ids.dataset.key='book-reqid:'+n;ids.append(el('summary','','Request identity and baseline'));ids.append(factList(g.identity));
+      if(g.note)ids.append(el('p','atl-note','The owner’s note: '+g.note));sec.append(ids);
+      if(ready&&g.changed.length+g.added.length>3)sec.append(reviewActions(n,data,from,g,true));
+      box.append(sec);
+    }
+    function applyBook(n,sha){
+      var k=bookKey(n),canvas=canvasKey();
+      if(busy(n))return;
+      setBusy(n,'apply');renderFolio();
+      var call;try{call=Promise.resolve(binding.books.apply(n,sha));}catch(error){call=Promise.reject(error);}
+      call.then(function(r){
+        setBusy(n,null);if(r.canvasId!==canvas||canvasKey()!==canvas)return;
+        var data=r.data,a=data.application||{},la=data.book&&data.book.last_applied;
+        S.books[k]={status:'ready',data:data,readAt:new Date(),seq:S.bookSeq=(S.bookSeq||0)+1};
+        if(a.result==='already_applied')bookNote(n,'note','That revision was already applied. Nothing changed.','none');
+        else{var what=la?[].concat(la.changed.length?['changed '+B.labels(data.elements,la.changed).join('; ')]:[],
+            la.added.length?['added '+B.labels(data.elements,la.added).join('; ')]:[],la.removed.length?['removed '+la.removed.join(', ')]:[]).join(', and '):'';
+          bookNote(n,'ok','Applied to working Book '+n+', now working revision '+data.book.revision_number+(what?': '+what:'')+
+            '. Only this working Book changed. The Architecture and its concepts, the Series plan and the Directions are unchanged, and nothing was accepted.','none');}
+        readSeries(true,false,true);renderFolio();focusKey('book-note:'+n);
+        announce(a.result==='already_applied'?'Already applied; nothing changed.':'Applied to working Book '+n+'. Only the working Book changed; the atlas is unchanged.');
+      },function(error){
+        setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
+        refusal(n,'Not applied: '+(error&&error.message||error)+'. Working Book '+n+' is unchanged.');
+        readBook(n,true);readSeries(true,false,true);renderFolio();focusKey('book-note:'+n);
       });
     }
     function renderLeafPlan(d,from){
@@ -1897,6 +2291,8 @@
       if(e.key!=='Escape')return;
       latchPointer();
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
+      // Escape in a text field never closes the view around the words being written.
+      if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
       if(S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeLeaf();return;}
       if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();
@@ -1992,7 +2388,7 @@
       var hadFocus=!!S.focus,prevModel=S.model,prevAtlas=S.atlas,prevSha=S.sha,keepFocus=S.focus,keepDepth=S.depth;
       var keepExamine=S.mode==='constellation',keepTrail=S.trail.slice(),keepCam=S.userCam&&S.cam?Object.assign({},S.cam):null;
       // Book freshness is measured against the working Architecture, so a new one is read again.
-      var keepLeaf=S.leaf;S.leaf=null;if(sha!==prevSha)S.seriesStale=true;
+      var keepLeaf=S.leaf;S.leaf=null;if(sha!==prevSha){S.seriesStale=true;S.books={};}
       var ctx=binding.getRevisionContext?binding.getRevisionContext():null;
       var revised=!!(prevModel&&ctx&&ctx.fromSha===prevSha&&ctx.toSha===sha);
       S.candidateRef=candidate;clearExploration();S.revision=null;
@@ -2067,7 +2463,7 @@
         if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});var id=S.focus,b=id&&starEls[id];
         if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
-        narrative:S.narrative,series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
+        narrative:S.narrative,book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null},series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
           version:S.seriesCtx&&S.seriesCtx.data?S.seriesCtx.data.version:null,changed:!!(S.seriesCtx&&S.seriesCtx.changed)},revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
           reworded:S.revision.delta.reworded.map(function(x){return x.id;}),relationsAdded:S.revision.delta.relationsAdded.map(function(r){return r.sourceRef;}),
           relationsRemoved:S.revision.delta.relationsRemoved.map(function(r){return r.sourceRef;}),removed:S.revision.delta.removed.map(function(x){return x.id;})}:null,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,

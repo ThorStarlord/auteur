@@ -115,7 +115,8 @@ def test_a_concept_opens_the_book_that_records_it_and_returns(browser, projects)
     time.sleep(0.3)
     folio = page.evaluate(FOLIO)
     assert "What Book 24 records about “Ledger engine”" in folio
-    assert "The craft-mark answers all three." in folio and "Unchanged since the Book was written." in folio
+    assert "The craft-mark answers all three." in folio
+    assert "This concept is unchanged in the Architecture since the Book was written." in folio
     assert "Written against the current working Architecture." in folio
     assert page.evaluate("document.activeElement.classList.contains('atl-folio-title')")
     assert "Back returns to “Ledger engine”" in page.evaluate(LIVE)  # opening orients; it is not a re-read
