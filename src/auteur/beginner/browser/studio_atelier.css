@@ -474,3 +474,8 @@
 .atl-chip-book-changed{background:#fdf1dc;border-color:#e0c08a;color:#7a5520}
 .atl-book-dev .atl-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .atl-book-dev .atl-actions .atl-note{flex-basis:100%;margin:2px 0 0}
+.atl-book-asked{margin:2px 0 6px;font-size:.8rem;line-height:1.45;color:var(--atl-ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.atl-book-summary{margin:2px 0 6px;font:600 .76rem/1.4 var(--atl-sans);color:var(--atl-ink-soft);font-variant-numeric:tabular-nums}
+.atl-book-before del{background:#efd3d3;text-decoration:line-through;text-decoration-thickness:1px}
+.atl-book-after mark{background:#cfe6d6;color:inherit;padding:0 1px;border-radius:2px}
+.atl-book-count{margin:0 0 4px;font-variant-numeric:tabular-nums}

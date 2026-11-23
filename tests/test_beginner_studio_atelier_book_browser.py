@@ -174,11 +174,11 @@ def test_develop_review_apply_and_return_changes_only_the_working_book(browser, 
     assert not log["writes"]  # opening the composer and checking the scope write nothing
     page.locator(q("book-prepare:24")).click()
     wait_for(page, "book-check:24")
-    assert page.evaluate(KEY) == "book-check:24"
+    assert page.evaluate(KEY) == "book-copy:24"  # the message for the coding agent is open, its Copy focused
     assert "Nothing in Book 24 has changed" in page.evaluate(LIVE)
     # Every word the author typed is in the request, exactly.
     assert project_book_development(project, CANVAS, 24)["pending"]["instruction"] ==         "Make the cost of refusing the count visible inside this mechanism."
-    page.locator(q("book-agent:24")).click()  # what to give the coding agent
+    assert page.locator(q("book-agent:24")).get_attribute("open") is not None
     assert "book-show --book 24" in page.locator(f"{q('book-agent:24')} textarea").first.input_value()
     assert agent_cli(project, candidate(project))["status"] == "review_ready"
     assert current(project).get("revision_number", 0) == 0  # a stored review is not an applied one
@@ -187,8 +187,8 @@ def test_develop_review_apply_and_return_changes_only_the_working_book(browser, 
     assert page.evaluate(KEY) == "book-review:24"
     folio = page.evaluate(FOLIO)
     assert "Review · working revision 0 → 1" in folio and "Its wording or interpretation changed" in folio
-    assert "Re-read it: the reference is recorded, whether it still holds is not." in folio
-    assert "The Architecture is unchanged; check that the Book still fits it." in folio
+    assert "The reference is recorded; whether it still holds is not." in folio
+    assert "The Architecture is unchanged; check that the Book still fits each concept." in folio
     page.locator(q("book-apply:24")).click()
     wait_for(page, "book-note:24")
     page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
@@ -255,6 +255,7 @@ def test_apply_is_checked_again_at_the_write_and_a_refusal_changes_nothing(brows
     wait_for(page, "book-note:24")
     folio = page.evaluate(FOLIO)
     assert "Not applied: working context changed" in folio and "Working Book 24 is unchanged." in folio
+    assert "Not applied" in page.evaluate(LIVE)  # the refusal is announced, not only drawn
     assert current(project) == before
     page.wait_for_selector(q("book-redo:24"), timeout=10000)  # re-read: the request is now out of date
     assert "no longer matches the Book or its sources" in page.evaluate(FOLIO)
@@ -295,8 +296,7 @@ def test_an_invalid_pasted_response_is_refused_and_the_request_stays_open(browse
     broken = candidate(project)
     broken["engines"][0]["attribution"] = "accepted"
     response = build_host_agent_response(HostAgentRequest(**request), json.dumps(broken), runtime="pasted").model_dump()
-    page.locator(q("book-agent:24")).click()
-    page.locator(f"{q('book-agent:24')} details", has_text="Paste its response").locator("summary").click()
+    page.locator(f"{q('book-agent:24')} details", has_text="Paste the coding agent").locator("summary").click()
     page.locator(q("book-response:24")).fill(json.dumps(response))
     page.locator(q("book-validate:24")).click()
     wait_for(page, "book-note:24")
@@ -362,4 +362,41 @@ def test_phone_width_keeps_the_composer_and_review_inside_the_screen(browser, se
     widths = page.evaluate("""[...document.querySelectorAll('#studio-atelier .atl-book-dev, #studio-atelier .atl-book-dev textarea')]
       .map(e => e.getBoundingClientRect().right)""")
     assert widths and max(widths) <= 391
+    assert not log["errors"]
+
+
+def test_unsent_words_stay_with_their_element_and_the_view_stays_open(browser, served):
+    project, base = served()
+    page, log = open_atelier(browser, base)
+    open_book(page)
+    develop(page, "Words for the record form.")
+    # Escape inside the field leaves the view and the words where they are.
+    page.keyboard.press("Escape")
+    time.sleep(0.3)
+    assert page.evaluate(SNAP)["series"]["leaf"] is not None
+    assert page.locator(q("book-instruction:24")).input_value() == "Words for the record form."
+    # An opened disclosure stays open when the scope changes and the composer is drawn again.
+    page.locator(f"{q('book-ids:24')} summary").click()
+    page.locator(q("book-scope:24:holistic")).check()
+    time.sleep(0.4)
+    assert page.locator(q("book-ids:24")).get_attribute("open") is not None
+    assert page.locator(q("book-instruction:24")).input_value() == "Words for the record form."  # they moved with the author
+    page.locator(q("book-scope:24:targeted")).check()
+    time.sleep(0.3)
+    page.locator(q("book-cancel:24")).click()
+    time.sleep(0.3)
+    # Another element starts with its own, empty draft; the first keeps its words.
+    page.locator(q("book-dev:24:eng-old-hand-ledger")).click()
+    page.wait_for_selector(q("book-instruction:24"), timeout=10000)
+    time.sleep(0.3)
+    assert page.locator(q("book-instruction:24")).input_value() == ""
+    page.locator(q("book-cancel:24")).click()
+    time.sleep(0.3)
+    page.locator(q(f"book-dev:24:{TARGET}")).click()
+    page.wait_for_selector(q("book-instruction:24"), timeout=10000)
+    time.sleep(0.3)
+    assert page.locator(q("book-instruction:24")).input_value() == "Words for the record form."
+    page.locator(q("book-prepare:24")).click()
+    wait_for(page, "book-check:24")
+    assert project_book_development(project, CANVAS, 24)["pending"]["instruction"] == "Words for the record form."
     assert not log["errors"]

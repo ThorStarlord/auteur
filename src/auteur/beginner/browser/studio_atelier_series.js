@@ -51,7 +51,7 @@
   function refStanding(ref){
     if(!ref.present)return {tone:'bad',text:'No longer in the working Architecture.'};
     if(ref.changed_since_book)return {tone:'warn',text:'This concept changed after the Book was written.'};
-    if(ref.changed_since_book===false)return {tone:'ok',text:'Unchanged since the Book was written.'};
+    if(ref.changed_since_book===false)return {tone:'ok',text:'This concept is unchanged in the Architecture since the Book was written.'};
     return null;
   }
 

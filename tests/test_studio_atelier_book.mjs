@@ -35,7 +35,7 @@ const review = {
 test('elements are named by their kind and words, never by bare ids alone', () => {
   assert.equal(B.elementLabel(elements, 'eng-record-form'), 'Engine · “Ledger as a new record form: the lineage needs proof of training.”');
   assert.equal(B.elementLabel(elements, 'missing-id'), 'missing-id');
-  assert.deepEqual(plain(B.labels(elements, ['edge-hands'])), ['Typed edge · “The craft-mark shows who can give return labour.”']);
+  assert.deepEqual(plain(B.labels(elements, ['edge-hands'])), ['Link · “The craft-mark shows who can give return labour.”']);
 });
 
 test('a review keeps mechanical links as links and author decisions as the author’s', () => {
@@ -98,4 +98,21 @@ test('a reworded link and an added element are shown in their own words', () => 
   const mech = B.reviewDigest({...r, changes: {changed: [{id: 'edge-hands', classification: 'mechanical', fields_changed: ['target']}], added: [], removed: []}},
     before, null, [{...before[0]}]);
   assert.equal(mech.changed[0].kind, 'Only its references changed');
+});
+
+test('only the changed words are marked, and a legacy restatement is said once', () => {
+  const d = B.wordDiff('The craft-mark answers all three.', 'The craft-mark answers two, and half of the third.');
+  assert.deepEqual(plain(d.before), [['The craft-mark answers ', false], ['all three.', true]]);
+  assert.deepEqual(plain(d.after), [['The craft-mark answers ', false], ['two, and half of the third.', true]]);
+  assert.deepEqual(plain(B.wordDiff(null, 'New.')), {before: [], after: [['New.', false]]});
+  const was = [{id: 'eng', collection: 'engines', text: 'a', epistemic_status: 'asserted', fields: {text: 'a'}}];
+  const now = [{id: 'eng', collection: 'engines', text: 'b', epistemic_status: 'conditional', fields: {text: 'b'}}];
+  const g = B.reviewDigest({...review, changes: {added: [], removed: [], changed: [{id: 'eng', classification: 'interpretive',
+    fields_changed: ['attribution', 'epistemic_status', 'provenance', 'refs', 'text']}]}}, was, null, now);
+  const c = g.changed[0];
+  assert.deepEqual(plain(c.status), {before: 'asserted', after: 'conditional'});
+  assert.equal(c.restated, true);
+  assert.deepEqual(plain(c.other), ['references']);  // no field names for the labelling itself
+  assert.deepEqual(plain(g.rereadItems[0]), {label: 'edge-hands', via: ['eng-record-form']});
+  assert.equal(g.seriesItems[1].exists, false);
 });

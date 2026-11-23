@@ -7,7 +7,7 @@
 (function(global){
   'use strict';
   var SERIES=global.AuteurAtelierSeries||{};
-  var COLLECTION=Object.assign({typed_edges:'Typed edge'},SERIES.COLLECTION||{});
+  var COLLECTION=Object.assign({},SERIES.COLLECTION||{},{typed_edges:'Link'});
   var AUTHORITY=SERIES.AUTHORITY||{};
   var CHANGE={interpretive:'Its wording or interpretation changed',working_status:'Its working status changed',
     withdrawal:'Withdrawn from the working proposal',representation:'Only how its support is labelled changed',
@@ -76,12 +76,19 @@
       mode:review.mode,instruction:review.instruction,applicable:!!review.applicable,
       permitted:review.permitted_ids?labels(map,review.permitted_ids):null,
       changed:(ch.changed||[]).map(function(c){
-        var worded=cand[c.id]?wordedChanges(map[c.id],cand[c.id]):(c.before_text!=null?[{field:'wording',key:'text',before:c.before_text,after:c.after_text}]:[]);
+        var was=map[c.id],now=cand[c.id];
+        var worded=now?wordedChanges(was,now):(c.before_text!=null?[{field:'wording',key:'text',before:c.before_text,after:c.after_text}]:[]);
         // The owner calls a change with no new statement text mechanical; a link whose stated function changed is reworded.
         var reworded=c.classification==='mechanical'&&worded.some(function(w){return w.key==='function';});
+        var fields=(c.fields_changed||[]).map(function(f){return FIELD[f]||f.replace(/_/g,' ');});
+        // How an element is labelled is said once, plainly, instead of as a list of field names.
+        var quiet=['what supports it','working status','legacy label'];
         return {id:c.id,label:label(c.id),kind:reworded?'The wording of this link changed':(CHANGE[c.classification]||c.classification),
-          classification:c.classification,before:c.before_text,after:c.after_text,worded:worded,
-          fields:(c.fields_changed||[]).map(function(f){return FIELD[f]||f.replace(/_/g,' ');})};}),
+          classification:c.classification,before:c.before_text,after:c.after_text,worded:worded,fields:fields,
+          status:was&&now&&was.epistemic_status&&now.epistemic_status&&was.epistemic_status!==now.epistemic_status?
+            {before:was.epistemic_status,after:now.epistemic_status}:null,
+          restated:(c.fields_changed||[]).indexOf('provenance')>=0,
+          other:fields.filter(function(f){return quiet.indexOf(f)<0&&!worded.some(function(w){return w.field===f;});})};}),
       added:(ch.added||[]).map(function(a){var e=cand[a.id];return {id:a.id,label:e?elementLabel(cand,a.id):kind(a.collection)+' · '+a.id,
         text:e?(e.fields&&(e.fields.text||e.fields.function))||e.text||'':'',refersTo:(a.references||[]).map(label)};}),
       removed:(ch.removed||[]).map(function(r){return {id:r.id,label:label(r.id)};}),
@@ -99,6 +106,12 @@
         d.touched_by.map(label).join(', ')+'. It stays yours to decide; this revision does not decide it.';}),
       authority:(review.authority_changes||[]).map(function(a){return label(a.id)+': '+(AUTHORITY[a.before]||a.before)+' → '+(AUTHORITY[a.after]||a.after)+'.';}),
       unresolved:(review.unresolved_effects||[]).map(function(u){return label(u.id)+': its wording changed but the Book records no dependency for it, so what follows from the change is not established.';}),
+      unresolvedLabels:(review.unresolved_effects||[]).map(function(u){return label(u.id);}),
+      // The same review as items, so each explanation is said once for its whole list.
+      rereadItems:(review.consequence_candidates||[]).map(function(c){return {label:label(c.id),via:c.via.map(label)};})
+        .concat((review.dependency_implications||[]).map(function(i){return {label:label(i.from),via:[label(i.to)]};})),
+      seriesItems:(review.series_consequences||[]).map(function(s){return {name:s.exists_in_series?name(s.series_node_id):s.series_node_id,
+        exists:!!s.exists_in_series,citedBy:s.cited_by.map(label)};}),
       identity:[['Review of request',review.request_sha256],['Baseline Book request',review.baseline&&review.baseline.request_sha256],
         ['Baseline content',review.baseline&&review.baseline.content_sha256],['Baseline revision',review.baseline&&String(review.baseline.revision_number)],
         ['Scope',review.mode==='holistic'?'whole Book (holistic)':'targeted']],
@@ -121,8 +134,18 @@
       'Submitting stores a review for me to read; it does not change the working Book. Guide: '+handoff.guide;
   }
   function shortSha(sha){return sha?String(sha).slice(0,12):'';}
+  // Which words changed: the shared opening and ending stay plain, the middle is marked. Purely presentational.
+  function wordDiff(before,after){
+    var a=before==null?[]:String(before).split(/(\s+)/),b=after==null?[]:String(after).split(/(\s+)/),i=0,j=0;
+    if(before==null)return {before:[],after:[[String(after==null?'':after),false]]};
+    while(i<a.length&&i<b.length&&a[i]===b[i])i++;
+    while(j<a.length-i&&j<b.length-i&&a[a.length-1-j]===b[b.length-1-j])j++;
+    function parts(x){return [[x.slice(0,i).join(''),false],[x.slice(i,x.length-j).join(''),true],[x.slice(x.length-j).join(''),false]]
+      .filter(function(p){return p[0];});}
+    return {before:parts(a),after:parts(b)};
+  }
 
   global.AuteurAtelierBook={CHANGE:CHANGE,elementLabel:elementLabel,labels:labels,phaseLine:phaseLine,staleReason:staleReason,
-    scopeSentence:scopeSentence,reviewDigest:reviewDigest,wordedChanges:wordedChanges,widenedTargets:widenedTargets,agentMessage:agentMessage,
+    scopeSentence:scopeSentence,reviewDigest:reviewDigest,wordedChanges:wordedChanges,wordDiff:wordDiff,widenedTargets:widenedTargets,agentMessage:agentMessage,
     shortSha:shortSha,clip:clip,kind:kind};
 })(typeof window!=='undefined'?window:this);
