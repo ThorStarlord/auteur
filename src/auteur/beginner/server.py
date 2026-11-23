@@ -66,6 +66,7 @@ from .studio_realization import (
 )
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
+from .studio_series_context import project_series_context
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -422,6 +423,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_full_architecture.js": "studio_full_architecture.js",
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio_atelier_model.js": "studio_atelier_model.js",
+        "/studio_atelier_series.js": "studio_atelier_series.js",
         "/studio_atelier.js": "studio_atelier.js",
         "/studio_atelier.css": "studio_atelier.css",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",
@@ -615,6 +617,15 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     and parts[5] == "architecture"):
                 try:
                     self._send_json(200, project_architecture(CanvasStore(self.project_root, parts[4])))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "series-context"):
+                # Read-only: this canvas's working Book architectures and the project's Series plan and
+                # Directions, each through its own owner. Nothing is linked, accepted or written.
+                try:
+                    self._send_json(200, project_series_context(self.project_root, parts[4]))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return

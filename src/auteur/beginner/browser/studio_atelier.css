@@ -422,3 +422,32 @@
 .atl-sourced-list .atl-chip{margin-left:6px;font-size:.6rem;padding:1px 6px}
 .atl-star.is-revised .atl-glyph{outline:1.4px dashed var(--atl-focus);outline-offset:4px;border-radius:50%}
 .atl-rel-owner{display:block;font:500 11px/1.35 var(--atl-sans);color:#857a6b}
+/* Series and Book context: read-only plans from their own owners, beside the Architecture. */
+.atl-series{margin:10px 0 12px;padding:9px 11px 8px;border-radius:10px;background:#f1f3f6;border:1px solid #dde3ea}
+.atl-series .atl-section-title{margin-top:0;padding-top:0;border-top:0;color:var(--atl-timeline)}
+.atl-series-kicker{margin:8px 0 3px;font:700 9.5px/1.2 var(--atl-sans);letter-spacing:.12em;text-transform:uppercase;color:#5d6b7a}
+.atl-series-hits,.atl-series-project,.atl-series-elements{margin:0;padding:0;list-style:none}
+.atl-series-hit{margin:4px 0;padding:7px 9px;border-radius:8px;background:var(--atl-card);border:1px solid var(--atl-hair)}
+.atl-series-book{margin:0 0 3px;font:600 .86rem/1.3 var(--atl-serif);color:var(--atl-ink)}
+.atl-series-line{display:block;margin:3px 0;font-size:.76rem;line-height:1.4;color:var(--atl-ink-soft)}
+.atl-series-project li{margin:3px 0;font-size:.76rem;line-height:1.4;color:var(--atl-ink-soft)}
+.atl-tone{margin:3px 0;padding-left:9px;font-size:.74rem;line-height:1.4;border-left:2.5px solid var(--atl-hair-ink)}
+.atl-tone-ok{border-left-color:#5e8f76;color:#3f5e4f}
+.atl-tone-warn{border-left-color:#c29243;color:#6f5323}
+.atl-tone-bad{border-left-color:#b0505a;color:#7a2f38}
+.atl-chip-accepted{background:#e7f1ea;border-color:#b9d4c1;color:#2f5a3d}
+.atl-series-owner{margin:4px 0 10px}
+.atl-series-record{margin:6px 0;padding:6px 9px;border:1px solid var(--atl-hair);border-radius:9px;background:var(--atl-card)}
+.atl-series-record>summary,.atl-series-sub>summary,.atl-series-how>summary{cursor:pointer;font:600 .8rem/1.35 var(--atl-sans);color:var(--atl-ink)}
+.atl-series-sub{margin:4px 0 4px 4px;padding:3px 0 3px 8px;border-left:1px solid var(--atl-hair)}
+.atl-series-derived{background:#f7f5f1;border-style:dashed}
+.atl-series-about{margin:8px 0;padding:7px 9px;border-radius:8px;background:#eef2f7}
+.atl-series-subtitle{margin:6px 0 4px;font:600 .78rem/1.35 var(--atl-sans);color:var(--atl-timeline)}
+.atl-series-elements li{margin:5px 0;padding:5px 0;border-top:1px solid #ece5d9;font-size:.76rem;line-height:1.42}
+.atl-series-elements li:first-child{border-top:0}
+.atl-series-kind{display:block;font:700 9.5px/1.3 var(--atl-sans);letter-spacing:.06em;text-transform:uppercase;color:#7a6f61}
+.atl-series-text{display:block;margin:2px 0;color:var(--atl-ink)}
+.atl-series-elements .atl-chip,.atl-series-record .atl-provenance .atl-chip{font-size:.62rem;padding:2px 7px}
+.atl-series-elements .atl-chip{display:inline-block;margin-top:3px}
+.atl .atl-action-quiet{width:auto;display:inline-block;margin:4px 0;padding:4px 9px;font-size:.72rem;background:transparent}
+.atl-series-status{font-variant-numeric:tabular-nums}

@@ -891,6 +891,88 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
     }
 
 
+def book_numbers(store: CanvasStore) -> list[int]:
+    """Book numbers that have a stored working Book architecture in this canvas (read-only)."""
+    root = _books_root(store)
+    if not root.is_dir():
+        return []
+    numbers = []
+    for child in root.iterdir():
+        if child.is_dir() and child.name.isdigit() and 1 <= int(child.name) <= 60 \
+                and (child / "current.json").is_file():
+            numbers.append(int(child.name))
+    return sorted(numbers)
+
+
+def book_series_references(store: CanvasStore, book_number: int) -> dict:
+    """Read-only: what one working Book records about each Series node it references.
+
+    A reference is recorded only by a typed `series_node` ref on an element, an agent's name source,
+    or a typed edge target. For each referenced node this says whether the canvas's current working
+    Series architecture still has it and whether it changed since the Book record was written, from
+    the node fingerprint the record keeps. Nothing is inferred from wording and nothing is written.
+    """
+    _check_number(book_number)
+    record = _read(_book_root(store, book_number) / "current.json")
+    if record is None:
+        return {"book_number": book_number, "status": "not_started", "authority": "working_noncanonical"}
+    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    decision_ids = {item.id for item in artifact.open_author_decisions}
+    series = _candidate(store)
+    current_nodes = {node["id"]: node for node in (series or {}).get("candidate", {}).get("nodes", [])}
+    recorded = record.get("series_nodes") or {}
+    by_node: dict[str, dict] = {}
+
+    def entry(node_id: str) -> dict:
+        if node_id not in by_node:
+            node = current_nodes.get(node_id)
+            fingerprint = recorded.get(node_id)
+            by_node[node_id] = {
+                "node_id": node_id,
+                "present": node is not None,
+                "title": node.get("title") if node else None,
+                "changed_since_book": (None if node is None or fingerprint is None
+                                       else _digest(node) != fingerprint),
+                "elements": [],
+                "edges": [],
+            }
+        return by_node[node_id]
+
+    for collection, element in _labelled_elements(artifact):
+        refs = [("refs", ref) for ref in element.refs]
+        if isinstance(element, AgentElement) and element.name_source is not None:
+            refs.append(("name_source", element.name_source))
+        for via, ref in refs:
+            if ref.kind != "series_node":
+                continue
+            view = project_element(element, collection=collection, decision_ids=decision_ids)
+            entry(ref.id)["elements"].append({
+                "id": element.id, "collection": collection, "via": via,
+                "text": element.text, "commitment_authority": view["commitment_authority"],
+                "attribution": view["attribution"], "epistemic_status": view["epistemic_status"],
+            })
+    for edge in artifact.typed_edges:
+        if edge.target.kind == "series_node":
+            entry(edge.target.id)["edges"].append({
+                "id": edge.id, "source_element": edge.source,
+                "dependency": edge.dependency.value, "function": edge.function,
+            })
+    return {
+        "book_number": book_number,
+        "authority": "working_noncanonical",
+        "title": artifact.title,
+        "question": artifact.function.question,
+        "pressure": artifact.function.pressure,
+        **_freshness(store, book_number, record),
+        "request_sha256": record["request_sha256"],
+        "series_request_sha256": record["series_request_sha256"],
+        "content_sha256": record.get("content_sha256"),
+        "revision_number": record.get("revision_number", 0),
+        "open_author_decisions": len(artifact.open_author_decisions),
+        "references": [by_node[key] for key in sorted(by_node)],
+    }
+
+
 # --- CLI --------------------------------------------------------------------------------
 
 _NESTED_FIELDS = frozenset({"options", "costs_kept_visible", "transformation"})
