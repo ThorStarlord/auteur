@@ -563,7 +563,7 @@ def _freshness(store: CanvasStore, book_number: int, record: dict) -> dict:
     else:
         current_nodes = {node["id"]: _digest(node) for node in series["candidate"].get("nodes", [])}
         impact = "clear"
-        for node_id, fingerprint in record["series_nodes"].items():
+        for node_id, fingerprint in (record.get("series_nodes") or {}).items():
             if node_id not in current_nodes:
                 impact = "contradictory"
                 break
@@ -944,7 +944,8 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
         if node_id not in by_node:
             node = current_nodes.get(node_id)
             fingerprint = recorded.get(node_id)
-            status = ("removed" if node is None else "unrecorded" if fingerprint is None
+            status = ("architecture_unavailable" if series is None else "removed" if node is None
+                      else "unrecorded" if fingerprint is None
                       else "changed" if _digest(node) != fingerprint else "unchanged")
             by_node[node_id] = {
                 "node_id": node_id,
@@ -1048,7 +1049,9 @@ def _recorded_versions(store: CanvasStore, book_number: int, record: dict,
             return found
     try:
         for sha, candidate in architecture_versions(store):
-            offer((candidate or {}).get("nodes"), {"record": "architecture_revision", "request_sha256": sha})
+            if candidate is None:
+                continue
+            offer(candidate.get("nodes"), {"record": "architecture_revision", "request_sha256": sha})
             if len(found) == len(wanted):
                 break
     except (OSError, ValueError):
@@ -1079,7 +1082,7 @@ def _last_applied(record: dict) -> dict | None:
         "changed": list(applied.get("changed") or []),
         "removed": list(applied.get("removed") or []),
         "withdrawal": applied.get("withdrawal"),
-        "currentness": applied.get("currentness", "current"),
+        "currentness": applied.get("currentness"),  # None: applied before this was recorded
     }
 
 
@@ -1824,6 +1827,10 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
         recorded_series = current["series_request_sha256"] if partial_on_stale else settings["series_request_sha256"]
         recorded_source = current["source_sha256"] if partial_on_stale else settings["source_sha256"]
         kept = (current.get("series_nodes") or {}) if partial_on_stale else {}
+        # Concepts the Book already cited keep what was recorded for them, including nothing: only a concept
+        # the revision newly cites is recorded as it is now.
+        cited_before = _series_refs(WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))) \
+            if partial_on_stale else set()
         currentness = "kept_baseline" if partial_on_stale else "current"
         lineage = current.get("lineage") or [{
             "revision": 0, "request_sha256": current["request_sha256"],
@@ -1841,8 +1848,9 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
             "request_sha256": request_sha256,
             "series_request_sha256": recorded_series,
             "source_sha256": recorded_source,
-            "series_nodes": {node: kept.get(node, series_nodes.get(node)) for node in sorted(_series_refs(artifact))
-                             if node in kept or node in series_nodes},
+            "series_nodes": {node: kept[node] if node in cited_before else series_nodes[node]
+                             for node in sorted(_series_refs(artifact))
+                             if (node in kept if node in cited_before else node in series_nodes)},
             "content_sha256": _digest(artifact_json),
             "authority": "working_noncanonical",
             "artifact": artifact_json,

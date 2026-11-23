@@ -132,7 +132,9 @@ A revision changes a named set of a Book's working elements. It never replaces t
 1. **Prepare.** `book-prepare --book <n> --instruction "<text>" --target <element-id> [--target ...]` opens a revision request. Name the elements to change, or pass `--holistic` to permit changes anywhere. The request carries the full text of the targets and of the elements that reference them (explicit book references and typed edges), a manifest of every other element by id and content hash, the full source, the Story Vision and intentions, the assumptions and alternatives, and the Series nodes the scope references. `book-prepare` without `--instruction` still develops only a Book that does not exist yet.
 2. **Submit.** `book-complete-file --book <n> --candidate <file.json>` takes the complete revised Book object, not a patch. It validates the object against the Series revision and the baseline the request used, and it stores a reviewed proposal. It never changes the working Book.
 3. **Review.** `resume` or the completion result reports the review: `changes.added`, `changes.changed` (each classified `interpretive`, `representation`, `representation_reclassified_from_legacy`, `working_status`, `withdrawal` or `mechanical`), `changes.removed`, `preserved`, `unexpected_changes`, `consequence_candidates`, `dependency_implications`, `series_consequences`, `author_decisions`, `authority_changes` and `unresolved_effects`. Read `unexpected_changes` before anything else.
-4. **Apply.** `book-apply-review --book <n> --request-sha256 <reviewed request>` applies only that reviewed request. Applying writes the working Book, advances its revision number, and appends to its lineage.
+4. **Apply.** `book-apply-review --book <n> --request-sha256 <reviewed request>` applies only that reviewed request. Applying writes the working Book, advances its revision number, and appends to its lineage. What the Book is then recorded against depends on the revision:
+   - a whole-Book (`--holistic`) revision, or any revision of a Book that was current when it was prepared, records the Book against the Series architecture and source the request was prepared on (`"currentness": "current"`);
+   - a targeted revision of a Book that was already out of date when it was prepared changes those elements and keeps the Book recorded against its earlier Series architecture, source and concept fingerprints (`"currentness": "kept_baseline"`). The Book stays out of date: only a whole-Book revision can bring it up to date.
 5. **Recover.** `book-resume` in a new process returns the applied Book with its revision number, lineage, last applied review, and freshness.
 
 Withdrawal is a working decision: `book-withdraw --book <n> --element <id> --rationale "<text>"` proposes rejecting one working element. It produces a review that you then apply with `book-apply-review`. It refuses the Book's function, author decisions, open questions, rejected items and legacy elements.
@@ -148,12 +150,15 @@ Refusals:
 | `unexpected changes block application` | The candidate changed an element outside the permitted set. Prepare again with that element as a target, or with `--holistic`. |
 | `working context changed` or `the Series architecture or the Book's source changed` | The Series or the source changed. Prepare again. |
 | `a new or changed element must use explicit attribution and epistemic_status` | A changed element is still in the legacy form. Restate it explicitly. |
+| `series_node reference '<id>' does not resolve` | The Book still cites a concept the working Architecture no longer has. Every reference in the revised Book must resolve, so the revision must include the elements that cite it (or be `--holistic`). |
 | `cannot be settled by a working revision` | An open question stays open. A revision cannot settle it. |
 | `Series binding is fixed` | An author decision's index and text hash cannot change. |
 | `must be conditional on that decision` | A claim that depends on an author decision must be conditional, not asserted. |
 | `which is rejected` | A conditional claim rests on a rejected assumption. Revise the dependent first. |
 
 Re-preparing an identical scope creates a new attempt, so a corrected candidate can be submitted after a blocked review.
+
+`book-resume` and the Studio report each Architecture concept a Book cites as `unchanged`, `changed`, `removed` or `unrecorded`, judged by the fingerprint the Book record kept when it was written. For a changed or removed concept they also give the version the Book recorded, but only when a kept record (one of the Book's own requests, or a revision on the working Architecture's applied chain) still holds a node with exactly that fingerprint. A changed reference is a dependency to re-read, not evidence that the Book no longer works, and a Book that records no reference to a concept is not shown to be independent of it.
 
 `book-show --book <n>` is read-only. It prints the owner's projection: the status (`awaiting_host_agent`, `review_ready`, `review_blocked`, `ready`, `stale` or `not_started`), the pending request with its full packet while no response has been submitted, and the review once one exists.
 
@@ -167,6 +172,8 @@ The opt-in Atelier (`studio.html?atelier`) can prepare a Book revision from a se
 Before calling the owner's prepare, the Studio adds two guards:
 - it refuses when the Book is no longer the revision the author read;
 - it refuses to replace a waiting request unless the author confirms.
+
+The owner checks both under its canvas lock. The Studio also asks the owner for a whole-Book revision whenever the Book is out of date, because only that brings it up to date. After a working Architecture revision, the Atelier's "What this means for the Books" overview lists the Books that cite a changed or removed concept, and "Reconcile Book <n> with the working Architecture" prepares such a whole-Book revision, starting from the recorded evidence in the author's own editable words.
 
 When the author asks you to fulfil such a request:
 1. Read it with `book-show`.

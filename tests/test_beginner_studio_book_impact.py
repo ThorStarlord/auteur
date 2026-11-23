@@ -225,3 +225,35 @@ def test_a_reconciliation_made_stale_before_apply_promotes_nothing(project):
         apply_book_revision(project, CANVAS, 26, {"request_sha256": view["pending"]["request_sha256"]})
     assert current(project, 26) == before and book(project, 26)["freshness"] == "stale"
     assert book(project, 26)["architecture_revisions_since"] == 2
+
+
+def test_a_partial_revision_never_records_a_concept_the_book_had_no_fingerprint_for(project):
+    """A concept the Book already cited without a kept fingerprint stays unrecorded; it is not made 'unchanged'."""
+    store = CanvasStore(project, CANVAS)
+    record = current(project, 24)
+    del record["series_nodes"]["eng_old_hand"]
+    (books_dir(project) / "24" / "current.json").write_text(json.dumps(record), encoding="utf-8")
+    assert by_status(book(project, 24))["unrecorded"] == ["eng_old_hand"]
+    prepared = book_prepare(store, 24, instruction="Stop citing the Gate table.",
+                            targets=("inh-gate-independence", "later-cohort-seat"))
+    book_complete(store, 24, respond(prepared["request"], reconciled(project, 24)))
+    assert book_apply_review(store, 24, prepared["pending_request_sha256"])["currentness"] == "kept_baseline"
+    assert "eng_old_hand" not in current(project, 24)["series_nodes"]
+    assert by_status(book(project, 24))["unrecorded"] == ["eng_old_hand"]
+
+
+def test_a_revision_history_that_cannot_be_read_whole_says_so(project):
+    arch = project / ".auteur/beginner/studio/canvases" / CANVAS / "architecture"
+    newest = json.loads((arch / "current.json").read_text(encoding="utf-8"))["request_sha256"]
+    (arch / "requests" / newest / "review.json").write_text("{damaged", encoding="utf-8")
+    w = working(project)
+    b24 = next(b for b in w["books"] if b["book_number"] == 24)
+    assert b24["architecture_revisions_since"] is None and b24["architecture_chain_complete"] is False
+    assert by_status(b24)["changed"] == [CHANGED]  # the comparison with the current Architecture still holds
+
+
+def test_without_a_working_architecture_nothing_is_said_about_any_concept(project):
+    arch = project / ".auteur/beginner/studio/canvases" / CANVAS / "architecture"
+    (arch / "current.json").unlink()
+    refs = book_series_references(CanvasStore(project, CANVAS), 26)["references"]
+    assert {r["status"] for r in refs} == {"architecture_unavailable"}

@@ -207,6 +207,10 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     assert "Book 27 (a develop request is prepared) and Book 28 have source items in this canvas but no working Book".upper() in folio
     assert "change to the Book’s source, not to the Architecture".upper() in folio  # Book 25, told apart
     assert page.locator(q("impact-show:29")).count() == 0  # an unreadable Book offers nothing
+    assert "Its working record is damaged and cannot be read".upper() in folio
+    assert "Unterminated string".upper() not in folio  # the parser's words wait behind "Technical detail"
+    assert page.locator(q("impact-tech:29")).count() == 1
+    assert "What changed is not cited by it: “Reading the First Stones” (changed)".upper() in folio  # Book 26
     # The removed concept is discoverable here, and the atlas does not show it as current.
     assert "Gate Table · no longer in the Architecture".upper() in folio
     assert page.locator('#studio-atelier .atl-star[data-id*="inst_gate_table"]').count() == 0
@@ -216,7 +220,15 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     folio = page.evaluate(FOLIO).upper()
     assert "As the Book recorded it".upper() in folio and "A rotating inter-community body formed in Book 22".upper() in folio
     assert "When the Book was written".upper() in folio and "the ledger now also records the hours".upper() in folio
-    assert "it does not show the Book’s story no longer works".upper() in folio
+    assert "it does not mean the Book no longer works".upper() in folio  # said once, in the overview
+    assert "unchanged in name, kind and description".upper() in folio
+    assert "Also changed in the Architecture since, and not cited by Book 24: “Reading the First Stones” (changed)".upper() in folio
+    # Escape steps back one level: to the Book's row in the overview, not out of it.
+    page.keyboard.press("Escape")
+    time.sleep(0.3)
+    assert page.evaluate(KEY) == "impact-show:24" and page.evaluate(SNAP)["series"]["leaf"] is not None
+    page.locator(q("impact-show:24")).click()
+    time.sleep(0.3)
     page.locator(q("impact-reconcile:24")).click()
     page.wait_for_function(f"({KEY}) === 'book-instruction:24'", timeout=5000)
     seeded = page.locator(q("book-instruction:24")).input_value()
@@ -239,6 +251,9 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     assert "Cite concepts that changed or are gone · 1".upper() in folio  # Book 25 is untouched and still flagged
     snap = page.evaluate(SNAP)
     assert snap["revision"] is None and place(snap) == place(home)
+    page.keyboard.press("Escape")  # first to all the Books (Book 24 is now current), then back to the atlas
+    time.sleep(0.4)
+    assert page.evaluate(SNAP)["series"]["leaf"] is not None
     page.keyboard.press("Escape")
     time.sleep(0.4)
     back = page.evaluate(SNAP)

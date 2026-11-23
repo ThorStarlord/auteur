@@ -794,6 +794,7 @@
       opts=opts||{};
       if(!S.model||!S.model.byId[id])return;
       if(S.leaf&&S.leaf.from!==id)S.leaf=null;
+      if(S.impactReturn&&S.impactReturn.concept!==id)S.impactReturn=null;
       var fromAtlas=!S.focus;
       if(fromAtlas){S.restCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};S.userCam=false;}
       if(opts.trailIndex!==undefined)S.trail=S.trail.slice(0,opts.trailIndex+1);
@@ -1154,7 +1155,8 @@
         else focusFolio();}
       // A composer just opened takes the keyboard once it is drawn, after any focus a re-render restores.
       var dv=S.dev,field=dv&&dv.focusPending&&folio.querySelector('[data-key="book-instruction:'+dv.book+'"]');
-      if(field){dv.focusPending=false;field.focus({preventScroll:false});}
+      if(field){dv.focusPending=false;field.focus({preventScroll:false});
+        if(dv.caretTop){dv.caretTop=false;try{field.setSelectionRange(0,0);}catch(_){}field.scrollTop=0;}}
     }
     function renderFolioContent(){
       folio.replaceChildren();
@@ -1172,6 +1174,9 @@
       if(examining)folio.append(el('p','atl-mode-chip','Focused constellation · close reading'));
       folio.append(el('p','atl-kicker-line atl-facet-'+cn.facet,M.FACET_SINGULAR[cn.facet]+(cn.role?' · '+M.human(cn.role):'')));
       folio.append(el('h3','atl-folio-title'+(cn.title.length>90?' is-long':''),cn.title));
+      if(S.impactReturn&&S.impactReturn.concept===cn.id){var ret=el('div','atl-look');
+        actionButton(ret,'← Back to the Books it affects',function(){var r=S.impactReturn;S.impactReturn=null;openLeaf({impact:true});
+          if(r.book)showBookEvidence(r.book);},'impact-return');folio.append(ret);}
       var rec=cn.record||{},dl=el('dl','atl-facts');
       if(cn.facet==='genres'&&rec.genre_node_id){
         if(cn.coverage)folio.append(el('p','atl-coverage',cn.coverage));
@@ -1409,6 +1414,7 @@
       var ids=Object.keys(r.delta.touched);
       var wrap=el('section','atl-revised');wrap.setAttribute('aria-label','Your applied revision');
       wrap.append(el('h4','atl-section-title','Your applied revision · '+ids.length+' concept'+(ids.length===1?'':'s')+' changed'));
+      var books=impactLine();if(books)wrap.append(books);
       if(r.requestedChange)wrap.append(el('p','atl-folio-detail','You asked: “'+M.shorten(r.requestedChange,220)+'”'));
       var list=el('div','atl-revised-index');
       ids.slice(0,24).forEach(function(id){var cn=S.model.byId[id];var b=el('button','atl-index-item',cn.name);b.type='button';b.title=cn.title;b.dataset.id=id;
@@ -1418,7 +1424,6 @@
       if(r.delta.removed.length)wrap.append(el('p','atl-note',r.delta.removed.length+' concept'+(r.delta.removed.length===1?' is':'s are')+' no longer recorded: '+
         r.delta.removed.slice(0,6).map(function(x){return x.title;}).join(' · ')));
       if(r.delta.summaryChanged)wrap.append(el('p','atl-note','The Architecture summary changed.'));
-      var books=impactLine();if(books)wrap.append(books);
       wrap.append(el('p','atl-note','Marked with a dashed ring in the atlas. Working changes only; accepted story is unchanged.'+
         (r.keptLayout?' Positions are kept from before the revision, so a concept with new relationships may sit away from the phases it now relates to.':'')));
       if(r.keptLayout)actionButton(wrap,'Lay out the atlas again',relayout,'relayout');
@@ -1481,7 +1486,6 @@
       if(c.status==='error'){wrap.append(el('p','atl-note','Could not read the Book and Series plans: '+c.error));
         actionButton(wrap,'Try again',function(){readSeries(true);},'series-retry');folio.append(wrap);return;}
       var d=c.data,hits=cn?X.forNode(d,cn.nodeId):[],wbs=X.workingBooks(d),bad=X.unreadableBooks(d),proj=X.projectSummary(d);
-      if(!cn&&!S.revision){var imp=impactLine();if(imp)wrap.append(imp);}
       if(hits.length){
         var ul=el('ul','atl-series-hits');
         hits.forEach(function(h){var li=el('li','atl-series-hit');
@@ -1502,7 +1506,8 @@
         wrap.append(el('p','atl-note','Working Book architectures refer only to recorded Architecture nodes, so none can refer to this '+
           M.FACET_SINGULAR[cn.facet].toLowerCase()+' directly.'));
       }
-      bad.forEach(function(t){wrap.append(toneLine({tone:'bad',text:t}));});
+      // Said for a concept; the atlas reading's Working Books line already counts unreadable Books.
+      if(cn)bad.forEach(function(t){wrap.append(toneLine({tone:'bad',text:t}));});
       if(proj.length){
         var pl=el('ul','atl-series-project');proj.forEach(function(p){pl.append(el('li','atl-tone-'+p.tone,p.text));});
         wrap.append(el('p','atl-series-kicker','Also kept in this project'),pl,
@@ -1612,16 +1617,21 @@
       var sec=leafSection('Architecture changes and the working Books',I.OVERVIEW_NOTE);sec.classList.add('atl-impact');
       if(sum.state==='unreadable'){sec.append(toneLine({tone:'bad',text:'The working Book architectures could not be read ('+sum.reason+'), so which Books are affected cannot be told.'}));return;}
       if(sum.state==='absent'&&!sum.without.length){sec.append(el('p','atl-note','This canvas keeps no working Book architectures, so no Book records a reference to the Architecture.'));return;}
+      // While one Book's evidence is open the other Books shrink to one line each.
+      var focusOn=l.evidence||null;
       function group(title,entries,compact){
-        if(!entries.length)return;
+        if(!entries.length)return;compact=compact||!!focusOn;
         sec.append(el('p','atl-series-kicker',title+' · '+entries.length));
         var ul=el('ul','atl-impact-list'),rest=null;
         entries.forEach(function(e,i){var li=el('li','atl-impact-book-row');
+          if(focusOn===e.number)li.classList.add('is-current');
           li.append(el('p','atl-series-book','Book '+e.number+(e.book.title?' · '+e.book.title:'')));
           if(!compact)I.lines(e,nodeName).forEach(function(t){li.append(toneLine(t));});
+          if(e.state!=='working'&&e.reason&&!compact){var tech=el('details','atl-series-how');tech.dataset.key='impact-tech:'+e.number;
+            tech.append(el('summary','','Technical detail'),el('p','atl-note',e.reason));li.append(tech);}
           if(e.state==='working'){var since=I.sinceLine(e);if(since&&!compact)li.append(el('p','atl-note',since));
             var dl=e.book.development&&B.phaseLine(e.book.development.phase,e.number);if(dl)li.append(toneLine(dl));
-            actionButton(li,'Show Book '+e.number+'’s evidence',function(){showBookEvidence(e.number);},'impact-show:'+e.number).classList.add('atl-action-quiet');}
+            if(focusOn!==e.number)actionButton(li,'Show Book '+e.number+'’s evidence',function(){showBookEvidence(e.number);},'impact-show:'+e.number).classList.add('atl-action-quiet');}
           if(i<8)ul.append(li);else{if(!rest){rest=el('details','atl-series-how');rest.dataset.key='impact-more:'+title;
             rest.append(el('summary','',(entries.length-8)+' more'));rest.append(el('ul','atl-impact-list'));}rest.lastChild.append(li);}});
         sec.append(ul);if(rest)sec.append(rest);
@@ -1635,9 +1645,9 @@
         sec.append(el('p','atl-series-kicker','Concepts behind this'));
         var row=el('div','atl-revised-index');
         sum.concepts.forEach(function(c){var target=c.status==='changed'?conceptForNode(c.node_id):null,name=I.refName(c.ref,nodeName);
-          var who=' · cited by '+I.andList(c.books.map(function(n){return 'Book '+n;}));
+          var who=' · '+I.citedBy(c.books);
           if(target){var b=el('button','atl-index-item',target.name+' · changed'+who);b.type='button';b.title=target.title;b.dataset.key='impact-node:'+c.node_id;
-            b.addEventListener('click',function(){select(target.id,{via:'series'});focusFolio();});row.append(b);}
+            b.addEventListener('click',function(){S.impactReturn={concept:target.id,book:null};select(target.id,{via:'series'});focusFolio();});row.append(b);}
           else row.append(chip(name+(c.status==='removed'?' · no longer in the Architecture':' · changed')+who,c.status==='removed'?'removed':'proposal'));});
         sec.append(row,el('p','atl-note','A changed concept opens in the atlas. A concept that is gone is not in the atlas; each Book’s evidence shows it as that Book recorded it.'));
       }
@@ -1647,9 +1657,11 @@
       if(sum.requestedOnly.length)sec.append(el('p','atl-note',I.andList(sum.requestedOnly.map(function(n){return 'Book '+n;}))+' has a prepared develop request and no working Book yet.'));
     }
     function showBookEvidence(n){
-      if(!S.leaf)return;S.leaf.book=n;renderFolio();
-      var t=folio.querySelector('[data-key="impact-evidence:'+n+'"]');if(t){t.focus({preventScroll:true});t.scrollIntoView({block:'start'});}
-      announce('Book '+n+'’s evidence.');
+      if(!S.leaf)return;S.leaf.book=n;S.leaf.evidence=n;renderFolio();
+      // Only the folio scrolls to the evidence: the page and the atlas stay where the author left them.
+      var t=folio.querySelector('[data-key="impact-evidence:'+n+'"]');if(t){t.focus({preventScroll:true});
+        folio.scrollTop+=t.getBoundingClientRect().top-folio.getBoundingClientRect().top-8;}
+      announce('Book '+n+'’s evidence. Escape returns to all the Books.');
     }
     function changeBlock(parent,r){
       var c=I.conceptChange(r);
@@ -1679,7 +1691,7 @@
           cites.append(el('summary','','Cited by '+X.refSummary(r)+' of Book '+n));
           var cl=el('ul','atl-series-elements');I.citing(r).forEach(function(t){cl.append(el('li','',t));});cites.append(cl);li.append(cites);
           var row=el('div','atl-actions');
-          if(target)actionButton(row,'Show it in the atlas',function(){select(target.id,{via:'series'});focusFolio();},'impact-select:'+n+':'+r.node_id).classList.add('atl-action-quiet');
+          if(target)actionButton(row,'Show it in the atlas',function(){S.impactReturn={concept:target.id,book:n};select(target.id,{via:'series'});focusFolio();},'impact-select:'+n+':'+r.node_id).classList.add('atl-action-quiet');
           if(target&&binding.onDevelop&&r.status==='changed')inquiryButton(row,target,e,r);
           if(row.childNodes.length)li.append(row);
           ul.append(li);});
@@ -1688,15 +1700,17 @@
       refList('Changed since it was written',e.changed,'warn');
       refList('No longer in the working Architecture',e.removed,'bad');
       I.lines(e,nodeName).filter(function(t){return !/^Cites /.test(t.text);}).forEach(function(t){box.append(toneLine(t));});
-      if(e.unchanged.length)box.append(el('p','atl-note',I.plural(e.unchanged.length,'other cited concept')+' unchanged since it was written.'));
-      if(e.flagged)box.append(el('p','atl-note','These are the references Book '+n+' records. A change here is worth re-reading; it does not show the Book’s story no longer works, and a concept it does not cite may still matter to it.'));
+      var nc=I.notCited(e);
+      if(nc&&e.flagged&&I.notCitedNames(e,6))box.append(el('p','atl-note','Also changed in the Architecture since, and not cited by Book '+n+': '+I.notCitedNames(e,6)+'.'));
+      if(e.unchanged.length)box.append(el('p','atl-note',I.plural(e.unchanged.length,'other cited concept')+' unchanged in name, kind and description. '+
+        'A Book records the concepts it cites, not their relationships, so a changed relationship is not shown here.'));
       var la=b.last_applied;
       if(la&&la.currentness==='kept_baseline')box.append(el('p','atl-note','Working Book revision '+la.revision_number+' changed only part of this Book while it was out of date, so it is still recorded against its earlier Architecture and source.'));
-      if(binding.books&&e.outOfDate&&!b.development&&!devFor(n)){
+      if(binding.books&&e.outOfDate&&!e.noArchitecture&&!b.development&&!devFor(n)){
         var go=actionButton(box,'Reconcile Book '+n+' with the working Architecture',function(){
-          S.leaf.book=n;openDevelop(n,[],true,from,{instruction:I.reconcileDraft(e,nodeName)});},'impact-reconcile:'+n);
+          S.leaf.book=n;openDevelop(n,[],true,from,{instruction:I.reconcileDraft(e,nodeName),caretTop:true});},'impact-reconcile:'+n);
         go.classList.add('atl-action-primary');
-        box.append(el('p','atl-note','A whole-Book revision through Book '+n+'’s own owner, starting from words you can change. Preparing changes nothing; you review what your coding agent proposes, and only Apply changes the Book.'));
+        box.append(el('p','atl-note','A whole-Book revision through Book '+n+'’s own owner, starting from words you can change. Preparing changes nothing; only Apply changes the Book.'));
       }
       det.append(box);
     }
@@ -1827,7 +1841,7 @@
     }
     function openDevelop(n,targets,holistic,from,seed){
       S.dev={canvas:canvasKey(),book:n,targets:(targets||[]).slice(),holistic:!!holistic,from:from?from.id:null,
-        replace:!!(seed&&seed.replace),scope:null,focusPending:true};
+        replace:!!(seed&&seed.replace),scope:null,focusPending:true,caretTop:!!(seed&&seed.caretTop)};
       var dev=S.dev,d=bookDraft(n,scopeKey(dev));
       // The author's own unsent words for this target come first; an earlier request's words fill only an empty draft.
       if(seed&&seed.instruction&&!d.instruction)d.instruction=seed.instruction;
@@ -1917,7 +1931,7 @@
       radio('holistic','The whole Book',outOfDate?'':'Use this only when the change cannot stay inside the chosen element. Your coding agent may then change any element of Book '+n+', and the review shows each one.');
       form.append(scope);
       var label=el('label','atl-bookdev-label','What should change?'),ta=el('textarea','atl-book-text');ta.id='atl-book-instruction-'+n;label.htmlFor=ta.id;
-      ta.rows=4;ta.maxLength=4000;ta.value=d.instruction;ta.dataset.key='book-instruction:'+n;
+      ta.rows=Math.max(4,Math.min(12,(d.instruction.match(/\n/g)||[]).length+3));ta.maxLength=4000;ta.value=d.instruction;ta.dataset.key='book-instruction:'+n;
       ta.placeholder='For example: make the cost of refusing the count visible inside this mechanism.';
       var count=el('p','atl-note atl-book-count');count.setAttribute('aria-live','polite');
       function counted(){count.textContent=ta.value.length>3500?ta.value.length+' of 4000 characters':'';}
@@ -2275,6 +2289,7 @@
       if(model.summary)folio.append(el('p','atl-folio-detail atl-summary',model.summary));
       if(status&&status!=='ready')folio.append(el('p','atl-coverage','Source status: '+M.human(status)+'. The atlas reads the current working proposal as it is.'));
       var revised=revisedSummary();if(revised)folio.append(revised);
+      else if(I){var books=impactLine();if(books)folio.append(books);}
       if(S.narrative)renderStructureFolio();
       // Landmarks: the most connected ideas of each kind, by count of documented relationships.
       var marks=el('section','atl-landmarks');
@@ -2428,6 +2443,10 @@
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
       // Escape in a text field never closes the view around the words being written.
       if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
+      if(S.leaf&&S.leaf.evidence&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();
+        var n=S.leaf.evidence;S.leaf.evidence=null;S.leaf.book=null;renderFolio();
+        global.setTimeout(function(){var t=folio.querySelector('[data-key="impact-show:'+n+'"]');if(t)t.focus({preventScroll:false});else focusFolio();},0);
+        announce('Back to all the Books.');return;}
       if(S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeLeaf();return;}
       if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();

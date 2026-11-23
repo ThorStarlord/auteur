@@ -1263,37 +1263,57 @@ def _adoption_lineage(store: CanvasStore, current: dict | None) -> list[dict]:
     return rows
 
 
-def architecture_versions(store: CanvasStore, limit: int = 40):
-    """Read-only: the working Architecture candidates along its applied revision chain, newest first.
+def architecture_revision_chain(store: CanvasStore, limit: int = 200) -> dict:
+    """Read-only: the applied working Architecture requests, newest first, and whether the chain is whole.
 
-    Yields ``(request_sha256, candidate)``. Each applied revision keeps its candidate in its review and
-    names the request it revised; the first version is recovered from its stored response, validated
-    the way it was when it was completed. A version that cannot be read ends the walk; nothing is written.
+    Each applied revision's review names the request it revised. ``complete`` is True only when the walk
+    reached the first version (one with no recorded prior); a review that cannot be read, a loop or the
+    limit leaves it False, so a caller can say "cannot be told" instead of "not on the chain".
+    """
+    current = _candidate(store)
+    if not current:
+        return {"requests": [], "complete": False}
+    sha, chain = current["request_sha256"], [current["request_sha256"]]
+    for _ in range(limit):
+        try:
+            review = _read(_root(store) / "requests" / sha / "review.json")
+        except (OSError, ValueError):
+            return {"requests": chain, "complete": False}
+        prior = (review or {}).get("prior_request_sha256")
+        if prior is None:
+            return {"requests": chain, "complete": True}
+        if not isinstance(prior, str) or prior in chain:
+            return {"requests": chain, "complete": False}
+        chain.append(prior)
+        sha = prior
+    return {"requests": chain, "complete": False}
+
+
+def _version_candidate(store: CanvasStore, sha: str) -> dict | None:
+    """One applied version's candidate: from its review, or for the first version its stored response,
+    validated the way it was when it was completed. None when it cannot be read."""
+    folder = _root(store) / "requests" / sha
+    try:
+        review = _read(folder / "review.json")
+        if review and isinstance(review.get("candidate"), dict):
+            return review["candidate"]
+        response = _read(folder / "response.json")
+        return ArchitectureCandidate.model_validate_json(
+            response["text"], context={"new_host_agent_response": True}).model_dump(mode="json")
+    except (OSError, TypeError, KeyError, ValueError):
+        return None
+
+
+def architecture_versions(store: CanvasStore, limit: int = 200):
+    """Read-only: ``(request_sha256, candidate)`` along the applied revision chain, newest first.
+
+    ``candidate`` is None for a version whose record cannot be read; the walk still continues by identity.
     """
     current = _candidate(store)
     if not current:
         return
-    yield current["request_sha256"], current["candidate"]
-    sha, seen = current["request_sha256"], {current["request_sha256"]}
-    for _ in range(limit):
-        review = _read(_root(store) / "requests" / sha / "review.json")
-        prior = (review or {}).get("prior_request_sha256")
-        if not isinstance(prior, str) or prior in seen:
-            return
-        seen.add(prior)
-        folder = _root(store) / "requests" / prior
-        prior_review = _read(folder / "review.json")
-        if prior_review and isinstance(prior_review.get("candidate"), dict):
-            yield prior, prior_review["candidate"]
-        else:
-            response = _read(folder / "response.json")
-            try:
-                candidate = ArchitectureCandidate.model_validate_json(
-                    response["text"], context={"new_host_agent_response": True}).model_dump(mode="json")
-            except (TypeError, KeyError, ValueError):
-                return
-            yield prior, candidate
-        sha = prior
+    for index, sha in enumerate(architecture_revision_chain(store, limit)["requests"]):
+        yield sha, current["candidate"] if index == 0 else _version_candidate(store, sha)
 
 
 def project_architecture_resume(store: CanvasStore) -> dict:

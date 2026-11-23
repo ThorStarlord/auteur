@@ -490,4 +490,5 @@
 .atl-impact-book .atl-series-subtitle:focus{outline:2px solid var(--atl-focus);outline-offset:2px}
 .atl-impact-ref{margin:0 0 8px}
 .atl-impact-ref .atl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+.atl-impact-book-row.is-current{border-color:var(--atl-focus);background:#fbf6ec}
 .atl-chip-removed{border-style:dashed;border-color:#d4a5a5;background:#fbefef;color:#7a3434}

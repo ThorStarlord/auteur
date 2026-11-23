@@ -40,7 +40,7 @@ from auteur.series.continuity_validators import SetupPayoffValidator
 from auteur.series.graph import build_dependency_graph
 from auteur.series.models import SeriesIdentity
 from auteur.series.vertical_slice_store import VerticalSliceStore
-from auteur.beginner.studio_architecture import _candidate, architecture_versions
+from auteur.beginner.studio_architecture import architecture_revision_chain, architecture_versions
 from auteur.series.working_book_architecture import (
     book_numbers, book_pending_state, book_project, book_requested_numbers, book_series_references,
 )
@@ -295,7 +295,8 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
                        f"{store.canvas_id} book-resume --book <n>",
     }
     books: list[dict[str, Any]] = []
-    chain = _architecture_chain(store)
+    versions, complete = _architecture_chain(store)
+    chain = [sha for sha, _ in versions]
     for number in book_numbers(store):
         rel = f"{base['path']}/{number}/current.json"
         try:
@@ -322,6 +323,9 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
             # None when that request is not on the current revision chain (or the chain cannot be read).
             "architecture_revisions_since": (chain.index(view["series_request_sha256"])
                                              if view["series_request_sha256"] in chain else None),
+            # Whether "not on the chain" is known: False when the revision history could not be read whole.
+            "architecture_chain_complete": complete,
+            "architecture_changes_not_cited": _not_cited(versions, view),
             "references": refs,
             "last_applied": view.get("last_applied"),
             "development": _development(store, number),
@@ -331,9 +335,8 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
                            if (item.group or "").startswith("book-") and item.group[5:].isdigit()
                            and 1 <= int(item.group[5:]) <= 60} - recorded)
     requested = book_requested_numbers(store)
-    current = _candidate(store)
     return {**base, "state": "available" if books else "absent", "books": books,
-            "architecture_request": current["request_sha256"] if current else None,
+            "architecture_request": chain[0] if chain else None,
             "architecture_revisions": len(chain),
             # Books the canvas keeps source items for, with no working Book architecture: nothing they
             # might depend on is recorded. A prepared request is not yet a working Book.
@@ -341,12 +344,36 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
             "requested_only": [n for n in requested if n not in canvas_books]}
 
 
-def _architecture_chain(store: CanvasStore) -> list[str]:
-    """The applied working Architecture requests, newest first. Empty when it cannot be read."""
+def _architecture_chain(store: CanvasStore) -> tuple[list[tuple[str, dict | None]], bool]:
+    """The applied working Architecture versions, newest first, and whether the chain was read whole."""
     try:
-        return [sha for sha, _ in architecture_versions(store)]
+        return list(architecture_versions(store)), architecture_revision_chain(store)["complete"]
     except (OSError, ValueError):
-        return []
+        return [], False
+
+
+def _not_cited(versions: list[tuple[str, dict]], view: dict) -> dict[str, Any] | None:
+    """Concepts the working Architecture changed, removed or added since this Book was written, that the Book
+    does not cite. Compared with the exact Architecture version the Book records it was written against, by
+    node id and content; None when that version is not on the current revision chain. Nothing here is linked
+    to the Book: these are what changed around it, not what it depends on."""
+    if not versions or versions[0][0] == view["series_request_sha256"]:
+        return None
+    then = next((candidate for sha, candidate in versions if sha == view["series_request_sha256"]), None)
+    if versions[0][1] is None:
+        return None
+    if then is None:
+        return None
+    cited = {ref["node_id"] for ref in view["references"]}
+    before = {node["id"]: node for node in then.get("nodes", []) if isinstance(node, dict) and node.get("id") not in cited}
+    after = {node["id"]: node for node in versions[0][1].get("nodes", [])
+             if isinstance(node, dict) and node.get("id") not in cited}
+    row = lambda node: {"node_id": node["id"], "title": _clip(node.get("title"), 120)}  # noqa: E731
+    return {
+        "changed": [row(after[key]) for key in sorted(after) if key in before and after[key] != before[key]],
+        "removed": [row(before[key]) for key in sorted(before) if key not in after],
+        "added": [row(after[key]) for key in sorted(after) if key not in before],
+    }
 
 
 def _development(store: CanvasStore, number: int) -> dict[str, Any] | None:
