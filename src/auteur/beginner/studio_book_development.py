@@ -21,7 +21,6 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.series.working_book_architecture import (
     book_apply_review,

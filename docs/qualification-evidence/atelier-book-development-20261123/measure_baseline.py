@@ -4,7 +4,12 @@ Usage: PYTHONPATH=<main checkout>/src python measure_baseline.py <main sha> <out
 It seeds a disposable Spring Ledger project, then does the task the only way main offers: the Working Book CLI.
 A deterministic stand-in plays the coding agent. It records which steps exist and how much JSON the author must read.
 """
-import json, os, subprocess, sys, tempfile
+import importlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
@@ -31,9 +36,12 @@ current = json.loads((project / ".auteur/beginner/studio/canvases" / seed.SPRING
 artifact = current["artifact"]
 for element in artifact["engines"]:
     if element["id"] == "eng-record-form":
-        element.pop("provenance", None); element["attribution"] = "agent_proposed"; element["epistemic_status"] = "asserted"
+        element.pop("provenance", None)
+        element["attribution"] = "agent_proposed"
+        element["epistemic_status"] = "asserted"
         element["text"] += " (revised)"
-candidate = project.parent / "candidate.json"; candidate.write_text(json.dumps(artifact), encoding="utf-8")
+candidate = project.parent / "candidate.json"
+candidate.write_text(json.dumps(artifact), encoding="utf-8")
 code, text = run("book-complete-file", "--book", "24", "--candidate", str(candidate))
 review = json.loads(text)["review"]
 steps.append({"who": "coding agent", "command": "book-complete-file", "exit": code, "output_chars": len(text),
@@ -41,8 +49,7 @@ steps.append({"who": "coding agent", "command": "book-complete-file", "exit": co
 code, text = run("book-apply-review", "--book", "24", "--request-sha256", review["request_sha256"])
 steps.append({"who": "author, in a terminal, copying a 64-character identity", "command": "book-apply-review --request-sha256",
               "exit": code, "output_chars": len(text)})
-import auteur  # the package the CLI runs (PYTHONPATH), not this checkout
-package = Path(auteur.__file__).parent
+package = Path(importlib.import_module("auteur").__file__).parent  # the package the CLI runs, not this checkout
 studio_has_route = (package / "beginner/studio_book_development.py").exists()
 out.write_text(json.dumps({
     "revision": sha, "package": str(package), "task": "revise Book 24 element eng-record-form, which records a reference to eng_ledger",
