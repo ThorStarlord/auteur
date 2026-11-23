@@ -1908,7 +1908,7 @@
         announce((B.phaseLine(r.data.phase,n)||{text:'Response checked.'}).text);
       },function(error){
         setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
-        refusal(n,'The Working Book owner refused the response: '+(error&&error.message||error)+'. Nothing was stored; the request is still open.');
+        refusal(n,'The Working Book owner refused the response: '+String(error&&error.message||error).replace(/[.;\s]*$/,'')+'. Nothing was stored; the request is still open.');
         readBook(n,true);renderFolio();focusKey('book-note:'+n);
       });
     }
@@ -2292,7 +2292,7 @@
       latchPointer();
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
       // Escape in a text field never closes the view around the words being written.
-      if(e.target&&(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')&&folio.contains(e.target))return;
+      if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
       if(S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeLeaf();return;}
       if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();

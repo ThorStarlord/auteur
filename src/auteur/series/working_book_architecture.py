@@ -1119,6 +1119,11 @@ def book_pending_state(store: CanvasStore, book_number: int) -> dict:
             },
             "book_changed": book_changed,
             "context_changed": _series_changed(store, settings) or _source_changed(store, book_number, settings),
+            # The Book was out of date with the Series architecture or its source when this request was
+            # prepared. Applying records the whole Book as current, so only a whole-Book request is safe then.
+            "baseline_out_of_date": operation != "develop" and current is not None and (
+                current.get("series_request_sha256") != settings.get("series_request_sha256")
+                or current.get("source_sha256") != settings.get("source_sha256")),
             "completed": (base / "requests" / sha / "review.json").is_file(),
             "stale_response_kept": (base / "requests" / sha / "stale_response.json").is_file(),
         },

@@ -14,6 +14,7 @@ Narrative Architecture, the Series plan or the Directions. The browser never cal
 """
 from __future__ import annotations
 
+import json
 import re
 from contextlib import contextmanager
 from pathlib import Path
@@ -21,6 +22,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.series.working_book_architecture import (
     book_apply_review,
@@ -77,6 +79,8 @@ def _reason(exc: BaseException) -> str:
         return f"the record does not match its contract ({where}: {first['msg']})"
     if isinstance(exc, KeyError):
         return f"a field is missing from the record ({exc.args[0]})"
+    if isinstance(exc, json.JSONDecodeError):
+        return f"the record is not valid JSON (line {exc.lineno}, column {exc.colno})"
     return f"{type(exc).__name__}: {exc}"[:300]
 
 
@@ -85,7 +89,7 @@ def _owner_records(book_number: int):
     """Damaged or missing owner records become a readable refusal (400), never a 500 or a false 404."""
     try:
         yield
-    except (KeyError, TypeError, AttributeError, OSError, ValidationError) as exc:
+    except (KeyError, TypeError, AttributeError, OSError, ValidationError, json.JSONDecodeError) as exc:
         raise ValueError(f"Book {book_number}'s working records cannot be read: {_reason(exc)}. "
                          "Nothing was changed.") from None
 
@@ -94,6 +98,9 @@ def _phase(owner: dict, pending: dict | None) -> str:
     if pending is None:
         return "none"
     if pending["book_changed"] or pending["context_changed"]:
+        return "stale"
+    if pending.get("baseline_out_of_date") and pending.get("mode") != "holistic":
+        # Prepared outside the Studio on an out-of-date Book: applying part of it would mark the whole Book current.
         return "stale"
     if owner["status"] == "review_ready":
         return "review_ready"
@@ -203,9 +210,12 @@ def complete_book_revision(project_root: Path, canvas_id: str, book_number: int,
             for error in exc.errors()[:6]
         )
         raise ValueError(f"the response does not match the Working Book contract: {details}") from None
-    except (TypeError, AttributeError, KeyError) as exc:
-        raise ValueError("the response is not a complete HostAgentResponse for this request "
-                         f"({_reason(exc)}); nothing was stored and the request is still open") from None
+    except (TypeError, AttributeError, KeyError):
+        raise ValueError("the response is not the complete JSON object your coding agent produced for this "
+                         "request; some of its fields are missing or empty") from None
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Book {book_number}'s working records cannot be read: {_reason(exc)}. "
+                         "Nothing was changed.") from None
     except FileNotFoundError as exc:
         raise ValueError(f"Book {book_number}'s working records cannot be read: {_reason(exc)}. "
                          "Nothing was changed.") from None
@@ -219,6 +229,13 @@ def apply_book_revision(project_root: Path, canvas_id: str, book_number: int, pa
     if not isinstance(sha, str) or not _SHA.fullmatch(sha):
         raise ValueError("request_sha256 must be the 64-character identity of the review you read")
     with _owner_records(book_number):
+        pending = book_pending_state(store, book_number)["pending"]
+        if (pending and pending["request_sha256"] == sha and pending.get("baseline_out_of_date")
+                and pending.get("mode") != "holistic"):
+            raise BeginnerConcurrencyError(
+                f"this revision was prepared on Book {book_number} while it was out of date with the working "
+                "Architecture or its source, and it revises only part of the Book; applying it would record the "
+                "whole Book as current, so prepare a whole-Book revision instead")
         result = book_apply_review(store, book_number, sha)
     return {"application": {"result": result["result"], "request_sha256": sha},
             **project_book_development(project_root, canvas_id, book_number)}

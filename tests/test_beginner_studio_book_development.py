@@ -333,3 +333,31 @@ def test_damaged_lifecycle_records_are_reported_not_offered(project):
     assert str(project) not in missing["reason"]  # no absolute paths
     with pytest.raises(ValueError, match="working records cannot be read"):
         apply_book_revision(project, CANVAS, 24, {"request_sha256": sha})
+
+
+def test_a_targeted_request_made_elsewhere_on_an_out_of_date_book_is_not_applied_here(project):
+    """The owner's CLI may still prepare it; the Studio does not apply part of a stale Book as if it were current."""
+    from auteur.series.working_book_architecture import book_prepare
+    from auteur.beginner.studio_architecture import _candidate
+    store = CanvasStore(project, CANVAS)
+    reworded = json.loads(json.dumps(_candidate(store)["candidate"]))
+    next(n for n in reworded["nodes"] if n["id"] == seed.REMOVED_NODE)["summary"] += " (reworded)"
+    seed_revise(store, reworded)
+    view = book_prepare(store, 24, instruction="Only this element.", targets=(TARGET,))  # no expectation: the CLI path
+    view = complete_book_revision(project, CANVAS, 24, respond(project_book_development(project, CANVAS, 24),
+                                                               revised(project, edit_target)))
+    assert view["pending"]["baseline_out_of_date"] and view["phase"] == "stale"
+    before = current(project)
+    with pytest.raises(BeginnerConcurrencyError, match="prepare a whole-Book revision instead"):
+        apply_book_revision(project, CANVAS, 24, {"request_sha256": view["pending"]["request_sha256"]})
+    assert current(project) == before
+
+
+def test_unparseable_records_and_incomplete_responses_read_plainly(project):
+    view = prepare(project)
+    with pytest.raises(ValueError) as refused:
+        complete_book_revision(project, CANVAS, 24, {"schema": "x"})
+    assert "Error" not in str(refused.value) and "__init__" not in str(refused.value)
+    (book_dir(project) / "current.json").write_text("{not json", encoding="utf-8")
+    with pytest.raises(ValueError, match="working records cannot be read: the record is not valid JSON"):
+        apply_book_revision(project, CANVAS, 24, {"request_sha256": view["pending"]["request_sha256"]})

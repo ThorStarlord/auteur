@@ -107,7 +107,13 @@ Two independent reviewers drove and probed `e1bc13a9`; neither had built it. One
 | Escape inside a text field closed the view | A text field keeps Escape |
 | A request replaced from another tab went unannounced | Checking says so |
 
-Recorded, not changed: a response for a superseded request is refused without being kept as stale evidence (owner behaviour); the atlas keeps showing a node the Architecture removed until the author asks for the new Architecture (PR #632 behaviour); every Studio load creates its canvas if missing (pre-existing).
+A third reviewer re-checked every row against `8b329d0f` and found 10 fixed and 2 partly fixed. Both are now closed:
+- **Out-of-date Book, prepared elsewhere:** a targeted request prepared through the owner's CLI on a Book that was already out of date reaches the Studio as `stale`, with the reason given. The adapter refuses to apply it, because applying would record the whole Book as current. The owner reports this as `baseline_out_of_date`.
+- **Word marking:** separate edits are now marked word by word.
+
+Two readable-error gaps the re-check found are also fixed: an incomplete pasted response no longer shows Python internals, and an unparseable record gets the same readable framing as other damage.
+
+Recorded, not changed: a response for a superseded request is refused without being kept as stale evidence (owner behaviour); the atlas keeps showing a node the Architecture removed until the author asks for the new Architecture (PR #632 behaviour); every Studio load creates its canvas if missing (pre-existing); the coding-agent message stays closed after "Prepare a different request" then "Not now" (cosmetic).
 
 ## Limits
 

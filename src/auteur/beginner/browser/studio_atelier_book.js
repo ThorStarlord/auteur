@@ -50,6 +50,9 @@
     }
   }
   function staleReason(pending){if(!pending)return '';var r=[];
+    if(pending.baseline_out_of_date&&pending.mode!=='holistic'&&!pending.book_changed&&!pending.context_changed)
+      r.push('it was prepared while the Book was out of date with the working Architecture or its source, and it revises only part of the Book, '+
+        'so applying it would record the whole Book as current');
     if(pending.book_changed)r.push('the working Book changed after it was prepared');
     if(pending.context_changed)r.push('the working Architecture or the Book’s source changed after it was prepared');
     return r.join(', and ');}
@@ -134,15 +137,26 @@
       'Submitting stores a review for me to read; it does not change the working Book. Guide: '+handoff.guide;
   }
   function shortSha(sha){return sha?String(sha).slice(0,12):'';}
-  // Which words changed: the shared opening and ending stay plain, the middle is marked. Purely presentational.
+  // Which words changed, word by word (longest common subsequence of words). Purely presentational: very long
+  // texts fall back to marking the span between the shared opening and ending.
   function wordDiff(before,after){
-    var a=before==null?[]:String(before).split(/(\s+)/),b=after==null?[]:String(after).split(/(\s+)/),i=0,j=0;
     if(before==null)return {before:[],after:[[String(after==null?'':after),false]]};
+    var a=String(before).split(/(\s+)/),b=after==null?[]:String(after).split(/(\s+)/),i=0,j=0;
     while(i<a.length&&i<b.length&&a[i]===b[i])i++;
     while(j<a.length-i&&j<b.length-i&&a[a.length-1-j]===b[b.length-1-j])j++;
-    function parts(x){return [[x.slice(0,i).join(''),false],[x.slice(i,x.length-j).join(''),true],[x.slice(x.length-j).join(''),false]]
-      .filter(function(p){return p[0];});}
-    return {before:parts(a),after:parts(b)};
+    var ma=a.slice(i,a.length-j),mb=b.slice(i,b.length-j),keepA=[],keepB=[];
+    if(ma.length*mb.length<=250000){
+      var n=ma.length,m=mb.length,L=[],x,y;for(x=0;x<=n;x++){L.push(new Array(m+1).fill(0));}
+      for(x=n-1;x>=0;x--)for(y=m-1;y>=0;y--)L[x][y]=ma[x]===mb[y]?L[x+1][y+1]+1:Math.max(L[x+1][y],L[x][y+1]);
+      x=0;y=0;while(x<n&&y<m){if(ma[x]===mb[y]){keepA[x]=keepB[y]=true;x++;y++;}else if(L[x+1][y]>=L[x][y+1])x++;else y++;}
+    }
+    function parts(all,mid,keep){var out=[];function push(t,c){if(!t)return;var last=out[out.length-1];
+        // Whitespace between two changed words stays inside the change, so a phrase reads as one mark.
+        if(last&&(last[1]===c||(/^\s+$/.test(t)&&last[1])))last[0]+=t;else out.push([t,c]);}
+      push(all.slice(0,i).join(''),false);
+      mid.forEach(function(t,k){push(t,!keep[k]&&!/^\s+$/.test(t)?true:(/^\s+$/.test(t)?(out.length&&out[out.length-1][1]&&!keep[k+1]&&k+1<mid.length):false));});
+      push(all.slice(all.length-j).join(''),false);return out;}
+    return {before:parts(a,ma,keepA),after:parts(b,mb,keepB)};
   }
 
   global.AuteurAtelierBook={CHANGE:CHANGE,elementLabel:elementLabel,labels:labels,phaseLine:phaseLine,staleReason:staleReason,

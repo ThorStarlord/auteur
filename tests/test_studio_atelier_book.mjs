@@ -116,3 +116,9 @@ test('only the changed words are marked, and a legacy restatement is said once',
   assert.deepEqual(plain(g.rereadItems[0]), {label: 'edge-hands', via: ['eng-record-form']});
   assert.equal(g.seriesItems[1].exists, false);
 });
+
+test('two separate edits are marked separately, not as one span', () => {
+  const d = B.wordDiff('The mark answers the first need and the second.', 'The mark answers a first need and the second. Revised now.');
+  assert.deepEqual(plain(d.after.filter((part) => part[1]).map((part) => part[0].trim())), ['a', 'Revised now.']);
+  assert.ok(d.after.some((part) => !part[1] && part[0].includes('first need and the second.')));
+});
