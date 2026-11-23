@@ -3122,6 +3122,11 @@
           return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/series-context",
             {cache: "no-store"}).then(apiJson);
         },
+        getCanvasId: function(){ return remote.canvasId; },
+        // One working Book's revision lifecycle, run by its own owner. Every result names the canvas it
+        // came from, so a late answer is never shown in another canvas. Only prepare, a pasted response and
+        // apply write, and each only through the Working Book owner.
+        books: atelierBookCalls(),
         // Creative unfolding stays a separate, author-governed workflow.
         onUnfold: function(concept){
           if (!candidateNode(concept.nodeId)) return;
@@ -3131,6 +3136,45 @@
         }
       });
     } catch (error) { atelierController = null; status("Atelier study unavailable: " + error.message); }
+  }
+  function atelierBookCalls() {
+    function url(n, tail) {
+      return "/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/books/" + n + (tail || "");
+    }
+    function tagged(canvasId, call) {
+      return call.then(function (data) { return {canvasId: canvasId, data: data}; },
+        function (error) { error.canvasId = canvasId; throw error; });
+    }
+    function post(n, action, body) {
+      var canvasId = remote.canvasId;
+      return tagged(canvasId, fetch(url(n, "/" + action), {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)}).then(apiJson));
+    }
+    return {
+      read: function (n) {
+        if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+        return tagged(remote.canvasId, fetch(url(n), {cache: "no-store"}).then(apiJson));
+      },
+      scope: function (n, targets) {
+        return tagged(remote.canvasId, fetch(url(n, "/scope?targets=" + encodeURIComponent(targets.join(","))),
+          {cache: "no-store"}).then(apiJson));
+      },
+      // The Book's source and the Story Vision are canvas items: save them first, as an Architecture request does.
+      prepare: function (n, body) {
+        var canvasId = remote.canvasId;
+        if (!remote.ready || remote.failed) return Promise.reject(new Error("Save the working canvas before preparing a Book request."));
+        if (!$("scene-panel").hidden) captureScene();
+        if (remote.timer !== null) { clearTimeout(remote.timer); remote.timer = null; queueSave(); }
+        else if (hasUnsavedChanges()) queueSave();
+        return Promise.resolve(remote.queue).then(function () {
+          if (remote.failed) throw new Error("The working canvas did not save; no Book request was prepared.");
+          if (remote.canvasId !== canvasId) throw new Error("The working canvas changed; no Book request was prepared.");
+          return post(n, "prepare", body);
+        });
+      },
+      complete: function (n, response) { return post(n, "host-agent-response", response); },
+      apply: function (n, sha) { return post(n, "apply", {request_sha256: sha}); }
+    };
   }
   /* Atelier → Studio creative workflow → Atelier. The atlas keeps its place throughout; the return
      control appears beside the coding-agent panel and the review only when the request came from it. */

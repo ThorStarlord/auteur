@@ -451,3 +451,26 @@
 .atl-series-elements .atl-chip{display:inline-block;margin-top:3px}
 .atl .atl-action-quiet{width:auto;display:inline-block;margin:4px 0;padding:4px 9px;font-size:.72rem;background:transparent}
 .atl-series-status{font-variant-numeric:tabular-nums}
+/* Developing a working Book through its own owner: a working-revision change, never an Architecture mark. */
+.atl-book-dev{margin:10px 0 6px;padding:8px 10px;border-radius:9px;background:#fbf8f2;border:1px solid #e6dccb}
+.atl-book-dev .atl-series-subtitle{margin-top:0}
+.atl-book-compose{margin:6px 0 2px}
+.atl-book-target{margin:4px 0 8px;padding:7px 9px;border-radius:8px;background:var(--atl-card);border:1px solid var(--atl-hair)}
+.atl-book-scope{margin:6px 0;padding:6px 8px;border:1px solid var(--atl-hair);border-radius:8px}
+.atl-book-scope legend{padding:0 4px;font:600 .74rem/1.3 var(--atl-sans);color:var(--atl-ink)}
+.atl-book-choice{display:flex;gap:7px;align-items:flex-start;margin:5px 0 1px;font-size:.78rem;line-height:1.4;color:var(--atl-ink)}
+.atl-book-choice input{margin-top:2px;flex:none}
+.atl-bookdev-label{display:block;margin:8px 0 3px;font:600 .76rem/1.3 var(--atl-sans);color:var(--atl-ink)}
+.atl-book-text{display:block;box-sizing:border-box;width:100%;max-width:100%;margin:3px 0 6px;padding:6px 8px;font:13px/1.45 var(--atl-sans);
+  color:var(--atl-ink);background:#fff;border:1px solid var(--atl-hair-ink);border-radius:7px;resize:vertical}
+.atl-book-text[readonly]{background:#f6f2ea;font-family:ui-monospace,Consolas,monospace;font-size:11.5px}
+.atl-book-text:focus-visible{outline:2px solid var(--atl-focus);outline-offset:1px}
+.atl-book-review{margin:4px 0}
+.atl-book-before,.atl-book-after{display:block;margin:3px 0;padding:4px 7px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.atl-book-before{background:#f6ecec;color:#5f3a3a}
+.atl-book-after{background:#e9f2ec;color:#2f5241}
+.atl-book-block{margin:6px 0;padding:5px 8px;border-radius:7px;background:#fbeeee}
+.atl-book-note:focus{outline:2px solid var(--atl-focus);outline-offset:2px}
+.atl-chip-book-changed{background:#fdf1dc;border-color:#e0c08a;color:#7a5520}
+.atl-book-dev .atl-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.atl-book-dev .atl-actions .atl-note{flex-basis:100%;margin:2px 0 0}

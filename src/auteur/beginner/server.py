@@ -67,6 +67,10 @@ from .studio_realization import (
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
 from .studio_series_context import project_series_context
+from .studio_book_development import (
+    apply_book_revision, book_number_from_path, complete_book_revision, prepare_book_revision,
+    preview_book_scope, project_book_development,
+)
 from .workspace_index import list_workspace_summaries
 from .projections import WorkspaceProjection
 from .continuation import build_contextual_chapter_plan, build_contextual_scene_plans
@@ -424,6 +428,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio_atelier_model.js": "studio_atelier_model.js",
         "/studio_atelier_series.js": "studio_atelier_series.js",
+        "/studio_atelier_book.js": "studio_atelier_book.js",
         "/studio_atelier.js": "studio_atelier.js",
         "/studio_atelier.css": "studio_atelier.css",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",
@@ -629,6 +634,21 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
+            if (len(parts) in (7, 8) and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "books" and (len(parts) == 7 or parts[7] == "scope")):
+                # Read-only: one working Book and where its revision lifecycle stands, from its own owner.
+                try:
+                    number = book_number_from_path(parts[6])
+                    if len(parts) == 7:
+                        self._send_json(200, project_book_development(self.project_root, parts[4], number))
+                    else:
+                        query = parse_qs(urlparse(self.path).query)
+                        targets = [t for t in ",".join(query.get("targets", [])).split(",") if t]
+                        self._send_json(200, preview_book_scope(self.project_root, parts[4], number,
+                                                                {"targets": targets}))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5:] == ["architecture", "inquiry"]):
                 try:
@@ -743,6 +763,21 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         self._send_json(202, result)
                     else:
                         self._send_json(200, complete_mentor(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "books" and parts[7] in {"prepare", "host-agent-response", "apply"}):
+                # The Working Book owner prepares, validates and applies; the Studio only relays.
+                payload = self._read_json()
+                try:
+                    number = book_number_from_path(parts[6])
+                    if parts[7] == "prepare":
+                        self._send_json(202, prepare_book_revision(self.project_root, parts[4], number, payload))
+                    elif parts[7] == "apply":
+                        self._send_json(200, apply_book_revision(self.project_root, parts[4], number, payload))
+                    else:
+                        self._send_json(200, complete_book_revision(self.project_root, parts[4], number, payload))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
