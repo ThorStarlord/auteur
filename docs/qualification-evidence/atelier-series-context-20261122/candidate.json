@@ -1,0 +1,44 @@
+{
+  "arm": "candidate@961ff87d",
+  "journey_book_reference": {
+    "route_status": 200,
+    "folio_names_book_24": true,
+    "folio_has_series_section": true,
+    "route_from_concept_to_book": true,
+    "book_records_about_concept": [
+      "What Book 24 records about “Ledger engine”"
+    ],
+    "elements_shown": 4,
+    "authority_shown": true,
+    "freshness_shown": [
+      "Written against the current working Architecture.",
+      "Unchanged since the Book was written."
+    ],
+    "other_referenced_concepts": 20,
+    "after_escape": {
+      "leaf_closed": true,
+      "place_unchanged": true,
+      "focus_returned_to": "series-open:24"
+    },
+    "non_get_requests": []
+  },
+  "journey_project_plans": {
+    "route_status": 200,
+    "payoff_note": "Agent proposal: payoffs the proposal hopes for, not recorded setups or commitments of a Series or Book plan.",
+    "folio_names_series_plan": true,
+    "states_not_linked": true,
+    "route_to_series_context": true,
+    "shown": {
+      "Author-declared plan · no acceptance record": true,
+      "Setups and payoffs · 2 setups, 1 payoff": true,
+      "The plan records its payoff in Book 3": true,
+      "Accepted · revision 2": true,
+      "Accepted against Series Direction revision 1; the Series Direction is now revision 2": true,
+      "Derived from this plan · not stored": true,
+      "nothing records that they describe the same Series": true,
+      "Equal words are not a link": true
+    },
+    "hypothesis_draft": "Investigate as a hypothesis, not a recorded link: does “Craft and structural thriller” relate to the setup “Elena finds the ledger of hidden executions that kept the capital quiet.” in the Series plan “The Ash Empire Trilogy” (series_identity.yaml · narrative_setups[0])? Read that source directly. Nothing in either records a link, so describe any connection as a possibility for me to judge, and change nothing.",
+    "non_get_requests": []
+  }
+}

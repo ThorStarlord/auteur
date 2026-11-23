@@ -845,6 +845,7 @@
     lastCreativeReviewSha=null;
     state.atelierAsk = null; state.atelierInquiryStatus = null; state.atelierRevisionContext = null;
     state.atelierSentInquiry = null; state.architectureRequestIntent = null; state.creativeSentText = null;
+    state.atelierSuggestion = null;
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {
@@ -3115,6 +3116,12 @@
         getWorkingState: atelierWorkingState,
         onShowWorking: showAtelierWorking,
         getRevisionContext: function(){ return state.atelierRevisionContext || null; },
+        // Read-only Book and Series plans for this canvas and project, each from its own owner.
+        getSeriesContext: function(){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/series-context",
+            {cache: "no-store"}).then(apiJson);
+        },
         // Creative unfolding stays a separate, author-governed workflow.
         onUnfold: function(concept){
           if (!candidateNode(concept.nodeId)) return;
@@ -3139,7 +3146,14 @@
     catch (_) { status("“" + operation + "” is not offered for this kind of source; nothing was prepared."); return; }
     // A question already sent belongs to its own request; an unsent draft is the author's and stays.
     var draft = creativePanel.getAuthorText ? creativePanel.getAuthorText() : "";
-    if (draft && draft === state.creativeSentText) creativePanel.setAuthorText("");
+    if (draft && draft === state.creativeSentText) { creativePanel.setAuthorText(""); draft = ""; }
+    // A suggested question (a hypothesis to investigate) fills an empty field only; it is never sent for the author.
+    var suggestion = typeof request.draft === "string" && request.draft ? request.draft : "";
+    // An earlier suggestion the author left untouched is not their draft; it names another source.
+    if (draft && draft === state.atelierSuggestion) { creativePanel.setAuthorText(""); draft = ""; }
+    var keptDraft = !!(suggestion && draft);
+    state.atelierSuggestion = suggestion && !draft ? suggestion : null;
+    if (suggestion && !draft && creativePanel.setAuthorText) creativePanel.setAuthorText(suggestion);
     state.atelierAsk = {conceptId: request.conceptId, title: request.title, subject: request.subject,
       operation: operation, requestSha: state.architectureRequestSha, key: anchorsKey([request.anchor])};
     var disclosure = $("architecture-creative-graph");
@@ -3149,8 +3163,11 @@
     disclosure.scrollIntoView({block: "start"});
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
-    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) +
-      "). Write your question or the change you want; the atlas keeps your place.");
+    if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
+    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + "). " +
+      (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
+        suggestion ? "A suggested question is in the field for you to edit; nothing is sent until you send it. " :
+        "Write your question or the change you want; ") + "The atlas keeps your place.");
     renderAtelierStudy();
   }
   function anchorsKey(anchors) {

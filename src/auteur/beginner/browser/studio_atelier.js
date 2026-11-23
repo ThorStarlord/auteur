@@ -7,7 +7,7 @@
    nothing is saved or accepted. */
 (function(global,document){
   'use strict';
-  var M=global.AuteurStudioAtelierModel,SVG='http://www.w3.org/2000/svg';
+  var M=global.AuteurStudioAtelierModel,X=global.AuteurAtelierSeries,SVG='http://www.w3.org/2000/svg';
   var SERIF='"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif';
   var SANS='system-ui,-apple-system,"Segoe UI",sans-serif';
   var TIMING={
@@ -94,7 +94,7 @@
       shown:false,pending:binding.initial?Object.assign({examine:requested==='B'},binding.initial):null,
       lastAction:null,edgeGrow:{},mix:0,sizedOnce:false,verbAt:{},verbFor:{},labelStats:null,lastFocus:null,
       hover:null,folioHint:null,callout:null,latched:false,ptr:null,dragging:false,
-      narrative:!!(binding.initial&&binding.initial.narrative),structure:null,time:null};
+      narrative:!!(binding.initial&&binding.initial.narrative),structure:null,time:null,seriesCtx:null,leaf:null};
 
     /* ---------- Static frame ---------- */
     root.replaceChildren();root.classList.add('atl');
@@ -793,6 +793,7 @@
     function select(id,opts){
       opts=opts||{};
       if(!S.model||!S.model.byId[id])return;
+      if(S.leaf&&S.leaf.from!==id)S.leaf=null;
       var fromAtlas=!S.focus;
       if(fromAtlas){S.restCam={cx:S.cam.cx,cy:S.cam.cy,z:S.cam.z};S.userCam=false;}
       if(opts.trailIndex!==undefined)S.trail=S.trail.slice(0,opts.trailIndex+1);
@@ -907,6 +908,7 @@
     }
     function returnToAtlas(){
       if(!S.focus)return;
+      S.leaf=null;
       latchPointer();S.time=null;
       var last=S.focus,reduced=S.reduced,delays={},wasExamining=S.mode==='constellation',hadFocus=root.contains(document.activeElement);
       if(S.hood)S.hood.order.slice().reverse().forEach(function(id,i){delays[id]=reduced?0:Math.min(i*10,180);});
@@ -1131,8 +1133,11 @@
     }
     function renderFolio(){
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
+      var onTitle=!!(active&&folio.contains(active)&&active.classList.contains('atl-folio-title')),top=folio.scrollTop;
       renderFolioContent();
       if(S.folioFor!==S.focus){S.folioFor=S.focus;folio.scrollTop=0;}
+      // A re-render under the reader (for example when plans finish reading) keeps the title focused.
+      if(onTitle&&!key){var h=folio.querySelector('h3');if(h){h.tabIndex=-1;h.focus({preventScroll:true});folio.scrollTop=top;}}
       if(key){var again=folio.querySelector('[data-key="'+cssEscape(key)+'"]');if(again)again.focus({preventScroll:true});else focusFolio();}
     }
     function renderFolioContent(){
@@ -1144,6 +1149,7 @@
         return;
       }
       renderWorking();
+      if(S.leaf&&X)return renderSeriesLeaf();
       if(!S.focus)return renderAtlasFolio(status);
       var cn=S.model.byId[S.focus],model=S.model,examining=S.mode==='constellation';
       folio.setAttribute('aria-label','Reading of '+cn.title);
@@ -1206,6 +1212,7 @@
       // What story time records comes straight after the ways of looking, beside the phases it marks.
       if(pathway)renderStoryTime(cn,pathway);
       renderDevelop(cn);
+      if(X)renderSeriesSection(cn);
       if(dl.children.length)folio.append(dl);
       folio.append(provenanceLine(cn));
       if(S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
@@ -1414,6 +1421,292 @@
       if(!S.model)return;var t=S.revision?S.revision.delta.touched:{};
       S.model.concepts.forEach(function(cn){var b=starEls[cn.id];if(b)b.classList.toggle('is-revised',!!t[cn.id]);});
     }
+    /* ---------- Series and Book context (read-only) ----------
+       The canvas's working Book architectures, the project's Series plan and its Series and Book Directions,
+       each read through its own owner. A concept is joined to a Book plan only by a reference that Book
+       records to the concept's node id; the project-level plans are shown beside the Architecture, never
+       linked to it. Opening this view changes nothing, and Back returns to the concept the author left. */
+    var SERIES_MAX_AGE=20000;
+    function readSeries(force,announceResult){
+      if(!binding.getSeriesContext)return;
+      var c=S.seriesCtx;
+      // A read already in flight answers this one too; an explicit request is read again after it.
+      if(c&&c.status==='loading'){if(force)S.seriesAgain={announce:!!announceResult};return;}
+      if(c&&c.status==='ready'&&!force&&!S.seriesStale&&Date.now()-c.readAt.getTime()<SERIES_MAX_AGE)return;
+      var prev=c&&c.data?c.data.version:(c&&c.prevVersion)||null,seq=(S.seriesSeq||0)+1;S.seriesSeq=seq;S.seriesStale=false;
+      S.seriesCtx={status:'loading',data:c&&c.data||null,prevVersion:prev};
+      var call;try{call=Promise.resolve(binding.getSeriesContext());}catch(error){call=Promise.reject(error);}
+      call.then(function(data){
+        if(seq!==S.seriesSeq)return;
+        var changed=!!(prev&&data&&prev!==data.version);
+        S.seriesCtx={status:'ready',data:data,readAt:new Date(),prevVersion:prev,changed:changed};
+        renderFolio();
+        if(announceResult)announce(changed?'Read again: the Book and Series plans changed since you last read them.':'Read again: nothing changed.');
+        else if(changed)announce('The Book and Series plans changed since you last read them.');
+        againAfter();
+      },function(error){
+        if(seq!==S.seriesSeq)return;
+        S.seriesCtx={status:'error',error:error&&error.message||String(error),data:null,prevVersion:prev};renderFolio();againAfter();
+      });
+      function againAfter(){var a=S.seriesAgain;S.seriesAgain=null;if(a)readSeries(true,a.announce);}
+    }
+    function toneLine(t,cls){return el('p','atl-tone atl-tone-'+t.tone+(cls?' '+cls:''),t.text);}
+    function chip(text,kind){return el('span','atl-chip'+(kind?' atl-chip-'+kind:''),text);}
+    function sourceChip(src){return chip('Source · '+X.sourceLine(src),'source');}
+    function conceptForNode(nodeId){if(!S.model||!nodeId)return null;
+      for(var i=0;i<S.model.concepts.length;i++)if(S.model.concepts[i].nodeId===nodeId)return S.model.concepts[i];return null;}
+    function renderSeriesSection(cn){
+      if(!binding.getSeriesContext)return;
+      readSeries(false);
+      var c=S.seriesCtx,wrap=el('section','atl-series');wrap.setAttribute('aria-label','Series and Book plans');
+      wrap.append(el('h4','atl-section-title','Series and Book plans'));
+      if(!c||(c.status==='loading'&&!c.data)){wrap.append(el('p','atl-note','Reading the Book and Series plans this canvas and project keep…'));folio.append(wrap);return;}
+      if(c.status==='error'){wrap.append(el('p','atl-note','Could not read the Book and Series plans: '+c.error));
+        actionButton(wrap,'Try again',function(){readSeries(true);},'series-retry');folio.append(wrap);return;}
+      var d=c.data,hits=cn?X.forNode(d,cn.nodeId):[],wbs=X.workingBooks(d),bad=X.unreadableBooks(d),proj=X.projectSummary(d);
+      if(hits.length){
+        var ul=el('ul','atl-series-hits');
+        hits.forEach(function(h){var li=el('li','atl-series-hit');
+          var p=el('p','atl-provenance');p.append(chip('Working Book architecture · agent proposal · not accepted','proposal'));
+          li.append(el('p','atl-series-book','Book '+h.book.book_number+' · '+h.book.title),p);
+          li.append(el('p','atl-series-line','Records a reference to this concept in '+X.refSummary(h.ref)+'.'));
+          var st=X.refStanding(h.ref);if(st)li.append(toneLine(st));
+          X.bookFreshness(h.book).forEach(function(f){if(f.tone!=='ok')li.append(toneLine(f));});
+          actionButton(li,'Open Book '+h.book.book_number+' at this concept',function(){openLeaf({book:h.book.book_number});},'series-open:'+h.book.book_number);
+          ul.append(li);});
+        wrap.append(el('p','atl-series-kicker','Recorded in Book plans'),ul);
+      }else if(cn&&cn.nodeId&&wbs.length){
+        wrap.append(el('p','atl-note',(wbs.length===1?'Book '+wbs[0].book_number+'’s working architecture records no reference to this concept':
+          'None of the '+wbs.length+' readable working Book architectures records a reference to this concept')+
+          (bad.length?'; a Book that could not be read might.':'.')));
+      }else if(cn&&!cn.nodeId&&wbs.length){
+        wrap.append(el('p','atl-note','Working Book architectures refer only to recorded Architecture nodes, so none can refer to this '+
+          M.FACET_SINGULAR[cn.facet].toLowerCase()+' directly.'));
+      }
+      bad.forEach(function(t){wrap.append(toneLine({tone:'bad',text:t}));});
+      if(proj.length){
+        var pl=el('ul','atl-series-project');proj.forEach(function(p){pl.append(el('li','atl-tone-'+p.tone,p.text));});
+        wrap.append(el('p','atl-series-kicker','Also kept in this project'),pl,
+          el('p','atl-note',cn?'Not linked to this concept: nothing records that it refers to these plans, and equal words are not a link.':
+            'Nothing records that this working Architecture refers to these plans.'));
+      }
+      if(!hits.length&&!wbs.length&&!bad.length&&!proj.length){
+        wrap.append(el('p','atl-folio-detail','No Book or Series plan is kept for this canvas or project, so nothing here can say how this '+
+          (cn?'concept':'Architecture')+' is planned across Books.'));
+        wrap.append(el('p','atl-note','Each kind of plan has its own owner: a full Series plan is series_identity.yaml (auteur series validate); '+
+          'Series and Book Directions are accepted through auteur series journey; a working Book architecture is developed with '+
+          'python -m auteur.series.working_book_architecture. Any of them would be shown here, read-only.'));
+      }
+      if(d.available)actionButton(wrap,hits.length?'Explore all Series and Book context':'Explore Series and Book context',function(){openLeaf({});},'series-open');
+      wrap.append(el('p','atl-note atl-series-status','Read at '+readTime(c)+(c.status==='loading'?'; reading again…':'.')));
+      folio.append(wrap);
+    }
+    function openLeaf(opts){
+      var a=document.activeElement;
+      S.leaf={from:S.focus,book:opts&&opts.book||null,opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop};
+      readSeries(true,false);renderFolio();folio.scrollTop=0;focusFolio();
+      var from=S.focus&&S.model.byId[S.focus];
+      announce('Series and Book context, read-only.'+(from?' Back returns to “'+from.title+'”; the atlas keeps your place.':''));
+    }
+    function closeLeaf(){
+      var l=S.leaf;if(!l)return;S.leaf=null;renderFolio();
+      folio.scrollTop=l.scroll||0;
+      var again=l.opener&&folio.querySelector('[data-key="'+cssEscape(l.opener)+'"]');
+      if(again)again.focus({preventScroll:false});else focusFolio();
+      var from=S.focus&&S.model.byId[S.focus];
+      announce(from?'Back to “'+from.title+'”. Your place in the atlas is unchanged.':'Back to the atlas.');
+    }
+    function hypothesisButton(parent,from,label,src){
+      if(!from||!binding.onDevelop||!src)return;
+      var s=M.sourceAnchor(S.model,from.id);if(!s.anchor)return;
+      var offered=binding.developOperations?binding.developOperations(s.anchor):['explore'];
+      var op=['explore','challenge','explain'].filter(function(o){return offered.indexOf(o)>=0;})[0];if(!op)return;
+      var b=actionButton(parent,'Ask your coding agent whether this relates',function(){
+        binding.onDevelop({conceptId:from.id,title:from.title,anchor:JSON.parse(JSON.stringify(s.anchor)),precision:s.precision,
+          subject:s.subject,quote:s.quote,sourceRef:s.sourceRef,operation:op,draft:X.hypothesisDraft(from.title,label,src)});
+      },'series-ask:'+(src.path+'#'+(src.ref||'')));
+      b.classList.add('atl-action-quiet');
+    }
+    function factList(pairs){var dl=el('dl','atl-facts');pairs.forEach(function(p){fact(dl,p[0],p[1]);});return dl;}
+    function leafSection(title,note){var sec=el('section','atl-series-owner');sec.setAttribute('aria-label',title);
+      sec.append(el('h4','atl-section-title',title));if(note)sec.append(el('p','atl-note',note));folio.append(sec);return sec;}
+    function readTime(c){return c&&c.readAt?c.readAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';}
+    function day(iso){var t=Date.parse(iso);return isNaN(t)?String(iso).slice(0,10):new Date(t).toLocaleDateString([],{year:'numeric',month:'short',day:'numeric'});}
+    function renderSeriesLeaf(){
+      // The view re-reads whenever the Architecture changed or the last read is old.
+      readSeries(false);
+      var l=S.leaf,c=S.seriesCtx,d=c&&c.data,from=l.from&&S.model.byId[l.from];
+      folio.setAttribute('aria-label','Series and Book context');
+      folio.append(el('p','atl-kicker-line','Series and Book context · read-only'));
+      var recorded=from&&d?X.forNode(d,from.nodeId).length:0;
+      folio.append(el('h3','atl-folio-title',recorded?'Plans that record “'+from.title+'”':'Book and Series plans in this canvas and project'));
+      if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. '+(d&&X.unreadableBooks(d).length?
+        'No readable plan here records a reference to it; a Book that could not be read might.':'No plan here records a reference to it.')));
+      var nav=el('div','atl-look');
+      var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
+      bk.setAttribute('aria-keyshortcuts','Escape');
+      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread');
+      folio.append(nav);
+      var status=!c||c.status==='loading'?(d?'Reading the plans again… (showing the read of '+readTime(c)+')':'Reading the plans…'):c.status==='error'?'Could not read the plans: '+c.error:
+        (c.changed?'Changed since you last read them. ':'')+'Read at '+readTime(c)+'.';
+      folio.append(el('p','atl-note atl-series-status',status));
+      folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance.'));
+      if(!d)return;
+      renderLeafBooks(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
+      if(d.separate_owners_note)folio.append(el('p','atl-note',d.separate_owners_note));
+      var s=d.sources,missing=[];
+      if(s.working_books.state==='absent')missing.push('working Book architectures for this canvas');
+      if(s.series_plan.state==='absent')missing.push('a Series plan (series_identity.yaml)');
+      if(s.series_direction.state==='absent')missing.push('Series or Book Directions');
+      if(missing.length)folio.append(el('p','atl-note','Not kept here: '+missing.join(' · ')+'.'));
+      var end=el('div','atl-actions');
+      var bk2=actionButton(end,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back-end');bk2.classList.add('atl-action-primary');
+      folio.append(end);
+    }
+    function renderLeafBooks(d,from,l){
+      var wb=d.sources.working_books;if(!wb||wb.state==='absent')return;
+      var sec=leafSection('Working Book architectures · this canvas',wb.authority_note);
+      if(wb.state==='unreadable'){sec.append(toneLine({tone:'bad',text:'The working Book architectures could not be read ('+wb.reason+'). Nothing from them is shown.'}));return;}
+      var list=wb.books.slice().sort(function(a,b){return (b.book_number===l.book)-(a.book_number===l.book)||a.book_number-b.book_number;});
+      list.forEach(function(b){
+        var det=el('details','atl-series-record');det.dataset.book=String(b.book_number);
+        det.open=b.book_number===l.book||list.length===1;
+        det.append(el('summary','','Book '+b.book_number+(b.title?' · '+b.title:'')));
+        if(b.state!=='working'){det.append(toneLine({tone:'bad',text:'Could not be read ('+b.reason+'). Nothing from it is shown.'}));sec.append(det);return;}
+        var chips=el('p','atl-provenance');chips.append(chip('Working · agent proposal · not accepted','proposal'));det.append(chips);
+        X.bookFreshness(b).forEach(function(f){det.append(toneLine(f));});
+        det.append(factList([['Question',b.question],['Pressure',b.pressure]]));
+        if(from){
+          var ref=from.nodeId&&(b.references||[]).filter(function(r){return r.node_id===from.nodeId;})[0];
+          if(ref){
+            var box=el('div','atl-series-about');
+            box.append(el('h5','atl-series-subtitle','What Book '+b.book_number+' records about “'+from.title+'”'));
+            var st=X.refStanding(ref);if(st)box.append(toneLine(st));
+            var ul=el('ul','atl-series-elements');
+            ref.elements.forEach(function(e){var li=el('li','');
+              li.append(el('span','atl-series-kind',(X.COLLECTION[e.collection]||M.human(e.collection))+(e.via==='name_source'?' · takes its name from this concept':'')));
+              li.append(el('span','atl-series-text',e.text));
+              li.append(chip(X.AUTHORITY[e.commitment_authority]||M.human(e.commitment_authority),'proposal'));
+              ul.append(li);});
+            ref.edges.forEach(function(e){var li=el('li','');
+              li.append(el('span','atl-series-kind','Typed edge · '+e.source_element+' '+(X.DEPENDENCY[e.dependency]||e.dependency)+' this concept'));
+              li.append(el('span','atl-series-text',e.function));ul.append(li);});
+            box.append(ul);det.append(box);
+          }else det.append(el('p','atl-note','Book '+b.book_number+' records no reference to “'+from.title+'”.'));
+        }
+        var others=(b.references||[]).filter(function(r){return !from||r.node_id!==from.nodeId;});
+        if(others.length){
+          var o=el('div','atl-series-others');
+          o.append(el('h5','atl-series-subtitle',(from?'Other Architecture concepts it refers to · ':'Architecture concepts it refers to · ')+others.length));
+          var row=el('div','atl-revised-index');
+          others.forEach(function(r){var target=conceptForNode(r.node_id),label=target?target.name:(r.title||r.node_id);
+            var btn=el('button','atl-index-item',label+(r.present?'':' · no longer recorded'));btn.type='button';
+            btn.title=(target?target.title+' · ':'')+X.refSummary(r)+(r.changed_since_book?' · changed since the Book was written':'');
+            btn.dataset.key='series-node:'+b.book_number+':'+r.node_id;
+            if(target)btn.addEventListener('click',function(){select(target.id,{via:'series'});focusFolio();});else btn.disabled=true;
+            row.append(btn);});
+          o.append(row,el('p','atl-note','Selecting one shows it in the atlas; the trail keeps the way back.'));det.append(o);
+        }
+        if(b.open_author_decisions)det.append(el('p','atl-note',X.plural(b.open_author_decisions,'open author decision')+
+          ' kept by this Book, each recorded against one of the Architecture’s open questions'+
+          (b.freshness==='ready'?'':' as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here')+
+          '. They stay yours to decide.'));
+        var src=el('p','atl-provenance');src.append(sourceChip(b.source),chip('Written against request '+String(b.written_against_request||'').slice(0,10)));det.append(src);
+        var how=el('details','atl-series-how');how.append(el('summary','','How this plan is changed'));
+        how.append(el('p','atl-note','Through its own reviewed workflow, not from the atlas: '+wb.owner_route.replace('<n>',String(b.book_number))+
+          ' to re-enter, then book-prepare with --instruction and --target, and book-apply-review after review. The Studio does not edit Book architectures.'));
+        det.append(how);sec.append(det);
+      });
+    }
+    function renderLeafPlan(d,from){
+      var plan=d.sources.series_plan;if(!plan||plan.state==='absent')return;
+      var sec=leafSection('Series plan · this project',plan.authority_note);
+      if(plan.state==='invalid'||plan.state==='unreadable'){sec.append(toneLine({tone:'bad',text:plan.path+' could not be read as a Series plan ('+plan.reason+'). Nothing from it is shown.'}));return;}
+      var chips=el('p','atl-provenance');chips.append(chip('Author-declared plan · no acceptance record'),sourceChip(plan.source));sec.append(chips);
+      var arc=plan.global_arc||{};
+      sec.append(factList([['Series',plan.title+' · '+M.human(plan.series_type)],['Core question',plan.core_question],
+        ['Global arc',[arc.beginning,arc.midpoint,arc.ending].filter(Boolean).join(' → ')]]));
+      var label=function(t){return t+' in the Series plan “'+plan.title+'”';};
+      var books=el('details','atl-series-record');books.append(el('summary','','Book plans · '+plan.books.length));
+      plan.books.forEach(function(b){var det=el('details','atl-series-sub');
+        det.append(el('summary','','Book '+b.book_number+' · '+b.title+' · '+M.human(b.series_function)));
+        det.append(factList([['Core answer',b.core_answer],['Reader experience',b.target_experience],['Scope',M.human(b.scope)],
+          ['Carries',b.series_threads_carried],['Sets up',b.required_setups],['Pays off',b.required_payoffs]]));
+        var p=el('p','atl-provenance');p.append(sourceChip(b.source));det.append(p);
+        hypothesisButton(det,from,label('Book '+b.book_number+' plan “'+b.title+'”'),b.source);books.append(det);});
+      sec.append(books);
+      if(plan.setups.length||plan.payoffs.length){
+        var sp=el('details','atl-series-record');sp.open=true;
+        sp.append(el('summary','','Setups and payoffs · '+X.plural(plan.setups.length,'setup')+', '+X.plural(plan.payoffs.length,'payoff')));
+        var byId={};plan.payoffs.forEach(function(p){byId[p.id]=p;});var used={};
+        var ul=el('ul','atl-series-elements');
+        plan.setups.forEach(function(s){var li=el('li','');
+          li.append(el('span','atl-series-kind','Setup · introduced in Book '+s.book_introduced+' · payoff expected by Book '+s.expected_payoff_by_book+' · '+M.human(s.status)));
+          li.append(el('span','atl-series-text',s.description));
+          var pay=s.payoff_id&&byId[s.payoff_id];if(pay)used[pay.id]=true;
+          li.append(el('span','atl-series-line',pay?'The plan records its payoff in Book '+pay.book+': '+pay.description:
+            s.payoff_id?'Names payoff '+s.payoff_id+', which the plan does not record.':'No payoff recorded for it.'));
+          if(s.reason_abandoned)li.append(el('span','atl-series-line','Abandoned: '+s.reason_abandoned));
+          li.append(sourceChip(s.source));hypothesisButton(li,from,label('the setup “'+M.shorten(s.description,80)+'”'),s.source);ul.append(li);});
+        plan.payoffs.filter(function(p){return !used[p.id];}).forEach(function(p){var li=el('li','');
+          li.append(el('span','atl-series-kind','Payoff in Book '+p.book+' · for setup '+p.setup_id),el('span','atl-series-text',p.description),sourceChip(p.source));ul.append(li);});
+        sp.append(ul);sec.append(sp);
+      }
+      if(plan.mysteries.length){var my=el('details','atl-series-record');my.append(el('summary','','Mysteries · '+plan.mysteries.length));
+        var mu=el('ul','atl-series-elements');plan.mysteries.forEach(function(m){var li=el('li','');
+          li.append(el('span','atl-series-kind','Introduced in Book '+m.introduced_book+' · payoff expected in Book '+m.expected_payoff_book+
+            (m.actual_payoff_book?' · paid off in Book '+m.actual_payoff_book:'')),el('span','atl-series-text',m.question),sourceChip(m.source));
+          hypothesisButton(li,from,label('the mystery “'+M.shorten(m.question,80)+'”'),m.source);mu.append(li);});my.append(mu);sec.append(my);}
+      if(plan.thematic_arcs.length){var th=el('details','atl-series-record');th.append(el('summary','','Thematic progression · '+plan.thematic_arcs.length));
+        plan.thematic_arcs.forEach(function(t){var dl=el('dl','atl-facts');
+          Object.keys(t.progression).forEach(function(k){fact(dl,'Book '+k,t.progression[k]);});
+          th.append(el('p','atl-series-book',t.theme),dl);var p=el('p','atl-provenance');p.append(sourceChip(t.source));th.append(p);
+          hypothesisButton(th,from,label('the thematic arc “'+t.theme+'”'),t.source);});sec.append(th);}
+      var dv=plan.derived;
+      if(dv){var der=el('details','atl-series-record atl-series-derived');der.append(el('summary','','Derived from this plan · not stored'));
+        der.append(el('p','atl-note',dv.note+' An edge reads “source affects target”.'));
+        var eu=el('ul','atl-series-elements');
+        dv.edges.forEach(function(e){eu.append(el('li','',e.source_id+' '+(X.DEPENDENCY[e.type]||e.type)+' '+e.target_id+
+          (e.origin==='declared'?' · declared in the plan':' · derived from the plan')));});
+        der.append(eu);
+        if(dv.setup_payoff_checks.length){var cu=el('ul','atl-series-elements');
+          dv.setup_payoff_checks.forEach(function(k){cu.append(el('li','atl-tone-'+(k.severity==='ERROR'?'bad':'warn'),k.explanation+' ('+k.id+')'));});
+          der.append(el('p','atl-series-kicker','Setup and payoff checks'),cu);}
+        else der.append(el('p','atl-note','The setup and payoff check reports nothing.'));
+        sec.append(der);}
+      sec.append(el('p','atl-note',d.architecture_link.statement));
+    }
+    function renderLeafDirections(d,from){
+      var dir=d.sources.series_direction;if(!dir||dir.state==='absent')return;
+      var sec=leafSection('Series and Book Directions · this project',dir.authority_note);
+      if(dir.state==='unreadable'){sec.append(toneLine({tone:'bad',text:'The Series and Book Directions could not be read ('+dir.reason+'). Nothing from them is shown.'}));return;}
+      var ser=dir.series||{};
+      if(ser.state==='accepted'){
+        var chips=el('p','atl-provenance');
+        chips.append(chip('Accepted · revision '+ser.revision+(ser.accepted_by?' · by '+ser.accepted_by:'')+(ser.accepted_at?' · '+day(ser.accepted_at):''),'accepted'),sourceChip(ser.source));
+        sec.append(chips,factList([['Series Direction',ser.title],['Promise',ser.promise],['Pressure',ser.pressure],['Open question',ser.open_question]]));
+        var cu=el('ul','atl-series-elements');
+        ser.commitments.forEach(function(k){var li=el('li','');
+          li.append(el('span','atl-series-kind','Commitment · '+k.commitment_id+' · '+k.scope),el('span','atl-series-text',k.statement),sourceChip(k.source));
+          hypothesisButton(li,from,'the accepted Series commitment “'+k.commitment_id+'”',k.source);cu.append(li);});
+        sec.append(el('p','atl-series-kicker','Accepted commitments'),cu);
+      }else if(ser.state==='unverified')sec.append(toneLine({tone:'bad',text:ser.path+': '+ser.reason}));
+      else sec.append(el('p','atl-note','No accepted Series Direction.'));
+      (dir.books||[]).forEach(function(b){
+        var det=el('details','atl-series-record');
+        det.append(el('summary','','Book '+b.book_number+' Direction'+(b.title?' · '+b.title:'')+(b.state==='accepted'?' · accepted revision '+b.revision:'')));
+        if(b.state!=='accepted'){det.append(toneLine({tone:'bad',text:b.path+': '+b.reason}));sec.append(det);return;}
+        // A Direction accepted against an older or unverified Series Direction opens, so the warning is seen.
+        if(b.freshness!=='current')det.open=true;
+        var chips=el('p','atl-provenance');chips.append(chip('Accepted · revision '+b.revision+(b.accepted_at?' · '+day(b.accepted_at):''),'accepted'),sourceChip(b.source));
+        det.append(chips,toneLine(X.directionBookFreshness(b)));
+        det.append(factList([['Core answer',b.core_answer],['Reader experience',b.target_experience],['Want',b.want],['Stakes',b.stakes],
+          ['Serves Series commitments',b.series_commitment_ids]]));
+        hypothesisButton(det,from,'the accepted Book '+b.book_number+' Direction “'+b.title+'”',b.source);sec.append(det);
+      });
+      sec.append(el('p','atl-note',X.proposalNote(dir)));
+      sec.append(el('p','atl-note',d.architecture_link.statement));
+    }
     /* What is waiting in the Studio's own workflow, stated where the author is looking. */
     function renderWorking(){
       var w=binding.getWorkingState?binding.getWorkingState():null;if(!w||!w.kind)return;
@@ -1473,6 +1766,7 @@
         marks.append(row);
       });
       folio.append(marks);
+      if(X)renderSeriesSection(null);
       var how=el('ul','atl-how');
       ['Bands hold kinds of narrative idea; story time runs left to right in recorded phase order, one hairline per phase, Books shaded in turn.',
        'Across, a concept sits near the phases it is recorded with: directly, through its genre, or through its recorded neighbours. Concepts with no such record are spread evenly. Nearness alone is never a relationship.',
@@ -1602,6 +1896,8 @@
     root.addEventListener('keydown',function(e){
       if(e.key!=='Escape')return;
       latchPointer();
+      // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
+      if(S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeLeaf();return;}
       if(!S.focus||(e.target.closest&&e.target.closest('details[open] summary')))return;
       e.preventDefault();if(S.mode==='constellation')leaveConstellation();else returnToAtlas();
     });
@@ -1695,6 +1991,8 @@
       if(S.model&&sha&&sha===S.sha&&candidate&&(candidate.nodes||[]).length){S.candidateRef=candidate;return;}
       var hadFocus=!!S.focus,prevModel=S.model,prevAtlas=S.atlas,prevSha=S.sha,keepFocus=S.focus,keepDepth=S.depth;
       var keepExamine=S.mode==='constellation',keepTrail=S.trail.slice(),keepCam=S.userCam&&S.cam?Object.assign({},S.cam):null;
+      // Book freshness is measured against the working Architecture, so a new one is read again.
+      var keepLeaf=S.leaf;S.leaf=null;if(sha!==prevSha)S.seriesStale=true;
       var ctx=binding.getRevisionContext?binding.getRevisionContext():null;
       var revised=!!(prevModel&&ctx&&ctx.fromSha===prevSha&&ctx.toSha===sha);
       S.candidateRef=candidate;clearExploration();S.revision=null;
@@ -1716,7 +2014,8 @@
       if(revised){
         S.revision={delta:M.revisionDelta(prevModel,S.model),requestedChange:ctx.requestedChange||null,fromSha:prevSha,toSha:sha,prev:prevModel,keptLayout:keptLayout};
         if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth,examine:keepExamine,
-          trail:keepTrail.filter(function(id){return !!S.model.byId[id];}),camera:keptLayout?keepCam:null};kept=true;}
+          trail:keepTrail.filter(function(id){return !!S.model.byId[id];}),camera:keptLayout?keepCam:null};kept=true;
+          if(keepLeaf&&keepLeaf.from===keepFocus)S.leaf=keepLeaf;}
       }
       empty.hidden=true;buildScene();syncRevisionMarks();syncChrome();applyStates();syncVerbs();syncTethers();renderTrail();
       if(S.shown&&stage.clientWidth){S.sizedOnce=true;S.paintedView={width:v.width,height:v.height};fitAtlas(false);applyPending();}
@@ -1768,7 +2067,8 @@
         if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});var id=S.focus,b=id&&starEls[id];
         if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
-        narrative:S.narrative,revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
+        narrative:S.narrative,series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
+          version:S.seriesCtx&&S.seriesCtx.data?S.seriesCtx.data.version:null,changed:!!(S.seriesCtx&&S.seriesCtx.changed)},revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
           reworded:S.revision.delta.reworded.map(function(x){return x.id;}),relationsAdded:S.revision.delta.relationsAdded.map(function(r){return r.sourceRef;}),
           relationsRemoved:S.revision.delta.relationsRemoved.map(function(r){return r.sourceRef;}),removed:S.revision.delta.removed.map(function(x){return x.id;})}:null,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,
           role:p.phaseRole&&p.phaseRole.role,sources:p.evidence.map(function(e){return e.sourceRef;}),relations:p.relations.slice(),parallel:p.parallel.slice()};})}:null,
