@@ -1134,11 +1134,22 @@
     function renderFolio(){
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
       var onTitle=!!(active&&folio.contains(active)&&active.classList.contains('atl-folio-title')),top=folio.scrollTop;
+      // A field the author is typing in survives a re-render as the same element: its words, caret and
+      // scroll stay exactly where they were, whatever finishes reading in the meantime.
+      var typing=key&&active.tagName==='TEXTAREA'&&!active.readOnly?active:null;
+      var caret=typing?[typing.selectionStart,typing.selectionEnd,typing.selectionDirection,typing.scrollTop]:null;
       renderFolioContent();
       if(S.folioFor!==S.focus){S.folioFor=S.focus;folio.scrollTop=0;}
       // A re-render under the reader (for example when plans finish reading) keeps the title focused.
       if(onTitle&&!key){var h=folio.querySelector('h3');if(h){h.tabIndex=-1;h.focus({preventScroll:true});folio.scrollTop=top;}}
-      if(key){var again=folio.querySelector('[data-key="'+cssEscape(key)+'"]');if(again)again.focus({preventScroll:true});else focusFolio();}
+      if(key){var again=folio.querySelector('[data-key="'+cssEscape(key)+'"]');
+        if(again&&typing&&again.tagName==='TEXTAREA'){again.replaceWith(typing);again=typing;}
+        if(again){again.focus({preventScroll:true});
+          if(again===typing){try{typing.setSelectionRange(caret[0],caret[1],caret[2]);}catch(_){}typing.scrollTop=caret[3];}}
+        else focusFolio();}
+      // A composer just opened takes the keyboard once it is drawn, after any focus a re-render restores.
+      var dv=S.dev,field=dv&&dv.focusPending&&folio.querySelector('[data-key="book-instruction:'+dv.book+'"]');
+      if(field){dv.focusPending=false;field.focus({preventScroll:false});}
     }
     function renderFolioContent(){
       folio.replaceChildren();
@@ -1766,7 +1777,6 @@
       actionButton(row,'Not now',function(){closeDevelop(n);},'book-cancel:'+n);
       if(from&&dev.targets.length===1)askAboutElement(row,from,n,data,dev.targets[0]);
       form.append(row);box.append(form);
-      if(dev.focusPending){dev.focusPending=false;focusKey('book-instruction:'+n);}
     }
     // Investigating instead of revising is a question in the existing coding-agent panel; it is never sent for the author.
     function askAboutElement(parent,from,n,data,id){

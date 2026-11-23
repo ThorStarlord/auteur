@@ -109,7 +109,7 @@ def open_book(page, concept=LEDGER):
 def develop(page, instruction="Make the cost of refusing the count visible inside this mechanism."):
     page.locator(q(f"book-dev:24:{TARGET}")).click()
     page.wait_for_selector(q("book-instruction:24"), timeout=10000)
-    page.wait_for_function(f"{KEY} === 'book-instruction:24'", timeout=5000)
+    page.wait_for_function(f"({KEY}) === 'book-instruction:24'", timeout=5000)
     page.keyboard.type(instruction)
 
 
@@ -176,6 +176,8 @@ def test_develop_review_apply_and_return_changes_only_the_working_book(browser, 
     wait_for(page, "book-check:24")
     assert page.evaluate(KEY) == "book-check:24"
     assert "Nothing in Book 24 has changed" in page.evaluate(LIVE)
+    # Every word the author typed is in the request, exactly.
+    assert project_book_development(project, CANVAS, 24)["pending"]["instruction"] ==         "Make the cost of refusing the count visible inside this mechanism."
     page.locator(q("book-agent:24")).click()  # what to give the coding agent
     assert "book-show --book 24" in page.locator(f"{q('book-agent:24')} textarea").first.input_value()
     assert agent_cli(project, candidate(project))["status"] == "review_ready"

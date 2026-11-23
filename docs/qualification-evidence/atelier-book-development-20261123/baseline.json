@@ -1,0 +1,29 @@
+{
+  "revision": "19ec9dc2c7a2b93990ce9fc83547538d4a5ebbbd",
+  "package": "H:\\GithubRepositories\\auteur\\.worktrees\\series-context\\src\\auteur",
+  "task": "revise Book 24 element eng-record-form, which records a reference to eng_ledger",
+  "studio_route_for_book_development": false,
+  "steps": [
+    {
+      "who": "author, in a terminal",
+      "command": "book-prepare --instruction --target",
+      "exit": 0,
+      "output_chars": 159694
+    },
+    {
+      "who": "coding agent",
+      "command": "book-complete-file",
+      "exit": 0,
+      "output_chars": 58796,
+      "review_json_chars": 6887
+    },
+    {
+      "who": "author, in a terminal, copying a 64-character identity",
+      "command": "book-apply-review --request-sha256",
+      "exit": 0,
+      "output_chars": 51453
+    }
+  ],
+  "review_format": "raw JSON with element ids (changes, preserved ids, consequence candidates, series consequences)",
+  "atlas_return": "not applicable: the work happens outside the Studio"
+}
