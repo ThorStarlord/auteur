@@ -257,3 +257,34 @@ def test_without_a_working_architecture_nothing_is_said_about_any_concept(projec
     (arch / "current.json").unlink()
     refs = book_series_references(CanvasStore(project, CANVAS), 26)["references"]
     assert {r["status"] for r in refs} == {"architecture_unavailable"}
+
+
+def arch_dir(project: Path) -> Path:
+    return project / ".auteur/beginner/studio/canvases" / CANVAS / "architecture"
+
+
+def test_a_missing_review_on_an_applied_revision_leaves_the_history_incomplete(project):
+    newest = json.loads((arch_dir(project) / "current.json").read_text(encoding="utf-8"))["request_sha256"]
+    (arch_dir(project) / "requests" / newest / "review.json").unlink()
+    b24 = book(project, 24)
+    assert b24["architecture_chain_complete"] is False and b24["architecture_revisions_since"] is None
+    assert working(project)["architecture_revisions"] == 1  # only what could be walked
+
+
+def test_changes_not_cited_are_compared_only_with_the_version_the_book_recorded(project):
+    assert book(project, 26)["architecture_changes_not_cited"]["changed"] == [
+        {"node_id": seed.UNRELATED_NODE, "title": "Reading the First Stones"}]
+    # Book 26 was written against the middle revision; tamper with that stored version.
+    middle = book(project, 26)["written_against_request"]
+    review_file = arch_dir(project) / "requests" / middle / "review.json"
+    review = json.loads(review_file.read_text(encoding="utf-8"))
+    next(n for n in review["candidate"]["nodes"] if n["id"] == "th_core_question")["summary"] += " (edited later)"
+    review_file.write_text(json.dumps(review), encoding="utf-8")
+    assert book(project, 26)["architecture_changes_not_cited"] is None  # its digest no longer matches the Book's record
+
+
+def test_a_damaged_architecture_record_is_not_blamed_on_the_books(project):
+    current_file = arch_dir(project) / "current.json"
+    current_file.write_text(current_file.read_text(encoding="utf-8")[:300], encoding="utf-8")
+    books = working(project)["books"]
+    assert books and all(b["state"] == "unreadable" and b["cause"] == "architecture" for b in books)

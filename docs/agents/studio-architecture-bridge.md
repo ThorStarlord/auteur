@@ -173,7 +173,7 @@ Before calling the owner's prepare, the Studio adds two guards:
 - it refuses when the Book is no longer the revision the author read;
 - it refuses to replace a waiting request unless the author confirms.
 
-The owner checks both under its canvas lock. The Studio also asks the owner for a whole-Book revision whenever the Book is out of date, because only that brings it up to date. After a working Architecture revision, the Atelier's "What this means for the Books" overview lists the Books that cite a changed or removed concept, and "Reconcile Book <n> with the working Architecture" prepares such a whole-Book revision, starting from the recorded evidence in the author's own editable words.
+The owner checks both under its canvas lock. The Studio also asks the owner for a whole-Book revision whenever the Book is out of date, because only that brings it up to date. After a working Architecture revision, the Atelier's "Review the working Books" overview lists the Books that cite a changed or removed concept, and "Reconcile Book <n> with the working Architecture" prepares such a whole-Book revision, starting from the recorded evidence in the author's own editable words.
 
 When the author asks you to fulfil such a request:
 1. Read it with `book-show`.

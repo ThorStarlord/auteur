@@ -29,7 +29,8 @@
 
   // One working Book, its recorded references sorted by what the owner established about each.
   function entry(book){
-    if(book.state!=='working')return {book:book,number:book.book_number,state:'unreadable',reason:book.reason};
+    if(book.state!=='working')return {book:book,number:book.book_number,state:'unreadable',reason:book.reason,
+      architectureUnreadable:book.cause==='architecture'};
     var by={changed:[],removed:[],unrecorded:[],unchanged:[],architecture_unavailable:[]};
     (book.references||[]).forEach(function(r){(by[r.status]||by.unrecorded).push(r);});
     return {book:book,number:book.book_number,state:'working',changed:by.changed,removed:by.removed,
@@ -67,7 +68,9 @@
   }
   // What is established about one Book, line by line, each line one kind of fact.
   function lines(e,nameOf){
-    if(e.state!=='working')return [{tone:'bad',text:'Its working record is damaged and cannot be read, so whether it is affected cannot be told.'}];
+    if(e.state!=='working')return [{tone:'bad',text:e.architectureUnreadable?
+      'The working Architecture’s record cannot be read, so whether this Book is affected cannot be told.':
+      'Its working record is damaged and cannot be read, so whether it is affected cannot be told.'}];
     var out=[];
     if(e.noArchitecture)return [{tone:'bad',text:'The working Architecture cannot be read, so whether the concepts it cites changed cannot be told.'}];
     if(e.changed.length)out.push({tone:'warn',text:'Cites '+plural(e.changed.length,'concept')+' that changed after it was written: '+
@@ -112,8 +115,8 @@
     if(notCitedCount(e))out.push('- Also changed in the Architecture since, and not cited by this Book: '+notCitedNames(e,12)+
       '. Check whether the Book should take '+(notCitedCount(e)===1?'it':'them')+' into account; otherwise keep it as written.');
     if(e.sourceChanged)out.push('- Its own source items changed in the canvas; read them again.');
-    out.push((e.flagged?'Re-read these elements against the current Architecture and change what it now requires. Keep what still holds, ':
-      'Change only what the current Architecture now requires. ')+(e.removed.length?'stop citing concepts that are gone, ':'')+
+    out.push((e.flagged?'Re-read these elements against the current Architecture and decide what, if anything, should change. Keep what still holds, ':
+      'Change only what the current Architecture requires, if anything. ')+(e.removed.length?'stop citing concepts that are gone, ':'')+
       'and leave author decisions open. Whether the story still works is mine to judge.');
     var text=out.join('\n');return text.length>3900?text.slice(0,3899)+'…':text;
   }

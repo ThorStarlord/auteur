@@ -921,7 +921,8 @@ def book_numbers(store: CanvasStore) -> list[int]:
     return sorted(numbers)
 
 
-def book_series_references(store: CanvasStore, book_number: int) -> dict:
+def book_series_references(store: CanvasStore, book_number: int, *,
+                           versions: list[tuple[str, dict | None]] | None = None) -> dict:
     """Read-only: what one working Book records about each Series node it references.
 
     A reference is recorded only by a typed `series_node` ref on an element, an agent's name source,
@@ -983,7 +984,7 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
             })
     wanted = {key: recorded[key] for key, item in by_node.items()
               if item["status"] in ("changed", "removed") and recorded.get(key)}
-    for key, (node, where) in _recorded_versions(store, book_number, record, wanted).items():
+    for key, (node, where) in _recorded_versions(store, book_number, record, wanted, versions).items():
         item = by_node[key]
         item["recorded"] = {**_node_view(node), "found_in": where}
         if item["current"]:
@@ -1002,6 +1003,9 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
         "revision_number": record.get("revision_number", 0),
         "open_author_decisions": len(artifact.open_author_decisions),
         "references": [by_node[key] for key in sorted(by_node)],
+        # The digest of the whole Architecture version this Book is recorded against, as the Book's own
+        # request recorded it; None when no kept request records it. Lets a caller verify a stored version.
+        "series_candidate_sha256": _recorded_candidate_sha(store, book_number, record),
         "last_applied": _last_applied(record),
     }
 
@@ -1010,8 +1014,34 @@ def _node_view(node: dict) -> dict:
     return {field: node.get(field) for field in ("title", "category", "summary", "scope", "parent_id")}
 
 
-def _recorded_versions(store: CanvasStore, book_number: int, record: dict,
-                       wanted: dict[str, str]) -> dict[str, tuple[dict, dict]]:
+def _book_packets(store: CanvasStore, book_number: int, record: dict):
+    """The Book's own kept request packets along its lineage, newest first; unreadable ones are skipped."""
+    base = _book_root(store, book_number)
+    shas = [entry.get("request_sha256") for entry in reversed(record.get("lineage") or [])] \
+        or [record.get("request_sha256")]
+    for sha in shas:
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
+            continue
+        try:
+            packet = json.loads(load_host_agent_request(base / "requests" / sha / "request.json").user)
+        except (OSError, ValueError, TypeError):
+            continue
+        if isinstance(packet, dict):
+            yield sha, packet
+
+
+def _recorded_candidate_sha(store: CanvasStore, book_number: int, record: dict) -> str | None:
+    for _, packet in _book_packets(store, book_number, record):
+        arch = packet.get("series_architecture")
+        if isinstance(arch, dict) and arch.get("request_sha256") == record.get("series_request_sha256"):
+            value = arch.get("candidate_sha256")
+            if isinstance(value, str):
+                return value
+    return None
+
+
+def _recorded_versions(store: CanvasStore, book_number: int, record: dict, wanted: dict[str, str],
+                       versions: list[tuple[str, dict | None]] | None = None) -> dict[str, tuple[dict, dict]]:
     """Read-only: each wanted concept as the Book recorded it, identified by the fingerprint it kept.
 
     A version counts only when its fingerprint equals the one recorded, so nothing is reconstructed or
@@ -1029,17 +1059,8 @@ def _recorded_versions(store: CanvasStore, book_number: int, record: dict,
             if key in wanted and key not in found and _digest(node) == wanted[key]:
                 found[key] = (node, where)
 
-    base = _book_root(store, book_number)
-    shas = [entry.get("request_sha256") for entry in reversed(record.get("lineage") or [])] \
-        or [record.get("request_sha256")]
-    for sha in shas:
-        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
-            continue
-        try:
-            packet = json.loads(load_host_agent_request(base / "requests" / sha / "request.json").user)
-        except (OSError, ValueError, TypeError):
-            continue
-        arch = packet.get("series_architecture") if isinstance(packet, dict) else None
+    for sha, packet in _book_packets(store, book_number, record):
+        arch = packet.get("series_architecture")
         if not isinstance(arch, dict):
             continue
         where = {"record": "book_request", "request_sha256": sha}
@@ -1048,7 +1069,7 @@ def _recorded_versions(store: CanvasStore, book_number: int, record: dict,
         if len(found) == len(wanted):
             return found
     try:
-        for sha, candidate in architecture_versions(store):
+        for sha, candidate in (versions if versions is not None else architecture_versions(store)):
             if candidate is None:
                 continue
             offer(candidate.get("nodes"), {"record": "architecture_revision", "request_sha256": sha})

@@ -1281,12 +1281,23 @@ def architecture_revision_chain(store: CanvasStore, limit: int = 200) -> dict:
             return {"requests": chain, "complete": False}
         prior = (review or {}).get("prior_request_sha256")
         if prior is None:
-            return {"requests": chain, "complete": True}
+            # Only the first version has no review naming a prior; an applied revision always has one, so a
+            # missing review on a revision leaves the chain incomplete rather than ending it.
+            return {"requests": chain, "complete": review is None and _is_first_version(store, sha)}
         if not isinstance(prior, str) or prior in chain:
             return {"requests": chain, "complete": False}
         chain.append(prior)
         sha = prior
     return {"requests": chain, "complete": False}
+
+
+def _is_first_version(store: CanvasStore, sha: str) -> bool:
+    """A version developed from no earlier one: its request carries no revision instruction."""
+    try:
+        request = load_host_agent_request(_root(store) / "requests" / sha / "request.json")
+        return not str(json.loads(request.user).get("revision_instruction") or "").strip()
+    except (OSError, ValueError, TypeError, AttributeError):
+        return False
 
 
 def _version_candidate(store: CanvasStore, sha: str) -> dict | None:
@@ -1304,15 +1315,17 @@ def _version_candidate(store: CanvasStore, sha: str) -> dict | None:
         return None
 
 
-def architecture_versions(store: CanvasStore, limit: int = 200):
+def architecture_versions(store: CanvasStore, limit: int = 200, requests: list[str] | None = None):
     """Read-only: ``(request_sha256, candidate)`` along the applied revision chain, newest first.
 
     ``candidate`` is None for a version whose record cannot be read; the walk still continues by identity.
+    ``requests`` is a chain the caller already read with ``architecture_revision_chain``.
     """
     current = _candidate(store)
     if not current:
         return
-    for index, sha in enumerate(architecture_revision_chain(store, limit)["requests"]):
+    chain = requests if requests is not None else architecture_revision_chain(store, limit)["requests"]
+    for index, sha in enumerate(chain):
         yield sha, current["candidate"] if index == 0 else _version_candidate(store, sha)
 
 

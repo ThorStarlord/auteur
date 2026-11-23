@@ -35,6 +35,11 @@ KEY = "document.activeElement && document.activeElement.dataset ? document.activ
 ARM = """() => { const r = document.getElementById('studio-atelier');
   window.__settled = new Promise(res => r.addEventListener('atelier:settled', e => res(e.detail), {once: true})); }"""
 WAIT = "Promise.race([window.__settled, new Promise(r => setTimeout(() => r(null), 8000))])"
+# On screen: inside the window, and inside the folio where the folio itself scrolls.
+IN_VIEW = """(key) => { const t = document.querySelector('#studio-atelier [data-key="' + key + '"]');
+  const f = document.querySelector('#studio-atelier .atl-folio'); if (!t) return false;
+  const r = t.getBoundingClientRect(), fr = f.getBoundingClientRect();
+  return r.top >= Math.max(0, fr.top) - 1 && r.top < Math.min(window.innerHeight, fr.bottom); }"""
 
 
 def q(key):
@@ -188,7 +193,7 @@ def test_an_architecture_revision_applied_in_the_studio_leads_to_the_books_it_af
     assert files(books_dir(project)) == before  # an Architecture revision rewrites no Book
     open_overview(page)
     folio = page.evaluate(FOLIO).upper()
-    assert "What the Architecture changes mean for its working Books".upper() in folio
+    assert "Working Books after the Architecture changes".upper() in folio
     assert "Gate Table · no longer in the Architecture · cited by Book 24 and Book 25".upper() in folio
     assert "Written against the working Architecture as it was 1 applied revision ago.".upper() in folio
     assert not log["errors"]
@@ -209,7 +214,7 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     assert page.locator(q("impact-show:29")).count() == 0  # an unreadable Book offers nothing
     assert "Its working record is damaged and cannot be read".upper() in folio
     assert "Unterminated string".upper() not in folio  # the parser's words wait behind "Technical detail"
-    assert page.locator(q("impact-tech:29")).count() == 1
+    assert page.locator(q("impact-tech:29")).count() == 1 and page.locator(q("book-tech:29")).count() == 1
     assert "What changed is not cited by it: “Reading the First Stones” (changed)".upper() in folio  # Book 26
     # The removed concept is discoverable here, and the atlas does not show it as current.
     assert "Gate Table · no longer in the Architecture".upper() in folio
@@ -221,7 +226,8 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     assert "As the Book recorded it".upper() in folio and "A rotating inter-community body formed in Book 22".upper() in folio
     assert "When the Book was written".upper() in folio and "the ledger now also records the hours".upper() in folio
     assert "it does not mean the Book no longer works".upper() in folio  # said once, in the overview
-    assert "unchanged in name, kind and description".upper() in folio
+    assert "unchanged as the Book recorded them".upper() in folio
+    assert "its name, kind, description, scope and parent".upper() in folio
     assert "Also changed in the Architecture since, and not cited by Book 24: “Reading the First Stones” (changed)".upper() in folio
     # Escape steps back one level: to the Book's row in the overview, not out of it.
     page.keyboard.press("Escape")
@@ -249,12 +255,12 @@ def test_overview_evidence_reconcile_review_apply_and_return(browser, served):
     assert "now recorded as written against the current working Architecture".upper() in folio
     assert "Written against the current working Architecture: Book 24.".upper() in folio
     assert "Cite concepts that changed or are gone · 1".upper() in folio  # Book 25 is untouched and still flagged
+    # The other Books keep their reasons after Apply, and the confirmation is focused and in view.
+    assert "Its working record is damaged and cannot be read, so whether it is affected cannot be told".upper() in folio
+    assert page.evaluate(KEY) == "book-note:24" and page.evaluate(IN_VIEW, "book-note:24")
     snap = page.evaluate(SNAP)
     assert snap["revision"] is None and place(snap) == place(home)
-    page.keyboard.press("Escape")  # first to all the Books (Book 24 is now current), then back to the atlas
-    time.sleep(0.4)
-    assert page.evaluate(SNAP)["series"]["leaf"] is not None
-    page.keyboard.press("Escape")
+    page.keyboard.press("Escape")  # Apply returned to all the Books, so Escape goes back to the atlas
     time.sleep(0.4)
     back = page.evaluate(SNAP)
     assert back["series"]["leaf"] is None and place(back) == place(home)
@@ -294,6 +300,7 @@ def test_phone_width_keeps_the_overview_and_evidence_inside_the_screen(browser, 
     open_overview(page)
     page.locator(q("impact-show:25")).click()
     time.sleep(0.4)
+    assert page.evaluate(KEY) == "impact-evidence:25" and page.evaluate(IN_VIEW, "impact-evidence:25")
     overflow = page.evaluate("""() => { const f = document.querySelector('#studio-atelier .atl-folio');
       return [document.documentElement.scrollWidth - document.documentElement.clientWidth, f.scrollWidth - f.clientWidth]; }""")
     assert overflow == [0, 0]

@@ -40,9 +40,10 @@ from auteur.series.continuity_validators import SetupPayoffValidator
 from auteur.series.graph import build_dependency_graph
 from auteur.series.models import SeriesIdentity
 from auteur.series.vertical_slice_store import VerticalSliceStore
-from auteur.beginner.studio_architecture import architecture_revision_chain, architecture_versions
+from auteur.beginner.studio_architecture import _candidate, architecture_revision_chain, architecture_versions
 from auteur.series.working_book_architecture import (
-    book_numbers, book_pending_state, book_project, book_requested_numbers, book_series_references,
+    _digest as _book_digest, book_numbers, book_pending_state, book_project, book_requested_numbers,
+    book_series_references,
 )
 
 SCHEMA = "studio-series-context/1"
@@ -297,12 +298,20 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
     books: list[dict[str, Any]] = []
     versions, complete = _architecture_chain(store)
     chain = [sha for sha, _ in versions]
+    try:
+        _candidate(store)
+        architecture_error = None
+    except (OSError, ValueError) as exc:
+        architecture_error = _first_line(exc)
     for number in book_numbers(store):
         rel = f"{base['path']}/{number}/current.json"
         try:
-            view = book_series_references(store, number)
+            view = book_series_references(store, number, versions=versions)
         except Exception as exc:  # noqa: BLE001 - one Book's damage stays with that Book
-            books.append({"state": "unreadable", "book_number": number, "path": rel, "reason": _first_line(exc)})
+            # When the working Architecture itself cannot be read, say so rather than blame the Book.
+            books.append({"state": "unreadable", "book_number": number, "path": rel,
+                          "cause": "architecture" if architecture_error else "book",
+                          "reason": architecture_error or _first_line(exc)})
             continue
         refs = []
         for item in view["references"]:
@@ -345,9 +354,11 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
 
 
 def _architecture_chain(store: CanvasStore) -> tuple[list[tuple[str, dict | None]], bool]:
-    """The applied working Architecture versions, newest first, and whether the chain was read whole."""
+    """The applied working Architecture versions, newest first, and whether the chain was read whole.
+    The chain is walked once and its versions are shared by every Book."""
     try:
-        return list(architecture_versions(store)), architecture_revision_chain(store)["complete"]
+        chain = architecture_revision_chain(store)
+        return list(architecture_versions(store, requests=chain["requests"])), chain["complete"]
     except (OSError, ValueError):
         return [], False
 
@@ -360,7 +371,10 @@ def _not_cited(versions: list[tuple[str, dict]], view: dict) -> dict[str, Any] |
     if not versions or versions[0][0] == view["series_request_sha256"]:
         return None
     then = next((candidate for sha, candidate in versions if sha == view["series_request_sha256"]), None)
-    if versions[0][1] is None:
+    if versions[0][1] is None or then is None:
+        return None
+    # Only the exact version the Book's own request recorded counts: its digest must match.
+    if view.get("series_candidate_sha256") is None or _book_digest(then) != view["series_candidate_sha256"]:
         return None
     if then is None:
         return None

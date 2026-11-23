@@ -112,8 +112,10 @@ must name the citing elements.
   story still works, and a Book can depend on a concept it never recorded.
 - **No reverse direction:** a Book revision does not propose Architecture changes. That is the next product
   opportunity, not built here.
-- **A long chain stops early:** the Architecture chain walk stops after 40 revisions or at the first
-  unreadable version. An older recorded version is then reported as not kept.
+- **A long or damaged history:** the Architecture chain is walked by request identity for up to 200
+  revisions. A version whose candidate cannot be read is skipped, and the walk goes on. If a review naming
+  the prior version is missing or unreadable, or the limit is reached, the chain is reported incomplete, and
+  how far behind a Book is "cannot be told".
 
 ## Independent review and dispositions
 
@@ -138,8 +140,8 @@ adversarial workflow.
 
 **Interaction.**
 - **Fixed:** the applied-revision card counted concepts with changed relationships, while the evidence called
-  them unchanged. The evidence now says what a Book's fingerprint covers: name, kind and description, not
-  relationships.
+  them unchanged. The evidence now says what a Book's fingerprint covers: the whole concept node (its name,
+  kind, description, scope and parent), not its relationships.
 - **Fixed:** the atlas reading showed a sentence about "this concept" when no concept was selected.
 - **Fixed:** the entry line sat below the fold. It now comes first in the applied-revision card, or directly
   under the atlas summary.
@@ -173,3 +175,40 @@ adversarial workflow.
 - **Source changes:** a Book's changed source items are not named individually, because the owner keeps only
   a digest.
 - **Element ids in the draft:** the reconcile draft keeps element ids, for the coding agent's precision.
+
+## Final review of the merged implementation (#635 at `d810989e`)
+
+Two fresh reviewers checked the merged code at canonical `main`: one by source review and owner, CLI and
+route probes, the other by walking the served Atelier at desktop and phone width. Neither found a blocker.
+The follow-up PR fixes what they found.
+
+**Source review**
+- **Fixed:** a missing review file on an applied revision made the history look complete, and then read
+  "not on the revision chain". A version with no review now ends the chain as complete only when its request
+  was a first develop.
+- **Fixed:** the Architecture changes a Book does not cite were taken from the stored Architecture version
+  without checking it. They are now shown only when that version's digest equals the one the Book's own
+  request recorded.
+- **Fixed:** a damaged Architecture record was reported as damage to each Book's record. It is now named as
+  the Architecture's.
+- **Fixed:** the history was walked several times per read. It is now walked once and shared by every Book.
+- **Fixed:** the design note had drifted from the code on the chain limit and on what a fingerprint covers.
+- **Recorded:** a withdrawal prepared on an out-of-date Book can never be applied. This predates #635, and the
+  owner refuses it safely.
+
+**Served journey**
+- **Fixed:** after Apply, the focused confirmation was scrolled out of view by the plans being read again.
+  It is now brought into view and kept there.
+- **Fixed:** after Apply, the other Books' rows lost their reasons. The evidence level is cleared on Apply.
+- **Fixed:** on a phone, "Show evidence" focused a heading off screen. Whatever scrolls the folio (the folio
+  itself, or the page on a phone) now brings it into view.
+- **Fixed:** a damaged Book's record below the overview showed the parser's words. They are now behind
+  "Technical detail", as in the overview.
+- **Fixed:** some wording implied an effect: "Back to the Books it affects", the overview title, and the
+  draft's "change what it now requires". It now reads "Back to the Books that cite it", "Working Books
+  after the Architecture changes" and "decide what, if anything, should change". The composer says which
+  source is out of date.
+- **Recorded:** after the Studio's own Architecture Apply, the page stays scrolled to the Studio panel
+  (#632 behaviour).
+- **Recorded:** returning from a concept focuses the folio title, not the concept button.
+- **Recorded:** the next action can sit below the fold.
