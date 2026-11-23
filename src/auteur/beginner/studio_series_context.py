@@ -33,8 +33,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import yaml
-from pydantic import ValidationError
 
 from auteur.beginner.studio_store import CanvasStore
 from auteur.provenance.store import canonical_content_hash
@@ -85,7 +83,7 @@ def _series_plan(root: Path) -> dict[str, Any]:
     try:
         content_hash = canonical_content_hash(path)
         series = SeriesIdentity.from_yaml(path)
-    except (OSError, UnicodeError, yaml.YAMLError, ValidationError, ValueError, TypeError) as exc:
+    except Exception as exc:  # noqa: BLE001 - an unreadable plan is reported, never shown
         return {**base, "state": "invalid", "reason": _first_line(exc)}
 
     def src(ref: str) -> dict[str, Any]:
@@ -204,15 +202,16 @@ def _series_direction(root: Path) -> dict[str, Any]:
     try:
         accepted = store.load_accepted_series_direction()
         series_meta = store.load_series_direction_metadata()
-    except (OSError, UnicodeError, yaml.YAMLError, ValidationError, ValueError) as exc:
-        accepted, result["series_reason"] = None, _first_line(exc)
+    except Exception as exc:  # noqa: BLE001 - one record's damage (even a malformed sidecar) stays with it
+        accepted, series_meta, result["series_reason"] = None, None, _first_line(exc)
     if accepted is not None and series_meta is not None:
         d = accepted.direction
         src = _src(owner, rel_series, None, artifact=accepted.artifact_id,
                    revision=series_meta.revision, content_hash=series_meta.content_hash)
         result["series"] = {
             "state": "accepted", **_metadata_view(series_meta), "source": src,
-            "proposal_id": accepted.proposal_id, "series_id": d.series_id, "title": _clip(d.title, 200), "series_type": d.series_type,
+            "proposal_id": accepted.proposal_id, "series_id": d.series_id, "title": _clip(d.title, 200),
+            "series_type": d.series_type,
             "promise": _clip(d.promise), "pressure": _clip(d.pressure), "open_question": _clip(d.open_question),
             "commitments": [{
                 "commitment_id": c.commitment_id, "statement": _clip(c.statement), "scope": c.scope,
@@ -235,7 +234,7 @@ def _series_direction(root: Path) -> dict[str, Any]:
         try:
             book = store.load_accepted_book_direction(number)
             meta = store.load_book_direction_metadata(number)
-        except (OSError, UnicodeError, yaml.YAMLError, ValidationError, ValueError) as exc:
+        except Exception as exc:  # noqa: BLE001 - one record's damage stays with it
             books.append({"state": "unverified", "book_number": number, "path": rel, "reason": _first_line(exc)})
             continue
         if book is None or meta is None:
@@ -262,7 +261,11 @@ def _series_direction(root: Path) -> dict[str, Any]:
                           else "unknown"),
         })
     result["books"] = books
+    # Which kept proposal is behind an accepted record is known only for records that verify.
     current_proposals = {result["series"].get("proposal_id")} | {b.get("proposal_id") for b in books}
+    result["proposal_files"] = proposals
+    result["proposals_accounted"] = (result["series"].get("state") in {"accepted", "absent"}
+                                     and all(b["state"] == "accepted" for b in books))
     result["other_proposals"] = {
         key: len(ids - current_proposals) for key, ids in proposal_ids.items()
     }
@@ -291,7 +294,7 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
         rel = f"{base['path']}/{number}/current.json"
         try:
             view = book_series_references(store, number)
-        except (OSError, UnicodeError, ValueError, ValidationError, KeyError, TypeError) as exc:
+        except Exception as exc:  # noqa: BLE001 - one Book's damage stays with that Book
             books.append({"state": "unreadable", "book_number": number, "path": rel, "reason": _first_line(exc)})
             continue
         refs = []
@@ -314,6 +317,14 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
     return {**base, "state": "available" if books else "absent", "books": books}
 
 
+def _guarded(read, owner: str, label: str) -> dict[str, Any]:
+    """One owner that cannot be read is reported as unreadable; the others are still shown."""
+    try:
+        return read()
+    except Exception as exc:  # noqa: BLE001
+        return {"owner": owner, "label": label, "state": "unreadable", "reason": _first_line(exc), "books": []}
+
+
 def project_series_context(project_root: Path, canvas_id: str) -> dict[str, Any]:
     """Project the Book and Series plans this canvas and its project keep, read-only.
 
@@ -322,9 +333,9 @@ def project_series_context(project_root: Path, canvas_id: str) -> dict[str, Any]
     root = Path(project_root).resolve()
     store = CanvasStore(root, canvas_id)
     store.load()
-    working = _working_books(store)
-    plan = _series_plan(root)
-    direction = _series_direction(root)
+    working = _guarded(lambda: _working_books(store), "working_book_architecture", "Working Book architectures")
+    plan = _guarded(lambda: _series_plan(root), "series_identity", "Series plan")
+    direction = _guarded(lambda: _series_direction(root), "series_vertical_slice", "Series and Book Directions")
     sources = [working, plan, direction]
     available = [s for s in sources if s["state"] not in {"absent"}]
     fingerprint = json.dumps([

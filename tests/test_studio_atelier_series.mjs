@@ -49,7 +49,7 @@ test('project plans are summarised by owner and never as linked', () => {
     books: [{state: 'accepted'}], other_proposals: {series_direction: 1, book_direction: 0}};
   const lines = X.projectSummary(ctx([], plan, direction)).map((l) => l.text);
   assert.match(lines[0], /3 Book plans, 2 setups, 1 payoff · author-declared/);
-  assert.match(lines[1], /accepted, revision 2 · 1 accepted Book Direction · 1 proposal file besides the accepted records/);
+  assert.match(lines[1], /accepted, revision 2 · 1 accepted Book Direction$/);
   assert.equal(X.projectSummary(ctx([], {state: 'invalid', path: 'series_identity.yaml'})).at(0).tone, 'bad');
   assert.equal(X.projectSummary(ctx([])).length, 0);
 });
@@ -60,4 +60,19 @@ test('a hypothesis draft names the source and asserts no link', () => {
   assert.match(text, /series_identity\.yaml · narrative_setups\[0\]/);
   assert.match(text, /change nothing/);
   assert.equal(X.sourceLine({path: 'p', ref: null, revision: 2, content_hash: 'sha256:abcdef0123456789'}), 'p · revision 2 · sha256:abcdef0123');
+});
+
+test('an unreadable Book is reported, never treated as absent', () => {
+  const c = ctx([{state: 'unreadable', book_number: 24, reason: 'cut short'}]);
+  assert.equal(X.workingBooks(c).length, 0);
+  assert.match(X.unreadableBooks(c)[0], /Book 24’s working architecture could not be read/);
+  const all = {version: 'v', sources: {working_books: {state: 'unreadable', books: []}, series_plan: {state: 'absent'}, series_direction: {state: 'absent'}}};
+  assert.equal(X.unreadableBooks(all).length, 1);
+});
+
+test('proposal files are said only as far as the owner records allow', () => {
+  const base = {proposal_files: {series_direction: 2, book_direction: 1}, other_proposals: {series_direction: 1, book_direction: 0}};
+  assert.match(X.proposalNote({...base, proposals_accounted: true, series: {state: 'accepted'}, books: []}), /also keeps 1 proposal file besides those behind the accepted records/);
+  assert.match(X.proposalNote({...base, proposals_accounted: false, series: {state: 'unverified'}, books: [{state: 'accepted'}]}), /does not verify, so which proposal is behind it cannot be told/);
+  assert.match(X.proposalNote({...base, proposals_accounted: true, series: {state: 'absent'}, books: []}), /3 proposal files and no accepted record/);
 });

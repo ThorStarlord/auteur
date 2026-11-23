@@ -120,6 +120,30 @@ def test_damaged_owner_records_are_reported_not_shown(context, tmp_path):
     assert result["version"] != project_series_context(context, "atelier-small")["version"]
 
 
+def test_one_damaged_owner_never_hides_the_others(linked, context, tmp_path):
+    project = tmp_path / "both"
+    shutil.copytree(linked, project)
+    shutil.copyfile(seed.FULL_PLAN, project / "series_identity.yaml")
+    seed.seed_sparse(project)
+    # A provenance sidecar that is not even a mapping, and a Book record cut short.
+    (project / ".auteur/state/artifacts/series-direction.yaml").write_text("- a\n", encoding="utf-8")
+    record = project / ".auteur/beginner/studio/canvases" / seed.SPRING / "architecture/books/24/current.json"
+    record.write_text(record.read_text(encoding="utf-8")[:200], encoding="utf-8")
+    result = project_series_context(project, seed.SPRING)
+    assert result["sources"]["series_plan"]["state"] == "available"
+    direction = result["sources"]["series_direction"]
+    assert direction["series"]["state"] == "unverified" and "promise" not in direction["series"]
+    assert direction["proposals_accounted"] is False
+    (book,) = result["sources"]["working_books"]["books"]
+    assert book["state"] == "unreadable" and book["book_number"] == 24
+
+
+def test_proposals_are_accounted_only_when_records_verify(context):
+    direction = project_series_context(context, "atelier-small")["sources"]["series_direction"]
+    assert direction["proposals_accounted"] is True
+    assert direction["proposal_files"] == {"series_direction": 2, "book_direction": 1}
+
+
 def test_a_project_without_plans_says_so(tmp_path):
     seed_atelier(tmp_path, "atelier-small", SPECIMENS["atelier-small"])
     result = project_series_context(tmp_path, "atelier-small")

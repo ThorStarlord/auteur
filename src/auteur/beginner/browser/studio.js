@@ -845,6 +845,7 @@
     lastCreativeReviewSha=null;
     state.atelierAsk = null; state.atelierInquiryStatus = null; state.atelierRevisionContext = null;
     state.atelierSentInquiry = null; state.architectureRequestIntent = null; state.creativeSentText = null;
+    state.atelierSuggestion = null;
     remote.canvasId = canvasId;
     window.history.replaceState({}, "", canvasUrl(canvasId));
     return fetch("/api/beginner/studio/canvases", {
@@ -3148,7 +3149,10 @@
     if (draft && draft === state.creativeSentText) { creativePanel.setAuthorText(""); draft = ""; }
     // A suggested question (a hypothesis to investigate) fills an empty field only; it is never sent for the author.
     var suggestion = typeof request.draft === "string" && request.draft ? request.draft : "";
+    // An earlier suggestion the author left untouched is not their draft; it names another source.
+    if (draft && draft === state.atelierSuggestion) { creativePanel.setAuthorText(""); draft = ""; }
     var keptDraft = !!(suggestion && draft);
+    state.atelierSuggestion = suggestion && !draft ? suggestion : null;
     if (suggestion && !draft && creativePanel.setAuthorText) creativePanel.setAuthorText(suggestion);
     state.atelierAsk = {conceptId: request.conceptId, title: request.title, subject: request.subject,
       operation: operation, requestSha: state.architectureRequestSha, key: anchorsKey([request.anchor])};

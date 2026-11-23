@@ -72,20 +72,37 @@
     if(plan&&plan.state==='available')out.push({owner:'series_plan',tone:'ok',text:'Series plan “'+plan.title+'” · '+
       plural(plan.books.length,'Book plan')+', '+plural(plan.setups.length,'setup')+', '+plural(plan.payoffs.length,'payoff')+
       ' · author-declared, '+plan.path});
-    else if(plan&&plan.state==='invalid')out.push({owner:'series_plan',tone:'bad',text:plan.path+' could not be read as a Series plan.'});
+    else if(plan&&(plan.state==='invalid'||plan.state==='unreadable'))out.push({owner:'series_plan',tone:'bad',text:plan.path+' could not be read as a Series plan.'});
     if(dir&&dir.state!=='absent'){
       var ser=dir.series||{},acc=(dir.books||[]).filter(function(b){return b.state==='accepted';}).length;
       var parts=[];
       if(ser.state==='accepted')parts.push('Series Direction “'+ser.title+'” accepted, revision '+ser.revision);
       else if(ser.state==='unverified')parts.push('a Series Direction that no longer matches its acceptance record');
       if(acc)parts.push(plural(acc,'accepted Book Direction'));
-      var other=dir.other_proposals||{},n=(other.series_direction||0)+(other.book_direction||0);
-      if(n)parts.push(plural(n,'proposal file')+' besides the accepted records, not shown');
+      if(dir.state==='unreadable')parts.push('Series journey records that could not be read');
       out.push({owner:'series_direction',tone:ser.state==='unverified'?'bad':'ok',text:parts.join(' · ')||'Series journey records'});
     }
     return out;
   }
   function workingBooks(ctx){return books(ctx).filter(function(b){return b.state==='working';});}
+  // A Book (or the whole Book source) that could not be read is reported: it may hold a reference.
+  function unreadableBooks(ctx){
+    var w=sources(ctx).working_books;
+    if(w&&w.state==='unreadable')return ['The working Book architectures could not be read, so whether one records this concept cannot be told.'];
+    return books(ctx).filter(function(b){return b.state!=='working';}).map(function(b){
+      return 'Book '+b.book_number+'’s working architecture could not be read, so whether it records this concept cannot be told.';});
+  }
+  // Proposal files the Series journey keeps; which one is behind an accepted record is known only when it verifies.
+  function proposalNote(dir){
+    var files=dir.proposal_files||{},total=(files.series_direction||0)+(files.book_direction||0);
+    var other=dir.other_proposals||{},n=(other.series_direction||0)+(other.book_direction||0);
+    var accepted=(dir.series&&dir.series.state==='accepted')||(dir.books||[]).some(function(b){return b.state==='accepted';});
+    if(!total)return 'The Series journey keeps no proposal files.';
+    if(!accepted)return 'The Series journey keeps '+plural(total,'proposal file')+' and no accepted record. Proposals are not plans, and they are not shown.';
+    if(!dir.proposals_accounted)return 'The Series journey keeps '+plural(total,'proposal file')+'. A record here does not verify, so which proposal is behind it cannot be told. Proposals are not shown.';
+    return n?'The Series journey also keeps '+plural(n,'proposal file')+' besides those behind the accepted records shown here. They are earlier or were never accepted, and they are not shown.':
+      'Each proposal file the Series journey keeps is behind an accepted record shown here.';
+  }
 
   // Plain words for a hypothesis the author may ask the coding agent to investigate. It names the source
   // so the agent can read it; it asserts no link.
@@ -105,6 +122,6 @@
 
   global.AuteurAtelierSeries={forNode:forNode,count:count,refSummary:refSummary,bookFreshness:bookFreshness,refStanding:refStanding,
     directionBookFreshness:directionBookFreshness,projectSummary:projectSummary,workingBooks:workingBooks,
-    hypothesisDraft:hypothesisDraft,sourceLine:sourceLine,shortHash:shortHash,plural:plural,
+    hypothesisDraft:hypothesisDraft,unreadableBooks:unreadableBooks,proposalNote:proposalNote,sourceLine:sourceLine,shortHash:shortHash,plural:plural,
     COLLECTION:COLLECTION,AUTHORITY:AUTHORITY,DEPENDENCY:DEPENDENCY};
 })(window);

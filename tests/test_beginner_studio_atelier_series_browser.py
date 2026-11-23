@@ -4,6 +4,8 @@ A concept shows a Book plan only when that Book records a reference to the conce
 project's Series plan and Directions are offered as context, never as related plans. Opening the view
 changes nothing, and Back (or Escape) returns to the same concept, trail and camera.
 """
+import copy
+import json
 import os
 import shutil
 import sys
@@ -14,6 +16,9 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 from auteur.beginner.server import BeginnerWorkspaceServer
+from auteur.beginner.studio_architecture import complete_architecture, project_architecture
+from auteur.beginner.studio_store import CanvasStore
+from auteur.host_agent import HostAgentRequest, build_host_agent_response
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
@@ -28,6 +33,11 @@ SECTION = "(document.querySelector('#studio-atelier .atl-series')||{}).innerText
 LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
 ACTIVE_KEY = "document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key || null : null"
 CLICK = """(id) => document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]').click()"""
+ARM = """() => { const r = document.getElementById('studio-atelier');
+  window.__settled = new Promise(res => r.addEventListener('atelier:settled', e => res(e.detail), {once: true})); }"""
+WAIT = "Promise.race([window.__settled, new Promise(r => setTimeout(() => r(null), 8000))])"
+PANEL = "#architecture-creative-agent-panel"
+FIELD = "#architecture-creative-agent-panel textarea"
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +71,7 @@ def projects(tmp_path_factory):
     for name in ("linked", "context", "none", "damaged"):
         server = BeginnerWorkspaceServer(root / name, port=0)
         servers[name] = (server, server.start_in_thread())
-    yield {name: f"http://127.0.0.1:{server.port}" for name, (server, _thread) in servers.items()}
+    yield {name: f"http://127.0.0.1:{server.port}" for name, (server, _thread) in servers.items()} | {"root": root}
     for server, thread in servers.values():
         server.stop()
         thread.join(timeout=5)
@@ -83,8 +93,7 @@ def open_atelier(browser, base, canvas, width=1440, height=900, atelier=True):
 
 def choose(page, concept):
     page.evaluate(CLICK, concept)
-    page.wait_for_function("document.querySelector('#studio-atelier .atl-series .atl-series-kicker, "
-                           "#studio-atelier .atl-series .atl-folio-detail')", timeout=10000)
+    page.wait_for_function("document.querySelector('#studio-atelier .atl-series .atl-series-status')", timeout=10000)
     time.sleep(0.4)
 
 
@@ -97,7 +106,7 @@ def test_a_concept_opens_the_book_that_records_it_and_returns(browser, projects)
     choose(page, LEDGER)
     section = page.evaluate(SECTION)
     assert "Book 24 · The Uncounted Crew" in section and "Records a reference to this concept in 4 elements" in section
-    assert "not accepted" in section
+    assert "not accepted" in section and "Read at " in section
     before = place(page.evaluate(SNAP))
     opener = page.locator('#studio-atelier [data-key="series-open:24"]')
     opener.focus()
@@ -109,6 +118,7 @@ def test_a_concept_opens_the_book_that_records_it_and_returns(browser, projects)
     assert "The craft-mark answers all three." in folio and "Unchanged since the Book was written." in folio
     assert "Written against the current working Architecture." in folio
     assert page.evaluate("document.activeElement.classList.contains('atl-folio-title')")
+    assert "Back returns to “Ledger engine”" in page.evaluate(LIVE)  # opening orients; it is not a re-read
     assert place(page.evaluate(SNAP)) == before  # the atlas did not move while the plans are read
     page.keyboard.press("Escape")
     time.sleep(0.4)
@@ -195,3 +205,96 @@ def test_phone_width_reads_the_plans_and_returns(browser, projects):
     assert snap["series"]["leaf"] is None and snap["focus"] == LEDGER
     assert page.evaluate(ACTIVE_KEY) == "series-open:24"
     assert not errors
+
+
+def serve(project):
+    server = BeginnerWorkspaceServer(project, port=0)
+    return server, server.start_in_thread(), f"http://127.0.0.1:{server.port}"
+
+
+def test_an_applied_revision_reads_the_open_plans_again(browser, projects, tmp_path):
+    project = tmp_path / "linked"
+    shutil.copytree(projects["root"] / "linked", project)
+    store = CanvasStore(project, seed.SPRING)
+    server, thread, base = serve(project)
+    try:
+        page, errors, _, _ = open_atelier(browser, base, seed.SPRING)
+        choose(page, LEDGER)
+        page.evaluate(ARM)
+        page.locator('#studio-atelier .atl-develop button[data-operation="revise"]').click()
+        page.evaluate(WAIT)
+        page.keyboard.type("Reword only the Ledger engine summary.")
+        page.locator(f"{PANEL} [data-creative-submit]").click()
+        time.sleep(1.5)
+        waiting = project_architecture(store)
+        revised = copy.deepcopy(waiting["candidate"])
+        node = next(n for n in revised["nodes"] if n["id"] == "eng_ledger")
+        node["summary"] += " Reworded for the test."
+        complete_architecture(store, build_host_agent_response(
+            HostAgentRequest(**waiting["request"]), json.dumps(revised), runtime="series-test").model_dump())
+        page.locator(".atelier-return").first.click()
+        time.sleep(0.6)
+        page.locator('#studio-atelier [data-key="series-open:24"]').click()
+        page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+        assert "Written against the current working Architecture." in page.evaluate(FOLIO)
+        page.locator("#architecture-refresh").click()
+        page.wait_for_selector("#architecture-review:not([hidden])", timeout=10000)
+        page.evaluate(ARM)
+        page.locator("#architecture-apply").click()
+        page.evaluate(WAIT)
+        page.wait_for_function(f"({SNAP}).series.status === 'ready' && ({SNAP}).series.changed", timeout=10000)
+        time.sleep(0.4)
+        snap = page.evaluate(SNAP)
+        assert snap["focus"] == LEDGER and snap["series"]["leaf"]["from"] == LEDGER
+        folio = page.evaluate(FOLIO)
+        assert "Written against an earlier working Architecture request" in folio
+        assert "This concept changed after the Book was written." in folio
+        assert "Written against the current working Architecture." not in folio
+        assert not errors
+    finally:
+        server.stop()
+        thread.join(timeout=5)
+
+
+def test_an_unreadable_book_is_never_reported_as_no_plan(browser, projects, tmp_path):
+    project = tmp_path / "linked"
+    shutil.copytree(projects["root"] / "linked", project)
+    record = project / ".auteur/beginner/studio/canvases" / seed.SPRING / "architecture/books/24/current.json"
+    record.write_text(record.read_text(encoding="utf-8")[:200], encoding="utf-8")
+    server, thread, base = serve(project)
+    try:
+        page, errors, _, _ = open_atelier(browser, base, seed.SPRING)
+        choose(page, LEDGER)
+        section = page.evaluate(SECTION)
+        assert "No Book or Series plan is kept" not in section
+        assert "Book 24’s working architecture could not be read" in section
+        assert not errors
+    finally:
+        server.stop()
+        thread.join(timeout=5)
+
+
+def test_a_new_hypothesis_replaces_an_untouched_suggestion_but_keeps_the_authors_words(browser, projects):
+    page, errors, writes, _ = open_atelier(browser, projects["context"], "atelier-small")
+    genres = [c for c in page.evaluate(SNAP)["concepts"] if c["facet"] == "genres" and c["tier"] == 1]
+    first, second = genres[0], genres[1]
+    for concept, key in ((first, "series_identity.yaml#narrative_setups[0]"), (second, "series_identity.yaml#narrative_setups[1]")):
+        choose(page, concept["id"])
+        page.locator('#studio-atelier [data-key="series-open"]').click()
+        page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+        page.locator(f'#studio-atelier [data-key="series-ask:{key}"]').click()
+        time.sleep(0.5)
+        page.locator(".atelier-return").first.click()
+        time.sleep(0.4)
+        page.keyboard.press("Escape")
+        time.sleep(0.3)
+    text = page.locator(FIELD).first.input_value()
+    assert second["title"] in text and first["title"] not in text and "narrative_setups[1]" in text
+    page.locator(FIELD).first.fill("My own question.")
+    choose(page, first["id"])
+    page.locator('#studio-atelier [data-key="series-open"]').click()
+    page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+    page.locator('#studio-atelier [data-key="series-ask:series_identity.yaml#narrative_setups[0]"]').click()
+    time.sleep(0.5)
+    assert page.locator(FIELD).first.input_value() == "My own question."
+    assert not writes and not errors

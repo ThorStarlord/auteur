@@ -1426,11 +1426,13 @@
        each read through its own owner. A concept is joined to a Book plan only by a reference that Book
        records to the concept's node id; the project-level plans are shown beside the Architecture, never
        linked to it. Opening this view changes nothing, and Back returns to the concept the author left. */
-    function readSeries(force){
+    var SERIES_MAX_AGE=20000;
+    function readSeries(force,announceResult){
       if(!binding.getSeriesContext)return;
       var c=S.seriesCtx;
-      if(c&&c.status==='loading')return;
-      if(c&&c.status==='ready'&&!force&&!S.seriesStale)return;
+      // A read already in flight answers this one too; an explicit request is read again after it.
+      if(c&&c.status==='loading'){if(force)S.seriesAgain={announce:!!announceResult};return;}
+      if(c&&c.status==='ready'&&!force&&!S.seriesStale&&Date.now()-c.readAt.getTime()<SERIES_MAX_AGE)return;
       var prev=c&&c.data?c.data.version:(c&&c.prevVersion)||null,seq=(S.seriesSeq||0)+1;S.seriesSeq=seq;S.seriesStale=false;
       S.seriesCtx={status:'loading',data:c&&c.data||null,prevVersion:prev};
       var call;try{call=Promise.resolve(binding.getSeriesContext());}catch(error){call=Promise.reject(error);}
@@ -1439,11 +1441,14 @@
         var changed=!!(prev&&data&&prev!==data.version);
         S.seriesCtx={status:'ready',data:data,readAt:new Date(),prevVersion:prev,changed:changed};
         renderFolio();
-        if(force&&S.leaf)announce(changed?'Read again: the Book and Series plans changed since you last read them.':'Read again: nothing changed.');
+        if(announceResult)announce(changed?'Read again: the Book and Series plans changed since you last read them.':'Read again: nothing changed.');
+        else if(changed)announce('The Book and Series plans changed since you last read them.');
+        againAfter();
       },function(error){
         if(seq!==S.seriesSeq)return;
-        S.seriesCtx={status:'error',error:error&&error.message||String(error),data:null,prevVersion:prev};renderFolio();
+        S.seriesCtx={status:'error',error:error&&error.message||String(error),data:null,prevVersion:prev};renderFolio();againAfter();
       });
+      function againAfter(){var a=S.seriesAgain;S.seriesAgain=null;if(a)readSeries(true,a.announce);}
     }
     function toneLine(t,cls){return el('p','atl-tone atl-tone-'+t.tone+(cls?' '+cls:''),t.text);}
     function chip(text,kind){return el('span','atl-chip'+(kind?' atl-chip-'+kind:''),text);}
@@ -1458,7 +1463,7 @@
       if(!c||(c.status==='loading'&&!c.data)){wrap.append(el('p','atl-note','Reading the Book and Series plans this canvas and project keep…'));folio.append(wrap);return;}
       if(c.status==='error'){wrap.append(el('p','atl-note','Could not read the Book and Series plans: '+c.error));
         actionButton(wrap,'Try again',function(){readSeries(true);},'series-retry');folio.append(wrap);return;}
-      var d=c.data,hits=cn?X.forNode(d,cn.nodeId):[],wbs=X.workingBooks(d),proj=X.projectSummary(d);
+      var d=c.data,hits=cn?X.forNode(d,cn.nodeId):[],wbs=X.workingBooks(d),bad=X.unreadableBooks(d),proj=X.projectSummary(d);
       if(hits.length){
         var ul=el('ul','atl-series-hits');
         hits.forEach(function(h){var li=el('li','atl-series-hit');
@@ -1471,33 +1476,35 @@
           ul.append(li);});
         wrap.append(el('p','atl-series-kicker','Recorded in Book plans'),ul);
       }else if(cn&&cn.nodeId&&wbs.length){
-        wrap.append(el('p','atl-note',wbs.length===1?'Book '+wbs[0].book_number+'’s working architecture records no reference to this concept.':
-          'None of the '+wbs.length+' working Book architectures records a reference to this concept.'));
+        wrap.append(el('p','atl-note',(wbs.length===1?'Book '+wbs[0].book_number+'’s working architecture records no reference to this concept':
+          'None of the '+wbs.length+' readable working Book architectures records a reference to this concept')+
+          (bad.length?'; a Book that could not be read might.':'.')));
       }else if(cn&&!cn.nodeId&&wbs.length){
         wrap.append(el('p','atl-note','Working Book architectures refer only to recorded Architecture nodes, so none can refer to this '+
           M.FACET_SINGULAR[cn.facet].toLowerCase()+' directly.'));
       }
+      bad.forEach(function(t){wrap.append(toneLine({tone:'bad',text:t}));});
       if(proj.length){
         var pl=el('ul','atl-series-project');proj.forEach(function(p){pl.append(el('li','atl-tone-'+p.tone,p.text));});
         wrap.append(el('p','atl-series-kicker','Also kept in this project'),pl,
           el('p','atl-note',cn?'Not linked to this concept: nothing records that it refers to these plans, and equal words are not a link.':
             'Nothing records that this working Architecture refers to these plans.'));
       }
-      if(!hits.length&&!wbs.length&&!proj.length){
+      if(!hits.length&&!wbs.length&&!bad.length&&!proj.length){
         wrap.append(el('p','atl-folio-detail','No Book or Series plan is kept for this canvas or project, so nothing here can say how this '+
           (cn?'concept':'Architecture')+' is planned across Books.'));
         wrap.append(el('p','atl-note','Each kind of plan has its own owner: a full Series plan is series_identity.yaml (auteur series validate); '+
           'Series and Book Directions are accepted through auteur series journey; a working Book architecture is developed with '+
           'python -m auteur.series.working_book_architecture. Any of them would be shown here, read-only.'));
       }
-      if(d.available){var open=actionButton(wrap,hits.length?'Explore all Series and Book context':'Explore Series and Book context',function(){openLeaf({});},'series-open');
-        if(!hits.length)open.classList.add('atl-action-primary');}
+      if(d.available)actionButton(wrap,hits.length?'Explore all Series and Book context':'Explore Series and Book context',function(){openLeaf({});},'series-open');
+      wrap.append(el('p','atl-note atl-series-status','Read at '+readTime(c)+(c.status==='loading'?'; reading again…':'.')));
       folio.append(wrap);
     }
     function openLeaf(opts){
       var a=document.activeElement;
       S.leaf={from:S.focus,book:opts&&opts.book||null,opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop};
-      readSeries(true);renderFolio();folio.scrollTop=0;focusFolio();
+      readSeries(true,false);renderFolio();folio.scrollTop=0;focusFolio();
       var from=S.focus&&S.model.byId[S.focus];
       announce('Series and Book context, read-only.'+(from?' Back returns to “'+from.title+'”; the atlas keeps your place.':''));
     }
@@ -1523,18 +1530,24 @@
     function factList(pairs){var dl=el('dl','atl-facts');pairs.forEach(function(p){fact(dl,p[0],p[1]);});return dl;}
     function leafSection(title,note){var sec=el('section','atl-series-owner');sec.setAttribute('aria-label',title);
       sec.append(el('h4','atl-section-title',title));if(note)sec.append(el('p','atl-note',note));folio.append(sec);return sec;}
+    function readTime(c){return c&&c.readAt?c.readAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';}
+    function day(iso){var t=Date.parse(iso);return isNaN(t)?String(iso).slice(0,10):new Date(t).toLocaleDateString([],{year:'numeric',month:'short',day:'numeric'});}
     function renderSeriesLeaf(){
+      // The view re-reads whenever the Architecture changed or the last read is old.
+      readSeries(false);
       var l=S.leaf,c=S.seriesCtx,d=c&&c.data,from=l.from&&S.model.byId[l.from];
       folio.setAttribute('aria-label','Series and Book context');
       folio.append(el('p','atl-kicker-line','Series and Book context · read-only'));
-      folio.append(el('h3','atl-folio-title',from?'Plans around “'+from.title+'”':'Book and Series plans'));
+      var recorded=from&&d?X.forNode(d,from.nodeId).length:0;
+      folio.append(el('h3','atl-folio-title',recorded?'Plans that record “'+from.title+'”':'Book and Series plans in this canvas and project'));
+      if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. No plan here records a reference to it.'));
       var nav=el('div','atl-look');
       var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
       bk.setAttribute('aria-keyshortcuts','Escape');
-      actionButton(nav,'Read again',function(){readSeries(true);},'series-reread');
+      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread');
       folio.append(nav);
-      var status=!c||c.status==='loading'?'Reading the plans…':c.status==='error'?'Could not read the plans: '+c.error:
-        (c.changed?'Changed since you last read them. ':'')+'Read at '+c.readAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'.';
+      var status=!c||c.status==='loading'?(d?'Reading the plans again… (showing the read of '+readTime(c)+')':'Reading the plans…'):c.status==='error'?'Could not read the plans: '+c.error:
+        (c.changed?'Changed since you last read them. ':'')+'Read at '+readTime(c)+'.';
       folio.append(el('p','atl-note atl-series-status',status));
       folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance.'));
       if(!d)return;
@@ -1552,6 +1565,7 @@
     function renderLeafBooks(d,from,l){
       var wb=d.sources.working_books;if(!wb||wb.state==='absent')return;
       var sec=leafSection('Working Book architectures · this canvas',wb.authority_note);
+      if(wb.state==='unreadable'){sec.append(toneLine({tone:'bad',text:'The working Book architectures could not be read ('+wb.reason+'). Nothing from them is shown.'}));return;}
       var list=wb.books.slice().sort(function(a,b){return (b.book_number===l.book)-(a.book_number===l.book)||a.book_number-b.book_number;});
       list.forEach(function(b){
         var det=el('details','atl-series-record');det.dataset.book=String(b.book_number);
@@ -1593,7 +1607,9 @@
           o.append(row,el('p','atl-note','Selecting one shows it in the atlas; the trail keeps the way back.'));det.append(o);
         }
         if(b.open_author_decisions)det.append(el('p','atl-note',X.plural(b.open_author_decisions,'open author decision')+
-          ' kept by this Book, each bound to one of the Architecture’s open questions. They stay yours to decide.'));
+          ' kept by this Book, each recorded against one of the Architecture’s open questions'+
+          (b.freshness==='ready'?'':' as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here')+
+          '. They stay yours to decide.'));
         var src=el('p','atl-provenance');src.append(sourceChip(b.source),chip('Written against request '+String(b.written_against_request||'').slice(0,10)));det.append(src);
         var how=el('details','atl-series-how');how.append(el('summary','','How this plan is changed'));
         how.append(el('p','atl-note','Through its own reviewed workflow, not from the atlas: '+wb.owner_route.replace('<n>',String(b.book_number))+
@@ -1604,7 +1620,7 @@
     function renderLeafPlan(d,from){
       var plan=d.sources.series_plan;if(!plan||plan.state==='absent')return;
       var sec=leafSection('Series plan · this project',plan.authority_note);
-      if(plan.state==='invalid'){sec.append(toneLine({tone:'bad',text:plan.path+' could not be read as a Series plan ('+plan.reason+'). Nothing from it is shown.'}));return;}
+      if(plan.state==='invalid'||plan.state==='unreadable'){sec.append(toneLine({tone:'bad',text:plan.path+' could not be read as a Series plan ('+plan.reason+'). Nothing from it is shown.'}));return;}
       var chips=el('p','atl-provenance');chips.append(chip('Author-declared plan · no acceptance record'),sourceChip(plan.source));sec.append(chips);
       var arc=plan.global_arc||{};
       sec.append(factList([['Series',plan.title+' · '+M.human(plan.series_type)],['Core question',plan.core_question],
@@ -1662,10 +1678,11 @@
     function renderLeafDirections(d,from){
       var dir=d.sources.series_direction;if(!dir||dir.state==='absent')return;
       var sec=leafSection('Series and Book Directions · this project',dir.authority_note);
+      if(dir.state==='unreadable'){sec.append(toneLine({tone:'bad',text:'The Series and Book Directions could not be read ('+dir.reason+'). Nothing from them is shown.'}));return;}
       var ser=dir.series||{};
       if(ser.state==='accepted'){
         var chips=el('p','atl-provenance');
-        chips.append(chip('Accepted · revision '+ser.revision+(ser.accepted_by?' · by '+ser.accepted_by:'')+(ser.accepted_at?' · '+String(ser.accepted_at).slice(0,10):''),'accepted'),sourceChip(ser.source));
+        chips.append(chip('Accepted · revision '+ser.revision+(ser.accepted_by?' · by '+ser.accepted_by:'')+(ser.accepted_at?' · '+day(ser.accepted_at):''),'accepted'),sourceChip(ser.source));
         sec.append(chips,factList([['Series Direction',ser.title],['Promise',ser.promise],['Pressure',ser.pressure],['Open question',ser.open_question]]));
         var cu=el('ul','atl-series-elements');
         ser.commitments.forEach(function(k){var li=el('li','');
@@ -1680,14 +1697,13 @@
         if(b.state!=='accepted'){det.append(toneLine({tone:'bad',text:b.path+': '+b.reason}));sec.append(det);return;}
         // A Direction accepted against an older or unverified Series Direction opens, so the warning is seen.
         if(b.freshness!=='current')det.open=true;
-        var chips=el('p','atl-provenance');chips.append(chip('Accepted · revision '+b.revision+(b.accepted_at?' · '+String(b.accepted_at).slice(0,10):''),'accepted'),sourceChip(b.source));
+        var chips=el('p','atl-provenance');chips.append(chip('Accepted · revision '+b.revision+(b.accepted_at?' · '+day(b.accepted_at):''),'accepted'),sourceChip(b.source));
         det.append(chips,toneLine(X.directionBookFreshness(b)));
         det.append(factList([['Core answer',b.core_answer],['Reader experience',b.target_experience],['Want',b.want],['Stakes',b.stakes],
           ['Serves Series commitments',b.series_commitment_ids]]));
         hypothesisButton(det,from,'the accepted Book '+b.book_number+' Direction “'+b.title+'”',b.source);sec.append(det);
       });
-      var other=dir.other_proposals||{},n=(other.series_direction||0)+(other.book_direction||0);
-      if(n)sec.append(el('p','atl-note','The Series journey also keeps '+X.plural(n,'proposal file')+' besides the accepted records shown here. Proposals are not accepted plans, and they are not shown.'));
+      sec.append(el('p','atl-note',X.proposalNote(dir)));
       sec.append(el('p','atl-note',d.architecture_link.statement));
     }
     /* What is waiting in the Studio's own workflow, stated where the author is looking. */
