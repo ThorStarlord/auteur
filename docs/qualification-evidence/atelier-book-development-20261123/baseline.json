@@ -1,6 +1,6 @@
 {
   "revision": "19ec9dc2c7a2b93990ce9fc83547538d4a5ebbbd",
-  "package": "H:\\GithubRepositories\\auteur\\.worktrees\\series-context\\src\\auteur",
+  "package": "<main@19ec9dc2 checkout>/src/auteur",
   "task": "revise Book 24 element eng-record-form, which records a reference to eng_ledger",
   "studio_route_for_book_development": false,
   "steps": [

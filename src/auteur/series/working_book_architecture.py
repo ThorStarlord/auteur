@@ -577,15 +577,31 @@ def _freshness(store: CanvasStore, book_number: int, record: dict) -> dict:
     }
 
 
+class RevisionExpectation(BaseModel):
+    """What a caller read before asking for a revision, checked under the canvas lock.
+
+    `baseline_request_sha256`: the working Book must still be this revision.
+    `pending_request_sha256`: the request waiting now (None when none) must be this one, so a new request
+    replaces only a request the caller knows about. `pending_reviewed` must match whether it has a review.
+    `current_only`: refuse while the Book is out of date with the Series architecture or its source,
+    because applying any revision records the whole Book as written against the current state.
+    """
+    model_config = ConfigDict(extra="forbid")
+    baseline_request_sha256: str
+    pending_request_sha256: str | None
+    pending_reviewed: bool = False
+    current_only: bool = False
+
+
 def book_prepare(
     store: CanvasStore, book_number: int, *, instruction: str | None = None,
-    targets: tuple[str, ...] = (), holistic: bool = False,
+    targets: tuple[str, ...] = (), holistic: bool = False, expect: RevisionExpectation | None = None,
 ) -> dict:
     """Develop a Book when none exists. With an instruction, prepare a reviewed revision of the existing one."""
     _check_number(book_number)
     if instruction is None:
         return _prepare_develop(store, book_number)
-    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic)
+    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic, expect)
 
 
 def _prepare_develop(store: CanvasStore, book_number: int) -> dict:
@@ -1469,8 +1485,36 @@ def _revision_attempt(base: Path, baseline_sha: str) -> int:
     return count + 1
 
 
+def _check_expectation(store: CanvasStore, book_number: int, base: Path, current: dict,
+                       expect: RevisionExpectation, holistic: bool) -> None:
+    if current["request_sha256"] != expect.baseline_request_sha256:
+        raise BeginnerConcurrencyError(
+            f"the working Book {book_number} changed since you read it (it is now revision "
+            f"{current.get('revision_number', 0)}); read it again before preparing a revision")
+    pointer = _read(base / "latest_request.json")
+    pending = pointer["request_sha256"] if pointer and pointer["request_sha256"] != current["request_sha256"] else None
+    reviewed = bool(pending) and (base / "requests" / pending / "review.json").is_file()
+    if pending and expect.pending_request_sha256 is None:
+        raise BeginnerConcurrencyError(
+            f"another request for Book {book_number} is still waiting "
+            + ("for your review" if reviewed else "for the coding agent")
+            + "; confirm that this request replaces it")
+    if pending != expect.pending_request_sha256 or (pending and reviewed != expect.pending_reviewed):
+        raise BeginnerConcurrencyError(
+            f"the request waiting for Book {book_number} changed since you read it"
+            + (" (your coding agent's review of it is now ready)" if reviewed and not expect.pending_reviewed else "")
+            + "; read it again before replacing it")
+    if expect.current_only and not holistic:
+        settings = {"series_request_sha256": current["series_request_sha256"], "source_sha256": current["source_sha256"]}
+        if _series_changed(store, settings) or _source_changed(store, book_number, settings):
+            raise BeginnerConcurrencyError(
+                f"Book {book_number} is out of date with the working Architecture or its source; applying any "
+                "revision records the whole Book as current, so only a whole-Book revision can be prepared")
+
+
 def _prepare_revision(
     store: CanvasStore, book_number: int, instruction: str, targets: tuple[str, ...], holistic: bool,
+    expect: RevisionExpectation | None = None,
 ) -> dict:
     if not instruction.strip():
         raise ValueError("a revision needs a non-empty instruction")
@@ -1485,6 +1529,8 @@ def _prepare_revision(
         current = _read(base / "current.json")
         if current is None:
             raise ValueError(f"Book {book_number} has no working architecture to revise; develop it first")
+        if expect is not None:
+            _check_expectation(store, book_number, base, current, expect, holistic)
         artifact = WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))
         index = _index_elements(artifact)
         unknown = sorted(identifier for identifier in targets if identifier not in index)

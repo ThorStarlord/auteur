@@ -172,7 +172,11 @@ def test_a_waiting_request_is_replaced_only_on_request_and_its_review_is_then_su
     first = complete_book_revision(project, CANVAS, 24, respond(first, revised(project, edit_target)))
     with pytest.raises(BeginnerConcurrencyError, match="confirm that this request replaces it"):
         prepare(project)
-    second = prepare(project, replace_pending_request_sha256=first["pending"]["request_sha256"])
+    # Replacing needs the waiting request as it now is: its review exists, so the author must have seen it.
+    with pytest.raises(BeginnerConcurrencyError, match="review of it is now ready"):
+        prepare(project, replace_pending_request_sha256=first["pending"]["request_sha256"])
+    second = prepare(project, replace_pending_request_sha256=first["pending"]["request_sha256"],
+                     replace_pending_reviewed=True)
     assert second["phase"] == "awaiting_coding_agent"
     assert second["pending"]["request_sha256"] != first["pending"]["request_sha256"]
     with pytest.raises(BeginnerConcurrencyError, match="superseded"):
@@ -270,3 +274,62 @@ def test_prepare_validates_its_payload(project):
     with pytest.raises(ValueError, match="request_sha256"):
         apply_book_revision(project, CANVAS, 24, {"request_sha256": "latest"})
     assert project_book_development(project, CANVAS, 24)["phase"] == "none"
+
+
+def test_an_out_of_date_book_takes_only_a_whole_book_revision(project):
+    """Applying any revision records the whole Book as current, so a stale Book is not revised piecemeal."""
+    from auteur.beginner.studio_architecture import _candidate
+    view = project_book_development(project, CANVAS, 24)
+    store = CanvasStore(project, CANVAS)
+    series = _candidate(store)
+    node = next(n for n in series["candidate"]["nodes"] if n["id"] == seed.REMOVED_NODE)
+    # An applied working-Architecture revision that rewords (does not remove) a node the Book cites.
+    reworded = json.loads(json.dumps(series["candidate"]))
+    next(n for n in reworded["nodes"] if n["id"] == node["id"])["summary"] += " (reworded)"
+    seed_revise(store, reworded)
+    stale = project_book_development(project, CANVAS, 24)
+    assert stale["book"]["freshness"] == "stale" and stale["phase"] == "none"
+    with pytest.raises(BeginnerConcurrencyError, match="only a whole-Book revision"):
+        prepare(project)
+    whole = prepare_book_revision(project, CANVAS, 24, {
+        "instruction": "Bring the Book up to date.", "holistic": True,
+        "expected_book_request_sha256": view["book"]["request_sha256"]})
+    assert whole["phase"] == "awaiting_coding_agent" and whole["pending"]["mode"] == "holistic"
+
+
+def seed_revise(store, candidate):
+    """Apply a working-Architecture revision through the Studio's own lifecycle."""
+    from auteur.beginner.studio_architecture import apply_architecture_review, complete_architecture, prepare_architecture
+    prepared = prepare_architecture(store, "Reword one node.")
+    request = HostAgentRequest(**prepared["request"])
+    complete_architecture(store, build_host_agent_response(request, json.dumps(candidate), runtime="test").model_dump())
+    apply_architecture_review(store, request.request_sha256)
+
+
+def test_malformed_pasted_responses_are_readable_refusals(project):
+    view = prepare(project)
+    good = respond(view, revised(project, edit_target))
+    for broken in ({k: v for k, v in good.items() if k != "completed_at"}, {**good, "extra": 1}, {**good, "text": None}):
+        with pytest.raises(ValueError) as refused:
+            complete_book_revision(project, CANVAS, 24, broken)
+        assert not isinstance(refused.value, (TypeError, KeyError))
+    assert project_book_development(project, CANVAS, 24)["phase"] == "awaiting_coding_agent"
+
+
+def test_damaged_lifecycle_records_are_reported_not_offered(project):
+    view = prepare(project)
+    view = complete_book_revision(project, CANVAS, 24, respond(view, revised(project, edit_target)))
+    sha = view["pending"]["request_sha256"]
+    review_file = book_dir(project) / "requests" / sha / "review.json"
+    review = json.loads(review_file.read_text(encoding="utf-8"))
+    review_file.write_text(json.dumps({k: v for k, v in review.items() if k != "baseline"}), encoding="utf-8")
+    damaged = project_book_development(project, CANVAS, 24)
+    assert damaged["state"] == "unreadable" and "baseline" in damaged["reason"]
+    with pytest.raises(ValueError, match="working records cannot be read"):
+        apply_book_revision(project, CANVAS, 24, {"request_sha256": sha})
+    (book_dir(project) / "requests" / sha / "request.json").unlink()
+    missing = project_book_development(project, CANVAS, 24)
+    assert missing["state"] == "unreadable" and "request.json" in missing["reason"]
+    assert str(project) not in missing["reason"]  # no absolute paths
+    with pytest.raises(ValueError, match="working records cannot be read"):
+        apply_book_revision(project, CANVAS, 24, {"request_sha256": sha})

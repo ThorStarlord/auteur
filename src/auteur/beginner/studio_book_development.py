@@ -15,6 +15,7 @@ Narrative Architecture, the Series plan or the Directions. The browser never cal
 from __future__ import annotations
 
 import re
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -32,9 +33,11 @@ from auteur.series.working_book_architecture import (
     book_review_elements,
     book_revision_scope,
     book_series_references,
+    RevisionExpectation,
 )
 
 SCHEMA = "studio-book-development/1"
+REVIEW_KEYS = ("request_sha256", "baseline", "applicable", "changes", "preserved", "unexpected_changes")
 OWNER_MODULE = "auteur.series.working_book_architecture"
 _SHA = re.compile(r"[0-9a-f]{64}")
 
@@ -64,6 +67,30 @@ def _handoff(project_root: Path, canvas_id: str, book_number: int) -> dict:
     }
 
 
+def _reason(exc: BaseException) -> str:
+    """A damaged record's reason in words, without the absolute path of the file."""
+    if isinstance(exc, OSError) and exc.filename:
+        return f"{type(exc).__name__}: {exc.strerror or 'cannot be read'} ({Path(str(exc.filename)).name})"
+    if isinstance(exc, ValidationError):
+        errors = exc.errors()
+        first = errors[0] if errors else {"loc": (), "msg": str(exc)}
+        where = ".".join(str(part) for part in first["loc"])
+        return f"the record does not match its contract ({where}: {first['msg']})"
+    if isinstance(exc, KeyError):
+        return f"a field is missing from the record ({exc.args[0]})"
+    return f"{type(exc).__name__}: {exc}"[:300]
+
+
+@contextmanager
+def _owner_records(book_number: int):
+    """Damaged or missing owner records become a readable refusal (400), never a 500 or a false 404."""
+    try:
+        yield
+    except (KeyError, TypeError, AttributeError, OSError, ValidationError) as exc:
+        raise ValueError(f"Book {book_number}'s working records cannot be read: {_reason(exc)}. "
+                         "Nothing was changed.") from None
+
+
 def _phase(owner: dict, pending: dict | None) -> str:
     if pending is None:
         return "none"
@@ -88,9 +115,14 @@ def project_book_development(project_root: Path, canvas_id: str, book_number: in
         pending = book_pending_state(store, book_number)["pending"]
         refs = book_series_references(store, book_number)
         elements = book_elements(store, book_number)
-    except (ValueError, KeyError, TypeError, OSError) as exc:
+        review = owner.get("review") if pending is not None else None
+        if review is not None and not all(key in review for key in REVIEW_KEYS):
+            raise KeyError(next(key for key in REVIEW_KEYS if key not in review))
+        # The reviewed candidate's own elements, so the review can show what each change says.
+        review_elements = book_review_elements(store, book_number) if review is not None else None
+    except (ValueError, KeyError, TypeError, AttributeError, OSError) as exc:
         # A damaged record is reported for this Book alone; nothing from it is shown or offered.
-        out.update({"state": "unreadable", "reason": f"{type(exc).__name__}: {exc}"[:300]})
+        out.update({"state": "unreadable", "reason": _reason(exc)})
         return out
     if refs.get("status") == "not_started":
         out.update({"state": "no_book", "phase": _phase(owner, pending), "pending": pending,
@@ -107,9 +139,8 @@ def project_book_development(project_root: Path, canvas_id: str, book_number: in
         "elements": elements,
         "phase": phase,
         "pending": pending,
-        "review": owner.get("review") if pending is not None else None,
-        # The reviewed candidate's own elements, so the review can show what each change says.
-        "review_elements": book_review_elements(store, book_number) if pending is not None and owner.get("review") else None,
+        "review": review,
+        "review_elements": review_elements,
         "request": owner.get("request") if phase in ("awaiting_coding_agent", "stale") else None,
         "handoff": _handoff(project_root, canvas_id, book_number) if pending is not None else None,
     })
@@ -127,7 +158,8 @@ def _string_list(value: Any, name: str) -> tuple[str, ...]:
 def preview_book_scope(project_root: Path, canvas_id: str, book_number: int, payload: dict) -> dict:
     """Read-only: the elements a targeted revision of these targets would permit (the owner's own rule)."""
     store = _store(project_root, canvas_id)
-    return book_revision_scope(store, book_number, _string_list(payload.get("targets"), "targets"))
+    with _owner_records(book_number):
+        return book_revision_scope(store, book_number, _string_list(payload.get("targets"), "targets"))
 
 
 def prepare_book_revision(project_root: Path, canvas_id: str, book_number: int, payload: dict) -> dict:
@@ -143,21 +175,19 @@ def prepare_book_revision(project_root: Path, canvas_id: str, book_number: int, 
     expected = payload.get("expected_book_request_sha256")
     if not isinstance(expected, str) or not _SHA.fullmatch(expected):
         raise ValueError("expected_book_request_sha256 must name the Book revision you were reading")
-    refs = book_series_references(store, book_number)
-    if refs.get("status") == "not_started":
-        raise ValueError(f"Book {book_number} has no working architecture to revise")
-    if refs["request_sha256"] != expected:
-        raise BeginnerConcurrencyError(
-            f"the working Book {book_number} changed since you read it (it is now revision "
-            f"{refs['revision_number']}); read it again before preparing a revision"
-        )
-    pending = book_pending_state(store, book_number)["pending"]
-    if pending is not None and payload.get("replace_pending_request_sha256") != pending["request_sha256"]:
-        raise BeginnerConcurrencyError(
-            "another Book request is still waiting for review or for the coding agent; "
-            "confirm that this request replaces it"
-        )
-    book_prepare(store, book_number, instruction=instruction, targets=targets, holistic=holistic)
+    replace = payload.get("replace_pending_request_sha256")
+    if replace is not None and (not isinstance(replace, str) or not _SHA.fullmatch(replace)):
+        raise ValueError("replace_pending_request_sha256 must name the waiting request you read")
+    reviewed = payload.get("replace_pending_reviewed", False)
+    if not isinstance(reviewed, bool):
+        raise ValueError("replace_pending_reviewed must be true or false")
+    # The owner checks all of this under the canvas lock, at the moment it writes the request: the Book is
+    # the revision the author read; a waiting request is replaced only when it is the one, in the state,
+    # the author confirmed; and a Book out of date with its sources takes only a whole-Book revision.
+    expect = RevisionExpectation(baseline_request_sha256=expected, pending_request_sha256=replace,
+                                 pending_reviewed=reviewed, current_only=True)
+    with _owner_records(book_number):
+        book_prepare(store, book_number, instruction=instruction, targets=targets, holistic=holistic, expect=expect)
     return project_book_development(project_root, canvas_id, book_number)
 
 
@@ -174,6 +204,12 @@ def complete_book_revision(project_root: Path, canvas_id: str, book_number: int,
             for error in exc.errors()[:6]
         )
         raise ValueError(f"the response does not match the Working Book contract: {details}") from None
+    except (TypeError, AttributeError, KeyError) as exc:
+        raise ValueError("the response is not a complete HostAgentResponse for this request "
+                         f"({_reason(exc)}); nothing was stored and the request is still open") from None
+    except FileNotFoundError as exc:
+        raise ValueError(f"Book {book_number}'s working records cannot be read: {_reason(exc)}. "
+                         "Nothing was changed.") from None
     return project_book_development(project_root, canvas_id, book_number)
 
 
@@ -183,6 +219,7 @@ def apply_book_revision(project_root: Path, canvas_id: str, book_number: int, pa
     sha = payload.get("request_sha256")
     if not isinstance(sha, str) or not _SHA.fullmatch(sha):
         raise ValueError("request_sha256 must be the 64-character identity of the review you read")
-    result = book_apply_review(store, book_number, sha)
+    with _owner_records(book_number):
+        result = book_apply_review(store, book_number, sha)
     return {"application": {"result": result["result"], "request_sha256": sha},
             **project_book_development(project_root, canvas_id, book_number)}

@@ -1596,13 +1596,14 @@
             box.append(el('h5','atl-series-subtitle','What Book '+b.book_number+' records about “'+from.title+'”'));
             var st=X.refStanding(ref);if(st)box.append(toneLine(st));
             var ul=el('ul','atl-series-elements');
-            var la=b.last_applied,touched=la?la.changed.concat(la.added):[];
+            var la=b.last_applied,touched=la?la.changed.concat(la.added):[],gone=la&&la.withdrawal?la.withdrawal.element_id:null;
             ref.elements.forEach(function(e){var li=el('li','');
               li.append(el('span','atl-series-kind',(X.COLLECTION[e.collection]||M.human(e.collection))+(e.via==='name_source'?' · takes its name from this concept':'')));
               li.append(el('span','atl-series-text',e.text));
               li.append(chip(X.AUTHORITY[e.commitment_authority]||M.human(e.commitment_authority),'proposal'));
               // A Book revision is marked as a change to the working Book, never to the Architecture concept.
-              if(touched.indexOf(e.id)>=0)li.append(chip('Changed in working Book revision '+la.revision_number,'book-changed'));
+              if(gone===e.id)li.append(chip('Withdrawn in working Book revision '+la.revision_number,'book-changed'));
+              else if(touched.indexOf(e.id)>=0)li.append(chip('Changed in working Book revision '+la.revision_number,'book-changed'));
               if(binding.books&&e.collection!=='open_author_decisions'){var dv=actionButton(li,'Develop this element',function(){openDevelop(b.book_number,[e.id],false,from);},'book-dev:'+b.book_number+':'+e.id);
                 dv.classList.add('atl-action-quiet');dv.setAttribute('aria-label','Develop this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number);}
               ul.append(li);});
@@ -1742,7 +1743,8 @@
       card.append(ids);parent.append(card);
     }
     function renderComposer(box,n,b,data,dev,from){
-      var d=bookDraft(n),busyNow=busy(n);
+      var d=bookDraft(n),busyNow=busy(n),outOfDate=data.book.freshness!=='ready';
+      if(outOfDate)dev.holistic=true;
       var form=el('div','atl-book-compose');
       form.append(el('p','atl-kicker-line',dev.holistic?'Revise the whole Book':'Revise one element'));
       targetLines(form,n,data,dev,from);
@@ -1751,12 +1753,15 @@
         r.checked=value==='holistic'?dev.holistic:!dev.holistic;r.dataset.key='book-scope:'+n+':'+value;
         r.addEventListener('change',function(){if(r.checked){dev.holistic=value==='holistic';renderFolio();}});
         lab.append(r,el('span','',label));scope.append(lab);if(detail)scope.append(el('p','atl-note',detail));}
-      if(dev.targets.length){
+      if(outOfDate)scope.append(toneLine({tone:'warn',text:'Book '+n+' was written against an earlier working Architecture or source. '+
+        'Applying any revision records the whole Book as written against the current one, so a revision here covers the whole Book: '+
+        'your coding agent may then bring every element up to date, and the review shows each one.'}));
+      if(dev.targets.length&&!outOfDate){
         var map={};data.elements.forEach(function(e){map[e.id]=e;});
         radio('targeted',dev.targets.length===1?'Only this element':'Only these elements',dev.scope?B.scopeSentence(dev.scope,map)+
           (dev.scope.dependents.length?' They are: '+B.labels(map,dev.scope.dependents).join('; ')+'.':''):dev.scopeError?'Could not check which elements refer to it: '+dev.scopeError:'Checking which elements refer to it…');
       }
-      radio('holistic','The whole Book','Use this only when the change cannot stay inside the chosen element. Your coding agent may then change any element of Book '+n+', and the review shows each one.');
+      radio('holistic','The whole Book',outOfDate?'':'Use this only when the change cannot stay inside the chosen element. Your coding agent may then change any element of Book '+n+', and the review shows each one.');
       form.append(scope);
       var label=el('label','atl-bookdev-label','What should change?'),ta=el('textarea','atl-book-text');ta.id='atl-book-instruction-'+n;label.htmlFor=ta.id;
       ta.rows=4;ta.maxLength=4000;ta.value=d.instruction;ta.dataset.key='book-instruction:'+n;
@@ -1801,7 +1806,7 @@
         expected_book_request_sha256:data.book.request_sha256};
       if(data.pending){if(!dev.replace){bookNote(n,'bad','A request for Book '+n+' is already waiting. Tick “Replace…” to prepare this one instead; nothing was prepared.');
         renderFolio();focusKey('book-replace:'+n);return;}
-        body.replace_pending_request_sha256=data.pending.request_sha256;}
+        body.replace_pending_request_sha256=data.pending.request_sha256;body.replace_pending_reviewed=!!data.pending.completed;}
       setBusy(n,'prepare');renderFolio();
       var call;try{call=Promise.resolve(binding.books.prepare(n,body));}catch(error){call=Promise.reject(error);}
       call.then(function(r){
@@ -1921,7 +1926,8 @@
         if(wide.length&&r.mode!=='holistic'){var w=actionButton(row,'Prepare again, allowing those elements too',function(){
           openDevelop(n,wide,false,from,{instruction:r.instruction,replace:true});},'book-widen:'+n);w.classList.add('atl-action-primary');}
         actionButton(row,'Prepare again for the whole Book',function(){openDevelop(n,[],true,from,{instruction:r.instruction,replace:true});},'book-holistic:'+n);}
-      actionButton(row,'Prepare a different request',function(){openDevelop(n,data.pending.targets,data.pending.mode==='holistic',from,{instruction:r.instruction,replace:true});},'book-redo:'+n);
+      var seedText=data.pending.operation==='revise'?r.instruction:'';
+      actionButton(row,'Prepare a different request',function(){openDevelop(n,data.pending.targets,data.pending.mode==='holistic',from,{instruction:seedText,replace:true});},'book-redo:'+n);
       sec.append(row);box.append(sec);
     }
     function applyBook(n,sha){

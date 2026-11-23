@@ -94,8 +94,9 @@
       series:(review.series_consequences||[]).map(function(s){var who=s.cited_by.map(label).join(', ');
         return s.exists_in_series?{tone:'note',text:'“'+name(s.series_node_id)+'” is cited by '+who+'. The Architecture is unchanged; check that the Book still fits it.'}:
           {tone:'bad',text:who+' cites '+s.series_node_id+', which the working Architecture no longer records.'};}),
-      decisions:(review.author_decisions||[]).map(function(d){return label(d.decision_id)+' is touched by '+d.touched_by.map(label).join(', ')+
-        '. It stays yours to decide; this revision does not decide it.';}),
+      // The owner lists every decision linked to an element this review touches or asks to re-read.
+      decisions:(review.author_decisions||[]).map(function(d){return label(d.decision_id)+' is connected to this revision through '+
+        d.touched_by.map(label).join(', ')+'. It stays yours to decide; this revision does not decide it.';}),
       authority:(review.authority_changes||[]).map(function(a){return label(a.id)+': '+(AUTHORITY[a.before]||a.before)+' → '+(AUTHORITY[a.after]||a.after)+'.';}),
       unresolved:(review.unresolved_effects||[]).map(function(u){return label(u.id)+': its wording changed but the Book records no dependency for it, so what follows from the change is not established.';}),
       identity:[['Review of request',review.request_sha256],['Baseline Book request',review.baseline&&review.baseline.request_sha256],
