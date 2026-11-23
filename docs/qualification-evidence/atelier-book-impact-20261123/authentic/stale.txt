@@ -1,0 +1,8 @@
+1. whole-Book reconciliation of Book 25 completed: review_ready
+   the Architecture is revised again; the Studio now reads the request as: stale
+   apply refused: BeginnerConcurrencyError working context changed: the Series architecture or the Book's source changed; review again
+   Book 25 record unchanged: True
+2. CLI targeted revision of out-of-date Book 25: prepare exit 0 | review: review_ready
+   apply exit 0 | result: applied | currentness: kept_baseline | status: stale
+   fresh resume: freshness stale | series_changed True | revision 1
+   repeated apply: already_applied

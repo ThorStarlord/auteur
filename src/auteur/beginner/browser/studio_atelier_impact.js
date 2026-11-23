@@ -103,7 +103,8 @@
   // The author's starting words for a whole-Book revision, built only from recorded evidence. The author
   // edits them before anything is prepared; nothing here asserts what the Book must become.
   function reconcileDraft(e,nameOf){
-    var n=e.number,out=['Reconcile working Book '+n+' with the revised working Architecture. What its record shows:'];
+    var n=e.number,out=[(e.architectureChanged?'Reconcile working Book '+n+' with the revised working Architecture.':
+      'Bring working Book '+n+' up to date with its changed source items.')+' What its record shows:'];
     e.changed.forEach(function(r){var c=conceptChange(r);out.push('- “'+refName(r,nameOf)+'” changed after this Book was written'+
       (c.fields.length?' (its '+andList(c.fields)+')':'')+'. Cited by: '+clip(citing(r,true).join('; '),600)+'.');});
     e.removed.forEach(function(r){out.push('- “'+refName(r,nameOf)+'” is no longer in the working Architecture. Cited by: '+clip(citing(r,true).join('; '),600)+'.');});

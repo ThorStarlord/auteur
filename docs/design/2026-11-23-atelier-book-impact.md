@@ -114,3 +114,62 @@ must name the citing elements.
   opportunity, not built here.
 - **A long chain stops early:** the Architecture chain walk stops after 40 revisions or at the first
   unreadable version. An older recorded version is then reported as not kept.
+
+## Independent review and dispositions
+
+Three independent reviewers worked on disposable projects: authority and freshness, interaction, and
+adversarial workflow.
+
+**Authority (no blockers).**
+- **Fixed:** a partial revision of an out-of-date Book gave the current fingerprint to a concept the Book
+  already cited without one. Such a concept is now carried forward unrecorded; only a newly cited concept is
+  recorded as it is now.
+- **Fixed:** a damaged or truncated Architecture history was reported as "not on the current revision
+  chain". The chain is now walked by request identity, and says whether it was read whole; when it was not,
+  the Atelier says how far behind the Book is "cannot be told".
+- **Fixed:** with no working Architecture, every cited concept read "removed". It now reports
+  `architecture_unavailable`, and nothing is said about any concept.
+- **Fixed:** a damaged Architecture `current.json` made the whole Working Books section unreadable. That
+  unguarded read was removed.
+- **Fixed:** a record without fingerprints raised in `_freshness`. It is now read, with its references
+  unrecorded.
+- **Fixed:** older applied revisions claimed `currentness: current` by default. They now report `None`
+  (not recorded).
+
+**Interaction.**
+- **Fixed:** the applied-revision card counted concepts with changed relationships, while the evidence called
+  them unchanged. The evidence now says what a Book's fingerprint covers: name, kind and description, not
+  relationships.
+- **Fixed:** the atlas reading showed a sentence about "this concept" when no concept was selected.
+- **Fixed:** the entry line sat below the fold. It now comes first in the applied-revision card, or directly
+  under the atlas summary.
+- **Fixed:** opening one Book made the overview long and moved the page. The other Books now shrink to one
+  line, and only the folio scrolls.
+- **Fixed:** Escape closed the whole view. It now steps back one level, and a concept opened from the impact
+  view leads back to it.
+- **Fixed:** parser errors were shown to the author. They are now behind "Technical detail".
+- **Fixed:** Book 26's evidence and draft named nothing. They now name the Architecture concepts that
+  changed since the Book was written but that it does not cite, from the exact version it records; the draft
+  asks only to check them.
+- **Fixed:** the seeded draft opened at its end. It now opens at its start, in a taller box.
+- **Fixed:** repeated caveats are now said once.
+
+**Adversarial (no blockers).**
+- **Fixed:** after Apply from the overview, the confirmation was hidden in a closed record. The record now
+  stays open, its note is focused, and the announcement says when the Book stays out of date.
+- **Fixed:** a waiting partial request on an out-of-date Book gave no warning. It now explains why it cannot
+  bring the Book up to date, and why no answer can pass while elements outside it cite a removed concept. It
+  offers a whole-Book reconciliation that replaces it.
+- **Fixed:** a Book whose own source changed was worded as an Architecture change. Its line, button and draft
+  now name the source.
+- **Fixed:** an unreadable Architecture chain was reported as "not on the chain" (the same finding as the
+  authority review's).
+- **Recorded, unchanged:** a damaged Architecture `current.json` reads as "No working Architecture yet" in
+  the Atelier. This predates this change.
+
+**Recorded for later:**
+- **Long Series:** for very long Series, a compact table would scale better than rows. The overview already
+  folds after 8 Books per group, and says "cited by N Books" past four.
+- **Source changes:** a Book's changed source items are not named individually, because the owner keeps only
+  a digest.
+- **Element ids in the draft:** the reconcile draft keeps element ids, for the coding agent's precision.

@@ -1,0 +1,53 @@
+SERIES AND BOOK CONTEXT
+
+What the Architecture changes mean for its working Books
+← Back to the atlas
+Read again
+
+Read at 16:56:56.
+
+Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.
+
+ARCHITECTURE CHANGES AND THE WORKING BOOKS
+
+Each Book records which Architecture concepts it refers to and the version it was written against. A cited concept that changed is worth re-reading; it does not mean the Book no longer works. A Book that records no reference to a concept is not shown to be independent of it.
+
+CITE CONCEPTS THAT CHANGED OR ARE GONE · 2
+
+Book 24 · The Uncounted Crew
+
+Cites 1 concept that changed after it was written: “Ledger engine”.
+
+Cites 1 concept no longer in the working Architecture: “Gate Table”.
+
+Written against the working Architecture as it was 1 applied revision ago.
+
+Show Book 24’s evidence
+
+Book 25 · The Counted Hands
+
+Cites 1 concept that changed after it was written: “Ledger engine”.
+
+Cites 1 concept no longer in the working Architecture: “Gate Table”.
+
+Written against the working Architecture as it was 1 applied revision ago.
+
+Show Book 25’s evidence
+
+CONCEPTS BEHIND THIS
+
+Ledger engine · changed · cited by Book 24 and Book 25
+Gate Table · no longer in the Architecture · cited by Book 24 and Book 25
+
+A changed concept opens in the atlas. A concept that is gone is not in the atlas; each Book’s evidence shows it as that Book recorded it.
+
+WORKING BOOK ARCHITECTURES · THIS CANVAS
+
+Book-level working proposals for this canvas. They reference this working Architecture by node id; nothing in them is accepted, and no Book operation can accept anything.
+
+Book 24 · The Uncounted Crew
+Book 25 · The Counted Hands
+
+Not kept here: a Series plan (series_identity.yaml) · Series or Book Directions.
+
+← Back to the atlas

@@ -97,3 +97,13 @@ test('the inquiry draft is a question, not a change', () => {
   assert.match(q, /As a hypothesis to test, not a finding/);
   assert.match(q, /change nothing\.$/);
 });
+
+test('a Book whose own source changed is not described as an Architecture change', () => {
+  const e = I.entry(book(25, {series_changed: false, source_changed: true, architecture_revisions_since: 0}));
+  assert.equal(e.architectureChanged, false);
+  assert.equal(I.sinceLine(e), '');
+  const text = I.lines(e).map((l) => l.text).join(' | ');
+  assert.match(text, /change to the Book’s source, not to the Architecture/);
+  assert.doesNotMatch(text, /Architecture changed after it was written/);
+  assert.match(I.reconcileDraft(e, () => null), /^Bring working Book 25 up to date with its changed source items\./);
+});

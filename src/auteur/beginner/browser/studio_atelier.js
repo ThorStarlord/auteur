@@ -1603,8 +1603,10 @@
       var box=el('div','atl-impact-line'),parts=[];
       if(sum.flagged.length)parts.push(I.andList(sum.flagged.map(function(e){return 'Book '+e.number;}))+(sum.flagged.length===1?' cites':' cite')+
         ' Architecture concepts that changed or are gone');
-      if(sum.outOfDateOnly.length)parts.push(I.plural(sum.outOfDateOnly.length,'Book')+(sum.outOfDateOnly.length===1?' was':' were')+
+      var archOnly=sum.outOfDateOnly.filter(function(e){return e.architectureChanged;}),srcOnly=sum.outOfDateOnly.filter(function(e){return !e.architectureChanged;});
+      if(archOnly.length)parts.push(I.plural(archOnly.length,'Book')+(archOnly.length===1?' was':' were')+
         ' written against an earlier Architecture, with every concept cited unchanged');
+      if(srcOnly.length)parts.push(I.plural(srcOnly.length,'Book')+(srcOnly.length===1?' has':' have')+' its own source changed since it was written');
       if(sum.unreadable.length||sum.state==='unreadable')parts.push(sum.state==='unreadable'?'the working Books could not be read':
         I.plural(sum.unreadable.length,'Book')+' could not be read');
       box.append(el('p','atl-series-kicker','Working Books'),el('p','atl-note',parts.join('; ')+'.'));
@@ -1637,7 +1639,7 @@
         sec.append(ul);if(rest)sec.append(rest);
       }
       group('Cite concepts that changed or are gone',sum.flagged,false);
-      group('Out of date, with every cited concept unchanged',sum.outOfDateOnly,false);
+      group('Out of date, with every cited concept unchanged',sum.outOfDateOnly,false);  // the rows say why: Architecture or source
       group('Could not be read',sum.unreadable,false);
       if(sum.current.length)sec.append(el('p','atl-tone atl-tone-ok','Written against the current working Architecture: '+
         I.andList(sum.current.map(function(e){return 'Book '+e.number;}))+'.'));
@@ -1702,12 +1704,13 @@
       I.lines(e,nodeName).filter(function(t){return !/^Cites /.test(t.text);}).forEach(function(t){box.append(toneLine(t));});
       var nc=I.notCited(e);
       if(nc&&e.flagged&&I.notCitedNames(e,6))box.append(el('p','atl-note','Also changed in the Architecture since, and not cited by Book '+n+': '+I.notCitedNames(e,6)+'.'));
-      if(e.unchanged.length)box.append(el('p','atl-note',I.plural(e.unchanged.length,'other cited concept')+' unchanged in name, kind and description. '+
+      if(e.unchanged.length)box.append(el('p','atl-note',(e.flagged?I.plural(e.unchanged.length,'other cited concept'):'All '+I.plural(e.unchanged.length,'cited concept'))+
+        (e.unchanged.length===1&&!e.flagged?' is':'')+' unchanged in name, kind and description. '+
         'A Book records the concepts it cites, not their relationships, so a changed relationship is not shown here.'));
       var la=b.last_applied;
       if(la&&la.currentness==='kept_baseline')box.append(el('p','atl-note','Working Book revision '+la.revision_number+' changed only part of this Book while it was out of date, so it is still recorded against its earlier Architecture and source.'));
       if(binding.books&&e.outOfDate&&!e.noArchitecture&&!b.development&&!devFor(n)){
-        var go=actionButton(box,'Reconcile Book '+n+' with the working Architecture',function(){
+        var go=actionButton(box,e.architectureChanged?'Reconcile Book '+n+' with the working Architecture':'Bring Book '+n+' up to date with its source',function(){
           S.leaf.book=n;openDevelop(n,[],true,from,{instruction:I.reconcileDraft(e,nodeName),caretTop:true});},'impact-reconcile:'+n);
         go.classList.add('atl-action-primary');
         box.append(el('p','atl-note','A whole-Book revision through Book '+n+'’s own owner, starting from words you can change. Preparing changes nothing; only Apply changes the Book.'));
@@ -1997,11 +2000,24 @@
         readBook(n,true);renderFolio();focusKey('book-note:'+n);
       });
     }
+    // A partial request prepared elsewhere on an out-of-date Book: it cannot bring the Book up to date, and while
+    // the Book cites a concept the Architecture no longer has, an answer outside those citing elements cannot pass.
+    function partialOnStale(box,n,p,from){
+      var b=I&&S.seriesCtx&&S.seriesCtx.data?X.workingBooks(S.seriesCtx.data).filter(function(x){return x.book_number===n;})[0]:null;
+      var e=b?I.entry(b):null,allowed=p.permitted_ids||[],blocking=[];
+      if(e)e.removed.forEach(function(r){(r.elements||[]).forEach(function(x){if(allowed.indexOf(x.id)<0&&blocking.indexOf(x.id)<0)blocking.push(x.id);});});
+      box.append(toneLine({tone:'warn',text:'This request revises only part of Book '+n+', which was already out of date when it was prepared. Applying it would '+
+        'leave the Book out of date.'+(blocking.length?' Elements outside it still cite a concept the Architecture no longer has ('+blocking.join(', ')+
+        '), and every reference in the revised Book must resolve, so no answer to this request can pass.':'')}));
+      if(e&&e.outOfDate&&!devFor(n))actionButton(box,'Prepare a whole-Book reconciliation instead',function(){
+        S.leaf.book=n;openDevelop(n,[],true,from,{instruction:I.reconcileDraft(e,nodeName),caretTop:true,replace:true});},'impact-replace:'+n);
+    }
     function renderAwaiting(box,n,data,from){
       var p=data.pending;
       if(p.instruction){box.append(el('p','atl-series-kicker','You asked'),el('p','atl-book-asked',p.instruction));
         box.append(el('p','atl-series-kicker','It may change'),el('p','atl-note',scopeWords(n,p,data)));}
       if(p.stale_response_kept)box.append(toneLine({tone:'warn',text:'A response arrived for an earlier state of this Book and was kept as evidence; it was not reviewed.'}));
+      if(p.baseline_out_of_date&&p.mode!=='holistic')partialOnStale(box,n,p,from);
       var give=el('details','atl-series-how');give.dataset.key='book-agent:'+n;
       give.append(el('summary','','What to give your coding agent'));
       var msg=el('textarea','atl-book-text');msg.readOnly=true;msg.rows=7;msg.value=B.agentMessage(data.handoff,n,data.canvas_id,p);
@@ -2144,6 +2160,7 @@
       var call;try{call=Promise.resolve(binding.books.apply(n,sha));}catch(error){call=Promise.reject(error);}
       call.then(function(r){
         setBusy(n,null);if(r.canvasId!==canvas||canvasKey()!==canvas)return;
+        if(S.leaf)S.leaf.book=n;
         var data=r.data,a=data.application||{},la=data.book&&data.book.last_applied;
         S.books[k]={status:'ready',data:data,readAt:new Date(),seq:S.bookSeq=(S.bookSeq||0)+1};
         if(a.result==='already_applied')bookNote(n,'note','That revision was already applied. Nothing changed.','none');
@@ -2154,9 +2171,12 @@
           bookNote(n,'ok','Applied to working Book '+n+', now working revision '+data.book.revision_number+(what?': '+what:'')+'.'+now+
             ' Only this working Book changed. The Architecture and its concepts, the Series plan and the Directions are unchanged, and nothing was accepted.','none');}
         readSeries(true,false,true);renderFolio();focusKey('book-note:'+n);
-        announce(a.result==='already_applied'?'Already applied; nothing changed.':'Applied to working Book '+n+'. Only the working Book changed; the atlas is unchanged.');
+        announce(a.result==='already_applied'?'Already applied; nothing changed.':'Applied to working Book '+n+'.'+
+          (a.currentness==='kept_baseline'?' It changed only part of the Book, which stays out of date.':data.book.freshness==='ready'?' It is now up to date.':'')+
+          ' Only the working Book changed; the atlas is unchanged.');
       },function(error){
         setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
+        if(S.leaf)S.leaf.book=n;
         refusal(n,'Not applied: '+(error&&error.message||error)+'. Working Book '+n+' is unchanged.');
         readBook(n,true);readSeries(true,false,true);renderFolio();focusKey('book-note:'+n);
       });

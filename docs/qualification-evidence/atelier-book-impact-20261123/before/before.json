@@ -1,0 +1,28 @@
+{
+ "atlas_mentions_books": [
+  "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+  "Book 29’s working architecture could not be read, so whether it records this concept cannot be told.",
+  "Explore Series and Book context",
+  "Bands hold kinds of narrative idea; story time runs left to right in recorded phase order, one hairline per phase, Books shaded in turn."
+ ],
+ "explore_button": 1,
+ "mentions_gate_table_by_name": true,
+ "mentions_inst_gate_table_id": true,
+ "mentions_ledger_rewording": false,
+ "lines_about_change": [
+  "Written against an earlier working Architecture request; the Architecture has changed since.",
+  "A concept it refers to is no longer in the working Architecture.",
+  "inst_gate_table · no longer recorded",
+  "9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.",
+  "How this plan is changed",
+  "Written against an earlier working Architecture request; the Architecture has changed since.",
+  "Its Book source items in the canvas changed after it was written.",
+  "A concept it refers to is no longer in the working Architecture.",
+  "inst_gate_table · no longer recorded",
+  "9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.",
+  "How this plan is changed",
+  "Written against an earlier working Architecture request; the Architecture has changed since.",
+  "9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.",
+  "How this plan is changed"
+ ]
+}

@@ -299,3 +299,50 @@ def test_phone_width_keeps_the_overview_and_evidence_inside_the_screen(browser, 
     assert overflow == [0, 0]
     assert page.locator(q("impact-reconcile:25")).is_visible()
     assert not log["errors"]
+
+
+def owner_cli(project, *args):
+    env = dict(os.environ, PYTHONPATH=str(REPO / "src"), PYTHONUTF8="1")
+    done = subprocess.run([sys.executable, "-m", "auteur.series.working_book_architecture", "--project", str(project),
+                           "--canvas", CANVAS, *args], capture_output=True, text=True, encoding="utf-8", env=env, check=False)
+    return json.loads(done.stdout)
+
+
+def test_a_partial_request_made_elsewhere_on_an_out_of_date_book_is_explained_before_and_after_apply(browser, served):
+    project, base = served()
+    # Waiting: a CLI request that names one element outside those citing the removed concept cannot pass.
+    owner_cli(project, "book-prepare", "--book", "24", "--instruction", "Tighten this engine.", "--target", "eng-old-hand-ledger")
+    page, log = open_atelier(browser, base)
+    open_overview(page)
+    page.locator(q("impact-show:24")).click()
+    time.sleep(0.4)
+    folio = page.evaluate(FOLIO).upper()
+    assert "revises only part of Book 24, which was already out of date".upper() in folio
+    assert "inh-gate-independence".upper() in folio and "no answer to this request can pass".upper() in folio
+    page.locator(q("impact-replace:24")).click()
+    page.wait_for_function(f"({KEY}) === 'book-instruction:24'", timeout=5000)
+    assert page.locator(q("book-replace:24")).is_checked()
+    assert page.locator(q("book-instruction:24")).input_value().startswith("Reconcile working Book 24")
+    page.close()
+    # Reviewed elsewhere and applied here: the record stays open, its note is focused, and it says the Book stays behind.
+    owner_cli(project, "book-prepare", "--book", "24", "--instruction", "Stop citing the Gate table.",
+              "--target", "inh-gate-independence", "--target", "later-cohort-seat")
+    path = project.parent / "partial-24.json"
+    path.write_text(json.dumps(reconciled(project, 24)), encoding="utf-8")
+    assert owner_cli(project, "book-complete-file", "--book", "24", "--candidate", str(path))["status"] == "review_ready"
+    page, log = open_atelier(browser, base)
+    open_overview(page)
+    page.locator(q("impact-show:24")).click()
+    wait_for(page, "book-apply:24")
+    assert "the Book stays recorded against its earlier Architecture and source".upper() in page.evaluate(FOLIO).upper()
+    page.locator(q("book-apply:24")).click()
+    wait_for(page, "book-note:24")
+    page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+    time.sleep(0.5)
+    assert page.evaluate(KEY) == "book-note:24" and page.locator(q("book-note:24")).is_visible()
+    assert "stays out of date" in page.evaluate(LIVE)
+    assert current(project, 24)["applied_review"]["currentness"] == "kept_baseline"
+    folio = page.evaluate(FOLIO).upper()
+    assert "changed only part of this Book while it was out of date".upper() in folio
+    assert "Ledger engine · changed · cited by Book 24 and Book 25".upper() in folio  # still flagged: not reconciled
+    assert not log["errors"]

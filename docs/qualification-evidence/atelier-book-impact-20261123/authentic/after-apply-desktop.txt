@@ -1,0 +1,85 @@
+SERIES AND BOOK CONTEXT
+
+What the Architecture changes mean for its working Books
+← Back to the atlas
+Read again
+
+Changed since you last read them. Read at 17:14:17.
+
+Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.
+
+ARCHITECTURE CHANGES AND THE WORKING BOOKS
+
+Each Book records which Architecture concepts it refers to and the version it was written against. A cited concept that changed is worth re-reading; it does not mean the Book no longer works. A Book that records no reference to a concept is not shown to be independent of it.
+
+CITE CONCEPTS THAT CHANGED OR ARE GONE · 1
+
+Book 25 · The Counted Hands
+
+Show Book 25’s evidence
+
+Written against the current working Architecture: Book 24.
+
+CONCEPTS BEHIND THIS
+
+Ledger engine · changed · cited by Book 25
+Gate Table · no longer in the Architecture · cited by Book 25
+
+A changed concept opens in the atlas. A concept that is gone is not in the atlas; each Book’s evidence shows it as that Book recorded it.
+
+WORKING BOOK ARCHITECTURES · THIS CANVAS
+
+Book-level working proposals for this canvas. They reference this working Architecture by node id; nothing in them is accepted, and no Book operation can accept anything.
+
+Book 24 · The Uncounted Crew
+
+Working · agent proposal · not accepted
+
+Written against the current working Architecture.
+
+QUESTION
+Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?
+PRESSURE
+The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.
+
+Working Book revision 1 was applied; it changed 7 elements; it added 6 elements. That was a change to this working Book, not to the Architecture.
+
+Developing Book 24 · working revision 1
+
+Applied to working Book 24, now working revision 1: changed Consequence for the Series · “A capability record exists, separate from the debt ledger, the…”; Cost kept visible · “The craft-mark does not restore draw and enters no hours. The crew…”; Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”; Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”; Inherited Series condition · “Book 24 does not depend on the Hollow Gate. Its acceptance is…”; Later possibility · “The cohort, now practising both counted and uncounted return, may…”, and added Assumption · “The ledger now also records the hours each hand worked beside the…”; Link · “The craft-mark adds a capability record to the Ledger engine that…”; Link · “The cost of working uncounted is read from the Ledger's hours…”; Link · “The hours column makes the crew's cut draw public, which keeps the…”; Link · “The refusal leaves the crew out of the hours column only while the…”; Unresolved · “Whether the stewardship tally the Council keeps is the ledger's…”. Book 24 is now recorded as written against the current working Architecture. Only this working Book changed. The Architecture and its concepts, the Series plan and the Directions are unchanged, and nothing was accepted.
+
+Architecture concepts it refers to · 20
+Finale Alternative A (not chosen)
+Finale Alternative B (not chosen)
+Finale Alternative C (not chosen)
+Ledger engine
+Old Hand engine (interpretive legitimacy)
+Source engine (physical commons)
+Maintenance lineages
+Mill Compact
+Reading Hall
+Stone Hall (Reckoners)
+Everyday belonging
+Consequential loss
+Wonder at a responsive order
+The Hollow Gate
+The Long Return (pulse)
+The Lowfen channel
+The gift practice (Lower Ammen)
+Custody of the record
+Hands and draw
+Keeping the channels
+
+Selecting one shows it in the atlas; the trail keeps the way back.
+
+9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions. They stay yours to decide.
+
+Source · .auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json · revision 1 · sha256:55abdf64f7
+Written against request 6a147175a3
+
+How this plan is changed
+Book 25 · The Counted Hands
+
+Not kept here: a Series plan (series_identity.yaml) · Series or Book Directions.
+
+← Back to the atlas

@@ -1,0 +1,36 @@
+Since Book 25 was written
+
+Written against the working Architecture as it was 2 applied revisions ago.
+
+CHANGED SINCE IT WAS WRITTEN · 1
+
+“Ledger engine”
+
+WHEN THE BOOK WAS WRITTEN · 
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour.
+
+NOW · 
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it.
+
+Cited by 4 elements of Book 25
+Show it in the atlas
+Ask your coding agent what this may mean
+
+NO LONGER IN THE WORKING ARCHITECTURE · 1
+
+“Gate Table” · no longer in the working Architecture
+
+AS THE BOOK RECORDED IT ·
+A rotating inter-community body formed in Book 22 to set the Hollow Gate schedule from the gauge reading. Seats for each practice, and one seat drawn by lot from households without lineage craft. It holds power over the schedule only, with no authority over the record, the shares or any practice.
+
+Cited by 2 elements of Book 25
+
+Its own source items in the canvas changed after it was written. That is a change to the Book’s source, not to the Architecture.
+
+Also changed in the Architecture since, and not cited by Book 25: “Reading the First Stones” (changed).
+
+19 other cited concepts unchanged in name, kind and description. A Book records the concepts it cites, not their relationships, so a changed relationship is not shown here.
+
+Reconcile Book 25 with the working Architecture
+
+A whole-Book revision through Book 25’s own owner, starting from words you can change. Preparing changes nothing; only Apply changes the Book.

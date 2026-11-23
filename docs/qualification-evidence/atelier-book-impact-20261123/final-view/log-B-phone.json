@@ -1,0 +1,18 @@
+{
+  "stage": "B",
+  "viewport": [
+    390,
+    844
+  ],
+  "writes": [],
+  "errors": [],
+  "steps": [
+    {
+      "step": "review shown",
+      "focus": "impact-evidence:24",
+      "live": "Book 24’s evidence. Escape returns to all the Books."
+    }
+  ],
+  "apply_offered": true,
+  "scroll_overflow": 0
+}
