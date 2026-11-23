@@ -35,12 +35,14 @@ On `main`, PR #633 showed what a working Book records about a concept, read-only
 ## What changed
 
 ```text
-owner (auteur.series.working_book_architecture) — read-only additions
-  book_elements(store, n)            every element and typed edge, with standing and references
-  book_revision_scope(store, n, ids) the targets plus the elements that refer to them (the owner's prepare rule)
-  book_pending_state(store, n)       the waiting request; whether the Book or its context changed since
-  book_series_references(...).last_applied   the latest applied revision's own summary
-  CLI book-show                      book_project, read-only: the request packet or the review
+owner (auteur.series.working_book_architecture)
+  read-only: book_elements, book_review_elements (the reviewed candidate's elements), book_revision_scope,
+             book_pending_state, book_series_references(...).last_applied, CLI book-show
+  book_prepare(..., expect=RevisionExpectation)   optional; None keeps every existing caller unchanged
+    checked under the canvas lock, at the moment the request is written:
+      the Book is still the revision the author read
+      a waiting request is replaced only when it is the one, in the state (reviewed or not), the author saw
+      current_only: a Book out of date with the Architecture or its source takes only a whole-Book revision
 
 Studio adapter (auteur.beginner.studio_book_development)
   GET  /books/<n>                phase: none | awaiting_coding_agent | review_ready | review_blocked | stale
@@ -85,6 +87,27 @@ Atelier (Series and Book context view)
   - The change is labelled "Changed in working Book revision N".
 - **No cross-attachment.** Every Book call is tagged with its canvas. An answer for another canvas or Book is dropped. Switching canvas reloads the page.
 - **Typing survives re-renders.** A field the author is typing in is kept as the same element when a read finishes. Its words, caret and scroll do not move.
+
+## Independent review and dispositions
+
+Two independent reviewers drove and probed `e1bc13a9`; neither had built it. One reviewed authority and freshness by script against disposable projects; one reviewed interaction and adversarial use in the served Studio at 1440 and 390 px. Neither found a write outside the Book's own records, or an undamaged state in which the view offered an Apply the owner refused.
+
+| Finding | Disposition |
+|---|---|
+| A targeted revision of one element of a Book already out of date with the Architecture marked the whole Book current on Apply (owner behaviour on `main`; the Studio made it one click) | The Studio offers only a whole-Book revision for an out-of-date Book and says why before the author writes; the owner enforces it under its lock (`current_only`). The owner's CLI is unchanged. |
+| The adapter's prepare guards were check-then-act outside the canvas lock (two tabs; an apply between check and prepare) | Moved into the owner, under the lock, as an optional `RevisionExpectation` |
+| Replacing a waiting request could discard a review that arrived after the author looked | The expectation includes whether the waiting request has a review; the view words the choice as "whose review is ready" |
+| A malformed pasted response, damaged review or missing request file gave a 500 or a false "canvas not found" | Each is a readable 400 for that Book; reasons carry no absolute paths; a damaged review is reported, never offered for Apply |
+| Unsent words followed the author to another element | One draft per Book and scope; words move with the author only when they switch scope |
+| Refusals were drawn but not announced; the live region kept saying the opposite | Every refusal is announced |
+| Disclosures collapsed on every re-render | Opened disclosures stay open; after Prepare the coding-agent message opens, with a Copy button |
+| Long reviews: Apply far below, the same sentence on every item, whole paragraphs repeated | Summary and decision first; each explanation once per list; changed words marked; long lists folded; Apply repeated at the end |
+| Jargon: typed edge, legacy field names, the owner's internal note | "Link", "Working status: asserted → conditional", "Restated in the explicit form"; the owner's note sits under the request identity |
+| "Unchanged since the Book was written." beside "Changed in working Book revision 1" | It now names its subject: the Architecture concept |
+| Escape inside a text field closed the view | A text field keeps Escape |
+| A request replaced from another tab went unannounced | Checking says so |
+
+Recorded, not changed: a response for a superseded request is refused without being kept as stale evidence (owner behaviour); the atlas keeps showing a node the Architecture removed until the author asks for the new Architecture (PR #632 behaviour); every Studio load creates its canvas if missing (pre-existing).
 
 ## Limits
 

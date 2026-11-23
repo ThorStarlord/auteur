@@ -41,6 +41,10 @@ The steps:
    - A fresh process (`book-resume`) returns working revision 1, with lineage develop → revise and freshness `ready`.
 6. `stale.txt`: on a copy, a second request is prepared, and an applied Architecture revision then removes a node the Book refers to. The view reports that the request no longer matches and why, and offers to prepare it again.
 
+## Final view (`final-view/`)
+
+After the independent reviews changed the view, the same journey was captured again on a fresh project with the final head. The coding agent's recorded candidate (`authentic/coding-agent-candidate.json`) was submitted to the new request with the same owner command, `book-complete-file`, so the review content is the agent's. Prepare and Apply are again the only writes; `revision_marks` is `null`; the atlas place is kept after Apply and after Escape; there is no horizontal overflow at 390 × 844.
+
 The fixtures are recorded agent output and test fixtures. No author has used this, and nothing here judges the revision's literary quality.
 
 ## Scripts
