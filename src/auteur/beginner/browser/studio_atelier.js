@@ -1540,7 +1540,8 @@
       folio.append(el('p','atl-kicker-line','Series and Book context · read-only'));
       var recorded=from&&d?X.forNode(d,from.nodeId).length:0;
       folio.append(el('h3','atl-folio-title',recorded?'Plans that record “'+from.title+'”':'Book and Series plans in this canvas and project'));
-      if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. No plan here records a reference to it.'));
+      if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. '+(d&&X.unreadableBooks(d).length?
+        'No readable plan here records a reference to it; a Book that could not be read might.':'No plan here records a reference to it.')));
       var nav=el('div','atl-look');
       var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
       bk.setAttribute('aria-keyshortcuts','Escape');

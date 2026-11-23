@@ -268,6 +268,10 @@ def test_an_unreadable_book_is_never_reported_as_no_plan(browser, projects, tmp_
         section = page.evaluate(SECTION)
         assert "No Book or Series plan is kept" not in section
         assert "Book 24’s working architecture could not be read" in section
+        page.locator('#studio-atelier [data-key="series-open"]').click()
+        page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+        folio = page.evaluate(FOLIO)
+        assert "a Book that could not be read might" in folio and "Plans that record" not in folio
         assert not errors
     finally:
         server.stop()

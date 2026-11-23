@@ -133,6 +133,7 @@ def test_one_damaged_owner_never_hides_the_others(linked, context, tmp_path):
     assert result["sources"]["series_plan"]["state"] == "available"
     direction = result["sources"]["series_direction"]
     assert direction["series"]["state"] == "unverified" and "promise" not in direction["series"]
+    assert direction["series"]["reason"].startswith("Its acceptance record could not be read")
     assert direction["proposals_accounted"] is False
     (book,) = result["sources"]["working_books"]["books"]
     assert book["state"] == "unreadable" and book["book_number"] == 24

@@ -49,6 +49,7 @@ NO_LINK = (
     "Equal words are not a link."
 )
 MAX_BOOK_DIRECTIONS = 200
+UNREADABLE_ACCEPTANCE = "Its acceptance record could not be read, so its content is not shown as accepted."
 _TEXT = 600
 
 
@@ -202,8 +203,9 @@ def _series_direction(root: Path) -> dict[str, Any]:
     try:
         accepted = store.load_accepted_series_direction()
         series_meta = store.load_series_direction_metadata()
-    except Exception as exc:  # noqa: BLE001 - one record's damage (even a malformed sidecar) stays with it
-        accepted, series_meta, result["series_reason"] = None, None, _first_line(exc)
+    except Exception:  # noqa: BLE001 - one record's damage (even a malformed sidecar) stays with it
+        accepted, series_meta = None, None
+        result["series_reason"] = UNREADABLE_ACCEPTANCE
     if accepted is not None and series_meta is not None:
         d = accepted.direction
         src = _src(owner, rel_series, None, artifact=accepted.artifact_id,
@@ -234,8 +236,8 @@ def _series_direction(root: Path) -> dict[str, Any]:
         try:
             book = store.load_accepted_book_direction(number)
             meta = store.load_book_direction_metadata(number)
-        except Exception as exc:  # noqa: BLE001 - one record's damage stays with it
-            books.append({"state": "unverified", "book_number": number, "path": rel, "reason": _first_line(exc)})
+        except Exception:  # noqa: BLE001 - one record's damage stays with it
+            books.append({"state": "unverified", "book_number": number, "path": rel, "reason": UNREADABLE_ACCEPTANCE})
             continue
         if book is None or meta is None:
             books.append({"state": "unverified", "book_number": number, "path": rel,

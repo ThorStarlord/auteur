@@ -1,0 +1,18 @@
+{
+  "arm": "baseline@0b92409d",
+  "journey_book_reference": {
+    "route_status": 404,
+    "folio_names_book_24": false,
+    "folio_has_series_section": false,
+    "route_from_concept_to_book": false,
+    "non_get_requests": []
+  },
+  "journey_project_plans": {
+    "route_status": 404,
+    "payoff_note": "Agent proposal: payoffs the proposal hopes for, not recorded setups or commitments of a Series or Book plan.",
+    "folio_names_series_plan": false,
+    "states_not_linked": false,
+    "route_to_series_context": false,
+    "non_get_requests": []
+  }
+}

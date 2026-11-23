@@ -1,0 +1,11 @@
+Baseline path on main@0b92409d: the Book owner's read-only CLI, outside the Studio.
+
+  PYTHONPATH=src python -m auteur.series.working_book_architecture --project <linked> --canvas spring-ledger book-resume --book 24
+
+Packet size (JSON characters): 85753
+Top-level keys: book_number, authority, freshness, series_changed, source_changed, semantic_impact, packet, inherited_provenance, responsibility, artifact, verbatim_source, revision
+Freshness: ready · semantic impact: clear
+What it says about eng_ledger in packet.series_constraints: status=present, title='Ledger engine', category=engine
+Occurrences of the id 'eng_ledger' anywhere in the packet: 5
+Which Book elements refer to eng_ledger, and whether the node changed since the Book was written: not stated;
+the author would search the artifact's refs by hand. The Studio offered no route to this packet.
