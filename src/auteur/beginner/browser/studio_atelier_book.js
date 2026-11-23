@@ -50,9 +50,6 @@
     }
   }
   function staleReason(pending){if(!pending)return '';var r=[];
-    if(pending.baseline_out_of_date&&pending.mode!=='holistic'&&!pending.book_changed&&!pending.context_changed)
-      r.push('it was prepared while the Book was out of date with the working Architecture or its source, and it revises only part of the Book, '+
-        'so applying it would record the whole Book as current');
     if(pending.book_changed)r.push('the working Book changed after it was prepared');
     if(pending.context_changed)r.push('the working Architecture or the Book’s source changed after it was prepared');
     return r.join(', and ');}

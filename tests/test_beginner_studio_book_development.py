@@ -335,8 +335,9 @@ def test_damaged_lifecycle_records_are_reported_not_offered(project):
         apply_book_revision(project, CANVAS, 24, {"request_sha256": sha})
 
 
-def test_a_targeted_request_made_elsewhere_on_an_out_of_date_book_is_not_applied_here(project):
-    """The owner's CLI may still prepare it; the Studio does not apply part of a stale Book as if it were current."""
+def test_a_targeted_request_made_elsewhere_on_an_out_of_date_book_applies_without_making_it_current(project):
+    """The owner's CLI may still prepare it. Applied anywhere, it changes part of the Book and the Book stays
+    recorded against its earlier sources, so it is still out of date."""
     from auteur.series.working_book_architecture import book_prepare
     from auteur.beginner.studio_architecture import _candidate
     store = CanvasStore(project, CANVAS)
@@ -346,11 +347,13 @@ def test_a_targeted_request_made_elsewhere_on_an_out_of_date_book_is_not_applied
     view = book_prepare(store, 24, instruction="Only this element.", targets=(TARGET,))  # no expectation: the CLI path
     view = complete_book_revision(project, CANVAS, 24, respond(project_book_development(project, CANVAS, 24),
                                                                revised(project, edit_target)))
-    assert view["pending"]["baseline_out_of_date"] and view["phase"] == "stale"
+    assert view["pending"]["baseline_out_of_date"] and view["phase"] == "review_ready"
     before = current(project)
-    with pytest.raises(BeginnerConcurrencyError, match="prepare a whole-Book revision instead"):
-        apply_book_revision(project, CANVAS, 24, {"request_sha256": view["pending"]["request_sha256"]})
-    assert current(project) == before
+    applied = apply_book_revision(project, CANVAS, 24, {"request_sha256": view["pending"]["request_sha256"]})
+    assert applied["application"]["currentness"] == "kept_baseline"
+    after = current(project)
+    assert after["revision_number"] == 1 and after["series_request_sha256"] == before["series_request_sha256"]
+    assert applied["book"]["freshness"] == "stale" and applied["book"]["last_applied"]["currentness"] == "kept_baseline"
 
 
 def test_unparseable_records_and_incomplete_responses_read_plainly(project):

@@ -479,3 +479,15 @@
 .atl-book-before del{background:#efd3d3;text-decoration:line-through;text-decoration-thickness:1px}
 .atl-book-after mark{background:#cfe6d6;color:inherit;padding:0 1px;border-radius:2px}
 .atl-book-count{margin:0 0 4px;font-variant-numeric:tabular-nums}
+/* Architecture changes and the working Books: evidence, grouped; no badges on the atlas. */
+.atl-impact-line{margin:8px 0 4px;padding:7px 9px;border-radius:8px;background:#fbf6ec;border:1px solid #eadcc2}
+.atl-impact-line .atl-note{margin:2px 0 4px}
+.atl-impact-list{list-style:none;margin:2px 0 6px;padding:0}
+.atl-impact-book-row{margin:0 0 6px;padding:6px 8px;border-radius:8px;background:var(--atl-card);border:1px solid var(--atl-hair)}
+.atl-impact-book-row .atl-tone{margin:2px 0}
+.atl-impact-book{margin:8px 0 6px;padding:7px 9px;border-radius:9px;background:#fbf8f2;border:1px solid #e6dccb}
+.atl-impact-book .atl-series-subtitle{margin-top:0}
+.atl-impact-book .atl-series-subtitle:focus{outline:2px solid var(--atl-focus);outline-offset:2px}
+.atl-impact-ref{margin:0 0 8px}
+.atl-impact-ref .atl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+.atl-chip-removed{border-style:dashed;border-color:#d4a5a5;background:#fbefef;color:#7a3434}

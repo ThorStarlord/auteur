@@ -1263,6 +1263,39 @@ def _adoption_lineage(store: CanvasStore, current: dict | None) -> list[dict]:
     return rows
 
 
+def architecture_versions(store: CanvasStore, limit: int = 40):
+    """Read-only: the working Architecture candidates along its applied revision chain, newest first.
+
+    Yields ``(request_sha256, candidate)``. Each applied revision keeps its candidate in its review and
+    names the request it revised; the first version is recovered from its stored response, validated
+    the way it was when it was completed. A version that cannot be read ends the walk; nothing is written.
+    """
+    current = _candidate(store)
+    if not current:
+        return
+    yield current["request_sha256"], current["candidate"]
+    sha, seen = current["request_sha256"], {current["request_sha256"]}
+    for _ in range(limit):
+        review = _read(_root(store) / "requests" / sha / "review.json")
+        prior = (review or {}).get("prior_request_sha256")
+        if not isinstance(prior, str) or prior in seen:
+            return
+        seen.add(prior)
+        folder = _root(store) / "requests" / prior
+        prior_review = _read(folder / "review.json")
+        if prior_review and isinstance(prior_review.get("candidate"), dict):
+            yield prior, prior_review["candidate"]
+        else:
+            response = _read(folder / "response.json")
+            try:
+                candidate = ArchitectureCandidate.model_validate_json(
+                    response["text"], context={"new_host_agent_response": True}).model_dump(mode="json")
+            except (TypeError, KeyError, ValueError):
+                return
+            yield prior, candidate
+        sha = prior
+
+
 def project_architecture_resume(store: CanvasStore) -> dict:
     """Read-only packet a fresh coding agent can use without chat history."""
     canvas = store.load()
