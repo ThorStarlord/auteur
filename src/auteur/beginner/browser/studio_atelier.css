@@ -492,3 +492,5 @@
 .atl-impact-ref .atl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
 .atl-impact-book-row.is-current{border-color:var(--atl-focus);background:#fbf6ec}
 .atl-chip-removed{border-style:dashed;border-color:#d4a5a5;background:#fbefef;color:#7a3434}
+/* A focused target brought into view keeps a little room above it. */
+.atl-folio [data-key]{scroll-margin-top:12px}
