@@ -1,0 +1,135 @@
+Review · working revision 0 → 1
+
+7 changed · 6 added · 0 removed · 81 unchanged
+
+YOU ASKED
+
+Reconcile working Book 24 with the revised working Architecture. What its record shows:
+- “Ledger engine” changed after this Book was written (its description). Cited by: Engine eng-old-hand-ledger · “Old Hand to Ledger: the cohort refuses to be entered in the…”; Engine eng-ledger-source · “Ledger to Source: the hands-to-draw conversion credits only counted…”; Engine eng-record-form · “Ledger as a new record form: the lineage needs proof of training,…”; Consequence for the Series cons-capability-record · “A capability record exists, separate from the debt ledger, the tally…”.
+- “Gate Table” is no longer in the working Architecture. Cited by: Inherited Series condition inh-gate-independence · “Book 24 does not depend on the Hollow Gate or the Gate Table. Their…”; Later possibility later-cohort-seat · “The cohort may claim standing in coordination, for example a Gate…”.
+Re-read these elements against the current Architecture and change what it now requires. Keep what still holds, stop citing concepts that are gone, and leave author decisions open. Whether the story still works is mine to judge.
+My own note: the hours column is new pressure on the crew that refuses to be counted. Keep that refusal costly, and do not invent a new body to replace the Gate Table.
+
+IT COULD CHANGE
+
+Any element of Book 24.
+
+Apply this revision to working Book 24
+
+Applying changes this working Book only. It accepts nothing, and the Architecture, the Series plan and the Directions stay as they are.
+
+Prepare a different request
+
+CHANGED · 7
+
+CONSEQUENCE FOR THE SERIES · “A CAPABILITY RECORD EXISTS, SEPARATE FROM THE DEBT LEDGER, THE TALLY…”
+Its wording or interpretation changed.
+Before: A capability record exists, separate from the debt ledger, the tally and the Balance Stones. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour, and it does not change who is counted for draw.
+After: A capability record exists, separate from the debt ledger, the tally, the Balance Stones and the ledger's hours column. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour. It records no hours, so it does not change who is counted for draw or the draw read from the hours column.
+Interpretation · Now: The consequence is the source's. The agent separates it explicitly from the revised Ledger's hours column, so the capability record cannot be read as a second route to draw.
+Working status: unknown_legacy → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+COST KEPT VISIBLE · “THE CRAFT-MARK DOES NOT RESTORE DRAW. THE CREW CHOOSES IT KNOWING…”
+Its wording or interpretation changed.
+Before: The craft-mark does not restore draw. The crew chooses it knowing that their own hand-light households stay cut this cycle.
+After: The craft-mark does not restore draw and enters no hours. The crew chooses it knowing that their own hand-light households stay cut this cycle, and that the ledger's hours column shows the cut beside their households' marks.
+Interpretation · Now: The cost is the source's. The agent adds that, with draw read straight from the hours column, the cost is public in the record, which keeps the refusal costly as the revised Ledger now requires.
+Working status: asserted → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+ENGINE · “LEDGER TO SOURCE: THE HANDS-TO-DRAW CONVERSION CREDITS ONLY COUNTED…”
+Its wording or interpretation changed.
+Before: Ledger to Source: the hands-to-draw conversion credits only counted hands, so uncounted labour improves the balance but cannot restore its own households' draw.
+After: Ledger to Source: the hands-to-draw conversion credits only counted hands, and the ledger now records the hours each counted hand worked, so the draw can be read straight from it. Uncounted labour improves the balance but leaves no hours in that column, so it cannot restore its own households' draw, and the shortfall can be read from the ledger.
+Condition · Before: The hands-to-draw conversion credits only counted hands.
+Condition · After: The hands-to-draw conversion credits only counted hands, and the ledger's hours column lets the draw be read straight from the hours recorded.
+Consequence · Before: Their labour improves the balance, but it cannot restore their own households' draw; their families stay cut while the best-handed houses keep their counted advantage.
+Consequence · After: Their labour improves the balance, but it puts no hours beside their households' marks, so it cannot restore their draw. Their families stay cut, visibly in the ledger, while the best-handed houses' recorded hours keep their counted advantage.
+Changed state · Before: The conversion's blind spot becomes visible: the record sees the hands counted, not the hands. (Agent, derived from the Book 20 mechanism.)
+Changed state · After: The conversion's blind spot becomes visible: the record sees the hours counted, not the hands that worked. (Agent, derived from the Book 20 mechanism and the revised Ledger.)
+Interpretation · Now: The conversion's rule is from the source (Book 20 mechanism). The agent's contribution is the effect of the hours column: the cost of working uncounted is no longer only felt at the well, it is written in the record the draw is read from, which keeps the refusal costly.
+Working status: asserted → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+ENGINE · “OLD HAND TO LEDGER: THE COHORT REFUSES TO BE ENTERED IN THE…”
+Its wording or interpretation changed.
+Before: Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices.
+After: Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices, and so its work puts no hours in the ledger's hours column.
+Condition · Before: The cohort has inherited the gift reading as a slogan and kept only its last clause, 'nothing counted', which it hears as 'nothing owed'.
+Condition · After: The cohort has inherited the gift reading as a slogan and kept only its last clause, 'nothing counted', which it hears as 'nothing owed'. The ledger now records the hours each counted hand works.
+Choice · Before: Asked by the Council to supply recorded apprentices, the cohort refuses to be entered in the stewardship tally.
+Choice · After: Asked by the Council to supply recorded apprentices, the cohort refuses to be entered in the stewardship tally, knowing its hours will then be missing from the ledger.
+Consequence · Before: The Right's training condition cannot be shown in the form the Council expected.
+Consequence · After: The Right's training condition cannot be shown in the form the Council expected, and the crew's work leaves no hours in the column from which the draw is read.
+Interpretation · Now: The refusal is the source's. The hours column is new pressure from the revised Ledger: refusing the count now also means leaving no hours where the draw is read, so the refusal costs the cohort's households from the first season. This holds only while the revised Ledger holds (assume-hours-column).
+Working status: unknown_legacy → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+ENGINE · “LEDGER AS A NEW RECORD FORM: THE LINEAGE NEEDS PROOF OF TRAINING,…”
+Its wording or interpretation changed.
+Before: Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date. The craft-mark answers all three.
+After: Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date. The ledger's hours column shows who worked and for how long, not who can repair. The craft-mark answers all three needs and stays out of the hours column.
+Condition · Before: The lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date.
+Condition · After: The lineage needs proof of training, the cohort refuses an entry in the ledger's hours column, and the Council needs to know who can repair before the date. Hours worked do not show who can repair.
+Consequence · Before: The condition is met in a form that records who can, not who owes.
+Consequence · After: The condition is met in a form that records who can, not who owes and not how long anyone worked.
+Changed state · Before: The valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability).
+Changed state · After: Besides the ledger's hours column, from which the draw is read, the valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability).
+Interpretation · Now: The craft-mark and its three needs are the source's. With the revised Ledger the 'count of hours' the cohort refuses is a real column that sets draw, and the agent adds that hours worked do not show capability, which is why the craft-mark is still needed.
+Working status: asserted → conditional.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+INHERITED SERIES CONDITION · “BOOK 24 DOES NOT DEPEND ON THE HOLLOW GATE OR THE GATE TABLE. THEIR…”
+Its wording or interpretation changed.
+Before: Book 24 does not depend on the Hollow Gate or the Gate Table. Their acceptance is author-reserved, so the function holds whether or not the author keeps them. The source states this without a provenance tag.
+After: Book 24 does not depend on the Hollow Gate. Its acceptance is author-reserved, so the function holds whether or not the author keeps it.
+Interpretation · Now: The source also named the Gate Table here. The Gate Table is no longer in the working Architecture, so this restatement drops it and puts no other body in its place.
+Working status: unknown_legacy → asserted.Restated in the explicit form, as every changed element written in the older form must be.Also changed: references.
+Show 1 more changed elements
+
+ADDED · 6
+
+ASSUMPTION · “THE LEDGER NOW ALSO RECORDS THE HOURS EACH HAND WORKED BESIDE THE…”
+New: The ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. A hand who is not entered in the count has no hours in that column.
+Refers to Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”.
+LINK · “THE CRAFT-MARK ADDS A CAPABILITY RECORD TO THE LEDGER ENGINE THAT…”
+New: The craft-mark adds a capability record to the Ledger engine that stays outside the hours column and does not feed the draw.
+Refers to Engine · “Ledger as a new record form: the lineage needs proof of training,…”.
+LINK · “THE COST OF WORKING UNCOUNTED IS READ FROM THE LEDGER'S HOURS…”
+New: The cost of working uncounted is read from the Ledger's hours column: no hours, no restored draw.
+Refers to Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”.
+LINK · “THE HOURS COLUMN MAKES THE CREW'S CUT DRAW PUBLIC, WHICH KEEPS THE…”
+New: The hours column makes the crew's cut draw public, which keeps the refusal costly.
+Refers to Assumption · “The ledger now also records the hours each hand worked beside the…”; Cost kept visible · “The craft-mark does not restore draw. The crew chooses it knowing…”.
+LINK · “THE REFUSAL LEAVES THE CREW OUT OF THE HOURS COLUMN ONLY WHILE THE…”
+New: The refusal leaves the crew out of the hours column only while the revised Ledger holds.
+Refers to Assumption · “The ledger now also records the hours each hand worked beside the…”; Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”.
+UNRESOLVED · “WHETHER THE STEWARDSHIP TALLY THE COUNCIL KEEPS IS THE LEDGER'S…”
+New: Whether the stewardship tally the Council keeps is the ledger's hours column or a separate count that feeds it. Book 24 needs only that a hand left out of the count has no hours in the column.
+Refers to Assumption · “The ledger now also records the hours each hand worked beside the…”; Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”.
+
+81 other elements stay exactly as they are; the owner compared every element by content.
+
+TO RE-READ · 6
+
+Each refers to an element this revision changes. The reference is recorded; whether it still holds is not.
+
+Link · “The craft-mark shows who can give return labour; it does not change…” → Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+Link · “A record of outside-lineage repair tests the lineages' monopoly on…” → Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+Link · “Trained outside-lineage hands set up the Long Return's labour.” → Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”
+Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…” → Assumption · “The cohort reads 'nothing counted' as 'nothing owed'.”
+Engine · “Ledger as a new record form: the lineage needs proof of training,…” → Assumption · “The craft-mark is a record of capability, cut by teacher and learner…”
+Later possibility · “The cohort may claim standing in coordination, for example a Gate…” → Consequence for the Series · “The cohort's belief is no longer uniform. The Brightwater…”
+
+ARCHITECTURE CONCEPTS THESE ELEMENTS CITE · 10
+
+The Architecture is unchanged; check that the Book still fits each concept.
+
+“Ledger engine” · cited by Assumption · “The ledger now also records the hours each hand worked beside the…”; Consequence for the Series · “A capability record exists, separate from the debt ledger, the tally…”; Cost kept visible · “The craft-mark does not restore draw. The crew chooses it knowing…”; Link · “The craft-mark adds a capability record to the Ledger engine that…”; Link · “The cost of working uncounted is read from the Ledger's hours…”; Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”; Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”; Unresolved · “Whether the stewardship tally the Council keeps is the ledger's…”
+“Old Hand engine (interpretive legitimacy)” · cited by Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”
+“Source engine (physical commons)” · cited by Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”
+inst_gate_table — no longer recorded in the working Architecture · cited by Inherited Series condition · “Book 24 does not depend on the Hollow Gate or the Gate Table. Their…”; Later possibility · “The cohort may claim standing in coordination, for example a Gate…”
+“Maintenance lineages” · cited by Link · “A record of outside-lineage repair tests the lineages' monopoly on…”; Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”
+“The Hollow Gate” · cited by Inherited Series condition · “Book 24 does not depend on the Hollow Gate or the Gate Table. Their…”
+“The Long Return (pulse)” · cited by Link · “Trained outside-lineage hands set up the Long Return's labour.”
+“Custody of the record” · cited by Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+“Hands and draw” · cited by Consequence for the Series · “A capability record exists, separate from the debt ledger, the tally…”; Cost kept visible · “The craft-mark does not restore draw. The crew chooses it knowing…”; Link · “The craft-mark shows who can give return labour; it does not change…”; Engine · “Ledger to Source: the hands-to-draw conversion credits only counted…”; Engine · “Ledger as a new record form: the lineage needs proof of training,…”
+“Keeping the channels” · cited by Later possibility · “The cohort may claim standing in coordination, for example a Gate…”
+
+Standing changes: Consequence for the Series · “A capability record exists, separate from the debt ledger, the tally…”: undecided → agent working proposal. Engine · “Old Hand to Ledger: the cohort refuses to be entered in the…”: undecided → agent working proposal. Inherited Series condition · “Book 24 does not depend on the Hollow Gate or the Gate Table. Their…”: undecided → agent working proposal. Later possibility · “The cohort may claim standing in coordination, for example a Gate…”: undecided → hypothetical, not adopted.
+
+Reworded with no recorded dependency, so what follows from the change is not established: Inherited Series condition · “Book 24 does not depend on the Hollow Gate or the Gate Table. Their…”.
+
+Request identity and baseline
+Apply this revision to working Book 24

@@ -22,7 +22,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.beginner.persistence import BeginnerConcurrencyError, _FilesystemLock
-from auteur.beginner.studio_architecture import _candidate, _current_candidate_freshness
+from auteur.beginner.studio_architecture import _candidate, _current_candidate_freshness, architecture_versions
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import (
     HostAgentRequest,
@@ -563,7 +563,7 @@ def _freshness(store: CanvasStore, book_number: int, record: dict) -> dict:
     else:
         current_nodes = {node["id"]: _digest(node) for node in series["candidate"].get("nodes", [])}
         impact = "clear"
-        for node_id, fingerprint in record["series_nodes"].items():
+        for node_id, fingerprint in (record.get("series_nodes") or {}).items():
             if node_id not in current_nodes:
                 impact = "contradictory"
                 break
@@ -583,8 +583,9 @@ class RevisionExpectation(BaseModel):
     `baseline_request_sha256`: the working Book must still be this revision.
     `pending_request_sha256`: the request waiting now (None when none) must be this one, so a new request
     replaces only a request the caller knows about. `pending_reviewed` must match whether it has a review.
-    `current_only`: refuse while the Book is out of date with the Series architecture or its source,
-    because applying any revision records the whole Book as written against the current state.
+    `current_only`: refuse a partial revision while the Book is out of date with the Series architecture or
+    its source. Applying one keeps the Book recorded against its earlier sources (see `book_apply_review`),
+    so it cannot bring the Book up to date; a caller that needs that asks for a whole-Book revision.
     """
     model_config = ConfigDict(extra="forbid")
     baseline_request_sha256: str
@@ -943,12 +944,19 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
         if node_id not in by_node:
             node = current_nodes.get(node_id)
             fingerprint = recorded.get(node_id)
+            status = ("architecture_unavailable" if series is None else "removed" if node is None
+                      else "unrecorded" if fingerprint is None
+                      else "changed" if _digest(node) != fingerprint else "unchanged")
             by_node[node_id] = {
                 "node_id": node_id,
                 "present": node is not None,
                 "title": node.get("title") if node else None,
                 "changed_since_book": (None if node is None or fingerprint is None
                                        else _digest(node) != fingerprint),
+                "status": status,
+                "current": _node_view(node) if node else None,
+                "recorded": None,
+                "fields_changed": [],
                 "elements": [],
                 "edges": [],
             }
@@ -973,6 +981,14 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
                 "id": edge.id, "source_element": edge.source,
                 "dependency": edge.dependency.value, "function": edge.function,
             })
+    wanted = {key: recorded[key] for key, item in by_node.items()
+              if item["status"] in ("changed", "removed") and recorded.get(key)}
+    for key, (node, where) in _recorded_versions(store, book_number, record, wanted).items():
+        item = by_node[key]
+        item["recorded"] = {**_node_view(node), "found_in": where}
+        if item["current"]:
+            item["fields_changed"] = sorted(field for field in set(node) | set(current_nodes[key])
+                                            if node.get(field) != current_nodes[key].get(field))
     return {
         "book_number": book_number,
         "authority": "working_noncanonical",
@@ -990,6 +1006,69 @@ def book_series_references(store: CanvasStore, book_number: int) -> dict:
     }
 
 
+def _node_view(node: dict) -> dict:
+    return {field: node.get(field) for field in ("title", "category", "summary", "scope", "parent_id")}
+
+
+def _recorded_versions(store: CanvasStore, book_number: int, record: dict,
+                       wanted: dict[str, str]) -> dict[str, tuple[dict, dict]]:
+    """Read-only: each wanted concept as the Book recorded it, identified by the fingerprint it kept.
+
+    A version counts only when its fingerprint equals the one recorded, so nothing is reconstructed or
+    guessed. It is looked for in the Book's own requests (which carry the Architecture they were
+    prepared on), then along the working Architecture's applied revision chain. A concept whose
+    recorded version is not found there is reported without one.
+    """
+    found: dict[str, tuple[dict, dict]] = {}
+    if not wanted:
+        return found
+
+    def offer(nodes: Any, where: dict) -> None:
+        for node in nodes if isinstance(nodes, list) else []:
+            key = node.get("id") if isinstance(node, dict) else None
+            if key in wanted and key not in found and _digest(node) == wanted[key]:
+                found[key] = (node, where)
+
+    base = _book_root(store, book_number)
+    shas = [entry.get("request_sha256") for entry in reversed(record.get("lineage") or [])] \
+        or [record.get("request_sha256")]
+    for sha in shas:
+        if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
+            continue
+        try:
+            packet = json.loads(load_host_agent_request(base / "requests" / sha / "request.json").user)
+        except (OSError, ValueError, TypeError):
+            continue
+        arch = packet.get("series_architecture") if isinstance(packet, dict) else None
+        if not isinstance(arch, dict):
+            continue
+        where = {"record": "book_request", "request_sha256": sha}
+        offer((arch.get("candidate") or {}).get("nodes"), where)
+        offer(arch.get("referenced_nodes"), where)
+        if len(found) == len(wanted):
+            return found
+    try:
+        for sha, candidate in architecture_versions(store):
+            if candidate is None:
+                continue
+            offer(candidate.get("nodes"), {"record": "architecture_revision", "request_sha256": sha})
+            if len(found) == len(wanted):
+                break
+    except (OSError, ValueError):
+        pass
+    return found
+
+
+def book_requested_numbers(store: CanvasStore) -> list[int]:
+    """Book numbers with a prepared request but no working Book yet (read-only)."""
+    root = _books_root(store)
+    if not root.is_dir():
+        return []
+    return sorted(int(child.name) for child in root.iterdir()
+                  if child.is_dir() and child.name.isdigit() and 1 <= int(child.name) <= 60
+                  and not (child / "current.json").is_file() and (child / "latest_request.json").is_file())
+
+
 def _last_applied(record: dict) -> dict | None:
     """The latest applied revision's own summary, as the record keeps it. None for a Book never revised."""
     applied = record.get("applied_review")
@@ -1003,6 +1082,7 @@ def _last_applied(record: dict) -> dict | None:
         "changed": list(applied.get("changed") or []),
         "removed": list(applied.get("removed") or []),
         "withdrawal": applied.get("withdrawal"),
+        "currentness": applied.get("currentness"),  # None: applied before this was recorded
     }
 
 
@@ -1120,7 +1200,7 @@ def book_pending_state(store: CanvasStore, book_number: int) -> dict:
             "book_changed": book_changed,
             "context_changed": _series_changed(store, settings) or _source_changed(store, book_number, settings),
             # The Book was out of date with the Series architecture or its source when this request was
-            # prepared. Applying records the whole Book as current, so only a whole-Book request is safe then.
+            # prepared. Applying a partial request then keeps the Book recorded against its earlier sources.
             "baseline_out_of_date": operation != "develop" and current is not None and (
                 current.get("series_request_sha256") != settings.get("series_request_sha256")
                 or current.get("source_sha256") != settings.get("source_sha256")),
@@ -1513,8 +1593,8 @@ def _check_expectation(store: CanvasStore, book_number: int, base: Path, current
         settings = {"series_request_sha256": current["series_request_sha256"], "source_sha256": current["source_sha256"]}
         if _series_changed(store, settings) or _source_changed(store, book_number, settings):
             raise BeginnerConcurrencyError(
-                f"Book {book_number} is out of date with the working Architecture or its source; applying any "
-                "revision records the whole Book as current, so only a whole-Book revision can be prepared")
+                f"Book {book_number} is out of date with the working Architecture or its source; only a "
+                "whole-Book revision can bring it up to date, so only a whole-Book revision can be prepared")
 
 
 def _prepare_revision(
@@ -1737,6 +1817,21 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
         artifact = WorkingBookArchitecture.model_validate_json(json.dumps(artifact_json))
         series = _candidate(store)
         series_nodes = {node["id"]: _digest(node) for node in (series or {}).get("candidate", {}).get("nodes", [])}
+        # Only a whole-Book revision was free to bring every element up to date. A partial revision of a
+        # Book that was already out of date when it was prepared changes its elements, and the Book stays
+        # recorded against the sources it was written against: those, and every concept fingerprint it
+        # already kept, are carried forward. A concept it newly refers to is recorded as it is now.
+        partial_on_stale = review["mode"] != "holistic" and (
+            current.get("series_request_sha256") != settings["series_request_sha256"]
+            or current.get("source_sha256") != settings["source_sha256"])
+        recorded_series = current["series_request_sha256"] if partial_on_stale else settings["series_request_sha256"]
+        recorded_source = current["source_sha256"] if partial_on_stale else settings["source_sha256"]
+        kept = (current.get("series_nodes") or {}) if partial_on_stale else {}
+        # Concepts the Book already cited keep what was recorded for them, including nothing: only a concept
+        # the revision newly cites is recorded as it is now.
+        cited_before = _series_refs(WorkingBookArchitecture.model_validate_json(json.dumps(current["artifact"]))) \
+            if partial_on_stale else set()
+        currentness = "kept_baseline" if partial_on_stale else "current"
         lineage = current.get("lineage") or [{
             "revision": 0, "request_sha256": current["request_sha256"],
             "content_sha256": current["content_sha256"], "operation": "develop",
@@ -1745,15 +1840,17 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
             "revision": review["revision_number"], "request_sha256": request_sha256,
             "content_sha256": _digest(artifact_json), "operation": "revise",
             "baseline_request_sha256": review["baseline"]["request_sha256"],
+            "currentness": currentness,
         }]
         changed_ids = [entry["id"] for entry in review["changes"]["changed"]]
         _atomic_json_write(base / "current.json", {
             "book_number": book_number,
             "request_sha256": request_sha256,
-            "series_request_sha256": settings["series_request_sha256"],
-            "source_sha256": settings["source_sha256"],
-            "series_nodes": {node: series_nodes[node] for node in sorted(_series_refs(artifact))
-                             if node in series_nodes},
+            "series_request_sha256": recorded_series,
+            "source_sha256": recorded_source,
+            "series_nodes": {node: kept[node] if node in cited_before else series_nodes[node]
+                             for node in sorted(_series_refs(artifact))
+                             if (node in kept if node in cited_before else node in series_nodes)},
             "content_sha256": _digest(artifact_json),
             "authority": "working_noncanonical",
             "artifact": artifact_json,
@@ -1771,9 +1868,10 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
                 "consequence_candidates": [entry["id"] for entry in review["consequence_candidates"]],
                 "author_decisions": [entry["decision_id"] for entry in review["author_decisions"]],
                 "withdrawal": review.get("withdrawal"),
+                "currentness": currentness,
             },
         })
-    return {"result": "applied", **book_project(store, book_number)}
+    return {"result": "applied", "currentness": currentness, **book_project(store, book_number)}
 
 
 def main(argv: list[str] | None = None) -> int:

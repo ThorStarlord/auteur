@@ -1,0 +1,32 @@
+{
+  "stage": "B",
+  "viewport": [
+    1440,
+    900
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/books/24/apply"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "review shown",
+      "focus": "impact-evidence:24",
+      "live": "Book 24’s evidence. Escape returns to all the Books."
+    },
+    {
+      "step": "applied",
+      "focus": "book-note:24",
+      "live": "Applied to working Book 24. It is now up to date. Only the working Book changed; the atlas is unchanged."
+    },
+    {
+      "step": "Escape back to the atlas",
+      "focus": null,
+      "live": "Back to all the Books."
+    }
+  ],
+  "revision_marks_after_book_apply": null,
+  "place_kept_after_apply": true,
+  "place_kept_after_return": true,
+  "scroll_overflow": 0
+}

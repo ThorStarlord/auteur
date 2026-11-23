@@ -429,6 +429,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_atelier_model.js": "studio_atelier_model.js",
         "/studio_atelier_series.js": "studio_atelier_series.js",
         "/studio_atelier_book.js": "studio_atelier_book.js",
+        "/studio_atelier_impact.js": "studio_atelier_impact.js",
         "/studio_atelier.js": "studio_atelier.js",
         "/studio_atelier.css": "studio_atelier.css",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",

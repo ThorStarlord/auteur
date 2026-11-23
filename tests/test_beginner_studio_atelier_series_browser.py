@@ -176,8 +176,9 @@ def test_damaged_and_stale_records_are_reported_and_withheld(browser, projects):
     page.locator('#studio-atelier [data-key="series-open:24"]').click()
     page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
     folio = page.evaluate(FOLIO)
-    assert "Written against an earlier working Architecture request" in folio
-    assert "inst_gate_table · no longer recorded" in folio
+    # The Book's evidence: how far behind it is, and the removed concept by the name the Book recorded.
+    assert "Written against the working Architecture as it was 1 applied revision ago." in folio
+    assert "Gate Table · no longer in the Architecture" in folio and "inst_gate_table · no longer" not in folio
     assert "does not match its acceptance record" in folio and "Archive of Truths" not in folio
     assert "the current Series Direction does not verify" in folio
     assert not writes and not errors
@@ -248,7 +249,7 @@ def test_an_applied_revision_reads_the_open_plans_again(browser, projects, tmp_p
         snap = page.evaluate(SNAP)
         assert snap["focus"] == LEDGER and snap["series"]["leaf"]["from"] == LEDGER
         folio = page.evaluate(FOLIO)
-        assert "Written against an earlier working Architecture request" in folio
+        assert "Written against the working Architecture as it was 1 applied revision ago." in folio
         assert "This concept changed after the Book was written." in folio
         assert "Written against the current working Architecture." not in folio
         assert not errors

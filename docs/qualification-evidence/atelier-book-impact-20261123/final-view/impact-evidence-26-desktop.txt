@@ -1,0 +1,11 @@
+Since Book 26 was written
+
+Written against the working Architecture as it was 1 applied revision ago.
+
+The Architecture changed after it was written, but every concept it cites is unchanged. That shows its recorded references did not change, not that the Book is unaffected. What changed is not cited by it: “Reading the First Stones” (changed).
+
+20 other cited concepts unchanged in name, kind and description. A Book records the concepts it cites, not their relationships, so a changed relationship is not shown here.
+
+Reconcile Book 26 with the working Architecture
+
+A whole-Book revision through Book 26’s own owner, starting from words you can change. Preparing changes nothing; only Apply changes the Book.

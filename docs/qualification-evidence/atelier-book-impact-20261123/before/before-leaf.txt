@@ -1,0 +1,149 @@
+SERIES AND BOOK CONTEXT
+
+Book and Series plans in this canvas and project
+← Back to the atlas
+Read again
+
+Read at 16:58:25.
+
+Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.
+
+WORKING BOOK ARCHITECTURES · THIS CANVAS
+
+Book-level working proposals for this canvas. They reference this working Architecture by node id; nothing in them is accepted, and no Book operation can accept anything.
+
+Book 24 · The Uncounted Crew
+
+Working · agent proposal · not accepted
+
+Written against an earlier working Architecture request; the Architecture has changed since.
+
+A concept it refers to is no longer in the working Architecture.
+
+QUESTION
+Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?
+PRESSURE
+The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.
+Architecture concepts it refers to · 21
+Finale Alternative A (not chosen)
+Finale Alternative B (not chosen)
+Finale Alternative C (not chosen)
+Ledger engine
+Old Hand engine (interpretive legitimacy)
+Source engine (physical commons)
+inst_gate_table · no longer recorded
+Maintenance lineages
+Mill Compact
+Reading Hall
+Stone Hall (Reckoners)
+Everyday belonging
+Consequential loss
+Wonder at a responsive order
+The Hollow Gate
+The Long Return (pulse)
+The Lowfen channel
+The gift practice (Lower Ammen)
+Custody of the record
+Hands and draw
+Keeping the channels
+
+Selecting one shows it in the atlas; the trail keeps the way back.
+
+9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.
+
+Source · .auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json · revision 0 · sha256:748f30c98c
+Written against request 3aca31aa4a
+
+How this plan is changed
+Book 25 · The Counted Hands
+
+Working · agent proposal · not accepted
+
+Written against an earlier working Architecture request; the Architecture has changed since.
+
+Its Book source items in the canvas changed after it was written.
+
+A concept it refers to is no longer in the working Architecture.
+
+QUESTION
+Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?
+PRESSURE
+The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.
+Architecture concepts it refers to · 21
+Finale Alternative A (not chosen)
+Finale Alternative B (not chosen)
+Finale Alternative C (not chosen)
+Ledger engine
+Old Hand engine (interpretive legitimacy)
+Source engine (physical commons)
+inst_gate_table · no longer recorded
+Maintenance lineages
+Mill Compact
+Reading Hall
+Stone Hall (Reckoners)
+Everyday belonging
+Consequential loss
+Wonder at a responsive order
+The Hollow Gate
+The Long Return (pulse)
+The Lowfen channel
+The gift practice (Lower Ammen)
+Custody of the record
+Hands and draw
+Keeping the channels
+
+Selecting one shows it in the atlas; the trail keeps the way back.
+
+9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.
+
+Source · .auteur/beginner/studio/canvases/spring-ledger/architecture/books/25/current.json · revision 0 · sha256:4947e8cd27
+Written against request 3aca31aa4a
+
+How this plan is changed
+Book 26 · After the Gate Table
+
+Working · agent proposal · not accepted
+
+Written against an earlier working Architecture request; the Architecture has changed since.
+
+QUESTION
+Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?
+PRESSURE
+The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.
+Architecture concepts it refers to · 20
+Finale Alternative A (not chosen)
+Finale Alternative B (not chosen)
+Finale Alternative C (not chosen)
+Ledger engine
+Old Hand engine (interpretive legitimacy)
+Source engine (physical commons)
+Maintenance lineages
+Mill Compact
+Reading Hall
+Stone Hall (Reckoners)
+Everyday belonging
+Consequential loss
+Wonder at a responsive order
+The Hollow Gate
+The Long Return (pulse)
+The Lowfen channel
+The gift practice (Lower Ammen)
+Custody of the record
+Hands and draw
+Keeping the channels
+
+Selecting one shows it in the atlas; the trail keeps the way back.
+
+9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.
+
+Source · .auteur/beginner/studio/canvases/spring-ledger/architecture/books/26/current.json · revision 0 · sha256:44dd288a5d
+Written against request 9755a87342
+
+How this plan is changed
+Book 29
+
+Could not be read (Unterminated string starting at: line 7 column 25 (char 337)). Nothing from it is shown.
+
+Not kept here: a Series plan (series_identity.yaml) · Series or Book Directions.
+
+← Back to the atlas

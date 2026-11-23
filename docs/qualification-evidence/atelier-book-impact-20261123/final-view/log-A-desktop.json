@@ -1,0 +1,44 @@
+{
+  "stage": "A",
+  "viewport": [
+    1440,
+    900
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/architecture/prepare",
+    "POST beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+    "POST beginner/studio/canvases/spring-ledger/architecture/apply",
+    "POST beginner/studio/canvases/spring-ledger/books/24/prepare"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "Architecture revision applied in the Studio",
+      "focus": null,
+      "live": "The Book and Series plans changed since you last read them."
+    },
+    {
+      "step": "overview opened",
+      "focus": null,
+      "live": "What the Architecture changes mean for its working Books. Back returns to the atlas; it keeps your place."
+    },
+    {
+      "step": "Book 24 evidence",
+      "focus": "impact-evidence:24",
+      "live": "Book 24’s evidence. Escape returns to all the Books."
+    },
+    {
+      "step": "reconcile composer, author added a note",
+      "focus": "book-instruction:24",
+      "live": ""
+    },
+    {
+      "step": "prepared",
+      "focus": "book-copy:24",
+      "live": "Request prepared for your coding agent. Nothing in Book 24 has changed."
+    }
+  ],
+  "impact_line_before": 0,
+  "books_unchanged_by_architecture_revision": true,
+  "scroll_overflow": 0
+}

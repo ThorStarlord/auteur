@@ -22,7 +22,6 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from auteur.beginner.persistence import BeginnerConcurrencyError
 from auteur.beginner.studio_store import CanvasStore
 from auteur.series.working_book_architecture import (
     book_apply_review,
@@ -98,9 +97,6 @@ def _phase(owner: dict, pending: dict | None) -> str:
     if pending is None:
         return "none"
     if pending["book_changed"] or pending["context_changed"]:
-        return "stale"
-    if pending.get("baseline_out_of_date") and pending.get("mode") != "holistic":
-        # Prepared outside the Studio on an out-of-date Book: applying part of it would mark the whole Book current.
         return "stale"
     if owner["status"] == "review_ready":
         return "review_ready"
@@ -229,13 +225,9 @@ def apply_book_revision(project_root: Path, canvas_id: str, book_number: int, pa
     if not isinstance(sha, str) or not _SHA.fullmatch(sha):
         raise ValueError("request_sha256 must be the 64-character identity of the review you read")
     with _owner_records(book_number):
-        pending = book_pending_state(store, book_number)["pending"]
-        if (pending and pending["request_sha256"] == sha and pending.get("baseline_out_of_date")
-                and pending.get("mode") != "holistic"):
-            raise BeginnerConcurrencyError(
-                f"this revision was prepared on Book {book_number} while it was out of date with the working "
-                "Architecture or its source, and it revises only part of the Book; applying it would record the "
-                "whole Book as current, so prepare a whole-Book revision instead")
+        # A partial revision of a Book that was already out of date is applied by the owner without
+        # recording the whole Book as current; the result says which it did.
         result = book_apply_review(store, book_number, sha)
-    return {"application": {"result": result["result"], "request_sha256": sha},
+    return {"application": {"result": result["result"], "request_sha256": sha,
+                            "currentness": result.get("currentness")},
             **project_book_development(project_root, canvas_id, book_number)}

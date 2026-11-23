@@ -1,0 +1,26 @@
+{
+ "book_number": 24,
+ "freshness": "ready",
+ "series_changed": false,
+ "source_changed": false,
+ "semantic_impact": "clear",
+ "revision": {
+  "number": 1,
+  "lineage": [
+   {
+    "revision": 0,
+    "request_sha256": "d27ab53cea999d7d88d49d5b99051aa92ab00833d4e2d188a8438e50e27347e6",
+    "content_sha256": "748f30c98c68066244f6a820a272ee51478d8583ab336465defc2534ac9c82dd",
+    "operation": "develop"
+   },
+   {
+    "revision": 1,
+    "request_sha256": "0534f939cad8442b48f74abef5888d98d50c8cd267e35a7869e423a36fcffb30",
+    "content_sha256": "55abdf64f7e84d24ef20e1016c0ec1b4ffce7d1d016df92cd88b7c7fbb1f4220",
+    "operation": "revise",
+    "baseline_request_sha256": "d27ab53cea999d7d88d49d5b99051aa92ab00833d4e2d188a8438e50e27347e6",
+    "currentness": "current"
+   }
+  ]
+ }
+}
