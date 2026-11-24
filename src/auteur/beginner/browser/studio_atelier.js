@@ -2813,9 +2813,12 @@
       // The author asked to check again: Book reads are refreshed, so an open card never shows an old revision.
       rereadBooks:function(){S.books={};if(S.leaf)readSeries(true,false,true);renderFolio();},
       returnFocus:function(){var top=root.getBoundingClientRect().top;
-        if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});
+        // Where the folio stacks below the atlas (narrow screens) the author must land on the atlas, where the applied
+        // change is marked; focusing the discovery heading without revealing it keeps that view.
+        var stacked=!!(global.matchMedia&&global.matchMedia('(max-width:900px)').matches);
+        if(stacked||top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});
         var dc=S.leaf&&S.discovery&&folio.querySelector('[data-key="book-discovery-h:'+S.discovery.book+'"]');
-        if(dc){dc.focus({preventScroll:true});reveal(dc);announce('Back to Book '+S.discovery.book+'’s discovery. The atlas kept your place.');return;}
+        if(dc){dc.focus({preventScroll:true});if(!stacked)reveal(dc);announce('Back to Book '+S.discovery.book+'’s discovery. The atlas kept your place.');return;}
         var id=S.focus,b=id&&starEls[id];
         if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),

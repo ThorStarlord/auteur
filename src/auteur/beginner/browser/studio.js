@@ -3262,7 +3262,7 @@
     status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")" +
       (request.bookEvidence ? ", with Book " + request.bookEvidence.book_number + "’s element as Book evidence" : "") + ". " +
       (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
-        request.bookEvidence ? "Your question is in the field to edit; send it from the panel. " :
+        request.bookEvidence ? "Your question is in the field to edit. “Ask coding agent” prepares a request you copy to your agent; nothing runs. " :
         suggestion ? "A suggested question is in the field for you to edit; nothing is sent until you send it. " :
         "Write your question or the change you want; ") + "The atlas keeps your place.");
     renderAtelierStudy();
