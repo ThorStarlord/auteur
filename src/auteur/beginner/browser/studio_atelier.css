@@ -487,13 +487,15 @@
 .atl-impact-book-row .atl-tone{margin:2px 0}
 .atl-impact-book{margin:8px 0 6px;padding:7px 9px;border-radius:9px;background:#fbf8f2;border:1px solid #e6dccb}
 .atl-impact-book .atl-series-subtitle{margin-top:0}
-.atl-impact-book .atl-series-subtitle:focus{outline:2px solid var(--atl-focus);outline-offset:2px}
+.atl-impact-book .atl-series-subtitle:focus{outline:none}
+.atl-impact-book .atl-series-subtitle:focus-visible{outline:2px solid var(--atl-focus);outline-offset:2px}
 .atl-impact-ref{margin:0 0 8px}
 .atl-impact-ref .atl-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
 .atl-impact-book-row.is-current{border-color:var(--atl-focus);background:#fbf6ec}
 .atl-discovery{margin:10px 0 6px;padding:8px 10px;border-radius:9px;background:#f7f6fb;border:1px solid #dcd8e8}
 .atl-discovery .atl-series-subtitle{margin-top:0}
-.atl-discovery .atl-series-subtitle:focus{outline:2px solid var(--atl-focus);outline-offset:2px}
+.atl-discovery .atl-series-subtitle:focus{outline:none}
+.atl-discovery .atl-series-subtitle:focus-visible{outline:2px solid var(--atl-focus);outline-offset:2px}
 .atl-chip-removed{border-style:dashed;border-color:#d4a5a5;background:#fbefef;color:#7a3434}
 /* A focused target brought into view keeps a little room above it. */
 .atl-folio [data-key]{scroll-margin-top:12px}
@@ -513,7 +515,7 @@
 }
 @media (min-width:901px) and (prefers-reduced-motion:no-preference){
   .atl.atl-writing .atl-folio{animation:atl-desk-in .28s var(--atl-ease)}
-  @keyframes atl-desk-in{from{opacity:.4;transform:translateX(18px)}to{opacity:1;transform:none}}
+  @keyframes atl-desk-in{from{transform:translateX(22px)}to{transform:none}}
 }
 /* Writing surfaces read as writing: a serif field with a calm focus ring, wherever the author composes. */
 .atl-book-text:not([readonly]){font:14.5px/1.58 var(--atl-serif);color:var(--atl-ink);background:#fffefa}
@@ -527,3 +529,10 @@
   text-underline-offset:3px;border-radius:5px}
 .atl-series-elements li .atl-action.atl-action-quiet:hover{text-decoration-style:solid;background:color-mix(in srgb,var(--atl-focus) 8%,transparent)}
 .atl-series-elements li .atl-action.atl-action-quiet:focus-visible{outline:2px solid var(--atl-focus);outline-offset:1px}
+
+/* The desk's card heading reads as a title, not a label. */
+.atl-discovery>.atl-series-subtitle:first-child{font:500 1.18rem/1.25 var(--atl-serif);letter-spacing:0;text-transform:none;color:var(--atl-ink)}
+/* A working Book's own change is a neutral, factual mark: amber stays for agent interpretation. */
+.atl-chip-book-changed{background:#eef0f3;border-color:#b9c0cb;color:#3f4a5a}
+/* A concept the Architecture no longer has: dashed and struck, not alarm red (red is kept for what blocks). */
+.atl-chip-removed{border-style:dashed;border-color:#b9b0a3;background:#f5f1ea;color:#5b5348;text-decoration:line-through;text-decoration-color:#a99d8d}

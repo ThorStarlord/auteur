@@ -63,7 +63,7 @@
   padding:6px 10px;border-radius:8px;background:#f6f1e7}
 .studio-atelier-desk .creative-anchor-chip{border-color:var(--desk-recorded);color:var(--desk-recorded);background:var(--desk-recorded-tint)}
 .studio-atelier-desk #architecture-creative-agent-panel [aria-label='Creative actions'] [aria-pressed=true]{
-  background:var(--desk-ink);color:#fbf6ec;text-decoration:none}
+  background:var(--desk-recorded-tint);border-color:var(--desk-recorded);color:var(--desk-recorded);text-decoration:none;font-weight:600}
 
 /* The author's own Book evidence: violet-grey, dashed, set apart from the question. */
 .studio-atelier-desk .creative-book-evidence{border:1px dashed var(--desk-author);background:var(--desk-author-tint);border-radius:10px;
@@ -88,7 +88,7 @@
 .studio-atelier-desk .creative-claims li{margin:0 0 6px;font:.86rem/1.5 var(--desk-sans);color:var(--desk-soft)}
 /* Alternatives sit side by side so they can be compared; each keeps its own action. */
 .studio-atelier-desk .creative-alternatives{list-style:none;margin:0;padding:0;display:grid;gap:12px;
-  grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));align-items:stretch}
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:stretch}
 .studio-atelier-desk .creative-alternative{padding:12px 14px;background:var(--desk-card);border:1px solid var(--desk-hair);border-radius:11px;
   display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .studio-atelier-desk .creative-alternative [data-alternative-id]{margin-top:auto}
@@ -114,7 +114,6 @@
 /* Interpretation beside the records it cites, on a wide desk; stacked on narrow screens. */
 .studio-atelier-desk .creative-pair{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
 .studio-atelier-desk .creative-records h5{margin-top:0}
-.studio-atelier-desk .creative-records .creative-claims{max-height:26rem;overflow:auto}
 @media (max-width:1100px){.studio-atelier-desk .creative-pair{grid-template-columns:minmax(0,1fr)}}
 
 /* Exact source identities stay available, set small and quiet beneath what changed. */
@@ -131,3 +130,16 @@
   .studio-atelier-desk .creative-interpretation{padding:9px 11px;font-size:14.5px}
   .studio-atelier-desk #architecture-review{padding:14px 12px}
 }
+
+/* Buttons whose text wraps (relationship and component lists) keep a modest radius, not a lozenge. */
+.studio-atelier-desk :is(#architecture-relationship-index,#architecture-component-actions) button{border-radius:8px;text-align:left;
+  font:.82rem/1.4 var(--desk-sans)}
+/* The hand-off fields read top to bottom: a label, then its field. */
+.studio-atelier-desk #architecture-creative-agent-panel>label{display:block;margin:12px 0 4px}
+.studio-atelier-desk #architecture-creative-agent-panel>textarea{display:block;width:100%}
+/* The review's comparison speaks the desk's language: quiet controls, titled nodes, serif headings. */
+.studio-atelier-desk #architecture-review :is(h2,h3){font-family:var(--desk-serif);font-weight:500;color:var(--desk-ink)}
+.studio-atelier-desk #architecture-review .overlay-node{fill:var(--desk-card);stroke:var(--desk-hair-ink);stroke-width:1.2}
+.studio-atelier-desk #architecture-review svg text{font:12px var(--desk-sans);fill:var(--desk-ink)}
+.studio-atelier-desk #architecture-review .layer-button[aria-pressed=true]{background:var(--desk-recorded-tint);border-color:var(--desk-recorded);
+  color:var(--desk-recorded)}

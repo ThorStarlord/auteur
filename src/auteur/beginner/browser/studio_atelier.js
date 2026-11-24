@@ -1578,15 +1578,18 @@
       var nav=el('div','atl-look');
       var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
       bk.setAttribute('aria-keyshortcuts','Escape');
-      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread');
+      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread').classList.add('atl-action-quiet');
       folio.append(nav);
       var status=!c||c.status==='loading'?(d?'Reading the plans again… (showing the read of '+readTime(c)+')':'Reading the plans…'):c.status==='error'?'Could not read the plans: '+c.error:
         (c.changed?'Changed since you last read them. ':'')+'Read at '+readTime(c)+'.';
       folio.append(el('p','atl-note atl-series-status',status));
       folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.'));
       if(!d)return;
-      renderImpactOverview(d,from,l);
-      renderLeafBooks(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
+      // What the author opened comes first: the Book they asked for, or the overview when they asked for it.
+      var bookFirst=!!(l.book&&!l.impact);
+      if(!bookFirst)renderImpactOverview(d,from,l);
+      renderLeafBooks(d,from,l);
+      if(bookFirst)renderImpactOverview(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
       if(d.separate_owners_note)folio.append(el('p','atl-note',d.separate_owners_note));
       var s=d.sources,missing=[];
       if(s.working_books.state==='absent')missing.push('working Book architectures for this canvas');

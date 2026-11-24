@@ -75,7 +75,7 @@
     if(e.noArchitecture)return [{tone:'bad',text:'The working Architecture cannot be read, so whether the concepts it cites changed cannot be told.'}];
     if(e.changed.length)out.push({tone:'warn',text:'Cites '+plural(e.changed.length,'concept')+' that changed after it was written: '+
       andList(e.changed.map(function(r){return '“'+refName(r,nameOf)+'”';}))+'.'});
-    if(e.removed.length)out.push({tone:'bad',text:'Cites '+plural(e.removed.length,'concept')+' no longer in the working Architecture: '+
+    if(e.removed.length)out.push({tone:'warn',text:'Cites '+plural(e.removed.length,'concept')+' no longer in the working Architecture: '+
       andList(e.removed.map(function(r){return '“'+refName(r,nameOf)+'”';}))+'.'});
     if(!e.flagged&&e.architectureChanged)out.push({tone:'warn',text:'The Architecture changed after it was written, but every concept it cites is unchanged. '+
       'That shows its recorded references did not change, not that the Book is unaffected.'+
