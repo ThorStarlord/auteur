@@ -76,6 +76,22 @@ _PENDING_REVIEW_GUIDANCE = (
     "Never modify or apply the proposal."
 )
 
+_BOOK_EVIDENCE_GUIDANCE = (
+    "book_evidence is one element of a working Book architecture that the author chose to bring to this "
+    "inquiry. It is a noncanonical Book-level working proposal with its own attribution and standing: not an "
+    "author-declared Architecture fact, not an author intention, not an accepted Series commitment and not "
+    "a verified causal relationship. The Architecture concepts it cites are given by recorded node id. Keep "
+    "three things apart: what the Book records, what you interpret, and what remains the author's decision. "
+    "It is a legitimate answer that the observation should stay local to the Book and needs no "
+    "Architecture change; say so when that is your reading."
+)
+
+_PRIOR_BOOK_EVIDENCE_GUIDANCE = (
+    "A prior exchange with book_evidence was asked with one element of a working Book as evidence. Treat what it "
+    "says about that element as the Book's noncanonical working proposal, and as historical when its status is "
+    "changed or unreadable: the Book no longer records it that way."
+)
+
 _MAX_PRIOR_IN_REQUEST = 3
 _MAX_HISTORY_PROJECTED = 8
 
@@ -96,6 +112,42 @@ class InquiryHypothesis(BaseModel):
     title: str = Field(min_length=1,max_length=120)
     description: str = Field(min_length=1,max_length=1400)
     divergence_axis: DivergenceAxis | None = None
+
+class BookEvidenceRef(BaseModel):
+    """The working Book element the author brings to an inquiry, as the author read it."""
+    model_config = ConfigDict(extra='forbid', strict=True)
+    book_number: int = Field(ge=1, le=60)
+    element_id: str = Field(min_length=1, max_length=120)
+    expected_book_request_sha256: str = Field(pattern=r'^[0-9a-f]{64}$')
+    expected_element_content_sha256: str = Field(pattern=r'^[0-9a-f]{64}$')
+
+
+def _book_evidence(store, ref: BookEvidenceRef) -> dict:
+    """The Book owner's read of the element; ValueError when the Book or element cannot be read."""
+    from auteur.series.working_book_architecture import book_element_evidence
+    try:
+        return book_element_evidence(store, ref.book_number, ref.element_id)
+    except (KeyError, OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Book {ref.book_number}'s working record cannot be read ({type(exc).__name__}); "
+                         "nothing was prepared") from None
+
+
+def _book_evidence_status(store, settings: dict) -> str:
+    """current, changed (the Book or the element is no longer what the inquiry was asked about) or unreadable."""
+    recorded = settings.get('book_evidence')
+    if not recorded:
+        return 'none'
+    try:
+        live = _book_evidence(store, BookEvidenceRef(
+            book_number=recorded['book_number'], element_id=recorded['element_id'],
+            expected_book_request_sha256=recorded['book_request_sha256'],
+            expected_element_content_sha256=recorded['element_content_sha256']))
+    except ValueError:
+        return 'unreadable'
+    same = (live['book_request_sha256'] == recorded['book_request_sha256']
+            and live['element']['content_sha256'] == recorded['element_content_sha256'])
+    return 'current' if same else 'changed'
+
 
 class ArchitectureInquiryResult(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True)
@@ -133,7 +185,21 @@ def _with_ids(hypotheses: list[dict]) -> list[dict]:
     ]
 
 
-def _exchange_view(result: dict, request_created_at: str, request_sha: str) -> dict:
+def _exchange_book_evidence(store, result: dict) -> dict | None:
+    """An earlier answer's Book evidence, labelled, with whether it is still the Book's current record."""
+    evidence = result.get("book_evidence")
+    if not evidence or store is None:
+        return None
+    book, element = evidence.get("book") or {}, evidence.get("element") or {}
+    status = _book_evidence_status(store, {"book_evidence": {
+        "book_number": book.get("book_number"), "element_id": element.get("id"),
+        "book_request_sha256": book.get("request_sha256"), "element_content_sha256": element.get("content_sha256")}})
+    return {"book_number": book.get("book_number"), "element_id": element.get("id"),
+            "revision_number": book.get("revision_number"), "status": status,
+            "authority": "working_book_observation_noncanonical"}
+
+
+def _exchange_view(result: dict, request_created_at: str, request_sha: str, store=None) -> dict:
     intent = result.get("intent") or {}
     anchors = []
     for anchor in intent.get("anchors", []):
@@ -158,6 +224,7 @@ def _exchange_view(result: dict, request_created_at: str, request_sha: str) -> d
             for h in _with_ids(result.get("hypotheses") or [])
         ],
         "uncertainties": [str(item)[:300] for item in (result.get("uncertainties") or [])[:4]],
+        **({"book_evidence": book} if (book := _exchange_book_evidence(store, result)) else {}),
     }
 
 
@@ -174,7 +241,7 @@ def _all_completed_exchanges(store) -> list[dict]:
         if not result:
             continue
         request = load_host_agent_request(folder/'request.json')
-        rows.append((request.created_at, _exchange_view(result, request.created_at, folder.name)))
+        rows.append((request.created_at, _exchange_view(result, request.created_at, folder.name, store)))
     rows.sort(key=lambda row: (row[0], row[1]['request_sha256']))
     return [view for _, view in rows]
 
@@ -226,7 +293,12 @@ def _parse_anchor(text: str) -> dict:
 
 def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
     arch,build_request,_,_,write_request,_,atomic_write=_helpers()
+    graph_intent=dict(graph_intent)
+    evidence_ref=graph_intent.pop('book_evidence',None)
     intent=GraphIntent.model_validate(graph_intent)
+    evidence_ref=BookEvidenceRef.model_validate(evidence_ref) if evidence_ref is not None else None
+    if evidence_ref is not None and intent.target!='current':
+        raise ValueError('Book evidence is brought to the current working architecture, not to a pending revision')
     if intent.operation=='revise':raise ValueError('inquiry must not be a revision')
     if intent.canvas_id!=store.canvas_id:raise ValueError('graph intent canvas ID mismatch')
     with arch._FilesystemLock(store._path('.canvas.lock')):
@@ -251,7 +323,11 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
                 'author_text':intent.author_text,
                 **resolve_intent_views(proposed,intent.anchors)}
         else:
+            # Book evidence is checked first, so an anchor the Book cites but the Architecture lost is named as such.
+            book_packet=_book_evidence_packet(store,current,intent,evidence_ref) if evidence_ref is not None else None
             resolved=resolve_graph_intent(current['candidate'],current['request_sha256'],intent)
+        if intent.target=='pending_review':
+            book_packet=None
         context=arch._source(store,previous=current['candidate'])
         _,guidance,design_context=arch._design_context_parts(store,context)
         prior=_completed_exchanges(store,current['request_sha256'])[-_MAX_PRIOR_IN_REQUEST:]
@@ -260,6 +336,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
             'graph_intent':resolved,'working_candidate':proposed,
             'narrative_design_context':design_context,'prior_exchanges':prior,
         }
+        if book_packet:
+            payload['book_evidence']=book_packet
         if review:
             payload['review_context']={
                 'request_sha256':review['request_sha256'],
@@ -276,6 +354,10 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
         system=_SYSTEM+'\n'+_OPERATION_GUIDANCE[intent.operation]
         if review:
             system+='\n'+_PENDING_REVIEW_GUIDANCE
+        if book_packet:
+            system+='\n'+_BOOK_EVIDENCE_GUIDANCE
+        if any(p.get('book_evidence') for p in prior):
+            system+='\n'+_PRIOR_BOOK_EVIDENCE_GUIDANCE
         settings={'operation':'inquire','canvas_id':store.canvas_id,
             'baseline_candidate_request_sha256':current['request_sha256'],
             'source_sha256':current['source_sha256'],
@@ -284,12 +366,66 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
             'inquiry_target':intent.target}
         if review:
             settings['review_request_sha256']=review['request_sha256']
+        if book_packet:
+            settings['book_evidence']={'book_number':evidence_ref.book_number,'element_id':evidence_ref.element_id,
+                'book_request_sha256':book_packet['book']['request_sha256'],
+                'element_content_sha256':book_packet['element']['content_sha256']}
         request=build_request(candidate_id='studio-inquiry-'+arch._digest({'settings':settings,'user':user})[:24],
             role='studio_architecture_inquiry',system=system,user=user,settings=settings)
         base=_inquiry_root(store)
         write_request(base/'requests'/request.request_sha256/'request.json',request)
         atomic_write(base/'latest_request.json',{'request_sha256':request.request_sha256})
     return project_architecture_inquiry(store)
+
+
+def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEvidenceRef) -> dict:
+    """Verify the Book element is what the author read, and anchor only on concepts it records."""
+    arch,*_=_helpers()
+    evidence=_book_evidence(store,ref)
+    if evidence['book_request_sha256']!=ref.expected_book_request_sha256:
+        raise arch.BeginnerConcurrencyError(
+            f"working Book {ref.book_number} changed since you read it (it is now revision "
+            f"{evidence['revision_number']}); read it again before asking about it")
+    element=evidence['element']
+    if element.get('collection')=='typed_edges':
+        raise ValueError(f"{ref.element_id} is a typed link of Book {ref.book_number}, not an observation with a "
+                         "standing of its own; bring the element it starts from")
+    if element['content_sha256']!=ref.expected_element_content_sha256:
+        raise arch.BeginnerConcurrencyError(
+            f"the element {ref.element_id} of working Book {ref.book_number} changed since you read it")
+    present={c['node_id'] for c in evidence['cited_architecture_concepts'] if c['present']}
+    if not present:
+        raise ValueError(
+            f"Book {ref.book_number}'s element {ref.element_id} records no reference to a concept the current "
+            "working architecture has, so there is no recorded concept to ask about; a concept it names only in "
+            "its wording is not a recorded reference")
+    removed=[c['node_id'] for c in evidence['cited_architecture_concepts'] if not c['present']]
+    gone=[a.id for a in intent.anchors if a.kind=='node' and a.id in removed]
+    if gone:
+        raise ValueError(
+            f"Book {ref.book_number} records a reference to {', '.join(gone)}, which the current working "
+            "architecture no longer has; it can be read as historical evidence but cannot anchor an inquiry. "
+            "Anchor on a current concept the element records: " + ', '.join(sorted(present)))
+    stray=[a.id for a in intent.anchors if a.kind!='node' or a.id not in present]
+    if stray:
+        raise ValueError(
+            "with Book evidence, every anchor must be a current Architecture concept the element records a "
+            "reference to (" + ', '.join(sorted(present)) + "); not: " + ', '.join(stray))
+    return {
+        'authority':'working_book_observation_noncanonical',
+        'note':('One element of a working Book architecture, brought by the author for this inquiry. It is a '
+                'noncanonical Book-level proposal: not author-declared Architecture context, not an accepted '
+                'commitment, and not a verified relationship. Only the cited concepts are recorded links.'),
+        'book':{'book_number':evidence['book_number'],'title':evidence['title'],
+                'revision_number':evidence['revision_number'],'request_sha256':evidence['book_request_sha256'],
+                'content_sha256':evidence['book_content_sha256'],'freshness':evidence['freshness'],
+                'written_against_architecture_request_sha256':evidence['written_against_architecture_request_sha256'],
+                'written_against_current_architecture':
+                    evidence['written_against_architecture_request_sha256']==current['request_sha256']},
+        'element':element,
+        'cited_architecture_concepts':[{**c,'used_as_anchor':c['node_id'] in {a.id for a in intent.anchors}}
+                                       for c in evidence['cited_architecture_concepts']],
+    }
 
 
 def _live_matches(store,current,request,arch) -> bool:
@@ -323,8 +459,12 @@ def project_architecture_inquiry(store)->dict:
     if request.role!='studio_architecture_inquiry':raise ValueError('unexpected inquiry host role')
     result=arch._read(base/'requests'/sha/'result.json')
     valid=_live_matches(store,current,request,arch)
+    evidence=_book_evidence_status(store,request.settings)
+    if result is None and evidence in ('changed','unreadable'):
+        valid=False
     return {'status':('ready' if valid else 'stale') if result else
             ('awaiting_host_agent' if valid else 'stale'),
+            'book_evidence_status':evidence,
             'request':request.model_dump() if result is None and valid else None,
             'result':result if valid else None,
             'request_sha256':sha,
@@ -352,6 +492,11 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
         if not _live_matches(store,current,request,arch):
             write_response(folder/'stale_response.json',response)
             raise arch.BeginnerConcurrencyError('inquiry baseline or design context changed; retained stale response')
+        if _book_evidence_status(store,request.settings) in ('changed','unreadable'):
+            write_response(folder/'stale_response.json',response)
+            raise arch.BeginnerConcurrencyError(
+                'the working Book element this inquiry was asked about changed or cannot be read; '
+                'retained stale response')
         result=ArchitectureInquiryResult.model_validate_json(response.text)
         submitted=json.loads(request.user)
         operation=submitted['graph_intent']['operation']
@@ -396,6 +541,8 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
             'review_request_sha256':review['request_sha256'] if review else None,
             'inquiry_target':request.settings.get('inquiry_target','current'),
             'intent':submitted['graph_intent']}
+        if submitted.get('book_evidence'):
+            saved['book_evidence']=submitted['book_evidence']
         write_response(folder/'response.json',response)
         atomic_write(folder/'result.json',saved)
     return project_architecture_inquiry(store)
@@ -420,6 +567,8 @@ def main(argv: list[str] | None = None) -> int:
     prepare.add_argument("--anchor", action="append", default=[],
                          help="kind:id, kind:id@field, kind:id@field#index, or kind:id@ref:field:target_kind:target_id")
     prepare.add_argument("--text-file", type=Path, required=True)
+    prepare.add_argument("--book", type=int, help="Bring one working Book element as evidence (with --element)")
+    prepare.add_argument("--element", help="The working Book element id")
     complete = commands.add_parser("complete-file")
     complete.add_argument("--response-file", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -433,6 +582,19 @@ def main(argv: list[str] | None = None) -> int:
             "expected_candidate_request_sha256": current["candidate_request_sha256"],
             "anchors": [_parse_anchor(item) for item in args.anchor], "author_text": text,
         }
+        if (args.book is None) != (args.element is None):
+            parser.error("--book and --element go together")
+        if args.book is not None:
+            from auteur.series.working_book_architecture import book_element_evidence
+            try:
+                seen = book_element_evidence(store, args.book, args.element)
+            except (ValueError, KeyError, OSError) as exc:
+                print(json.dumps({"result": "rejected", "error": f"Book {args.book}'s element cannot be read: {exc}"},
+                                 ensure_ascii=False, indent=2))
+                return 1
+            intent["book_evidence"] = {"book_number": args.book, "element_id": args.element,
+                                       "expected_book_request_sha256": seen["book_request_sha256"],
+                                       "expected_element_content_sha256": seen["element"]["content_sha256"]}
         result = prepare_architecture_inquiry(store, intent)
     elif args.action == "complete-file":
         pending = project_architecture_inquiry(store)

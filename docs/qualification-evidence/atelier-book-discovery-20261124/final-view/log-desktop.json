@@ -1,0 +1,93 @@
+{
+  "viewport": [
+    1440,
+    900
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/architecture/inquiry/prepare",
+    "POST beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+    "POST beginner/studio/canvases/spring-ledger/architecture/prepare",
+    "POST beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+    "POST beginner/studio/canvases/spring-ledger/architecture/apply"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "discovery card opened",
+      "focus": "book-discovery-h:24",
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "inquiry prepared with Book evidence",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "inquiry answer shown",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "revision prepared from the chosen alternative",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask.",
+      "status": "Awaiting the active coding agent. Prior working proposal remains available if present."
+    },
+    {
+      "step": "Architecture review shown",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "Architecture revision applied",
+      "focus": null,
+      "live": "The Book and Series plans changed since you last read them.",
+      "leaf": {
+        "from": "structure|structure-node:eng_ledger",
+        "book": 24
+      },
+      "discovery": {
+        "book": 24,
+        "element": "unk-tally-hours",
+        "operation": "explore",
+        "anchor": "eng_ledger"
+      }
+    },
+    {
+      "step": "impact overview",
+      "focus": null,
+      "live": "The Book and Series plans changed since you last read them."
+    },
+    {
+      "step": "Book 24 evidence after the revision",
+      "focus": "impact-evidence:24",
+      "live": "Book 24’s evidence. Escape returns to all the Books."
+    }
+  ],
+  "read_only_after_inquiry_prepare": true,
+  "read_only_after_inquiry_answer": false,
+  "choice": {
+    "hypothesis_id": "h1",
+    "instruction": "Develop h1 at the Architecture level only as a clarification: say in the Ledger engine that the hours column records care beside the mark but does not set draw, so the counted Turn still does not hold the water. Keep open question 4 and every finale alternative open, and change nothing else."
+  },
+  "books_unchanged_by_architecture_apply": true,
+  "after_apply_leaf": {
+    "from": "structure|structure-node:eng_ledger",
+    "book": 24
+  },
+  "after_apply_discovery": {
+    "book": 24,
+    "element": "unk-tally-hours",
+    "operation": "explore",
+    "anchor": "eng_ledger"
+  },
+  "place_kept": true,
+  "atlas_marks_revision": true,
+  "discovery_kept": {
+    "book": 24,
+    "element": "unk-tally-hours",
+    "operation": "explore",
+    "anchor": "eng_ledger"
+  },
+  "scroll_overflow": 0
+}

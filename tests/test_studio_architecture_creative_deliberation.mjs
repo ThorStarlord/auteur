@@ -62,7 +62,7 @@ test('each alternative carries its server ID and an explicit revision-basis acti
   const buttons=walk(s.root,n=>n.dataset?.alternativeId).map(n=>n.dataset.alternativeId);
   assert.deepEqual(buttons,['h1','h2']);
   const labels=walk(s.root,n=>n.tag==='button'&&/revision basis/.test(n.textContent)).map(n=>n.textContent);
-  assert.deepEqual(labels,['Use h1 as revision basis','Use h2 as revision basis']);
+  assert.deepEqual(labels,['Use h1 as revision basis (prepares a revision request)','Use h2 as revision basis (prepares a revision request)']);
 });
 
 test('choosing an alternative requires a selection and a stated intention, then names the inquiry and ID',()=>{

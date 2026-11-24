@@ -1,0 +1,160 @@
+Proposed architecture revision — review before applying
+↑ Back to the atlas · Ledger engine
+
+The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.
+
+Requested change: Develop h1 at the Architecture level only as a clarification: say in the Ledger engine that the hours column records care beside the mark but does not set draw, so the counted Turn still does not hold the water. Keep open question 4 and every finale alternative open, and change nothing else.
+Revised architecture summary (not causal rationale): The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.
+node - Ledger engine: Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. -> Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so the draw can be checked against them. Clarified: the hours column records care beside the mark but does not set draw, and hands owed under the Book 20 conversion are not reckoned from it, so the counted Turn still does not hold the water.
+Compare visually (experimental · working architecture only)
+
+The two candidate versions remain separate until you explicitly apply the complete working revision. Inspecting changes does not call an agent or accept story meaning.
+
+READ-ONLY WORKING ARCHITECTURE REVIEW · No story canon accepted here.
+
+Readable summary
+Compare graphs
+Focused differences
+What changed in the working architecture?
+
+Requested change: Develop h1 at the Architecture level only as a clarification: say in the Ledger engine that the hours column records care beside the mark but does not set draw, so the counted Turn still does not hold the water. Keep open question 4 and every finale alternative open, and change nothing else.
+
+Revised architecture summary (not an agent causal rationale): The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.
+
+The comparison shows observable source differences only. It does not establish creative quality, downstream effects, or accepted-story compliance.
+
+0 added · 0 removed · 1 changed · 86 unchanged records.
+
+Requirements to check (not verified)
+
+No separately verified accepted constraints supplied to this comparison.
+
+Focused semantic difference
+Back to whole comparison
+Ledger engine · Narrative entity · changed
+
+Before: nodes/5 · request 00655ba406fd0c6616fb6f83eca7acad7165177fca4205dd106948ee572c0495
+
+After: nodes/5 · request 9f544eb8e94a09bd5d5b52c8b901847a0f1a7c0c7bc77bb980ed1a4d464ea624
+
+Focused recorded neighborhood — before / after
+Before
+After
+Differences
+th_hands_and_draw
+eng_ledger
+eng_source
+eng_old_hand
+rx_consequence
+inst_stone_hall
+inst_mill_compact
+inst_lineage_crews
+
+Before: 9 recorded local links. After: 9 recorded local links. Edge geometry is not narrative causality.
+
+Recorded field changes (full values)
+summary
+
+Before
+
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it.
+
+After
+
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so the draw can be checked against them. Clarified: the hours column records care beside the mark but does not set draw, and hands owed under the Book 20 conversion are not reckoned from it, so the counted Turn still does not hold the water.
+Full Before record
+Full After record
+Explore changed entities and relationships
+Ledger engine · Narrative entity · changed
+Awe at the spring · Complex emotion · unchanged
+Bittersweet return · Complex emotion · unchanged
+anger · Emotional target · unchanged
+joy · Emotional target · unchanged
+sadness · Emotional target · unchanged
+fear · Emotional target · unchanged
+sadness · Emotional target · unchanged
+joy · Emotional target · unchanged
+surprise · Emotional target · unchanged
+gn_epic_fantasy · Genre contract · unchanged
+gn_mystery_discovery · Genre contract · unchanged
+gn_pastoral_belonging · Genre contract · unchanged
+gn_political_institutional · Genre contract · unchanged
+gi_epic_political_tension · Genre interaction · unchanged
+gi_mystery_epic_enables · Genre interaction · unchanged
+gi_pastoral_mystery_reinforces · Genre interaction · unchanged
+gi_pastoral_political_gate · Genre interaction · unchanged
+gi_political_pastoral_constrains · Genre interaction · unchanged
+l_alt_a_decouples · Directed relationship · unchanged
+l_alt_b_bounds · Directed relationship · unchanged
+l_alt_c_normal_is_a · Directed relationship · unchanged
+l_alt_c_triggers_b · Directed relationship · unchanged
+l_compact_hands_in_kind · Directed relationship · unchanged
+l_conversion_sets_draw · Directed relationship · unchanged
+l_council_legitimises_gift · Directed relationship · unchanged
+l_custody_grants_hall · Directed relationship · unchanged
+l_declined_goes_wild · Directed relationship · unchanged
+l_gate_sets_outflow · Directed relationship · unchanged
+l_hall_custody_credit · Directed relationship · unchanged
+l_ledger_consequence · Directed relationship · unchanged
+l_ledger_draws_source · Directed relationship · unchanged
+l_ledger_opens_trade · Directed relationship · unchanged
+l_lineage_carries_repair · Directed relationship · unchanged
+l_lineage_right_on_draw · Directed relationship · unchanged
+l_longreturn_needs_gate · Directed relationship · unchanged
+l_longreturn_needs_hands · Directed relationship · unchanged
+l_lowfen_needs_hands · Directed relationship · unchanged
+l_maintenance_balances_source · Directed relationship · unchanged
+l_measured_holds_gate · Directed relationship · unchanged
+l_oldhand_redefines_share · Directed relationship · unchanged
+l_oldhand_reframes_core · Directed relationship · unchanged
+l_reading_decides_binding · Directed relationship · unchanged
+l_reading_hall_reads · Directed relationship · unchanged
+l_source_forces_council · Directed relationship · unchanged
+l_source_limits_ledger · Directed relationship · unchanged
+l_source_wonder · Directed relationship · unchanged
+l_tally_counts_hands · Directed relationship · unchanged
+l_trade_draws_without_return · Directed relationship · unchanged
+l_turn_belonging · Directed relationship · unchanged
+l_unmeasured_needs_release · Directed relationship · unchanged
+Finale Alternative A (not chosen) · Narrative entity · unchanged
+Finale Alternative B (not chosen) · Narrative entity · unchanged
+Finale Alternative C (not chosen) · Narrative entity · unchanged
+Old Hand engine (interpretive legitimacy) · Narrative entity · unchanged
+Source engine (physical commons) · Narrative entity · unchanged
+Epic fantasy · Narrative entity · unchanged
+Mystery and discovery · Narrative entity · unchanged
+Pastoral belonging · Narrative entity · unchanged
+Political-institutional · Narrative entity · unchanged
+Maintenance lineages · Narrative entity · unchanged
+Mill Compact · Narrative entity · unchanged
+Reading Hall · Narrative entity · unchanged
+Stone Hall (Reckoners) · Narrative entity · unchanged
+Terrace Council · Narrative entity · unchanged
+Everyday belonging · Narrative entity · unchanged
+Consequential loss · Narrative entity · unchanged
+Hopeful flourishing · Narrative entity · unchanged
+Wonder at a responsive order · Narrative entity · unchanged
+A declined share · Narrative entity · unchanged
+The Hollow Gate · Narrative entity · unchanged
+The Long Return (pulse) · Narrative entity · unchanged
+The Lowfen channel · Narrative entity · unchanged
+The counted Turn (high terraces) · Narrative entity · unchanged
+The seasonal turn · Narrative entity · unchanged
+The gift practice (Lower Ammen) · Narrative entity · unchanged
+Central question · Narrative entity · unchanged
+Custody of the record · Narrative entity · unchanged
+Hands and draw · Narrative entity · unchanged
+Keeping the channels · Narrative entity · unchanged
+Reading the First Stones · Narrative entity · unchanged
+Reckoned Water · Narrative phase · unchanged
+The Turn · Narrative phase · unchanged
+The Old Hand · Narrative phase · unchanged
+Settled Water · Narrative phase · unchanged
+Unmeasured · Narrative phase · unchanged
+Governing summary · Governing summary · unchanged
+
+No visual operation changes working architecture. Applying the entire revision remains a separate explicit Studio action.
+
+These differences affect only working architecture. Accepted story artifacts never change here.
+
+Apply to working architecture

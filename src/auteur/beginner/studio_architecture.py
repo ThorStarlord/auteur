@@ -1044,7 +1044,7 @@ def project_architecture(store: CanvasStore) -> dict:
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
-        "review": review,
+        "review": _review_with_book_evidence(store, review),
         "governing_objective": (current or {}).get("governing_objective"),
         "premise_status": (current or {}).get("premise_status"),
         "collaboration": (
@@ -1232,6 +1232,27 @@ def _resume_ontology_guidance(
     return {**current, "origin": "current_derived", "request_sha256": None}
 
 
+def _review_with_book_evidence(store: CanvasStore, review: dict | None) -> dict | None:
+    """A pending review, with its selected alternative's Book evidence read again now (presentation only)."""
+    selected = (review or {}).get("selected_creative_alternative") or {}
+    if not selected.get("book_evidence"):
+        return review
+    return {**review, "selected_creative_alternative": {
+        **selected, "book_evidence": {**selected["book_evidence"],
+                                      "status_now": _inquiry_book_evidence_status(store, selected)}}}
+
+
+def _inquiry_book_evidence_status(store: CanvasStore, selected: dict) -> str:
+    """Whether a selected alternative's Book evidence is still the Book's current record, read now."""
+    from .studio_architecture_inquiry import _book_evidence_status
+    try:
+        request = load_host_agent_request(
+            _root(store) / "inquiries" / "requests" / selected["inquiry_request_sha256"] / "request.json")
+    except (OSError, ValueError, KeyError):
+        return "unreadable"
+    return _book_evidence_status(store, request.settings)
+
+
 def _adoption_lineage(store: CanvasStore, current: dict | None) -> list[dict]:
     """Every alternative an author adopted along the current revision chain, newest first.
 
@@ -1255,7 +1276,11 @@ def _adoption_lineage(store: CanvasStore, current: dict | None) -> list[dict]:
             break
         submitted = json.loads(request.user).get("selected_creative_alternative")
         if submitted:
-            rows.append({"adopted_in_request_sha256": sha, **submitted})
+            row = {"adopted_in_request_sha256": sha, **submitted}
+            if submitted.get("book_evidence"):
+                row["book_evidence"] = {**submitted["book_evidence"],
+                                        "status_now": _inquiry_book_evidence_status(store, submitted)}
+            rows.append(row)
         review = _read(folder / "review.json")
         if not review or not review.get("prior_request_sha256"):
             break
@@ -1475,7 +1500,22 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
     if match is None:
         raise ValueError("selected alternative not found in the selected inquiry")
     intent = inquiry.get("intent") or {}
+    book_evidence = None
+    if inquiry.get("book_evidence"):
+        from .studio_architecture_inquiry import _book_evidence_status
+        request = load_host_agent_request(
+            _root(store) / "inquiries" / "requests" / selection.inquiry_request_sha256 / "request.json")
+        status = _book_evidence_status(store, request.settings)
+        book_evidence = {
+            **inquiry["book_evidence"],
+            "status_at_revision": status,
+            "status_note": ("The working Book element as the inquiry read it; it was still the Book's current "
+                            "record when this revision was prepared." if status == "current" else
+                            "Historical: the working Book or this element had changed or could not be read when this "
+                            "revision was prepared; this is the evidence as the inquiry read it, not the Book's record."),
+        }
     return {
+        **({"book_evidence": book_evidence} if book_evidence else {}),
         "inquiry_request_sha256": selection.inquiry_request_sha256,
         "hypothesis_id": match["id"],
         "title": match["title"],
@@ -1486,6 +1526,13 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
         "authority": "noncanonical_creative_alternative",
     }
 
+
+_SELECTED_BOOK_EVIDENCE_GUIDANCE = (
+    "selected_creative_alternative.book_evidence is the working Book element the inquiry was asked with. It is a "
+    "noncanonical Book-level working proposal, not an author-declared Architecture fact, an author intention or an "
+    "accepted commitment, and it is historical when status_at_revision is not current. Revise the Architecture as "
+    "the instruction asks; do not write the Book's element into the Architecture as fact."
+)
 
 INITIATIVE_POSTURES = ("focused", "balanced", "exploration_intensive")
 INTELLECTUAL_EMPHASES = ("teaching", "architecture", "unconventional")
@@ -1573,6 +1620,16 @@ def prepare_architecture(
             active_pointer = _read(_root(store) / "latest_request.json")
             if active_pointer and active_pointer.get("request_sha256") != current["request_sha256"]:
                 raise BeginnerConcurrencyError("an outstanding architecture request supersedes this graph context")
+            evidence = (selected_context or {}).get("book_evidence")
+            if evidence:
+                recorded = {c["node_id"] for c in evidence.get("cited_architecture_concepts", []) if c.get("present")}
+                stray = [a.id for a in typed_intent.anchors if a.kind != "node" or a.id not in recorded]
+                if stray:
+                    book = (evidence.get("book") or {}).get("book_number")
+                    raise ValueError(
+                        f"this alternative was asked with Book {book}'s element, which records "
+                        f"{', '.join(sorted(recorded)) or 'no current concept'}; anchor the revision on a concept it "
+                        "records (not " + ", ".join(stray) + ")")
             resolved_graph_intent = resolve_graph_intent(
                 current["candidate"], current["request_sha256"], typed_intent,
             )
@@ -1607,7 +1664,9 @@ def prepare_architecture(
         }, ensure_ascii=False, sort_keys=True)
         request = build_host_agent_request(
             candidate_id="studio-" + _digest({"settings": settings, "user": user})[:24],
-            role="studio_architecture", system=_SYSTEM, user=user, settings=settings,
+            role="studio_architecture", user=user, settings=settings,
+            system=_SYSTEM + ("\n" + _SELECTED_BOOK_EVIDENCE_GUIDANCE
+                              if selected_context and selected_context.get("book_evidence") else ""),
             output_contract=model_output_contract(ArchitectureCandidate),
         )
         base = _root(store)

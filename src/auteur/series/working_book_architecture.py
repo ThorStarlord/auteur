@@ -1116,6 +1116,46 @@ def book_elements(store: CanvasStore, book_number: int) -> list[dict]:
     return _element_rows(WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"])))
 
 
+def book_element_evidence(store: CanvasStore, book_number: int, element_id: str) -> dict:
+    """Read-only: one working Book element as evidence, with the exact Book identity it was read from.
+
+    It is what the Book records, labelled with its own attribution and standing: a working proposal, never
+    an accepted fact, an author intention or a verified relationship. Each Architecture concept it cites is
+    given by its recorded node id and its status against the current working Architecture (unchanged,
+    changed, removed or unrecorded). Raises ValueError when the Book or the element cannot be read.
+    """
+    _check_number(book_number)
+    record = _read(_book_root(store, book_number) / "current.json")
+    if record is None:
+        raise ValueError(f"Book {book_number} has no working architecture")
+    rows = {row["id"]: row for row in book_elements(store, book_number)}
+    row = rows.get(element_id)
+    if row is None:
+        raise ValueError(f"Book {book_number} has no element {element_id!r}")
+    references = {ref["node_id"]: ref for ref in book_series_references(store, book_number)["references"]}
+    cited = []
+    for node_id in row["series_refs"]:
+        ref = references.get(node_id) or {}
+        cited.append({"node_id": node_id, "status": ref.get("status", "unknown"),
+                      "present": bool(ref.get("present")),
+                      "title": (ref.get("current") or {}).get("title") or (ref.get("recorded") or {}).get("title")})
+    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    return {
+        "book_number": book_number,
+        "title": artifact.title,
+        "revision_number": record.get("revision_number", 0),
+        "book_request_sha256": record["request_sha256"],
+        "book_content_sha256": record.get("content_sha256"),
+        "written_against_architecture_request_sha256": record["series_request_sha256"],
+        "freshness": _freshness(store, book_number, record)["freshness"],
+        "element": {key: row.get(key) for key in (
+            "id", "collection", "content_sha256", "text", "title", "attribution", "epistemic_status",
+            "commitment_authority", "form", "book_refs")},
+        "cited_architecture_concepts": cited,
+        "authority": "working_noncanonical",
+    }
+
+
 def book_review_elements(store: CanvasStore, book_number: int) -> list[dict] | None:
     """Read-only: the elements of the pending review's candidate, in the shape `book_elements` uses.
 

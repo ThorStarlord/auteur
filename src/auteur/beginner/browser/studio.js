@@ -54,6 +54,7 @@
       readProjection:function(){return {candidate_request_sha256:state.architectureRequestSha};},
       onInquiryResult:function(projection){
         state.atelierInquiryStatus = projection && projection.status || null;
+        noteBookInquiry(projection);
         if (atelierController) renderAtelierStudy();
         if (!creativePanel) return;
         if (projection.result) creativePanel.setInquiryResult(projection);
@@ -72,10 +73,16 @@
         creativePanel.setStatus({status:"preparing"});
         creativeAgentBridge.prepareInquiry(payload).then(function(){
           state.creativeSentText = payload.authorText;
+          status("Request prepared for your coding agent" + (payload.bookEvidence ? ", with Book " + payload.bookEvidence.book_number + "’s element as Book evidence" : "") +
+            ". Copy it from the panel; nothing in the Architecture or a Book has changed.");
           state.atelierSentInquiry = {key: anchorsKey(payload.anchors), sha: state.architectureRequestSha};
         }).catch(function(error){
           creativePanel.setStatus({status:"error"});
           status("Graph inquiry not prepared: "+error.message);
+          if (/changed since you read it|cannot be read/.test(error.message || "") && atelierController && atelierController.rereadBooks) {
+            if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(null);
+            atelierController.rereadBooks();
+          }
         });
       },
       onRevise:function(payload){
@@ -127,10 +134,21 @@
   var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null;
   // Refreshes this source's exchanges when the canvas OR the architecture baseline changes.
   // A stale baseline must never keep offering alternatives that the server will reject.
-  function syncInquiryHistory() {
+  // The Book element the latest inquiry was asked with, and where that inquiry stands. Presentation only.
+  function noteBookInquiry(projection) {
+    var settings = projection && projection.request && projection.request.settings || {};
+    var be = (projection && projection.result && projection.result.book_evidence) || null;
+    var book = settings.book_evidence ? settings.book_evidence.book_number : be && be.book ? be.book.book_number : null;
+    var element = settings.book_evidence ? settings.book_evidence.element_id : be && be.element ? be.element.id : null;
+    state.bookInquiry = book ? {canvasId: remote.canvasId, book_number: book, element_id: element,
+      status: projection.status, evidence: projection.book_evidence_status || null} : null;
+  }
+  var answerShownFor = null;
+  // force: read the inquiry again on the author's request (an answer may have been submitted meanwhile).
+  function syncInquiryHistory(force) {
     var canvasId = remote.canvasId, baseline = state.architectureRequestSha || null;
     if (!creativePanel || !canvasId) return;
-    if (inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
+    if (!force && inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
     var changedBaseline = inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline !== baseline;
     inquiryLoadedCanvas = canvasId; inquiryLoadedBaseline = baseline;
     if (changedBaseline) {
@@ -142,8 +160,16 @@
       .then(apiJson).then(function (projection) {
         if (remote.canvasId !== canvasId || !creativePanel) return;
         state.atelierInquiryStatus = projection.status || null;
+        noteBookInquiry(projection);
         if (projection.result) creativePanel.setInquiryResult(projection);
         else creativePanel.setStatus(projection);
+        // An answer that arrived since the author last looked is brought to them once.
+        if (force && projection.result && projection.status === "ready" && answerShownFor !== projection.request_sha256) {
+          answerShownFor = projection.request_sha256;
+          var disclosure = $("architecture-creative-graph"); disclosure.hidden = false; disclosure.open = true;
+          if (creativePanel.focusResult) creativePanel.focusResult();
+          status("Your coding agent’s answer arrived; it is in the coding-agent panel. Nothing in the Architecture or a Book has changed.");
+        } else if (projection.result) answerShownFor = projection.request_sha256;
         if (atelierController) renderAtelierStudy();
       }).catch(function () {});
   }
@@ -401,6 +427,15 @@
       if (review.requested_change) {
         appendReviewLine("Requested change: " + review.requested_change, "review-requested-change");
       }
+      var chosen = review.selected_creative_alternative;
+      if (chosen && chosen.book_evidence) {
+        var be = chosen.book_evidence, bk = be.book || {}, elm = be.element || {};
+        var now = be.status_now || be.status_at_revision;
+        appendReviewLine("Developed from alternative " + chosen.hypothesis_id + " (“" + chosen.title + "”) of an inquiry asked with Book " +
+          bk.book_number + "’s " + (elm.collection || "element").replace(/_/g, " ") + " " + elm.id + ", a working Book proposal, not Architecture fact. " +
+          (now === "current" ? "That element is still the Book’s current record." :
+            "That element has changed or cannot be read since: its evidence here is historical."), "review-book-evidence");
+      }
       if (review.proposed_rationale) {
         appendReviewLine(review.proposed_rationale.status === "provided"
           ? "Revised architecture summary (not causal rationale): " + review.proposed_rationale.text
@@ -489,6 +524,8 @@
       var ready = !!projection.candidate;
       applyArchitectureProjection(projection, ready);
       if (ready) fit();
+      syncInquiryHistory(true);
+      if (atelierController && atelierController.rereadBooks) atelierController.rereadBooks();
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });
@@ -3116,6 +3153,11 @@
         getWorkingState: atelierWorkingState,
         onShowWorking: showAtelierWorking,
         getRevisionContext: function(){ return state.atelierRevisionContext || null; },
+        // The Book element the latest inquiry was asked with, on this canvas, and where it stands.
+        getBookInquiry: function(){ var b = state.bookInquiry; return b && b.canvasId === remote.canvasId ? b : null; },
+        showInquiry: function(){ ensureCreativeGraph(); var d = $("architecture-creative-graph"); if (!d) return;
+          d.hidden = false; d.open = true; syncAtelierReturn(); d.scrollIntoView({block: "start"});
+          var f = $("architecture-creative-agent-panel").querySelector("textarea"); if (f) f.focus({preventScroll: true}); },
         // Read-only Book and Series plans for this canvas and project, each from its own owner.
         getSeriesContext: function(){
           if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
@@ -3185,6 +3227,8 @@
     }
     try { graphSelectionController.select(request.anchor); }
     catch (error) { status("That source is no longer recorded in the working Architecture: " + error.message); return; }
+    // Book evidence comes only with a request that brings it; any other hand-off leaves none behind.
+    if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(request.bookEvidence || null);
     var operation = request.operation;
     try { creativePanel.setOperation(operation); }
     catch (_) { status("“" + operation + "” is not offered for this kind of source; nothing was prepared."); return; }
@@ -3203,13 +3247,17 @@
     var disclosure = $("architecture-creative-graph");
     disclosure.hidden = false; disclosure.open = true;
     syncAtelierReturn();
-    // The disclosure's top holds the way back; the question field is in view below it.
-    disclosure.scrollIntoView({block: "start"});
+    // The disclosure's top holds the way back; the question field is in view below it. With Book evidence the
+    // evidence and the question are what the author needs to see, so they come first on any screen.
+    var evidenceBox = request.bookEvidence && $("architecture-creative-agent-panel").querySelector(".creative-book-evidence");
+    (evidenceBox || disclosure).scrollIntoView({block: "start"});
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
     if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
-    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + "). " +
+    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")" +
+      (request.bookEvidence ? ", with Book " + request.bookEvidence.book_number + "’s element as Book evidence" : "") + ". " +
       (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
+        request.bookEvidence ? "Your question is in the field to edit; send it from the panel. " :
         suggestion ? "A suggested question is in the field for you to edit; nothing is sent until you send it. " :
         "Write your question or the change you want; ") + "The atlas keeps your place.");
     renderAtelierStudy();
