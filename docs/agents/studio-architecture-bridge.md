@@ -90,6 +90,35 @@ These restrictions keep an architecture-only proposal to mechanisms, so that inv
 - `keep-intention --title <text> --directive-file <file>` records an author-directed intention. Use it only for a directive the author has given. Do not invent intentions. `set-intention-status` is an author action.
 - `intentions` lists the author's intentions and their status.
 
+## Architecture inquiry (read-only)
+
+An inquiry asks about the working Architecture without changing it. The author prepares one in the Studio's coding-agent panel, or you prepare one yourself:
+
+    PYTHONPATH=<repo>/src PYTHONUTF8=1 python -m auteur.beginner.studio_architecture_inquiry --project <project> --canvas <canvas> <action>
+
+- `show` prints the pending inquiry: its request while it waits for an answer, or its validated result.
+- `prepare --op explore|explain|challenge|compare|connect_to_ask --anchor node:<id> [--anchor ...] --text-file <question.txt>` prepares an inquiry. Add `--book <n> --element <id>` to bring one working Book element as evidence (see below).
+- `complete-file --response-file <answer.json>` submits your answer: one JSON object following the request's system instructions. An `explore` answer needs at least two alternatives with distinct titles, distinct descriptions and a `divergence_axis`. Submitting stores the answer; it never changes the Architecture, a Book or the canvas.
+
+An answer is refused, and kept as `stale_response.json`, when the Architecture, its source or its design guidance changed after the request was prepared.
+
+### Book evidence in an inquiry
+
+When the author asks about a working Book element ("Consider for the Architecture" in the Atelier), the request carries it in `book_evidence`, apart from the author's question:
+- `book`: the Book's number, title, working revision, request and content identity, and whether it was written against the current Architecture;
+- `element`: the element's own words, its attribution and epistemic status, and its standing;
+- `cited_architecture_concepts`: each Architecture concept the element records a reference to, by node id, with its status (`unchanged`, `changed`, `removed`, `unrecorded`). A concept the element only names in its wording is not recorded.
+
+Treat the evidence as a noncanonical Book-level working proposal. It is not an author-declared Architecture fact, an author intention, an accepted commitment or a verified relationship. Keep apart what the Book records, what you interpret, and what remains the author's decision. Saying that the observation should stay local to the Book is a legitimate answer.
+
+The inquiry owner checks the evidence under its canvas lock:
+- the Book must still be the revision the author read, and the element unchanged;
+- every anchor must be a current Architecture concept the element records. A concept the Architecture no longer has can be read as historical evidence, but it cannot anchor.
+
+If the Book or the element changes before you answer, your answer is refused and kept as stale. If it changes after you answer, the answer stays, and the Studio labels its Book evidence historical.
+
+If the author then develops one of your alternatives into an Architecture revision (`selected_creative_alternative`), the revision request carries the same Book evidence. `status_at_revision` says whether it is still the Book's current record (`current`) or historical (`changed`, `unreadable`). An applied Architecture revision never changes the Book. A Book that cites a changed concept becomes out of date, and the Atelier's cross-Book impact view reports it.
+
 ## Working Book architecture (develop and resume)
 
 A Working Book Architecture holds one Book's detailed function. It references the canvas's working Series architecture and never writes it, accepted Identity, or accepted Book Direction. Its records live under `architecture/books/<n>/` in the canvas. This section covers develop and resume. Reviewed revision, withdrawal and apply follow the separate section below.

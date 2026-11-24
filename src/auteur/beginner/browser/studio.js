@@ -127,10 +127,11 @@
   var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null;
   // Refreshes this source's exchanges when the canvas OR the architecture baseline changes.
   // A stale baseline must never keep offering alternatives that the server will reject.
-  function syncInquiryHistory() {
+  // force: read the inquiry again on the author's request (an answer may have been submitted meanwhile).
+  function syncInquiryHistory(force) {
     var canvasId = remote.canvasId, baseline = state.architectureRequestSha || null;
     if (!creativePanel || !canvasId) return;
-    if (inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
+    if (!force && inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline === baseline) return;
     var changedBaseline = inquiryLoadedCanvas === canvasId && inquiryLoadedBaseline !== baseline;
     inquiryLoadedCanvas = canvasId; inquiryLoadedBaseline = baseline;
     if (changedBaseline) {
@@ -489,6 +490,7 @@
       var ready = !!projection.candidate;
       applyArchitectureProjection(projection, ready);
       if (ready) fit();
+      syncInquiryHistory(true);
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });

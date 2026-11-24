@@ -1779,6 +1779,8 @@
     }
     function renderDiscovery(det,b,from){
       var n=b.book_number,d=discoveryFor(n);if(!d)return;
+      // A changed Architecture clears every Book read; the card reads its Book again rather than wait on nothing.
+      if(!bookState(n))readBook(n,false);
       var st=bookState(n),data=st&&st.data,box=el('section','atl-discovery');box.setAttribute('aria-label','Consider for the Architecture');
       var h=el('h5','atl-series-subtitle','Consider for the Architecture');h.tabIndex=-1;h.dataset.key='book-discovery-h:'+n;box.append(h);
       if(!data){box.append(el('p','atl-note',st&&st.status==='error'?'Could not read Book '+n+': '+st.error:'Reading Book '+n+'…'));det.append(box);return;}
