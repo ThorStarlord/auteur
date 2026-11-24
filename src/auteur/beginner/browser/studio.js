@@ -3185,6 +3185,8 @@
     }
     try { graphSelectionController.select(request.anchor); }
     catch (error) { status("That source is no longer recorded in the working Architecture: " + error.message); return; }
+    // Book evidence comes only with a request that brings it; any other hand-off leaves none behind.
+    if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(request.bookEvidence || null);
     var operation = request.operation;
     try { creativePanel.setOperation(operation); }
     catch (_) { status("“" + operation + "” is not offered for this kind of source; nothing was prepared."); return; }
@@ -3208,7 +3210,8 @@
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
     if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
-    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + "). " +
+    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")" +
+      (request.bookEvidence ? ", with Book " + request.bookEvidence.book_number + "’s element as Book evidence" : "") + ". " +
       (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
         suggestion ? "A suggested question is in the field for you to edit; nothing is sent until you send it. " :
         "Write your question or the change you want; ") + "The atlas keeps your place.");

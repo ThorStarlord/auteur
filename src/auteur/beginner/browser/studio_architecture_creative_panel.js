@@ -3,11 +3,13 @@
  function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative}={}){
   if(!root||typeof onAction!=='function'||typeof onRevise!=='function')throw Error('Creative panel requires callbacks');
   const doc=root.ownerDocument||document,make=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e};
-  let anchors=[],actions=[],operation='explore';
+  let anchors=[],actions=[],operation='explore',evidence=null;
   const heading=make('h3','Creative interaction with your coding agent');
   const notice=make('p','Working architecture only · No story canon accepted here.');
   const chips=make('div');chips.setAttribute('aria-label','Selected source anchors');
   const menu=make('div');menu.setAttribute('aria-label','Creative actions');
+  // Book evidence the author brought from a working Book: shown apart from the question, sent apart from it.
+  const evidenceBox=make('section');evidenceBox.setAttribute('aria-label','Book evidence');evidenceBox.className='creative-book-evidence';evidenceBox.hidden=true;
   const instruction=make('textarea');instruction.setAttribute('aria-label','Your creative intention');instruction.maxLength=4000;instruction.rows=3;
   instruction.placeholder='What would you like to understand or change about this selection?';
   const submit=make('button','Ask coding agent (no revision)');submit.type='button';submit.dataset.creativeSubmit='true';
@@ -21,7 +23,7 @@
   const lineage=make('section');lineage.setAttribute('aria-label','Superseded creative exchanges');
   const result=make('section');result.setAttribute('aria-label','Inquiry result');
   const clear=make('button','Clear graph selection');clear.type='button';
-  root.append(heading,notice,chips,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
+  root.append(heading,notice,chips,evidenceBox,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
   const agentOperations=new Set(['explain','challenge','explore','compare','connect_to_ask']);
   function updateSubmit(){const isRevision=operation==='revise';submit.textContent=isRevision?'Request holistic revision':
     agentOperations.has(operation)?'Ask coding agent (no revision)':operation==='trace'?'Trace recorded relationships':'Inspect recorded source';}
@@ -29,7 +31,18 @@
   function updateMenu(){menu.replaceChildren();for(const a of actions){const b=make('button',a.label);b.type='button';b.dataset.operation=a.operation;
     b.setAttribute('aria-pressed',String(operation===a.operation));b.title=a.description||'';
     b.addEventListener('click',()=>choose(a.operation));menu.append(b);}}
+  function renderEvidence(){evidenceBox.replaceChildren();evidenceBox.hidden=!evidence;if(!evidence)return;
+    evidenceBox.append(make('h4','Book evidence · from working Book '+evidence.book_number));
+    evidenceBox.append(make('p',evidence.kind+' · “'+evidence.text+'”'));
+    evidenceBox.append(make('p','Working Book proposal ('+(evidence.standing||'working')+', '+(evidence.epistemic_status||'')+') · working revision '+
+      evidence.revision_number+' · element '+evidence.element_id+'. It goes to your coding agent as Book evidence, not as your question and not as Architecture fact.'));
+    const drop=make('button','Ask without this evidence');drop.type='button';drop.addEventListener('click',()=>{evidence=null;renderEvidence();});
+    evidenceBox.append(drop);
+  }
+  function setBookEvidence(next){evidence=next?Object.assign({},next):null;renderEvidence();}
   function setSelection(next,available){anchors=next.slice();actions=(available||[]).slice();
+    // Book evidence belongs to the concepts the Book records; another selection drops it.
+    if(evidence&&!anchors.every(a=>a.kind==='node'&&(evidence.anchors||[]).includes(a.id))){evidence=null;renderEvidence();}
     chips.replaceChildren();for(const a of anchors){const item=make('span',a.kind+' · '+a.id+(a.field?' / '+a.field:'')+(a.index!=null?' · entry '+(a.index+1):''));
       item.title=a.sourceRef||'Source reference will be verified on the server';item.className='creative-anchor-chip';chips.append(item)}
     if(!actions.some(a=>a.operation===operation))operation=actions.find(a=>agentOperations.has(a.operation))?.operation||actions[0]?.operation||'explore';
@@ -38,11 +51,12 @@
   submit.addEventListener('click',()=>{if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;if(!authorText.trim()&&!['inspect','trace'].includes(operation)){status.textContent='Describe your creative intention first.';return}
     const payload={operation,anchors:anchors.slice(),authorText};
+    if(evidence&&agentOperations.has(operation))payload.bookEvidence=Object.assign({},evidence);
     if(operation==='revise')onRevise(payload);
     else if(onAction)onAction(payload);
   });
   complete.addEventListener('click',()=>{try{if(onComplete)onComplete(JSON.parse(response.value));}catch(error){status.textContent='Response JSON could not be read: '+error.message;}});
-  clear.addEventListener('click',()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();if(onClear)onClear();});
+  clear.addEventListener('click',()=>{anchors=[];actions=[];evidence=null;renderEvidence();chips.replaceChildren();menu.replaceChildren();if(onClear)onClear();});
   function chooseAlternative(hypothesisId,inquirySha){
     if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;
@@ -86,6 +100,11 @@
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     if(!response)return;
     const h=make('h4','Agent interpretation — noncanonical');result.append(h,make('p',response.analysis||''));
+    if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
+      const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';
+      const line=make('p','Asked with Book evidence: working Book '+bk.book_number+', revision '+bk.revision_number+', element '+el.id+'. '+
+        (changed?'The Book has changed since, or cannot be read: this evidence is historical, not its present record.':'It is still the Book’s current record.'));
+      line.dataset.bookEvidenceStatus=value.book_evidence_status||'';result.append(line);}
     const list=(title,items,render)=>{const hd=make('h5',title);result.append(hd);const ul=make('ul');
       for(const item of items||[]){ul.append(make('li',render(item)))}result.append(ul)};
     list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')');
@@ -99,6 +118,7 @@
         use.addEventListener('click',()=>chooseAlternative(id,value.request_sha256));item.append(use);
       }});
     list('Uncertainties',response.uncertainties,x=>x);
+    if(response.book_evidence)result.append(make('p','Developing none of these alternatives leaves the Architecture as it is; the Book keeps its own record either way.'));
   }
   function setLocalInspection(projection){
     status.textContent='Local source inspection only — no host-agent request sent.';
@@ -110,8 +130,8 @@
     }result.append(list);
   }
   function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
-  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setAuthorText:text=>{instruction.value=text},
-    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
+  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,setAuthorText:text=>{instruction.value=text},
+    setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];evidence=null;renderEvidence();chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }
  global.AuteurStudioCreativePanel={createCreativePanel};

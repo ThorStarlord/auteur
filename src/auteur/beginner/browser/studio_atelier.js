@@ -1739,6 +1739,136 @@
           subject:s.subject,quote:s.quote,sourceRef:s.sourceRef,operation:op,draft:I.inquiryDraft(e,r,nodeName)});
       },'impact-ask:'+e.number+':'+r.node_id).classList.add('atl-action-quiet');
     }
+    /* A working Book discovery, considered for the Architecture. What the Book records is shown as the Book
+       records it: its own words, its standing, and the Architecture concepts it cites by node id. Whether it
+       matters beyond the Book is not established; asking the coding agent is an inquiry that changes nothing,
+       and keeping it in the Book is a complete outcome. An Architecture revision is only ever prepared from an
+       alternative the author chooses in the inquiry, reviewed and applied through the Architecture's owner. */
+    var BEYOND={unresolved:1,series_consequences:1,alternatives:1,later_possibilities:1,assumptions:1};
+    // The element's kind as a noun in a sentence ("records this open question").
+    var NOUN={unresolved:'open question',series_consequences:'consequence for the Series',alternatives:'alternative',
+      later_possibilities:'later possibility',assumptions:'assumption',engines:'engine',agents:'agent',inherited:'inherited Series condition',
+      local_resolution:'local resolution',typed_edges:'link'};
+    function noun(collection){return NOUN[collection]||B.kind(collection).toLowerCase();}
+    function discoveryFor(n){var d=S.discovery;return d&&d.canvas===canvasKey()&&d.book===n?d:null;}
+    function discoverButton(parent,b,e,from,list){
+      if(!binding.onDevelop||!binding.books||e.collection==='open_author_decisions')return;
+      var x=actionButton(parent,'Consider for the Architecture',function(){openDiscovery(b.book_number,e.id,from);},
+        (list?'book-discover-list:':'book-discover:')+b.book_number+':'+e.id);
+      x.classList.add('atl-action-quiet');
+      x.setAttribute('aria-label','Consider this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number+' for the Architecture');
+    }
+    function openDiscovery(n,id,from){
+      S.discovery={canvas:canvasKey(),book:n,element:id,from:from?from.id:null,operation:'explore',anchor:null,focusPending:true};
+      if(S.leaf)S.leaf.book=n;
+      readBook(n,true);renderFolio();
+      announce('Considering a Book '+n+' element for the Architecture. Nothing is prepared or changed until you ask.');
+    }
+    function closeDiscovery(n,kept){
+      var d=discoveryFor(n);S.discovery=null;renderFolio();
+      if(d)focusAndReveal(folio.querySelector('[data-key="book-discover:'+n+':'+d.element+'"]')?'book-discover:'+n+':'+d.element:'book-discover-list:'+n+':'+d.element);
+      announce(kept?'Kept in Book '+n+'. Nothing was prepared or changed.':'Closed.');
+    }
+    function discoveryDraft(d){S.discoveryDrafts=S.discoveryDrafts||{};var k=canvasKey()+'#'+d.book+'|'+d.element;
+      return S.discoveryDrafts[k]||(S.discoveryDrafts[k]={text:''});}
+    function citedStatus(r){
+      if(!r)return 'recorded';
+      return r.status==='removed'?'recorded, but no longer in the working Architecture: historical, and it cannot be asked about':
+        r.status==='changed'?'recorded; changed since the Book was written':r.status==='unrecorded'?'recorded; its version when the Book was written is not kept':
+        'recorded, unchanged since the Book was written';
+    }
+    function renderDiscovery(det,b,from){
+      var n=b.book_number,d=discoveryFor(n);if(!d)return;
+      var st=bookState(n),data=st&&st.data,box=el('section','atl-discovery');box.setAttribute('aria-label','Consider for the Architecture');
+      var h=el('h5','atl-series-subtitle','Consider for the Architecture');h.tabIndex=-1;h.dataset.key='book-discovery-h:'+n;box.append(h);
+      if(!data){box.append(el('p','atl-note',st&&st.status==='error'?'Could not read Book '+n+': '+st.error:'Reading Book '+n+'…'));det.append(box);return;}
+      var row=(data.elements||[]).filter(function(x){return x.id===d.element;})[0];
+      if(data.state!=='working'||!row){box.append(toneLine({tone:'bad',text:'Book '+n+' no longer records this element, so there is nothing current to consider. Nothing was prepared.'}));
+        actionButton(box,'Close',function(){closeDiscovery(n,false);},'book-keep:'+n);det.append(box);return;}
+      var kind=B.kind(row.collection),said=noun(row.collection),refs={};(b.references||[]).forEach(function(r){refs[r.node_id]=r;});
+      box.append(el('p','atl-series-kicker','What Book '+n+' records'));
+      var what=el('div','atl-book-target');
+      what.append(el('p','atl-series-line',kind),el('p','atl-series-text',row.text||row.title||''));
+      var standing=el('p','atl-provenance');
+      standing.append(chip('Working Book proposal · '+(X.AUTHORITY[row.commitment_authority]||M.human(row.commitment_authority||'element')),'proposal'),
+        chip(M.human(row.epistemic_status||'')+(row.attribution?' · '+M.human(row.attribution).toLowerCase():''),'proposal'));
+      what.append(standing,el('p','atl-note','Book '+n+(b.title?' · '+b.title:'')+' · working revision '+data.book.revision_number+' · element '+row.id));
+      box.append(what);
+      var cited=(row.series_refs||[]).map(function(id){return {id:id,ref:refs[id]};});
+      var present=cited.filter(function(c){return c.ref&&c.ref.present&&conceptForNode(c.id);});
+      box.append(el('p','atl-series-kicker','Architecture concepts it records'));
+      var ul=el('ul','atl-series-elements');
+      cited.forEach(function(c){ul.append(el('li','','“'+(c.ref?I.refName(c.ref,nodeName):c.id)+'” · '+citedStatus(c.ref)));});
+      if(!cited.length)ul.append(el('li','','None. It names no Architecture concept by a recorded reference.'));
+      box.append(ul);
+      box.append(toneLine({tone:'ok',text:'Established: Book '+n+' records this '+said+(present.length?' and a reference to '+
+        I.andList(present.map(function(c){return '“'+nodeName(c.id)+'”';})):'')+'.'}));
+      box.append(el('p','atl-note','Not established: whether it matters beyond Book '+n+', or what, if anything, the Architecture should do about it. '+
+        'Asking gives your coding agent’s interpretation; the decision stays yours, and keeping it in this Book is a complete outcome.'));
+      var row2=el('div','atl-actions');
+      var keep=actionButton(row2,'Keep it in Book '+n,function(){closeDiscovery(n,true);},'book-keep:'+n);keep.classList.add('atl-action-quiet');
+      if(!present.length){
+        box.append(toneLine({tone:'warn',text:'This element records no reference to a concept the current working Architecture has, so there is no recorded concept to ask about. '+
+          'A concept it names only in its wording is not a recorded reference.'}));
+        box.append(row2);det.append(box);return;
+      }
+      if(!d.anchor||!present.some(function(c){return c.id===d.anchor;}))d.anchor=(from&&present.some(function(c){return c.id===from.nodeId;}))?from.nodeId:present[0].id;
+      var ask=el('fieldset','atl-book-scope');ask.append(el('legend','','Investigate with your coding agent'));
+      [['explore','Explore alternatives for the Architecture'],['challenge','Challenge how the Architecture reads it'],['explain','Explain what the Architecture records']].forEach(function(o){
+        var lab=el('label','atl-book-choice'),r=el('input');r.type='radio';r.name='discovery-op-'+n;r.value=o[0];r.checked=d.operation===o[0];
+        r.dataset.key='book-discovery-op:'+n+':'+o[0];r.addEventListener('change',function(){if(r.checked){d.operation=o[0];}});
+        lab.append(r,el('span','',o[1]));ask.append(lab);});
+      if(present.length>1){ask.append(el('p','atl-note','About which concept it records?'));
+        present.forEach(function(c){var lab=el('label','atl-book-choice'),r=el('input');r.type='radio';r.name='discovery-anchor-'+n;r.value=c.id;r.checked=d.anchor===c.id;
+          r.dataset.key='book-discovery-anchor:'+n+':'+c.id;r.addEventListener('change',function(){if(r.checked)d.anchor=c.id;});
+          lab.append(r,el('span','','“'+nodeName(c.id)+'”'));ask.append(lab);});}
+      var draft=discoveryDraft(d);
+      if(!draft.text)draft.text='Book '+n+' records this '+said+' about “'+nodeName(d.anchor)+'”: “'+B.clip(row.text||'',300)+
+        '”. Does it point to something the Architecture should decide or change, or does it belong to Book '+n+' alone?';
+      var label=el('label','atl-bookdev-label','Your question'),ta=el('textarea','atl-book-text');ta.id='atl-discovery-q-'+n;label.htmlFor=ta.id;
+      ta.rows=4;ta.maxLength=4000;ta.value=draft.text;ta.dataset.key='book-discovery-q:'+n;
+      ta.addEventListener('input',function(){draft.text=ta.value;});
+      ask.append(label,ta);
+      var go=actionButton(ask,'Ask your coding agent (prepares a request)',function(){investigate(n,d,row,data);},'book-investigate:'+n);go.classList.add('atl-action-primary');
+      ask.append(el('p','atl-note','Asking prepares a request in the coding-agent panel with this element as Book evidence, labelled as a working Book proposal. '+
+        'It changes nothing in the Architecture or the Book. If an answer suggests a change, you can develop one alternative into an Architecture revision, '+
+        'review it and apply it yourself, or leave the Architecture as it is.'));
+      box.append(ask,row2);det.append(box);
+      if(d.focusPending){d.focusPending=false;global.setTimeout(function(){var t=folio.querySelector('[data-key="book-discovery-h:'+n+'"]');if(t){t.focus({preventScroll:true});reveal(t);}},0);}
+    }
+    function investigate(n,d,row,data){
+      var cn=conceptForNode(d.anchor),draft=discoveryDraft(d);
+      if(!cn){refusal(n,'“'+d.anchor+'” is not in the working Architecture any more, so it cannot be asked about.');return;}
+      var s=M.sourceAnchor(S.model,cn.id);
+      if(!s.anchor||s.anchor.kind!=='node'||s.anchor.id!==d.anchor){refusal(n,'“'+cn.title+'” is not a recorded Architecture node here, so it cannot carry Book evidence.');return;}
+      if(!draft.text.trim()){refusal(n,'Write your question first.');return;}
+      binding.onDevelop({conceptId:cn.id,title:cn.title,anchor:JSON.parse(JSON.stringify(s.anchor)),precision:s.precision,subject:s.subject,quote:s.quote,
+        sourceRef:s.sourceRef,operation:d.operation,draft:draft.text,
+        bookEvidence:{book_number:n,element_id:row.id,expected_book_request_sha256:data.book.request_sha256,
+          expected_element_content_sha256:row.content_sha256,kind:B.kind(row.collection),text:row.text||row.title||'',
+          revision_number:data.book.revision_number,standing:X.AUTHORITY[row.commitment_authority]||row.commitment_authority,
+          epistemic_status:row.epistemic_status,attribution:row.attribution,anchors:[d.anchor]}});
+    }
+    // Questions and consequences a Book records that cite a current Architecture concept: listed only, collapsed,
+    // never pressed on the author. Each is the Book's own record; considering one is the author's choice.
+    function renderBeyondBook(det,b,from){
+      if(!binding.onDevelop||!binding.books||b.state!=='working')return;
+      var seen={},items=[];
+      (b.references||[]).forEach(function(r){if(!r.present)return;(r.elements||[]).forEach(function(e){
+        if(BEYOND[e.collection]&&!seen[e.id]){seen[e.id]=1;items.push({e:e,nodes:[]});}
+        var it=items.filter(function(x){return x.e.id===e.id;})[0];if(it&&it.nodes.indexOf(r.node_id)<0)it.nodes.push(r.node_id);});});
+      if(!items.length)return;
+      var dd=el('details','atl-series-how');dd.dataset.key='book-beyond:'+b.book_number;
+      dd.append(el('summary','','Questions and consequences Book '+b.book_number+' records about the Architecture · '+items.length));
+      dd.append(el('p','atl-note','Listed from Book '+b.book_number+'’s own record: each cites a current Architecture concept. None is a finding; consider one only if it interests you.'));
+      var ul=el('ul','atl-series-elements');
+      items.slice(0,12).forEach(function(it){var li=el('li','');
+        li.append(el('span','atl-series-kind',(X.COLLECTION[it.e.collection]||M.human(it.e.collection))+' · cites '+I.andList(it.nodes.map(function(id){return '“'+nodeName(id)+'”';}))));
+        li.append(el('span','atl-series-text',B.clip(it.e.text||'',200)));
+        discoverButton(li,b,it.e,from,true);ul.append(li);});
+      dd.append(ul);if(items.length>12)dd.append(el('p','atl-note',(items.length-12)+' more in the Book record.'));
+      det.append(dd);
+    }
     function renderLeafBooks(d,from,l){
       var wb=d.sources.working_books;if(!wb||wb.state==='absent')return;
       var sec=leafSection('Working Book architectures · this canvas',wb.authority_note);
@@ -1746,7 +1876,7 @@
       var list=wb.books.slice().sort(function(a,b){return (b.book_number===l.book)-(a.book_number===l.book)||a.book_number-b.book_number;});
       list.forEach(function(b){
         var det=el('details','atl-series-record');det.dataset.book=String(b.book_number);
-        det.open=b.book_number===l.book||list.length===1||!!b.development||!!devFor(b.book_number);
+        det.open=b.book_number===l.book||list.length===1||!!b.development||!!devFor(b.book_number)||!!discoveryFor(b.book_number);
         det.append(el('summary','','Book '+b.book_number+(b.title?' · '+b.title:'')));
         if(b.state!=='working'){det.append(toneLine({tone:'bad',text:'Its working record is damaged and cannot be read, so nothing from it is shown.'}));
           if(b.reason){var tech=el('details','atl-series-how');tech.dataset.key='book-tech:'+b.book_number;
@@ -1773,6 +1903,7 @@
               else if(touched.indexOf(e.id)>=0)li.append(chip('Changed in working Book revision '+la.revision_number,'book-changed'));
               if(binding.books&&e.collection!=='open_author_decisions'){var dv=actionButton(li,'Develop this element',function(){openDevelop(b.book_number,[e.id],false,from);},'book-dev:'+b.book_number+':'+e.id);
                 dv.classList.add('atl-action-quiet');dv.setAttribute('aria-label','Develop this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number);}
+              discoverButton(li,b,e,from);
               ul.append(li);});
             ref.edges.forEach(function(e){var li=el('li','');
               li.append(el('span','atl-series-kind','Typed edge · '+e.source_element+' '+(X.DEPENDENCY[e.dependency]||e.dependency)+' this concept'));
@@ -1785,6 +1916,8 @@
           (b.last_applied.added.length?'; it added '+X.plural(b.last_applied.added.length,'element'):'')+
           '. That was a change to this working Book, not to the Architecture.'));
         renderBookDevelopment(det,b,from);
+        renderDiscovery(det,b,from);
+        renderBeyondBook(det,b,from);
         var others=(b.references||[]).filter(function(r){return !from||r.node_id!==from.nodeId;});
         if(others.length){
           var o=el('div','atl-series-others');
@@ -2480,6 +2613,8 @@
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
       // Escape in a text field never closes the view around the words being written.
       if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
+      if(S.leaf&&S.discovery&&discoveryFor(S.discovery.book)&&!(e.target.closest&&e.target.closest('details[open] summary'))){
+        e.preventDefault();closeDiscovery(S.discovery.book,false);return;}
       if(S.leaf&&S.leaf.evidence&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();
         var n=S.leaf.evidence;S.leaf.evidence=null;S.leaf.book=null;renderFolio();
         global.setTimeout(function(){var t=folio.querySelector('[data-key="impact-show:'+n+'"]');if(t)t.focus({preventScroll:false});else focusFolio();},0);
@@ -2651,10 +2786,14 @@
       setNarrative:setNarrative,
       // Back to the atlas where the author left it: keyboard focus on the selected concept, or the folio.
       returnFocus:function(){var top=root.getBoundingClientRect().top;
-        if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});var id=S.focus,b=id&&starEls[id];
+        if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});
+        var dc=S.leaf&&S.discovery&&folio.querySelector('[data-key="book-discovery-h:'+S.discovery.book+'"]');
+        if(dc){dc.focus({preventScroll:true});reveal(dc);announce('Back to Book '+S.discovery.book+'’s discovery. The atlas kept your place.');return;}
+        var id=S.focus,b=id&&starEls[id];
         if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
-        narrative:S.narrative,book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null},series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
+        narrative:S.narrative,book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null,
+          discovery:S.discovery?{book:S.discovery.book,element:S.discovery.element,operation:S.discovery.operation,anchor:S.discovery.anchor}:null},series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
           version:S.seriesCtx&&S.seriesCtx.data?S.seriesCtx.data.version:null,changed:!!(S.seriesCtx&&S.seriesCtx.changed)},revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
           reworded:S.revision.delta.reworded.map(function(x){return x.id;}),relationsAdded:S.revision.delta.relationsAdded.map(function(r){return r.sourceRef;}),
           relationsRemoved:S.revision.delta.relationsRemoved.map(function(r){return r.sourceRef;}),removed:S.revision.delta.removed.map(function(x){return x.id;})}:null,storyTime:S.time?{id:S.time.id,phases:S.time.pathway.phases.map(function(p){return {phase:p.phase,status:p.status,

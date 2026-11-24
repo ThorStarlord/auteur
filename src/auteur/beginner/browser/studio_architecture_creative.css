@@ -22,3 +22,7 @@
 /* The full-size node layer otherwise intercepts edge clicks; actual buttons still receive input. */
 #nodes { pointer-events: none; }
 #nodes .node { pointer-events: auto; }
+/* Book evidence brought from a working Book: shown apart from the author's question. */
+.creative-book-evidence { margin-block: .5rem; padding: .5rem .65rem; border: 1px dashed color-mix(in srgb,currentColor 35%,transparent); border-radius: .55rem; }
+.creative-book-evidence h4 { margin: 0 0 .25rem; font-size: .92rem; }
+.creative-book-evidence p { margin: .2rem 0; font-size: .88rem; max-width: 70ch; overflow-wrap: anywhere; }
