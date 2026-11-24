@@ -101,12 +101,13 @@ def ask(project, **kw):
     return prepare_architecture_inquiry(store_of(project), intent(project, **kw))
 
 
-def edit_book_element(project, n=24, element=seed.DISCOVERY, suffix=" (edited)"):
+def edit_book_element(project, n=24, element=seed.DISCOVERY, suffix=" (edited)", holistic=False):
     """Change the working Book through its own owner: a targeted revision of one element, applied."""
     from auteur.beginner.studio_book_development import (
         apply_book_revision, complete_book_revision, prepare_book_revision, project_book_development)
     view = project_book_development(project, CANVAS, n)
-    view = prepare_book_revision(project, CANVAS, n, {"instruction": "Sharpen it.", "targets": [element],
+    scope = {"holistic": True} if holistic else {"targets": [element]}
+    view = prepare_book_revision(project, CANVAS, n, {"instruction": "Sharpen it.", **scope,
                                                       "expected_book_request_sha256": view["book"]["request_sha256"]})
     artifact = json.loads((book_dir(project, n) / "current.json").read_text(encoding="utf-8"))["artifact"]
     for item in artifact["unresolved"]:
@@ -270,3 +271,64 @@ def test_book_evidence_is_only_for_the_current_architecture(project):
     payload["target"] = "pending_review"
     with pytest.raises(ValueError, match="current working architecture, not to a pending revision"):
         prepare_architecture_inquiry(store_of(project), payload)
+
+
+def test_a_later_inquiry_sees_an_earlier_book_answer_labelled_and_with_its_live_status(project):
+    view = ask(project)
+    complete_architecture_inquiry(store_of(project), answer(view))
+    edit_book_element(project)
+    later = prepare_architecture_inquiry(store_of(project), intent(project, operation="explain", evidence=False,
+                                                                     text="What does the Ledger engine record now?"))
+    packet = json.loads(later["request"]["user"])
+    prior = packet["prior_exchanges"][-1]
+    assert prior["book_evidence"] == {"book_number": 24, "element_id": seed.DISCOVERY, "revision_number": 1,
+                                      "status": "changed", "authority": "working_book_observation_noncanonical"}
+    assert "historical when its status is changed or unreadable" in later["request"]["system"]
+    assert "book_evidence" not in packet  # the later question itself brought none
+
+
+def test_an_applied_revision_reports_its_book_evidence_as_it_stands_now(project):
+    from auteur.beginner.studio_architecture import project_architecture_resume
+    store = store_of(project)
+    sha = complete_architecture_inquiry(store, answer(ask(project)))["request_sha256"]
+    instruction = "Develop h2."
+    current = project_architecture(store)
+    prepared = prepare_architecture(store, instruction, graph_intent={
+        "version": 1, "canvas_id": CANVAS, "operation": "revise",
+        "expected_candidate_request_sha256": current["candidate_request_sha256"],
+        "anchors": [{"kind": "node", "id": seed.LEDGER}], "author_text": instruction},
+        selected_alternative={"inquiry_request_sha256": sha, "hypothesis_id": "h2"})
+    assert "selected_creative_alternative.book_evidence is the working Book element" in prepared["request"]["system"]
+    revised = copy.deepcopy(json.loads((arch_dir(project) / "current.json").read_text(encoding="utf-8"))["candidate"])
+    next(n for n in revised["nodes"] if n["id"] == seed.LEDGER)["summary"] += " The tally feeds the column."
+    complete_architecture(store, build_host_agent_response(HostAgentRequest(**prepared["request"]),
+                                                           json.dumps(revised), runtime="test").model_dump())
+    apply_architecture_review(store, project_architecture(store)["review"]["request_sha256"])
+    row = project_architecture_resume(store)["creative_adoption_lineage"][0]
+    assert row["book_evidence"]["status_at_revision"] == "current" and row["book_evidence"]["status_now"] == "current"
+    assert "when this revision was prepared" in row["book_evidence"]["status_note"]
+    edit_book_element(project, holistic=True)  # Book 24 is out of date after the revision: whole-Book only
+    row = project_architecture_resume(store)["creative_adoption_lineage"][0]
+    assert row["book_evidence"]["status_at_revision"] == "current" and row["book_evidence"]["status_now"] == "changed"
+
+
+def test_a_typed_link_is_not_brought_as_an_observation(project):
+    from auteur.series.working_book_architecture import book_elements
+    edge = next(e for e in book_elements(store_of(project), 24) if e["collection"] == "typed_edges" and e["series_refs"])
+    with pytest.raises(ValueError, match="typed link of Book 24, not an observation"):
+        ask(project, anchors=(("node", edge["series_refs"][0]),), evidence=evidence_ref(project, 24, edge["id"]))
+
+
+def test_the_cli_takes_book_and_element_together_and_refuses_a_damaged_book_plainly(project, tmp_path):
+    import subprocess
+    env = dict(__import__("os").environ, PYTHONPATH=str(REPO / "src"), PYTHONUTF8="1")
+    question = tmp_path / "q.txt"
+    question.write_text("Does this belong to the Architecture?", encoding="utf-8")
+    base = [sys.executable, "-m", "auteur.beginner.studio_architecture_inquiry", "--project", str(project),
+            "--canvas", CANVAS, "prepare", "--op", "explain", "--anchor", f"node:{seed.LEDGER}", "--text-file", str(question)]
+    lonely = subprocess.run([*base, "--element", seed.DISCOVERY], capture_output=True, text=True, env=env)
+    assert lonely.returncode != 0 and "--book and --element go together" in lonely.stderr
+    (book_dir(project) / "current.json").write_text("{damaged", encoding="utf-8")
+    damaged = subprocess.run([*base, "--book", "24", "--element", seed.DISCOVERY], capture_output=True, text=True,
+                             encoding="utf-8", env=env)
+    assert damaged.returncode == 1 and json.loads(damaged.stdout)["result"] == "rejected" and "Traceback" not in damaged.stderr

@@ -1136,7 +1136,7 @@ def book_element_evidence(store: CanvasStore, book_number: int, element_id: str)
     cited = []
     for node_id in row["series_refs"]:
         ref = references.get(node_id) or {}
-        cited.append({"node_id": node_id, "status": ref.get("status", "unrecorded"),
+        cited.append({"node_id": node_id, "status": ref.get("status", "unknown"),
                       "present": bool(ref.get("present")),
                       "title": (ref.get("current") or {}).get("title") or (ref.get("recorded") or {}).get("title")})
     artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))

@@ -86,6 +86,12 @@ _BOOK_EVIDENCE_GUIDANCE = (
     "Architecture change; say so when that is your reading."
 )
 
+_PRIOR_BOOK_EVIDENCE_GUIDANCE = (
+    "A prior exchange with book_evidence was asked with one element of a working Book as evidence. Treat what it "
+    "says about that element as the Book's noncanonical working proposal, and as historical when its status is "
+    "changed or unreadable: the Book no longer records it that way."
+)
+
 _MAX_PRIOR_IN_REQUEST = 3
 _MAX_HISTORY_PROJECTED = 8
 
@@ -121,7 +127,7 @@ def _book_evidence(store, ref: BookEvidenceRef) -> dict:
     from auteur.series.working_book_architecture import book_element_evidence
     try:
         return book_element_evidence(store, ref.book_number, ref.element_id)
-    except (KeyError, TypeError, AttributeError, OSError, json.JSONDecodeError) as exc:
+    except (KeyError, OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"Book {ref.book_number}'s working record cannot be read ({type(exc).__name__}); "
                          "nothing was prepared") from None
 
@@ -179,7 +185,21 @@ def _with_ids(hypotheses: list[dict]) -> list[dict]:
     ]
 
 
-def _exchange_view(result: dict, request_created_at: str, request_sha: str) -> dict:
+def _exchange_book_evidence(store, result: dict) -> dict | None:
+    """An earlier answer's Book evidence, labelled, with whether it is still the Book's current record."""
+    evidence = result.get("book_evidence")
+    if not evidence or store is None:
+        return None
+    book, element = evidence.get("book") or {}, evidence.get("element") or {}
+    status = _book_evidence_status(store, {"book_evidence": {
+        "book_number": book.get("book_number"), "element_id": element.get("id"),
+        "book_request_sha256": book.get("request_sha256"), "element_content_sha256": element.get("content_sha256")}})
+    return {"book_number": book.get("book_number"), "element_id": element.get("id"),
+            "revision_number": book.get("revision_number"), "status": status,
+            "authority": "working_book_observation_noncanonical"}
+
+
+def _exchange_view(result: dict, request_created_at: str, request_sha: str, store=None) -> dict:
     intent = result.get("intent") or {}
     anchors = []
     for anchor in intent.get("anchors", []):
@@ -204,6 +224,7 @@ def _exchange_view(result: dict, request_created_at: str, request_sha: str) -> d
             for h in _with_ids(result.get("hypotheses") or [])
         ],
         "uncertainties": [str(item)[:300] for item in (result.get("uncertainties") or [])[:4]],
+        **({"book_evidence": book} if (book := _exchange_book_evidence(store, result)) else {}),
     }
 
 
@@ -220,7 +241,7 @@ def _all_completed_exchanges(store) -> list[dict]:
         if not result:
             continue
         request = load_host_agent_request(folder/'request.json')
-        rows.append((request.created_at, _exchange_view(result, request.created_at, folder.name)))
+        rows.append((request.created_at, _exchange_view(result, request.created_at, folder.name, store)))
     rows.sort(key=lambda row: (row[0], row[1]['request_sha256']))
     return [view for _, view in rows]
 
@@ -335,6 +356,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
             system+='\n'+_PENDING_REVIEW_GUIDANCE
         if book_packet:
             system+='\n'+_BOOK_EVIDENCE_GUIDANCE
+        if any(p.get('book_evidence') for p in prior):
+            system+='\n'+_PRIOR_BOOK_EVIDENCE_GUIDANCE
         settings={'operation':'inquire','canvas_id':store.canvas_id,
             'baseline_candidate_request_sha256':current['request_sha256'],
             'source_sha256':current['source_sha256'],
@@ -364,6 +387,9 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
             f"working Book {ref.book_number} changed since you read it (it is now revision "
             f"{evidence['revision_number']}); read it again before asking about it")
     element=evidence['element']
+    if element.get('collection')=='typed_edges':
+        raise ValueError(f"{ref.element_id} is a typed link of Book {ref.book_number}, not an observation with a "
+                         "standing of its own; bring the element it starts from")
     if element['content_sha256']!=ref.expected_element_content_sha256:
         raise arch.BeginnerConcurrencyError(
             f"the element {ref.element_id} of working Book {ref.book_number} changed since you read it")
@@ -556,9 +582,16 @@ def main(argv: list[str] | None = None) -> int:
             "expected_candidate_request_sha256": current["candidate_request_sha256"],
             "anchors": [_parse_anchor(item) for item in args.anchor], "author_text": text,
         }
+        if (args.book is None) != (args.element is None):
+            parser.error("--book and --element go together")
         if args.book is not None:
             from auteur.series.working_book_architecture import book_element_evidence
-            seen = book_element_evidence(store, args.book, args.element or "")
+            try:
+                seen = book_element_evidence(store, args.book, args.element)
+            except (ValueError, KeyError, OSError) as exc:
+                print(json.dumps({"result": "rejected", "error": f"Book {args.book}'s element cannot be read: {exc}"},
+                                 ensure_ascii=False, indent=2))
+                return 1
             intent["book_evidence"] = {"book_number": args.book, "element_id": args.element,
                                        "expected_book_request_sha256": seen["book_request_sha256"],
                                        "expected_element_content_sha256": seen["element"]["content_sha256"]}
