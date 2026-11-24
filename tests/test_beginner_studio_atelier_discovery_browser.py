@@ -210,3 +210,18 @@ def test_an_answer_is_brought_to_the_author_and_the_card_knows_it_was_asked(brow
     time.sleep(0.5)
     assert "Asked: your coding agent’s answer is in the coding-agent panel." in card(page)
     assert not log["errors"]
+
+
+def test_check_reads_an_open_cards_book_again_and_a_damaged_book_is_named_unreadable(browser, served):
+    project, base = served
+    page, log = open_discovery(browser, base)
+    edit_book_element(project)  # Book 24 becomes revision 2 behind the author
+    page.locator("#architecture-refresh").click()
+    page.wait_for_function(f"document.querySelector('{q('book-discovery-h:24')}') && "
+                           "document.querySelector('#studio-atelier .atl-discovery').innerText.includes('working revision 2')",
+                           timeout=15000)
+    (project / ".auteur/beginner/studio/canvases" / CANVAS / "architecture/books/24/current.json").write_text("{damaged", encoding="utf-8")
+    page.locator(q("book-reread:24")).click()
+    page.wait_for_function("document.querySelector('#studio-atelier .atl-discovery').innerText.includes('cannot be read')", timeout=15000)
+    assert "no longer records this element" not in card(page)
+    assert not log["errors"]

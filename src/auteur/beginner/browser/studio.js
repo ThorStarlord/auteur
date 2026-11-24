@@ -79,6 +79,10 @@
         }).catch(function(error){
           creativePanel.setStatus({status:"error"});
           status("Graph inquiry not prepared: "+error.message);
+          if (/changed since you read it|cannot be read/.test(error.message || "") && atelierController && atelierController.rereadBooks) {
+            if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(null);
+            atelierController.rereadBooks();
+          }
         });
       },
       onRevise:function(payload){
@@ -423,6 +427,15 @@
       if (review.requested_change) {
         appendReviewLine("Requested change: " + review.requested_change, "review-requested-change");
       }
+      var chosen = review.selected_creative_alternative;
+      if (chosen && chosen.book_evidence) {
+        var be = chosen.book_evidence, bk = be.book || {}, elm = be.element || {};
+        var now = be.status_now || be.status_at_revision;
+        appendReviewLine("Developed from alternative " + chosen.hypothesis_id + " (“" + chosen.title + "”) of an inquiry asked with Book " +
+          bk.book_number + "’s " + (elm.collection || "element").replace(/_/g, " ") + " " + elm.id + ", a working Book proposal, not Architecture fact. " +
+          (now === "current" ? "That element is still the Book’s current record." :
+            "That element has changed or cannot be read since: its evidence here is historical."), "review-book-evidence");
+      }
       if (review.proposed_rationale) {
         appendReviewLine(review.proposed_rationale.status === "provided"
           ? "Revised architecture summary (not causal rationale): " + review.proposed_rationale.text
@@ -512,6 +525,7 @@
       applyArchitectureProjection(projection, ready);
       if (ready) fit();
       syncInquiryHistory(true);
+      if (atelierController && atelierController.rereadBooks) atelierController.rereadBooks();
     }).catch(function (error) {
       $("architecture-status").textContent = "Architecture unavailable: " + error.message;
     });

@@ -91,9 +91,13 @@
       'Host-agent request prepared, not executed. Copy the packet to your active coding agent.':
       s==='ready'?'Validated inquiry response received. No architecture revision or story acceptance.':
       s==='refreshing'?'Architecture source changed. Reloading this source’s exchanges.':
+      s==='stale'&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable')?
+        'The working Book element this was asked with changed or cannot be read. This inquiry is historical; take it to your coding agent again from the Book.':
       s==='stale'||s==='guidance_changed'?'Source context changed. This inquiry is historical; prepare a new request.':
       s==='error'? 'Inquiry error; no new architecture was applied.': 'Inquiry status: '+s+'.';
     packet.value=value.request?JSON.stringify(value.request,null,2):'';
+    // Evidence the owner reports changed is not offered again as if it were the Book's record.
+    if(evidence&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable')){evidence=null;renderEvidence();}
     renderHistory(value.history);
     renderLineage(value.superseded_history);
   }

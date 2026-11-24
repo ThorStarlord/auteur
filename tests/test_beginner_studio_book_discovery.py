@@ -332,3 +332,38 @@ def test_the_cli_takes_book_and_element_together_and_refuses_a_damaged_book_plai
     damaged = subprocess.run([*base, "--book", "24", "--element", seed.DISCOVERY], capture_output=True, text=True,
                              encoding="utf-8", env=env)
     assert damaged.returncode == 1 and json.loads(damaged.stdout)["result"] == "rejected" and "Traceback" not in damaged.stderr
+
+
+def test_a_revision_from_book_evidence_anchors_only_on_concepts_the_element_records(project):
+    store = store_of(project)
+    sha = complete_architecture_inquiry(store, answer(ask(project)))["request_sha256"]
+    instruction = "Develop h1 on the Source engine."
+    current = project_architecture(store)
+    with pytest.raises(ValueError, match="asked with Book 24's element, which records eng_ledger; anchor the revision"):
+        prepare_architecture(store, instruction, graph_intent={
+            "version": 1, "canvas_id": CANVAS, "operation": "revise",
+            "expected_candidate_request_sha256": current["candidate_request_sha256"],
+            "anchors": [{"kind": "node", "id": "eng_source"}], "author_text": instruction},
+            selected_alternative={"inquiry_request_sha256": sha, "hypothesis_id": "h1"})
+    assert project_architecture(store)["status"] == "ready"  # nothing was prepared
+
+
+def test_a_pending_review_reports_its_book_evidence_as_it_stands_now(project):
+    store = store_of(project)
+    sha = complete_architecture_inquiry(store, answer(ask(project)))["request_sha256"]
+    instruction = "Develop h1."
+    current = project_architecture(store)
+    prepared = prepare_architecture(store, instruction, graph_intent={
+        "version": 1, "canvas_id": CANVAS, "operation": "revise",
+        "expected_candidate_request_sha256": current["candidate_request_sha256"],
+        "anchors": [{"kind": "node", "id": seed.LEDGER}], "author_text": instruction},
+        selected_alternative={"inquiry_request_sha256": sha, "hypothesis_id": "h1"})
+    revised = copy.deepcopy(json.loads((arch_dir(project) / "current.json").read_text(encoding="utf-8"))["candidate"])
+    next(n for n in revised["nodes"] if n["id"] == seed.LEDGER)["summary"] += " The hours describe care."
+    complete_architecture(store, build_host_agent_response(HostAgentRequest(**prepared["request"]),
+                                                           json.dumps(revised), runtime="test").model_dump())
+    evidence = project_architecture(store)["review"]["selected_creative_alternative"]["book_evidence"]
+    assert evidence["status_at_revision"] == "current" and evidence["status_now"] == "current"
+    edit_book_element(project)
+    evidence = project_architecture(store)["review"]["selected_creative_alternative"]["book_evidence"]
+    assert evidence["status_at_revision"] == "current" and evidence["status_now"] == "changed"

@@ -1044,7 +1044,7 @@ def project_architecture(store: CanvasStore) -> dict:
         "request": req.model_dump() if pending and not review else None,
         "candidate": current["candidate"] if current else None,
         "candidate_request_sha256": current["request_sha256"] if current else None,
-        "review": review,
+        "review": _review_with_book_evidence(store, review),
         "governing_objective": (current or {}).get("governing_objective"),
         "premise_status": (current or {}).get("premise_status"),
         "collaboration": (
@@ -1230,6 +1230,16 @@ def _resume_ontology_guidance(
         }
     current = build_relevant_ontology_context(vision, accepted_identity)
     return {**current, "origin": "current_derived", "request_sha256": None}
+
+
+def _review_with_book_evidence(store: CanvasStore, review: dict | None) -> dict | None:
+    """A pending review, with its selected alternative's Book evidence read again now (presentation only)."""
+    selected = (review or {}).get("selected_creative_alternative") or {}
+    if not selected.get("book_evidence"):
+        return review
+    return {**review, "selected_creative_alternative": {
+        **selected, "book_evidence": {**selected["book_evidence"],
+                                      "status_now": _inquiry_book_evidence_status(store, selected)}}}
 
 
 def _inquiry_book_evidence_status(store: CanvasStore, selected: dict) -> str:
@@ -1610,6 +1620,16 @@ def prepare_architecture(
             active_pointer = _read(_root(store) / "latest_request.json")
             if active_pointer and active_pointer.get("request_sha256") != current["request_sha256"]:
                 raise BeginnerConcurrencyError("an outstanding architecture request supersedes this graph context")
+            evidence = (selected_context or {}).get("book_evidence")
+            if evidence:
+                recorded = {c["node_id"] for c in evidence.get("cited_architecture_concepts", []) if c.get("present")}
+                stray = [a.id for a in typed_intent.anchors if a.kind != "node" or a.id not in recorded]
+                if stray:
+                    book = (evidence.get("book") or {}).get("book_number")
+                    raise ValueError(
+                        f"this alternative was asked with Book {book}'s element, which records "
+                        f"{', '.join(sorted(recorded)) or 'no current concept'}; anchor the revision on a concept it "
+                        "records (not " + ", ".join(stray) + ")")
             resolved_graph_intent = resolve_graph_intent(
                 current["candidate"], current["request_sha256"], typed_intent,
             )

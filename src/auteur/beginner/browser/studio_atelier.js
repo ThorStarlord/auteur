@@ -1785,10 +1785,13 @@
       var h=el('h5','atl-series-subtitle','Consider for the Architecture');h.tabIndex=-1;h.dataset.key='book-discovery-h:'+n;box.append(h);
       if(!data){box.append(el('p','atl-note',st&&st.status==='error'?'Could not read Book '+n+': '+st.error:'Reading Book '+n+'…'));det.append(box);return;}
       var row=(data.elements||[]).filter(function(x){return x.id===d.element;})[0];
-      if(data.state!=='working'||!row){box.append(toneLine({tone:'bad',text:'Book '+n+' no longer records this element, so there is nothing current to consider. Nothing was prepared.'}));
+      if(data.state!=='working'||!row){box.append(toneLine({tone:'bad',text:data.state==='unreadable'?
+          'Book '+n+'’s working record cannot be read, so there is nothing current to consider. Nothing was prepared.':
+          'Book '+n+' no longer records this element, so there is nothing current to consider. Nothing was prepared.'}));
         actionButton(box,'Close',function(){closeDiscovery(n,false);},'book-keep:'+n);det.append(box);return;}
       var kind=B.kind(row.collection),said=noun(row.collection),refs={};(b.references||[]).forEach(function(r){refs[r.node_id]=r;});
       box.append(el('p','atl-series-kicker','What Book '+n+' records'));
+      var rr=actionButton(box,'Read Book '+n+' again',function(){readBook(n,true);},'book-reread:'+n);rr.classList.add('atl-action-quiet');
       var what=el('div','atl-book-target');
       what.append(el('p','atl-series-line',kind),el('p','atl-series-text',row.text||row.title||''));
       var standing=el('p','atl-provenance');
@@ -2798,6 +2801,8 @@
       metrics:function(){return S.metrics;},
       setNarrative:setNarrative,
       // Back to the atlas where the author left it: keyboard focus on the selected concept, or the folio.
+      // The author asked to check again: Book reads are refreshed, so an open card never shows an old revision.
+      rereadBooks:function(){S.books={};if(S.leaf)readSeries(true,false,true);renderFolio();},
       returnFocus:function(){var top=root.getBoundingClientRect().top;
         if(top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});
         var dc=S.leaf&&S.discovery&&folio.querySelector('[data-key="book-discovery-h:'+S.discovery.book+'"]');
