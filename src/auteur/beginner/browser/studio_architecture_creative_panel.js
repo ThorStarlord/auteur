@@ -97,24 +97,33 @@
     renderHistory(value.history);
     renderLineage(value.superseded_history);
   }
-  function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
+  function setInquiryResult(value){setStatus(value);
+    renderHistory((value&&value.history||[]).filter(e=>e.request_sha256!==value.request_sha256));
+    result.replaceChildren();const response=value?.result;
     if(!response)return;
-    const h=make('h4','Agent interpretation — noncanonical');result.append(h,make('p',response.analysis||''));
+    const h=make('h4','Agent interpretation — noncanonical');h.tabIndex=-1;h.dataset.inquiryAnswer='true';result.append(h);
+    const asked=(response.intent&&response.intent.author_text)||'';
+    if(asked)result.append(make('p','Answer to: “'+(asked.length>160?asked.slice(0,159)+'…':asked)+'”'+
+      (response.book_evidence?' · asked with Book '+((response.book_evidence.book||{}).book_number)+' evidence':'')));
+    result.append(make('p',response.analysis||''));
     if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
       const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';
       const line=make('p','Asked with Book evidence: working Book '+bk.book_number+', revision '+bk.revision_number+', element '+el.id+'. '+
         (changed?'The Book has changed since, or cannot be read: this evidence is historical, not its present record.':'It is still the Book’s current record.'));
       line.dataset.bookEvidenceStatus=value.book_evidence_status||'';result.append(line);}
-    const list=(title,items,render)=>{const hd=make('h5',title);result.append(hd);const ul=make('ul');
+    const list=(title,items,render)=>{if(!items||!items.length)return;const hd=make('h5',title);result.append(hd);const ul=make('ul');
       for(const item of items||[]){ul.append(make('li',render(item)))}result.append(ul)};
     list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')');
-    result.append(make('h5','Creative alternatives (noncanonical)'));
+    const historical=response.book_evidence&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable');
+    if((response.hypotheses||[]).length)result.append(make('h5','Creative alternatives (noncanonical)'));
+    if(historical&&(response.hypotheses||[]).length)result.append(make('p','The Book evidence these were asked with has changed since. '+
+      'A revision developed from one of them carries that evidence marked historical.'));
     const alternatives=make('ul');result.append(alternatives);
     (response.hypotheses||[]).forEach((x,index)=>{const id=x.id||('h'+(index+1));
       const varies=x.divergence_axis?' (varies '+x.divergence_axis.replace(/_/g,' ')+')':'';
       const item=make('li',id+' · '+x.title+varies+': '+x.description);alternatives.append(item);
       if(onUseAlternative&&value.status==='ready'&&value.request_sha256){
-        const use=make('button','Use '+id+' as revision basis');use.type='button';use.dataset.alternativeId=id;
+        const use=make('button','Use '+id+' as revision basis (prepares a revision request)');use.type='button';use.dataset.alternativeId=id;
         use.addEventListener('click',()=>chooseAlternative(id,value.request_sha256));item.append(use);
       }});
     list('Uncertainties',response.uncertainties,x=>x);
@@ -130,7 +139,9 @@
     }result.append(list);
   }
   function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
-  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,setAuthorText:text=>{instruction.value=text},
+  // Bring the current answer to the author: its heading takes focus and comes into view.
+  function focusResult(){const h=result.children&&result.children[0];if(h&&h.focus){h.focus({preventScroll:true});if(h.scrollIntoView)h.scrollIntoView({block:'start'});}}
+  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,focusResult,setAuthorText:text=>{instruction.value=text},
     setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];evidence=null;renderEvidence();chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }

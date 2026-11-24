@@ -54,6 +54,7 @@
       readProjection:function(){return {candidate_request_sha256:state.architectureRequestSha};},
       onInquiryResult:function(projection){
         state.atelierInquiryStatus = projection && projection.status || null;
+        noteBookInquiry(projection);
         if (atelierController) renderAtelierStudy();
         if (!creativePanel) return;
         if (projection.result) creativePanel.setInquiryResult(projection);
@@ -72,6 +73,8 @@
         creativePanel.setStatus({status:"preparing"});
         creativeAgentBridge.prepareInquiry(payload).then(function(){
           state.creativeSentText = payload.authorText;
+          status("Request prepared for your coding agent" + (payload.bookEvidence ? ", with Book " + payload.bookEvidence.book_number + "’s element as Book evidence" : "") +
+            ". Copy it from the panel; nothing in the Architecture or a Book has changed.");
           state.atelierSentInquiry = {key: anchorsKey(payload.anchors), sha: state.architectureRequestSha};
         }).catch(function(error){
           creativePanel.setStatus({status:"error"});
@@ -127,6 +130,16 @@
   var inquiryLoadedCanvas = null, inquiryLoadedBaseline = null;
   // Refreshes this source's exchanges when the canvas OR the architecture baseline changes.
   // A stale baseline must never keep offering alternatives that the server will reject.
+  // The Book element the latest inquiry was asked with, and where that inquiry stands. Presentation only.
+  function noteBookInquiry(projection) {
+    var settings = projection && projection.request && projection.request.settings || {};
+    var be = (projection && projection.result && projection.result.book_evidence) || null;
+    var book = settings.book_evidence ? settings.book_evidence.book_number : be && be.book ? be.book.book_number : null;
+    var element = settings.book_evidence ? settings.book_evidence.element_id : be && be.element ? be.element.id : null;
+    state.bookInquiry = book ? {canvasId: remote.canvasId, book_number: book, element_id: element,
+      status: projection.status, evidence: projection.book_evidence_status || null} : null;
+  }
+  var answerShownFor = null;
   // force: read the inquiry again on the author's request (an answer may have been submitted meanwhile).
   function syncInquiryHistory(force) {
     var canvasId = remote.canvasId, baseline = state.architectureRequestSha || null;
@@ -143,8 +156,16 @@
       .then(apiJson).then(function (projection) {
         if (remote.canvasId !== canvasId || !creativePanel) return;
         state.atelierInquiryStatus = projection.status || null;
+        noteBookInquiry(projection);
         if (projection.result) creativePanel.setInquiryResult(projection);
         else creativePanel.setStatus(projection);
+        // An answer that arrived since the author last looked is brought to them once.
+        if (force && projection.result && projection.status === "ready" && answerShownFor !== projection.request_sha256) {
+          answerShownFor = projection.request_sha256;
+          var disclosure = $("architecture-creative-graph"); disclosure.hidden = false; disclosure.open = true;
+          if (creativePanel.focusResult) creativePanel.focusResult();
+          status("Your coding agent’s answer arrived; it is in the coding-agent panel. Nothing in the Architecture or a Book has changed.");
+        } else if (projection.result) answerShownFor = projection.request_sha256;
         if (atelierController) renderAtelierStudy();
       }).catch(function () {});
   }
@@ -3118,6 +3139,11 @@
         getWorkingState: atelierWorkingState,
         onShowWorking: showAtelierWorking,
         getRevisionContext: function(){ return state.atelierRevisionContext || null; },
+        // The Book element the latest inquiry was asked with, on this canvas, and where it stands.
+        getBookInquiry: function(){ var b = state.bookInquiry; return b && b.canvasId === remote.canvasId ? b : null; },
+        showInquiry: function(){ ensureCreativeGraph(); var d = $("architecture-creative-graph"); if (!d) return;
+          d.hidden = false; d.open = true; syncAtelierReturn(); d.scrollIntoView({block: "start"});
+          var f = $("architecture-creative-agent-panel").querySelector("textarea"); if (f) f.focus({preventScroll: true}); },
         // Read-only Book and Series plans for this canvas and project, each from its own owner.
         getSeriesContext: function(){
           if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
@@ -3207,14 +3233,17 @@
     var disclosure = $("architecture-creative-graph");
     disclosure.hidden = false; disclosure.open = true;
     syncAtelierReturn();
-    // The disclosure's top holds the way back; the question field is in view below it.
-    disclosure.scrollIntoView({block: "start"});
+    // The disclosure's top holds the way back; the question field is in view below it. With Book evidence the
+    // evidence and the question are what the author needs to see, so they come first on any screen.
+    var evidenceBox = request.bookEvidence && $("architecture-creative-agent-panel").querySelector(".creative-book-evidence");
+    (evidenceBox || disclosure).scrollIntoView({block: "start"});
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
     if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
     status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")" +
       (request.bookEvidence ? ", with Book " + request.bookEvidence.book_number + "’s element as Book evidence" : "") + ". " +
       (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
+        request.bookEvidence ? "Your question is in the field to edit; send it from the panel. " :
         suggestion ? "A suggested question is in the field for you to edit; nothing is sent until you send it. " :
         "Write your question or the change you want; ") + "The atlas keeps your place.");
     renderAtelierStudy();

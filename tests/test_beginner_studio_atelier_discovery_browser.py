@@ -113,7 +113,8 @@ def test_asking_sends_the_element_as_book_evidence_and_writes_only_the_inquiry(b
     evidence = page.locator(f"{PANEL} .creative-book-evidence").inner_text()
     assert "Book evidence · from working Book 24" in evidence and "not as your question" in evidence
     question = page.locator(f"{PANEL} textarea").first.input_value()
-    assert question.startswith("Book 24 records this open question about “Ledger engine”")
+    assert question.startswith("Does Book 24’s open question about “Ledger engine” (attached as Book evidence)")
+    assert "stewardship tally" not in question  # the Book's own words travel only as Book evidence
     page.locator(f"{PANEL} [data-creative-submit]").click()
     page.wait_for_function(f"document.querySelector('{PANEL} [role=status]').textContent.includes('prepared')", timeout=15000)
     request = json.loads(page.locator(f"{PANEL} textarea[aria-label='Prepared host-agent request']").input_value())
@@ -122,10 +123,12 @@ def test_asking_sends_the_element_as_book_evidence_and_writes_only_the_inquiry(b
     assert packet["book_evidence"]["element"]["id"] == "unk-tally-hours"
     assert packet["graph_intent"]["anchors"][0]["id"] == "eng_ledger"
     assert log["writes"] == [f"beginner/studio/canvases/{CANVAS}/architecture/inquiry/prepare"]
+    assert "Request prepared for your coding agent, with Book 24’s element as Book evidence" in page.locator("#status").inner_text()
     # The way back from the panel returns to the discovery, and the atlas kept its place.
     page.locator("#architecture-creative-graph .atelier-return").click()
     time.sleep(0.5)
     assert page.evaluate(KEY) == "book-discovery-h:24"
+    assert "Asked: a request with this element is waiting for your coding agent." in card(page)
     assert not log["errors"]
 
 
@@ -181,4 +184,29 @@ def test_an_open_discovery_reads_its_book_again_after_the_architecture_changes(b
                            timeout=15000)
     text = card(page)
     assert "Reading Book 24" not in text and "working revision 1 · element unk-tally-hours" in text
+    assert not log["errors"]
+
+
+def test_an_answer_is_brought_to_the_author_and_the_card_knows_it_was_asked(browser, served):
+    project, base = served
+    page, log = open_discovery(browser, base)
+    page.locator(q("book-investigate:24")).click()
+    time.sleep(0.6)
+    page.locator(f"{PANEL} [data-creative-submit]").click()
+    page.wait_for_function(f"document.querySelector('{PANEL} [role=status]').textContent.includes('prepared')", timeout=15000)
+    from auteur.beginner.studio_architecture_inquiry import complete_architecture_inquiry, project_architecture_inquiry
+    from auteur.beginner.studio_store import CanvasStore
+    from test_beginner_studio_book_discovery import answer
+    store = CanvasStore(project, CANVAS)
+    complete_architecture_inquiry(store, answer(project_architecture_inquiry(store)))  # the coding agent answers
+    page.locator("#architecture-refresh").click()
+    page.wait_for_function("document.activeElement && document.activeElement.dataset.inquiryAnswer === 'true'", timeout=15000)
+    result = page.locator(f"{PANEL} section[aria-label='Inquiry result']").inner_text()
+    assert "Answer to: “Does Book 24’s open question" in result and "asked with Book 24 evidence" in result
+    assert "It is still the Book’s current record." in result
+    assert "Developing none of these alternatives leaves the Architecture as it is" in result
+    assert "Your coding agent’s answer arrived" in page.locator("#status").inner_text()
+    page.locator("#architecture-creative-graph .atelier-return").click()
+    time.sleep(0.5)
+    assert "Asked: your coding agent’s answer is in the coding-agent panel." in card(page)
     assert not log["errors"]

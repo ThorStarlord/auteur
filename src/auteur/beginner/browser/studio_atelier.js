@@ -1756,7 +1756,7 @@
       var x=actionButton(parent,'Consider for the Architecture',function(){openDiscovery(b.book_number,e.id,from);},
         (list?'book-discover-list:':'book-discover:')+b.book_number+':'+e.id);
       x.classList.add('atl-action-quiet');
-      x.setAttribute('aria-label','Consider this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number+' for the Architecture');
+      x.setAttribute('aria-label','Consider this '+(X.COLLECTION[e.collection]||'element').toLowerCase()+' of Book '+b.book_number+' for the Architecture: '+B.clip(e.text||'',60));
     }
     function openDiscovery(n,id,from){
       S.discovery={canvas:canvasKey(),book:n,element:id,from:from?from.id:null,operation:'explore',anchor:null,focusPending:true};
@@ -1767,7 +1767,7 @@
     function closeDiscovery(n,kept){
       var d=discoveryFor(n);S.discovery=null;renderFolio();
       if(d)focusAndReveal(folio.querySelector('[data-key="book-discover:'+n+':'+d.element+'"]')?'book-discover:'+n+':'+d.element:'book-discover-list:'+n+':'+d.element);
-      announce(kept?'Kept in Book '+n+'. Nothing was prepared or changed.':'Closed.');
+      announce(kept?'Kept in Book '+n+'. Nothing was prepared or changed.':'Closed; nothing was prepared.');
     }
     function discoveryDraft(d){S.discoveryDrafts=S.discoveryDrafts||{};var k=canvasKey()+'#'+d.book+'|'+d.element;
       return S.discoveryDrafts[k]||(S.discoveryDrafts[k]={text:''});}
@@ -1807,6 +1807,14 @@
         I.andList(present.map(function(c){return '“'+nodeName(c.id)+'”';})):'')+'.'}));
       box.append(el('p','atl-note','Not established: whether it matters beyond Book '+n+', or what, if anything, the Architecture should do about it. '+
         'Asking gives your coding agent’s interpretation; the decision stays yours, and keeping it in this Book is a complete outcome.'));
+      var asked=binding.getBookInquiry&&binding.getBookInquiry();
+      if(asked&&asked.book_number===n&&asked.element_id===row.id){
+        box.append(toneLine({tone:'warn',text:asked.status==='ready'?'Asked: your coding agent’s answer is in the coding-agent panel'+
+          (asked.evidence==='changed'||asked.evidence==='unreadable'?'; the Book has changed since, so its evidence there is historical.':'.'):
+          asked.status==='awaiting_host_agent'?'Asked: a request with this element is waiting for your coding agent.':
+          'An earlier request with this element no longer matches its sources; ask again if you still want an answer.'}));
+        if(binding.showInquiry)actionButton(box,'Go to the coding-agent panel',function(){binding.showInquiry();},'book-panel:'+n).classList.add('atl-action-quiet');
+      }else if(d.handedOff)box.append(el('p','atl-note','Taken to the coding-agent panel; send it from there when you are ready.'));
       var row2=el('div','atl-actions');
       var keep=actionButton(row2,'Keep it in Book '+n,function(){closeDiscovery(n,true);},'book-keep:'+n);keep.classList.add('atl-action-quiet');
       if(!present.length){
@@ -1825,15 +1833,16 @@
           r.dataset.key='book-discovery-anchor:'+n+':'+c.id;r.addEventListener('change',function(){if(r.checked)d.anchor=c.id;});
           lab.append(r,el('span','','“'+nodeName(c.id)+'”'));ask.append(lab);});}
       var draft=discoveryDraft(d);
-      if(!draft.text)draft.text='Book '+n+' records this '+said+' about “'+nodeName(d.anchor)+'”: “'+B.clip(row.text||'',300)+
-        '”. Does it point to something the Architecture should decide or change, or does it belong to Book '+n+' alone?';
+      // The suggested question points to the evidence; the Book's own words travel only as Book evidence.
+      if(!draft.text)draft.text='Does Book '+n+'’s '+said+' about “'+nodeName(d.anchor)+'” (attached as Book evidence) point to something '+
+        'the Architecture should decide or change, or does it belong to Book '+n+' alone?';
       var label=el('label','atl-bookdev-label','Your question'),ta=el('textarea','atl-book-text');ta.id='atl-discovery-q-'+n;label.htmlFor=ta.id;
       ta.rows=4;ta.maxLength=4000;ta.value=draft.text;ta.dataset.key='book-discovery-q:'+n;
       ta.addEventListener('input',function(){draft.text=ta.value;});
       ask.append(label,ta);
-      var go=actionButton(ask,'Ask your coding agent (prepares a request)',function(){investigate(n,d,row,data);},'book-investigate:'+n);go.classList.add('atl-action-primary');
-      ask.append(el('p','atl-note','Asking prepares a request in the coding-agent panel with this element as Book evidence, labelled as a working Book proposal. '+
-        'It changes nothing in the Architecture or the Book. If an answer suggests a change, you can develop one alternative into an Architecture revision, '+
+      var go=actionButton(ask,'Take it to your coding agent',function(){d.handedOff=true;investigate(n,d,row,data);},'book-investigate:'+n);go.classList.add('atl-action-primary');
+      ask.append(el('p','atl-note','Opens the coding-agent panel with your question and this element as Book evidence; you send it from there. '+
+        'Sending prepares a request and changes nothing. If an answer suggests a change, you can develop one alternative into an Architecture revision, '+
         'review it and apply it yourself, or leave the Architecture as it is.'));
       box.append(ask,row2);det.append(box);
       if(d.focusPending){d.focusPending=false;global.setTimeout(function(){var t=folio.querySelector('[data-key="book-discovery-h:'+n+'"]');if(t){t.focus({preventScroll:true});reveal(t);}},0);}
@@ -1855,8 +1864,10 @@
     // never pressed on the author. Each is the Book's own record; considering one is the author's choice.
     function renderBeyondBook(det,b,from){
       if(!binding.onDevelop||!binding.books||b.state!=='working')return;
-      var seen={},items=[];
-      (b.references||[]).forEach(function(r){if(!r.present)return;(r.elements||[]).forEach(function(e){
+      var seen={},items=[],open=discoveryFor(b.book_number);
+      if(open)seen[open.element]=1;
+      (b.references||[]).slice().sort(function(x,y){return (y.node_id===(from&&from.nodeId))-(x.node_id===(from&&from.nodeId));})
+        .forEach(function(r){if(!r.present)return;(r.elements||[]).forEach(function(e){
         if(BEYOND[e.collection]&&!seen[e.id]){seen[e.id]=1;items.push({e:e,nodes:[]});}
         var it=items.filter(function(x){return x.e.id===e.id;})[0];if(it&&it.nodes.indexOf(r.node_id)<0)it.nodes.push(r.node_id);});});
       if(!items.length)return;
