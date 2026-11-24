@@ -26,3 +26,11 @@
 .creative-book-evidence { margin-block: .5rem; padding: .5rem .65rem; border: 1px dashed color-mix(in srgb,currentColor 35%,transparent); border-radius: .55rem; }
 .creative-book-evidence h4 { margin: 0 0 .25rem; font-size: .92rem; }
 .creative-book-evidence p { margin: .2rem 0; font-size: .88rem; max-width: 70ch; overflow-wrap: anywhere; }
+
+/* Inquiry answers outside the Atelier desk: each alternative reads as one compact option. */
+.creative-alternatives { padding-left: 1.1rem; }
+.creative-alternative { margin-block: .45rem; }
+.creative-alternative-title { margin-right: .4rem; }
+.creative-axis { font-size: .82rem; opacity: .8; }
+.creative-alternative-description { margin: .15rem 0 .3rem; }
+.creative-choose-how, .creative-decline { font-size: .9rem; }

@@ -432,6 +432,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_atelier_impact.js": "studio_atelier_impact.js",
         "/studio_atelier.js": "studio_atelier.js",
         "/studio_atelier.css": "studio_atelier.css",
+        "/studio_atelier_desk.css": "studio_atelier_desk.css",
         "/studio_architecture_reader.js": "studio_architecture_reader.js",
         "/studio_architecture_revision_bridge.js": "studio_architecture_revision_bridge.js",
         "/studio_architecture_graph_actions.js": "studio_architecture_graph_actions.js",

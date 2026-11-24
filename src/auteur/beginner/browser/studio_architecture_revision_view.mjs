@@ -123,7 +123,7 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
       const pos=Object.fromEntries(all.map((id,i)=>[id,{x:15+(i%4)*156,y:10+Math.floor(i/4)*108}]));
       const edges=(list,tag)=>{for(const e of list.edges){const a=pos[e.source],b=pos[e.target];if(!a||!b)continue;const line=doc.createElementNS('http://www.w3.org/2000/svg','line');for(const [key,val] of Object.entries({x1:a.x+55,y1:a.y+28,x2:b.x+55,y2:b.y+28,class:'overlay-edge '+tag}))line.setAttribute(key,String(val));svg.appendChild(line)}};
       if(layer!=='after')edges(old,'before');if(layer!=='before')edges(newer,'after');
-      for(const id of all){const p=pos[id];const rect=doc.createElementNS('http://www.w3.org/2000/svg','rect');for(const [k,v] of Object.entries({x:p.x,y:p.y,width:135,height:56,rx:8,class:'overlay-node'}))rect.setAttribute(k,String(v));svg.appendChild(rect);const text=doc.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',p.x+8);text.setAttribute('y',p.y+30);text.textContent=id.slice(0,20);svg.appendChild(text)}
+      for(const id of all){const p=pos[id];const rect=doc.createElementNS('http://www.w3.org/2000/svg','rect');for(const [k,v] of Object.entries({x:p.x,y:p.y,width:135,height:56,rx:8,class:'overlay-node'}))rect.setAttribute(k,String(v));svg.appendChild(rect);const text=doc.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',p.x+8);text.setAttribute('y',p.y+30);const named=(newer.nodes.find(x=>x.id===id)||old.nodes.find(x=>x.id===id)||{}).title;const words=str(named||id);text.textContent=words.length>20?words.slice(0,19)+'…':words;const tip=doc.createElementNS('http://www.w3.org/2000/svg','title');tip.textContent=words+' ('+id+')';text.appendChild(tip);svg.appendChild(text)}
       append(view,svg);append(view,make('p','Before: '+old.edges.length+' recorded local links. After: '+newer.edges.length+' recorded local links. Edge geometry is not narrative causality.','note'));
     }
     append(section,view);return section;
@@ -135,8 +135,8 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
     if(!focus){append(section,make('p','Select an item from the change index to inspect precise differences.'));return section}
     const focused=focusedGraphDiff(comparison,focus),item=focused.focus;
     append(section,make('h3',changeName(item)+' · '+(LABELS[item.kind]||item.kind)+' · '+item.change));
-    append(section,make('p','Before: '+(item.beforeSourceRef||'not present')+' · request '+comparison.beforeRequestSha));
-    append(section,make('p','After: '+(item.afterSourceRef||'not present')+' · request '+comparison.afterRequestSha));
+    append(section,make('p','Before: '+(item.beforeSourceRef||'not present')+' · request '+comparison.beforeRequestSha,'revision-source-identity'));
+    append(section,make('p','After: '+(item.afterSourceRef||'not present')+' · request '+comparison.afterRequestSha,'revision-source-identity'));
     if(focused.missingSide)append(section,make('p','Absent from '+focused.missingSide+' candidate; no title-based pairing.','warning'));
     append(section,renderOverlay(focused));
     const fields=make('section',undefined,'field-comparison','field-comparison');append(fields,make('h3','Recorded field changes (full values)'));

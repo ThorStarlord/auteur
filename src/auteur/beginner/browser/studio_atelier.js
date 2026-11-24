@@ -100,7 +100,7 @@
     root.replaceChildren();root.classList.add('atl');
     var bar=el('header','atl-bar');
     var heading=el('div','atl-heading');
-    heading.append(el('span','atl-eyebrow','Visual study · experimental · presentation only'),
+    heading.append(el('span','atl-eyebrow','Working Architecture · noncanonical'),
       el('strong','atl-title','The Living Narrative Atelier'));
     var modes=el('div','atl-modes');modes.setAttribute('role','group');modes.setAttribute('aria-label','Way of looking');
     var modeButtons={};
@@ -1133,6 +1133,9 @@
       dl.append(el('dt','',label),dd);
     }
     function renderFolio(){
+      var writing=!!(S.leaf&&(S.dev||(S.discovery&&!S.discovery.handedOff)));
+      if(root.classList.contains('atl-writing')!==writing){root.classList.toggle('atl-writing',writing);
+        folio.setAttribute('data-desk',writing?'writing':'reading');}
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
       var onTitle=!!(active&&folio.contains(active)&&active.classList.contains('atl-folio-title')),top=folio.scrollTop;
       // A field the author is typing in survives a re-render as the same element: its words, caret and
@@ -1575,15 +1578,18 @@
       var nav=el('div','atl-look');
       var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
       bk.setAttribute('aria-keyshortcuts','Escape');
-      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread');
+      actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread').classList.add('atl-action-quiet');
       folio.append(nav);
       var status=!c||c.status==='loading'?(d?'Reading the plans again… (showing the read of '+readTime(c)+')':'Reading the plans…'):c.status==='error'?'Could not read the plans: '+c.error:
         (c.changed?'Changed since you last read them. ':'')+'Read at '+readTime(c)+'.';
       folio.append(el('p','atl-note atl-series-status',status));
       folio.append(el('p','atl-note','Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.'));
       if(!d)return;
-      renderImpactOverview(d,from,l);
-      renderLeafBooks(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
+      // What the author opened comes first: the Book they asked for, or the overview when they asked for it.
+      var bookFirst=!!(l.book&&!l.impact);
+      if(!bookFirst)renderImpactOverview(d,from,l);
+      renderLeafBooks(d,from,l);
+      if(bookFirst)renderImpactOverview(d,from,l);renderLeafPlan(d,from);renderLeafDirections(d,from);
       if(d.separate_owners_note)folio.append(el('p','atl-note',d.separate_owners_note));
       var s=d.sources,missing=[];
       if(s.working_books.state==='absent')missing.push('working Book architectures for this canvas');
@@ -1817,7 +1823,9 @@
           asked.status==='awaiting_host_agent'?'Asked: a request with this element is waiting for your coding agent.':
           'An earlier request with this element no longer matches its sources; ask again if you still want an answer.'}));
         if(binding.showInquiry)actionButton(box,'Go to the coding-agent panel',function(){binding.showInquiry();},'book-panel:'+n).classList.add('atl-action-quiet');
-      }else if(d.handedOff)box.append(el('p','atl-note','Taken to the coding-agent panel; send it from there when you are ready.'));
+      }else if(d.revisionApplied)box.append(toneLine({tone:'ok',text:'An Architecture revision was applied after you asked. Nothing in Book '+n+
+          ' changed; whether it now cites a changed concept is shown in its record.'}));
+      else if(d.handedOff)box.append(el('p','atl-note','Taken to the coding-agent panel; send it from there when you are ready.'));
       var row2=el('div','atl-actions');
       var keep=actionButton(row2,'Keep it in Book '+n,function(){closeDiscovery(n,true);},'book-keep:'+n);keep.classList.add('atl-action-quiet');
       if(!present.length){
@@ -2608,7 +2616,7 @@
         S.research?'Research comparison C · contextual unfolding — kept for comparison, not proposed for authors.':
         cn?'Living atlas — “'+name+'” and its documented relationships, revealed in place. E examines it as a constellation.':
         'Living atlas — the whole working Architecture. Select a concept to bring its documented relationships forward in place.';
-      ribbon.append(el('span','atl-ribbon-note',' Nothing moves · positions are presentation · nothing is saved.'));
+      ribbon.append(el('span','atl-ribbon-note',' Selecting reveals in place; your records change only when you apply a reviewed revision.'));
       ribbon.title=cn?cn.title:'';
     }
     function announce(text){live.textContent='';global.setTimeout(function(){live.textContent=text;},30);}
@@ -2751,6 +2759,7 @@
       var kept=false;
       if(revised){
         S.revision={delta:M.revisionDelta(prevModel,S.model),requestedChange:ctx.requestedChange||null,fromSha:prevSha,toSha:sha,prev:prevModel,keptLayout:keptLayout};
+        if(S.discovery&&S.discovery.handedOff)S.discovery.revisionApplied=true;
         if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth,examine:keepExamine,
           trail:keepTrail.filter(function(id){return !!S.model.byId[id];}),camera:keptLayout?keepCam:null};kept=true;
           if(keepLeaf&&keepLeaf.from===keepFocus)S.leaf=keepLeaf;}

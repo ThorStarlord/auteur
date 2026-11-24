@@ -124,11 +124,49 @@ test('selecting a concept the Book element does not record drops its evidence',(
 });
 test('an answer asked with Book evidence says whether that evidence is still current',()=>{
   const s=setup();s.panel.setSelection(s.selection,s.actions);
-  const result={schema_version:1,analysis:'A.',recorded_observations:[],hypotheses:[],uncertainties:[],
+  const result={schema_version:1,analysis:'A.',recorded_observations:[],uncertainties:[],
+    hypotheses:[{id:'h1',title:'Descriptive column',description:'The hours describe care.',divergence_axis:'structure'}],
     book_evidence:{book:{book_number:24,revision_number:1},element:{id:'unk-tally-hours'}}};
   s.panel.setInquiryResult({status:'ready',request_sha256:'c'.repeat(64),result,book_evidence_status:'changed'});
   const section=find(s.root,x=>x.attrs?.['aria-label']==='Inquiry result');
   const text=section.children.map(c=>c.textContent).join(' ');
   assert.match(text,/this evidence is historical, not its present record/);
   assert.match(text,/Developing none of these alternatives leaves the Architecture as it is/);
+});
+
+test('alternatives read as separate options, and the decline note appears only when there are alternatives',()=>{
+  const s=setup();s.panel.setSelection(s.selection,s.actions);
+  const base={schema_version:1,analysis:'A.',recorded_observations:[],uncertainties:[]};
+  s.panel.setInquiryResult({status:'ready',request_sha256:'c'.repeat(64),result:{...base,hypotheses:[
+    {id:'h1',title:'One',description:'First.',divergence_axis:'structure'},{id:'h2',title:'Two',description:'Second.',divergence_axis:'theme'}]}});
+  const section=find(s.root,x=>x.attrs?.['aria-label']==='Inquiry result');
+  const list=section.children.find(c=>c.className==='creative-alternatives');
+  assert.deepEqual(list.children.map(li=>li.children[0].textContent),['h1 · One','h2 · Two']);
+  assert.ok(section.children.some(c=>c.className==='creative-decline'));
+  s.panel.setInquiryResult({status:'ready',request_sha256:'c'.repeat(64),result:{...base,hypotheses:[]}});
+  const again=find(s.root,x=>x.attrs?.['aria-label']==='Inquiry result');
+  assert.ok(!again.children.some(c=>c.className==='creative-decline'));
+});
+
+test('after an answer arrives, the question already sent is not reused as a revision instruction',()=>{
+  const sent=[],used=[];
+  const document={createElement(tag){return element(tag,this)}},window={};
+  runInNewContext(source,{window,document});
+  const root=document.createElement('section');
+  const panel=window.AuteurStudioCreativePanel.createCreativePanel({root,onAction:x=>sent.push(x),onRevise:()=>{},
+    onUseAlternative:x=>used.push(x)});
+  panel.setSelection([{kind:'node',id:'engine',sourceRef:'nodes/0'}],[{operation:'explore',label:'Explore'}]);
+  panel.setAuthorText('Does this belong to the Architecture?');panel.setOperation('explore');
+  find(root,x=>x.dataset?.creativeSubmit==='true').dispatch('click');
+  assert.equal(sent.length,1);
+  panel.setInquiryResult({status:'ready',request_sha256:'d'.repeat(64),result:{schema_version:1,analysis:'A.',recorded_observations:[],
+    uncertainties:[],hypotheses:[{id:'h1',title:'One',description:'First.',divergence_axis:'structure'}]}});
+  assert.equal(panel.getAuthorText(),'');
+  const section=find(root,x=>x.attrs?.['aria-label']==='Inquiry result');
+  const list=section.children.find(c=>c.className==='creative-alternatives');
+  list.children[0].children.find(c=>c.dataset?.alternativeId==='h1').dispatch('click');
+  assert.equal(used.length,0,'an empty instruction prepares nothing');
+  panel.setAuthorText('Develop h1 as a clarification.');
+  list.children[0].children.find(c=>c.dataset?.alternativeId==='h1').dispatch('click');
+  assert.equal(used.length,1);assert.equal(used[0].authorText,'Develop h1 as a clarification.');
 });

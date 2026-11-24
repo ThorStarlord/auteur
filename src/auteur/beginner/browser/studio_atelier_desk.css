@@ -1,0 +1,146 @@
+/* Living Narrative Atelier — the desk.
+   While the Atelier is the chosen view (?atelier), the Studio's own agent tools, coding-agent panel and
+   revision review sit directly below the atlas. This sheet gives them the Atelier's reading language so the
+   atlas, the folio and the desk read as one workspace: ivory paper, editorial serif for what the author
+   reads and writes, a quiet sans for controls, and one filled button per decision. Scoped entirely under
+   .studio-atelier-desk: the ordinary Studio is unchanged. Semantic colours keep their meanings:
+   green for what a record holds, amber for an agent's interpretation, violet-grey for the author's own
+   evidence and choices, red only for what blocks. */
+.studio-atelier-desk{
+  --desk-paper:#f9f5ec; --desk-card:#fffdf8; --desk-ink:#29241e; --desk-soft:#5b5348; --desk-muted:#6f665a;
+  --desk-hair:#e2d9ca; --desk-hair-ink:#8f8474; --desk-focus:#2f6c55;
+  --desk-recorded:#2b6a64; --desk-recorded-tint:#e6f2ee;
+  --desk-agent:#94621a; --desk-agent-tint:#fbf1df;
+  --desk-author:#4a4a78; --desk-author-tint:#eeeef8;
+  --desk-block:#8b2f39;
+  --desk-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --desk-sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+/* The agent tools: one quiet row of controls under the atlas. */
+.studio-atelier-desk #architecture-tools{gap:8px 10px;padding:12px 16px;margin:14px 0 0;background:var(--desk-card);
+  border:1px solid var(--desk-hair);border-radius:12px;font-family:var(--desk-sans);color:var(--desk-ink)}
+.studio-atelier-desk #architecture-tools>button,.studio-atelier-desk #architecture-tools select,
+.studio-atelier-desk #architecture-creative-graph button,.studio-atelier-desk #architecture-review button{
+  font:500 .84rem/1.3 var(--desk-sans);padding:7px 13px;border-radius:999px;border:1px solid var(--desk-hair-ink);
+  background:var(--desk-card);color:var(--desk-ink);cursor:pointer}
+.studio-atelier-desk #architecture-tools>button:hover,.studio-atelier-desk #architecture-creative-graph button:hover,
+.studio-atelier-desk #architecture-review button:hover{background:#f3ecdf}
+.studio-atelier-desk #architecture-status{flex-basis:100%;font:.8rem/1.45 var(--desk-sans);color:var(--desk-soft)}
+.studio-atelier-desk :is(#architecture-tools,#architecture-creative-graph,#architecture-review) :focus-visible{
+  outline:2px solid var(--desk-focus);outline-offset:2px}
+
+/* The coding-agent panel: one reading column, the panel first, the recorded lists after it. */
+.studio-atelier-desk #architecture-creative-graph{margin:12px 0 0;padding:14px 18px 18px;background:var(--desk-paper);
+  border:1px solid var(--desk-hair);border-radius:14px;box-shadow:0 10px 30px rgba(70,52,28,.06)}
+.studio-atelier-desk #architecture-creative-graph>summary{font:600 1.02rem/1.3 var(--desk-serif);color:var(--desk-ink)}
+.studio-atelier-desk #architecture-creative-graph>p{font:.84rem/1.5 var(--desk-sans);color:var(--desk-soft);max-width:72ch}
+.studio-atelier-desk .architecture-creative-workbench{grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:"panel panel" "relations components";gap:14px}
+.studio-atelier-desk #architecture-creative-agent-panel{grid-area:panel}
+.studio-atelier-desk #architecture-relationship-index{grid-area:relations}
+.studio-atelier-desk #architecture-component-actions{grid-area:components}
+.studio-atelier-desk .architecture-creative-workbench>section{background:var(--desk-card);border-color:var(--desk-hair);border-radius:12px}
+.studio-atelier-desk :is(#architecture-relationship-index,#architecture-component-actions){font-size:.84rem;color:var(--desk-soft)}
+@media (max-width:840px){
+  .studio-atelier-desk .architecture-creative-workbench{grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"panel" "relations" "components"}
+}
+
+.studio-atelier-desk #architecture-creative-agent-panel{padding:18px 22px 20px;font-family:var(--desk-sans);color:var(--desk-ink)}
+.studio-atelier-desk #architecture-creative-agent-panel>h3{margin:0 0 2px;font:500 1.32rem/1.2 var(--desk-serif)}
+.studio-atelier-desk #architecture-creative-agent-panel>p:first-of-type{margin:0 0 10px;font:.78rem/1.4 var(--desk-sans);
+  letter-spacing:.02em;color:var(--desk-muted)}
+/* Writing and status keep a reading measure; the answer below uses the desk's full width. */
+.studio-atelier-desk #architecture-creative-agent-panel>:not(section){max-width:min(100%,860px)}
+.studio-atelier-desk #architecture-creative-agent-panel textarea{font:14.5px/1.58 var(--desk-serif);color:var(--desk-ink);
+  background:#fffefa;border:1px solid var(--desk-hair-ink);border-radius:9px;padding:9px 11px;box-sizing:border-box}
+.studio-atelier-desk #architecture-creative-agent-panel textarea[readonly]{font:11.5px/1.45 ui-monospace,Consolas,monospace;
+  color:var(--desk-soft);background:#f6f1e7}
+.studio-atelier-desk #architecture-creative-agent-panel label{font:.78rem/1.4 var(--desk-sans);color:var(--desk-muted)}
+.studio-atelier-desk #architecture-creative-agent-panel [data-creative-submit]{background:#2e2936;color:#fbf6ec;border-color:#2e2936;font-weight:600}
+.studio-atelier-desk #architecture-creative-agent-panel [role=status]{font:.84rem/1.45 var(--desk-sans);color:var(--desk-soft);
+  padding:6px 10px;border-radius:8px;background:#f6f1e7}
+.studio-atelier-desk .creative-anchor-chip{border-color:var(--desk-recorded);color:var(--desk-recorded);background:var(--desk-recorded-tint)}
+.studio-atelier-desk #architecture-creative-agent-panel [aria-label='Creative actions'] [aria-pressed=true]{
+  background:var(--desk-recorded-tint);border-color:var(--desk-recorded);color:var(--desk-recorded);text-decoration:none;font-weight:600}
+
+/* The author's own Book evidence: violet-grey, dashed, set apart from the question. */
+.studio-atelier-desk .creative-book-evidence{border:1px dashed var(--desk-author);background:var(--desk-author-tint);border-radius:10px;
+  padding:10px 13px}
+.studio-atelier-desk .creative-book-evidence h4{font:600 .9rem/1.3 var(--desk-sans);color:var(--desk-author)}
+.studio-atelier-desk .creative-book-evidence p:first-of-type{font:14px/1.55 var(--desk-serif);color:var(--desk-ink)}
+
+/* An answer: the question it answers, the agent's interpretation (amber), what records hold (green), the
+   alternatives as separate options, and the uncertainties. The interpretation keeps a reading measure. */
+.studio-atelier-desk section[aria-label='Inquiry result']{margin-top:14px;padding-top:6px;border-top:1px solid var(--desk-hair)}
+.studio-atelier-desk .creative-answer-title{margin:10px 0 4px;font:700 .7rem/1.2 var(--desk-sans);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--desk-agent)}
+.studio-atelier-desk .creative-answer-title:focus{outline:none}
+.studio-atelier-desk .creative-asked{margin:0 0 8px;font:.84rem/1.45 var(--desk-sans);color:var(--desk-soft)}
+.studio-atelier-desk .creative-interpretation{margin:0 0 10px;padding:10px 14px;border-left:3px solid var(--desk-agent);
+  background:var(--desk-agent-tint);border-radius:0 9px 9px 0;font:15px/1.62 var(--desk-serif);color:var(--desk-ink);max-width:86ch}
+.studio-atelier-desk .creative-evidence-status{font:.82rem/1.45 var(--desk-sans);color:var(--desk-author)}
+.studio-atelier-desk .creative-evidence-status.is-historical{color:var(--desk-block)}
+.studio-atelier-desk section[aria-label='Inquiry result'] h5{margin:14px 0 6px;font:700 .68rem/1.2 var(--desk-sans);
+  letter-spacing:.13em;text-transform:uppercase;color:var(--desk-muted)}
+.studio-atelier-desk .creative-claims{margin:0;padding:0 0 0 14px;border-left:2px solid var(--desk-recorded);list-style:none;max-width:96ch}
+.studio-atelier-desk .creative-claims li{margin:0 0 6px;font:.86rem/1.5 var(--desk-sans);color:var(--desk-soft)}
+/* Alternatives sit side by side so they can be compared; each keeps its own action. */
+.studio-atelier-desk .creative-alternatives{list-style:none;margin:0;padding:0;display:grid;gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:stretch}
+.studio-atelier-desk .creative-alternative{padding:12px 14px;background:var(--desk-card);border:1px solid var(--desk-hair);border-radius:11px;
+  display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.studio-atelier-desk .creative-alternative [data-alternative-id]{margin-top:auto}
+.studio-atelier-desk .creative-alternative-title{font:600 1rem/1.3 var(--desk-serif);color:var(--desk-ink)}
+.studio-atelier-desk .creative-axis{font:600 .68rem/1.4 var(--desk-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--desk-agent);
+  padding:1px 8px;border-radius:999px;background:var(--desk-agent-tint)}
+.studio-atelier-desk .creative-alternative-description{margin:0;font:14.5px/1.58 var(--desk-serif);color:#3f3830;max-width:66ch}
+
+.studio-atelier-desk .creative-decline{margin:10px 0 0;font:.84rem/1.45 var(--desk-sans);color:var(--desk-soft);font-style:italic}
+.studio-atelier-desk .creative-uncertainties li{font:.86rem/1.5 var(--desk-sans);color:var(--desk-soft)}
+
+/* The review of a proposed revision: a quiet card whose one filled button is Apply. */
+.studio-atelier-desk #architecture-review{margin:14px 0 0;padding:18px 22px 20px;background:var(--desk-card);border:1px solid var(--desk-hair);
+  border-radius:14px;box-shadow:0 10px 30px rgba(70,52,28,.06);color:var(--desk-ink);font-family:var(--desk-sans)}
+.studio-atelier-desk #architecture-review>strong{display:block;margin:0 0 8px;font:500 1.3rem/1.2 var(--desk-serif)}
+.studio-atelier-desk #architecture-review-summary{font:14.5px/1.6 var(--desk-serif);color:#3f3830;max-width:76ch}
+.studio-atelier-desk #architecture-diff li{font:.88rem/1.5 var(--desk-sans);color:var(--desk-soft);max-width:80ch}
+.studio-atelier-desk #architecture-diff .review-requested-change{color:var(--desk-ink)}
+.studio-atelier-desk #architecture-diff .review-book-evidence{list-style:none;margin:6px 0;padding:8px 12px;border:1px dashed var(--desk-author);
+  border-radius:9px;background:var(--desk-author-tint);color:var(--desk-ink)}
+.studio-atelier-desk #architecture-apply{background:#2e2936;color:#fbf6ec;border-color:#2e2936;font-weight:600;padding:9px 18px}
+
+/* Interpretation beside the records it cites, on a wide desk; stacked on narrow screens. */
+.studio-atelier-desk .creative-pair{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.studio-atelier-desk .creative-records h5{margin-top:0}
+@media (max-width:1100px){.studio-atelier-desk .creative-pair{grid-template-columns:minmax(0,1fr)}}
+
+/* Exact source identities stay available, set small and quiet beneath what changed. */
+.studio-atelier-desk .revision-source-identity{margin:2px 0;font:11px/1.45 ui-monospace,Consolas,monospace;color:var(--desk-muted);
+  overflow-wrap:anywhere}
+
+/* On a phone the desk keeps its reading width: fewer nested insets, compact action choices. */
+@media (max-width:600px){
+  .studio-atelier-desk #architecture-tools{padding:10px 12px}
+  .studio-atelier-desk #architecture-creative-graph{padding:10px 8px 12px;border-radius:12px}
+  .studio-atelier-desk .architecture-creative-workbench>section{padding:10px}
+  .studio-atelier-desk #architecture-creative-agent-panel{padding:12px 10px 14px}
+  .studio-atelier-desk #architecture-creative-agent-panel [aria-label='Creative actions'] button{padding:5px 10px;font-size:.78rem;margin:2px}
+  .studio-atelier-desk .creative-interpretation{padding:9px 11px;font-size:14.5px}
+  .studio-atelier-desk #architecture-review{padding:14px 12px}
+}
+
+/* Buttons whose text wraps (relationship and component lists) keep a modest radius, not a lozenge. */
+.studio-atelier-desk :is(#architecture-relationship-index,#architecture-component-actions) button{border-radius:8px;text-align:left;
+  font:.82rem/1.4 var(--desk-sans)}
+/* The hand-off fields read top to bottom: a label, then its field. */
+.studio-atelier-desk #architecture-creative-agent-panel>label{display:block;margin:12px 0 4px}
+.studio-atelier-desk #architecture-creative-agent-panel>textarea{display:block;width:100%}
+/* The review's comparison speaks the desk's language: quiet controls, titled nodes, serif headings. */
+.studio-atelier-desk #architecture-review :is(h2,h3){font-family:var(--desk-serif);font-weight:500;color:var(--desk-ink)}
+.studio-atelier-desk #architecture-review .overlay-node{fill:var(--desk-card);stroke:var(--desk-hair-ink);stroke-width:1.2}
+.studio-atelier-desk #architecture-review svg text{font:12px var(--desk-sans);fill:var(--desk-ink)}
+.studio-atelier-desk #architecture-review .layer-button[aria-pressed=true]{background:var(--desk-recorded-tint);border-color:var(--desk-recorded);
+  color:var(--desk-recorded)}
+.studio-atelier-desk .creative-choose-how{margin:0 0 8px;font:.82rem/1.45 var(--desk-sans);color:var(--desk-soft)}
