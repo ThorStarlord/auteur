@@ -3,7 +3,7 @@
  function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative}={}){
   if(!root||typeof onAction!=='function'||typeof onRevise!=='function')throw Error('Creative panel requires callbacks');
   const doc=root.ownerDocument||document,make=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e};
-  let anchors=[],actions=[],operation='explore',evidence=null;
+  let anchors=[],actions=[],operation='explore',evidence=null,sentText=null;
   const heading=make('h3','Creative interaction with your coding agent');
   const notice=make('p','Working architecture only · No story canon accepted here.');
   const chips=make('div');chips.setAttribute('aria-label','Selected source anchors');
@@ -51,6 +51,7 @@
   submit.addEventListener('click',()=>{if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;if(!authorText.trim()&&!['inspect','trace'].includes(operation)){status.textContent='Describe your creative intention first.';return}
     const payload={operation,anchors:anchors.slice(),authorText};
+    if(operation!=='revise')sentText=authorText;
     if(evidence&&agentOperations.has(operation))payload.bookEvidence=Object.assign({},evidence);
     if(operation==='revise')onRevise(payload);
     else if(onAction)onAction(payload);
@@ -60,7 +61,8 @@
   function chooseAlternative(hypothesisId,inquirySha){
     if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;
-    if(!authorText.trim()){status.textContent='Write what you want to develop from '+hypothesisId+' first.';return}
+    if(!authorText.trim()){status.textContent='Write what you want to develop from '+hypothesisId+' first.';
+      if(instruction.focus){instruction.focus({preventScroll:true});if(instruction.scrollIntoView)instruction.scrollIntoView({block:'center'});}return}
     if(onUseAlternative)onUseAlternative({anchors:anchors.slice(),authorText,
       selectedAlternative:{inquiryRequestSha256:inquirySha,hypothesisId:hypothesisId}});
   }
@@ -102,6 +104,11 @@
     renderLineage(value.superseded_history);
   }
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
+    // Once alternatives arrive, the field is for what to develop: the question already sent is not reused as
+    // a revision instruction by an unthinking click.
+    if(response&&value.status==='ready'&&(response.hypotheses||[]).length&&sentText!==null&&instruction.value===sentText){
+      instruction.value='';sentText=null;}
+    if(response&&(response.hypotheses||[]).length)instruction.placeholder='Write what you want to develop from one alternative, then choose it below.';
     if(!response)return;
     const h=make('h4','Agent interpretation — noncanonical');h.tabIndex=-1;h.dataset.inquiryAnswer='true';h.className='creative-answer-title';result.append(h);
     const asked=(response.intent&&response.intent.author_text)||'';
@@ -123,7 +130,9 @@
     list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')','creative-claims',evidenceCol);
     if(evidenceCol.children.length)pair.append(evidenceCol);
     const historical=response.book_evidence&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable');
-    if((response.hypotheses||[]).length)result.append(make('h5','Creative alternatives (noncanonical)'));
+    if((response.hypotheses||[]).length){result.append(make('h5','Creative alternatives (noncanonical)'));
+      const how=make('p','Choosing one prepares a revision request with the words in “Your creative intention” above; nothing is applied until you review and apply it.');
+      how.className='creative-choose-how';result.append(how);}
     if(historical&&(response.hypotheses||[]).length)result.append(make('p','The Book evidence these were asked with has changed since. '+
       'A revision developed from one of them carries that evidence marked historical.'));
     const alternatives=make('ul');alternatives.className='creative-alternatives';result.append(alternatives);

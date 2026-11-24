@@ -143,3 +143,4 @@
 .studio-atelier-desk #architecture-review svg text{font:12px var(--desk-sans);fill:var(--desk-ink)}
 .studio-atelier-desk #architecture-review .layer-button[aria-pressed=true]{background:var(--desk-recorded-tint);border-color:var(--desk-recorded);
   color:var(--desk-recorded)}
+.studio-atelier-desk .creative-choose-how{margin:0 0 8px;font:.82rem/1.45 var(--desk-sans);color:var(--desk-soft)}

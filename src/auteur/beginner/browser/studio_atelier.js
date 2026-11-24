@@ -1133,7 +1133,7 @@
       dl.append(el('dt','',label),dd);
     }
     function renderFolio(){
-      var writing=!!(S.leaf&&(S.dev||S.discovery));
+      var writing=!!(S.leaf&&(S.dev||(S.discovery&&!S.discovery.handedOff)));
       if(root.classList.contains('atl-writing')!==writing){root.classList.toggle('atl-writing',writing);
         folio.setAttribute('data-desk',writing?'writing':'reading');}
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
@@ -1823,7 +1823,9 @@
           asked.status==='awaiting_host_agent'?'Asked: a request with this element is waiting for your coding agent.':
           'An earlier request with this element no longer matches its sources; ask again if you still want an answer.'}));
         if(binding.showInquiry)actionButton(box,'Go to the coding-agent panel',function(){binding.showInquiry();},'book-panel:'+n).classList.add('atl-action-quiet');
-      }else if(d.handedOff)box.append(el('p','atl-note','Taken to the coding-agent panel; send it from there when you are ready.'));
+      }else if(d.revisionApplied)box.append(toneLine({tone:'ok',text:'An Architecture revision was applied after you asked. Nothing in Book '+n+
+          ' changed; whether it now cites a changed concept is shown in its record.'}));
+      else if(d.handedOff)box.append(el('p','atl-note','Taken to the coding-agent panel; send it from there when you are ready.'));
       var row2=el('div','atl-actions');
       var keep=actionButton(row2,'Keep it in Book '+n,function(){closeDiscovery(n,true);},'book-keep:'+n);keep.classList.add('atl-action-quiet');
       if(!present.length){
@@ -2757,6 +2759,7 @@
       var kept=false;
       if(revised){
         S.revision={delta:M.revisionDelta(prevModel,S.model),requestedChange:ctx.requestedChange||null,fromSha:prevSha,toSha:sha,prev:prevModel,keptLayout:keptLayout};
+        if(S.discovery&&S.discovery.handedOff)S.discovery.revisionApplied=true;
         if(keepFocus&&S.model.byId[keepFocus]){S.pending={focus:keepFocus,depth:keepDepth,examine:keepExamine,
           trail:keepTrail.filter(function(id){return !!S.model.byId[id];}),camera:keptLayout?keepCam:null};kept=true;
           if(keepLeaf&&keepLeaf.from===keepFocus)S.leaf=keepLeaf;}

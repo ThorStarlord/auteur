@@ -536,3 +536,6 @@
 .atl-chip-book-changed{background:#eef0f3;border-color:#b9c0cb;color:#3f4a5a}
 /* A concept the Architecture no longer has: dashed and struck, not alarm red (red is kept for what blocks). */
 .atl-chip-removed{border-style:dashed;border-color:#b9b0a3;background:#f5f1ea;color:#5b5348;text-decoration:line-through;text-decoration-color:#a99d8d}
+
+/* The in-study Reduced motion toggle also stills the desk. */
+.atl.atl-reduced.atl-writing .atl-folio{animation:none}
