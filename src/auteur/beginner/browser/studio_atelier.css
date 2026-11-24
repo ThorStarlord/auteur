@@ -497,3 +497,33 @@
 .atl-chip-removed{border-style:dashed;border-color:#d4a5a5;background:#fbefef;color:#7a3434}
 /* A focused target brought into view keeps a little room above it. */
 .atl-folio [data-key]{scroll-margin-top:12px}
+
+/* ---------- Focused authoring: the writing desk ----------
+   Composing a Book revision or considering a discovery widens the folio over the atlas edge into a quieter
+   desk with a comfortable measure. The atlas keeps its size, camera and positions underneath; closing the
+   composer returns the folio to its reading width. On narrow screens the folio already spans the width. */
+.atl-body{position:relative}
+@media (min-width:901px){
+  .atl.atl-writing .atl-folio{position:absolute;top:0;right:0;bottom:0;height:auto;width:min(620px,52%);z-index:6;
+    border-left:1px solid var(--atl-hair);box-shadow:-22px 0 48px rgba(60,44,22,.13);padding:22px 30px 32px;
+    background:linear-gradient(180deg,#fffdf8,#fcf8f0)}
+  .atl.atl-writing .atl-folio>*{max-width:66ch}
+  .atl.atl-writing .atl-book-text{font:15px/1.6 var(--atl-serif);min-height:7.5em}
+  .atl.atl-writing .atl-stage::after{content:"";position:absolute;inset:0;background:rgba(249,245,236,.28);pointer-events:none}
+}
+@media (min-width:901px) and (prefers-reduced-motion:no-preference){
+  .atl.atl-writing .atl-folio{animation:atl-desk-in .28s var(--atl-ease)}
+  @keyframes atl-desk-in{from{opacity:.4;transform:translateX(18px)}to{opacity:1;transform:none}}
+}
+/* Writing surfaces read as writing: a serif field with a calm focus ring, wherever the author composes. */
+.atl-book-text:not([readonly]){font:14.5px/1.58 var(--atl-serif);color:var(--atl-ink);background:#fffefa}
+.atl-book-text:focus{outline:none;border-color:var(--atl-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--atl-focus) 16%,transparent)}
+/* The one action that moves the work forward is the only filled button in a block. */
+.atl-action-primary{font-weight:600}
+
+/* Per-element actions recede until wanted: text actions, not a stack of bordered buttons on every element. */
+.atl-series-elements li .atl-action.atl-action-quiet{border:0;background:none;box-shadow:none;padding:3px 6px;margin:2px 4px 0 0;
+  font:600 .76rem/1.3 var(--atl-sans);color:var(--atl-focus);text-decoration:underline;text-decoration-style:dotted;
+  text-underline-offset:3px;border-radius:5px}
+.atl-series-elements li .atl-action.atl-action-quiet:hover{text-decoration-style:solid;background:color-mix(in srgb,var(--atl-focus) 8%,transparent)}
+.atl-series-elements li .atl-action.atl-action-quiet:focus-visible{outline:2px solid var(--atl-focus);outline-offset:1px}

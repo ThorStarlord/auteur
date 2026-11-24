@@ -578,6 +578,9 @@
       state.atelierRevisionContext = {fromSha: fromSha, toSha: projection.candidate_request_sha256,
         requestedChange: requestedChange};
       applyArchitectureProjection(projection, true);
+      // Back to the atlas the author was reading: the applied revision is marked there, not down here.
+      if (atelierController && state.fullArchitectureDisplay === "atelier" && !$("studio-atelier").hidden)
+        window.setTimeout(function () { atelierController.returnFocus(); }, 0);
       status("Reviewed revision applied to working architecture only. Accepted story remains unchanged." +
         (atelierController && state.fullArchitectureDisplay === "atelier" ? " The atlas marks what changed." : ""));
     }).catch(function (error) {
@@ -2493,6 +2496,8 @@
     var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
       state.architectureFacet === "overview";
     placeAtelierFirst(eligible);
+    // The Studio's agent panel and review read as the Atelier's desk while the Atelier is the chosen view.
+    document.querySelector(".studio").classList.toggle("studio-atelier-desk", eligible);
     if (!eligible) { atelierController.hide(); return; }
     $("viewport").hidden = true;
     $("inspector").hidden = !state.atelierInspector;

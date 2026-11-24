@@ -100,7 +100,7 @@
     root.replaceChildren();root.classList.add('atl');
     var bar=el('header','atl-bar');
     var heading=el('div','atl-heading');
-    heading.append(el('span','atl-eyebrow','Visual study · experimental · presentation only'),
+    heading.append(el('span','atl-eyebrow','Working Architecture · noncanonical'),
       el('strong','atl-title','The Living Narrative Atelier'));
     var modes=el('div','atl-modes');modes.setAttribute('role','group');modes.setAttribute('aria-label','Way of looking');
     var modeButtons={};
@@ -1133,6 +1133,9 @@
       dl.append(el('dt','',label),dd);
     }
     function renderFolio(){
+      var writing=!!(S.leaf&&(S.dev||S.discovery));
+      if(root.classList.contains('atl-writing')!==writing){root.classList.toggle('atl-writing',writing);
+        folio.setAttribute('data-desk',writing?'writing':'reading');}
       var active=document.activeElement,key=active&&folio.contains(active)&&active.dataset?active.dataset.key:null;
       var onTitle=!!(active&&folio.contains(active)&&active.classList.contains('atl-folio-title')),top=folio.scrollTop;
       // A field the author is typing in survives a re-render as the same element: its words, caret and
@@ -2608,7 +2611,7 @@
         S.research?'Research comparison C · contextual unfolding — kept for comparison, not proposed for authors.':
         cn?'Living atlas — “'+name+'” and its documented relationships, revealed in place. E examines it as a constellation.':
         'Living atlas — the whole working Architecture. Select a concept to bring its documented relationships forward in place.';
-      ribbon.append(el('span','atl-ribbon-note',' Nothing moves · positions are presentation · nothing is saved.'));
+      ribbon.append(el('span','atl-ribbon-note',' Selecting reveals in place; your records change only when you apply a reviewed revision.'));
       ribbon.title=cn?cn.title:'';
     }
     function announce(text){live.textContent='';global.setTimeout(function(){live.textContent=text;},30);}

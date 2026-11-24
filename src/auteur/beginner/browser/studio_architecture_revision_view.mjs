@@ -135,8 +135,8 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
     if(!focus){append(section,make('p','Select an item from the change index to inspect precise differences.'));return section}
     const focused=focusedGraphDiff(comparison,focus),item=focused.focus;
     append(section,make('h3',changeName(item)+' · '+(LABELS[item.kind]||item.kind)+' · '+item.change));
-    append(section,make('p','Before: '+(item.beforeSourceRef||'not present')+' · request '+comparison.beforeRequestSha));
-    append(section,make('p','After: '+(item.afterSourceRef||'not present')+' · request '+comparison.afterRequestSha));
+    append(section,make('p','Before: '+(item.beforeSourceRef||'not present')+' · request '+comparison.beforeRequestSha,'revision-source-identity'));
+    append(section,make('p','After: '+(item.afterSourceRef||'not present')+' · request '+comparison.afterRequestSha,'revision-source-identity'));
     if(focused.missingSide)append(section,make('p','Absent from '+focused.missingSide+' candidate; no title-based pairing.','warning'));
     append(section,renderOverlay(focused));
     const fields=make('section',undefined,'field-comparison','field-comparison');append(fields,make('h3','Recorded field changes (full values)'));

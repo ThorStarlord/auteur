@@ -94,7 +94,7 @@
       s==='stale'&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable')?
         'The working Book element this was asked with changed or cannot be read. This inquiry is historical; take it to your coding agent again from the Book.':
       s==='stale'||s==='guidance_changed'?'Source context changed. This inquiry is historical; prepare a new request.':
-      s==='error'? 'Inquiry error; no new architecture was applied.': 'Inquiry status: '+s+'.';
+      s==='error'? 'Inquiry error; no new architecture was applied.': s==='not_started'?'No question asked yet.':'Inquiry status: '+s+'.';
     packet.value=value.request?JSON.stringify(value.request,null,2):'';
     // Evidence the owner reports changed is not offered again as if it were the Book's record.
     if(evidence&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable')){evidence=null;renderEvidence();}
@@ -103,33 +103,45 @@
   }
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     if(!response)return;
-    const h=make('h4','Agent interpretation — noncanonical');h.tabIndex=-1;h.dataset.inquiryAnswer='true';result.append(h);
+    const h=make('h4','Agent interpretation — noncanonical');h.tabIndex=-1;h.dataset.inquiryAnswer='true';h.className='creative-answer-title';result.append(h);
     const asked=(response.intent&&response.intent.author_text)||'';
-    if(asked)result.append(make('p','Answer to: “'+(asked.length>160?asked.slice(0,159)+'…':asked)+'”'+
-      (response.book_evidence?' · asked with Book '+((response.book_evidence.book||{}).book_number)+' evidence':'')));
-    result.append(make('p',response.analysis||''));
+    if(asked){const a=make('p','Answer to: “'+(asked.length>160?asked.slice(0,159)+'…':asked)+'”'+
+      (response.book_evidence?' · asked with Book '+((response.book_evidence.book||{}).book_number)+' evidence':''));a.className='creative-asked';result.append(a);}
+    // The agent's interpretation and the records it cites sit side by side on a wide desk, so what is read
+    // into the story and what the records hold stay visibly apart.
+    const pair=make('div');pair.className='creative-pair';result.append(pair);
+    const readingCol=make('div');readingCol.className='creative-reading';pair.append(readingCol);
+    const reading=make('p',response.analysis||'');reading.className='creative-interpretation';readingCol.append(reading);
+    const evidenceCol=make('div');evidenceCol.className='creative-records';
     if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
       const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';
       const line=make('p','Asked with Book evidence: working Book '+bk.book_number+', revision '+bk.revision_number+', element '+el.id+'. '+
         (changed?'The Book has changed since, or cannot be read: this evidence is historical, not its present record.':'It is still the Book’s current record.'));
-      line.dataset.bookEvidenceStatus=value.book_evidence_status||'';result.append(line);}
-    const list=(title,items,render)=>{if(!items||!items.length)return;const hd=make('h5',title);result.append(hd);const ul=make('ul');
-      for(const item of items||[]){ul.append(make('li',render(item)))}result.append(ul)};
-    list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')');
+      line.dataset.bookEvidenceStatus=value.book_evidence_status||'';line.className='creative-evidence-status'+(changed?' is-historical':'');result.append(line);}
+    const list=(title,items,render,cls,into)=>{if(!items||!items.length)return;const target=into||result;const hd=make('h5',title);target.append(hd);const ul=make('ul');if(cls)ul.className=cls;
+      for(const item of items||[]){ul.append(make('li',render(item)))}target.append(ul)};
+    list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')','creative-claims',evidenceCol);
+    if(evidenceCol.children.length)pair.append(evidenceCol);
     const historical=response.book_evidence&&(value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable');
     if((response.hypotheses||[]).length)result.append(make('h5','Creative alternatives (noncanonical)'));
     if(historical&&(response.hypotheses||[]).length)result.append(make('p','The Book evidence these were asked with has changed since. '+
       'A revision developed from one of them carries that evidence marked historical.'));
-    const alternatives=make('ul');result.append(alternatives);
+    const alternatives=make('ul');alternatives.className='creative-alternatives';result.append(alternatives);
     (response.hypotheses||[]).forEach((x,index)=>{const id=x.id||('h'+(index+1));
       const varies=x.divergence_axis?' (varies '+x.divergence_axis.replace(/_/g,' ')+')':'';
-      const item=make('li',id+' · '+x.title+varies+': '+x.description);alternatives.append(item);
+      // Each alternative reads as its own option: a title, the dimension it varies, then what it proposes.
+      const item=make('li');item.className='creative-alternative';
+      const name=make('strong',id+' · '+x.title);name.className='creative-alternative-title';item.append(name);
+      if(varies){const axis=make('span',varies.trim());axis.className='creative-axis';item.append(axis);}
+      const desc=make('p',x.description);desc.className='creative-alternative-description';item.append(desc);
+      alternatives.append(item);
       if(onUseAlternative&&value.status==='ready'&&value.request_sha256){
         const use=make('button','Use '+id+' as revision basis (prepares a revision request)');use.type='button';use.dataset.alternativeId=id;
         use.addEventListener('click',()=>chooseAlternative(id,value.request_sha256));item.append(use);
       }});
-    list('Uncertainties',response.uncertainties,x=>x);
-    if(response.book_evidence)result.append(make('p','Developing none of these alternatives leaves the Architecture as it is; the Book keeps its own record either way.'));
+    list('Uncertainties',response.uncertainties,x=>x,'creative-uncertainties');
+    if((response.hypotheses||[]).length){const none=make('p','Developing none of these alternatives leaves the Architecture as it is'+
+      (response.book_evidence?'; the Book keeps its own record either way.':'.'));none.className='creative-decline';result.append(none);}
   }
   function setLocalInspection(projection){
     status.textContent='Local source inspection only — no host-agent request sent.';
