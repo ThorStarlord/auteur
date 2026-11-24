@@ -7,7 +7,7 @@
    green for what a record holds, amber for an agent's interpretation, violet-grey for the author's own
    evidence and choices, red only for what blocks. */
 .studio-atelier-desk{
-  --desk-paper:#f9f5ec; --desk-card:#fffdf8; --desk-ink:#29241e; --desk-soft:#5b5348; --desk-muted:#8a8073;
+  --desk-paper:#f9f5ec; --desk-card:#fffdf8; --desk-ink:#29241e; --desk-soft:#5b5348; --desk-muted:#6f665a;
   --desk-hair:#e2d9ca; --desk-hair-ink:#8f8474; --desk-focus:#2f6c55;
   --desk-recorded:#2b6a64; --desk-recorded-tint:#e6f2ee;
   --desk-agent:#94621a; --desk-agent-tint:#fbf1df;

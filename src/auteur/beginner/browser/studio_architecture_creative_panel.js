@@ -114,17 +114,18 @@
     const asked=(response.intent&&response.intent.author_text)||'';
     if(asked){const a=make('p','Answer to: “'+(asked.length>160?asked.slice(0,159)+'…':asked)+'”'+
       (response.book_evidence?' · asked with Book '+((response.book_evidence.book||{}).book_number)+' evidence':''));a.className='creative-asked';result.append(a);}
+    // Which Book evidence the question was asked with, and whether it is still current, comes before the answer.
+    if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
+      const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';
+      const line=make('p','Asked with Book evidence: working Book '+bk.book_number+', revision '+bk.revision_number+', element '+el.id+'. '+
+        (changed?'The Book has changed since, or cannot be read: this evidence is historical, not its present record.':'It is still the Book’s current record.'));
+      line.dataset.bookEvidenceStatus=value.book_evidence_status||'';line.className='creative-evidence-status'+(changed?' is-historical':'');result.append(line);}
     // The agent's interpretation and the records it cites sit side by side on a wide desk, so what is read
     // into the story and what the records hold stay visibly apart.
     const pair=make('div');pair.className='creative-pair';result.append(pair);
     const readingCol=make('div');readingCol.className='creative-reading';pair.append(readingCol);
     const reading=make('p',response.analysis||'');reading.className='creative-interpretation';readingCol.append(reading);
     const evidenceCol=make('div');evidenceCol.className='creative-records';
-    if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
-      const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';
-      const line=make('p','Asked with Book evidence: working Book '+bk.book_number+', revision '+bk.revision_number+', element '+el.id+'. '+
-        (changed?'The Book has changed since, or cannot be read: this evidence is historical, not its present record.':'It is still the Book’s current record.'));
-      line.dataset.bookEvidenceStatus=value.book_evidence_status||'';line.className='creative-evidence-status'+(changed?' is-historical':'');result.append(line);}
     const list=(title,items,render,cls,into)=>{if(!items||!items.length)return;const target=into||result;const hd=make('h5',title);target.append(hd);const ul=make('ul');if(cls)ul.className=cls;
       for(const item of items||[]){ul.append(make('li',render(item)))}target.append(ul)};
     list('Recorded source claims (not causal proof)',response.recorded_observations, x=>x.claim+' ('+x.kind+':'+x.id+')','creative-claims',evidenceCol);

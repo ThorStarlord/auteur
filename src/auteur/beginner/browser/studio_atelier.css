@@ -519,7 +519,7 @@
 }
 /* Writing surfaces read as writing: a serif field with a calm focus ring, wherever the author composes. */
 .atl-book-text:not([readonly]){font:14.5px/1.58 var(--atl-serif);color:var(--atl-ink);background:#fffefa}
-.atl-book-text:focus{outline:none;border-color:var(--atl-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--atl-focus) 16%,transparent)}
+.atl-book-text:focus{outline:2px solid transparent;border-color:var(--atl-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--atl-focus) 16%,transparent)}
 /* The one action that moves the work forward is the only filled button in a block. */
 .atl-action-primary{font-weight:600}
 
