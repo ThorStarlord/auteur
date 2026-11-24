@@ -1,0 +1,179 @@
+SERIES AND BOOK CONTEXT
+
+Plans that record “Ledger engine”
+← Back to Ledger engine
+Read again
+
+Changed since you last read them. Read at 10:21:57.
+
+Reading a plan here changes nothing. Each plan keeps its own owner, revision and acceptance; a working Book changes only when you apply a revision you reviewed.
+
+ARCHITECTURE CHANGES AND THE WORKING BOOKS
+
+Each Book records which Architecture concepts it refers to and the version it was written against. A cited concept that changed is worth re-reading; it does not mean the Book no longer works. A Book that records no reference to a concept is not shown to be independent of it.
+
+CITE CONCEPTS THAT CHANGED OR ARE GONE · 2
+
+Book 24 · The Uncounted Crew
+
+Cites 1 concept that changed after it was written: “Ledger engine”.
+
+Written against the working Architecture as it was 1 applied revision ago.
+
+Show Book 24’s evidence
+
+Book 25 · The Counted Hands
+
+Cites 1 concept that changed after it was written: “Ledger engine”.
+
+Cites 1 concept no longer in the working Architecture: “Gate Table”.
+
+Written against the working Architecture as it was 2 applied revisions ago.
+
+Show Book 25’s evidence
+
+CONCEPTS BEHIND THIS
+
+Ledger engine · changed · cited by Book 24 and Book 25
+Gate Table · no longer in the Architecture · cited by Book 25
+
+A changed concept opens in the atlas. A concept that is gone is not in the atlas; each Book’s evidence shows it as that Book recorded it.
+
+WORKING BOOK ARCHITECTURES · THIS CANVAS
+
+Book-level working proposals for this canvas. They reference this working Architecture by node id; nothing in them is accepted, and no Book operation can accept anything.
+
+Book 24 · The Uncounted Crew
+
+Working · agent proposal · not accepted
+
+Since Book 24 was written
+
+Written against the working Architecture as it was 1 applied revision ago.
+
+CHANGED SINCE IT WAS WRITTEN · 1
+
+“Ledger engine”
+
+WHEN THE BOOK WAS WRITTEN · 
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it.
+
+NOW · 
+Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so the draw can be checked against them. Clarified: the hours column records care beside the mark but does not set draw, and hands owed under the Book 20 conversion are not reckoned from it, so the counted Turn still does not hold the water.
+
+Cited by 7 elements and 2 typed edges of Book 24
+Show it in the atlas
+Ask your coding agent what this may mean
+
+19 other cited concepts unchanged as the Book recorded them. A Book records each concept it cites (its name, kind, description, scope and parent), not its relationships, so a changed relationship is not shown here.
+
+Reconcile Book 24 with the working Architecture
+
+A whole-Book revision through Book 24’s own owner, starting from words you can change. Preparing changes nothing; only Apply changes the Book.
+
+QUESTION
+Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?
+PRESSURE
+The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.
+What Book 24 records about “Ledger engine”
+
+This concept changed after the Book was written.
+
+ENGINE
+Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices, and so its work puts no hours in the ledger's hours column.
+agent working proposalChanged in working Book revision 1Develop this elementConsider for the Architecture
+ENGINE
+Ledger to Source: the hands-to-draw conversion credits only counted hands, and the ledger now records the hours each counted hand worked, so the draw can be read straight from it. Uncounted labour improves the balance but leaves no hours in that column, so it cannot restore its own households' draw, and the shortfall can be read from the ledger.
+agent working proposalChanged in working Book revision 1Develop this elementConsider for the Architecture
+ENGINE
+Ledger as a new record form: the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date. The ledger's hours column shows who worked and for how long, not who can repair. The craft-mark answers all three needs and stays out of the hours column.
+agent working proposalChanged in working Book revision 1Develop this elementConsider for the Architecture
+COST KEPT VISIBLE
+The craft-mark does not restore draw and enters no hours. The crew chooses it knowing that their own hand-light households stay cut this cycle, and that the ledger's hours column shows the cut beside their households' marks.
+agent working proposalChanged in working Book revision 1Develop this elementConsider for the Architecture
+CONSEQUENCE FOR THE SERIES
+A capability record exists, separate from the debt ledger, the tally, the Balance Stones and the ledger's hours column. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour. It records no hours, so it does not change who is counted for draw or the draw read from the hours column.
+agent working proposalChanged in working Book revision 1Develop this elementConsider for the Architecture
+ASSUMPTION
+The ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. A hand who is not entered in the count has no hours in that column.
+hypothetical, not adoptedChanged in working Book revision 1Develop this elementConsider for the Architecture
+UNRESOLVED
+Whether the stewardship tally the Council keeps is the ledger's hours column or a separate count that feeds it. Book 24 needs only that a hand left out of the count has no hours in the column.
+undecidedChanged in working Book revision 1Develop this elementConsider for the Architecture
+TYPED EDGE · ENG-LEDGER-SOURCE DEPENDS ON THIS CONCEPT
+The cost of working uncounted is read from the Ledger's hours column: no hours, no restored draw.
+TYPED EDGE · ENG-RECORD-FORM TRANSFORMS THIS CONCEPT
+The craft-mark adds a capability record to the Ledger engine that stays outside the hours column and does not feed the draw.
+
+Working Book revision 1 was applied; it changed 7 elements; it added 6 elements. That was a change to this working Book, not to the Architecture.
+
+Consider for the Architecture
+
+WHAT BOOK 24 RECORDS
+
+Read Book 24 again
+
+Unresolved
+
+Whether the stewardship tally the Council keeps is the ledger's hours column or a separate count that feeds it. Book 24 needs only that a hand left out of the count has no hours in the column.
+
+Working Book proposal · undecided
+unresolved · agent proposed
+
+Book 24 · The Uncounted Crew · working revision 1 · element unk-tally-hours
+
+ARCHITECTURE CONCEPTS IT RECORDS
+
+“Ledger engine” · recorded; changed since the Book was written
+
+Established: Book 24 records this open question and a reference to “Ledger engine”.
+
+Not established: whether it matters beyond Book 24, or what, if anything, the Architecture should do about it. Asking gives your coding agent’s interpretation; the decision stays yours, and keeping it in this Book is a complete outcome.
+
+Taken to the coding-agent panel; send it from there when you are ready.
+
+Investigate with your coding agent
+Explore alternatives for the Architecture
+Challenge how the Architecture reads it
+Explain what the Architecture records
+Your question
+Take it to your coding agent
+
+Opens the coding-agent panel with your question and this element as Book evidence; you send it from there. Sending prepares a request and changes nothing. If an answer suggests a change, you can develop one alternative into an Architecture revision, review it and apply it yourself, or leave the Architecture as it is.
+
+Keep it in Book 24
+Questions and consequences Book 24 records about the Architecture · 26
+Other Architecture concepts it refers to · 19
+Finale Alternative A (not chosen)
+Finale Alternative B (not chosen)
+Finale Alternative C (not chosen)
+Old Hand engine (interpretive legitimacy)
+Source engine (physical commons)
+Maintenance lineages
+Mill Compact
+Reading Hall
+Stone Hall (Reckoners)
+Everyday belonging
+Consequential loss
+Wonder at a responsive order
+The Hollow Gate
+The Long Return (pulse)
+The Lowfen channel
+The gift practice (Lower Ammen)
+Custody of the record
+Hands and draw
+Keeping the channels
+
+Selecting one shows it in the atlas; the trail keeps the way back.
+
+9 open author decisions kept by this Book, each recorded against one of the Architecture’s open questions as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here. They stay yours to decide.
+
+Source · .auteur/beginner/studio/canvases/spring-ledger/architecture/books/24/current.json · revision 1 · sha256:55abdf64f7
+Written against request 00655ba406
+
+How this plan is changed
+Book 25 · The Counted Hands
+
+Not kept here: a Series plan (series_identity.yaml) · Series or Book Directions.
+
+← Back to Ledger engine

@@ -1,0 +1,46 @@
+{
+  "viewport": [
+    390,
+    844
+  ],
+  "writes": [
+    "POST beginner/studio/canvases/spring-ledger/architecture/inquiry/prepare",
+    "POST beginner/studio/canvases/spring-ledger/commands/replace-working-document"
+  ],
+  "errors": [],
+  "steps": [
+    {
+      "step": "discovery card opened",
+      "focus": "book-discovery-h:24",
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "inquiry prepared with Book evidence",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "inquiry answer shown",
+      "focus": null,
+      "live": "Considering a Book 24 element for the Architecture. Nothing is prepared or changed until you ask."
+    },
+    {
+      "step": "returned to the discovery",
+      "focus": "book-discovery-h:24",
+      "live": "Back to Book 24’s discovery. The atlas kept your place."
+    },
+    {
+      "step": "kept in Book 24",
+      "focus": "book-discover:24:unk-tally-hours",
+      "live": "Kept in Book 24. Nothing was prepared or changed."
+    }
+  ],
+  "read_only_after_inquiry_prepare": true,
+  "read_only_after_inquiry_answer": false,
+  "choice": {
+    "hypothesis_id": null
+  },
+  "unchanged_without_revision": false,
+  "narrative_unchanged_without_revision": true,
+  "scroll_overflow": 0
+}

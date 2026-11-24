@@ -101,9 +101,7 @@
     renderHistory(value.history);
     renderLineage(value.superseded_history);
   }
-  function setInquiryResult(value){setStatus(value);
-    renderHistory((value&&value.history||[]).filter(e=>e.request_sha256!==value.request_sha256));
-    result.replaceChildren();const response=value?.result;
+  function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     if(!response)return;
     const h=make('h4','Agent interpretation — noncanonical');h.tabIndex=-1;h.dataset.inquiryAnswer='true';result.append(h);
     const asked=(response.intent&&response.intent.author_text)||'';

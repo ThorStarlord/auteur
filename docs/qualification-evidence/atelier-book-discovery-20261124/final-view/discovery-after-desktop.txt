@@ -1,0 +1,35 @@
+Consider for the Architecture
+
+WHAT BOOK 24 RECORDS
+
+Read Book 24 again
+
+Unresolved
+
+Whether the stewardship tally the Council keeps is the ledger's hours column or a separate count that feeds it. Book 24 needs only that a hand left out of the count has no hours in the column.
+
+Working Book proposal · undecided
+unresolved · agent proposed
+
+Book 24 · The Uncounted Crew · working revision 1 · element unk-tally-hours
+
+ARCHITECTURE CONCEPTS IT RECORDS
+
+“Ledger engine” · recorded; changed since the Book was written
+
+Established: Book 24 records this open question and a reference to “Ledger engine”.
+
+Not established: whether it matters beyond Book 24, or what, if anything, the Architecture should do about it. Asking gives your coding agent’s interpretation; the decision stays yours, and keeping it in this Book is a complete outcome.
+
+Taken to the coding-agent panel; send it from there when you are ready.
+
+Investigate with your coding agent
+Explore alternatives for the Architecture
+Challenge how the Architecture reads it
+Explain what the Architecture records
+Your question
+Take it to your coding agent
+
+Opens the coding-agent panel with your question and this element as Book evidence; you send it from there. Sending prepares a request and changes nothing. If an answer suggests a change, you can develop one alternative into an Architecture revision, review it and apply it yourself, or leave the Architecture as it is.
+
+Keep it in Book 24
