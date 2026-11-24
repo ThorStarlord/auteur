@@ -1,0 +1,278 @@
+{
+ "small-desk": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases"
+  ],
+  "steps": [
+   {
+    "step": "first screen",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 1697
+   }
+  ],
+  "load_seconds": 2.56,
+  "concepts": 68
+ },
+ "dense-desk": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases"
+  ],
+  "steps": [
+   {
+    "step": "first screen",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "selected structure|structure-node:engine-risk-transfer",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "deeper",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "followed a relation",
+    "focus": "H3",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "back",
+    "focus": "H3",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "escape to atlas",
+    "focus": "BUTTON",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "constellation",
+    "focus": "BUTTON",
+    "scrollY": 0,
+    "page_height": 2048
+   },
+   {
+    "step": "left constellation",
+    "focus": "BUTTON",
+    "scrollY": 0,
+    "page_height": 2048
+   }
+  ],
+  "load_seconds": 2.33,
+  "concepts": 156,
+  "constellation_seconds": 1.46
+ },
+ "book-desk": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases",
+   "beginner/studio/canvases/spring-ledger/architecture/inquiry/prepare",
+   "beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+   "beginner/studio/canvases/spring-ledger/architecture/prepare",
+   "beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+   "beginner/studio/canvases/spring-ledger/architecture/apply"
+  ],
+  "steps": [
+   {
+    "step": "Book 24 leaf",
+    "focus": "H3",
+    "scrollY": 0,
+    "page_height": 1795
+   },
+   {
+    "step": "composer",
+    "focus": "book-instruction:24",
+    "scrollY": 0,
+    "page_height": 1795
+   },
+   {
+    "step": "discovery card",
+    "focus": "book-discovery-h:24",
+    "scrollY": 0,
+    "page_height": 1795
+   },
+   {
+    "step": "panel hand-off",
+    "focus": "TEXTAREA",
+    "scrollY": 1406,
+    "page_height": 3309
+   },
+   {
+    "step": "answer arrived",
+    "focus": "H4",
+    "scrollY": 2431,
+    "page_height": 4935,
+    "seconds": 2.08
+   },
+   {
+    "step": "review shown",
+    "focus": "focus-back",
+    "scrollY": 5720,
+    "page_height": 8595
+   },
+   {
+    "step": "after apply",
+    "focus": "book-discovery-h:24",
+    "scrollY": 168,
+    "page_height": 3353
+   },
+   {
+    "step": "impact overview",
+    "focus": "book-discovery-h:24",
+    "scrollY": 168,
+    "page_height": 3353
+   }
+  ],
+  "load_seconds": 2.5
+ },
+ "small-phone": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases"
+  ],
+  "steps": [
+   {
+    "step": "first screen",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 4315
+   }
+  ],
+  "load_seconds": 2.15,
+  "concepts": 68
+ },
+ "dense-phone": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases"
+  ],
+  "steps": [
+   {
+    "step": "first screen",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 5758
+   },
+   {
+    "step": "selected structure|structure-node:engine-risk-transfer",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 6610
+   },
+   {
+    "step": "deeper",
+    "focus": "BODY",
+    "scrollY": 0,
+    "page_height": 6610
+   },
+   {
+    "step": "followed a relation",
+    "focus": "H3",
+    "scrollY": 501,
+    "page_height": 5689
+   },
+   {
+    "step": "back",
+    "focus": "H3",
+    "scrollY": 501,
+    "page_height": 5689
+   },
+   {
+    "step": "escape to atlas",
+    "focus": "BUTTON",
+    "scrollY": 501,
+    "page_height": 5758
+   },
+   {
+    "step": "constellation",
+    "focus": "BUTTON",
+    "scrollY": 350,
+    "page_height": 6968
+   },
+   {
+    "step": "left constellation",
+    "focus": "BUTTON",
+    "scrollY": 350,
+    "page_height": 6610
+   }
+  ],
+  "load_seconds": 2.24,
+  "concepts": 156,
+  "constellation_seconds": 1.46
+ },
+ "book-phone": {
+  "errors": [],
+  "writes": [
+   "beginner/studio/canvases",
+   "beginner/studio/canvases/spring-ledger/architecture/inquiry/prepare",
+   "beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+   "beginner/studio/canvases/spring-ledger/architecture/prepare",
+   "beginner/studio/canvases/spring-ledger/commands/replace-working-document",
+   "beginner/studio/canvases/spring-ledger/architecture/apply"
+  ],
+  "steps": [
+   {
+    "step": "Book 24 leaf",
+    "focus": "H3",
+    "scrollY": 501,
+    "page_height": 6640
+   },
+   {
+    "step": "composer",
+    "focus": "book-instruction:24",
+    "scrollY": 3571,
+    "page_height": 7750
+   },
+   {
+    "step": "discovery card",
+    "focus": "book-discovery-h:24",
+    "scrollY": 3233,
+    "page_height": 7683
+   },
+   {
+    "step": "panel hand-off",
+    "focus": "TEXTAREA",
+    "scrollY": 6581,
+    "page_height": 9492
+   },
+   {
+    "step": "answer arrived",
+    "focus": "H4",
+    "scrollY": 8151,
+    "page_height": 14934,
+    "seconds": 2.05
+   },
+   {
+    "step": "review shown",
+    "focus": "focus-back",
+    "scrollY": 15252,
+    "page_height": 18776
+   },
+   {
+    "step": "after apply",
+    "focus": "book-discovery-h:24",
+    "scrollY": 3344,
+    "page_height": 10520
+   },
+   {
+    "step": "impact overview",
+    "focus": "book-discovery-h:24",
+    "scrollY": 3344,
+    "page_height": 10520
+   }
+  ],
+  "load_seconds": 2.29
+ }
+}
