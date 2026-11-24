@@ -1475,7 +1475,22 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
     if match is None:
         raise ValueError("selected alternative not found in the selected inquiry")
     intent = inquiry.get("intent") or {}
+    book_evidence = None
+    if inquiry.get("book_evidence"):
+        from .studio_architecture_inquiry import _book_evidence_status
+        request = load_host_agent_request(
+            _root(store) / "inquiries" / "requests" / selection.inquiry_request_sha256 / "request.json")
+        status = _book_evidence_status(store, request.settings)
+        book_evidence = {
+            **inquiry["book_evidence"],
+            "status_at_revision": status,
+            "status_note": ("This is the working Book element as the inquiry read it, and it is still the Book's "
+                            "current record." if status == "current" else
+                            "Historical: the working Book or this element has changed or cannot be read since "
+                            "the inquiry; this is the evidence as it was then, not the Book's present record."),
+        }
     return {
+        **({"book_evidence": book_evidence} if book_evidence else {}),
         "inquiry_request_sha256": selection.inquiry_request_sha256,
         "hypothesis_id": match["id"],
         "title": match["title"],
