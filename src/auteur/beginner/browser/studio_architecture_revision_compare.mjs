@@ -48,7 +48,7 @@ function fieldChanges(before, after) {
   });
 }
 export function compareArchitectureRevision({before, after, beforeRequestSha, afterRequestSha,
-  expectedPriorSha, requestedChange = '', acceptedConstraints = []} = {}) {
+  expectedPriorSha, requestedChange = '', acceptedConstraints = [], questionChanges = null} = {}) {
   if (![beforeRequestSha, afterRequestSha, expectedPriorSha].every(s => typeof s === 'string' && SHA.test(s))) {
     throw new Error('Valid before, after and expected baseline request SHAs are required');
   }
@@ -92,7 +92,7 @@ export function compareArchitectureRevision({before, after, beforeRequestSha, af
     summary:{...counts,byKind,authorDeclaredWarnings},items,
     graph:{before:{nodes:before.nodes,links:before.links,genre_interactions:before.genre_interactions},
       after:{nodes:after.nodes,links:after.links,genre_interactions:after.genre_interactions}},
-    beforeCandidate:before,afterCandidate:after};
+    beforeCandidate:before,afterCandidate:after,questionChanges:questionChanges||null};
 }
 export {COLLECTIONS};
 

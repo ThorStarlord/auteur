@@ -46,6 +46,13 @@
     }
     if(book.semantic_impact==='suspect')lines.push({tone:'warn',text:'Some concepts it refers to were reworded or changed after it was written.'});
     if(book.semantic_impact==='contradictory')lines.push({tone:'bad',text:'A concept it refers to is no longer in the working Architecture.'});
+    // Question references are reported apart from node freshness: a changed question never makes the whole Book wrong.
+    (book.question_references||[]).forEach(function(q){
+      if(q.state==='reworded'||q.state==='moved_and_reworded')lines.push({tone:'warn',text:'A recorded decision refers to an earlier formulation of an open question. It may warrant reconsideration.'});
+      else if(q.state==='moved')lines.push({tone:'warn',text:'A recorded decision refers to an open question that now sits at another position, with the same wording.'});
+      else if(q.state==='removed')lines.push({tone:'warn',text:'A recorded decision refers to an open question that is no longer open in the Architecture. Removing it is not an answer.'});
+      else if(q.state==='version_unavailable'||q.state==='binding_mismatch')lines.push({tone:'bad',text:'The open question a decision refers to cannot be read against the Architecture version it was written against.'});
+    });
     return lines;
   }
   function refStanding(ref){

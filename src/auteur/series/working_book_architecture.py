@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.beginner.persistence import BeginnerConcurrencyError, _FilesystemLock
 from auteur.beginner.studio_architecture import _candidate, _current_candidate_freshness, architecture_versions
+from auteur.beginner.studio_architecture_questions import QUESTION_ID_PATTERN, relate_to_current, text_digest
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import (
     HostAgentRequest,
@@ -210,6 +211,9 @@ class DecisionElement(BookElement):
     """An author decision, bound to one Series open question by index and text hash. It stays unresolved."""
     series_question_index: int = Field(ge=0, le=63)
     series_question_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    # The Series question's stable identity, when the Series version records one. Validated against that
+    # question at the index; a decision never takes the question that later occupies its former position.
+    series_question_id: str | None = Field(default=None, pattern=QUESTION_ID_PATTERN)
 
     def _has_source_reference(self) -> bool:
         return True  # the binding to the Series open question is the source reference
@@ -492,6 +496,13 @@ def _check_references(
             problems.append(f"{decision.id}: Series open question {index} does not exist")
         elif _text_digest(questions[index]) != decision.series_question_sha256:
             problems.append(f"{decision.id}: Series open question {index} text changed; reference is stale")
+        if decision.series_question_id is not None and index < len(questions):
+            identities = series_candidate.get("open_question_ids") or []
+            if index >= len(identities) or identities[index] != decision.series_question_id:
+                problems.append(
+                    f"{decision.id}: Series open question {index} is not {decision.series_question_id}; "
+                    "the identity reference does not match the question it names"
+                )
     if problems:
         raise ValueError("; ".join(problems[:20]))
 
@@ -742,6 +753,34 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
     return book_project(store, book_number)
 
 
+def _decision_question_reference(decision: DecisionElement, record: dict, versions: dict, current: dict | None) -> dict:
+    """Which Series question version a decision was written against, and how it relates to the current question.
+
+    The Book's record names the Series version it was written against. The decision's index and digest must match
+    that exact version; nothing resolves to whatever question occupies the index now.
+    """
+    version_sha = record.get("series_request_sha256")
+    version = versions.get(version_sha)
+    if version is None:
+        return {"state": "version_unavailable", "version_request_sha256": version_sha}
+    questions = version.get("open_questions") or []
+    index = decision.series_question_index
+    if index >= len(questions) or text_digest(questions[index]) != decision.series_question_sha256:
+        return {"state": "binding_mismatch", "version_request_sha256": version_sha}
+    identities = version.get("open_question_ids") or []
+    identifier = identities[index] if index < len(identities) else None
+    relation = relate_to_current(identifier, {"index": index, "text": questions[index]}, current)
+    return {
+        "state": relation["status"],
+        "question_id": identifier,
+        "version_request_sha256": version_sha,
+        "recorded_index": index,
+        "recorded_text": questions[index],
+        "current_index": relation["current_index"],
+        "current_text": relation["current_text"],
+    }
+
+
 def book_resume(store: CanvasStore, book_number: int) -> dict:
     """Read-only recovery of one Book's working architecture in a fresh process."""
     _check_number(book_number)
@@ -804,6 +843,10 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
             {
                 "id": decision.id,
                 "series_question_index": decision.series_question_index,
+                "question": _decision_question_reference(
+                    decision, record, {sha: version for sha, version in architecture_versions(store)},
+                    (series or {}).get("candidate"),
+                ),
                 "current_text": questions[decision.series_question_index]
                 if decision.series_question_index < len(questions) else None,
                 "reference_stale": (
@@ -990,11 +1033,20 @@ def book_series_references(store: CanvasStore, book_number: int, *,
         if item["current"]:
             item["fields_changed"] = sorted(field for field in set(node) | set(current_nodes[key])
                                             if node.get(field) != current_nodes[key].get(field))
+    # Each author decision says which open question it refers to, and how that question now stands. A question
+    # change is reported here even when no node changed; it never changes the Book's own freshness status.
+    version_map = {sha: version for sha, version in (versions if versions is not None else architecture_versions(store))}
+    question_references = [
+        {"decision_id": decision.id,
+         **_decision_question_reference(decision, record, version_map, (series or {}).get("candidate"))}
+        for decision in artifact.open_author_decisions
+    ]
     return {
         "book_number": book_number,
         "authority": "working_noncanonical",
         "title": artifact.title,
         "question": artifact.function.question,
+        "question_references": question_references,
         "pressure": artifact.function.pressure,
         **_freshness(store, book_number, record),
         "request_sha256": record["request_sha256"],
@@ -1140,11 +1192,17 @@ def book_element_evidence(store: CanvasStore, book_number: int, element_id: str)
                       "present": bool(ref.get("present")),
                       "title": (ref.get("current") or {}).get("title") or (ref.get("recorded") or {}).get("title")})
     artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    decision = next((item for item in artifact.open_author_decisions if item.id == element_id), None)
+    decision_question = None
+    if decision is not None:
+        versions = {sha: version for sha, version in architecture_versions(store)}
+        decision_question = _decision_question_reference(decision, record, versions, (_candidate(store) or {}).get("candidate"))
     return {
         "book_number": book_number,
         "title": artifact.title,
         "revision_number": record.get("revision_number", 0),
         "book_request_sha256": record["request_sha256"],
+        "decision_question": decision_question,
         "book_content_sha256": record.get("content_sha256"),
         "written_against_architecture_request_sha256": record["series_request_sha256"],
         "freshness": _freshness(store, book_number, record)["freshness"],
@@ -1582,6 +1640,7 @@ def _revision_packet(
     nodes = {node["id"]: node for node in series["candidate"].get("nodes", [])}
     referenced = sorted({node for identifier in in_scope for node in _series_refs_of(index, identifier)})
     questions = series["candidate"].get("open_questions", [])
+    identities = series["candidate"].get("open_question_ids")
     return {
         "schema": REVISION_KIND,
         "operation": "revise",
@@ -1610,8 +1669,11 @@ def _revision_packet(
             "referenced_nodes": [nodes[node] for node in referenced if node in nodes],
             "node_index": [{"id": node["id"], "category": node["category"], "title": node["title"]}
                            for node in series["candidate"].get("nodes", [])],
-            "open_questions": [{"index": i, "text": text, "sha256": _text_digest(text)}
-                               for i, text in enumerate(questions)],
+            "open_questions": [
+                {"index": i, "text": text, "sha256": _text_digest(text),
+                 **({"id": identities[i]} if identities and i < len(identities) else {})}
+                for i, text in enumerate(questions)
+            ],
         },
         "visible_source_ids": _visible_source_ids(source),
     }
@@ -1720,7 +1782,11 @@ def _prepare_revision(
 def _series_view(packet: dict) -> dict:
     """The Series facts a revision was built on, as reference checks need them: node ids and question texts."""
     series = packet["series_architecture"]
-    return {"nodes": series["node_index"], "open_questions": [item["text"] for item in series["open_questions"]]}
+    view = {"nodes": series["node_index"], "open_questions": [item["text"] for item in series["open_questions"]]}
+    identities = [item.get("id") for item in series["open_questions"]]
+    if identities and all(identities):
+        view["open_question_ids"] = identities
+    return view
 
 
 def _complete_revision(

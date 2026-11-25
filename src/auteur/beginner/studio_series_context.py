@@ -325,6 +325,7 @@ def _working_books(store: CanvasStore) -> dict[str, Any]:
             "freshness": view["freshness"], "series_changed": view["series_changed"],
             "source_changed": view["source_changed"], "semantic_impact": view["semantic_impact"],
             "revision_number": view["revision_number"], "open_author_decisions": view["open_author_decisions"],
+            "question_references": view["question_references"],
             "source": _src(owner, rel, None, artifact=f"book-{number}", revision=view["revision_number"],
                            content_hash=view.get("content_sha256")),
             "written_against_request": view["series_request_sha256"],

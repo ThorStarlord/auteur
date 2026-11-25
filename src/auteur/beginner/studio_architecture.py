@@ -38,6 +38,8 @@ from .studio_concepts import (
     record_provisional_concept,
 )
 from .studio_ontology_context import build_relevant_ontology_context
+from .studio_architecture_questions import identity_problems as question_identity_problems
+from .studio_architecture_questions import question_changes
 from .studio_store import CanvasStore
 
 _candidate_diff = candidate_diff
@@ -255,6 +257,9 @@ class ArchitectureCandidate(BaseModel):
     links: list[ArchitectureLink] = Field(default_factory=list, max_length=180)
     phases: list[NarrativePhase] = Field(default_factory=list, max_length=32)
     open_questions: list[str] = Field(default_factory=list, max_length=16)
+    # Stable identities for the open questions, in the same order. Absent in legacy candidates; a
+    # revision may introduce them and must then keep each continuing question's id (see studio_architecture_questions).
+    open_question_ids: list[str] | None = Field(default=None, max_length=16)
     opportunities: list[ArchitectureOpportunity] = Field(
         default_factory=list, max_length=3,
     )
@@ -968,6 +973,10 @@ genre_activation: {genre_node_id,basic_emotions,trope_functions,trope_function_r
 Unknown lengths stay unknown; phase order is NOT a chapter or act number.
 Do not fabricate genre commitments when the brief does not establish them.
 Keep stable IDs across revisions, preserve unaffected choices, explain uncertainty.
+open_question_ids (optional, parallel to open_questions, same length and order): give each open question a
+stable id q-<slug>. Keep an existing question's id when it continues, even if you reword it or move it;
+mint a new id only for a genuinely new question. Never reuse an id of a question that was removed. Equal or
+similar wording does not make two questions the same; say so by keeping or changing ids deliberately.
 Resolve story-mechanics questions with coherent, revisable provisional defaults
 when the supplied vision supports them. Put those defaults in the architecture
 and identify them as agent proposals; do not turn them into required author
@@ -1059,6 +1068,10 @@ def project_architecture(store: CanvasStore) -> dict:
             current["candidate"] if current else None,
         ),
         "author_emotion_grounding": (current or {}).get("author_emotion_grounding"),
+        "question_changes": (review or {}).get("question_changes") if review else (
+            (_read(_root(store) / "requests" / current["request_sha256"] / "review.json") or {}).get("question_changes")
+            if current else None
+        ),
     }
 
 
@@ -1793,6 +1806,13 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 "the author's creative intentions changed; response retained as stale evidence"
             )
         _validate_author_provenance(proposal, submitted)
+        identity_check = proposal.model_dump(mode="json")
+        identity_history = [version for _sha, version in architecture_versions(store)]
+        identity_issues = question_identity_problems(
+            identity_check, current["candidate"] if current else None, identity_history,
+        )
+        if identity_issues:
+            raise ValueError("open question identities: " + "; ".join(identity_issues))
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
         accepted_identity = (submitted.get("narrative_design_context") or {}).get(
@@ -1806,6 +1826,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             "premise_status": premise_status(candidate, accepted_identity),
             "working_interpretations": interpretations_projection(candidate),
             "author_emotion_grounding": _author_emotion_grounding(proposal, submitted),
+            "question_changes": question_changes(current["candidate"] if current else None, candidate),
         }
         if submitted.get("collaboration"):
             record["collaboration"] = submitted["collaboration"]

@@ -1967,6 +1967,29 @@
           ' kept by this Book, each recorded against one of the Architecture’s open questions'+
           (b.freshness==='ready'?'':' as they stood when the Book was written; the Architecture has changed since, so those bindings are not checked here')+
           '. They stay yours to decide.'));
+        if((b.question_references||[]).length){
+          var qbox=el('div','atl-decision-questions');
+          qbox.append(el('h5','atl-series-subtitle','Open questions these decisions refer to'));
+          var qul=el('ul','atl-series-elements');
+          var QSTAND={current_wording:'The question as it now stands; the decision refers to it.',
+            moved:'Same wording, now at another position.',
+            reworded:'Wording changed since the decision was written; the question keeps its identity. It may warrant reconsideration.',
+            moved_and_reworded:'Moved and reworded since the decision was written. It may warrant reconsideration.',
+            removed:'No longer open in the Architecture. Removing it is not an answer.',
+            identity_not_established:'A recorded wording reference; this question has no identity yet.',
+            version_unavailable:'The Architecture version this decision was written against cannot be read.',
+            binding_mismatch:'The recorded wording does not match the version the Book names.'};
+          b.question_references.forEach(function(q){
+            var li=el('li','');
+            li.append(el('span','atl-series-text',q.current_text||q.recorded_text||'(no recorded wording)'));
+            li.append(el('span','atl-series-kind',QSTAND[q.state]||q.state));
+            if(q.recorded_text&&q.current_text&&q.recorded_text!==q.current_text)
+              li.append(el('span','atl-series-kind','Earlier wording: '+q.recorded_text));
+            li.append(el('span','atl-technical',(q.question_id?q.question_id+' · ':'')+'decision '+q.decision_id));
+            qul.append(li);
+          });
+          qbox.append(qul);det.append(qbox);
+        }
         var src=el('p','atl-provenance');src.append(sourceChip(b.source),chip('Written against request '+String(b.written_against_request||'').slice(0,10)));det.append(src);
         var how=el('details','atl-series-how');how.append(el('summary','','How this plan is changed'));
         how.append(el('p','atl-note','Through its own owner and its reviewed workflow. Choose an element above and Develop it: the Working Book owner prepares '+
