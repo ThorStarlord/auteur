@@ -736,7 +736,7 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             artifact, packet["series_architecture"]["candidate"], set(packet["visible_source_ids"]),
         )
         _check_semantics(artifact)
-        _stamp_decision_versions(artifact, None, None, settings["series_request_sha256"])
+        _stamp_decision_versions(artifact, None, None, settings["series_request_sha256"], rebases_book=True)
         write_host_agent_response(base / "requests" / sha / "response.json", response)
         series_nodes = {node["id"]: _digest(node) for node in packet["series_architecture"]["candidate"]["nodes"]}
         artifact_json = artifact.model_dump(mode="json")
@@ -1342,18 +1342,21 @@ _TOP_LEVEL = ("title", "book_number", "schema_version")
 
 def _stamp_decision_versions(
     artifact: WorkingBookArchitecture, recorded: WorkingBookArchitecture | None,
-    recorded_version: str | None, series_version: str,
+    recorded_version: str | None, series_version: str, *, rebases_book: bool,
 ) -> None:
     """Record the Series version each author decision's question binding was written against.
 
-    A decision the Book already held keeps the version it was written against. One written before this field
-    existed takes the Book's recorded baseline, the only version it could have been bound to. A new decision is
-    bound to the Series version the revision was validated against. The owner sets this; a response cannot.
+    When the revision moves the Book onto the validated Series version (a holistic revision, or a targeted one of a
+    Book that was current), every decision was checked against that version, so each takes it: the index and wording
+    were verified there, and that is what makes an identity-bearing version establish a legacy decision's question.
+    A partial revision of an out-of-date Book keeps the Book's older baseline for what it does not touch, so a
+    decision keeps the version it already had; one stored before this field existed takes the recorded baseline.
+    A new decision is bound to the version the revision was validated against. The owner sets this; a response cannot.
     """
     known = {item.id: item for item in (recorded.open_author_decisions if recorded else [])}
     for decision in artifact.open_author_decisions:
         prior = known.get(decision.id)
-        if prior is None:
+        if prior is None or rebases_book:
             decision.series_question_version = series_version
         else:
             decision.series_question_version = prior.series_question_version or recorded_version
@@ -1842,8 +1845,12 @@ def _complete_revision(
         candidate, series_view, set(packet["visible_source_ids"]), baseline=baseline,
     )
     _check_semantics(candidate)
+    partial = settings["mode"] != "holistic" and (
+        current["series_request_sha256"] != settings["series_request_sha256"]
+        or current["source_sha256"] != settings["source_sha256"])
     _stamp_decision_versions(
         candidate, baseline, current["series_request_sha256"], settings["series_request_sha256"],
+        rebases_book=not partial,
     )
     base_index = _index_elements(baseline)
     cand_index = _index_elements(candidate)

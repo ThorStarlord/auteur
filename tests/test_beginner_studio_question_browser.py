@@ -18,7 +18,8 @@ sys.path.insert(0, str(REPO / "scripts"))
 sys.path.insert(0, str(REPO / "tests"))
 import seed_book_discovery_study as discovery  # noqa: E402
 import seed_book_impact_study as impact  # noqa: E402
-from test_persistent_narrative_questions import assign_identities  # noqa: E402
+from test_persistent_narrative_questions import assign_identities, identity_for  # noqa: E402
+from auteur.beginner.studio_store import CanvasStore  # noqa: E402
 
 CANVAS = discovery.SPRING
 LEDGER = "structure|structure-node:eng_ledger"
@@ -69,6 +70,48 @@ def test_a_decision_question_is_asked_about_and_the_desk_asks_the_question(brows
         page.wait_for_function(
             "document.querySelector('#architecture-creative-agent-panel [role=status]').textContent.includes('prepared')",
             timeout=15000)
+        assert not errors
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=5)
+
+
+def test_a_reworded_question_is_shown_beside_the_book_decision_that_refers_to_it(browser, identified, tmp_path):
+    """Across Books: the Architecture rewords a question a Book decision refers to. The Book's row says so, the
+    Book keeps its own freshness, and the decision can still be asked about."""
+    project = tmp_path / "discovery"
+    shutil.copytree(identified, project)
+
+    def reword(candidate):
+        index = candidate["open_question_ids"].index(identity_for(14))
+        candidate["open_questions"][index] += " Revised."
+
+    impact.revise_architecture(CanvasStore(project, CANVAS), "Reword the Gate Table question.", reword)
+    server = BeginnerWorkspaceServer(project, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": 1440, "height": 900})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas={CANVAS}&atelier", wait_until="networkidle")
+        page.wait_for_selector("#studio-atelier .atl-star", state="attached", timeout=20000)
+        time.sleep(0.6)
+        page.evaluate("(id) => document.querySelector('#studio-atelier .atl-star[data-id=\"' + id + '\"]').click()", LEDGER)
+        page.wait_for_function("document.querySelector('#studio-atelier .atl-series .atl-series-status')", timeout=10000)
+        # The line is in Book 24's own row of the overview, not anywhere else on the page.
+        row = page.evaluate("""() => {
+          const hit = [...document.querySelectorAll('#studio-atelier *')]
+            .find(e => e.children.length === 0 && /may warrant reconsideration/.test(e.textContent));
+          for (let node = hit; node; node = node.parentElement) {
+            if ((node.innerText || '').includes('Book 24')) return node.innerText;
+          }
+          return null;
+        }""")
+        assert row and "A recorded decision refers to an earlier formulation of an open question" in row, row
+        page.locator('#studio-atelier [data-key="series-open:24"]').click()
+        page.wait_for_selector("#studio-atelier .atl-decision-questions", timeout=10000)
+        assert page.locator('#studio-atelier [data-key^="book-question:24:"]').count() >= 1
         assert not errors
     finally:
         page.close()
