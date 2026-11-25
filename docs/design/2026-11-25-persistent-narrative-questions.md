@@ -109,6 +109,27 @@ Owner rules enforced at completion (`question_identity_problems`):
 - **Revision history for a question** is available through the owner's history reader (`question_history`) and the
   revision chain. It has no dedicated Atelier view yet.
 
+## H2. Downgrade limitation for new decision-version records
+
+- A Book record written after this change carries `series_question_version` on each author decision, and its review
+  carries `decision_versions`. The pre-change decision model forbids unknown fields (`extra="forbid"`), so the
+  pre-change code refuses such a record, and it does not read the review key. Records written before this change are
+  unchanged and read by either version.
+- Rolling back therefore means restoring each Book's `current.json` (and `requests/<sha>/review.json`) from before the
+  change, or reverting the Book's revision. Reverting only the code is not a clean rollback for records written since.
+- The same is true of the Architecture's identity fields: a version that carries `open_question_ids` is refused by the
+  pre-change candidate schema. Versions without identities are stored exactly as before.
+
+## H3. Rebinding a legacy decision
+
+- A whole-Book revision against an identity-bearing version re-validates each decision's index and wording against that
+  version, and the decision then names the identity at that position. The review records the version it was bound to
+  before (`from_request_sha256`) and the version it was checked against (`to_request_sha256`). Nothing is erased: the
+  wording digest and position are the same as recorded.
+- This asserts a current binding, not historical continuity. The identity is the Architecture's declaration of the
+  question at that exact position and wording; it is not inferred from similarity, and nothing says the decision was
+  written against that identity.
+
 ## I. Verification
 
 - `tests/test_studio_architecture_questions.py`: the pure identity rules (reordering, rewording, replacement, removal,

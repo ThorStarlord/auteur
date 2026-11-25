@@ -1848,10 +1848,20 @@ def _complete_revision(
     partial = settings["mode"] != "holistic" and (
         current["series_request_sha256"] != settings["series_request_sha256"]
         or current["source_sha256"] != settings["source_sha256"])
+    # What each decision was bound to before this revision: its own version, or for one stored before versions
+    # were recorded, the Book's baseline. Recorded in the review so a re-validation never erases the earlier binding.
+    bound_before = {item.id: item.series_question_version or current["series_request_sha256"]
+                    for item in baseline.open_author_decisions}
     _stamp_decision_versions(
         candidate, baseline, current["series_request_sha256"], settings["series_request_sha256"],
         rebases_book=not partial,
     )
+    decision_versions = [
+        {"decision_id": item.id, "from_request_sha256": bound_before.get(item.id),
+         "to_request_sha256": item.series_question_version}
+        for item in candidate.open_author_decisions
+        if bound_before.get(item.id) != item.series_question_version
+    ]
     base_index = _index_elements(baseline)
     cand_index = _index_elements(candidate)
     _enforce_revision_rules(base_index, cand_index)
@@ -1861,6 +1871,7 @@ def _complete_revision(
         settings=settings, instruction=packet["instruction"], series_node_ids=series_node_ids,
         request_sha256=sha,
     )
+    review["decision_versions"] = decision_versions
     write_host_agent_response(base / "requests" / sha / "response.json", response)
     _atomic_json_write(base / "requests" / sha / "review.json", review)
     return book_project(store, book_number)
@@ -2021,6 +2032,7 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
             "lineage": lineage,
             "applied_review": {
                 "mode": review["mode"],
+                "decision_versions": review.get("decision_versions", []),
                 "added": [entry["id"] for entry in review["changes"]["added"]],
                 "changed": changed_ids,
                 "removed": [entry["id"] for entry in review["changes"]["removed"]],

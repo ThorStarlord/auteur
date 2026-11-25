@@ -152,3 +152,35 @@ def test_two_books_that_refer_to_one_continuing_question_each_name_it_through_th
         ref = refs[f"dec-last-question-{number}"]
         assert ref["state"] == "current_wording" and ref["question_id"] == identifier, (number, ref)
         assert ref["version_request_sha256"] == series["request_sha256"], (number, ref)
+
+
+def test_a_holistic_reconciliation_records_each_decision_it_rebinds_and_keeps_its_wording_and_index(project):
+    """The legacy decision gains its current identity by a whole-Book revision, and the review keeps the earlier version."""
+    store = CanvasStore(project, seed.SPRING)
+    before = stored_book(project, 24)
+    gate_before = next(d for d in before["artifact"]["open_author_decisions"] if d["id"] == "dec-gate-table")
+    seed.revise_architecture(store, "Give each open question a stable identity.", assign_identities)
+    series = _candidate(store)
+    prepared = book_prepare(store, 24, instruction="Bring Book 24 up to date with the Architecture.", holistic=True)
+    book_complete(store, 24, respond(prepared["request"], reconciled(project, 24)))
+    applied = book_apply_review(store, 24, prepared["pending_request_sha256"])
+    assert applied["currentness"] == "current"
+
+    after = stored_book(project, 24)
+    gate_after = next(d for d in after["artifact"]["open_author_decisions"] if d["id"] == "dec-gate-table")
+    # The wording and the position the decision names are exactly as recorded.
+    assert gate_after["series_question_index"] == gate_before["series_question_index"]
+    assert gate_after["series_question_sha256"] == gate_before["series_question_sha256"]
+    # The review keeps the version it was bound to before, and the version it was checked against.
+    review_path = (project / ".auteur/beginner/studio/canvases" / seed.SPRING / "architecture/books/24/requests"
+                   / prepared["pending_request_sha256"] / "review.json")
+    review = json.loads(review_path.read_text(encoding="utf-8"))
+    change = next(c for c in review["decision_versions"] if c["decision_id"] == "dec-gate-table")
+    assert change["from_request_sha256"] == before["series_request_sha256"]
+    assert change["to_request_sha256"] == series["request_sha256"]
+    assert after["applied_review"]["decision_versions"] == review["decision_versions"]
+    # The current binding is valid and names the identity at that position, with no claim about earlier history.
+    ref = references(store)["dec-gate-table"]
+    assert ref["state"] == "current_wording"
+    assert ref["question_id"] == series["candidate"]["open_question_ids"][gate_after["series_question_index"]]
+    assert ref["version_request_sha256"] == series["request_sha256"]
