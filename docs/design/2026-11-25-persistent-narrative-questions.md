@@ -60,6 +60,13 @@ Owner rules enforced at completion (`question_identity_problems`):
   candidates) and `question_changes` on new review records. Existing request identities and fingerprints are unchanged.
 - A new Working Book decision may carry `series_question_id`. When the Series version has identities, a decision
   naming the question must carry the matching id; a mismatch is refused by the Working Book owner.
+- Each decision records the Series version its question binding was written against (`series_question_version`).
+  The owner sets it; a response cannot. A decision already in the Book keeps its version through every later
+  revision, including a partial revision of an out-of-date Book whose Book-wide baseline stays older. A new decision
+  takes the version its revision was validated against. A decision stored before this field existed takes the Book's
+  recorded baseline when it is next revised, the only version it could have been bound to. Before this correction a
+  decision added by a partial revision resolved against the older baseline (a mixed-version Book could misattribute
+  its question); a reproduction test records that defect.
 
 ## E. Cross-Book decision continuity
 
@@ -89,8 +96,9 @@ Owner rules enforced at completion (`question_identity_problems`):
 - **Atelier ask action on a question** is implemented: a decision whose question is anchorable offers "Ask about this
   question", which opens the desk on the question with the Book element as evidence. It is verified by a served browser
   test and by the probe on the Spring Ledger study. It has not been judged by a human author.
-- **Explicit rebinding of a Book decision to a new version** is not a dedicated flow. A Book revision re-validates the
-  decision against the current Series version through the existing owner path.
+- **Rebinding an existing Book decision to a new Series version** is not a flow. The owner keeps each decision's
+  recorded binding (the revision rules fix it). An author who wants a decision to name a reworded or moved question
+  writes a new decision against the current version; the earlier one stays as it was recorded.
 - **Split and merge lineage** is represented as removal plus introduction, as the brief allows. No general lineage
   engine was built.
 - **Semantic equivalence** is not judged by the system. It is left to the author through review.

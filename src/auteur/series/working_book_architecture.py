@@ -214,6 +214,9 @@ class DecisionElement(BookElement):
     # The Series question's stable identity, when the Series version records one. Validated against that
     # question at the index; a decision never takes the question that later occupies its former position.
     series_question_id: str | None = Field(default=None, pattern=QUESTION_ID_PATTERN)
+    # The Series version this binding was written against. Set by the owner, never taken from a response: a
+    # decision keeps it across partial revisions, whose Book-wide baseline may stay older (see _stamp_decision_versions).
+    series_question_version: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
 
     def _has_source_reference(self) -> bool:
         return True  # the binding to the Series open question is the source reference
@@ -733,6 +736,7 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             artifact, packet["series_architecture"]["candidate"], set(packet["visible_source_ids"]),
         )
         _check_semantics(artifact)
+        _stamp_decision_versions(artifact, None, None, settings["series_request_sha256"])
         write_host_agent_response(base / "requests" / sha / "response.json", response)
         series_nodes = {node["id"]: _digest(node) for node in packet["series_architecture"]["candidate"]["nodes"]}
         artifact_json = artifact.model_dump(mode="json")
@@ -759,7 +763,7 @@ def _decision_question_reference(decision: DecisionElement, record: dict, versio
     The Book's record names the Series version it was written against. The decision's index and digest must match
     that exact version; nothing resolves to whatever question occupies the index now.
     """
-    version_sha = record.get("series_request_sha256")
+    version_sha = decision.series_question_version or record.get("series_request_sha256")
     version = versions.get(version_sha)
     if version is None:
         return {"state": "version_unavailable", "version_request_sha256": version_sha}
@@ -1336,6 +1340,25 @@ _CHANGE_FIELDS = ("attribution", "epistemic_status", "provenance", "reversal", "
 _TOP_LEVEL = ("title", "book_number", "schema_version")
 
 
+def _stamp_decision_versions(
+    artifact: WorkingBookArchitecture, recorded: WorkingBookArchitecture | None,
+    recorded_version: str | None, series_version: str,
+) -> None:
+    """Record the Series version each author decision's question binding was written against.
+
+    A decision the Book already held keeps the version it was written against. One written before this field
+    existed takes the Book's recorded baseline, the only version it could have been bound to. A new decision is
+    bound to the Series version the revision was validated against. The owner sets this; a response cannot.
+    """
+    known = {item.id: item for item in (recorded.open_author_decisions if recorded else [])}
+    for decision in artifact.open_author_decisions:
+        prior = known.get(decision.id)
+        if prior is None:
+            decision.series_question_version = series_version
+        else:
+            decision.series_question_version = prior.series_question_version or recorded_version
+
+
 def _index_elements(artifact: WorkingBookArchitecture) -> dict[str, dict]:
     """Identity and content of every element and typed edge.
 
@@ -1345,6 +1368,8 @@ def _index_elements(artifact: WorkingBookArchitecture) -> dict[str, dict]:
     index: dict[str, dict] = {}
     for collection, element in _labelled_elements(artifact):
         exclude = _NESTED_FIELDS if isinstance(element, ChoiceBlock) else None
+        if isinstance(element, DecisionElement):
+            exclude = {"series_question_version"}
         own = element.model_dump(mode="json", exclude=exclude)
         index[element.id] = {"collection": collection, "own": own, "hash": _digest(own),
                              "element": element, "edge": None}
@@ -1817,6 +1842,9 @@ def _complete_revision(
         candidate, series_view, set(packet["visible_source_ids"]), baseline=baseline,
     )
     _check_semantics(candidate)
+    _stamp_decision_versions(
+        candidate, baseline, current["series_request_sha256"], settings["series_request_sha256"],
+    )
     base_index = _index_elements(baseline)
     cand_index = _index_elements(candidate)
     _enforce_revision_rules(base_index, cand_index)

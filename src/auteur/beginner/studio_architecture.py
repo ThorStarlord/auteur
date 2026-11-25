@@ -1338,6 +1338,15 @@ def _is_first_version(store: CanvasStore, sha: str) -> bool:
         return False
 
 
+def _stored_shape(candidate: dict) -> dict:
+    """The candidate as it is stored. A version without identities carries no identity key at all, exactly as
+    before identities existed: the digest a Working Book binds to depends on this shape, so every reader that
+    rebuilds a version from its response must normalise it the same way the writer does."""
+    if candidate.get("open_question_ids") is None:
+        candidate.pop("open_question_ids", None)
+    return candidate
+
+
 def _version_candidate(store: CanvasStore, sha: str) -> dict | None:
     """One applied version's candidate: from its review, or for the first version its stored response,
     validated the way it was when it was completed. None when it cannot be read."""
@@ -1347,8 +1356,8 @@ def _version_candidate(store: CanvasStore, sha: str) -> dict | None:
         if review and isinstance(review.get("candidate"), dict):
             return review["candidate"]
         response = _read(folder / "response.json")
-        return ArchitectureCandidate.model_validate_json(
-            response["text"], context={"new_host_agent_response": True}).model_dump(mode="json")
+        return _stored_shape(ArchitectureCandidate.model_validate_json(
+            response["text"], context={"new_host_agent_response": True}).model_dump(mode="json"))
     except (OSError, TypeError, KeyError, ValueError):
         return None
 
@@ -1814,10 +1823,7 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
         if identity_issues:
             raise ValueError("open question identities: " + "; ".join(identity_issues))
         write_host_agent_response(base / "response.json", response)
-        candidate = proposal.model_dump(mode="json")
-        # A version without identities is stored exactly as it was before identities existed.
-        if candidate.get("open_question_ids") is None:
-            candidate.pop("open_question_ids", None)
+        candidate = _stored_shape(proposal.model_dump(mode="json"))
         accepted_identity = (submitted.get("narrative_design_context") or {}).get(
             "accepted_story_identity"
         )
