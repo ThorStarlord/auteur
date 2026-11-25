@@ -61,8 +61,10 @@ Owner rules enforced at completion (`question_identity_problems`):
 - A new Working Book decision may carry `series_question_id`. When the Series version has identities, a decision
   naming the question must carry the matching id; a mismatch is refused by the Working Book owner.
 - Each decision records the Series version its question binding was written against (`series_question_version`).
-  The owner sets it; a response cannot. A decision already in the Book keeps its version through every later
-  revision, including a partial revision of an out-of-date Book whose Book-wide baseline stays older. A new decision
+  The owner sets it; a response cannot. A revision that moves the Book onto a Series version (a holistic revision, or a
+  targeted one of a current Book) checks every decision's index and wording against that version, and each decision
+  takes it: this is how a legacy decision becomes identity-bearing. A partial revision of an out-of-date Book keeps the
+  Book's older baseline for what it does not touch, so each decision keeps the version it already had. A new decision
   takes the version its revision was validated against. A decision stored before this field existed takes the Book's
   recorded baseline when it is next revised, the only version it could have been bound to. Before this correction a
   decision added by a partial revision resolved against the older baseline (a mixed-version Book could misattribute
