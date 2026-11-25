@@ -17,6 +17,8 @@
     complex_emotion:['inspect','trace','explain','explore','revise'],
     genre_contract:['inspect','trace','challenge','explore','revise'],
     phase:['inspect','trace','challenge','explore','revise'],
+    // An open question is inspected and asked about; it is not a graph node and has no revision of its own here.
+    question:['inspect','challenge','explore'],
   };
   var LABELS={inspect:'Inspect recorded source',trace:'Trace recorded relationships',
     explain:'Explain this narrative role',challenge:'Challenge this design',
@@ -24,6 +26,12 @@
     connect_to_ask:'Explore possible relationship',revise:'Request holistic revision'};
   function array(x){return Array.isArray(x)?x:[];}
   function address(candidate,a){
+    if(a.kind==='question'){
+      if(a.field||a.reference||(a.index!==undefined&&a.index!==null))throw Error('A question names the whole open question');
+      var ids=array(candidate?.open_question_ids),texts=array(candidate?.open_questions),qi=ids.indexOf(a.id);
+      if(qi<0)throw Error('Selected question not recorded: '+a.id);
+      return {kind:'question',id:a.id,sourceRef:'open_questions/'+qi,record:{id:a.id,text:texts[qi]},label:texts[qi],index:qi};
+    }
     var cfg=TYPES[a.kind];if(!cfg)throw Error('Unknown source kind');
     var rows=array(candidate?.[cfg[0]]);
     var i=rows.findIndex(x=>x&&x[cfg[1]]===a.id);

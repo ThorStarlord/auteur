@@ -1866,6 +1866,23 @@
       box.append(ask,row2);det.append(box);
       if(d.focusPending){d.focusPending=false;global.setTimeout(function(){var t=folio.querySelector('[data-key="book-discovery-h:'+n+'"]');if(t){t.focus({preventScroll:true});reveal(t);}},0);}
     }
+    // A decision's question is asked as the question itself. The Book's evidence is the decision element as its own
+    // owner reads it now; the author writes the question. Asking changes neither the Architecture nor the Book.
+    function askQuestion(n,q){
+      if(!binding.onDevelop||!binding.books){refusal(n,'The Book cannot be read here, so its question cannot be asked about.');return;}
+      binding.books.read(n).then(function(result){
+        var data=result.data,row=(data.elements||[]).find(function(e){return e.id===q.decision_id;});
+        if(!row){refusal(n,'The decision this question comes from is no longer in Book '+n+', so it cannot be asked about.');return;}
+        var anchor={kind:'question',id:q.question_id};
+        binding.onDevelop({conceptId:null,title:q.current_text||q.recorded_text||'Open question',anchor:anchor,
+          precision:'question',subject:'Open question',quote:q.current_text||'',sourceRef:'open_questions/'+q.current_index,
+          operation:'explore',draft:'',bookEvidence:{book_number:n,element_id:row.id,
+            expected_book_request_sha256:data.book.request_sha256,expected_element_content_sha256:row.content_sha256,
+            kind:B.kind(row.collection),text:row.text||'',revision_number:data.book.revision_number,
+            standing:X.AUTHORITY[row.commitment_authority]||row.commitment_authority,
+            epistemic_status:row.epistemic_status,attribution:row.attribution,anchors:[anchor]}});
+      }).catch(function(error){refusal(n,'Could not read Book '+n+' to ask about its question: '+error.message);});
+    }
     function investigate(n,d,row,data){
       var cn=conceptForNode(d.anchor),draft=discoveryDraft(d);
       if(!cn){refusal(n,'“'+d.anchor+'” is not in the working Architecture any more, so it cannot be asked about.');return;}
@@ -1986,6 +2003,10 @@
             if(q.recorded_text&&q.current_text&&q.recorded_text!==q.current_text)
               li.append(el('span','atl-series-kind','Earlier wording: '+q.recorded_text));
             li.append(el('span','atl-technical',(q.question_id?q.question_id+' · ':'')+'decision '+q.decision_id));
+            if(binding.onDevelop&&q.question_id&&q.decision_id&&['current_wording','moved','reworded','moved_and_reworded'].indexOf(q.state)>=0){
+              var askQ=actionButton(li,'Ask about this question',function(){askQuestion(b.book_number,q);},'book-question:'+b.book_number+':'+q.decision_id);
+              askQ.classList.add('atl-action-quiet');
+            }
             qul.append(li);
           });
           qbox.append(qul);det.append(qbox);
