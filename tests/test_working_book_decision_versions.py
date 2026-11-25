@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from auteur.beginner.studio_architecture import _candidate
+from auteur.beginner.studio_architecture import _candidate, architecture_revision_chain
 from auteur.beginner.studio_architecture_questions import text_digest
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import HostAgentRequest, build_host_agent_response
@@ -178,9 +178,84 @@ def test_a_holistic_reconciliation_records_each_decision_it_rebinds_and_keeps_it
     change = next(c for c in review["decision_versions"] if c["decision_id"] == "dec-gate-table")
     assert change["from_request_sha256"] == before["series_request_sha256"]
     assert change["to_request_sha256"] == series["request_sha256"]
+    assert change["question_id_before"] is None
+    assert change["question_id_after"] == series["candidate"]["open_question_ids"][gate_after["series_question_index"]]
     assert after["applied_review"]["decision_versions"] == review["decision_versions"]
     # The current binding is valid and names the identity at that position, with no claim about earlier history.
     ref = references(store)["dec-gate-table"]
     assert ref["state"] == "current_wording"
     assert ref["question_id"] == series["candidate"]["open_question_ids"][gate_after["series_question_index"]]
     assert ref["version_request_sha256"] == series["request_sha256"]
+
+
+def _establish(store, project):
+    """Identities on the current Architecture, and Book 24 written against them (the decision names its identity)."""
+    seed.revise_architecture(store, "Give each open question a stable identity.", assign_identities)
+    prepared = book_prepare(store, 24, instruction="Bring Book 24 up to date with the Architecture.", holistic=True)
+    book_complete(store, 24, respond(prepared["request"], reconciled(project, 24)))
+    assert book_apply_review(store, 24, prepared["pending_request_sha256"])["currentness"] == "current"
+
+
+def test_a_book_can_still_be_revised_after_a_question_it_cites_is_reworded(project):
+    """A cited question reworded by the Architecture is reported on the decision; it never blocks the Book's revision."""
+    store = CanvasStore(project, seed.SPRING)
+    _establish(store, project)
+    index = stored_book(project, 24)["artifact"]["open_author_decisions"]
+    index = next(d for d in index if d["id"] == "dec-gate-table")["series_question_index"]
+
+    def reword(candidate):
+        candidate["open_questions"][index] += " Revised."
+
+    seed.revise_architecture(store, "Reword the Gate Table question.", reword)
+    prepared = book_prepare(store, 24, instruction="Bring Book 24 up to date with the Architecture.", holistic=True)
+    book_complete(store, 24, respond(prepared["request"], reconciled(project, 24)))  # must not refuse
+    assert book_apply_review(store, 24, prepared["pending_request_sha256"])["currentness"] == "current"
+    ref = references(store)["dec-gate-table"]
+    assert ref["state"] == "reworded", ref
+    assert ref["question_id"] == _candidate(store)["candidate"]["open_question_ids"][index]
+    assert ref["version_request_sha256"] != _candidate(store)["request_sha256"]  # still the version it was checked against
+
+
+def test_a_recorded_question_identity_cannot_be_changed_by_a_revision(project):
+    store = CanvasStore(project, seed.SPRING)
+    _establish(store, project)
+    identifier = _candidate(store)["candidate"]["open_question_ids"]
+    gate_index = next(d for d in stored_book(project, 24)["artifact"]["open_author_decisions"]
+                      if d["id"] == "dec-gate-table")["series_question_index"]
+    # The decision gains its identity, which the Series question at its position carries.
+    artifact = reconciled(project, 24)
+    gate = next(d for d in artifact["open_author_decisions"] if d["id"] == "dec-gate-table")
+    # A changed decision takes the form a revision requires: derived from its Series question, and unresolved.
+    gate.update({"provenance": None, "attribution": "derived", "epistemic_status": "unresolved",
+                 "series_question_id": identifier[gate_index]})
+    prepared = book_prepare(store, 24, instruction="Record the identity the decision names.", holistic=True)
+    book_complete(store, 24, respond(prepared["request"], artifact))
+    assert book_apply_review(store, 24, prepared["pending_request_sha256"])["currentness"] == "current"
+    assert references(store)["dec-gate-table"]["question_id"] == identifier[gate_index]
+    # Once recorded, the identity cannot name another question by a later revision.
+    artifact = reconciled(project, 24)
+    next(d for d in artifact["open_author_decisions"] if d["id"] == "dec-gate-table")["series_question_id"] = "q-elsewhere"
+    prepared = book_prepare(store, 24, instruction="Try to name another question.", holistic=True)
+    with pytest.raises(ValueError, match="cannot be changed"):
+        book_complete(store, 24, respond(prepared["request"], artifact))
+
+
+def test_identities_are_refused_while_the_revision_history_cannot_be_read(project):
+    store = CanvasStore(project, seed.SPRING)
+    chain = architecture_revision_chain(store)
+    middle = chain["requests"][1]
+    review = project / ".auteur/beginner/studio/canvases" / seed.SPRING / "architecture/requests" / middle / "review.json"
+    review.unlink()
+    assert architecture_revision_chain(store)["complete"] is False
+    with pytest.raises(ValueError, match="cannot be read"):
+        seed.revise_architecture(store, "Give each open question a stable identity.", assign_identities)
+
+
+def test_a_decision_with_no_identity_or_version_keeps_the_shape_it_always_had():
+    from auteur.series.working_book_architecture import DecisionElement
+    raw = {"id": "dec-legacy", "text": "A decision written before identities.", "refs": [],
+           "provenance": "unresolved", "attribution": None, "epistemic_status": None, "interpretation": None,
+           "series_question_index": 1, "series_question_sha256": "a" * 64}
+    dumped = DecisionElement.model_validate(raw).model_dump(mode="json")
+    assert "series_question_id" not in dumped and "series_question_version" not in dumped
+    assert set(dumped) == set(raw)

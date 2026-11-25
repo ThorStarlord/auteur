@@ -1816,7 +1816,12 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             )
         _validate_author_provenance(proposal, submitted)
         identity_check = proposal.model_dump(mode="json")
-        identity_history = [version for _sha, version in architecture_versions(store)]
+        chain = architecture_revision_chain(store)
+        identity_history = [version for _sha, version in architecture_versions(store, requests=chain["requests"])]
+        if current is not None and not chain["complete"]:
+            # An unreadable or unfinished history cannot rule out a retired identity, so new identities are refused.
+            # With no earlier Architecture there is no history to rule out.
+            identity_history.append(None)
         identity_issues = question_identity_problems(
             identity_check, current["candidate"] if current else None, identity_history,
         )

@@ -19,7 +19,7 @@ import re
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from auteur.beginner.persistence import BeginnerConcurrencyError, _FilesystemLock
 from auteur.beginner.studio_architecture import _candidate, _current_candidate_freshness, architecture_versions
@@ -217,6 +217,15 @@ class DecisionElement(BookElement):
     # The Series version this binding was written against. Set by the owner, never taken from a response: a
     # decision keeps it across partial revisions, whose Book-wide baseline may stay older (see _stamp_decision_versions).
     series_question_version: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+
+    @model_serializer(mode="wrap")
+    def _omit_unset_versioning(self, handler):
+        # Records written before these fields existed keep their shape: an unset identity or version is no key.
+        data = handler(self)
+        for key in ("series_question_id", "series_question_version"):
+            if data.get(key) is None:
+                data.pop(key, None)
+        return data
 
     def _has_source_reference(self) -> bool:
         return True  # the binding to the Series open question is the source reference
@@ -493,14 +502,26 @@ def _check_references(
                 "author's source"
             )
     questions = series_candidate.get("open_questions", [])
+    identities = series_candidate.get("open_question_ids") or []
+    recorded = {item.id: item for item in baseline.open_author_decisions} if baseline is not None else {}
     for decision in artifact.open_author_decisions:
         index = decision.series_question_index
+        held = recorded.get(decision.id)
+        held_binding = held is not None and (held.series_question_index, held.series_question_sha256) == (
+            index, decision.series_question_sha256)
+        if held_binding and decision.series_question_id == held.series_question_id:
+            # A decision the Book already held keeps the binding it was checked against. The question may have been
+            # reworded or moved since: that is reported as a change to the question, and it never refuses the Book.
+            continue
+        if held_binding and held.series_question_id is not None:
+            problems.append(f"{decision.id}: a recorded question identity cannot be changed")
+            continue
+        # A new decision, or one gaining its identity, is checked against the Series revision the Book is built on.
         if index >= len(questions):
             problems.append(f"{decision.id}: Series open question {index} does not exist")
         elif _text_digest(questions[index]) != decision.series_question_sha256:
             problems.append(f"{decision.id}: Series open question {index} text changed; reference is stale")
         if decision.series_question_id is not None and index < len(questions):
-            identities = series_candidate.get("open_question_ids") or []
             if index >= len(identities) or identities[index] != decision.series_question_id:
                 problems.append(
                     f"{decision.id}: Series open question {index} is not {decision.series_question_id}; "
@@ -736,7 +757,10 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             artifact, packet["series_architecture"]["candidate"], set(packet["visible_source_ids"]),
         )
         _check_semantics(artifact)
-        _stamp_decision_versions(artifact, None, None, settings["series_request_sha256"], rebases_book=True)
+        _stamp_decision_versions(
+            artifact, None, None, settings["series_request_sha256"], rebases_book=True,
+            series_questions=packet["series_architecture"]["candidate"].get("open_questions", []),
+        )
         write_host_agent_response(base / "requests" / sha / "response.json", response)
         series_nodes = {node["id"]: _digest(node) for node in packet["series_architecture"]["candidate"]["nodes"]}
         artifact_json = artifact.model_dump(mode="json")
@@ -773,6 +797,8 @@ def _decision_question_reference(decision: DecisionElement, record: dict, versio
         return {"state": "binding_mismatch", "version_request_sha256": version_sha}
     identities = version.get("open_question_ids") or []
     identifier = identities[index] if index < len(identities) else None
+    if decision.series_question_id is not None and identifier != decision.series_question_id:
+        return {"state": "binding_mismatch", "version_request_sha256": version_sha}
     relation = relate_to_current(identifier, {"index": index, "text": questions[index]}, current)
     return {
         "state": relation["status"],
@@ -1340,9 +1366,15 @@ _CHANGE_FIELDS = ("attribution", "epistemic_status", "provenance", "reversal", "
 _TOP_LEVEL = ("title", "book_number", "schema_version")
 
 
+def _holds_at(decision: DecisionElement, questions: list[str]) -> bool:
+    """Whether the Series question a decision is bound to still carries the wording it recorded, at its position."""
+    index = decision.series_question_index
+    return index < len(questions) and _text_digest(questions[index]) == decision.series_question_sha256
+
+
 def _stamp_decision_versions(
     artifact: WorkingBookArchitecture, recorded: WorkingBookArchitecture | None,
-    recorded_version: str | None, series_version: str, *, rebases_book: bool,
+    recorded_version: str | None, series_version: str, *, rebases_book: bool, series_questions: list[str],
 ) -> None:
     """Record the Series version each author decision's question binding was written against.
 
@@ -1356,7 +1388,9 @@ def _stamp_decision_versions(
     known = {item.id: item for item in (recorded.open_author_decisions if recorded else [])}
     for decision in artifact.open_author_decisions:
         prior = known.get(decision.id)
-        if prior is None or rebases_book:
+        if prior is None or decision.series_question_id != prior.series_question_id:
+            decision.series_question_version = series_version
+        elif rebases_book and _holds_at(decision, series_questions):
             decision.series_question_version = series_version
         else:
             decision.series_question_version = prior.series_question_version or recorded_version
@@ -1854,11 +1888,21 @@ def _complete_revision(
                     for item in baseline.open_author_decisions}
     _stamp_decision_versions(
         candidate, baseline, current["series_request_sha256"], settings["series_request_sha256"],
-        rebases_book=not partial,
+        rebases_book=not partial, series_questions=series_view.get("open_questions", []),
     )
+    versions = dict(architecture_versions(store))
+    earlier = {item.id: item for item in baseline.open_author_decisions}
+
+    def question_at(sha: str | None, index: int) -> str | None:
+        ids = ((versions.get(sha) or {}).get("open_question_ids") or []) if sha is not None else []
+        return ids[index] if index < len(ids) else None
+
     decision_versions = [
         {"decision_id": item.id, "from_request_sha256": bound_before.get(item.id),
-         "to_request_sha256": item.series_question_version}
+         "to_request_sha256": item.series_question_version,
+         "question_id_before": (question_at(bound_before.get(item.id), earlier[item.id].series_question_index)
+                                 if item.id in earlier else None),
+         "question_id_after": question_at(item.series_question_version, item.series_question_index)}
         for item in candidate.open_author_decisions
         if bound_before.get(item.id) != item.series_question_version
     ]
