@@ -9,6 +9,7 @@ With ``pytest-xdist``, each worker process builds its own cache
 
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -18,6 +19,28 @@ import pytest
 from auteur.canonical_story import CanonicalStoryBootstrap
 
 _BOOTSTRAP_CACHE: Path | None = None
+
+
+def pytest_sessionstart(session: pytest.Session) -> None:
+    """Refuse to run unless ``auteur`` loads from this checkout's ``src``.
+
+    ``import auteur`` can silently resolve to another checkout (an editable install, or a PYTHONPATH that
+    points elsewhere). Every verdict would then describe the wrong source. The checkout is the one that
+    contains this file. The path is exported so subprocesses can be checked against the same expectation.
+    """
+    import auteur
+    from auteur.beginner import server as beginner_server
+
+    expected = (Path(__file__).resolve().parents[1] / "src").resolve()
+    for module in (auteur, beginner_server):
+        actual = Path(module.__file__).resolve()
+        if not actual.is_relative_to(expected):
+            pytest.exit(
+                f"provenance: {module.__name__} loads from {actual}, not from {expected}; "
+                "set PYTHONPATH to this checkout's src and run with python -m pytest",
+                returncode=3,
+            )
+    os.environ["AUTEUR_TEST_SRC"] = str(expected)
 
 
 def copy_bootstrap_template(dest: Path) -> Path:

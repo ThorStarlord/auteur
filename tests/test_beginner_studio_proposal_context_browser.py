@@ -138,7 +138,11 @@ def test_copied_scene_offers_suggested_relationships_and_its_architecture(tmp_pa
         text = page.locator("#scene-text")
         text.fill("Low tide. She found her place.")
         text.evaluate("t => { t.focus(); t.setSelectionRange(9, 9); }")
-        page.wait_for_function(saved)
+        page.wait_for_function(saved)  # may be the copy's status; the stored text is what is checked below
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline and not any(
+                i.id == scene_id and i.content == "Low tide. She found her place." for i in store.load().items):
+            time.sleep(0.05)
         refs.first.click()
         assert page.locator("#workspace-architecture").get_attribute("aria-pressed") == "true"
         assert "Nightly copying" in page.locator("main").inner_text()

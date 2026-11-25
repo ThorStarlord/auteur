@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auteur.beginner.persistence import BeginnerConcurrencyError, _FilesystemLock
 from auteur.beginner.studio_architecture import _candidate, _current_candidate_freshness, architecture_versions
+from auteur.beginner.studio_architecture_questions import QUESTION_ID_PATTERN, relate_to_current, text_digest
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import (
     HostAgentRequest,
@@ -210,6 +211,12 @@ class DecisionElement(BookElement):
     """An author decision, bound to one Series open question by index and text hash. It stays unresolved."""
     series_question_index: int = Field(ge=0, le=63)
     series_question_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    # The Series question's stable identity, when the Series version records one. Validated against that
+    # question at the index; a decision never takes the question that later occupies its former position.
+    series_question_id: str | None = Field(default=None, pattern=QUESTION_ID_PATTERN)
+    # The Series version this binding was written against. Set by the owner, never taken from a response: a
+    # decision keeps it across partial revisions, whose Book-wide baseline may stay older (see _stamp_decision_versions).
+    series_question_version: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
 
     def _has_source_reference(self) -> bool:
         return True  # the binding to the Series open question is the source reference
@@ -492,6 +499,13 @@ def _check_references(
             problems.append(f"{decision.id}: Series open question {index} does not exist")
         elif _text_digest(questions[index]) != decision.series_question_sha256:
             problems.append(f"{decision.id}: Series open question {index} text changed; reference is stale")
+        if decision.series_question_id is not None and index < len(questions):
+            identities = series_candidate.get("open_question_ids") or []
+            if index >= len(identities) or identities[index] != decision.series_question_id:
+                problems.append(
+                    f"{decision.id}: Series open question {index} is not {decision.series_question_id}; "
+                    "the identity reference does not match the question it names"
+                )
     if problems:
         raise ValueError("; ".join(problems[:20]))
 
@@ -722,6 +736,7 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             artifact, packet["series_architecture"]["candidate"], set(packet["visible_source_ids"]),
         )
         _check_semantics(artifact)
+        _stamp_decision_versions(artifact, None, None, settings["series_request_sha256"], rebases_book=True)
         write_host_agent_response(base / "requests" / sha / "response.json", response)
         series_nodes = {node["id"]: _digest(node) for node in packet["series_architecture"]["candidate"]["nodes"]}
         artifact_json = artifact.model_dump(mode="json")
@@ -740,6 +755,34 @@ def book_complete(store: CanvasStore, book_number: int, payload: dict) -> dict:
             "source_items": packet["author_source"]["book_source"],
         })
     return book_project(store, book_number)
+
+
+def _decision_question_reference(decision: DecisionElement, record: dict, versions: dict, current: dict | None) -> dict:
+    """Which Series question version a decision was written against, and how it relates to the current question.
+
+    The Book's record names the Series version it was written against. The decision's index and digest must match
+    that exact version; nothing resolves to whatever question occupies the index now.
+    """
+    version_sha = decision.series_question_version or record.get("series_request_sha256")
+    version = versions.get(version_sha)
+    if version is None:
+        return {"state": "version_unavailable", "version_request_sha256": version_sha}
+    questions = version.get("open_questions") or []
+    index = decision.series_question_index
+    if index >= len(questions) or text_digest(questions[index]) != decision.series_question_sha256:
+        return {"state": "binding_mismatch", "version_request_sha256": version_sha}
+    identities = version.get("open_question_ids") or []
+    identifier = identities[index] if index < len(identities) else None
+    relation = relate_to_current(identifier, {"index": index, "text": questions[index]}, current)
+    return {
+        "state": relation["status"],
+        "question_id": identifier,
+        "version_request_sha256": version_sha,
+        "recorded_index": index,
+        "recorded_text": questions[index],
+        "current_index": relation["current_index"],
+        "current_text": relation["current_text"],
+    }
 
 
 def book_resume(store: CanvasStore, book_number: int) -> dict:
@@ -804,6 +847,10 @@ def book_resume(store: CanvasStore, book_number: int) -> dict:
             {
                 "id": decision.id,
                 "series_question_index": decision.series_question_index,
+                "question": _decision_question_reference(
+                    decision, record, {sha: version for sha, version in architecture_versions(store)},
+                    (series or {}).get("candidate"),
+                ),
                 "current_text": questions[decision.series_question_index]
                 if decision.series_question_index < len(questions) else None,
                 "reference_stale": (
@@ -990,11 +1037,20 @@ def book_series_references(store: CanvasStore, book_number: int, *,
         if item["current"]:
             item["fields_changed"] = sorted(field for field in set(node) | set(current_nodes[key])
                                             if node.get(field) != current_nodes[key].get(field))
+    # Each author decision says which open question it refers to, and how that question now stands. A question
+    # change is reported here even when no node changed; it never changes the Book's own freshness status.
+    version_map = {sha: version for sha, version in (versions if versions is not None else architecture_versions(store))}
+    question_references = [
+        {"decision_id": decision.id,
+         **_decision_question_reference(decision, record, version_map, (series or {}).get("candidate"))}
+        for decision in artifact.open_author_decisions
+    ]
     return {
         "book_number": book_number,
         "authority": "working_noncanonical",
         "title": artifact.title,
         "question": artifact.function.question,
+        "question_references": question_references,
         "pressure": artifact.function.pressure,
         **_freshness(store, book_number, record),
         "request_sha256": record["request_sha256"],
@@ -1140,11 +1196,17 @@ def book_element_evidence(store: CanvasStore, book_number: int, element_id: str)
                       "present": bool(ref.get("present")),
                       "title": (ref.get("current") or {}).get("title") or (ref.get("recorded") or {}).get("title")})
     artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    decision = next((item for item in artifact.open_author_decisions if item.id == element_id), None)
+    decision_question = None
+    if decision is not None:
+        versions = {sha: version for sha, version in architecture_versions(store)}
+        decision_question = _decision_question_reference(decision, record, versions, (_candidate(store) or {}).get("candidate"))
     return {
         "book_number": book_number,
         "title": artifact.title,
         "revision_number": record.get("revision_number", 0),
         "book_request_sha256": record["request_sha256"],
+        "decision_question": decision_question,
         "book_content_sha256": record.get("content_sha256"),
         "written_against_architecture_request_sha256": record["series_request_sha256"],
         "freshness": _freshness(store, book_number, record)["freshness"],
@@ -1278,6 +1340,28 @@ _CHANGE_FIELDS = ("attribution", "epistemic_status", "provenance", "reversal", "
 _TOP_LEVEL = ("title", "book_number", "schema_version")
 
 
+def _stamp_decision_versions(
+    artifact: WorkingBookArchitecture, recorded: WorkingBookArchitecture | None,
+    recorded_version: str | None, series_version: str, *, rebases_book: bool,
+) -> None:
+    """Record the Series version each author decision's question binding was written against.
+
+    When the revision moves the Book onto the validated Series version (a holistic revision, or a targeted one of a
+    Book that was current), every decision was checked against that version, so each takes it: the index and wording
+    were verified there, and that is what makes an identity-bearing version establish a legacy decision's question.
+    A partial revision of an out-of-date Book keeps the Book's older baseline for what it does not touch, so a
+    decision keeps the version it already had; one stored before this field existed takes the recorded baseline.
+    A new decision is bound to the version the revision was validated against. The owner sets this; a response cannot.
+    """
+    known = {item.id: item for item in (recorded.open_author_decisions if recorded else [])}
+    for decision in artifact.open_author_decisions:
+        prior = known.get(decision.id)
+        if prior is None or rebases_book:
+            decision.series_question_version = series_version
+        else:
+            decision.series_question_version = prior.series_question_version or recorded_version
+
+
 def _index_elements(artifact: WorkingBookArchitecture) -> dict[str, dict]:
     """Identity and content of every element and typed edge.
 
@@ -1287,6 +1371,8 @@ def _index_elements(artifact: WorkingBookArchitecture) -> dict[str, dict]:
     index: dict[str, dict] = {}
     for collection, element in _labelled_elements(artifact):
         exclude = _NESTED_FIELDS if isinstance(element, ChoiceBlock) else None
+        if isinstance(element, DecisionElement):
+            exclude = {"series_question_version"}
         own = element.model_dump(mode="json", exclude=exclude)
         index[element.id] = {"collection": collection, "own": own, "hash": _digest(own),
                              "element": element, "edge": None}
@@ -1582,6 +1668,7 @@ def _revision_packet(
     nodes = {node["id"]: node for node in series["candidate"].get("nodes", [])}
     referenced = sorted({node for identifier in in_scope for node in _series_refs_of(index, identifier)})
     questions = series["candidate"].get("open_questions", [])
+    identities = series["candidate"].get("open_question_ids")
     return {
         "schema": REVISION_KIND,
         "operation": "revise",
@@ -1610,8 +1697,11 @@ def _revision_packet(
             "referenced_nodes": [nodes[node] for node in referenced if node in nodes],
             "node_index": [{"id": node["id"], "category": node["category"], "title": node["title"]}
                            for node in series["candidate"].get("nodes", [])],
-            "open_questions": [{"index": i, "text": text, "sha256": _text_digest(text)}
-                               for i, text in enumerate(questions)],
+            "open_questions": [
+                {"index": i, "text": text, "sha256": _text_digest(text),
+                 **({"id": identities[i]} if identities and i < len(identities) else {})}
+                for i, text in enumerate(questions)
+            ],
         },
         "visible_source_ids": _visible_source_ids(source),
     }
@@ -1720,7 +1810,11 @@ def _prepare_revision(
 def _series_view(packet: dict) -> dict:
     """The Series facts a revision was built on, as reference checks need them: node ids and question texts."""
     series = packet["series_architecture"]
-    return {"nodes": series["node_index"], "open_questions": [item["text"] for item in series["open_questions"]]}
+    view = {"nodes": series["node_index"], "open_questions": [item["text"] for item in series["open_questions"]]}
+    identities = [item.get("id") for item in series["open_questions"]]
+    if identities and all(identities):
+        view["open_question_ids"] = identities
+    return view
 
 
 def _complete_revision(
@@ -1751,6 +1845,23 @@ def _complete_revision(
         candidate, series_view, set(packet["visible_source_ids"]), baseline=baseline,
     )
     _check_semantics(candidate)
+    partial = settings["mode"] != "holistic" and (
+        current["series_request_sha256"] != settings["series_request_sha256"]
+        or current["source_sha256"] != settings["source_sha256"])
+    # What each decision was bound to before this revision: its own version, or for one stored before versions
+    # were recorded, the Book's baseline. Recorded in the review so a re-validation never erases the earlier binding.
+    bound_before = {item.id: item.series_question_version or current["series_request_sha256"]
+                    for item in baseline.open_author_decisions}
+    _stamp_decision_versions(
+        candidate, baseline, current["series_request_sha256"], settings["series_request_sha256"],
+        rebases_book=not partial,
+    )
+    decision_versions = [
+        {"decision_id": item.id, "from_request_sha256": bound_before.get(item.id),
+         "to_request_sha256": item.series_question_version}
+        for item in candidate.open_author_decisions
+        if bound_before.get(item.id) != item.series_question_version
+    ]
     base_index = _index_elements(baseline)
     cand_index = _index_elements(candidate)
     _enforce_revision_rules(base_index, cand_index)
@@ -1760,6 +1871,7 @@ def _complete_revision(
         settings=settings, instruction=packet["instruction"], series_node_ids=series_node_ids,
         request_sha256=sha,
     )
+    review["decision_versions"] = decision_versions
     write_host_agent_response(base / "requests" / sha / "response.json", response)
     _atomic_json_write(base / "requests" / sha / "review.json", review)
     return book_project(store, book_number)
@@ -1920,6 +2032,7 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
             "lineage": lineage,
             "applied_review": {
                 "mode": review["mode"],
+                "decision_versions": review.get("decision_versions", []),
                 "added": [entry["id"] for entry in review["changes"]["added"]],
                 "changed": changed_ids,
                 "removed": [entry["id"] for entry in review["changes"]["removed"]],

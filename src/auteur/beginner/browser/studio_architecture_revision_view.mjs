@@ -26,6 +26,26 @@ export function mountRevisionReview(root,{comparison,document:doc=(typeof docume
       make('p','The comparison shows observable source differences only. It does not establish creative quality, downstream effects, or accepted-story compliance.','note'));
     const cnt=comparison.summary;
     append(section,make('p',cnt.added+' added · '+cnt.removed+' removed · '+cnt.changed+' changed · '+cnt.unchanged+' unchanged records.','summary-count'));
+    // Question changes are shown even when no node changed: a question-only revision is still a revision.
+    const questions=comparison.questionChanges;
+    if(questions&&((questions.questions&&questions.questions.length)||(questions.removed&&questions.removed.length))){
+      const qsec=make('section',undefined,'questions','revision-questions');
+      append(qsec,make('h3','Open questions (persistent identity)'));
+      const labels={introduced:'New question',unchanged:'Unchanged',moved:'Moved, same wording',reworded:'Wording changed; identity kept',moved_and_reworded:'Moved and reworded',no_identity:'No identity recorded'};
+      const ul=make('ul');
+      for(const row of questions.questions||[]){
+        const li=make('li');append(li,make('strong',(labels[row.status]||row.status)+' · '+row.text));
+        if(row.previous_text&&row.previous_text!==row.text)append(li,make('p','Earlier wording: '+row.previous_text,'question-earlier'));
+        if(row.id)append(li,make('span',row.id,'technical-id'));
+        append(ul,li);
+      }
+      for(const row of questions.removed||[]){
+        const li=make('li');append(li,make('strong','Removed · '+row.previous_text));
+        append(li,make('p','Removal is not an answer to the question.','question-note'));
+        append(li,make('span',row.id,'technical-id'));append(ul,li);
+      }
+      append(qsec,ul);append(section,qsec);
+    }
     for(const warning of cnt.authorDeclaredWarnings)append(section,make('p',warning,'warning'));
     const requirements=make('section',undefined,'requirements');
     append(requirements,make('h3','Requirements to check (not verified)'));

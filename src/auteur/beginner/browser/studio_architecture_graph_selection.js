@@ -14,6 +14,8 @@
   const same=(a,b)=>a.kind===b.kind&&a.id===b.id&&(a.field||'')===(b.field||'')&&(a.index??null)===(b.index??null)&&
    JSON.stringify(a.reference||null)===JSON.stringify(b.reference||null);
   function exists(a){const c=getCandidate();if(!c||c.schema_version!==2)return false;
+   // An open question is anchored by its persistent identity; it is not a graph node.
+   if(a.kind==='question')return Array.isArray(c.open_question_ids)&&!a.field&&!a.reference&&c.open_question_ids.includes(a.id);
    const row=(c[kindMap[a.kind]]||[]).find(x=>x[idKey(a.kind)]===a.id);if(!row)return false;
    if(a.field&&!Object.prototype.hasOwnProperty.call(row,a.field))return false;
    if(a.index!=null&&(!a.field||!Array.isArray(row[a.field])||!Number.isInteger(a.index)||a.index<0||a.index>=row[a.field].length))return false;

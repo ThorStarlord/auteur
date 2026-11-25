@@ -9,7 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-AnchorKind = Literal['node','link','genre_interaction','emotion_target','complex_emotion','genre_contract','phase']
+AnchorKind = Literal['node','link','genre_interaction','emotion_target','complex_emotion','genre_contract','phase','question']
 GraphOperation = Literal['explain','challenge','explore','compare','connect_to_ask','revise']
 
 COLLECTIONS: dict[str, tuple[str,str]] = {
@@ -18,6 +18,8 @@ COLLECTIONS: dict[str, tuple[str,str]] = {
     'emotion_target':('emotion_targets','id'),
     'complex_emotion':('complex_emotions','id'),
     'genre_contract':('genre_contracts','genre_node_id'), 'phase':('phases','id'),
+    # An open question is anchored by its persistent identity (open_question_ids); it is not a graph node.
+    'question':('open_questions','id'),
 }
 # These are source-owned schema properties, never virtual component identities.
 FIELDS = {
@@ -88,7 +90,22 @@ class GraphIntent(BaseModel):
             raise ValueError('duplicate graph anchors')
         return self
 
+def _question_index(candidate: dict) -> dict[str,tuple[int,dict]]:
+    """Open questions by persistent identity. Legacy candidates without identities have none to anchor on."""
+    identities=candidate.get('open_question_ids')
+    texts=candidate.get('open_questions',[])
+    if identities is None: return {}
+    if not isinstance(identities,list) or not isinstance(texts,list) or len(identities)!=len(texts):
+        raise ValueError('open question identities do not match the open questions')
+    indexed={}
+    for i,(identifier,text) in enumerate(zip(identities,texts)):
+        if not isinstance(identifier,str) or identifier in indexed:
+            raise ValueError('open question identities are invalid or ambiguous')
+        indexed[identifier]=(i,{'id':identifier,'text':text})
+    return indexed
+
 def _index(candidate: dict, kind: str) -> dict[str,tuple[int,dict]]:
+    if kind=='question': return _question_index(candidate)
     collection,ident = COLLECTIONS[kind]
     rows=candidate.get(collection,[])
     if not isinstance(rows,list): raise ValueError(f'{collection} is not a list')
@@ -159,6 +176,16 @@ def resolve_anchors(candidate: dict, anchors: list[GraphAnchor]) -> list[dict]:
     if candidate.get('schema_version')!=2:raise ValueError('ArchitectureCandidate v2 required')
     resolved_list=[]
     for anchor in anchors:
+        if anchor.kind=='question':
+            if anchor.field or anchor.reference or anchor.index is not None:
+                raise ValueError('a question anchor names the whole open question')
+            match=_question_index(candidate).get(anchor.id)
+            if not match: raise ValueError(f'question {anchor.id} is not an open question of the current working architecture')
+            i,record=match
+            resolved_list.append({'kind':'question','id':anchor.id,'title':record['text'],'index':i,
+                'sourceRef':f'open_questions/{i}','authority':'working_noncanonical',
+                'recordedSupport':_short(record)})
+            continue
         coll,_=COLLECTIONS[anchor.kind]
         indexed=_index(candidate,anchor.kind)
         match=indexed.get(anchor.id)

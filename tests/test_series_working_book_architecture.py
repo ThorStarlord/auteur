@@ -401,3 +401,21 @@ def test_cli_develop_and_refusals_use_exit_codes_and_structured_output(tmp_path,
     assert wba.main([*base, "book-prepare", "--book", "2"]) == 1
     assert "already has a working architecture" in json.loads(capsys.readouterr().out)["error"]
     assert store.load().items  # the canvas survives the CLI operations
+
+
+def test_a_decision_identity_must_match_the_series_question_it_names(tmp_path):
+    """A Book decision may name a Series question's persistent identity; a mismatched identity is refused."""
+    candidate = series_candidate()
+    candidate["open_question_ids"] = [f"q-question-{i}" for i in range(len(candidate["open_questions"]))]
+    store = make_store(tmp_path, series=False)
+    develop_series(store, candidate)
+    status = book_prepare(store, 2)
+    artifact = copy.deepcopy(book_artifact())
+    decision = artifact["open_author_decisions"][0]
+    index = decision["series_question_index"]
+    decision["series_question_id"] = f"q-question-{index + 1}"
+    with pytest.raises(ValueError, match="does not match the question it names"):
+        book_complete(store, 2, respond(status, artifact))
+    # The same decision with the identity the Series question actually has is accepted.
+    artifact["open_author_decisions"][0]["series_question_id"] = f"q-question-{index}"
+    book_complete(store, 2, respond(status, artifact))

@@ -98,7 +98,7 @@ _MAX_HISTORY_PROJECTED = 8
 
 class InquiryObservation(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True)
-    kind: Literal['node','link','genre_interaction','emotion_target','complex_emotion','genre_contract','phase']
+    kind: Literal['node','link','genre_interaction','emotion_target','complex_emotion','genre_contract','phase','question']
     id: str = Field(min_length=1,max_length=80)
     claim: str = Field(min_length=1,max_length=700)
 
@@ -394,7 +394,11 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
         raise arch.BeginnerConcurrencyError(
             f"the element {ref.element_id} of working Book {ref.book_number} changed since you read it")
     present={c['node_id'] for c in evidence['cited_architecture_concepts'] if c['present']}
-    if not present:
+    # A decision that names an open question by identity may anchor an inquiry on that question, but only while the
+    # question still exists. A removed question is historical evidence, never an anchor.
+    dq=evidence.get('decision_question') or {}
+    anchorable_question=dq.get('question_id') if dq.get('state') in ('current_wording','moved','reworded','moved_and_reworded') else None
+    if not present and not anchorable_question:
         raise ValueError(
             f"Book {ref.book_number}'s element {ref.element_id} records no reference to a concept the current "
             "working architecture has, so there is no recorded concept to ask about; a concept it names only in "
@@ -406,7 +410,8 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
             f"Book {ref.book_number} records a reference to {', '.join(gone)}, which the current working "
             "architecture no longer has; it can be read as historical evidence but cannot anchor an inquiry. "
             "Anchor on a current concept the element records: " + ', '.join(sorted(present)))
-    stray=[a.id for a in intent.anchors if a.kind!='node' or a.id not in present]
+    stray=[a.id for a in intent.anchors if not (
+        (a.kind=='node' and a.id in present) or (a.kind=='question' and a.id==anchorable_question))]
     if stray:
         raise ValueError(
             "with Book evidence, every anchor must be a current Architecture concept the element records a "

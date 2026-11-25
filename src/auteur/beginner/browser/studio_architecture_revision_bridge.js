@@ -49,6 +49,7 @@
           expectedPriorSha:review.prior_request_sha256,
           requestedChange:review.requested_change || '',
           acceptedConstraints:review.preserved?.accepted_constraints || [],
+          questionChanges:review.question_changes || null,
         });
         viewer=modules.mountRevisionReview(root,{comparison});
         if (pendingFocus && viewer.selectFocus) viewer.selectFocus(pendingFocus);

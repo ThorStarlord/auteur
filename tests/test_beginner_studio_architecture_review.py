@@ -216,9 +216,11 @@ def test_complete_revision_review_exposes_new_fields_and_keeps_legacy_diff(tmp_p
     finished = complete_architecture(store, response(revision, updated))
     assert finished["status"] == "review_ready"
     review = finished["review"]
-    assert review["candidate"] == ArchitectureCandidate.model_validate(
-        updated,
-    ).model_dump(mode="json")
+    expected = ArchitectureCandidate.model_validate(updated).model_dump(mode="json")
+    # A version without open question identities is stored exactly as before identities existed.
+    if expected.get("open_question_ids") is None:
+        expected.pop("open_question_ids", None)
+    assert review["candidate"] == expected
     assert review["requested_change"] == "Make wonder dominant over fear."
     assert review["changes"]["emotion_targets"]["changed"] == ["dread"]
     assert any(
