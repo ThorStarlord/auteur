@@ -156,7 +156,15 @@
     var empty=el('div','atl-empty');
     stage.append(lensGlow,svg,bandLabels,starLayer,compass,trail,lensbar,zoom,hint,empty);
     var folio=el('aside','atl-folio');folio.setAttribute('aria-label','Reading of the narrative atlas');
-    body.append(stage,folio);
+    // The coding-agent desk: the question, its answer and any revision review, beside the concept they examine.
+    // The studio moves its panel and review in here while the desk is open, and back to the Studio otherwise.
+    var desk=el('section','atl-desk');desk.hidden=true;desk.setAttribute('aria-label','Coding-agent desk for the concept you are examining');
+    var deskBar=el('div','atl-desk-bar');var deskBack=el('button','atl-desk-back','← Back to the atlas');deskBack.type='button';
+    var deskTitle=el('span','atl-desk-title');deskBar.append(deskBack,deskTitle);
+    var deskNote=el('p','atl-desk-note');deskNote.setAttribute('role','status');desk.append(deskBar,deskNote);
+    deskBack.addEventListener('click',function(){api.returnFocus();});
+    function setDeskNote(text){deskNote.textContent=text||'';}
+    body.append(stage,folio,desk);
     var live=el('p','atl-live');live.setAttribute('aria-live','polite');live.setAttribute('role','status');
     root.append(bar,ribbon,body,live);
 
@@ -2634,6 +2642,10 @@
     root.addEventListener('keydown',function(e){
       if(e.key!=='Escape')return;
       latchPointer();
+      if(!desk.hidden&&e.target&&desk.contains(e.target)){
+        // Escape in the desk's text fields does nothing, as in the folio; anywhere else it returns to the atlas.
+        if(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))return;
+        e.preventDefault();api.returnFocus();return;}
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
       // Escape in a text field never closes the view around the words being written.
       if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
@@ -2794,6 +2806,29 @@
       empty.hidden=false;empty.replaceChildren(el('h3','','The atlas is waiting for an Architecture'),
         el('p','',message||'Develop a working Architecture proposal, then come back to explore it here.'));
     }
+    // The desk is open only while a question, its answer or a revision review is being worked on. The folio steps
+    // aside (inert, not removed), so the atlas keeps its selection, trail and orientation.
+    function narrowLayout(){return !!(global.matchMedia&&global.matchMedia('(max-width:900px)').matches);}
+    function setDesk(open,label,opts){
+      open=!!open;opts=opts||{};
+      if(label)deskTitle.textContent=label;
+      root.classList.toggle('atl-desk-open',open);
+      desk.hidden=!open;folio.inert=open;
+      if(!open)return;
+      if(narrowLayout()){if(!opts.quiet)desk.scrollIntoView({block:'start'});}
+      else{
+        // Beside the desk the concept under examination must stay in the open part of the atlas.
+        var f=S.focus&&S.pos[S.focus],v=view(),clear=v.width-desk.offsetWidth-16;
+        var sx=f&&S.cam?(f.x-S.cam.cx)*S.cam.z+v.width/2:0;
+        if(f&&S.cam&&clear>0&&sx>clear*0.8){
+          var target=clear*0.5;
+          animate({camera:{cx:f.x-(target-v.width/2)/S.cam.z,cy:S.cam.cy,z:S.cam.z},cameraDuration:S.reduced?0:420});
+          if(S.reduced)flushInstant();
+        }
+      }
+      if(opts.reveal&&!opts.reveal.hidden)opts.reveal.scrollIntoView({block:'start'});
+      if(opts.moveFocus)deskBack.focus({preventScroll:true});
+    }
     function show(){
       var first=!S.shown,built=!!S.model;S.shown=true;root.hidden=false;measureView();update();
       var inspector=!!(binding.inspectorOpen&&binding.inspectorOpen());
@@ -2803,7 +2838,7 @@
     }
     function hide(){S.shown=false;root.hidden=true;}
     syncChrome();
-    var api={update:update,show:show,hide:hide,select:function(id,o){select(id,Object.assign({via:'atlas'},o||{}));},
+    var api={setDesk:setDesk,setDeskNote:setDeskNote,deskHost:desk,deskOpen:function(){return !desk.hidden;},update:update,show:show,hide:hide,select:function(id,o){select(id,Object.assign({via:'atlas'},o||{}));},
       returnToAtlas:returnToAtlas,deeper:deeper,setTreatment:setTreatment,examine:examine,leaveConstellation:leaveConstellation,
       setReducedMotion:function(on){S.reduced=!!on;syncChrome();},
       fitAtlas:function(){fitAtlas(false);settle();},
@@ -2812,15 +2847,17 @@
       // Back to the atlas where the author left it: keyboard focus on the selected concept, or the folio.
       // The author asked to check again: Book reads are refreshed, so an open card never shows an old revision.
       rereadBooks:function(){S.books={};if(S.leaf)readSeries(true,false,true);renderFolio();},
-      returnFocus:function(){var top=root.getBoundingClientRect().top;
+      returnFocus:function(){if(!desk.hidden)setDesk(false);var top=root.getBoundingClientRect().top;
         // Where the folio stacks below the atlas (narrow screens) the author must land on the atlas, where the applied
         // change is marked; focusing the discovery heading without revealing it keeps that view.
         var stacked=!!(global.matchMedia&&global.matchMedia('(max-width:900px)').matches);
         if(stacked||top<0||top>global.innerHeight*0.5)root.scrollIntoView({block:'start'});
         var dc=S.leaf&&S.discovery&&folio.querySelector('[data-key="book-discovery-h:'+S.discovery.book+'"]');
-        if(dc){dc.focus({preventScroll:true});if(!stacked)reveal(dc);announce('Back to Book '+S.discovery.book+'’s discovery. The atlas kept your place.');return;}
+        // Focus follows what is on screen: on narrow screens the discovery sits below the atlas, so the atlas concept takes focus.
+        if(dc&&!stacked){dc.focus({preventScroll:true});reveal(dc);announce('Back to Book '+S.discovery.book+'’s discovery. The atlas kept your place.');return;}
         var id=S.focus,b=id&&starEls[id];
-        if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();},
+        if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();
+        if(dc)announce('Back to the atlas. Book '+S.discovery.book+'’s discovery is below it.');},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
         narrative:S.narrative,book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null,
           discovery:S.discovery?{book:S.discovery.book,element:S.discovery.element,operation:S.discovery.operation,anchor:S.discovery.anchor}:null},series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,

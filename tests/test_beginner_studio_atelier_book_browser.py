@@ -36,7 +36,7 @@ TARGET = "eng-record-form"
 ADDED = " Refusing the count costs the cohort its season's water credit, entered where the Council can see it."
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
 FOLIO = "document.querySelector('#studio-atelier .atl-folio').innerText"
-LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
+LIVE = "document.querySelector('#studio-atelier .atl-live').textContent"
 KEY = "document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key || null : null"
 CLICK = """(id) => document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]').click()"""
 
