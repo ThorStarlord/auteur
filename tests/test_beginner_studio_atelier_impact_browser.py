@@ -30,7 +30,7 @@ import seed_book_impact_study as seed  # noqa: E402
 CANVAS = seed.SPRING
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
 FOLIO = "document.querySelector('#studio-atelier .atl-folio').innerText"
-LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
+LIVE = "document.querySelector('#studio-atelier .atl-live').textContent"
 KEY = "document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key || null : null"
 ARM = """() => { const r = document.getElementById('studio-atelier');
   window.__settled = new Promise(res => r.addEventListener('atelier:settled', e => res(e.detail), {once: true})); }"""

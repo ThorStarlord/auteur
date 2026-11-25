@@ -30,7 +30,7 @@ SOURCE = "structure|structure-node:eng_source"
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
 FOLIO = "document.querySelector('#studio-atelier .atl-folio').innerText"
 SECTION = "(document.querySelector('#studio-atelier .atl-series')||{}).innerText||''"
-LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
+LIVE = "document.querySelector('#studio-atelier .atl-live').textContent"
 ACTIVE_KEY = "document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key || null : null"
 CLICK = """(id) => document.querySelector('#studio-atelier .atl-star[data-id="' + id + '"]').click()"""
 ARM = """() => { const r = document.getElementById('studio-atelier');
@@ -234,7 +234,7 @@ def test_an_applied_revision_reads_the_open_plans_again(browser, projects, tmp_p
         node["summary"] += " Reworded for the test."
         complete_architecture(store, build_host_agent_response(
             HostAgentRequest(**waiting["request"]), json.dumps(revised), runtime="series-test").model_dump())
-        page.locator(".atelier-return").first.click()
+        page.locator("#studio-atelier .atl-desk-back").first.click()
         time.sleep(0.6)
         page.locator('#studio-atelier [data-key="series-open:24"]').click()
         page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
@@ -290,14 +290,20 @@ def test_a_new_hypothesis_replaces_an_untouched_suggestion_but_keeps_the_authors
         page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
         page.locator(f'#studio-atelier [data-key="series-ask:{key}"]').click()
         time.sleep(0.5)
-        page.locator(".atelier-return").first.click()
+        page.locator("#studio-atelier .atl-desk-back").first.click()
         time.sleep(0.4)
         page.keyboard.press("Escape")
         time.sleep(0.3)
     text = page.locator(FIELD).first.input_value()
     assert second["title"] in text and first["title"] not in text and "narrative_setups[1]" in text
+    # The desk closed when the loop returned to the atlas: the author asks again from the concept, then writes.
+    page.locator('#studio-atelier [data-key="series-open"]').click()
+    page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
+    page.locator(f'#studio-atelier [data-key="series-ask:{key}"]').click()
+    time.sleep(0.5)
     page.locator(FIELD).first.fill("My own question.")
     choose(page, first["id"])
+    page.locator("#studio-atelier .atl-desk-back").click()  # the folio is behind the desk until the author returns
     page.locator('#studio-atelier [data-key="series-open"]').click()
     page.wait_for_function(f"({SNAP}).series.status === 'ready'", timeout=10000)
     page.locator('#studio-atelier [data-key="series-ask:series_identity.yaml#narrative_setups[0]"]').click()

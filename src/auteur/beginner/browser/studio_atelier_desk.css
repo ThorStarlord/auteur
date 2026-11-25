@@ -144,3 +144,14 @@
 .studio-atelier-desk #architecture-review .layer-button[aria-pressed=true]{background:var(--desk-recorded-tint);border-color:var(--desk-recorded);
   color:var(--desk-recorded)}
 .studio-atelier-desk .creative-choose-how{margin:0 0 8px;font:.82rem/1.45 var(--desk-sans);color:var(--desk-soft)}
+
+/* Inside the Atelier's desk the workbench is one reading column: the agent panel first, then the recorded relations
+   and components it refers to. The desk is a surface of the atlas, so its disclosure takes no card of its own. */
+.studio-atelier-desk .atl-desk .architecture-creative-workbench{grid-template-columns:minmax(0,1fr);grid-template-areas:none}
+.studio-atelier-desk .atl-desk #architecture-relationship-index,.studio-atelier-desk .atl-desk #architecture-component-actions{grid-area:auto}
+.studio-atelier-desk .atl-desk #architecture-creative-agent-panel{order:-1;grid-area:auto}
+.studio-atelier-desk .atl-desk #architecture-creative-graph{margin:0;padding:12px 20px 0;background:transparent;border:0;border-radius:0}
+.studio-atelier-desk .atl-desk #architecture-review{margin:0;padding:12px 20px 0;background:transparent;border:0;border-radius:0}
+.studio-atelier-desk .atl-desk #architecture-handoff{margin:0 20px;}
+.studio-atelier-desk .atl-desk .creative-pair{grid-template-columns:minmax(0,1fr)}
+/* In the desk the interpretation takes the full reading measure; the recorded claims follow it. */

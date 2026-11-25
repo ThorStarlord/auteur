@@ -411,9 +411,15 @@
           authorEmotionGrounding: state.architecture.author_emotion_grounding,
         }));
     }
+    var handoffArrived = !!projection.request && $("architecture-handoff").hidden;
     $("architecture-handoff").hidden = !projection.request;
+    if (handoffArrived && pageArchitectureRequest) openAtelierDesk("Request for your coding agent", {quiet: true});
     $("architecture-request").value = projection.request ? JSON.stringify(projection.request, null, 2) : "";
+    // A revision asked for from the page's own agent controls opens the desk where the author can read it. Any other
+    // revision (a Book's own work, for example) does not take the screen: the atlas's working line says it is ready.
+    var reviewArrived = !!state.architectureReview && $("architecture-review").hidden;
     $("architecture-review").hidden = !state.architectureReview;
+    if (reviewArrived && pageArchitectureRequest) { pageArchitectureRequest = false; openAtelierDesk("Revision review", {quiet: true}); }
     $("architecture-diff").replaceChildren();
     if (state.architectureReview) {
       var review = state.architectureReview;
@@ -585,12 +591,13 @@
         (atelierController && state.fullArchitectureDisplay === "atelier" ? " The atlas marks what changed." : ""));
     }).catch(function (error) {
       $("architecture-status").textContent = "Working revision not applied: " + error.message;
+      atelierDeskNote("Working revision not applied: " + error.message);
     });
   }
   function submitArchitecture() {
     var payload;
     try { payload = JSON.parse($("architecture-response").value); }
-    catch (error) { $("architecture-status").textContent = "Response must be valid HostAgentResponse JSON."; return; }
+    catch (error) { $("architecture-status").textContent = "Response must be valid HostAgentResponse JSON."; atelierDeskNote("Response must be valid HostAgentResponse JSON."); return; }
     fetch(architectureUrl() + "/host-agent-response", {
       method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify(payload)
@@ -601,6 +608,7 @@
       status("Source-bound candidate architecture loaded; no story meaning accepted.");
     }).catch(function (error) {
       $("architecture-status").textContent = "Response rejected: " + error.message;
+      atelierDeskNote("Response rejected: " + error.message);
     });
   }
   function chooseCandidate(id) {
@@ -2496,6 +2504,8 @@
     var eligible = chosen && state.workspace === "architecture" && state.view === "architecture" &&
       state.architectureFacet === "overview";
     placeAtelierFirst(eligible);
+    if (!eligible && atelierController && atelierController.deskOpen()) atelierController.setDesk(false);
+    placeAtelierDesk(eligible);
     // The Studio's agent panel and review read as the Atelier's desk while the Atelier is the chosen view.
     document.querySelector(".studio").classList.toggle("studio-atelier-desk", eligible);
     if (!eligible) { atelierController.hide(); return; }
@@ -2508,6 +2518,31 @@
   // switcher and the study open directly beneath the workflow switch, and the Architecture summary,
   // Story Vision, agent tools and written overview follow below it. Every other view keeps the
   // ordinary layout.
+  // The hand-off, the coding-agent panel and the revision review are the Atelier's desk: they move into it while the
+  // Atelier is the chosen view, and back to their Studio places otherwise. Moving keeps their state and listeners.
+  // Set by the page's own agent controls: their results open the Atelier's desk quietly when they arrive.
+  var pageArchitectureRequest = false;
+  var atelierDeskParts = ["architecture-creative-graph", "architecture-review", "architecture-handoff"], atelierDeskHomes = null;
+  function placeAtelierDesk(on) {
+    if (!atelierDeskHomes) atelierDeskHomes = atelierDeskParts.map(function (id) {
+      var node = $(id); return {node: node, parent: node && node.parentNode, next: node && node.nextSibling};
+    });
+    var host = on && atelierController ? atelierController.deskHost : null;
+    atelierDeskHomes.forEach(function (h) {
+      if (!h.node || !h.parent) return;
+      if (host) { if (h.node.parentNode !== host) host.append(h.node); }
+      else if (h.node.parentNode !== h.parent) h.parent.insertBefore(h.node, h.next && h.next.parentNode === h.parent ? h.next : null);
+    });
+  }
+  // Opens the desk on the Atelier's own stage, without moving the page: the author's place in the atlas is kept.
+  function openAtelierDesk(label, opts) {
+    if (!atelierController || $("studio-atelier").hidden) return false;
+    placeAtelierDesk(true);
+    var title = label || (state.atelierAsk ? "Asking about “" + state.atelierAsk.title + "”" : "Coding-agent desk");
+    atelierController.setDesk(true, title, opts);
+    return true;
+  }
+  function atelierDeskNote(text) { if (atelierController) atelierController.setDeskNote(text); }
   var atelierHome = null;
   function placeAtelierFirst(on) {
     var slot = $("studio-atelier-slot"), modesNav = $("studio-full-modes"), study = $("studio-atelier");
@@ -3161,8 +3196,9 @@
         // The Book element the latest inquiry was asked with, on this canvas, and where it stands.
         getBookInquiry: function(){ var b = state.bookInquiry; return b && b.canvasId === remote.canvasId ? b : null; },
         showInquiry: function(){ ensureCreativeGraph(); var d = $("architecture-creative-graph"); if (!d) return;
-          d.hidden = false; d.open = true; syncAtelierReturn(); d.scrollIntoView({block: "start"});
-          var f = $("architecture-creative-agent-panel").querySelector("textarea"); if (f) f.focus({preventScroll: true}); },
+          d.hidden = false; d.open = true; syncAtelierReturn(); openAtelierDesk();
+          var f = $("architecture-creative-agent-panel").querySelector("textarea");
+          if (f) { f.scrollIntoView({block: "nearest"}); f.focus({preventScroll: true}); } },
         // Read-only Book and Series plans for this canvas and project, each from its own owner.
         getSeriesContext: function(){
           if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
@@ -3255,7 +3291,8 @@
     // The disclosure's top holds the way back; the question field is in view below it. With Book evidence the
     // evidence and the question are what the author needs to see, so they come first on any screen.
     var evidenceBox = request.bookEvidence && $("architecture-creative-agent-panel").querySelector(".creative-book-evidence");
-    (evidenceBox || disclosure).scrollIntoView({block: "start"});
+    openAtelierDesk("Your question about “" + request.title + "”");
+    (evidenceBox || disclosure).scrollIntoView({block: "nearest"});
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
     if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
@@ -3304,7 +3341,11 @@
     if (kind === "awaiting") $("architecture-handoff").open = true;
     if (kind === "inquiry" || kind === "answer") { $("architecture-creative-graph").open = true; }
     syncAtelierReturn();
-    if (target && !target.hidden) target.scrollIntoView({block: "start"});
+    if (target && !target.hidden) {
+      var title = kind === "review" ? "Revision review" : kind === "awaiting" ? "Request for your coding agent" :
+        kind === "answer" ? "Your coding agent’s answer" : "Your question to the coding agent";
+      openAtelierDesk(title, {moveFocus: true, reveal: target});
+    }
   }
   function syncAtelierReturn() {
     var on = !!(atelierController && state.atelierAsk && !$("studio-atelier").hidden);
@@ -3404,14 +3445,15 @@
     });
   });
   $("architecture-facet-back").addEventListener("click", function () { restoreFacetHistory(state.facetHistory.length-1); });
-  $("architecture-develop").addEventListener("click", function () { requestArchitecture(""); });
-  $("architecture-refresh").addEventListener("click", checkArchitectureResult);
+  $("architecture-develop").addEventListener("click", function () { pageArchitectureRequest = true; requestArchitecture(""); });
+  $("architecture-refresh").addEventListener("click", function () { pageArchitectureRequest = true; checkArchitectureResult(); });
   $("architecture-revise").addEventListener("click", function () {
     var intent = $("architecture-instruction").value.trim();
     if (!intent) { $("architecture-status").textContent = "Describe the desired revision first."; return; }
+    pageArchitectureRequest = true;
     requestArchitecture(intent);
   });
-  $("architecture-complete").addEventListener("click", submitArchitecture);
+  $("architecture-complete").addEventListener("click", function () { pageArchitectureRequest = true; submitArchitecture(); });
   $("realization-develop").addEventListener("click", function () { requestRealization(""); });
   $("realization-refresh").addEventListener("click", checkRealizationResult);
   $("realization-revise").addEventListener("click", function () {

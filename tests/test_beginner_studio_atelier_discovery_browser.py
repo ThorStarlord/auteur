@@ -26,7 +26,7 @@ from test_beginner_studio_book_discovery import edit_book_element  # noqa: E402
 CANVAS = seed.SPRING
 LEDGER = "structure|structure-node:eng_ledger"
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
-LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
+LIVE = "document.querySelector('#studio-atelier .atl-live').textContent"
 KEY = "document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.key || null : null"
 PANEL = "#architecture-creative-agent-panel"
 
@@ -125,7 +125,7 @@ def test_asking_sends_the_element_as_book_evidence_and_writes_only_the_inquiry(b
     assert log["writes"] == [f"beginner/studio/canvases/{CANVAS}/architecture/inquiry/prepare"]
     assert "Request prepared for your coding agent, with Book 24’s element as Book evidence" in page.locator("#status").inner_text()
     # The way back from the panel returns to the discovery, and the atlas kept its place.
-    page.locator("#architecture-creative-graph .atelier-return").click()
+    page.locator("#studio-atelier .atl-desk-back").click()
     time.sleep(0.5)
     assert page.evaluate(KEY) == "book-discovery-h:24"
     assert "Asked: a request with this element is waiting for your coding agent." in card(page)
@@ -206,7 +206,7 @@ def test_an_answer_is_brought_to_the_author_and_the_card_knows_it_was_asked(brow
     assert "It is still the Book’s current record." in result
     assert "Developing none of these alternatives leaves the Architecture as it is" in result
     assert "Your coding agent’s answer arrived" in page.locator("#status").inner_text()
-    page.locator("#architecture-creative-graph .atelier-return").click()
+    page.locator("#studio-atelier .atl-desk-back").click()
     time.sleep(0.5)
     assert "Asked: your coding agent’s answer is in the coding-agent panel." in card(page)
     assert not log["errors"]

@@ -28,7 +28,7 @@ CRAFT_FN = "tropes|trope:genre-craft-thriller:0"
 ENGINE = "structure|structure-node:engine-risk-transfer"
 SNAP = "document.getElementById('studio-atelier').atelierStudy.snapshot()"
 FOLIO = "document.querySelector('#studio-atelier .atl-folio').innerText"
-LIVE = "document.querySelector('#studio-atelier [aria-live]').textContent"
+LIVE = "document.querySelector('#studio-atelier .atl-live').textContent"
 ARM = """() => { const r = document.getElementById('studio-atelier');
   window.__settled = new Promise(res => r.addEventListener('atelier:settled', e => res(e.detail), {once: true})); }"""
 WAIT = "Promise.race([window.__settled, new Promise(r => setTimeout(() => r(null), 8000))])"
@@ -141,9 +141,9 @@ def test_one_function_carries_its_own_entry_and_preparing_a_request_keeps_the_at
         # Preparing changes nothing, so the atlas keeps its place and says nothing changed.
         assert page.evaluate(SNAP)["focus"] == CRAFT_FN
         assert "changed" not in page.evaluate(LIVE)
-        assert "waiting for your coding agent" in page.locator("#studio-atelier .atl-working").inner_text()
-        back = page.locator("#architecture-creative-graph .atelier-return")
-        assert back.is_visible() and "the first crosser" in back.inner_text()
+        assert "waiting for your coding agent" in page.locator("#studio-atelier .atl-working").text_content()
+        back = page.locator("#studio-atelier .atl-desk-back")
+        assert back.is_visible() and "the first crosser" in page.locator("#studio-atelier .atl-desk-title").text_content().lower()
         back.focus()
         page.keyboard.press("Enter")
         time.sleep(0.4)
@@ -168,7 +168,7 @@ def test_an_applied_revision_returns_to_the_concept_marks_the_change_and_keeps_e
         page.locator("#architecture-refresh").click()
         page.wait_for_selector("#architecture-review:not([hidden])", timeout=10000)
         time.sleep(0.4)
-        assert "ready for your review" in page.locator("#studio-atelier .atl-working").inner_text()
+        assert "ready for your review" in page.locator("#studio-atelier .atl-working").text_content()
         assert page.evaluate(SNAP)["focus"] == TROPE  # a proposal under review changes nothing yet
         act(page, lambda: page.locator("#architecture-apply").click())
         page.wait_for_function("document.getElementById('architecture-review').hidden", timeout=10000)
@@ -282,10 +282,10 @@ def test_the_working_line_names_a_concept_only_for_the_request_sent_about_it(ser
         page.locator("#architecture-revise").click()
         page.wait_for_function("document.getElementById('architecture-status').textContent.includes('Awaiting')", timeout=10000)
         time.sleep(0.5)
-        working = page.locator("#studio-atelier .atl-working").inner_text()
+        working = page.locator("#studio-atelier .atl-working").text_content()
         assert "waiting for your coding agent" in working and "First Crosser" not in working
         # The unsent draft is the author's: developing again keeps it.
-        act(page, lambda: page.locator("#architecture-creative-graph .atelier-return").click())
+        act(page, lambda: page.locator("#studio-atelier .atl-desk-back").click())
         act(page, lambda: page.locator('#studio-atelier .atl-develop button[data-operation="challenge"]').click())
         assert page.locator(f'{PANEL} textarea[aria-label="Your creative intention"]').input_value() == "An unsent draft about this trope."
         assert not errors
@@ -305,10 +305,12 @@ def test_an_emotion_target_offers_only_what_the_studio_supports_and_the_way_back
         act(page, lambda: page.locator('#studio-atelier .atl-develop button[data-operation="explain"]').click())
         pressed = page.locator(f'{PANEL} [aria-label="Creative actions"] button[aria-pressed="true"]').get_attribute("data-operation")
         assert pressed == "explain"
-        assert page.locator("#architecture-creative-graph .atelier-return").is_visible()
+        assert page.locator("#studio-atelier .atl-desk-back").is_visible()
+        # The folio is behind the desk while the desk is open: the author returns to the atlas first.
+        page.locator("#studio-atelier .atl-desk-back").click()
         page.locator("#studio-atelier .atl-folio button", has_text="Read the full explanation").click()
         time.sleep(0.6)
-        assert page.locator("#architecture-creative-graph .atelier-return").is_hidden()  # the atlas is not on screen
+        assert page.locator("#studio-atelier .atl-desk-back").is_hidden()  # the atlas is not on screen
         assert not errors
     finally:
         page.close()
