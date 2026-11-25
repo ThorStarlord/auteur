@@ -86,15 +86,18 @@ Owner rules enforced at completion (`question_identity_problems`):
 
 ## H. Not implemented (explicit limitations)
 
-- **Atelier ask action on a question.** The Book leaf reports question state and identity, but the Atelier does not
-  yet offer "ask about this question". The owner path is tested end to end; the Atelier path is the next increment.
+- **Atelier ask action on a question** is implemented: a decision whose question is anchorable offers "Ask about this
+  question", which opens the desk on the question with the Book element as evidence. It is verified by a served browser
+  test and by the probe on the Spring Ledger study. It has not been judged by a human author.
 - **Explicit rebinding of a Book decision to a new version** is not a dedicated flow. A Book revision re-validates the
   decision against the current Series version through the existing owner path.
 - **Split and merge lineage** is represented as removal plus introduction, as the brief allows. No general lineage
   engine was built.
 - **Semantic equivalence** is not judged by the system. It is left to the author through review.
 - **Architecture question list in the working context** is not yet a separate panel; questions appear in the revision
-  review and through Book decisions.
+  review, in each Book's decision list and in the Atelier's per-Book impact lines.
+- **Revision history for a question** is available through the owner's history reader (`question_history`) and the
+  revision chain. It has no dedicated Atelier view yet.
 
 ## I. Verification
 
