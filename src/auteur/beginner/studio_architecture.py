@@ -1815,6 +1815,9 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
             raise ValueError("open question identities: " + "; ".join(identity_issues))
         write_host_agent_response(base / "response.json", response)
         candidate = proposal.model_dump(mode="json")
+        # A version without identities is stored exactly as it was before identities existed.
+        if candidate.get("open_question_ids") is None:
+            candidate.pop("open_question_ids", None)
         accepted_identity = (submitted.get("narrative_design_context") or {}).get(
             "accepted_story_identity"
         )
