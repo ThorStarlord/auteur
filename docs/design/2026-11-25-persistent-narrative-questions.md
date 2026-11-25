@@ -130,6 +130,21 @@ Owner rules enforced at completion (`question_identity_problems`):
   question at that exact position and wording; it is not inferred from similarity, and nothing says the decision was
   written against that identity.
 
+## H4. Integrity corrections from the independent review
+
+- A decision the Book already held keeps the binding it was checked against when its question is reworded or moved.
+  The reference reports the change (`reworded`, `moved`, `removed`) and never refuses the Book: a holistic or targeted
+  revision completes, and the decision keeps the version it recorded. A new decision, or one gaining its identity, is
+  still checked against the current Series revision, as before.
+- A recorded `series_question_id` cannot be changed by a later revision. The reference reads the identity the decision's
+  version carries at its position; a stored identity that disagrees with that version reports `binding_mismatch`.
+- A new open question's identity is refused while the revision history cannot be read whole, because a retired
+  identity could then not be ruled out. The check follows the same rule as an unreadable earlier version.
+- A decision with no identity or version recorded dumps exactly the keys it had before those fields existed, so
+  legacy content digests are unchanged.
+- The revision review records, for each decision it rebinds, the identity at its recorded position before (`question_id_before`)
+  and after (`question_id_after`). A legacy decision that gains its identity therefore shows that in the review.
+
 ## I. Verification
 
 - `tests/test_studio_architecture_questions.py`: the pure identity rules (reordering, rewording, replacement, removal,
