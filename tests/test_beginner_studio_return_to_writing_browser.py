@@ -110,10 +110,18 @@ def scene_text(store, item_id="scene-crossing"):
     return next(item.content for item in store.load().items if item.id == item_id)
 
 
+def persisted_text(store, item_id="scene-crossing"):
+    # A scene restored a moment ago is absent from the file until its save completes: that is not yet a failure.
+    try:
+        return scene_text(store, item_id)
+    except StopIteration:
+        return None
+
+
 def wait_for_persisted(page, store, expected):
     # The store is the evidence; a pause announcement may already have replaced "saved locally".
     for _ in range(80):
-        if scene_text(store) == expected:
+        if persisted_text(store) == expected:
             break
         page.wait_for_timeout(100)
     assert scene_text(store) == expected

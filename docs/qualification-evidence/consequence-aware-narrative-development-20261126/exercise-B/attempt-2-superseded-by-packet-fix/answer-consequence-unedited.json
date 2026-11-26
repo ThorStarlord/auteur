@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "reading": "The proposal does one thing: it retires the open question about whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit, at the author's instruction (E1, E7). The other fifteen open questions are untouched. Nothing else in the architecture is recorded as changed. The consequence is that the conversion stops being carried as an open question while it stays in the Series' recorded events, and Book 24 holds a decision that names the retired question (E6).",
+  "concerns": [
+    {
+      "title": "Whether the Book 20 conversion is settled or revisited",
+      "status": "possibly_displaced",
+      "earlier": "An open question: is the Book 20 conversion a lasting settlement, or a stage the finale must revisit? (E3, E5)",
+      "proposed": "The question is removed from the open questions and from the question identities (E7).",
+      "reading": "Interpretation: the earlier question held open whether the finale would reopen the conversion. With it removed, that possibility is no longer tracked as a question. The instruction names the retirement, but the record does not say whether the author means the conversion is settled or simply no longer to be asked.",
+      "evidence": ["E1", "E3", "E5", "E7"],
+      "intent": "instruction_names_it",
+      "counterevidence": [
+        "E1 says the conversion is not a question this series will carry forward, so the removal is deliberate rather than accidental."
+      ],
+      "competing_reading": "The author may regard the conversion as already settled, so retiring the question displaces nothing the author still wants to develop."
+    },
+    {
+      "title": "Book 24 decision that refers to the retired question",
+      "status": "possibly_displaced",
+      "earlier": "The Book 24 decision The Uncounted Crew makes the settlement-or-stage question concrete without answering it (E6).",
+      "proposed": "The question this decision refers to by identity is removed (E7).",
+      "reading": "This is a recorded relationship by identity, not a demonstrated contradiction. The decision's wording matches the retired question. Whether it still stands, needs rewording or is simply unaffected is not shown by the record.",
+      "evidence": ["E6", "E7", "E13"],
+      "intent": "not_established",
+      "counterevidence": [
+        "E6 is marked current and the proposal does not record any change to Book 24 itself."
+      ]
+    },
+    {
+      "title": "The conversion as a recorded event of Arc IV",
+      "status": "preserved",
+      "reading": "The proposal changes only the open questions. The recorded phase for Settled Water still describes draw converted in proportion to unreturned hands, so the conversion remains in the Series as an event even though it is no longer an open question.",
+      "evidence": ["E1", "E11"],
+      "counterevidence": [
+        "The packet shows no component comparison, so any other reference to the conversion elsewhere in the architecture was not examined here."
+      ],
+      "competing_reading": "Keeping the event while retiring the question could read as the conversion being treated as fixed, or as an unresolved tension left without a place to be tracked."
+    }
+  ],
+  "prospective": [
+    {
+      "kind": "recorded_relationship",
+      "text": "Book 24, The Uncounted Crew, holds a current decision whose wording matches the retired question. The relationship is by identity. The record does not show whether the decision needs to change.",
+      "evidence": ["E6", "E13"]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: with the settlement question gone, Book 24 might be read as dramatising the cost of the conversion rather than the open status of the settlement, which would fit the recorded Settled Water emphasis on the cost of counting.",
+      "evidence": ["E6", "E11"]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: the Book 30 finale choice among the three mechanisms is recorded in the Unmeasured phase. Whether the finale touches the Book 20 conversion would then rest on the finale mechanism question alone.",
+      "evidence": ["E12"]
+    }
+  ],
+  "alternatives": [
+    {
+      "approach": "retain",
+      "title": "Retire the question and treat the conversion as settled",
+      "summary": "Apply the instruction as written. The conversion stays a settled event of Arc IV, and the Book 24 decision is reworded later to stand without the question. The finale mechanism question and the Special Draw Right question stay open as they are.",
+      "questions": ["q-finale-mechanism", "q-right-revocable"],
+      "gains": "Follows the author's instruction exactly; fewer open threads to hold across Books.",
+      "costs": "The finale can no longer be developed as revisiting the conversion unless the author reopens the matter.",
+      "next_investigation": "Read the Book 24 decision and decide whether its wording needs to change once the question is gone."
+    },
+    {
+      "approach": "integrate",
+      "title": "Fold the revisit concern into the finale mechanism question",
+      "summary": "Retire the standalone question, but let the finale mechanism question carry the concern: whichever mechanism the author picks also states what it does to the Book 20 conversion. This is an author choice, not something the instruction asks for.",
+      "questions": ["q-finale-mechanism", "q-conversion-settlement"],
+      "gains": "Keeps the concern alive in the one place where the finale is decided, without an extra question.",
+      "costs": "Goes beyond the instruction, which changes nothing else, and enlarges an already broad question.",
+      "next_investigation": "Ask the author whether retiring the question meant settled or merely no longer asked."
+    },
+    {
+      "approach": "separate",
+      "title": "Keep the conversion's human cost apart from the finale",
+      "summary": "Retire the settlement question, and track the household cost of the conversion within Book 24 and the Compact and Special Draw Right questions. A distinct question about whose care goes unreturned would be described in a later review and is not given an identity here.",
+      "questions": ["q-right-revocable", "q-compact-settlement"],
+      "gains": "Keeps the cost of counting visible to Books 24 and 25 without reopening the settlement.",
+      "costs": "Spreads the concern over several questions, so no single place records it.",
+      "next_investigation": "Read Book 25, which was listed only by title, to see whether it relies on the retired question."
+    }
+  ],
+  "not_established": [
+    "Why the author retired the question: E5 records no reason and E4 shows the history before revision 3 was not recorded.",
+    "Whether retiring the question means the conversion is settled or abandoned as a concern.",
+    "Whether Book 25 depends on the retired question; it was listed by title only and not read for its decisions (E14).",
+    "Whether the Book 24 decision should change, since the proposal records no change to it.",
+    "The packet shows no component comparison, so no effect on links, emotion targets or phases was examined."
+  ]
+}

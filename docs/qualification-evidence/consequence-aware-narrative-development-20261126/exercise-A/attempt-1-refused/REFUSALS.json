@@ -1,0 +1,12 @@
+{
+  "explain_arm_attempt_1": {
+    "owner": "studio_architecture_inquiry.complete_architecture_inquiry",
+    "refused": "ArchitectureInquiryResult.recorded_observations: List should have at most 8 items, not 9",
+    "classification": "The instruction stated the limit (0-8 objects). The answer broke a stated bound. This is an answer-compliance failure, not an instruction defect. The limit was not relaxed; attempt 2 used the unchanged request."
+  },
+  "consequence_arm_attempt_1": {
+    "owner": "studio_architecture_consequence._check_answer",
+    "refused": "concern 'Scope of the conversion (who it covers)' is transformed and must cite both its earlier and its proposed form",
+    "classification": "Instruction defect. The owner enforces a citation rule for each status that the instruction did not state. The instruction is repaired (see studio_architecture_consequence._SYSTEM) and the arm re-prepared. The first answer is kept unedited."
+  }
+}

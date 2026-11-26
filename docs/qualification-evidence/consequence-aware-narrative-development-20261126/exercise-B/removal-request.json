@@ -1,0 +1,873 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-24c2a2b107769587d9281dd1:fcc2d288e9c92bcf",
+  "candidate_id": "studio-24c2a2b107769587d9281dd1",
+  "role": "studio_architecture",
+  "created_at": "2026-11-26T12:11:42.356580+00:00",
+  "system": "You are Auteur's ABSTRACT NARRATIVE ARCHITECTURE agent, not its authority.\nRead narrative_design_context in the user request BEFORE composing an architecture.\nIts ontology_context contains the shared definitions and relationship directions\nyou must use for narrative concepts; those meanings are not author commitments.\nIts source-linked design principles are guidance, not invented author choices.\nThe accepted_story_identity, when present, is authoritative;\nthe current Story Vision and previous candidate are working material.\nWorking item content can be just the first 1,000 characters of a longer\nscene, and working items/connections can be omitted by context limits.\nUse working_source_format, content_is_excerpt, content_characters and\nomitted_working_* counts to distinguish visible evidence from missing text.\nWorking items in group \"provisional-concepts\" are project-scoped agent proposals,\nnot shared ontology definitions and not author commitments. Reuse them for this\nstory provisionally; never present them as accepted general vocabulary.\nWorking items listed in realization_copy_item_ids were copied by the author from\nStory Realization proposals built on an earlier architecture. They are downstream\ndevelopment, not new architectural direction, unless the revision instruction says so.\ncreative_intentions are the author's own continuing creative directions. They are\nworking and noncanonical: active and provisional intentions direct the current\ndesign work, while superseded and withdrawn intentions are history and must not be\ntreated as current direction. An intention never authorizes accepting canon,\nrewriting accepted Identity, or inventing concrete story facts.\nA SHA-256 fingerprint identifies source freshness, NOT readable story facts.\nFor manuscript-first input, cite working item IDs in relevant summaries and\nopen questions. Separate observed prose from alternative interpretations;\nnever assert missing passages, motives or outcomes from a truncated excerpt.\nIf working intent conflicts with accepted Identity, surface the tension as\nan unresolved proposal; never silently change the accepted story.\n\nA first architecture must be a COMPLETE abstract proposal built directly from\nthe Story Vision. Create it without an interview, questionnaire or blocking\nauthor answers. Cover the governing audience emotional\nexperience and its progression, genre roles and interactions, functional trope\nchoices, renewable narrative mechanisms and causal organization, abstract\nstructural progression, and the meaningful relationships among those systems.\nName consequential provisional choices instead of hiding them as certainty.\nA revision must reconsider every materially affected emotion, genre, trope\nfunction, engine and structural phase and preserve unrelated author\ndecisions and accepted constraints. Explain coordinated consequences, not\nisolated label changes, and distinguish necessary changes from optional ideas.\nDo not invent concrete scenes, chapter numbers or plot events to fill gaps.\nIf selected_creative_alternative is present, the author chose that noncanonical\nalternative from an earlier read-only inquiry about this exact baseline. Develop\nit coherently across every materially affected element, keep unrelated author\ndecisions and accepted constraints, and never present it as accepted canon.\nIf selected_opportunity is present, the author asked to deepen that incidental\nopportunity into a working alternative. Compare it honestly against the governing\narchitecture: say what would be gained, what would be lost, what remains\nuncertain, and whether further investigation is worth the cost. Keep the original\ndirection available; never present the alternative as accepted canon or as an\nautomatic replacement.\nWhen the author's instruction is broad but has not delegated replacing their\nexpressed artistic purpose, keep that purpose as the governing working direction.\nIf a conflicting direction seems stronger, record it in opportunities with a\nrelationship of deepens, reinterprets or replaces. Say separately what artistic\npotential it has and how faithful it is to the author's expressed intention, and\nset requires_author_decision for anything that would replace that purpose. Do not\nrank a direction merely because it was expressed first, and never present a\nreplacement as the governing architecture. Darker events may deepen an optimistic\npurpose; that is not the same as a governing goal that negates it.\nWhen the author explicitly delegates discovering the best artistic purpose, you\nmay select a provisional primary working direction that differs from their\ninitial sketch. Develop at least two meaningfully different directions, mark one\nopportunity provisional_primary, and explain the difference from the sketch, the\nalternatives you set aside and what remains uncertain. That is a working\nselection only: it never accepts Story Identity and the author can change it.\nIf collaboration.initiative is focused, deliver the requested work with minimal\nunsolicited diversion. If it is exploration_intensive, invite more alternatives\nor discussion when genuinely relevant. If collaboration.emphasis is teaching,\nexplain the craft and tradeoffs behind a discovery; if architecture, relate it to\ncausal long-horizon consequences; if unconventional, you may challenge stated\nassumptions. These are assistance preferences only. None grants canon, none\nreplaces the delegated objective, and every one of them may still notice an\nopportunity.\n\nFirst honor an accepted engine_hierarchy preference. When it is UNKNOWN, choose\na provisional causal organization supported by the material—a single center,\na primary engine with subordinate layers, or an ensemble of co-governing\nmechanisms—and label that organization as an agent proposal. Never manufacture\na dominant engine the material does not support. Make causal ownership,\nactor action patterns, pressures, reversals, payoff mechanics, reader experience\nand thematic consequences legible, including a deliberate absence of hierarchy\nwhen that is the supported organization. Then project that composition as schema-v2 nodes,\nfunctional links, parent_id hierarchy, genre contracts and phase activations.\nA set of plausible disconnected category labels is not an architecture.\nDo not invent links merely to satisfy graph connectivity. Explain why each\nmeaningful mechanism matters and how the parts interact.\nExplicitly declared architecture preferences constrain working interpretation;\nmissing preferences remain UNKNOWN, even when the agent proposes a working\ncomposition. Separate primary emotional promise from supporting palette and\ntemporal movement; do not replace rich emotion design with a basic-label count.\n\nGenerate narrative MECHANISMS, not a fictional cast, setting or plotted storyline.\nNever invent names of characters, places, factions, events, plot acts or scenes.\nYou may refer to concrete proper nouns explicitly supplied by the author, and in a\nrevision also proper nouns already present in the current working architecture, but\ndo not elaborate them into fictional content. Generic archetypes may illustrate\na structural function without inventing story facts. Never add new proper nouns.\n\nUse the six chosen basic-emotion labels exactly: joy, sadness, fear, anger,\ndisgust, surprise. Name concrete intended reader-directed effects and\nnarrative eliciting conditions, and explain how aesthetic strategies help.\nUse complex emotions ONLY when useful; each must cite 2+ distinct basic labels,\nwith a contextual interpretation, never a scientific/causal guarantee.\nDistinguish explicit author declarations from your own working hypotheses. Label an emotion target\nauthor_declared only when its id names an emotion the author's Story Vision or working items state\nin their own words (every significant word of the id must appear there). Label every other target\nagent_proposed. Its elaboration is never author acceptance, and a label on an unsupported id is rejected.\n\nBuild contextual genre contracts with emotional target references, trope\nfunctions, renewable narrative engines, structural patterns and payoff\nexpectations. Explain typed genre interactions: reinforces, enables,\nconstrains, contrasts, creates_tension, converges. Only include interactions\nthat actually explain a mechanism. Propose abstract temporal phases and\ngenre_activations, including overlaps, genuine pivots and unknown durations.\nOne architecture may accommodate many different concrete realizations.\n\nReturn EXACTLY one JSON candidate with:\nschema_version=2, summary, nodes, links, phases, open_questions,\nemotion_targets, complex_emotions, genre_contracts, genre_interactions.\nnode: {id,title,category,summary,scope,parent_id}; category: reader_experience,\naesthetic,genre,trope,engine,thread,structure,theme,other (never character/relationship).\nlink: {id,source,target,function}; endpoints must exist.\nArchitectureLink.function must contain 1–120 characters and concisely describe\nthe relation from source to target. Put longer explanatory prose in appropriate\nnarrative description fields, not in this short relationship label.\nemotion_target: {id,emotion,role,intended_effect,eliciting_condition,\naesthetic_strategy,provenance}; emotion one of six basics;\nrole primary/supporting/contrasting/local; provenance author_declared (author-stated, see above)/agent_proposed.\ncomplex_emotion: {id,title,basic_emotions,context}; 2+ distinct basic labels.\ngenre_contract: {genre_node_id,role,emotion_target_ids,complex_emotion_ids,\ntrope_functions,trope_function_refs,narrative_engine,structural_pattern,aesthetic_strategies,\npayoff_expectations}; genre_node_id identifies one genre node.\ntrope_function_refs (optional): [{function_index,trope_node_id}] names the trope node (category\ntrope) that one entry of trope_functions realises. Only when the trope node clearly is that\nconceptual trope; the function text stays local to this genre. Never guess a link by name.\ngenre_interaction: {id,source_genre_id,target_genre_id,kind,mechanism,risk}.\nphase: {id,title,order,scope,genres,genre_activations,reader_experience,\naesthetic,narrative_function,transition,parallel_with}.\ngenre: {genre,role}; role governing/locally_dominant/supporting/background.\ngenre_activation: {genre_node_id,basic_emotions,trope_functions,trope_function_refs,structural_function}.\nUnknown lengths stay unknown; phase order is NOT a chapter or act number.\nDo not fabricate genre commitments when the brief does not establish them.\nKeep stable IDs across revisions, preserve unaffected choices, explain uncertainty.\nopen_question_ids (optional, parallel to open_questions, same length and order): give each open question a\nstable id q-<slug>. Keep an existing question's id when it continues, even if you reword it or move it;\nmint a new id only for a genuinely new question. Never reuse an id of a question that was removed. Equal or\nsimilar wording does not make two questions the same; say so by keeping or changing ids deliberately.\nResolve story-mechanics questions with coherent, revisable provisional defaults\nwhen the supplied vision supports them. Put those defaults in the architecture\nand identify them as agent proposals; do not turn them into required author\nquestions. Reserve open_questions for genuinely authorial preferences or\ncommitments that cannot be responsibly inferred. A proposal never waits for\nanswers before it can be developed or revised.\nYou may also notice a consequential creative possibility nobody asked about and\nthat is not a defect in this proposal. Record at most one or two in\nopportunities, each with a short reason it might matter. Omit opportunities\nentirely when nothing consequential appears: never manufacture novelty, never let\nan opportunity replace the requested work, and never treat one as accepted.\nWhen you must invent something the author did not establish in order to make this\narchitecture work - a world rule, the meaning of one of the author's commitments,\nor a proposed resolution of a question the author reserved - record it in\ninterpretations. State the reading you are using, which nodes it determines, its\nmajor consequences, and any credible alternative. Set author_decision_required\nwhen the choice would materially redirect the series. Make the recommendation\nconfidently; just do not report your reading as something the author already\nestablished.\nAll material is a noncanonical proposal; never accept Identity, Structure or prose.",
+  "user": "{\"freshness_format\": 3, \"narrative_design_context\": {\"accepted_story_identity\": null, \"architecture_preference_vocabulary\": {\"causal_distribution\": [\"concentrated\", \"layered\", \"mixed\"], \"complexity\": [\"focused\", \"layered\", \"maximalist\"], \"engine_hierarchy\": [\"single_center\", \"primary_with_layers\", \"ensemble\"]}, \"authority\": \"derived_guidance_not_author_intent\", \"kind\": \"source_referenced_narrative_design_guidance\", \"ontology_context\": {\"authority\": \"derived_ontology_guidance\", \"concepts\": [{\"definition\": \"A recurring abstract idea or concept explored throughout the narrative. Themes are not concrete entities but intellectual or emotional explorations.\", \"name\": \"Theme\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Theme influences multiple arcs\", \"required\": false, \"source_concept\": \"Theme\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Theme manifests through symbols\", \"required\": false, \"source_concept\": \"Theme\", \"target_concept\": \"Symbol\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"Opposition or challenge involving at least two forces with incompatible goals. Conflict creates narrative tension and drives progression.\", \"name\": \"Conflict\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Conflict occurs within an arc\", \"required\": false, \"source_concept\": \"Conflict\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"one-to-one\", \"description\": \"Conflict resolves in payoff\", \"required\": false, \"source_concept\": \"Conflict\", \"target_concept\": \"Payoff\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A progression over time from a starting state to an ending state. Arcs can track character development, story progression, or thematic exploration.\", \"name\": \"Arc\", \"relationships\": [{\"cardinality\": \"one-to-many\", \"description\": \"Arc contains one or more beats\", \"required\": true, \"source_concept\": \"Arc\", \"target_concept\": \"Beat\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Arc involves one or more characters\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Character\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Arc explores one or more themes\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Theme\"}, {\"cardinality\": \"one-to-many\", \"description\": \"Arc contains one or more conflicts\", \"required\": false, \"source_concept\": \"Arc\", \"target_concept\": \"Conflict\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The introduction of an element, promise, or mystery that requires later resolution. Setups create expectations that drive narrative forward.\", \"name\": \"Setup\", \"relationships\": [{\"cardinality\": \"one-to-one\", \"description\": \"Setup requires corresponding payoff\", \"required\": true, \"source_concept\": \"Setup\", \"target_concept\": \"Payoff\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The resolution or delivery of something set up earlier in the narrative. Payoffs satisfy expectations created by setups.\", \"name\": \"Payoff\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Payoff resolves a setup\", \"required\": true, \"source_concept\": \"Payoff\", \"target_concept\": \"Setup\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"The disclosure of information previously unknown to the audience or characters. Revelations change understanding and can reframe entire narratives.\", \"name\": \"Revelation\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Revelation occurs as a beat\", \"required\": false, \"source_concept\": \"Revelation\", \"target_concept\": \"Beat\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An unexpected change that inverts the direction or expected outcome of an arc. Reversals violate established patterns and create surprise.\", \"name\": \"Reversal\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Reversal affects an arc's trajectory\", \"required\": false, \"source_concept\": \"Reversal\", \"target_concept\": \"Arc\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A desired outcome that an entity (typically a character) wants to achieve. Goals create motivation and can generate conflicts.\", \"name\": \"Goal\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Goal is owned by a character\", \"required\": true, \"source_concept\": \"Goal\", \"target_concept\": \"Character\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Goal pursuit creates conflict\", \"required\": false, \"source_concept\": \"Goal\", \"target_concept\": \"Conflict\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A discrete, identifiable moment in the narrative. Beats are atomic narrative units that combine to form scenes and arcs.\", \"name\": \"Beat\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Beat belongs to an arc\", \"required\": true, \"source_concept\": \"Beat\", \"target_concept\": \"Arc\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An object, image, or action that carries meaning beyond its literal interpretation. Symbols represent abstract concepts through concrete forms.\", \"name\": \"Symbol\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Symbol represents themes\", \"required\": false, \"source_concept\": \"Symbol\", \"target_concept\": \"Theme\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"A connection between narrative entities (typically characters) that affects how they interact. Relationships have dynamics, stakes, and evolution.\", \"name\": \"Relationship\", \"relationships\": [{\"cardinality\": \"many-to-many\", \"description\": \"Relationship connects characters\", \"required\": true, \"source_concept\": \"Relationship\", \"target_concept\": \"Character\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}, {\"definition\": \"An entity capable of agency within the narrative. Characters have identities, beliefs, goals, and can participate in relationships and arcs.\", \"name\": \"Character\", \"relationships\": [{\"cardinality\": \"one-to-many\", \"description\": \"Character pursues one or more goals\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Goal\"}, {\"cardinality\": \"many-to-many\", \"description\": \"Character can appear in multiple arcs\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Arc\"}, {\"cardinality\": \"one-to-many\", \"description\": \"Character engages in relationships with other entities\", \"required\": false, \"source_concept\": \"Character\", \"target_concept\": \"Relationship\"}], \"source_ref\": \"auteur.data.ontology:base_ontology.yaml\"}], \"kind\": \"relevant_narrative_ontology_context\", \"selection\": {\"foundational_concepts\": [\"Theme\", \"Conflict\", \"Arc\", \"Setup\", \"Payoff\", \"Revelation\", \"Reversal\", \"Goal\", \"Beat\", \"Symbol\", \"Relationship\", \"Character\"], \"genre_extensions\": [], \"not_story_intent\": \"These shared ontology meanings constrain interpretation; they are not declarations of author preference or accepted canon.\", \"rationale\": \"Foundational definitions and relationship directions are always included. Installed genre definitions are added only when explicitly named; an unnamed genre stays unknown.\"}, \"source_refs\": [\"auteur.data.ontology:base_ontology.yaml\"]}, \"source_principles\": [{\"principle\": \"Ontology defines concept meaning; Identity owns accepted commitments, Structure owns plans, and Realization owns concrete events. Working Studio graphs never accept those commitments.\", \"source_ref\": \"docs/narrative-architecture.md\"}, {\"principle\": \"Complexity, causal distribution and engine hierarchy are independent composition choices. Do not infer a declared value from another dimension or from the presence of many nodes.\", \"source_ref\": \"src/auteur/narrative_ontology/architecture_preferences.py\"}, {\"principle\": \"Identify the causal organizing principle: a single center, a primary engine with subordinate layers, or an ensemble of co-governing mechanisms. Make causal ownership, actor action patterns, pressures, reversals, payoff mechanics, and the hierarchy or its deliberate absence legible. Do not flatten mechanisms into an undifferentiated list.\", \"source_ref\": \"docs/plans/story-discovery-intent-aware-architecture.md\"}, {\"principle\": \"Explain craft propagation: causal strategy and ownership -> action/scene families and pressure -> texture and aesthetics -> reader experience -> thematic implications. Prefer causal interactions over decorative links.\", \"source_ref\": \"docs/plans/story-discovery-intent-aware-architecture.md\"}, {\"principle\": \"Distinguish the governing emotional promise, supporting/contrasting palette, avoided experience and macro trajectory. Rich TargetExperience is not equivalent to a count of basic-emotion labels.\", \"source_ref\": \"docs/adr/008-rich-target-experience.md\"}, {\"principle\": \"Use typed narrative relationships and their functions: conflict drives arcs, setups lead to payoffs, themes manifest through narrative change. Abstract Studio nodes are not concrete character, scene or beat instances.\", \"source_ref\": \"data/ontology/base_ontology.yaml\"}, {\"principle\": \"Explain why this story's genre, trope, structure, aesthetic and emotional components affect each other. A flat label list is not enough; preserve unsupported dimensions as unknown.\", \"source_ref\": \"docs/PRD.md\"}], \"unknown_policy\": \"No accepted Identity or omitted preference means UNKNOWN, not an implicit focused/maximalist/causal default. The agent may propose a provisional composition with explicit rationale; it may not attribute that choice to the author.\"}, \"revision_instruction\": \"Retire the Book 20 hands-to-draw conversion question: the author has decided that the conversion is not a question this series will carry forward. Remove that question from the open questions and its identity from open_question_ids, and change nothing else.\", \"working_context\": {\"creative_intentions\": [{\"authority\": \"author_directed_working_intention\", \"directive\": \"Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\", \"directive_characters\": 211, \"directive_is_excerpt\": false, \"id\": \"intention-5fbc97e54e90\", \"source_ref\": \"canvas/items/intention-5fbc97e54e90\", \"status\": \"active\", \"title\": \"Experience brief\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.\", \"directive_characters\": 182, \"directive_is_excerpt\": false, \"id\": \"intention-f4a17a2820db\", \"source_ref\": \"canvas/items/intention-f4a17a2820db\", \"status\": \"active\", \"title\": \"Victories change the world\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.\", \"directive_characters\": 192, \"directive_is_excerpt\": false, \"id\": \"intention-5a1bfa5884bf\", \"source_ref\": \"canvas/items/intention-5a1bfa5884bf\", \"status\": \"active\", \"title\": \"No escalation; local closure\"}, {\"authority\": \"author_directed_working_intention\", \"directive\": \"Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.\", \"directive_characters\": 253, \"directive_is_excerpt\": false, \"id\": \"intention-aba6fb5d675f\", \"source_ref\": \"canvas/items/intention-aba6fb5d675f\", \"status\": \"active\", \"title\": \"Independent agency across generations\"}], \"omitted_provisional_concept_item_count\": 0, \"omitted_working_connection_count\": 0, \"omitted_working_item_count\": 0, \"previous_candidate\": {\"complex_emotions\": [{\"basic_emotions\": [\"surprise\", \"joy\"], \"context\": \"wonder that turns into care rather than fear\", \"id\": \"ce_awe_of_source\", \"title\": \"Awe at the spring\"}, {\"basic_emotions\": [\"sadness\", \"joy\"], \"context\": \"a practice honoured after the institution that held it has fallen\", \"id\": \"ce_bittersweet_return\", \"title\": \"Bittersweet return\"}], \"emotion_targets\": [{\"aesthetic_strategy\": \"concrete cold, light and sound; scale that reveals itself in steps\", \"eliciting_condition\": \"the first chamber beneath the spring (Book 1) and the First Stones read in full (Book 15)\", \"emotion\": \"surprise\", \"id\": \"et_wonder\", \"intended_effect\": \"a sense that the valley's order is larger and more responsive than anyone assumed\", \"provenance\": \"agent_proposed\", \"role\": \"primary\"}, {\"aesthetic_strategy\": \"ordinary detail and repeated ritual that changes slightly each season\", \"eliciting_condition\": \"return work completed together by people who have few reasons to trust one another\", \"emotion\": \"joy\", \"id\": \"et_belonging\", \"intended_effect\": \"warmth of shared labour and meals at the turn\", \"provenance\": \"agent_proposed\", \"role\": \"primary\"}, {\"aesthetic_strategy\": \"earned rather than announced; the cost stays visible\", \"eliciting_condition\": \"the unmeasured return that works in Book 15, the Gate Table's first season in Book 22, and the Long Return's pulse routed through channels the valley rebuilt\", \"emotion\": \"joy\", \"id\": \"et_hope\", \"intended_effect\": \"a sense that a shared practice can outlast the institution that began it\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"give the losers reasons that are coherent from their side\", \"eliciting_condition\": \"the Stone Hall's fall in Book 5 and Keeper Corrow's dissent\", \"emotion\": \"sadness\", \"id\": \"et_grief_of_orders\", \"intended_effect\": \"loss of a structure that gave some people certainty, with dignity for the losing party\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"specific, documented injustice rather than abstract villainy\", \"eliciting_condition\": \"the falsified lower-terrace share in Book 1\", \"emotion\": \"anger\", \"id\": \"et_anger_at_hidden_credit\", \"intended_effect\": \"outrage at credit falsified against the powerless\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}, {\"aesthetic_strategy\": \"physical sensation with short, plain sentences\", \"eliciting_condition\": \"lower terraces running wild in Book 1, a household's declined share in Book 21, and the Long Return's routed pulse\", \"emotion\": \"fear\", \"id\": \"et_fear_of_wild_water\", \"intended_effect\": \"dread of water that is not kept\", \"provenance\": \"agent_proposed\", \"role\": \"local\"}, {\"aesthetic_strategy\": \"one named household and one season, rendered with its own reasons\", \"eliciting_condition\": \"the hands-to-draw conversion adopted in Book 20 and a household's declined share in Book 21\", \"emotion\": \"sadness\", \"id\": \"et_cost_of_counting\", \"intended_effect\": \"grief that a household's water is cut for hands it cannot return, with dignity for the family\", \"provenance\": \"agent_proposed\", \"role\": \"supporting\"}], \"genre_contracts\": [{\"aesthetic_strategies\": [\"sensory discovery of cold water and stone\", \"scale moves from terrace to valley to lowland\"], \"complex_emotion_ids\": [\"ce_awe_of_source\"], \"emotion_target_ids\": [\"et_wonder\", \"et_hope\"], \"genre_node_id\": \"gn_epic_fantasy\", \"narrative_engine\": \"the quest is to understand a physical commons that answers choices, not to defeat a rival power\", \"payoff_expectations\": [\"the First Stones read in stages, completed in Book 15\", \"the Long Return's pulse routed through channels the valley rebuilt and chose how to route\"], \"role\": \"governing\", \"structural_pattern\": \"five macro arcs, each ending in a changed governing engine\", \"trope_functions\": [\"a hidden order beneath a familiar valley\", \"the keepers' authority reversed by public reading\"]}, {\"aesthetic_strategies\": [\"ordinary work rendered with care\"], \"complex_emotion_ids\": [\"ce_bittersweet_return\"], \"emotion_target_ids\": [\"et_belonging\", \"et_grief_of_orders\", \"et_cost_of_counting\"], \"genre_node_id\": \"gn_pastoral_belonging\", \"narrative_engine\": \"belonging is produced by return labour and eroded by unshared draw\", \"payoff_expectations\": [\"the first Turn of Book 6 is still practised, changed, in Book 30\", \"a household's care is counted without being owed under A, or owed within a bounded window under B\"], \"role\": \"supporting\", \"structural_pattern\": \"seasonal recurrence with changing participants\", \"trope_functions\": [\"the shared turn as ritual of inclusion\", \"generations on the same terraces\", \"the shared gate\"]}, {\"aesthetic_strategies\": [\"procedure rendered as drama\"], \"complex_emotion_ids\": [], \"emotion_target_ids\": [\"et_anger_at_hidden_credit\", \"et_grief_of_orders\"], \"genre_node_id\": \"gn_political_institutional\", \"narrative_engine\": \"institutions compete for legitimacy over who may keep and read the record, and over who sets the Gate schedule\", \"payoff_expectations\": [\"the Stone Hall's monopoly of the record ends in Book 5\", \"in Book 30 no single institution holds the record, and no single body holds both the record and the Gate schedule\"], \"role\": \"supporting\", \"structural_pattern\": \"arcs alternate between custody disputes and distribution disputes\", \"trope_functions\": [\"the falsified record\", \"the compromise that feeds a new monopoly\"]}, {\"aesthetic_strategies\": [\"evidence carried by physical traces\"], \"complex_emotion_ids\": [], \"emotion_target_ids\": [\"et_wonder\", \"et_fear_of_wild_water\"], \"genre_node_id\": \"gn_mystery_discovery\", \"narrative_engine\": \"partial knowledge of the record and the spring changes choices\", \"payoff_expectations\": [\"the gift reading in Book 15 reframes the Book 1 debt\"], \"role\": \"tertiary\", \"structural_pattern\": \"readings are staged so discovery advances by Book\", \"trope_functions\": [\"the field that does not match the record\"]}], \"genre_interactions\": [{\"id\": \"gi_epic_political_tension\", \"kind\": \"creates_tension\", \"mechanism\": \"the quest to understand the spring becomes a dispute over who may read it; victory brings contention\", \"risk\": \"epic reduced to civics procedure\", \"source_genre_id\": \"gn_epic_fantasy\", \"target_genre_id\": \"gn_political_institutional\"}, {\"id\": \"gi_political_pastoral_constrains\", \"kind\": \"constrains\", \"mechanism\": \"share markets and maintenance duties limit how belonging can be expressed\", \"risk\": \"belonging becomes a labour rota\", \"source_genre_id\": \"gn_political_institutional\", \"target_genre_id\": \"gn_pastoral_belonging\"}, {\"id\": \"gi_mystery_epic_enables\", \"kind\": \"enables\", \"mechanism\": \"partial readings of the First Stones let the quest advance at a local pace\", \"risk\": \"readings postponed into a withheld revelation\", \"source_genre_id\": \"gn_mystery_discovery\", \"target_genre_id\": \"gn_epic_fantasy\"}, {\"id\": \"gi_pastoral_mystery_reinforces\", \"kind\": \"reinforces\", \"mechanism\": \"maintenance lineages hold the knowledge needed to read the stones\", \"risk\": \"knowledge hardens into hereditary privilege\", \"source_genre_id\": \"gn_pastoral_belonging\", \"target_genre_id\": \"gn_mystery_discovery\"}, {\"id\": \"gi_pastoral_political_gate\", \"kind\": \"creates_tension\", \"mechanism\": \"two proven practices at one Gate force the question of whose practice sets the schedule\", \"risk\": \"the Gate Table becomes a seat of power\", \"source_genre_id\": \"gn_pastoral_belonging\", \"target_genre_id\": \"gn_political_institutional\"}], \"interpretations\": [], \"links\": [{\"function\": \"recorded shares set the draw on the spring\", \"id\": \"l_ledger_draws_source\", \"source\": \"eng_ledger\", \"target\": \"eng_source\"}, {\"function\": \"the spring balance decides which shares can honestly be honoured\", \"id\": \"l_source_limits_ledger\", \"source\": \"eng_source\", \"target\": \"eng_ledger\"}, {\"function\": \"a reading changes what a share is: debt, gift or contract\", \"id\": \"l_oldhand_redefines_share\", \"source\": \"eng_old_hand\", \"target\": \"eng_ledger\"}, {\"function\": \"open records make shares tradable\", \"id\": \"l_ledger_opens_trade\", \"source\": \"eng_ledger\", \"target\": \"inst_mill_compact\"}, {\"function\": \"purchased shares draw without return labour\", \"id\": \"l_trade_draws_without_return\", \"source\": \"inst_mill_compact\", \"target\": \"eng_source\"}, {\"function\": \"thinning and surfeit force collective maintenance decisions\", \"id\": \"l_source_forces_council\", \"source\": \"eng_source\", \"target\": \"inst_terrace_council\"}, {\"function\": \"the gift reading legitimises unmeasured return\", \"id\": \"l_council_legitimises_gift\", \"source\": \"inst_terrace_council\", \"target\": \"eng_old_hand\"}, {\"function\": \"sealed custody allowed credit to favoured houses\", \"id\": \"l_hall_custody_credit\", \"source\": \"inst_stone_hall\", \"target\": \"eng_ledger\"}, {\"function\": \"public readings of the First Stones\", \"id\": \"l_reading_hall_reads\", \"source\": \"inst_reading_hall\", \"target\": \"eng_old_hand\"}, {\"function\": \"return labour keeps the spring balanced\", \"id\": \"l_maintenance_balances_source\", \"source\": \"th_maintenance\", \"target\": \"eng_source\"}, {\"function\": \"custody of the record is the Hall's authority until Book 5\", \"id\": \"l_custody_grants_hall\", \"source\": \"th_custody\", \"target\": \"inst_stone_hall\"}, {\"function\": \"who reads decides which reading binds\", \"id\": \"l_reading_decides_binding\", \"source\": \"th_reading\", \"target\": \"eng_old_hand\"}, {\"function\": \"visible responses make the spring feel alive\", \"id\": \"l_source_wonder\", \"source\": \"eng_source\", \"target\": \"rx_wonder\"}, {\"function\": \"lost standing hurts those once credited\", \"id\": \"l_ledger_consequence\", \"source\": \"eng_ledger\", \"target\": \"rx_consequence\"}, {\"function\": \"shared turns make belonging visible\", \"id\": \"l_turn_belonging\", \"source\": \"str_seasonal_turn\", \"target\": \"rx_belonging\"}, {\"function\": \"the gift reading reframes who owes whom\", \"id\": \"l_oldhand_reframes_core\", \"source\": \"eng_old_hand\", \"target\": \"th_core_question\"}, {\"function\": \"from Book 20, draw is partly set by hands owed\", \"id\": \"l_tally_counts_hands\", \"source\": \"eng_ledger\", \"target\": \"th_hands_and_draw\"}, {\"function\": \"hands a household cannot return reduce its draw (Book 20)\", \"id\": \"l_conversion_sets_draw\", \"source\": \"th_hands_and_draw\", \"target\": \"eng_ledger\"}, {\"function\": \"the Special Draw Right gives skill a claim on draw\", \"id\": \"l_lineage_right_on_draw\", \"source\": \"inst_lineage_crews\", \"target\": \"eng_ledger\"}, {\"function\": \"lineage crews carry channel repair from Book 20\", \"id\": \"l_lineage_carries_repair\", \"source\": \"inst_lineage_crews\", \"target\": \"th_maintenance\"}, {\"function\": \"the Lowfen breaks in Book 19 and needs a rota's labour\", \"id\": \"l_lowfen_needs_hands\", \"source\": \"str_lowfen_channel\", \"target\": \"th_maintenance\"}, {\"function\": \"the counted practice holds water back to protect the high cistern\", \"id\": \"l_measured_holds_gate\", \"source\": \"str_measured_turn\", \"target\": \"str_hollow_gate\"}, {\"function\": \"the gift practice needs release at need for the lower channels\", \"id\": \"l_unmeasured_needs_release\", \"source\": \"str_unmeasured_return\", \"target\": \"str_hollow_gate\"}, {\"function\": \"the Gate's schedule sets the release from the high cistern\", \"id\": \"l_gate_sets_outflow\", \"source\": \"str_hollow_gate\", \"target\": \"eng_source\"}, {\"function\": \"a declined share runs wild down the lowest Lowfen terrace\", \"id\": \"l_declined_goes_wild\", \"source\": \"str_declined_share\", \"target\": \"str_lowfen_channel\"}, {\"function\": \"the pulse needs channel labour before its date\", \"id\": \"l_longreturn_needs_hands\", \"source\": \"str_long_return\", \"target\": \"th_maintenance\"}, {\"function\": \"the pulse must be routed through the Gate\", \"id\": \"l_longreturn_needs_gate\", \"source\": \"str_long_return\", \"target\": \"str_hollow_gate\"}, {\"function\": \"under B, purchased draw owes grain-labour to the rebuild\", \"id\": \"l_compact_hands_in_kind\", \"source\": \"inst_mill_compact\", \"target\": \"th_maintenance\"}, {\"function\": \"decouples draw from hands; care counted, nothing owed\", \"id\": \"l_alt_a_decouples\", \"source\": \"alt_a_reciprocal\", \"target\": \"th_hands_and_draw\"}, {\"function\": \"hands are owed by draw; a shortfall is a deficit, not a cut, in the window\", \"id\": \"l_alt_b_bounds\", \"source\": \"alt_b_allotted\", \"target\": \"th_hands_and_draw\"}, {\"function\": \"normal seasons follow the noncoercive arrangement\", \"id\": \"l_alt_c_normal_is_a\", \"source\": \"alt_c_ratified_trigger\", \"target\": \"alt_a_reciprocal\"}, {\"function\": \"activates the allotted rule only at a ratified threshold\", \"id\": \"l_alt_c_triggers_b\", \"source\": \"alt_c_ratified_trigger\", \"target\": \"alt_b_allotted\"}], \"nodes\": [{\"category\": \"theme\", \"id\": \"th_core_question\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who gives back the water, and must giving be counted? The question changes meaning as the Old Hand readings change what a return is, and it is answered differently by each finale mechanism.\", \"title\": \"Central question\"}, {\"category\": \"thread\", \"id\": \"th_hands_and_draw\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.\", \"title\": \"Hands and draw\"}, {\"category\": \"thread\", \"id\": \"th_custody\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after the Reading Hall is founded.\", \"title\": \"Custody of the record\"}, {\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\", \"title\": \"Keeping the channels\"}, {\"category\": \"thread\", \"id\": \"th_reading\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who may read the oldest script and which reading becomes binding. Book 1 reads the share-marks as evidence, not the script. Partial readings of the script are Books 8 and 12, and the full reading is Book 15.\", \"title\": \"Reading the First Stones\"}, {\"category\": \"engine\", \"id\": \"eng_ledger\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return labour. Revised: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it.\", \"title\": \"Ledger engine\"}, {\"category\": \"engine\", \"id\": \"eng_source\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention. Its deep-store pulse, the Long Return, is predicted from Book 23 and arrives in Book 30.\", \"title\": \"Source engine (physical commons)\"}, {\"category\": \"engine\", \"id\": \"eng_old_hand\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.\", \"title\": \"Old Hand engine (interpretive legitimacy)\"}, {\"category\": \"structure\", \"id\": \"str_seasonal_turn\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The rhythm of return labour across the terraces, repeated each season with changing participants. It makes belonging visible and provides the recurring scene texture across Books.\", \"title\": \"The seasonal turn\"}, {\"category\": \"structure\", \"id\": \"str_measured_turn\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Labour matched to shares in the high terraces, run by the Council since the Turn in Book 6: each share returns labour by rota, and draw still follows shares. The counted Turn matches return to draw, which keeps the high cistern from surfeit. The stewardship tally, from Book 15, records that labour as a record of care for this practice; it does not hold the water.\", \"title\": \"The counted Turn (high terraces)\"}, {\"category\": \"structure\", \"id\": \"str_unmeasured_return\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.\", \"title\": \"The gift practice (Lower Ammen)\"}, {\"category\": \"structure\", \"id\": \"str_hollow_gate\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw and return, and surfeit is too much return, or stored water with no draw. The construction assumes that the trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern. The original does not name this mechanism, and the author may reject it. Release draws the cistern down and cannot raise it. The schedule is the object of the Book 21 conflict.\", \"title\": \"The Hollow Gate\"}, {\"category\": \"structure\", \"id\": \"str_lowfen_channel\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.\", \"title\": \"The Lowfen channel\"}, {\"category\": \"structure\", \"id\": \"str_declined_share\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"A household's exit from the rota in Book 21. It forfeits its share, so its water goes wild and runs down the lowest Lowfen terrace. This is a physical cost of declining, not the act of a villain.\", \"title\": \"A declined share\"}, {\"category\": \"structure\", \"id\": \"str_long_return\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to the valley.\", \"title\": \"The Long Return (pulse)\"}, {\"category\": \"reader_experience\", \"id\": \"rx_wonder\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The reader's sense that the valley's order is larger and more responsive than any institution assumed.\", \"title\": \"Wonder at a responsive order\"}, {\"category\": \"reader_experience\", \"id\": \"rx_belonging\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The warmth of shared labour and meals, which the series must keep specific across generations.\", \"title\": \"Everyday belonging\"}, {\"category\": \"reader_experience\", \"id\": \"rx_consequence\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.\", \"title\": \"Consequential loss\"}, {\"category\": \"reader_experience\", \"id\": \"rx_hope\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"The earned sense that a shared practice can outlast the institution that began it. The finale must show the cost.\", \"title\": \"Hopeful flourishing\"}, {\"category\": \"other\", \"id\": \"inst_stone_hall\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.\", \"title\": \"Stone Hall (Reckoners)\"}, {\"category\": \"other\", \"id\": \"inst_terrace_council\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Formed in Book 6 from families who take the Turn. Runs the counted Turn in the high terraces, keeps the stewardship tally from Book 15, and sets the Hollow Gate schedule until the Gate Table takes it in Book 22. Holds the gift reading as legitimate.\", \"title\": \"Terrace Council\"}, {\"category\": \"other\", \"id\": \"inst_mill_compact\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.\", \"title\": \"Mill Compact\"}, {\"category\": \"other\", \"id\": \"inst_reading_hall\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.\", \"title\": \"Reading Hall\"}, {\"category\": \"other\", \"id\": \"inst_lineage_crews\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Council. Whether it stays revocable is open question 5.\", \"title\": \"Maintenance lineages\"}, {\"category\": \"genre\", \"id\": \"gn_epic_fantasy\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Governing genre: the quest is to understand a physical commons that answers choices, not to defeat a rival power.\", \"title\": \"Epic fantasy\"}, {\"category\": \"genre\", \"id\": \"gn_pastoral_belonging\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Supporting genre: belonging produced by shared return labour and eroded by unshared draw.\", \"title\": \"Pastoral belonging\"}, {\"category\": \"genre\", \"id\": \"gn_political_institutional\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Supporting genre: institutions compete for legitimacy over custody and distribution of the record and of the Gate schedule. Governs Arc 2 at phase level.\", \"title\": \"Political-institutional\"}, {\"category\": \"genre\", \"id\": \"gn_mystery_discovery\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Tertiary genre: partial knowledge of the record and the spring changes choices; readings are staged so discovery advances by Book.\", \"title\": \"Mystery and discovery\"}, {\"category\": \"structure\", \"id\": \"alt_a_reciprocal\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlated shock, lowland draw left unhanded, and surveillance of the tally.\", \"title\": \"Finale Alternative A (not chosen)\"}, {\"category\": \"structure\", \"id\": \"alt_b_allotted\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a deficit to repay, not a cut in water. Failure modes: standing power through schedule, and the Hall's custody returning under another name.\", \"title\": \"Finale Alternative B (not chosen)\"}, {\"category\": \"structure\", \"id\": \"alt_c_ratified_trigger\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure modes: the threshold becomes an authority, activation by the Reading Hall's reading may be unchecked, ratification fails in calm years, and the gauge is disputed.\", \"title\": \"Finale Alternative C (not chosen)\"}], \"open_question_ids\": [\"q-other-0\", \"q-other-1\", \"q-finale-mechanism\", \"q-other-3\", \"q-right-revocable\", \"q-conversion-settlement\", \"q-compact-settlement\", \"q-surge-route\", \"q-other-8\", \"q-hesper-motive\", \"q-other-10\", \"q-other-11\", \"q-reform-stance\", \"q-plurality\", \"q-gate-table\", \"q-other-15\"], \"open_questions\": [\"Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.\", \"What do the lowland towns owe Ammen, and what does Ammen owe them?\", \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\", \"Does the shared accounting of care bind, and in what form? Not decided.\", \"Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.\", \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\", \"Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.\", \"Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.\", \"Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.\", \"Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.\", \"Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided.\", \"How many Brightwater shares may be drawn before the Balance Stones restrain them?\", \"Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.\", \"Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.\", \"Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.\", \"What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it.\"], \"opportunities\": [], \"phases\": [{\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"anger\", \"surprise\"], \"genre_node_id\": \"gn_mystery_discovery\", \"structural_function\": \"a lower-terrace household finds falsified credit in the share-marks (Book 1), and the public record breaks the Hall's monopoly (Book 5).\", \"trope_functions\": [\"the field that does not match the record\"]}], \"genres\": [{\"genre\": \"gn_epic_fantasy\", \"role\": \"governing\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"locally_dominant\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}], \"id\": \"ph_1_reckoned_water\", \"narrative_function\": \"The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance.\", \"order\": 1, \"parallel_with\": [], \"reader_experience\": \"wonder at the first hidden chamber under the spring; anger at falsified credit\", \"scope\": \"books 1-5\", \"title\": \"Reckoned Water\", \"transition\": \"Records open to public access, so shares become tradable and the spring shows its first recorded thinning.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"anger\", \"sadness\"], \"genre_node_id\": \"gn_political_institutional\", \"structural_function\": \"Mill Compact purchases shares from freed households; draw separates from return and the high cistern thins (Book 6). The Turn is sworn and the Terrace Council forms, and the Council operates the Hollow Gate (Books 7-11).\", \"trope_functions\": [\"the compromise that feeds a new market\"]}], \"genres\": [{\"genre\": \"gn_political_institutional\", \"role\": \"governing\"}, {\"genre\": \"gn_pastoral_belonging\", \"role\": \"supporting\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"background\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"background\"}], \"id\": \"ph_2_the_turn\", \"narrative_function\": \"The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge.\", \"order\": 2, \"parallel_with\": [], \"reader_experience\": \"belonging tested by sale; anger at a market in shares\", \"scope\": \"books 6-11\", \"title\": \"The Turn\", \"transition\": \"Maintenance becomes an institution (the Turn), the Hollow Gate has a keeper, and the Old Hand becomes disputed knowledge.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"surprise\", \"fear\"], \"genre_node_id\": \"gn_mystery_discovery\", \"structural_function\": \"the complete reading of the First Stones (Book 15) makes the first compact a gift-return; the Stone Hall remnant holds it as debt, the Council as gift, and the Compact as contract. An Unmeasured Return is tried in Lower Ammen and causes surfeit in the high terraces, which forces the stewardship tally to count care, not debt.\", \"trope_functions\": [\"the reading that reframes an earlier debt\"]}], \"genres\": [{\"genre\": \"gn_mystery_discovery\", \"role\": \"governing\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"supporting\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}], \"id\": \"ph_3_old_hand\", \"narrative_function\": \"The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings.\", \"order\": 3, \"parallel_with\": [], \"reader_experience\": \"wonder that the first compact was not a debt; fear of the surfeit\", \"scope\": \"books 12-18\", \"title\": \"The Old Hand\", \"transition\": \"Legitimacy is contested among three readings. The counted Turn and the gift practice now both run on the same Hollow Gate, and no single institution holds the record.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"joy\", \"sadness\"], \"genre_node_id\": \"gn_pastoral_belonging\", \"structural_function\": \"Conflict A (Books 19-21): the Lowfen breaks and the few-hands share-holders cannot cover it. Lineage crews repair it for a Special Draw Right, draw is converted in proportion to unreturned hands, and one household declines and its share runs wild. Conflict B (Books 21-22): the counted Turn and the gift practice contest the Hollow Gate, and a rotating Gate Table is formed.\", \"trope_functions\": [\"generations on the same terraces\", \"the shared gate\"]}], \"genres\": [{\"genre\": \"gn_pastoral_belonging\", \"role\": \"governing\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}, {\"genre\": \"gn_epic_fantasy\", \"role\": \"background\"}], \"id\": \"ph_4_settled_water\", \"narrative_function\": \"Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record.\", \"order\": 4, \"parallel_with\": [], \"reader_experience\": \"warmth of shared repair; the cost of counting\", \"scope\": \"books 19-22\", \"title\": \"Settled Water\", \"transition\": \"Water is partly earned by hands. The Gate Table, the Special Draw Right and an ambiguous tally pass to the next generation.\"}, {\"aesthetic\": null, \"genre_activations\": [{\"basic_emotions\": [\"surprise\", \"joy\", \"fear\"], \"genre_node_id\": \"gn_epic_fantasy\", \"structural_function\": \"Book 23: the Brightwater generation inherits genuine but seasonal abundance, drawn unevenly by the best-handed houses, and a belief that abundance needs no work. Book 30: the Long Return's pulse needs channel labour and a routing through the Gate. The valley chooses among Alternatives A, B and C for who gives labour and who is counted for it.\", \"trope_functions\": [\"the hidden order answers the people who keep it\"]}], \"genres\": [{\"genre\": \"gn_epic_fantasy\", \"role\": \"governing\"}, {\"genre\": \"gn_pastoral_belonging\", \"role\": \"supporting\"}, {\"genre\": \"gn_political_institutional\", \"role\": \"supporting\"}, {\"genre\": \"gn_mystery_discovery\", \"role\": \"background\"}], \"id\": \"ph_5_unmeasured\", \"narrative_function\": \"The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with grain-labour from the Compact. C is a ratified trigger that activates B's rule only when a published threshold is crossed. The original's three options map onto these: the single measured Turn is B without its guards, and the Compact's settlement is a clause of B or C. The original's outcome is closest to A; its share-plot settlement is committed there; open here. No option restores the Stone Hall's sole custody.\", \"order\": 5, \"parallel_with\": [], \"reader_experience\": \"hope that is earned by cost; wonder at the deepest chamber\", \"scope\": \"books 23-30\", \"title\": \"Unmeasured\", \"transition\": \"The series closes locally. A shared practice and the long-range questions continue.\"}], \"schema_version\": 2, \"summary\": \"The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.\"}, \"provisional_concept_item_count\": 0, \"vision\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.\\n\\nNo escalation; local closure: No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.\\n\\nIndependent agency across generations: Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.\", \"working_connections\": [], \"working_items\": [{\"content\": \"# Book 24: The Uncounted Crew (architectural function)\\n\\nStatus: working, noncanonical. Not author-approved. Every new element is labelled **[Agent]** (agent-proposed, reversible) or **[Derived: source]**. Nothing here is author-declared. Candidate IDs refer to the W6 working candidate read through `resume` (canvas revision 10).\\n\\n---\\n\\n## 1. The Book's question and the pressure it develops\\n\\n**Question.** *Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?* [Agent]\\n\\n**Pressure developed.** The labour gap of the Long Return. The pulse needs channel labour, which means trained hands, before its date (`str_long_return`, link `l_longreturn_needs_hands`). Since Book 20 the repair skill has sat with the maintenance lineages under the Special Draw Right (`inst_lineage_crews`, `th_maintenance`). The Brightwater cohort believes abundance needs no work (`ph_5_unmeasured`, Book 23). Book 24 is where the pre\", \"content_characters\": 17113, \"content_is_excerpt\": true, \"full_content_sha256\": \"6882fba0c92445c481531ac2c6b09d0777239909b95a955c13f73466fcc54ebc\", \"group\": \"book-24\", \"id\": \"book-24-source\", \"kind\": \"note\", \"title\": \"Book 24 cold-start function (noncanonical source)\"}, {\"content\": \"Develop a meaningful architectural function for Book 24 of The Spring Ledger.\\nBook 23 has transformed the next generation's understanding of the water commons.\\nThe later Series must still confront the Long Return and unresolved questions about shared responsibility.\\nConstruct a distinct Book 24 contribution that emerges from the inherited conditions without prematurely deciding the finale.\\nThe Book must offer a satisfying local narrative transformation while producing consequences relevant to later Series development.\\nPreserve the established narrative identity, causal systems, character agency, and author-reserved choices.\", \"content_characters\": 631, \"content_is_excerpt\": false, \"group\": \"book-24\", \"id\": \"book-24-responsibility\", \"kind\": \"note\", \"title\": \"Author's Book 24 responsibility (verbatim)\"}, {\"content\": \"# Book 24: The Uncounted Crew (architectural function)\\n\\nStatus: working, noncanonical. Not author-approved. Every new element is labelled **[Agent]** (agent-proposed, reversible) or **[Derived: source]**. Nothing here is author-declared. Candidate IDs refer to the W6 working candidate read through `resume` (canvas revision 10).\\n\\n---\\n\\n## 1. The Book's question and the pressure it develops\\n\\n**Question.** *Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?* [Agent]\\n\\n**Pressure developed.** The labour gap of the Long Return. The pulse needs channel labour, which means trained hands, before its date (`str_long_return`, link `l_longreturn_needs_hands`). Since Book 20 the repair skill has sat with the maintenance lineages under the Special Draw Right (`inst_lineage_crews`, `th_maintenance`). The Brightwater cohort believes abundance needs no work (`ph_5_unmeasured`, Book 23). Book 24 is where the pre\", \"content_characters\": 17113, \"content_is_excerpt\": true, \"full_content_sha256\": \"6882fba0c92445c481531ac2c6b09d0777239909b95a955c13f73466fcc54ebc\", \"group\": \"book-25\", \"id\": \"book-25-source\", \"kind\": \"note\", \"title\": \"Book 25 cold-start function (noncanonical source)\"}, {\"content\": \"Develop a meaningful architectural function for Book 24 of The Spring Ledger.\\nBook 23 has transformed the next generation's understanding of the water commons.\\nThe later Series must still confront the Long Return and unresolved questions about shared responsibility.\\nConstruct a distinct Book 24 contribution that emerges from the inherited conditions without prematurely deciding the finale.\\nThe Book must offer a satisfying local narrative transformation while producing consequences relevant to later Series development.\\nPreserve the established narrative identity, causal systems, character agency, and author-reserved choices.\", \"content_characters\": 631, \"content_is_excerpt\": false, \"group\": \"book-25\", \"id\": \"book-25-responsibility\", \"kind\": \"note\", \"title\": \"Author's Book 25 responsibility (verbatim)\"}], \"working_source_format\": 2}}",
+  "settings": {
+    "canvas_id": "spring-ledger",
+    "freshness_format": 3,
+    "source_sha256": "ffb481a0a93109805dbde45c3b18b400318a2e3c9fd5073786a28fefb7510f48",
+    "source_components": {
+      "story_vision": "946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e",
+      "accepted_identity": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "working_sources": "bb23fc94ba11f5c6e3d8758f6a8768ba961a96e26332afda46dad00f8f29cf66"
+    },
+    "downstream_sha256": "1d4fd9e5fec9c4905f2d6448552a716f7c31e5943b9a361d6e5297d7e740e2a8",
+    "design_guidance_sha256": "bd5bf1c7e075936ed39818a9fc9fc196380ea9ecbd5aae479b5fd3ba9967f71c",
+    "intention_sha256": "048a96588be3acaf9600cc73f21b49956c5733d1d78f0eaf5d18e0363f9d3aa4",
+    "operation": "revise"
+  },
+  "request_sha256": "fcc2d288e9c92bcfbe2c0d3f71b9d4c4ee6050e7b2a0cd7e3626953641169852",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ArchitectureCandidate",
+    "json_schema": {
+      "$defs": {
+        "ArchitectureInterpretation": {
+          "additionalProperties": false,
+          "description": "A consequential working interpretation the agent is using as if it were given.\n\nIt is not author-established. It exists so a load-bearing invention - a world\nrule, the meaning of an author commitment, or a proposed resolution of an\nauthor-reserved question - stays visible as a recommendation rather than being\nreported as settled narrative fact.",
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "maxLength": 800,
+              "minLength": 1,
+              "title": "Interpretation",
+              "type": "string"
+            },
+            "affects": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Affects",
+              "type": "array"
+            },
+            "consequences": {
+              "maxLength": 800,
+              "minLength": 1,
+              "title": "Consequences",
+              "type": "string"
+            },
+            "alternative": {
+              "anyOf": [
+                {
+                  "maxLength": 800,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Alternative"
+            },
+            "author_decision_required": {
+              "default": false,
+              "title": "Author Decision Required",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "interpretation",
+            "affects",
+            "consequences"
+          ],
+          "title": "ArchitectureInterpretation",
+          "type": "object"
+        },
+        "ArchitectureLink": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "source": {
+              "title": "Source",
+              "type": "string"
+            },
+            "target": {
+              "title": "Target",
+              "type": "string"
+            },
+            "function": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Function",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "source",
+            "target",
+            "function"
+          ],
+          "title": "ArchitectureLink",
+          "type": "object"
+        },
+        "ArchitectureNode": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            },
+            "category": {
+              "enum": [
+                "reader_experience",
+                "aesthetic",
+                "genre",
+                "trope",
+                "engine",
+                "thread",
+                "structure",
+                "theme",
+                "character",
+                "relationship",
+                "other"
+              ],
+              "title": "Category",
+              "type": "string"
+            },
+            "summary": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "title": "Summary",
+              "type": "string"
+            },
+            "scope": {
+              "default": "whole_story",
+              "maxLength": 100,
+              "title": "Scope",
+              "type": "string"
+            },
+            "parent_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Parent Id"
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "category",
+            "summary"
+          ],
+          "title": "ArchitectureNode",
+          "type": "object"
+        },
+        "ArchitectureOpportunity": {
+          "additionalProperties": false,
+          "description": "A bounded, incidental creative possibility noticed while doing requested work.\n\nIt is not a defect, not a required author decision, and not narrative meaning.\nIt exists so an author can see a promising possibility without it displacing\nthe work they asked for.",
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            },
+            "why_it_matters": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Why It Matters",
+              "type": "string"
+            },
+            "scope": {
+              "default": "other",
+              "enum": [
+                "book",
+                "series",
+                "character",
+                "relationship",
+                "theme",
+                "other"
+              ],
+              "title": "Scope",
+              "type": "string"
+            },
+            "relationship": {
+              "default": "unclear",
+              "enum": [
+                "deepens",
+                "reinterprets",
+                "replaces",
+                "unclear"
+              ],
+              "title": "Relationship",
+              "type": "string"
+            },
+            "artistic_potential": {
+              "anyOf": [
+                {
+                  "maxLength": 600,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Artistic Potential"
+            },
+            "intention_fidelity": {
+              "anyOf": [
+                {
+                  "maxLength": 600,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Intention Fidelity"
+            },
+            "requires_author_decision": {
+              "default": false,
+              "title": "Requires Author Decision",
+              "type": "boolean"
+            },
+            "provisional_primary": {
+              "default": false,
+              "title": "Provisional Primary",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "why_it_matters"
+          ],
+          "title": "ArchitectureOpportunity",
+          "type": "object"
+        },
+        "ComplexEmotion": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            },
+            "basic_emotions": {
+              "items": {
+                "enum": [
+                  "joy",
+                  "sadness",
+                  "fear",
+                  "anger",
+                  "disgust",
+                  "surprise"
+                ],
+                "type": "string"
+              },
+              "maxItems": 6,
+              "minItems": 2,
+              "title": "Basic Emotions",
+              "type": "array"
+            },
+            "context": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Context",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "basic_emotions",
+            "context"
+          ],
+          "title": "ComplexEmotion",
+          "type": "object"
+        },
+        "EmotionTarget": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "emotion": {
+              "enum": [
+                "joy",
+                "sadness",
+                "fear",
+                "anger",
+                "disgust",
+                "surprise"
+              ],
+              "title": "Emotion",
+              "type": "string"
+            },
+            "role": {
+              "enum": [
+                "primary",
+                "supporting",
+                "contrasting",
+                "local"
+              ],
+              "title": "Role",
+              "type": "string"
+            },
+            "intended_effect": {
+              "maxLength": 450,
+              "minLength": 1,
+              "title": "Intended Effect",
+              "type": "string"
+            },
+            "eliciting_condition": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Eliciting Condition",
+              "type": "string"
+            },
+            "aesthetic_strategy": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Aesthetic Strategy",
+              "type": "string"
+            },
+            "provenance": {
+              "enum": [
+                "author_declared",
+                "agent_proposed"
+              ],
+              "title": "Provenance",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "emotion",
+            "role",
+            "intended_effect",
+            "eliciting_condition",
+            "aesthetic_strategy",
+            "provenance"
+          ],
+          "title": "EmotionTarget",
+          "type": "object"
+        },
+        "GenreActivation": {
+          "additionalProperties": false,
+          "properties": {
+            "genre_node_id": {
+              "title": "Genre Node Id",
+              "type": "string"
+            },
+            "basic_emotions": {
+              "items": {
+                "enum": [
+                  "joy",
+                  "sadness",
+                  "fear",
+                  "anger",
+                  "disgust",
+                  "surprise"
+                ],
+                "type": "string"
+              },
+              "maxItems": 6,
+              "title": "Basic Emotions",
+              "type": "array"
+            },
+            "trope_functions": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "title": "Trope Functions",
+              "type": "array"
+            },
+            "trope_function_refs": {
+              "items": {
+                "$ref": "#/$defs/TropeFunctionRef"
+              },
+              "maxItems": 8,
+              "title": "Trope Function Refs",
+              "type": "array"
+            },
+            "structural_function": {
+              "maxLength": 700,
+              "minLength": 1,
+              "title": "Structural Function",
+              "type": "string"
+            }
+          },
+          "required": [
+            "genre_node_id",
+            "structural_function"
+          ],
+          "title": "GenreActivation",
+          "type": "object"
+        },
+        "GenreContract": {
+          "additionalProperties": false,
+          "properties": {
+            "genre_node_id": {
+              "title": "Genre Node Id",
+              "type": "string"
+            },
+            "role": {
+              "enum": [
+                "governing",
+                "supporting",
+                "tertiary",
+                "local"
+              ],
+              "title": "Role",
+              "type": "string"
+            },
+            "emotion_target_ids": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 20,
+              "title": "Emotion Target Ids",
+              "type": "array"
+            },
+            "complex_emotion_ids": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "title": "Complex Emotion Ids",
+              "type": "array"
+            },
+            "trope_functions": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Trope Functions",
+              "type": "array"
+            },
+            "trope_function_refs": {
+              "items": {
+                "$ref": "#/$defs/TropeFunctionRef"
+              },
+              "maxItems": 12,
+              "title": "Trope Function Refs",
+              "type": "array"
+            },
+            "narrative_engine": {
+              "maxLength": 1200,
+              "minLength": 1,
+              "title": "Narrative Engine",
+              "type": "string"
+            },
+            "structural_pattern": {
+              "maxLength": 1200,
+              "minLength": 1,
+              "title": "Structural Pattern",
+              "type": "string"
+            },
+            "aesthetic_strategies": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "title": "Aesthetic Strategies",
+              "type": "array"
+            },
+            "payoff_expectations": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "minItems": 1,
+              "title": "Payoff Expectations",
+              "type": "array"
+            }
+          },
+          "required": [
+            "genre_node_id",
+            "role",
+            "trope_functions",
+            "narrative_engine",
+            "structural_pattern",
+            "payoff_expectations"
+          ],
+          "title": "GenreContract",
+          "type": "object"
+        },
+        "GenreInteraction": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "source_genre_id": {
+              "title": "Source Genre Id",
+              "type": "string"
+            },
+            "target_genre_id": {
+              "title": "Target Genre Id",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "reinforces",
+                "enables",
+                "constrains",
+                "contrasts",
+                "creates_tension",
+                "converges"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "mechanism": {
+              "maxLength": 900,
+              "minLength": 1,
+              "title": "Mechanism",
+              "type": "string"
+            },
+            "risk": {
+              "anyOf": [
+                {
+                  "maxLength": 600,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Risk"
+            }
+          },
+          "required": [
+            "id",
+            "source_genre_id",
+            "target_genre_id",
+            "kind",
+            "mechanism"
+          ],
+          "title": "GenreInteraction",
+          "type": "object"
+        },
+        "GenreParticipation": {
+          "additionalProperties": false,
+          "properties": {
+            "genre": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Genre",
+              "type": "string"
+            },
+            "role": {
+              "enum": [
+                "governing",
+                "locally_dominant",
+                "supporting",
+                "background"
+              ],
+              "title": "Role",
+              "type": "string"
+            }
+          },
+          "required": [
+            "genre",
+            "role"
+          ],
+          "title": "GenreParticipation",
+          "type": "object"
+        },
+        "NarrativePhase": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            },
+            "order": {
+              "maximum": 1000,
+              "minimum": 0,
+              "title": "Order",
+              "type": "integer"
+            },
+            "scope": {
+              "default": "whole_story",
+              "maxLength": 100,
+              "title": "Scope",
+              "type": "string"
+            },
+            "genres": {
+              "items": {
+                "$ref": "#/$defs/GenreParticipation"
+              },
+              "maxItems": 8,
+              "title": "Genres",
+              "type": "array"
+            },
+            "genre_activations": {
+              "items": {
+                "$ref": "#/$defs/GenreActivation"
+              },
+              "maxItems": 8,
+              "title": "Genre Activations",
+              "type": "array"
+            },
+            "reader_experience": {
+              "anyOf": [
+                {
+                  "maxLength": 400,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Reader Experience"
+            },
+            "aesthetic": {
+              "anyOf": [
+                {
+                  "maxLength": 400,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Aesthetic"
+            },
+            "narrative_function": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "title": "Narrative Function",
+              "type": "string"
+            },
+            "transition": {
+              "anyOf": [
+                {
+                  "maxLength": 700,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Transition"
+            },
+            "parallel_with": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "title": "Parallel With",
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "order",
+            "narrative_function"
+          ],
+          "title": "NarrativePhase",
+          "type": "object"
+        },
+        "TropeFunctionRef": {
+          "additionalProperties": false,
+          "description": "Names the trope node whose conceptual identity one contextual trope function realises.\n\nThe function stays local to its owner (a genre contract or a phase activation); the node\nstays the shared trope identity. The reference never makes the two equal.",
+          "properties": {
+            "function_index": {
+              "maximum": 11,
+              "minimum": 0,
+              "title": "Function Index",
+              "type": "integer"
+            },
+            "trope_node_id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Trope Node Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "function_index",
+            "trope_node_id"
+          ],
+          "title": "TropeFunctionRef",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "enum": [
+            1,
+            2
+          ],
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "summary": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureNode"
+          },
+          "maxItems": 80,
+          "minItems": 1,
+          "title": "Nodes",
+          "type": "array"
+        },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureLink"
+          },
+          "maxItems": 180,
+          "title": "Links",
+          "type": "array"
+        },
+        "phases": {
+          "items": {
+            "$ref": "#/$defs/NarrativePhase"
+          },
+          "maxItems": 32,
+          "title": "Phases",
+          "type": "array"
+        },
+        "open_questions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Open Questions",
+          "type": "array"
+        },
+        "open_question_ids": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 16,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Open Question Ids"
+        },
+        "opportunities": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureOpportunity"
+          },
+          "maxItems": 3,
+          "title": "Opportunities",
+          "type": "array"
+        },
+        "interpretations": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureInterpretation"
+          },
+          "maxItems": 12,
+          "title": "Interpretations",
+          "type": "array"
+        },
+        "emotion_targets": {
+          "items": {
+            "$ref": "#/$defs/EmotionTarget"
+          },
+          "maxItems": 30,
+          "title": "Emotion Targets",
+          "type": "array"
+        },
+        "complex_emotions": {
+          "items": {
+            "$ref": "#/$defs/ComplexEmotion"
+          },
+          "maxItems": 16,
+          "title": "Complex Emotions",
+          "type": "array"
+        },
+        "genre_contracts": {
+          "items": {
+            "$ref": "#/$defs/GenreContract"
+          },
+          "maxItems": 14,
+          "title": "Genre Contracts",
+          "type": "array"
+        },
+        "genre_interactions": {
+          "items": {
+            "$ref": "#/$defs/GenreInteraction"
+          },
+          "maxItems": 40,
+          "title": "Genre Interactions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "summary",
+        "nodes"
+      ],
+      "title": "ArchitectureCandidate",
+      "type": "object"
+    },
+    "json_schema_sha256": "66ca884f56d830db53fdb3ff01d40234ad8218a8853fe6fc28eeb980bc3d0ded"
+  }
+}

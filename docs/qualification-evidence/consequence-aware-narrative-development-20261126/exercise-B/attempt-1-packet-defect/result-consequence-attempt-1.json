@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "reading": "The proposal does one thing the record names: it retires the open question about whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit (E1). The proposed candidate otherwise differs from the baseline only in that the remaining questions sit one position earlier. The four examined questions keep their wording (E7, E12, E16, E21). The conversion itself is not removed from the proposed candidate. The record does not show whether the author means the conversion is settled, or that it is simply no longer a question to carry.",
+  "concerns": [],
+  "no_concern_reason": "The packet shows no baseline wording, history or Book decision for the retired question, so a displacement concern cannot be cited. The four examined questions are unchanged in wording and only move position (E7, E12, E16, E21), which is not a consequential change of meaning.",
+  "prospective": [
+    {
+      "kind": "recorded_relationship",
+      "text": "Book 24 records decisions on three questions the proposal marks as moved: Compact settlement, the surge route and Hesper's motive. Each decision's recorded text matches the current wording. The relationship is by identity only. It does not show that these decisions are affected by the retirement.",
+      "evidence": [
+        "E6",
+        "E11",
+        "E20"
+      ]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: if the author treats the Book 20 conversion as settled, the finale alternatives could take it as a fixed starting condition. If the author means the series simply drops it, later Books may need to decide how the Book 20 cut in draw is rendered. The record does not choose between these.",
+      "evidence": [
+        "E1"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "a1",
+      "approach": "retain",
+      "title": "Retire the question, leave the conversion as written",
+      "summary": "Speculative option. Apply the retirement exactly as instructed. The conversion stays in the architecture as an event of Book 20, and the finale mechanism and shared-accounting questions stay open as they are.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-finale-mechanism"
+      ],
+      "gains": "Matches the instruction to change nothing else. It keeps the finale mechanism choice open and makes no claim about what the author meant.",
+      "costs": "Leaves unstated whether the conversion is settled or abandoned. Later Books may read the silence differently.",
+      "next_investigation": "Ask the author which meaning of 'not a question to carry forward' is intended."
+    },
+    {
+      "id": "a2",
+      "approach": "reframe",
+      "title": "Record the conversion as a settled premise",
+      "summary": "Speculative option. Reframe the retirement as a decision that the Book 20 conversion is settled. Then check how the finale mechanism and the shared accounting of care depend on that premise.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-finale-mechanism",
+        "q-other-3"
+      ],
+      "gains": "Gives later Books a clear starting condition. It makes explicit what the finale alternatives assume about draw and hands.",
+      "costs": "Asserts an intent the record does not show. It risks closing the cost-of-counting thread that the Book 20 and 21 material relies on.",
+      "next_investigation": "Read the finale alternatives and the cost-of-counting target against a settled conversion, with the author's confirmation of the meaning."
+    },
+    {
+      "id": "a3",
+      "approach": "defer",
+      "title": "Hold the retirement until Book 25 is read",
+      "summary": "Speculative option. Delay applying the retirement. First read Book 25, which the coverage note lists by title only, for decisions on the questions the retirement may touch.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-compact-settlement"
+      ],
+      "gains": "Avoids acting on Books never read for their decisions on these questions.",
+      "costs": "Delays an author instruction. The reading may show nothing and cost effort.",
+      "next_investigation": "Open Book 25 and check for decisions on the conversion and the Compact's settlement."
+    }
+  ],
+  "not_established": [
+    "Whether the author means the conversion is settled, abandoned or merely no longer asked is not shown.",
+    "The packet gives no baseline wording, history or Book decision for the retired question itself.",
+    "Book 25 was listed by title only and was not read for its decisions on these questions.",
+    "Seven baseline questions were omitted from the examined set, so their relationship to the retirement is not shown.",
+    "Whether the conversion material elsewhere in the candidate should change is not shown; the instruction says to change nothing else."
+  ],
+  "schema": "studio-revision-consequence/1",
+  "authority": "noncanonical_consequence_analysis_not_working_architecture",
+  "revision_request_sha256": "fcc2d288e9c92bcfbe2c0d3f71b9d4c4ee6050e7b2a0cd7e3626953641169852",
+  "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "proposal_sha256": "8eb81b920c6102a079cb266a680429305216f5496e3dc16c41134fcd9e917e91",
+  "evidence": {
+    "authority": "noncanonical_consequence_analysis_not_working_architecture",
+    "baseline_question_ids": [
+      "q-other-0",
+      "q-other-1",
+      "q-finale-mechanism",
+      "q-other-3",
+      "q-right-revocable",
+      "q-conversion-settlement",
+      "q-compact-settlement",
+      "q-surge-route",
+      "q-other-8",
+      "q-hesper-motive",
+      "q-other-10",
+      "q-other-11",
+      "q-reform-stance",
+      "q-plurality",
+      "q-gate-table",
+      "q-other-15"
+    ],
+    "coverage": {
+      "books_listed_by_title_only": [
+        25
+      ],
+      "books_read": [
+        24,
+        25
+      ],
+      "books_with_decisions_on_examined_questions": [
+        24
+      ],
+      "note": "A Working Book listed by title only was not read for its decisions about these questions. That is not evidence that it is unaffected.",
+      "unreadable_books": []
+    },
+    "evidence": [
+      {
+        "id": "E1",
+        "kind": "instruction",
+        "sha256": "41423dd6bbd2849c16884c4dd66d9309674361b8d3fc9cc4d3ecc2ce7ae82684",
+        "text": "Retire the Book 20 hands-to-draw conversion question: the author has decided that the conversion is not a question this series will carry forward. Remove that question from the open questions and its identity from open_question_ids, and change nothing else."
+      },
+      {
+        "id": "E2",
+        "kind": "author_vision",
+        "text": "The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\n\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\n\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confl…"
+      },
+      {
+        "id": "E3",
+        "index": 6,
+        "kind": "baseline_wording",
+        "question_id": "q-compact-settlement",
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E4",
+        "kind": "named_gap",
+        "question_id": "q-compact-settlement",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E5",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-compact-settlement",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "decision_id": "dec-compact-settlement",
+        "id": "E6",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "moved",
+        "question_id": "q-compact-settlement",
+        "recorded_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E7",
+        "index": 5,
+        "kind": "proposed_wording",
+        "previous_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "proposal_status": "moved",
+        "question_id": "q-compact-settlement",
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "id": "E8",
+        "index": 7,
+        "kind": "baseline_wording",
+        "question_id": "q-surge-route",
+        "text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided."
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E9",
+        "kind": "named_gap",
+        "question_id": "q-surge-route",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E10",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-surge-route",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+        "decision_id": "dec-surge-route",
+        "id": "E11",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "moved",
+        "question_id": "q-surge-route",
+        "recorded_text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Which channel takes the Long Return's surge. Book 24 neither designates nor excludes the Lowfen.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E12",
+        "index": 6,
+        "kind": "proposed_wording",
+        "previous_text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+        "proposal_status": "moved",
+        "question_id": "q-surge-route",
+        "text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided."
+      },
+      {
+        "id": "E13",
+        "index": 8,
+        "kind": "baseline_wording",
+        "question_id": "q-other-8",
+        "text": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided."
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E14",
+        "kind": "named_gap",
+        "question_id": "q-other-8",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E15",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-other-8",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.",
+        "to_revision": 3
+      },
+      {
+        "id": "E16",
+        "index": 7,
+        "kind": "proposed_wording",
+        "previous_text": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.",
+        "proposal_status": "moved",
+        "question_id": "q-other-8",
+        "text": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided."
+      },
+      {
+        "id": "E17",
+        "index": 9,
+        "kind": "baseline_wording",
+        "question_id": "q-hesper-motive",
+        "text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested."
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E18",
+        "kind": "named_gap",
+        "question_id": "q-hesper-motive",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E19",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-hesper-motive",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+        "decision_id": "dec-hesper-motive",
+        "id": "E20",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "moved",
+        "question_id": "q-hesper-motive",
+        "recorded_text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Whether Hesper's generational motive is independent of the author's preference for the Turn's sustainability.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E21",
+        "index": 8,
+        "kind": "proposed_wording",
+        "previous_text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+        "proposal_status": "moved",
+        "question_id": "q-hesper-motive",
+        "text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested."
+      },
+      {
+        "id": "E22",
+        "kind": "recorded_phase",
+        "phase_id": "ph_1_reckoned_water",
+        "text": "1. Reckoned Water: The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance."
+      },
+      {
+        "id": "E23",
+        "kind": "recorded_phase",
+        "phase_id": "ph_2_the_turn",
+        "text": "2. The Turn: The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge."
+      },
+      {
+        "id": "E24",
+        "kind": "recorded_phase",
+        "phase_id": "ph_3_old_hand",
+        "text": "3. The Old Hand: The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings."
+      },
+      {
+        "id": "E25",
+        "kind": "recorded_phase",
+        "phase_id": "ph_4_settled_water",
+        "text": "4. Settled Water: Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record."
+      },
+      {
+        "id": "E26",
+        "kind": "recorded_phase",
+        "phase_id": "ph_5_unmeasured",
+        "text": "5. Unmeasured: The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with …"
+      },
+      {
+        "book_number": 24,
+        "id": "E27",
+        "kind": "working_book",
+        "records_examined_decisions": true,
+        "text": "Book 24: The Uncounted Crew"
+      },
+      {
+        "book_number": 25,
+        "id": "E28",
+        "kind": "working_book",
+        "records_examined_decisions": false,
+        "text": "Book 25: The Counted Hands"
+      }
+    ],
+    "evidence_sha256": "8198ee93cd599f14f4b9a2a9f1233263047367b0685268b89424b76088283d45",
+    "examined_questions": [
+      {
+        "baseline_evidence": [
+          "E3",
+          "E5",
+          "E6"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-compact-settlement",
+        "proposal_status": "moved",
+        "proposed_evidence": [
+          "E7"
+        ]
+      },
+      {
+        "baseline_evidence": [
+          "E8",
+          "E10",
+          "E11"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-surge-route",
+        "proposal_status": "moved",
+        "proposed_evidence": [
+          "E12"
+        ]
+      },
+      {
+        "baseline_evidence": [
+          "E13",
+          "E15"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-other-8",
+        "proposal_status": "moved",
+        "proposed_evidence": [
+          "E16"
+        ]
+      },
+      {
+        "baseline_evidence": [
+          "E17",
+          "E19",
+          "E20"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-hesper-motive",
+        "proposal_status": "moved",
+        "proposed_evidence": [
+          "E21"
+        ]
+      }
+    ],
+    "limits": {
+      "book_decisions_per_question": 4,
+      "books_omitted": 0,
+      "books_shown": 2,
+      "components_omitted": 0,
+      "components_shown": 0,
+      "examined_questions_shown": 4,
+      "instruction_characters": 1200,
+      "phases_omitted": 0,
+      "phases_shown": 5,
+      "questions_omitted": 7,
+      "text_characters": 600
+    },
+    "proposal": {
+      "baseline_candidate_sha256": "37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b",
+      "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "proposal_sha256": "8eb81b920c6102a079cb266a680429305216f5496e3dc16c41134fcd9e917e91",
+      "proposed_summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+      "requested_change_sha256": "41423dd6bbd2849c16884c4dd66d9309674361b8d3fc9cc4d3ecc2ce7ae82684",
+      "revision_request_sha256": "fcc2d288e9c92bcfbe2c0d3f71b9d4c4ee6050e7b2a0cd7e3626953641169852"
+    },
+    "schema": "studio-revision-consequence/1"
+  },
+  "evidence_sha256": "8198ee93cd599f14f4b9a2a9f1233263047367b0685268b89424b76088283d45"
+}

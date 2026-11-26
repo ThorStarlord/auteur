@@ -60,6 +60,9 @@ from .studio_architecture_discovery import (
     complete_architecture_discovery, prepare_architecture_discovery, project_architecture_discoveries,
     record_possibility_decision,
 )
+from .studio_architecture_consequence import (
+    complete_architecture_consequence, prepare_architecture_consequence, project_architecture_consequence,
+)
 from .studio_architecture_inquiry import (
     complete_architecture_inquiry, prepare_architecture_inquiry, project_architecture_inquiry,
 )
@@ -447,6 +450,8 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_architecture_agent_bridge.js": "studio_architecture_agent_bridge.js",
         "/studio_architecture_creative_panel.js": "studio_architecture_creative_panel.js",
         "/studio_architecture_creative_feedback.js": "studio_architecture_creative_feedback.js",
+        "/studio_architecture_consequence.js": "studio_architecture_consequence.js",
+        "/studio_architecture_consequence.css": "studio_architecture_consequence.css",
         "/studio_architecture_creative.css": "studio_architecture_creative.css",
         "/studio_architecture_revision_compare.mjs": "studio_architecture_revision_compare.mjs",
         "/studio_architecture_revision_view.mjs": "studio_architecture_revision_view.mjs",
@@ -689,6 +694,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:] == ["architecture", "consequence"]):
+                # Read-only: the analyses of pending revisions on this canvas, and the latest one's standing now.
+                try:
+                    self._send_json(200, project_architecture_consequence(
+                        CanvasStore(self.project_root, parts[4])
+                    ))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5:] == ["architecture", "full-evidence"]):
                 # Read-only, exact candidate-scoped legacy source provenance. No genre
                 # registry fallback, no automatic pack applicability or story acceptance.
@@ -825,6 +840,19 @@ class _RequestHandler(BaseHTTPRequestHandler):
                             payload.get("decision"), payload.get("reason")))
                     else:
                         self._send_json(200, complete_architecture_discovery(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:7] == ["architecture", "consequence"]
+                    and parts[7] in {"prepare", "host-agent-response"}):
+                # Advisory analysis of the pending revision. Nothing here applies or changes a revision.
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[7] == "prepare":
+                        self._send_json(202, prepare_architecture_consequence(store))
+                    else:
+                        self._send_json(200, complete_architecture_consequence(store, self._read_json()))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
