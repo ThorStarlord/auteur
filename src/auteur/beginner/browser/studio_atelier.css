@@ -571,3 +571,42 @@
 @media (prefers-reduced-motion:no-preference){
   .atl.atl-desk-open .atl-desk{animation:atl-desk-in .24s var(--atl-ease)}
 }
+
+/* ---------- Open questions of the working Architecture ----------
+   Read in the folio beside the atlas, which never moves. A long formulation wraps in full; each revision's reason and
+   each Book's reference is said in words; technical identity and version detail stays behind a disclosure. */
+.atl-questions,.atl-questions-entry{margin:10px 0 12px;padding:9px 11px 8px;border-radius:10px;background:#f7f3ea;border:1px solid var(--atl-hair)}
+.atl-questions>.atl-section-title,.atl-questions-entry>.atl-section-title{margin-top:0;padding-top:0;border-top:0}
+.atl-question-list{list-style:none;margin:6px 0;padding:0;display:grid;gap:6px}
+.atl-question-row{margin:0;min-width:0}
+.atl-question-item{display:grid;gap:5px;width:100%;min-width:0;text-align:left;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--atl-hair);background:var(--atl-card);color:var(--atl-ink);font:inherit;cursor:pointer}
+.atl-question-item:hover{background:#fbf7ee}
+.atl-question-item:focus-visible{outline:2px solid var(--atl-focus);outline-offset:2px}
+.atl-question-text{font:500 .92rem/1.42 var(--atl-serif);overflow-wrap:anywhere;text-wrap:pretty}
+.atl-question-chips{display:flex;flex-wrap:wrap;gap:4px}
+.atl-question-chips .atl-chip{font-size:.62rem;padding:2px 7px}
+.atl-chip-ok{border-color:#b9d4c1;background:#e7f1ea;color:#2f5a3d}
+.atl-question-ask{margin:6px 0 4px}
+.atl-qspans{list-style:none;margin:8px 0 0;padding:0 0 0 14px;border-left:2px solid var(--atl-hair)}
+.atl-qspan{position:relative;margin:0 0 14px;min-width:0}
+.atl-qspan::before{content:"";position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;
+  background:var(--atl-card);border:2px solid var(--atl-hair-ink)}
+.atl-qspan-present::before{border-color:var(--atl-focus);background:#e3f0ea}
+.atl-qspan-absent::before,.atl-qspan-unreadable::before{border-color:#b0505a}
+.atl-qspan-no_identity::before{border-style:dashed}
+.atl-qspan-head{margin:0 0 4px;font:600 .78rem/1.35 var(--atl-sans);color:var(--atl-ink)}
+.atl-qspan-text{margin:3px 0;font:500 .98rem/1.5 var(--atl-serif);color:var(--atl-ink);overflow-wrap:anywhere;text-wrap:pretty}
+.atl-qspan-was{color:var(--atl-ink-soft);font-size:.9rem}
+.atl-qspan-reason{margin:3px 0;font:italic .8rem/1.45 var(--atl-serif);color:var(--atl-ink-soft);overflow-wrap:anywhere}
+.atl-qdiff .atl-series-kind{display:inline}
+.atl-qdiff del{color:#8d7f70;text-decoration:line-through;text-decoration-color:#b0a390}
+.atl-qdiff ins{text-decoration:none;background:#dcefe5;padding:0 2px;border-radius:3px}
+.atl-qversions{margin:6px 0 0;padding-left:1.1em;font:.72rem/1.5 var(--atl-sans);color:var(--atl-ink-soft);overflow-wrap:anywhere}
+.atl-qversions code{font-size:.66rem;word-break:break-all}
+.atl-qbook{margin:8px 0;padding:9px 11px;border:1px solid var(--atl-hair);border-radius:10px;background:var(--atl-card);min-width:0}
+.atl-qbook .atl-series-text{font:500 .92rem/1.45 var(--atl-serif);color:var(--atl-ink);overflow-wrap:anywhere}
+.atl-qbook .atl-tone{margin:6px 0}
+.atl-qbook .atl-look{margin-top:6px}
+.atl-qbook .atl-qdiff{margin:4px 0}
+.atl-question-source-note{margin:6px 0}

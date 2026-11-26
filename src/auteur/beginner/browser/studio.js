@@ -465,6 +465,24 @@
           appendReviewLine("Governing summary changed");
         }
       }
+      // Open questions: a question-only revision is still a revision, so each change to a question is said here, before
+      // Apply, and not only in the comparison that is folded away. Identity is kept across a rewording; a removal is not an answer.
+      var questionChanges = review.question_changes;
+      if (questionChanges) {
+        var questionWords = {
+          introduced: "Open question introduced: “", moved: "Open question moved, same wording: “",
+          reworded: "Open question reworded, identity kept: “", moved_and_reworded: "Open question moved and reworded, identity kept: “"
+        };
+        (questionChanges.questions || []).forEach(function (row) {
+          if (!questionWords[row.status]) return;
+          var line = questionWords[row.status] + row.text + "”";
+          if (row.previous_text && row.previous_text !== row.text) line += " (earlier: “" + row.previous_text + "”)";
+          appendReviewLine(line, "review-question-change");
+        });
+        (questionChanges.removed || []).forEach(function (row) {
+          appendReviewLine("Open question no longer open: “" + row.previous_text + "”. Removing it is not an answer.", "review-question-change");
+        });
+      }
       if (review.preserved) {
         var authorTargets = review.preserved.author_declared_emotion_targets || [];
         if (authorTargets.length) {
@@ -3203,6 +3221,12 @@
         getSeriesContext: function(){
           if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
           return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/series-context",
+            {cache: "no-store"}).then(apiJson);
+        },
+        // The working Architecture's open questions as its owner records them (read-only, from the same canvas).
+        getArchitectureQuestions: function(){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture-questions",
             {cache: "no-store"}).then(apiJson);
         },
         getCanvasId: function(){ return remote.canvasId; },

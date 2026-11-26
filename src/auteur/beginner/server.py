@@ -66,6 +66,7 @@ from .studio_realization import (
 )
 from .studio_projection import project_studio_graph
 from .studio_impact import preview_studio_impact
+from .studio_architecture_question_projection import project_architecture_questions
 from .studio_series_context import project_series_context
 from .studio_book_development import (
     apply_book_revision, book_number_from_path, complete_book_revision, prepare_book_revision,
@@ -428,6 +429,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_full_architecture_controller.js": "studio_full_architecture_controller.js",
         "/studio_atelier_model.js": "studio_atelier_model.js",
         "/studio_atelier_series.js": "studio_atelier_series.js",
+        "/studio_atelier_questions.js": "studio_atelier_questions.js",
         "/studio_atelier_book.js": "studio_atelier_book.js",
         "/studio_atelier_impact.js": "studio_atelier_impact.js",
         "/studio_atelier.js": "studio_atelier.js",
@@ -633,6 +635,18 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 # Directions, each through its own owner. Nothing is linked, accepted or written.
                 try:
                     self._send_json(200, project_series_context(self.project_root, parts[4]))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 6 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5] == "architecture-questions"):
+                # Read-only: the working Architecture's open questions as recorded (continuing identities, earlier
+                # formulations, legacy wording and those no longer open) and the Working Book decisions that refer to
+                # them by recorded identity. Nothing is accepted, stored or inferred.
+                try:
+                    store = CanvasStore(self.project_root, parts[4])
+                    store.load()
+                    self._send_json(200, project_architecture_questions(store))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return

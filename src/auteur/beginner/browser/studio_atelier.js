@@ -7,7 +7,7 @@
    nothing is saved or accepted. */
 (function(global,document){
   'use strict';
-  var M=global.AuteurStudioAtelierModel,X=global.AuteurAtelierSeries,B=global.AuteurAtelierBook,I=global.AuteurAtelierImpact,SVG='http://www.w3.org/2000/svg';
+  var M=global.AuteurStudioAtelierModel,X=global.AuteurAtelierSeries,B=global.AuteurAtelierBook,I=global.AuteurAtelierImpact,Q=global.AuteurAtelierQuestions,SVG='http://www.w3.org/2000/svg';
   var SERIF='"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif';
   var SANS='system-ui,-apple-system,"Segoe UI",sans-serif';
   var TIMING={
@@ -94,7 +94,9 @@
       shown:false,pending:binding.initial?Object.assign({examine:requested==='B'},binding.initial):null,
       lastAction:null,edgeGrow:{},mix:0,sizedOnce:false,verbAt:{},verbFor:{},labelStats:null,lastFocus:null,
       hover:null,folioHint:null,callout:null,latched:false,ptr:null,dragging:false,
-      narrative:!!(binding.initial&&binding.initial.narrative),structure:null,time:null,seriesCtx:null,leaf:null};
+      narrative:!!(binding.initial&&binding.initial.narrative),structure:null,time:null,seriesCtx:null,leaf:null,
+      // Open questions of the working Architecture: the list (qlist) and one question read in the folio (qv).
+      qlist:false,qv:null,qs:null,questionsStale:true};
 
     /* ---------- Static frame ---------- */
     root.replaceChildren();root.classList.add('atl');
@@ -801,6 +803,8 @@
     function select(id,opts){
       opts=opts||{};
       if(!S.model||!S.model.byId[id])return;
+      // Choosing a concept leaves the question reading and list; the concept's own folio takes the place.
+      S.qv=null;S.qlist=false;
       if(S.leaf&&S.leaf.from!==id)S.leaf=null;
       if(S.impactReturn&&S.impactReturn.concept!==id)S.impactReturn=null;
       var fromAtlas=!S.focus;
@@ -1181,7 +1185,11 @@
         return;
       }
       renderWorking();
+      // One question read in the folio, or the list of all of them, takes the folio while it is open. The atlas and
+      // the focused concept beneath it are unchanged; Back returns to exactly where the author was.
+      if(S.qv&&Q)return renderQuestionView();
       if(S.leaf&&X)return renderSeriesLeaf();
+      if(S.qlist&&Q)return renderQuestionList();
       if(!S.focus)return renderAtlasFolio(status);
       var cn=S.model.byId[S.focus],model=S.model,examining=S.mode==='constellation';
       folio.setAttribute('aria-label','Reading of '+cn.title);
@@ -1248,6 +1256,7 @@
       if(pathway)renderStoryTime(cn,pathway);
       renderDevelop(cn);
       if(X)renderSeriesSection(cn);
+      if(Q&&binding.getArchitectureQuestions)renderQuestionsEntry();
       if(dl.children.length)folio.append(dl);
       folio.append(provenanceLine(cn));
       if(S.structure)renderInterpretations(S.structure.interpretations[cn.id],'Agent interpretations naming it');
@@ -1465,6 +1474,8 @@
     var SERIES_MAX_AGE=20000;
     function readSeries(force,announceResult,quiet){
       if(!binding.getSeriesContext)return;
+      // A Book or Series read may have changed what the Books record about the questions, so those are read again too.
+      if(force)S.questionsStale=true;
       var c=S.seriesCtx;
       // A read already in flight answers this one too; an explicit request is read again after it.
       if(c&&c.status==='loading'){if(force)S.seriesAgain={announce:!!announceResult,quiet:!!quiet};return;}
@@ -1542,14 +1553,21 @@
     function openLeaf(opts){
       var a=document.activeElement;
       if(S.dev&&S.dev.from!==S.focus)S.dev=null;
-      S.leaf={from:S.focus,book:opts&&opts.book||null,impact:!!(opts&&opts.impact),opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop};
+      // A Book opened from an open question remembers that question, and Back returns to it.
+      S.leaf={from:S.focus,book:opts&&opts.book||null,impact:!!(opts&&opts.impact),opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop,
+        returnQuestion:opts&&opts.question||null};
+      S.qv=null;S.qlist=false;
       readSeries(true,false);renderFolio();folio.scrollTop=0;focusFolio();
       var from=S.focus&&S.model.byId[S.focus];
       announce((S.leaf.impact?'Working Books after the Architecture changes.':'Series and Book context.')+
-        (from?' Back returns to “'+from.title+'”; the atlas keeps your place.':' Back returns to the atlas; it keeps your place.'));
+        (S.leaf.returnQuestion?' Back returns to the open question.':
+        from?' Back returns to “'+from.title+'”; the atlas keeps your place.':' Back returns to the atlas; it keeps your place.'));
     }
     function closeLeaf(){
-      var l=S.leaf;if(!l)return;S.leaf=null;renderFolio();
+      var l=S.leaf;if(!l)return;S.leaf=null;
+      if(l.returnQuestion){S.qv=l.returnQuestion;renderFolio();folio.scrollTop=l.returnQuestion.ownScroll||0;focusFolio();
+        announce('Back to the open question. Nothing was changed.');return;}
+      renderFolio();
       folio.scrollTop=l.scroll||0;
       var again=l.opener&&folio.querySelector('[data-key="'+cssEscape(l.opener)+'"]');
       if(again)again.focus({preventScroll:false});else focusFolio();
@@ -1584,7 +1602,7 @@
       if(from&&!recorded)folio.append(el('p','atl-folio-detail','Opened from “'+from.title+'”. '+(d&&X.unreadableBooks(d).length?
         'No readable plan here records a reference to it; a Book that could not be read might.':'No plan here records a reference to it.')));
       var nav=el('div','atl-look');
-      var bk=actionButton(nav,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
+      var bk=actionButton(nav,l.returnQuestion?'← Back to the open question':from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back');bk.classList.add('atl-action-primary');
       bk.setAttribute('aria-keyshortcuts','Escape');
       actionButton(nav,'Read again',function(){readSeries(true,true);},'series-reread').classList.add('atl-action-quiet');
       folio.append(nav);
@@ -1605,8 +1623,292 @@
       if(s.series_direction.state==='absent')missing.push('Series or Book Directions');
       if(missing.length)folio.append(el('p','atl-note','Not kept here: '+missing.join(' · ')+'.'));
       var end=el('div','atl-actions');
-      var bk2=actionButton(end,from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back-end');bk2.classList.add('atl-action-primary');
+      var bk2=actionButton(end,l.returnQuestion?'← Back to the open question':from?'← Back to '+from.name:'← Back to the atlas',closeLeaf,'series-back-end');bk2.classList.add('atl-action-primary');
       folio.append(end);
+    }
+    /* ---------- Open questions of the working Architecture (read-only) ----------
+       The Architecture owner's read projection: each question as the revisions record it, its identity where one is
+       recorded, its earlier formulations with the reason each revision records, and the Working Book decisions that
+       refer to it by identity. Reading changes nothing. Asking opens the coding-agent desk on the question; an alternative
+       becomes a revision only when the author chooses it, and only Apply changes the Architecture. */
+    var QUESTIONS_MAX_AGE=20000;
+    function readQuestions(force){
+      if(!Q||!binding.getArchitectureQuestions)return;
+      var c=S.qs,key=canvasKey()+'|'+(binding.getRequestSha()||'');
+      // A failed read is not retried by the render it causes: "Try again" asks for it.
+      if(c&&c.key===key&&!force&&!S.questionsStale&&(c.status==='loading'||c.status==='error'||
+        (c.status==='ready'&&Date.now()-c.readAt.getTime()<QUESTIONS_MAX_AGE)))return;
+      var seq=(S.qSeq||0)+1;S.qSeq=seq;S.questionsStale=false;
+      // Data is kept only for the same canvas and revision: another canvas's or revision's questions are never shown as these.
+      S.qs={key:key,status:'loading',data:c&&c.key===key&&c.data||null};
+      var call;try{call=Promise.resolve(binding.getArchitectureQuestions());}catch(error){call=Promise.reject(error);}
+      call.then(function(data){
+        if(seq!==S.qSeq)return;
+        S.qs={key:key,status:'ready',data:data,readAt:new Date()};renderFolio();
+      },function(error){
+        if(seq!==S.qSeq)return;
+        S.qs={key:key,status:'error',error:error&&error.message||String(error),data:null};renderFolio();
+      });
+    }
+    // Open questions only: a question no longer open is not counted as one.
+    function questionsCount(){var c=S.qs,d=c&&c.data;
+      return d&&d.available?(d.questions||[]).length:null;}
+    function questionsData(){var c=S.qs;return c&&c.status!=='error'&&c.data?c.data:null;}
+    // One question as a row in a list: its wording, then what the record says about it, in short.
+    function questionItem(q){
+      var li=el('li','atl-question-row'),b=el('button','atl-question-item');b.type='button';b.dataset.key=Q.keyOf(q);
+      b.append(el('span','atl-question-text',Q.clip(q.text,150)));
+      var chips=el('span','atl-question-chips');
+      Q.chipsFor(q).forEach(function(c){chips.append(chip(c.text,c.tone==='warn'?'removed':c.tone==='ok'?'ok':null));});
+      b.append(chips);
+      b.setAttribute('aria-label',Q.clip(q.text,200)+'. '+Q.chipsFor(q).map(function(c){return c.text;}).join(', '));
+      b.addEventListener('click',function(){openQuestion({id:q.id,index:q.index});});
+      li.append(b);return li;
+    }
+    function renderQuestionOverview(){
+      readQuestions(false);
+      var c=S.qs,sec=el('section','atl-questions');sec.setAttribute('aria-label','Open questions of the working Architecture');
+      sec.append(el('h4','atl-section-title','Open questions'));
+      if(!c||(c.status==='loading'&&!c.data)){sec.append(el('p','atl-note','Reading the open questions…'));folio.append(sec);return;}
+      if(c.status==='error'){sec.append(el('p','atl-note','Could not read the open questions: '+c.error));
+        actionButton(sec,'Try again',function(){readQuestions(true);},'questions-retry');folio.append(sec);return;}
+      var d=c.data;
+      if(!d.available){sec.append(el('p','atl-note','No working Architecture is recorded, so there are no open questions to read.'));folio.append(sec);return;}
+      var g=Q.groups(d),live=g.continuing.concat(g.wording);
+      sec.append(el('p','atl-note',Q.overviewNote(d)));
+      if(!live.length)sec.append(el('p','atl-note','The working Architecture records no open questions.'));
+      else{var ul=el('ul','atl-question-list');live.slice(0,5).forEach(function(q){ul.append(questionItem(q));});sec.append(ul);}
+      var total=live.length+g.gone.length;
+      if(total)actionButton(sec,'All questions · '+total,openQuestionList,'questions-all').classList.add('atl-action-quiet');
+      if(g.gone.length)sec.append(el('p','atl-note',Q.plural(g.gone.length,'question')+' recorded in earlier revisions '+(g.gone.length===1?'is':'are')+
+        ' no longer open. Removing one is not an answer.'));
+      folio.append(sec);
+    }
+    // The concept's folio points to the open questions without moving the atlas or changing the focused concept.
+    function renderQuestionsEntry(){
+      readQuestions(false);
+      var n=questionsCount(),sec=el('section','atl-questions-entry');
+      sec.append(el('p','atl-series-kicker','Working Architecture'));
+      actionButton(sec,'Open questions'+(n===null?'':' · '+n),openQuestionList,'questions-open').classList.add('atl-action-quiet');
+      folio.append(sec);
+    }
+    function listBackLabel(){var cn=S.focus&&S.model&&S.model.byId[S.focus];return cn?'Back to “'+M.shorten(cn.name,40)+'”':'Back to the atlas';}
+    function openQuestionList(){
+      S.qlistOpener=(document.activeElement&&folio.contains(document.activeElement)&&document.activeElement.dataset)?document.activeElement.dataset.key:null;
+      S.qlistScroll=folio.scrollTop;
+      S.qlist=true;S.qv=null;S.leaf=null;
+      readQuestions(false);renderFolio();folio.scrollTop=0;focusFolio();
+      announce('All open questions of the working Architecture. Nothing is changed by reading them.');
+    }
+    function closeQuestionList(){
+      S.qlist=false;renderFolio();folio.scrollTop=S.qlistScroll||0;
+      var again=S.qlistOpener&&folio.querySelector('[data-key="'+cssEscape(S.qlistOpener)+'"]');
+      if(again)again.focus({preventScroll:false});else focusFolio();
+      var cn=S.focus&&S.model.byId[S.focus];
+      announce(cn?'Back to “'+cn.title+'”. Your place in the atlas is unchanged.':'Back to the atlas.');
+    }
+    function renderQuestionList(){
+      var d=questionsData(),c=S.qs;
+      folio.setAttribute('aria-label','Open questions of the working Architecture');
+      folio.append(el('p','atl-kicker-line','Open questions · working Architecture'));
+      folio.append(el('h3','atl-folio-title','The questions this Architecture records'));
+      var nav=el('div','atl-look');
+      actionButton(nav,'← '+listBackLabel(),closeQuestionList,'questions-back').classList.add('atl-action-primary');
+      folio.append(nav);
+      if(!d){folio.append(el('p','atl-note',c&&c.status==='error'?'Could not read the open questions: '+c.error:'Reading the open questions…'));return;}
+      folio.append(el('p','atl-note',Q.overviewNote(d)));
+      var g=Q.groups(d);
+      if(!g.continuing.length&&!g.wording.length)folio.append(el('p','atl-note','The working Architecture records no open questions.'));
+      if(g.continuing.length){
+        folio.append(el('h4','atl-section-title','Continuing · identity recorded · '+g.continuing.length));
+        var u1=el('ul','atl-question-list');g.continuing.forEach(function(q){u1.append(questionItem(q));});folio.append(u1);}
+      if(g.wording.length){
+        folio.append(el('h4','atl-section-title','Wording only · no identity yet · '+g.wording.length));
+        folio.append(el('p','atl-note','These questions have no recorded identity, so they cannot be followed across revisions or asked about as continuing questions.'));
+        var u2=el('ul','atl-question-list');g.wording.forEach(function(q){u2.append(questionItem(q));});folio.append(u2);}
+      if(g.gone.length){
+        folio.append(el('h4','atl-section-title','No longer open · '+g.gone.length));
+        folio.append(el('p','atl-note','Removing a question is not an answer. Each keeps the formulations it was recorded with.'));
+        var u3=el('ul','atl-question-list');g.gone.forEach(function(q){u3.append(questionItem(q));});folio.append(u3);}
+      var status=el('p','atl-note atl-series-status',c&&c.status==='loading'?'Reading again…':'Read at '+readTime(c)+'.');
+      folio.append(status);
+      actionButton(folio,'Read again',function(){readQuestions(true);},'questions-reread').classList.add('atl-action-quiet');
+    }
+    // The question as the folio reads it: where it stands, how it has been recorded, the Books that refer to it.
+    function openQuestion(view){
+      S.qv={id:view.id||null,index:view.index===undefined?null:view.index,
+        opener:(document.activeElement&&folio.contains(document.activeElement)&&document.activeElement.dataset)?document.activeElement.dataset.key:null,
+        scroll:folio.scrollTop,returnLeaf:S.leaf||null,returnList:!!S.qlist};
+      S.leaf=null;S.qlist=false;
+      readQuestions(false);renderFolio();folio.scrollTop=0;focusFolio();
+      announce(questionReturnWords(S.qv)+' Nothing is changed by reading it.');
+    }
+    function questionBackLabel(v){
+      if(v.returnLeaf)return 'Back to the Series and Book context';
+      if(v.returnList)return 'Back to all open questions';
+      return listBackLabel();
+    }
+    function questionReturnWords(v){
+      return 'Open question. Back returns to '+(v.returnLeaf?'the Series and Book context':v.returnList?'all open questions':
+        (S.focus&&S.model.byId[S.focus]?'“'+S.model.byId[S.focus].title+'”':'the atlas'))+'.';
+    }
+    function closeQuestion(){
+      var v=S.qv;if(!v)return;S.qv=null;
+      if(v.returnLeaf)S.leaf=v.returnLeaf;
+      else if(v.returnList)S.qlist=true;
+      renderFolio();folio.scrollTop=v.scroll||0;
+      var again=v.opener&&folio.querySelector('[data-key="'+cssEscape(v.opener)+'"]');
+      if(again)again.focus({preventScroll:false});else focusFolio();
+      announce(v.returnLeaf?'Back to the Series and Book context. Nothing was changed.':v.returnList?'Back to all open questions. Nothing was changed.':
+        (S.focus&&S.model.byId[S.focus]?'Back to “'+S.model.byId[S.focus].title+'”. Your place in the atlas is unchanged.':'Back to the atlas.'));
+    }
+    function renderQuestionView(){
+      var v=S.qv,c=S.qs,d=questionsData();
+      folio.setAttribute('aria-label','Open question of the working Architecture');
+      folio.append(el('p','atl-kicker-line','Open question · working Architecture'));
+      var nav=el('div','atl-look');
+      var back=actionButton(nav,'← '+questionBackLabel(v),closeQuestion,'question-back');back.classList.add('atl-action-primary');
+      back.setAttribute('aria-keyshortcuts','Escape');
+      folio.append(nav);
+      readQuestions(false);
+      // A heading even while reading, so the focus that opened the question stays on it when the reading arrives.
+      if(!d){folio.append(el('h3','atl-folio-title','Open question'),
+        el('p','atl-note',c&&c.status==='error'?'Could not read the open questions: '+c.error:'Reading the open question…'));return;}
+      var q=Q.find(d,v);
+      if(!q){folio.append(el('h3','atl-folio-title','This question is no longer recorded'),
+        el('p','atl-folio-detail','The working Architecture does not record it under this identity or position now. Nothing has been changed.'));return;}
+      folio.append(el('h3','atl-folio-title'+(q.text.length>90?' is-long':''),q.text));
+      Q.standing(q,d).forEach(function(t){folio.append(toneLine(t));});
+      // The question's own story first: how it has been recorded, then the Books that refer to it, then investigation.
+      renderQuestionFormulations(q);
+      renderQuestionBooks(q,d);
+      renderQuestionInvestigation(q,d);
+      renderQuestionSource(q,d);
+      var end=el('div','atl-actions');
+      actionButton(end,'← '+questionBackLabel(v),closeQuestion,'question-back-end').classList.add('atl-action-primary');
+      folio.append(end);
+    }
+    // A wording change, shown as what it was and what it is now, word by word. Same wording is said, not drawn.
+    function wordDiffBlock(before,after,was){
+      var box=el('div','atl-qdiff');
+      if(!B.wordDiff||before===after){box.append(el('p','atl-qspan-text',after));return box;}
+      var d=B.wordDiff(before,after);
+      var a=el('p','atl-qspan-text atl-qspan-was');a.append(el('span','atl-series-kind',(was||'Was')+' · '));
+      d.before.forEach(function(part){a.append(part[1]?el('del','',part[0]):document.createTextNode(part[0]));});
+      var n=el('p','atl-qspan-text');n.append(el('span','atl-series-kind','Now · '));
+      d.after.forEach(function(part){n.append(part[1]?el('ins','',part[0]):document.createTextNode(part[0]));});
+      box.append(a,n);return box;
+    }
+    function renderQuestionFormulations(q){
+      var sec=el('section','atl-qhistory');sec.setAttribute('aria-label','How this question has been recorded');
+      if(q.standing==='wording_only'){
+        sec.append(el('h4','atl-section-title','Recorded wording'),el('p','atl-qspan-text',q.text),
+          el('p','atl-note','No identity is recorded for it yet. Earlier revisions named no identity for any question, so no earlier formulation is attached to it.'));
+        folio.append(sec);return;
+      }
+      sec.append(el('h4','atl-section-title',q.standing==='no_longer_open'?'How it was recorded':'How it has changed'));
+      if(!q.spans||!q.spans.length){sec.append(el('p','atl-note','No readable revision records this question.'));folio.append(sec);return;}
+      var ol=el('ol','atl-qspans');
+      q.spans.forEach(function(span,i){
+        var li=el('li','atl-qspan atl-qspan-'+span.kind),head=Q.spanHead(span);
+        li.append(el('p','atl-qspan-head atl-tone atl-tone-'+head.tone,head.text));
+        if(span.kind==='present'){
+          var before=span.previous&&span.previous.text;
+          li.append(before!==undefined&&before!==null&&before!==span.text?wordDiffBlock(before,span.text,'Was'):el('p','atl-qspan-text',span.text));
+          Q.reasonLines(span.reason).forEach(function(line){li.append(el('p','atl-qspan-reason',line));});
+        }else if(span.kind==='absent'&&span.previous){
+          li.append(el('p','atl-qspan-text atl-qspan-was','Last recorded as: “'+span.previous.text+'”'));
+        }else if(span.kind==='no_identity'){
+          li.append(el('p','atl-note','Revisions before the identities were recorded name no identity for this question. The wording they held is not attached to it.'));
+        }
+        var vs=Q.spanVersions(span);
+        var det=el('details','atl-series-how');det.dataset.key='qspan:'+(q.id||q.index)+':'+i;
+        det.append(el('summary','',vs.length===1?'The version this records':vs.length+' versions this span covers'));
+        var list=el('ul','atl-qversions');
+        vs.forEach(function(v){var item=el('li','',v.label+' · ');item.append(el('code','',v.sha));list.append(item);});
+        det.append(list);li.append(det);
+        ol.append(li);
+      });
+      sec.append(ol);folio.append(sec);
+    }
+    function renderQuestionBooks(q,d){
+      var books=Q.booksOf(q),u=d.books||{};
+      var sec=el('section','atl-qbooks');sec.setAttribute('aria-label','Working Books that record a decision about this question');
+      sec.append(el('h4','atl-section-title','Working Books that record a decision about it · '+books.length));
+      if(!books.length)sec.append(el('p','atl-note',q.standing==='wording_only'?
+        'Decisions in the Books refer to wording without an identity, so none is connected to this question here.':
+        'No working Book records a decision about this question. That shows only that no Book records one.'));
+      books.forEach(function(ref){sec.append(bookRow(q,ref));});
+      (u.unreadable||[]).forEach(function(b){sec.append(toneLine({tone:'bad',text:'Book '+b.book_number+' could not be read, so whether it records a decision about this question cannot be told.'}));});
+      var loose=(u.wording_only_references||[]).length;
+      if(loose&&q.standing!=='wording_only')sec.append(el('p','atl-note',Q.plural(loose,'decision')+' in the Books refer to wording without an identity. They are not connected to this question.'));
+      // Decisions whose named version cannot be read, or no longer matches them, cannot be attached to any question.
+      var unattached=(u.unattributed_references||[]).length;
+      if(unattached)sec.append(el('p','atl-note',Q.plural(unattached,'decision')+' in the Books refer to an Architecture version that cannot be read or no longer matches the decision, so none can be attached to a question here.'));
+      folio.append(sec);
+    }
+    // A Book's decision that refers to this question. Its own words, what the reference now means, and the wording it
+    // was written against when that differs. The recorded identity and version sit behind a disclosure.
+    function bookRow(q,ref){
+      var box=el('article','atl-qbook');box.dataset.book=String(ref.book_number);
+      box.append(el('p','atl-series-book','Book '+ref.book_number+(ref.title?' · '+ref.title:'')));
+      if(ref.decision_text)box.append(el('p','atl-series-text','The Book keeps this decision open: “'+ref.decision_text+'”'));
+      var rel=Q.bookRelation(ref);if(rel)box.append(toneLine(rel));
+      var rec=ref.recorded||{};
+      if(rec.text&&q.text!==rec.text&&q.standing!=='no_longer_open')
+        box.append(el('p','atl-qspan-was','Earlier formulation it refers to · '+Q.label({revision_number:rec.revision_number,request_sha256:rec.version_request_sha256})+': “'+rec.text+'”'));
+      var fresh=Q.bookFreshnessNote(ref);if(fresh)box.append(el('p','atl-note',fresh));
+      var tech=el('details','atl-series-how');tech.dataset.key='question-book-source:'+ref.book_number+':'+ref.decision_id;
+      tech.append(el('summary','','Source details'));
+      var dl=el('dl','atl-facts');
+      fact(dl,'Question identity',ref.question_id?(ref.records_identity?ref.question_id:
+        ref.question_id+' · resolved from the version the decision names; the decision itself records no identity'):'none');
+      fact(dl,'Recorded question version',rec.version_request_sha256?Q.label({revision_number:rec.revision_number,request_sha256:rec.version_request_sha256})+' · '+rec.version_request_sha256:null);
+      fact(dl,'Decision',ref.decision_id);
+      fact(dl,'Recorded position',rec.index!==null&&rec.index!==undefined?String(rec.index+1):null);
+      tech.append(dl);box.append(tech);
+      var row=el('div','atl-look');
+      actionButton(row,'Read Book '+ref.book_number,function(){openBookFromQuestion(ref.book_number);},
+        'question-book:'+ref.book_number+':'+ref.decision_id).classList.add('atl-action-quiet');
+      if(binding.onDevelop&&binding.books&&ref.anchorable)actionButton(row,'Ask about this decision’s question',function(){
+        askQuestion(ref.book_number,Q.bookAskRef(ref));},'question-book-ask:'+ref.book_number+':'+ref.decision_id).classList.add('atl-action-quiet');
+      box.append(row);
+      return box;
+    }
+    function openBookFromQuestion(n){
+      var v=S.qv;S.qv=null;
+      // The question's own place is kept, so Back returns the author to where they were reading it.
+      v.ownScroll=folio.scrollTop;
+      openLeaf({book:n,question:v});
+    }
+    // Investigation is offered where the author has read the question. Each operation is an inquiry in the existing desk;
+    // no alternative is applied, and nothing is accepted, by asking.
+    function renderQuestionInvestigation(q,d){
+      var sec=el('section','atl-qinvestigate');sec.setAttribute('aria-label','Investigate this question with your coding agent');
+      sec.append(el('h4','atl-section-title','Investigate with your coding agent'));
+      if(Q.isAskable(q,d)){
+        var row=el('div','atl-look atl-question-ask');
+        Q.OPERATIONS.forEach(function(op){actionButton(row,op[1],function(){askArchitectureQuestion(q,op[0]);},'question-ask:'+op[0]).classList.add('atl-action-quiet');});
+        sec.append(row,el('p','atl-note','Opens the coding-agent desk on this question. Asking changes nothing. An alternative becomes a revision only if you choose it, and then you review it and apply it yourself.'));
+      }else{var note=Q.askNote(q,d);sec.append(el('p','atl-note',note||'This question cannot be asked about here.'));}
+      folio.append(sec);
+    }
+    function renderQuestionSource(q,d){
+      var det=el('details','atl-series-how');det.dataset.key='question-source:'+(q.id||'index-'+q.index);
+      det.append(el('summary','','Source details'));
+      var dl=el('dl','atl-facts');
+      fact(dl,'Identity',q.id||'none recorded: wording only');
+      fact(dl,q.standing==='no_longer_open'?'Last recorded position':'Position in the current revision',String(q.index+1));
+      fact(dl,'Wording digest (sha256)',q.text_sha256?q.text_sha256.slice(0,16)+'…':null);
+      if(d.current)fact(dl,'Current revision',Q.label({revision_number:d.current.revision_number,request_sha256:d.current.request_sha256})+' · '+d.current.request_sha256);
+      if(d.history)fact(dl,'Revision history read',(d.history.chain_complete?'the whole chain':'part of the chain')+' · '+d.history.versions_read+' readable · '+d.history.unreadable_versions+' unreadable');
+      det.append(dl,el('p','atl-note','Identities are the Architecture’s own declarations and are never inferred from wording. Each formulation is kept as the revision that recorded it.'));
+      folio.append(det);
+    }
+    function askArchitectureQuestion(q,operation){
+      if(!binding.onDevelop){announce('The coding-agent desk is not available here, so nothing was asked.');return;}
+      binding.onDevelop({conceptId:null,title:q.text,anchor:{kind:'question',id:q.id},precision:'question',subject:'Open question',
+        quote:q.text,sourceRef:'open_questions/'+q.index,operation:operation,draft:Q.SUGGEST[operation]||''});
     }
     /* What Architecture changes mean for the working Books. Read from each Book's own record: the concepts
        it cites by node id, judged against the fingerprint it kept, and its own freshness. The overview says
@@ -2003,6 +2305,9 @@
             if(q.recorded_text&&q.current_text&&q.recorded_text!==q.current_text)
               li.append(el('span','atl-series-kind','Earlier wording: '+q.recorded_text));
             li.append(el('span','atl-technical',(q.question_id?q.question_id+' · ':'')+'decision '+q.decision_id));
+            if(Q&&binding.getArchitectureQuestions&&q.question_id){
+              // The question as the Architecture records it, with its history; Back returns to this Book.
+              actionButton(li,'Read this question',function(){openQuestion({id:q.question_id});},'book-read-question:'+b.book_number+':'+q.decision_id).classList.add('atl-action-quiet');}
             if(binding.onDevelop&&q.question_id&&q.decision_id&&['current_wording','moved','reworded','moved_and_reworded'].indexOf(q.state)>=0){
               var askQ=actionButton(li,'Ask about this question',function(){askQuestion(b.book_number,q);},'book-question:'+b.book_number+':'+q.decision_id);
               askQ.classList.add('atl-action-quiet');
@@ -2536,6 +2841,7 @@
       if(status&&status!=='ready')folio.append(el('p','atl-coverage','Source status: '+M.human(status)+'. The atlas reads the current working proposal as it is.'));
       var revised=revisedSummary();if(revised)folio.append(revised);
       else if(I){var books=impactLine();if(books)folio.append(books);}
+      if(Q&&binding.getArchitectureQuestions)renderQuestionOverview();
       if(S.narrative)renderStructureFolio();
       // Landmarks: the most connected ideas of each kind, by count of documented relationships.
       var marks=el('section','atl-landmarks');
@@ -2693,6 +2999,9 @@
       // Escape first closes the read-only Series and Book context, back to the concept it was opened from.
       // Escape in a text field never closes the view around the words being written.
       if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
+      // Escape closes an open question, then the list of them, back to where the author came from.
+      if(S.qv&&!S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeQuestion();return;}
+      if(S.qlist&&!S.leaf&&!S.qv&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeQuestionList();return;}
       if(S.leaf&&S.discovery&&discoveryFor(S.discovery.book)&&!(e.target.closest&&e.target.closest('details[open] summary'))){
         e.preventDefault();closeDiscovery(S.discovery.book,false);return;}
       if(S.leaf&&S.leaf.evidence&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();
@@ -2794,7 +3103,7 @@
       var hadFocus=!!S.focus,prevModel=S.model,prevAtlas=S.atlas,prevSha=S.sha,keepFocus=S.focus,keepDepth=S.depth;
       var keepExamine=S.mode==='constellation',keepTrail=S.trail.slice(),keepCam=S.userCam&&S.cam?Object.assign({},S.cam):null;
       // Book freshness is measured against the working Architecture, so a new one is read again.
-      var keepLeaf=S.leaf;S.leaf=null;if(sha!==prevSha){S.seriesStale=true;S.books={};}
+      var keepLeaf=S.leaf;S.leaf=null;if(sha!==prevSha){S.seriesStale=true;S.books={};S.questionsStale=true;}
       var ctx=binding.getRevisionContext?binding.getRevisionContext():null;
       var revised=!!(prevModel&&ctx&&ctx.fromSha===prevSha&&ctx.toSha===sha);
       S.candidateRef=candidate;clearExploration();S.revision=null;
@@ -2890,7 +3199,7 @@
       setNarrative:setNarrative,
       // Back to the atlas where the author left it: keyboard focus on the selected concept, or the folio.
       // The author asked to check again: Book reads are refreshed, so an open card never shows an old revision.
-      rereadBooks:function(){S.books={};if(S.leaf)readSeries(true,false,true);renderFolio();},
+      rereadBooks:function(){S.books={};S.questionsStale=true;if(S.leaf)readSeries(true,false,true);renderFolio();},
       returnFocus:function(){if(!desk.hidden)setDesk(false);var top=root.getBoundingClientRect().top;
         // Where the folio stacks below the atlas (narrow screens) the author must land on the atlas, where the applied
         // change is marked; focusing the discovery heading without revealing it keeps that view.
@@ -2903,7 +3212,8 @@
         if(b){setRoving(id);b.focus({preventScroll:true});}else focusFolio();
         if(dc)announce('Back to the atlas. Book '+S.discovery.book+'’s discovery is below it.');},
       snapshot:function(){return {mode:S.mode,treatment:activeTreatment(),research:S.research,focus:S.focus,depth:S.depth,trail:S.trail.slice(),
-        narrative:S.narrative,book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null,
+        narrative:S.narrative,questions:{list:!!S.qlist,view:S.qv?{id:S.qv.id,index:S.qv.index,from:S.qv.returnLeaf?'book':S.qv.returnList?'list':'folio'}:null,
+          status:S.qs?S.qs.status:null,version:S.qs&&S.qs.data?S.qs.data.current&&S.qs.data.current.request_sha256:null},book:{dev:S.dev?{book:S.dev.book,targets:S.dev.targets.slice(),holistic:S.dev.holistic}:null,
           discovery:S.discovery?{book:S.discovery.book,element:S.discovery.element,operation:S.discovery.operation,anchor:S.discovery.anchor}:null},series:{leaf:S.leaf?{from:S.leaf.from,book:S.leaf.book}:null,status:S.seriesCtx?S.seriesCtx.status:null,
           version:S.seriesCtx&&S.seriesCtx.data?S.seriesCtx.data.version:null,changed:!!(S.seriesCtx&&S.seriesCtx.changed)},revision:S.revision?{keptLayout:S.revision.keptLayout,touched:Object.keys(S.revision.delta.touched),
           reworded:S.revision.delta.reworded.map(function(x){return x.id;}),relationsAdded:S.revision.delta.relationsAdded.map(function(r){return r.sourceRef;}),

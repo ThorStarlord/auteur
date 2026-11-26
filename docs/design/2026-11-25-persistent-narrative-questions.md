@@ -95,6 +95,9 @@ Owner rules enforced at completion (`question_identity_problems`):
 
 ## H. Not implemented (explicit limitations)
 
+Two items below are now built: the Architecture-level question list, and a question's history view. See
+[narrative question workspace](2026-11-25-narrative-question-workspace.md). The rest of this section still holds.
+
 - **Atelier ask action on a question** is implemented: a decision whose question is anchorable offers "Ask about this
   question", which opens the desk on the question with the Book element as evidence. It is verified by a served browser
   test and by the probe on the Spring Ledger study. It has not been judged by a human author.
