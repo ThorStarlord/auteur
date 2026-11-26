@@ -1,0 +1,30 @@
+{
+  "identities": [
+    "q-reform-stance",
+    "q-plurality",
+    "q-gate-table"
+  ],
+  "questions": [
+    12,
+    13,
+    14
+  ],
+  "book": 24,
+  "creative_question": "These three questions each name the Gate Table, or the stance it stands for. Do they share one creative problem? Does the Gate Table develop reform from within and the plurality of practice together, as one mechanism, or does it warn against one of them and so pull the questions apart? Say what each possibility would make possible and what it would cost the Series, and say plainly if the questions should remain independent.",
+  "results": {
+    "A-current": {
+      "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\b451c138-658d-4953-b6cf-a70d28f71881\\scratchpad\\exercise-root\\arm-A",
+      "request_sha256": "74f52ec1f08de0fc9ba6ecb3a988da4403960285f011e5649117c4ff3e0ced81",
+      "user_bytes": 48071,
+      "has_deliberation": false,
+      "prior_exchanges": 0
+    },
+    "B-historical": {
+      "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\b451c138-658d-4953-b6cf-a70d28f71881\\scratchpad\\exercise-root\\arm-B",
+      "request_sha256": "820027e9be6fc912af5a725f20b97281118048a2f742bd89dd8f9e1b92a65e82",
+      "user_bytes": 58649,
+      "has_deliberation": true,
+      "prior_exchanges": 0
+    }
+  }
+}

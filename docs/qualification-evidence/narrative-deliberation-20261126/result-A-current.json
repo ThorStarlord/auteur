@@ -1,0 +1,156 @@
+{
+  "label": "A-current",
+  "status": "ready",
+  "request_sha256": "74f52ec1f08de0fc9ba6ecb3a988da4403960285f011e5649117c4ff3e0ced81",
+  "result": {
+    "schema_version": 1,
+    "analysis": "Interpretation, not graph proof. The three questions share a physical anchor but not a single creative problem. q-gate-table asks whether the Hollow Gate and Gate Table exist in the world at all, and whether the Council may pass through it. It is upstream: the other two ask what the Table means, so they presuppose an answer to it. q-reform-stance is a question about stance, meaning how the Series judges change that comes through an existing institution (here the Council ceding the schedule). q-plurality is a question about the Book 30 end state, meaning whether more than one practice survives. The recorded graph ties both practices to one outlet: the counted Turn holds water back (l_measured_holds_gate) and the gift practice needs release at need (l_unmeasured_needs_release). The Gate is therefore the only place where plurality is physically negotiated, and the Table is the only recorded body that holds the schedule without holding the record. That gives the questions a shared object, but sharing an object is not the same as sharing one problem. By function, the Table can be read as a coordination device that lets two practices coexist. It can also be read as a seat of power, which is the risk the graph itself records (gi_pastoral_political_gate). Reform from within and plurality pull in different directions on that second reading. Reform from within implies that an institution (the Council) transforms and keeps its legitimacy. Plurality implies that practices stay distinct and no institution absorbs the others. The Table can serve both only if the Council's passage through it is the reform and the continued separation of the two practices is the result. That is a design choice the graph does not make. Compare outcomes. (1) One mechanism: the Series gets a single hopeful arc in which the Council reforms itself and that reform is what keeps two practices alive. This pays off et_hope (a practice outliving the institution that began it) and the political payoff that no single body holds both record and schedule. It costs the Series its ability to criticise the Table, because the Table becomes the thesis, and it raises the risk that the Table turns into a standing authority. (2) The Table warns against reform from within: passing the schedule to a new body repeats the compromise that feeds a new monopoly, so plurality has to survive despite the Table. That makes the stance critical and gives the political genre a sharper payoff, but it pulls q-reform-stance away from q-plurality and weakens the warmth of the shared gate. (3) The Table warns against plurality: if the gift practice depends on the counted practice's gate, plurality is managed dependence and not freedom. That fits Alternative A's gate dependence but could undercut the pastoral promise and Alternative A's own failure mode of surveillance of the tally. (4) Independence: leave q-gate-table as a world-building decision made first, and decide stance and end state separately in Book 30 and the finale mechanism. That keeps each decision small and avoids reading the Table as the Series' thesis. The cost is that the Table can then be accepted or rejected for reasons that contradict the later stance, and the Series could land on an end state its own Gate does not support. My reading is that q-gate-table should be settled first and kept separate. q-reform-stance and q-plurality should stay open as two decisions, with an explicit check that the answer to the first does not close the second. If the author wants one coherent thesis, reading (1) is the most economical, but the graph does not show that the author wants this. The question of whether Council may pass through the Table is the one place where reform and plurality touch, so it is the natural place to test whether they coincide.",
+    "recorded_observations": [
+      {
+        "kind": "question",
+        "id": "q-gate-table",
+        "claim": "Records that the Hollow Gate and the Gate Table are construction additions that are not decided, and that the open point is whether the Council may pass through it. This makes it the upstream question the other two depend on.",
+        "sourceRef": "open_questions/14",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "question",
+        "id": "q-reform-stance",
+        "claim": "Records the reform stance as undecided and asks explicitly whether the Gate Table models reform from within or warns against it, so the Table is already named as the test case for the stance.",
+        "sourceRef": "open_questions/12",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "question",
+        "id": "q-plurality",
+        "claim": "Records that whether any terrace keeps a measured ledger in Book 30, and whether plurality of practice is the intended end state, is undecided. It names the Gate Table only implicitly, through practice and the measured ledger.",
+        "sourceRef": "open_questions/13",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "node",
+        "id": "str_hollow_gate",
+        "claim": "Records the Gate as the one outlet the counted Turn and the gift practice contest, with the Council setting its schedule until the Gate Table takes it in Book 22. It is also marked as a construction assumption the author may reject.",
+        "sourceRef": "nodes/11",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "link",
+        "id": "l_measured_holds_gate",
+        "claim": "Records that the counted practice holds water back at the Gate to protect the high cistern, one of the two physical dependencies that make the Gate a shared object.",
+        "sourceRef": "links/21",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "link",
+        "id": "l_unmeasured_needs_release",
+        "claim": "Records that the gift practice needs release at need through the Gate for the lower channels. Together with the counted practice's dependency, this makes plurality physically negotiated at one outlet.",
+        "sourceRef": "links/22",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "genre_interaction",
+        "id": "gi_pastoral_political_gate",
+        "claim": "Records that two proven practices at one Gate force the question of whose practice sets the schedule, with the stated risk that the Gate Table becomes a seat of power. This is the recorded source of the tension between coordination and authority.",
+        "sourceRef": "genre_interactions/4",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "node",
+        "id": "alt_a_reciprocal",
+        "claim": "Records Finale Alternative A as a Gate Table with no record authority, with gate dependence, pair-hands and a care floor. It names surveillance of the tally as a failure mode, relevant to whether plurality survives under the Table.",
+        "sourceRef": "nodes/28",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "h1",
+        "title": "One mechanism: reform is how plurality survives",
+        "description": "The Council's passage through the Gate Table is the reform from within, and the result is that the counted and gift practices both continue. It would make a single hopeful arc and pay off the hope target and the no-single-body payoff. It would cost the Series a critical distance from the Table and raise the risk that the Table becomes a standing authority.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h2",
+        "title": "Table warns against reform from within",
+        "description": "Handing the schedule to a new body repeats the compromise that feeds a new monopoly, so plurality has to survive despite the Table. It would sharpen the political payoff and make the Series' stance critical, but it would separate the reform question from the plurality question and cool the shared-gate warmth.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h3",
+        "title": "Table warns against plurality",
+        "description": "If each practice's survival depends on the other's Gate behaviour, plurality is managed dependence and not independent coexistence. It would give the pastoral genre a harder edge and fit Alternative A's gate dependence, at the cost of the freedom plurality was meant to promise.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h4",
+        "title": "Independent questions with a sequenced dependency",
+        "description": "Settle whether the Gate and Table exist first, then decide the stance and the Book 30 end state as separate choices, with a check that the first answer does not close the second. It keeps each decision small and avoids making the Table the thesis, but it risks an end state the Series' own Gate does not support.",
+        "divergence_axis": null
+      }
+    ],
+    "uncertainties": [
+      "Whether the author wants one thesis tying reform and plurality together; nothing in the graph states this.",
+      "Whether passing through the Gate Table counts as reform from within, since the Council is the body that currently holds the schedule and the Table is not recorded as an internal Council reform.",
+      "What a measured ledger in Book 30 means under Alternative A, where care is counted and nothing is owed, and whether it differs from the stewardship tally.",
+      "Whether the Gate and Gate Table survive as accepted world elements, since both are construction additions the author may reject; rejecting them would remove the shared object.",
+      "Whether the Table avoids becoming a seat of power; Alternative B names standing power through schedule as a failure mode and the recorded risk is only partly mitigated by lot-drawn seats.",
+      "Whether plurality means two practices on one Gate, or more than two practices across the Series, since only two are recorded.",
+      "The causal reading of how the Table's authority affects the practices is an interpretation and not a recorded mechanism."
+    ],
+    "authority": "noncanonical_inquiry",
+    "baseline_candidate_request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+    "review_request_sha256": null,
+    "inquiry_target": "current",
+    "intent": {
+      "anchors": [
+        {
+          "authority": "working_noncanonical",
+          "id": "q-reform-stance",
+          "index": 12,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-reform-stance\", \"text\": \"Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.\"}",
+          "sourceRef": "open_questions/12",
+          "title": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided."
+        },
+        {
+          "authority": "working_noncanonical",
+          "id": "q-plurality",
+          "index": 13,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-plurality\", \"text\": \"Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.\"}",
+          "sourceRef": "open_questions/13",
+          "title": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided."
+        },
+        {
+          "authority": "working_noncanonical",
+          "id": "q-gate-table",
+          "index": 14,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-gate-table\", \"text\": \"Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it.\"}",
+          "sourceRef": "open_questions/14",
+          "title": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it."
+        }
+      ],
+      "author_text": "These three questions each name the Gate Table, or the stance it stands for. Do they share one creative problem? Does the Gate Table develop reform from within and the plurality of practice together, as one mechanism, or does it warn against one of them and so pull the questions apart? Say what each possibility would make possible and what it would cost the Series, and say plainly if the questions should remain independent.",
+      "between": {
+        "relations": [],
+        "status": "not_applicable"
+      },
+      "canvas_id": "spring-ledger",
+      "expected_candidate_request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+      "operation": "compare",
+      "recorded_relations": [],
+      "target": "current",
+      "version": 1
+    }
+  }
+}

@@ -103,6 +103,57 @@
     renderHistory(value.history);
     renderLineage(value.superseded_history);
   }
+  // What the recorded-history packet of a comparison was, grouped by basis. Labels say what kind of evidence each item is;
+  // nothing here is the answer, and a Book decision's identity basis says whether the author stated it or the owner matched it.
+  const BASIS_WORDS={current_wording:'Current wording',recorded_wording:'Recorded wording',recorded_change:'Recorded change',
+    recorded_absence:'Not recorded in this revision',recorded_reason:'The author’s request then',
+    recorded_selected_alternative:'Alternative the author chose then (a historical agent interpretation)',
+    book_decision:'Working Book decision (a noncanonical proposal)',recorded_co_reference:'Recorded reference',
+    named_gap:'Missing or unreadable history'};
+  const STANDING_WORDS={current:'the decision stands as it did',book_revised:'the Book has been revised since; this decision reads as it did',
+    decision_changed:'the decision has changed since',decision_gone:'the decision is no longer recorded',unreadable:'the Book cannot be read now'};
+  function deliberationEvidence(packet,standing){
+    const box=make('details');box.className='creative-deliberation';box.dataset.deliberation='true';
+    box.append(make('summary','Evidence this answer was given · '+(packet.questions||[]).length+' open questions · recorded history'));
+    box.append(make('p','Each line says what kind of evidence it is. The answer above is an agent interpretation, not part of this record.'));
+    const standingBy={};(standing||[]).forEach(row=>{standingBy[row.book_number+':'+row.decision_id]=row.standing;});
+    for(const q of packet.questions||[]){
+      const section=make('section');section.className='creative-deliberation-question';
+      section.append(make('h5',BASIS_WORDS.current_wording+' · “'+(q.current?.text||'')+'”'));
+      for(const item of q.history||[]){
+        const line=make('p');line.dataset.basis=item.basis;
+        let words=BASIS_WORDS[item.basis]||String(item.basis||'');
+        if(item.change)words+=' · '+String(item.change).replace(/_/g,' ');
+        if(item.from_revision!=null)words+=' · revision '+item.from_revision+(item.to_revision!==item.from_revision?'–'+item.to_revision:'');
+        if(item.text)words+=' · “'+item.text+'”';
+        if(item.note)words+=' · '+item.note;
+        line.textContent=words;line.dataset.basis=String(item.basis||'');section.append(line);
+        if(item.reason){
+          const reason=make('p');reason.dataset.basis='recorded_reason';
+          reason.textContent=BASIS_WORDS.recorded_reason+' · '+(item.reason.instruction?'“'+item.reason.instruction+'”':'none recorded')+
+            (item.reason.note?' · '+item.reason.note:'');
+          section.append(reason);
+          if(item.reason.selected_alternative){const chosen=make('p');chosen.dataset.basis='recorded_selected_alternative';
+            chosen.textContent=BASIS_WORDS.recorded_selected_alternative+' · '+(item.reason.selected_alternative.title||'');section.append(chosen);}
+        }
+      }
+      for(const book of q.books||[]){
+        const decision=make('p');decision.dataset.basis='book_decision';
+        const owner=book.identity_basis==='recorded_by_decision'?'the decision names this question itself':
+          'the Book owner matched it to this question from the version it names; the author did not state that';
+        const now=STANDING_WORDS[standingBy[book.book_number+':'+book.decision_id]];
+        decision.textContent='Book '+book.book_number+' · '+BASIS_WORDS.book_decision+' · “'+(book.decision_text||'')+'” · '+owner+
+          (now?' · '+now:'');
+        section.append(decision);
+      }
+      box.append(section);
+    }
+    for(const co of packet.co_references||[]){const line=make('p');line.dataset.basis='recorded_co_reference';
+      line.textContent='Book '+co.book_number+' records decisions about '+(co.question_ids||[]).length+' of these questions. This is a recorded reference, not a relationship in the story.';
+      box.append(line);}
+    for(const gap of packet.named_gaps||[]){const line=make('p');line.dataset.basis='named_gap';line.textContent=gap.note;box.append(line);}
+    return box;
+  }
   function setInquiryResult(value){setStatus(value);result.replaceChildren();const response=value?.result;
     // Once alternatives arrive, the field is for what to develop: the question already sent is not reused as
     // a revision instruction by an unthinking click.
@@ -114,6 +165,7 @@
     const asked=(response.intent&&response.intent.author_text)||'';
     if(asked){const a=make('p','Answer to: “'+(asked.length>160?asked.slice(0,159)+'…':asked)+'”'+
       (response.book_evidence?' · asked with Book '+((response.book_evidence.book||{}).book_number)+' evidence':''));a.className='creative-asked';result.append(a);}
+    if(response.deliberation)result.append(deliberationEvidence(response.deliberation,response.deliberation_standing));
     // Which Book evidence the question was asked with, and whether it is still current, comes before the answer.
     if(response.book_evidence){const be=response.book_evidence,bk=be.book||{},el=be.element||{};
       const changed=value.book_evidence_status==='changed'||value.book_evidence_status==='unreadable';

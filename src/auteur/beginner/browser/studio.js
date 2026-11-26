@@ -483,6 +483,26 @@
           appendReviewLine("Open question no longer open: “" + row.previous_text + "”. Removing it is not an answer.", "review-question-change");
         });
       }
+      // A revision made from a comparison states what the inquiry concerned and which of those questions it changes.
+      var questionScope = review.question_scope;
+      var countWords = {1: "one", 2: "two", 3: "three"};
+      if (questionScope && (questionScope.considered || []).length > 1) {
+        var considered = questionScope.considered;
+        var changedIds = questionScope.changed_ids || [];
+        var changed = considered.filter(function (item) { return changedIds.indexOf(item.id) !== -1; });
+        appendReviewLine("This inquiry concerned " + (countWords[considered.length] || considered.length) + " open questions. " +
+          (changed.length
+            ? "This revision changes " + (countWords[changed.length] || changed.length) + " of them" +
+              (changed.length < considered.length ? "; the others are unchanged." : ".")
+            : "This revision changes none of them."), "review-question-scope");
+      }
+      // A change to a question the inquiry did not concern is named as such, never folded into the scope above.
+      if (questionScope && (questionScope.changed_outside_ids || []).length) {
+        var outside = questionScope.changed_outside_ids.length;
+        appendReviewLine("This revision also changes " + (countWords[outside] || outside) + " open " +
+          (outside === 1 ? "question" : "questions") + " the inquiry did not concern. Those changes are listed above.",
+          "review-question-scope");
+      }
       if (review.preserved) {
         var authorTargets = review.preserved.author_declared_emotion_targets || [];
         if (authorTargets.length) {
@@ -3290,8 +3310,14 @@
     if (!graphSelectionController || !creativePanel) {
       status("The coding-agent panel is unavailable for this Architecture."); return;
     }
-    try { graphSelectionController.select(request.anchor); }
-    catch (error) { status("That source is no longer recorded in the working Architecture: " + error.message); return; }
+    // One question, or a comparison of two or three: the first anchor replaces the selection, the others are appended.
+    var anchors = request.anchors && request.anchors.length ? request.anchors : [request.anchor];
+    try { anchors.forEach(function (anchor, index) { graphSelectionController.select(anchor, {append: index > 0}); }); }
+    catch (error) {
+      // A part-made selection is cleared, so no earlier anchor is left behind for a later ask.
+      try { graphSelectionController.clear(); } catch (_) { /* nothing selected yet */ }
+      status("That source is no longer recorded in the working Architecture: " + error.message); return;
+    }
     // Book evidence comes only with a request that brings it; any other hand-off leaves none behind.
     if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(request.bookEvidence || null);
     var operation = request.operation;
@@ -3308,19 +3334,21 @@
     state.atelierSuggestion = suggestion && !draft ? suggestion : null;
     if (suggestion && !draft && creativePanel.setAuthorText) creativePanel.setAuthorText(suggestion);
     state.atelierAsk = {conceptId: request.conceptId, title: request.title, subject: request.subject,
-      operation: operation, requestSha: state.architectureRequestSha, key: anchorsKey([request.anchor])};
+      operation: operation, requestSha: state.architectureRequestSha, key: anchorsKey(anchors), anchorCount: anchors.length};
     var disclosure = $("architecture-creative-graph");
     disclosure.hidden = false; disclosure.open = true;
     syncAtelierReturn();
     // The disclosure's top holds the way back; the question field is in view below it. With Book evidence the
     // evidence and the question are what the author needs to see, so they come first on any screen.
     var evidenceBox = request.bookEvidence && $("architecture-creative-agent-panel").querySelector(".creative-book-evidence");
-    openAtelierDesk("Your question about “" + request.title + "”");
+    openAtelierDesk(anchors.length > 1 ? "Your comparison of " + anchors.length + " open questions" :
+      "Your question about “" + request.title + "”");
     (evidenceBox || disclosure).scrollIntoView({block: "nearest"});
     var field = $("architecture-creative-agent-panel").querySelector("textarea");
     if (field) field.focus({preventScroll: true});
     if (field && suggestion && !keptDraft) field.dispatchEvent(new Event("input", {bubbles: true}));
-    status("Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")" +
+    status((anchors.length > 1 ? "Anchored on " + anchors.length + " open questions, compared as recorded" :
+      "Anchored on “" + request.title + "” (" + request.subject.charAt(0).toLowerCase() + request.subject.slice(1) + ")") +
       (request.bookEvidence ? ", with Book " + request.bookEvidence.book_number + "’s element as Book evidence" : "") + ". " +
       (keptDraft ? "Your unsent draft was kept, so the suggested question was not added. " :
         request.bookEvidence ? "Your question is in the field to edit. “Ask coding agent” prepares a request you copy to your agent; nothing runs. " :
@@ -3337,7 +3365,7 @@
   function atelierAbout(sent) {
     var ask = state.atelierAsk;
     return ask && sent && sent.key && sent.key === ask.key && sent.sha === state.architectureRequestSha
-      ? " about “" + ask.title + "”" : "";
+      ? (ask.anchorCount > 1 ? " about these " + ask.anchorCount + " open questions" : " about “" + ask.title + "”") : "";
   }
   function atelierWorkingState() {
     var st = state.architectureSourceStatus;
