@@ -18,12 +18,14 @@
     genre_contract:['inspect','trace','challenge','explore','revise'],
     phase:['inspect','trace','challenge','explore','revise'],
     // An open question is inspected and asked about; it is not a graph node and has no revision of its own here.
-    question:['inspect','challenge','explore'],
+    question:['inspect','explain','challenge','explore'],
   };
   var LABELS={inspect:'Inspect recorded source',trace:'Trace recorded relationships',
     explain:'Explain this narrative role',challenge:'Challenge this design',
     explore:'Explore possibilities',compare:'Compare meanings',
     connect_to_ask:'Explore possible relationship',revise:'Request holistic revision'};
+  var QUESTION_LABELS={inspect:'Inspect recorded source',explain:'Explain what it asks',
+    challenge:'Challenge this formulation',explore:'Explore alternative formulations'};
   function array(x){return Array.isArray(x)?x:[];}
   function address(candidate,a){
     if(a.kind==='question'){
@@ -107,7 +109,9 @@
     var operations=model.anchors.length===1?VISIBLE_ACTIONS[kind].slice():
       ['inspect','trace','challenge','explore','compare','revise'];
     if(model.anchors.length===2)operations.splice(operations.indexOf('compare'),0,'connect_to_ask');
-    return operations.map((operation,i)=>({operation:operation,label:LABELS[operation],
+    // An open question is asked about as a question: its own words for the same operations.
+    var labels=model.anchors.length===1&&kind==='question'?Object.assign({},LABELS,QUESTION_LABELS):LABELS;
+    return operations.map((operation,i)=>({operation:operation,label:labels[operation],
       description:operation==='connect_to_ask'?(model.missingRelation?'No recorded relation; ask about a possibility':'Question a recorded connection'):
         operation==='revise'?'Prepares a complete, reviewable working revision':'Read or inquire without changing architecture',
       kind:i<4?'primary':'additional',mutatesWorking:false}));

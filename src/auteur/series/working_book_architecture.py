@@ -1067,7 +1067,8 @@ def book_series_references(store: CanvasStore, book_number: int, *,
     # change is reported here even when no node changed; it never changes the Book's own freshness status.
     version_map = {sha: version for sha, version in (versions if versions is not None else architecture_versions(store))}
     question_references = [
-        {"decision_id": decision.id,
+        {"decision_id": decision.id, "decision_text": decision.text,
+         "decision_records_identity": decision.series_question_id is not None,
          **_decision_question_reference(decision, record, version_map, (series or {}).get("candidate"))}
         for decision in artifact.open_author_decisions
     ]
