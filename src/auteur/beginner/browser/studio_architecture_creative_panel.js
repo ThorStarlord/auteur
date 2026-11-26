@@ -44,9 +44,13 @@
   function setBookEvidence(next){evidence=next?Object.assign({},next):null;renderEvidence();}
   function renderOrigin(){
     originNote.hidden=!discoveryOrigin;
-    originNote.textContent=discoveryOrigin?'From a discovered possibility: “'+discoveryOrigin.title+'”. Discovery proposed it as advisory; this investigation is yours to direct.':'';
+    if(!discoveryOrigin){originNote.textContent='';return}
+    originNote.textContent=discoveryOrigin.kind==='consequence'
+      ?'From an alternative a consequence analysis of this proposal set out: “'+discoveryOrigin.title+'” ('+discoveryOrigin.approach+'). Its question is the analysis’s suggested wording, not yours: “'+discoveryOrigin.suggestion+'”. Investigating it changes nothing in the Architecture.'
+      :'From a discovered possibility: “'+discoveryOrigin.title+'”. Discovery proposed it as advisory; this investigation is yours to direct.';
   }
   function setDiscoveryOrigin(next){discoveryOrigin=next?Object.assign({},next):null;renderOrigin();}
+  function setConsequenceOrigin(next){discoveryOrigin=next?Object.assign({kind:'consequence'},next):null;renderOrigin();}
   function setSelection(next,available){anchors=next.slice();actions=(available||[]).slice();
     // A possibility's origin holds only for its own questions; any other selection drops it, never rebinding it.
     if(discoveryOrigin&&!(anchors.length===discoveryOrigin.questions.length&&anchors.every(a=>discoveryOrigin.questions.includes(a.id))))setDiscoveryOrigin(null);
@@ -60,7 +64,7 @@
   submit.addEventListener('click',()=>{if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;if(!authorText.trim()&&!['inspect','trace'].includes(operation)){status.textContent='Describe your creative intention first.';return}
     const payload={operation,anchors:anchors.slice(),authorText};
-    if(discoveryOrigin&&agentOperations.has(operation))payload.fromDiscovery=Object.assign({},discoveryOrigin);
+    if(discoveryOrigin&&discoveryOrigin.kind!=='consequence'&&agentOperations.has(operation))payload.fromDiscovery=Object.assign({},discoveryOrigin);
     if(operation!=='revise')sentText=authorText;
     if(evidence&&agentOperations.has(operation))payload.bookEvidence=Object.assign({},evidence);
     if(operation==='revise')onRevise(payload);
@@ -227,7 +231,7 @@
   function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
   // Bring the current answer to the author: its heading takes focus and comes into view.
   function focusResult(){const h=result.children&&result.children[0];if(h&&h.focus){h.focus({preventScroll:true});if(h.scrollIntoView)h.scrollIntoView({block:'start'});}}
-  updateSubmit();return {setSelection,setDiscoveryOrigin,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,focusResult,setAuthorText:text=>{instruction.value=text},
+  updateSubmit();return {setSelection,setDiscoveryOrigin,setConsequenceOrigin,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,focusResult,setAuthorText:text=>{instruction.value=text},
     setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];evidence=null;renderEvidence();chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }

@@ -140,6 +140,10 @@ def test_the_proposal_is_examined_answered_and_investigated_without_gating_apply
             timeout=15000)
         inquiry = project_architecture_inquiry(store)["request"]
         assert json.loads(inquiry["user"])["from_consequence"]["alternative_id"] == "a1"
+        # The wording the investigation carries stays attributed to the analysis, on the page, in the creative panel.
+        origin = page.locator("#architecture-creative-agent-panel .creative-origin").text_content()
+        assert "From an alternative a consequence analysis of this proposal set out" in origin, origin
+        assert "not yours" in origin, origin
         assert narrative_snapshot(project) == before, "the analysis or its investigation changed narrative state"
         # Apply is the author's own act: the applied revision's analysis then reads as historical about an applied change.
         page.locator("#architecture-apply").click()
