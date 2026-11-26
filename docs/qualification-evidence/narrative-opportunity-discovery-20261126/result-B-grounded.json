@@ -1,0 +1,290 @@
+{
+  "label": "B-grounded",
+  "request_sha256": "e32c1509a4b9e09eb2290f9121336e90c65003426346b5b5511e2dcaafd81ba9",
+  "result": {
+    "request_sha256": "e32c1509a4b9e09eb2290f9121336e90c65003426346b5b5511e2dcaafd81ba9",
+    "created_at": "2026-11-26T07:18:50.433738+00:00",
+    "author_goal": "What promising creative opportunities am I overlooking?",
+    "baseline": "current",
+    "coverage_note": "Surveyed all 16 continuing questions, the Book 24 decisions, the engines, links, Hollow Gate, Alternatives A-C and genre interactions. Set aside the spring-and-intent question with the Old Hand intermediate readings, the high-cistern share cap, and the finale-mechanism choice itself: none gave a new consequence beyond the existing wording.",
+    "no_possibility_reason": null,
+    "uncertainties": [
+      "Hesper does not appear in the Architecture nodes, only in Book 24 decisions.",
+      "Whether q-other-11 (Brightwater share cap) shares a mechanism with q-other-8 or only a name is unclear.",
+      "The Old Hand's effect on recording versus the Book 15 surfeit may be in tension; left unexamined.",
+      "The author's goal was open; I ranked by new consequence, not by author preference."
+    ],
+    "possibilities": [
+      {
+        "id": "p1",
+        "title": "The hours record could turn the care tally into a count of debt",
+        "kind": "overlooked_consequence",
+        "possibility": "The Ledger now records the hours each hand worked beside the mark, so a count of draw can be read straight from it. The record that lets care be honoured without being owed could also be read as a hands-owed count, which is what the Book 20 conversion needs. Whether shared accounting of care binds may depend less on a rule than on whether the hours record can be read as debt, and whether any terrace refuses it in Book 30. This is interpretation of a recorded revision, not a recorded outcome.",
+        "significance": "Alternative A's recorded failure mode is surveillance of the tally. The hours record is a concrete mechanism that could produce it, and it could bring the Stone Hall's debt reading back by a new route without any institution holding custody.",
+        "questions": [
+          "q-other-3",
+          "q-conversion-settlement",
+          "q-plurality"
+        ],
+        "evidence": [
+          {
+            "ref_kind": "node",
+            "ref_id": "eng_ledger",
+            "book_number": null,
+            "note": "Revised summary: the ledger records hours worked beside each mark, so a count of the draw can be read straight from it.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "node",
+            "ref_id": "alt_a_reciprocal",
+            "book_number": null,
+            "note": "Care is counted and nothing is owed; failure modes include surveillance of the tally.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_conversion_sets_draw",
+            "book_number": null,
+            "note": "From Book 20, hands a household cannot return reduce its draw; hours records would make that count mechanical.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "node",
+            "ref_id": "str_measured_turn",
+            "book_number": null,
+            "note": "The stewardship tally from Book 15 records labour as care for this practice.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "book_decision",
+            "ref_id": "dec-plurality",
+            "book_number": 24,
+            "note": "Whether any terrace keeps a measured ledger in Book 30 is open.",
+            "present_now": null
+          }
+        ],
+        "basis": "grounded",
+        "assumptions": [
+          "The hours record sits in the shared Ledger, where the Council or the Gate Table could read it.",
+          "The record covers the gift practice as well as the counted Turn."
+        ],
+        "counterevidence": [
+          "Under Alternative A draw is decoupled from hands, so a readable count need not set draw.",
+          "The revision says only that a count can be read; nothing recorded gives the count binding force."
+        ],
+        "gains": "Gives the care-accounting question a physical mechanism and a drama of who may read the hours.",
+        "costs": "Risks making the Ledger a surveillance device that undercuts the belonging the series wants to keep.",
+        "next_investigation": "Trace one household's hours from Book 15 through the Book 20 conversion and ask who can read them under each Alternative.",
+        "status": {
+          "transferable": true,
+          "state": "transferable",
+          "note": null
+        },
+        "decision": null,
+        "investigations": [],
+        "applied": false
+      },
+      {
+        "id": "p2",
+        "title": "Pre-pulse headroom: the Gate can only lower the cistern, toward the Lowfen",
+        "kind": "overlooked_consequence",
+        "possibility": "The Hollow Gate release can draw the high cistern down but cannot raise it, and the Long Return must be routed through the Gate. If the cistern lacks room for a deep-store pulse, the only recorded way to make room is to release water earlier into the lower channels, the Lowfen among them. The flood choice may then be partly made before Book 30, by the same schedule that already sends declined shares wild. This is conditional on the cistern's unestablished capacity.",
+        "significance": "One physical constraint would tie the surge route, the cistern's capacity and the Balance Stones threshold together, and make the cost of the finale a cost of preparation, which suits the recorded aim that hope be earned with the cost visible.",
+        "questions": [
+          "q-surge-route",
+          "q-other-15",
+          "q-other-8"
+        ],
+        "evidence": [
+          {
+            "ref_kind": "node",
+            "ref_id": "str_hollow_gate",
+            "book_number": null,
+            "note": "Release draws the cistern down and cannot raise it; the Gate divides release between upper and lower channels.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_longreturn_needs_gate",
+            "book_number": null,
+            "note": "The pulse must be routed through the Gate.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_declined_goes_wild",
+            "book_number": null,
+            "note": "Wild water already runs down the lowest Lowfen terrace.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "question",
+            "ref_id": "q-other-15",
+            "book_number": null,
+            "note": "What the cistern can store above tolerance is not established; B and C depend on it.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "node",
+            "ref_id": "alt_c_ratified_trigger",
+            "book_number": null,
+            "note": "A published Balance Stones threshold activates the rota; the threshold must mean something physical.",
+            "present_now": true
+          }
+        ],
+        "basis": "grounded",
+        "assumptions": [
+          "The pulse is large relative to the room the cistern has left.",
+          "Early release is possible within the Gate schedule and takes time."
+        ],
+        "counterevidence": [
+          "Headroom may be ample; q-other-15 leaves capacity open.",
+          "Book 24 neither designates nor excludes the Lowfen, so the surge may go elsewhere.",
+          "The Gate Table, not the Council, sets the schedule after Book 22."
+        ],
+        "gains": "Turns a single Book 30 choice into a staged dilemma and gives the Balance Stones a physical meaning.",
+        "costs": "Fixes cistern behaviour before the author has chosen it and narrows finale options.",
+        "next_investigation": "Sketch three cistern capacities and, for each, whether the pulse needs pre-release and which channel would carry it.",
+        "status": {
+          "transferable": true,
+          "state": "transferable",
+          "note": null
+        },
+        "decision": null,
+        "investigations": [],
+        "applied": false
+      },
+      {
+        "id": "p3",
+        "title": "Does the Book 20 conversion reach the Compact's purchased draw?",
+        "kind": "overlooked_consequence",
+        "possibility": "Purchased draw carries no return labour from Book 6, and from Book 20 draw is cut for hands a household cannot return. The Architecture does not say whether the conversion applies to purchased shares. If it does, the Compact owes a large unreturned-hands balance that grain-labour could settle. If it does not, the conversion binds only households, which sharpens the cost of counting. Either answer changes what lowland parties owe Ammen.",
+        "significance": "It joins the Compact's settlement to the conversion and gives the lowland-obligation question a concrete test. It also bears on fairness: whether the powerless carry a count the buyers escape.",
+        "questions": [
+          "q-conversion-settlement",
+          "q-compact-settlement",
+          "q-other-1"
+        ],
+        "evidence": [
+          {
+            "ref_kind": "link",
+            "ref_id": "l_trade_draws_without_return",
+            "book_number": null,
+            "note": "Purchased shares draw without return labour.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_conversion_sets_draw",
+            "book_number": null,
+            "note": "Hands a household cannot return reduce its draw from Book 20.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_compact_hands_in_kind",
+            "book_number": null,
+            "note": "Under B purchased draw owes grain-labour to the rebuild.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "node",
+            "ref_id": "rx_consequence",
+            "book_number": null,
+            "note": "Those whose draw is cut for unreturned hands lose standing.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "book_decision",
+            "ref_id": "dec-compact-settlement",
+            "book_number": 24,
+            "note": "Oona's offer of grain-labour is neither accepted nor refused.",
+            "present_now": null
+          }
+        ],
+        "basis": "grounded",
+        "assumptions": [
+          "Purchased shares count as draw under the conversion.",
+          "The Compact's grain-labour can be measured in hands."
+        ],
+        "counterevidence": [
+          "The Compact is recorded as lowland buyers; the lowland towns in q-other-1 are not recorded as the same body.",
+          "Under Alternative A draw is decoupled from hands, so the conversion may be moot."
+        ],
+        "gains": "Sharpens an existing conflict with no new characters.",
+        "costs": "Could make the Compact a plain villain, against the aim of coherent reasons on every side.",
+        "next_investigation": "Follow one Compact share from Book 6 through the Book 20 conversion and write both outcomes for a declining household.",
+        "status": {
+          "transferable": true,
+          "state": "transferable",
+          "note": null
+        },
+        "decision": null,
+        "investigations": [],
+        "applied": false
+      },
+      {
+        "id": "p4",
+        "title": "Revocation as reform's test: Hesper between Council and crews",
+        "kind": "productive_tension",
+        "possibility": "In the working design the Council may revoke the lineage Special Draw Right, the crews carry the channel repair the Long Return needs, and Book 24 keeps Hesper a Council apprentice. Hesper's generational motive could be tested where Council power over the crews meets the pulse's need for them: reform from within either protects the crews or enforces the training condition. Speculative: it gives Hesper a role in a revocation that nothing recorded states.",
+        "significance": "It would test whether Hesper's motive is independent of the preference for a sustainable Turn, because a revocation forces a cost on one side. It also gives reform from within a concrete act.",
+        "questions": [
+          "q-right-revocable",
+          "q-reform-stance",
+          "q-hesper-motive"
+        ],
+        "evidence": [
+          {
+            "ref_kind": "node",
+            "ref_id": "inst_lineage_crews",
+            "book_number": null,
+            "note": "The right is conditional on training outside apprentices; the working design makes it revocable by the Council.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_longreturn_needs_hands",
+            "book_number": null,
+            "note": "The pulse needs channel labour before its date.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "link",
+            "ref_id": "l_lineage_carries_repair",
+            "book_number": null,
+            "note": "Lineage crews carry channel repair from Book 20.",
+            "present_now": true
+          },
+          {
+            "ref_kind": "book_decision",
+            "ref_id": "dec-reform-stance",
+            "book_number": 24,
+            "note": "Hesper stays a Council apprentice, which is not a statement on reform.",
+            "present_now": null
+          }
+        ],
+        "basis": "speculative",
+        "assumptions": [
+          "Hesper's position gives her a say in whether the right is revoked.",
+          "The Council still holds revocation after Book 22."
+        ],
+        "counterevidence": [
+          "Hesper's motive is untested, and a staged dilemma may not show independence from the author's preference.",
+          "Nothing recorded places Hesper in the revocation decision."
+        ],
+        "gains": "Ties three abstract questions to one decision a character can make.",
+        "costs": "May make Hesper a device for the author's stance rather than a person with her own reasons.",
+        "next_investigation": "Draft a Hesper scene facing a revocation vote under both a permanent and a revocable right, and see which motive each reveals.",
+        "status": {
+          "transferable": true,
+          "state": "transferable",
+          "note": null
+        },
+        "decision": null,
+        "investigations": [],
+        "applied": false
+      }
+    ]
+  }
+}

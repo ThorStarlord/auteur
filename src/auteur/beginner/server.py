@@ -56,6 +56,10 @@ from .studio_full_evidence import project_legacy_genre_evidence
 from .studio_architecture import (
     apply_architecture_review, complete_architecture, prepare_architecture, project_architecture,
 )
+from .studio_architecture_discovery import (
+    complete_architecture_discovery, prepare_architecture_discovery, project_architecture_discoveries,
+    record_possibility_decision,
+)
 from .studio_architecture_inquiry import (
     complete_architecture_inquiry, prepare_architecture_inquiry, project_architecture_inquiry,
 )
@@ -430,6 +434,7 @@ class _RequestHandler(BaseHTTPRequestHandler):
         "/studio_atelier_model.js": "studio_atelier_model.js",
         "/studio_atelier_series.js": "studio_atelier_series.js",
         "/studio_atelier_questions.js": "studio_atelier_questions.js",
+        "/studio_atelier_discovery.js": "studio_atelier_discovery.js",
         "/studio_atelier_book.js": "studio_atelier_book.js",
         "/studio_atelier_impact.js": "studio_atelier_impact.js",
         "/studio_atelier.js": "studio_atelier.js",
@@ -666,6 +671,15 @@ class _RequestHandler(BaseHTTPRequestHandler):
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:] == ["architecture", "discovery"]):
+                try:
+                    self._send_json(200, project_architecture_discoveries(
+                        CanvasStore(self.project_root, parts[4])
+                    ))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5:] == ["architecture", "inquiry"]):
                 try:
                     self._send_json(200, project_architecture_inquiry(
@@ -794,6 +808,23 @@ class _RequestHandler(BaseHTTPRequestHandler):
                         self._send_json(200, apply_book_revision(self.project_root, parts[4], number, payload))
                     else:
                         self._send_json(200, complete_book_revision(self.project_root, parts[4], number, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:7] == ["architecture", "discovery"]
+                    and parts[7] in {"prepare", "host-agent-response", "decision"}):
+                payload = self._read_json()
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[7] == "prepare":
+                        self._send_json(202, prepare_architecture_discovery(store, goal=payload.get("goal")))
+                    elif parts[7] == "decision":
+                        self._send_json(200, record_possibility_decision(
+                            store, payload.get("request_sha256"), payload.get("possibility_id"),
+                            payload.get("decision"), payload.get("reason")))
+                    else:
+                        self._send_json(200, complete_architecture_discovery(store, payload))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return

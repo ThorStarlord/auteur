@@ -40,3 +40,6 @@
 .creative-deliberation > summary { cursor: pointer; font-size: .92rem; }
 .creative-deliberation h5 { margin: .55rem 0 .15rem; font-size: .88rem; }
 .creative-deliberation p { margin: .15rem 0; font-size: .86rem; max-width: 70ch; overflow-wrap: anywhere; }
+
+/* A possibility taken from discovery: named above the answer, never a claim that the agent decided anything. */
+.creative-origin { margin: .2rem 0 .5rem; font-size: .88rem; max-width: 70ch; overflow-wrap: anywhere; font-style: italic; }
