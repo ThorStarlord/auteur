@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/studio.css">
   <link rel="stylesheet" href="/studio_architecture_revision.css">
   <link rel="stylesheet" href="/studio_architecture_creative.css">
+  <link rel="stylesheet" href="/studio_architecture_consequence.css">
   <link rel="stylesheet" href="/studio_atelier.css">
   <link rel="stylesheet" href="/studio_atelier_desk.css">
 </head>
@@ -142,6 +143,13 @@
             <p>The two candidate versions remain separate until you explicitly apply the complete working revision. Inspecting changes does not call an agent or accept story meaning.</p>
             <div id="architecture-visual-review-root" aria-label="Hybrid architecture revision comparison"></div>
           </details>
+          <section id="architecture-consequence" class="architecture-consequence" aria-labelledby="architecture-consequence-title" hidden>
+            <h2 id="architecture-consequence-title">Consequences of this proposal</h2>
+            <p class="architecture-consequence-intro">Advisory. An analysis is about one exact proposal, and its standing is shown with it. It changes no record, and Apply is not affected by it.</p>
+            <p id="architecture-consequence-status" class="consequence-live" role="status" aria-live="polite"></p>
+            <p id="architecture-consequence-alert" class="consequence-live" role="alert"></p>
+            <div id="architecture-consequence-root"></div>
+          </section>
           <p>These differences affect only working architecture. Accepted story artifacts never change here.</p>
           <button id="architecture-apply" type="button">Apply to working architecture</button>
         </section>
@@ -417,6 +425,7 @@
   <script src="/studio_architecture_agent_bridge.js" defer></script>
   <script src="/studio_architecture_creative_panel.js" defer></script>
   <script src="/studio_architecture_creative_feedback.js" defer></script>
+  <script src="/studio_architecture_consequence.js" defer></script>
   <script src="/studio_architecture_revision_bridge.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "analysis": "Interpretation, not graph proof. This reviews the proposed, un-applied revision; the applied baseline still carries the old wording. The one recorded_change is the wording of the open question q-conversion-settlement. Baseline: 'Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?' Proposed: 'Does the Book 20 hands-to-draw conversion reach the shares the Mill Compact purchased, or do those shares stay outside it? Not decided.' The question id, the list order and the other fifteen questions are unchanged, and the structured comparison reports no change to nodes, links, phases, emotion targets, genre contracts or interactions, and no summary change. So the proposal accomplishes one thing: it turns a question about the conversion's permanence into a question about its reach, and it ties that question to the Compact. It does not answer it. The wording offers both readings (reach or stay outside), which matches the author's instruction (author_decision) to open the question, not settle it.\n\nKept (reasoned_consequence): the subject, the Book 20 hands-to-draw conversion (th_hands_and_draw, l_conversion_sets_draw, l_tally_counts_hands); the undecided status; and the whole recorded Compact mechanism, in which purchased shares draw without return labour (l_trade_draws_without_return) and, under B only, owe grain-labour (l_compact_hands_in_kind). The proposed wording is the very gap those links leave: the graph is silent on whether a Compact-held share is subject to the conversion. The question therefore now sits where the graph is thinnest, and it keeps the earlier exchange's open reading of whether the Compact share is exempt or brought under the conversion unresolved in both directions.\n\nTransformed (reasoned_consequence): the question moves from a temporal, finale-facing concern (is the settlement lasting or revisited) to a scope concern (who the settlement binds). It also moves toward the political-institutional and pastoral engines: whether unshared draw escapes the hands owed bears on the pastoral engine 'belonging is eroded by unshared draw' and on rx_consequence, since a declining household would now be compared against a neighbour whose draw is or is not touched.\n\nDisplaced (reasoned_consequence): the 'lasting settlement or a stage the finale must revisit' concern no longer has its own question. The nearest remaining carriers are q-finale-mechanism, which asks which of A, B or C is chosen, and the Book 20 to Book 30 structure through the alternatives. Those cover the finale choice but do not state the settlement-permanence question. That is a loss of explicit wording, not of recorded structure, because no node, link or phase asserted permanence.\n\nOverlap and interaction (reasoned_consequence): the reworded question now sits close to q-compact-settlement (whether the Compact accepts grain-labour in exchange for settling its claim). Both concern the Compact and the conversion, so a later answer to one constrains the other: if the conversion reaches the Compact's shares, grain-labour is the in-kind answer already in B; if it stays outside, the Compact's draw stays free of return labour until something else binds it. Nothing recorded forces the two to be answered together.\n\nSpeculative_possibility: answering the reach question could change how et_cost_of_counting and the Book 21 declined share read against a Compact neighbour, and could move weight onto the Gate Table schedule; these need creative development and are not shown by the comparison.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "recorded_change: the only deterministic difference. The baseline wording asks whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit; the proposed wording asks whether it reaches the Compact's purchased shares or they stay outside it. Id and position are unchanged.",
+      "sourceRef": "open_questions/5",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "author_decision: the requested change asks to reword only this question and not to decide the answer; the proposed text ends 'Not decided' and offers both readings.",
+      "sourceRef": "open_questions/5",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "reasoned_consequence: this recorded link, hands a household cannot return reduce its draw (Book 20), is the mechanism the reworded question asks about; the link is unchanged and nothing in it says whether Compact shares fall under it.",
+      "sourceRef": "links/17",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_trade_draws_without_return",
+      "claim": "reasoned_consequence: purchased shares draw without return labour; this is the recorded fact that makes the reach question meaningful, and it is kept unchanged.",
+      "sourceRef": "links/4",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "reasoned_consequence: under B, purchased draw owes grain-labour to the rebuild; this is the in-kind answer that the 'reaches the Compact's shares' reading would make relevant, and it is unchanged.",
+      "sourceRef": "links/27",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "reasoned_consequence: this unchanged question (does the Compact accept grain-labour to settle its claim) now overlaps more closely with the reworded question, since both turn on how the Compact is bound; they stay separate questions.",
+      "sourceRef": "open_questions/6",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-finale-mechanism",
+      "claim": "reasoned_consequence: the nearest remaining carrier of the displaced 'lasting settlement or stage to revisit' concern is the choice among finale mechanisms; it does not state the permanence question explicitly.",
+      "sourceRef": "open_questions/2",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "inst_mill_compact",
+      "claim": "reasoned_consequence: the Compact node is unchanged, but the reworded question now makes it the subject of the Book 20 conversion question, not only of the Book 27-29 bid.",
+      "sourceRef": "nodes/21",
+      "observed_in": "proposed_revision",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [],
+  "uncertainties": [
+    "Whether the 'lasting settlement or stage to revisit' concern is meant to be dropped or only reworded away; the proposal does not say, and no other recorded element states it.",
+    "The structured comparison reports no change to open questions, so the wording change is visible only by comparing the two open_questions lists; the review cannot confirm that no other wording differs.",
+    "Whether the Compact still holds purchased shares at Book 20, which the reworded question assumes; the graph records the purchase in Book 6 but not what happens to the shares afterwards.",
+    "Whether the author wants q-conversion-settlement and q-compact-settlement answered together or separately; the proposal does not say.",
+    "Whether the overlap with q-compact-settlement reads as duplication or as two useful angles on the Compact is a creative judgment.",
+    "Whether the author's earlier h1 and h2 readings of the Compact share remain equally open after this rewording; the wording permits both, but the selected alternative h2 leaned toward bringing it under the conversion."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": "ace32a43d47d7b61dfbca1e25b6f8dafc992728fcf74598a5314755463d83440",
+  "inquiry_target": "pending_review",
+  "intent": {
+    "anchors": [],
+    "author_text": "What does this proposed change accomplish, and which earlier creative concerns does it keep, transform or displace?",
+    "between": {
+      "relations": [],
+      "status": "not_applicable"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "explain",
+    "recorded_relations": [],
+    "review_request_sha256": "ace32a43d47d7b61dfbca1e25b6f8dafc992728fcf74598a5314755463d83440",
+    "target": "pending_review",
+    "version": 1
+  }
+}

@@ -1547,6 +1547,8 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
         **({"considered_questions": considered} if considered else {}),
         # A revision made from an investigation of a discovered possibility says which possibility it came from.
         **({"from_discovery": inquiry["from_discovery"]} if inquiry.get("from_discovery") else {}),
+        # Likewise for an alternative a consequence analysis of a pending revision proposed.
+        **({"from_consequence": inquiry["from_consequence"]} if inquiry.get("from_consequence") else {}),
         "inquiry_request_sha256": selection.inquiry_request_sha256,
         "hypothesis_id": match["id"],
         "title": match["title"],
@@ -1898,6 +1900,20 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
     return project_architecture(store)
 
 
+def review_context_changed(store: CanvasStore, request) -> bool:
+    """Whether the working context a pending review was prepared against has changed: its sources, its design guidance or
+    the author's creative intentions. Apply refuses such a review, so a consequence analysis of it is stale too."""
+    settings = request.settings
+    return bool(
+        _changed_dependencies(store, settings, request.user)
+        or _guidance_changed(store, settings, request.user)
+        or (
+            settings.get("freshness_format") in (2, 3) and settings.get("intention_sha256")
+            and _intention_fingerprint(store) != settings["intention_sha256"]
+        )
+    )
+
+
 def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
     """Apply a reviewed *working* revision; accepted story owners are untouched."""
     if not isinstance(request_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", request_sha256):
@@ -1917,14 +1933,7 @@ def apply_architecture_review(store: CanvasStore, request_sha256: str) -> dict:
                 _root(store) / "requests" / request_sha256 / "request.json"
             )
             settings = request.settings
-            changed = bool(
-                _changed_dependencies(store, settings, request.user)
-                or _guidance_changed(store, settings, request.user)
-                or (
-                    settings.get("freshness_format") in (2, 3) and settings.get("intention_sha256")
-                    and _intention_fingerprint(store) != settings["intention_sha256"]
-                )
-            )
+            changed = review_context_changed(store, request)
             if changed:
                 named = _changed_dependencies(store, settings, request.user)
                 raise BeginnerConcurrencyError(

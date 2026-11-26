@@ -312,6 +312,9 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
     graph_intent=dict(graph_intent)
     evidence_ref=graph_intent.pop('book_evidence',None)
     discovery_origin_ref=graph_intent.pop('from_discovery',None)
+    consequence_origin_ref=graph_intent.pop('from_consequence',None)
+    if discovery_origin_ref is not None and consequence_origin_ref is not None:
+        raise ValueError('an investigation takes one origin: a discovered possibility or an analysed alternative')
     intent=GraphIntent.model_validate(graph_intent)
     evidence_ref=BookEvidenceRef.model_validate(evidence_ref) if evidence_ref is not None else None
     if evidence_ref is not None and intent.target!='current':
@@ -363,6 +366,14 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
                 raise ValueError('a discovered possibility is investigated on its own questions, as the current working architecture')
             origin_summary=discovery_origin(store,discovery_origin_ref,[a.id for a in intent.anchors])
             payload['from_discovery']=origin_summary
+        consequence_summary=None
+        if consequence_origin_ref is not None:
+            # An alternative an analysis of a pending revision proposed: investigated on its own questions, still continuing.
+            from .studio_architecture_consequence import consequence_origin
+            if intent.target!='current' or any(a.kind!='question' for a in intent.anchors):
+                raise ValueError('an analysed alternative is investigated on its own questions, as the current working architecture')
+            consequence_summary=consequence_origin(store,consequence_origin_ref,[a.id for a in intent.anchors])
+            payload['from_consequence']=consequence_summary
         deliberation=None
         question_ids=[a.id for a in intent.anchors if a.kind=='question']
         if question_history and intent.target=='current' and len(question_ids)>=2:
@@ -403,6 +414,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
             settings['deliberation_evidence_sha256']=deliberation['evidence_sha256']
         if origin_summary:
             settings['from_discovery']=origin_summary
+        if consequence_summary:
+            settings['from_consequence']=consequence_summary
         if book_packet:
             settings['book_evidence']={'book_number':evidence_ref.book_number,'element_id':evidence_ref.element_id,
                 'book_request_sha256':book_packet['book']['request_sha256'],
@@ -587,6 +600,8 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
             saved['book_evidence']=submitted['book_evidence']
         if submitted.get('from_discovery'):
             saved['from_discovery']=submitted['from_discovery']
+        if submitted.get('from_consequence'):
+            saved['from_consequence']=submitted['from_consequence']
         if submitted.get('deliberation'):
             from .studio_architecture_deliberation import deliberation_standing
             saved['deliberation']=submitted['deliberation']

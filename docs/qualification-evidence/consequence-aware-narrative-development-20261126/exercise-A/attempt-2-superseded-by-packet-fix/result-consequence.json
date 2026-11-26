@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "reading": "The proposal changes one thing: the open question about the Book 20 hands-to-draw conversion. The baseline asked whether the conversion is a lasting settlement or a stage the finale must revisit (E5). The proposal asks whether it reaches the shares the Mill Compact purchased or leaves them outside it, and marks that as not decided (E9). The instruction asks for exactly this rewording and no answer (E1). The Compact-settlement and lowland-obligation questions keep their wording (E14, E18).",
+  "concerns": [
+    {
+      "title": "Is the Book 20 conversion lasting or a stage to revisit",
+      "status": "possibly_displaced",
+      "earlier": "Asks whether the conversion is a lasting settlement or a stage the finale must revisit.",
+      "proposed": "Asks only whether the conversion reaches Compact-purchased shares; lasting-versus-stage is not stated.",
+      "reading": "The proposed wording no longer mentions the lasting-or-stage framing. Interpretation: that concern may need separate consideration. The record does not show whether dropping it was meant, and Book 24 still treats it as the question it makes concrete.",
+      "evidence": [
+        "E5",
+        "E7",
+        "E8",
+        "E9"
+      ],
+      "intent": "not_established",
+      "counterevidence": [
+        "E9 marks the reach question as not decided, so the conversion's standing stays open.",
+        "E1 asks to change only wording and does not say to drop the earlier framing."
+      ],
+      "competing_reading": "Reach may be a precondition for judging lasting or stage, so the earlier concern stays implicit rather than displaced."
+    },
+    {
+      "title": "Conversion reach over Compact-purchased shares",
+      "status": "introduced",
+      "earlier": null,
+      "proposed": "Whether the conversion applies to the Mill Compact's purchased shares or those shares stay outside it.",
+      "reading": "This is a new question in the Architecture's question list. The discovery origin says the Architecture does not now state whether purchased draw is covered (E3). The selected alternative explores one answer, which goes beyond the record (E2). Interpretation: either answer changes what lowland parties owe Ammen.",
+      "evidence": [
+        "E9",
+        "E3",
+        "E2"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "The proposal records no answer; E9 says not decided."
+      ],
+      "competing_reading": null
+    },
+    {
+      "title": "Compact settlement through grain-labour",
+      "status": "preserved",
+      "earlier": null,
+      "proposed": null,
+      "reading": "The wording is unchanged (E14) and Book 24 records Oona's offer as neither accepted nor refused (E13). Interpretation: its meaning may shift, since E2 reads grain-labour as the Compact's in-kind answer if the conversion reaches its shares. That reading comes from the selected alternative and is not recorded.",
+      "evidence": [
+        "E10",
+        "E13",
+        "E14",
+        "E12"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "E13 is recorded by identity and does not show Book 24 depends on conversion reach."
+      ],
+      "competing_reading": null
+    },
+    {
+      "title": "What lowland towns and Ammen owe each other",
+      "status": "preserved",
+      "earlier": null,
+      "proposed": null,
+      "reading": "The broad lowland-obligation question is unchanged (E18). The discovery origin links it to the conversion-reach question (E3), so its context may widen, but its wording stays as before.",
+      "evidence": [
+        "E15",
+        "E17",
+        "E18",
+        "E3"
+      ],
+      "intent": null,
+      "counterevidence": [],
+      "competing_reading": null
+    }
+  ],
+  "no_concern_reason": null,
+  "prospective": [
+    {
+      "kind": "recorded_relationship",
+      "text": "Book 24 holds a decision on the conversion question, now reworded, and another on Compact grain-labour that is unchanged. This is a relationship by identity, not a shown contradiction. Book 25 was listed by title only, so nothing is known about its decisions.",
+      "evidence": [
+        "E8",
+        "E13"
+      ]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: if the author later decides the conversion reaches purchased shares, the Compact would owe an unreturned-hands balance, and grain-labour could be the in-kind settlement. If it does not, the conversion binds only households, which sharpens the cost of counting (E3).",
+      "evidence": [
+        "E2",
+        "E3"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "a1",
+      "approach": "integrate",
+      "title": "One wording holding both conversion concerns",
+      "summary": "Speculative option. Word the question so it asks whether the conversion is lasting or a stage and whether it reaches Compact-purchased shares. It keeps the conversion question and keeps the Compact-settlement question beside it.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-compact-settlement"
+      ],
+      "gains": "Keeps the earlier lasting-or-stage framing and adds reach, while still changing only one question's wording.",
+      "costs": "A compound question that can be harder to answer and to track in later Books.",
+      "next_investigation": "Check how Book 24's conversion decision (E8) reads against a compound wording."
+    },
+    {
+      "id": "a2",
+      "approach": "separate",
+      "title": "Reach and permanence as separate questions",
+      "summary": "Speculative option. Keep the baseline conversion question as it was and add a distinct reach question, described here and not given an identity. It keeps q-conversion-settlement and q-compact-settlement.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-compact-settlement"
+      ],
+      "gains": "Nothing in the baseline framing is lost, and each question can be answered on its own.",
+      "costs": "Goes beyond the instruction to change only one question's wording and lengthens the question list.",
+      "next_investigation": "Ask the author whether adding a question is acceptable under E1."
+    },
+    {
+      "id": "a3",
+      "approach": "retain",
+      "title": "Keep baseline wording and carry reach under Compact settlement",
+      "summary": "Speculative option. Leave the conversion question unchanged and treat reach as part of the Compact-settlement and lowland-obligation questions it already touches.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-compact-settlement",
+        "q-other-1"
+      ],
+      "gains": "No change to Book 24's recorded conversion decision (E8).",
+      "costs": "Reach stays implicit and may go unexamined, which E3 says leaves a gap.",
+      "next_investigation": "Check whether E13 and E15 already imply an answer on reach."
+    }
+  ],
+  "not_established": [
+    "Whether dropping the lasting-or-stage framing was intended; E1 does not say.",
+    "Whether Book 25 bears on these questions; it was listed by title only (E25).",
+    "Whether Book 24's decisions depend on conversion reach; only identity is recorded.",
+    "The Architecture's other elements were not changed by the proposal and are not evaluated here.",
+    "No earlier wording exists before revision 3 for these questions (E6, E11, E16)."
+  ],
+  "schema": "studio-revision-consequence/1",
+  "authority": "noncanonical_consequence_analysis_not_working_architecture",
+  "revision_request_sha256": "ace32a43d47d7b61dfbca1e25b6f8dafc992728fcf74598a5314755463d83440",
+  "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "proposal_sha256": "928ae5197695203b7bdbdaa8f620065305b011885051ed3057add0990420cc6e",
+  "evidence": {
+    "authority": "noncanonical_consequence_analysis_not_working_architecture",
+    "baseline_question_ids": [
+      "q-other-0",
+      "q-other-1",
+      "q-finale-mechanism",
+      "q-other-3",
+      "q-right-revocable",
+      "q-conversion-settlement",
+      "q-compact-settlement",
+      "q-surge-route",
+      "q-other-8",
+      "q-hesper-motive",
+      "q-other-10",
+      "q-other-11",
+      "q-reform-stance",
+      "q-plurality",
+      "q-gate-table",
+      "q-other-15"
+    ],
+    "coverage": {
+      "books_listed_by_title_only": [
+        25
+      ],
+      "books_read": [
+        24,
+        25
+      ],
+      "books_with_decisions_on_examined_questions": [
+        24
+      ],
+      "note": "A Working Book listed by title only was not read for its decisions about these questions. That is not evidence that it is unaffected.",
+      "unreadable_books": []
+    },
+    "evidence": [
+      {
+        "id": "E1",
+        "kind": "instruction",
+        "sha256": "46bd80672bb4494511e93c0d15c164520ba86810fc6c44d08f473a0d5c30203c",
+        "text": "Take the second alternative as the question to open, not as the answer: reword the Book 20 conversion question so that it asks whether the conversion reaches the Compact's purchased shares. Change only that question's wording. Leave every other question and every other element exactly as it is, and do not decide the answer."
+      },
+      {
+        "considered_questions": [
+          "q-conversion-settlement",
+          "q-compact-settlement",
+          "q-other-1"
+        ],
+        "hypothesis_id": "h2",
+        "id": "E2",
+        "inquiry_request_sha256": "7d05404853f8a3577deab772433a317950b0c2f6d628e11777c07a79a4271daf",
+        "kind": "selected_alternative",
+        "text": "The Compact share is brought under the conversion. Read the conversion as setting draw by hands owed for every share, so the Compact must meet it with something other than hands. Grain-labour is the in-kind answer already present in B. Under A it has no force, which shows how much weight the finale choice carries. This answers the Book 20 conversion question for the Compact's share and so goes beyond what is recorded."
+      },
+      {
+        "id": "E3",
+        "kind": "discovery_origin",
+        "possibility_id": "p3",
+        "questions": [
+          "q-conversion-settlement",
+          "q-compact-settlement",
+          "q-other-1"
+        ],
+        "request_sha256": "30ccb44d68b2e0261007c14077729920d2e1ce3484acc6f4e06e432034ab7f30",
+        "text": "Does the Book 20 conversion reach the Compact's purchased draw?. Purchased draw carries no return labour from Book 6, and from Book 20 draw is cut for hands a household cannot return. The Architecture does not say whether the conversion applies to purchased shares. If it does, the Compact owes a large unreturned-hands balance that grain-labour could settle. If it does not, the conversion binds only households, which sharpens the cost of counting. Either answer changes what lowland parties owe Ammen."
+      },
+      {
+        "id": "E4",
+        "kind": "author_vision",
+        "text": "The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\n\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\n\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confl…"
+      },
+      {
+        "id": "E5",
+        "index": 5,
+        "kind": "baseline_wording",
+        "question_id": "q-conversion-settlement",
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E6",
+        "kind": "named_gap",
+        "question_id": "q-conversion-settlement",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E7",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-conversion-settlement",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "decision_id": "dec-conversion-settlement",
+        "id": "E8",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "reworded",
+        "question_id": "q-conversion-settlement",
+        "recorded_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E9",
+        "index": 5,
+        "kind": "proposed_wording",
+        "previous_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "proposal_status": "reworded",
+        "question_id": "q-conversion-settlement",
+        "text": "Does the Book 20 hands-to-draw conversion reach the shares the Mill Compact purchased, or do those shares stay outside it? Not decided."
+      },
+      {
+        "id": "E10",
+        "index": 6,
+        "kind": "baseline_wording",
+        "question_id": "q-compact-settlement",
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E11",
+        "kind": "named_gap",
+        "question_id": "q-compact-settlement",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E12",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-compact-settlement",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "decision_id": "dec-compact-settlement",
+        "id": "E13",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "unchanged",
+        "question_id": "q-compact-settlement",
+        "recorded_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E14",
+        "index": 6,
+        "kind": "proposed_wording",
+        "previous_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "proposal_status": "unchanged",
+        "question_id": "q-compact-settlement",
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "id": "E15",
+        "index": 1,
+        "kind": "baseline_wording",
+        "question_id": "q-other-1",
+        "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?"
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E16",
+        "kind": "named_gap",
+        "question_id": "q-other-1",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E17",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-other-1",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+        "to_revision": 3
+      },
+      {
+        "id": "E18",
+        "index": 1,
+        "kind": "proposed_wording",
+        "previous_text": "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+        "proposal_status": "unchanged",
+        "question_id": "q-other-1",
+        "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?"
+      },
+      {
+        "id": "E19",
+        "kind": "recorded_phase",
+        "phase_id": "ph_1_reckoned_water",
+        "text": "1. Reckoned Water: The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance."
+      },
+      {
+        "id": "E20",
+        "kind": "recorded_phase",
+        "phase_id": "ph_2_the_turn",
+        "text": "2. The Turn: The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge."
+      },
+      {
+        "id": "E21",
+        "kind": "recorded_phase",
+        "phase_id": "ph_3_old_hand",
+        "text": "3. The Old Hand: The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings."
+      },
+      {
+        "id": "E22",
+        "kind": "recorded_phase",
+        "phase_id": "ph_4_settled_water",
+        "text": "4. Settled Water: Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record."
+      },
+      {
+        "id": "E23",
+        "kind": "recorded_phase",
+        "phase_id": "ph_5_unmeasured",
+        "text": "5. Unmeasured: The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with …"
+      },
+      {
+        "book_number": 24,
+        "id": "E24",
+        "kind": "working_book",
+        "records_examined_decisions": true,
+        "text": "Book 24: The Uncounted Crew"
+      },
+      {
+        "book_number": 25,
+        "id": "E25",
+        "kind": "working_book",
+        "records_examined_decisions": false,
+        "text": "Book 25: The Counted Hands"
+      }
+    ],
+    "evidence_sha256": "36c50ea43d23f7a93a5e4913877976166663d5c7be73ccf80da1787b04568ef1",
+    "examined_questions": [
+      {
+        "baseline_evidence": [
+          "E5",
+          "E7",
+          "E8"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-conversion-settlement",
+        "proposal_status": "reworded",
+        "proposed_evidence": [
+          "E9"
+        ]
+      },
+      {
+        "baseline_evidence": [
+          "E10",
+          "E12",
+          "E13"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-compact-settlement",
+        "proposal_status": "unchanged",
+        "proposed_evidence": [
+          "E14"
+        ]
+      },
+      {
+        "baseline_evidence": [
+          "E15",
+          "E17"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-other-1",
+        "proposal_status": "unchanged",
+        "proposed_evidence": [
+          "E18"
+        ]
+      }
+    ],
+    "limits": {
+      "book_decisions_per_question": 4,
+      "books_omitted": 0,
+      "books_shown": 2,
+      "components_omitted": 0,
+      "components_shown": 0,
+      "examined_questions_shown": 4,
+      "instruction_characters": 1200,
+      "phases_omitted": 0,
+      "phases_shown": 5,
+      "questions_omitted": 0,
+      "text_characters": 600
+    },
+    "proposal": {
+      "baseline_candidate_sha256": "37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b",
+      "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "proposal_sha256": "928ae5197695203b7bdbdaa8f620065305b011885051ed3057add0990420cc6e",
+      "proposed_summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+      "requested_change_sha256": "46bd80672bb4494511e93c0d15c164520ba86810fc6c44d08f473a0d5c30203c",
+      "revision_request_sha256": "ace32a43d47d7b61dfbca1e25b6f8dafc992728fcf74598a5314755463d83440"
+    },
+    "schema": "studio-revision-consequence/1"
+  },
+  "evidence_sha256": "36c50ea43d23f7a93a5e4913877976166663d5c7be73ccf80da1787b04568ef1"
+}

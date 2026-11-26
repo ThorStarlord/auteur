@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "reading": "The proposal does one thing: it retires the open question about whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit, at the author's instruction (E1, E7). The other fifteen open questions are untouched. Nothing else in the architecture is recorded as changed. The consequence is that the conversion stops being carried as an open question while it stays in the Series' recorded events, and Book 24 holds a decision that names the retired question (E6).",
+  "concerns": [
+    {
+      "title": "Whether the Book 20 conversion is settled or revisited",
+      "status": "possibly_displaced",
+      "earlier": "An open question: is the Book 20 conversion a lasting settlement, or a stage the finale must revisit? (E3, E5)",
+      "proposed": "The question is removed from the open questions and from the question identities (E7).",
+      "reading": "Interpretation: the earlier question held open whether the finale would reopen the conversion. With it removed, that possibility is no longer tracked as a question. The instruction names the retirement, but the record does not say whether the author means the conversion is settled or simply no longer to be asked.",
+      "evidence": [
+        "E1",
+        "E3",
+        "E5",
+        "E7"
+      ],
+      "intent": "instruction_names_it",
+      "counterevidence": [
+        "E1 says the conversion is not a question this series will carry forward, so the removal is deliberate rather than accidental."
+      ],
+      "competing_reading": "The author may regard the conversion as already settled, so retiring the question displaces nothing the author still wants to develop."
+    },
+    {
+      "title": "Book 24 decision that refers to the retired question",
+      "status": "possibly_displaced",
+      "earlier": "The Book 24 decision The Uncounted Crew makes the settlement-or-stage question concrete without answering it (E6).",
+      "proposed": "The question this decision refers to by identity is removed (E7).",
+      "reading": "This is a recorded relationship by identity, not a demonstrated contradiction. The decision's wording matches the retired question. Whether it still stands, needs rewording or is simply unaffected is not shown by the record.",
+      "evidence": [
+        "E6",
+        "E7",
+        "E13"
+      ],
+      "intent": "not_established",
+      "counterevidence": [
+        "E6 is marked current and the proposal does not record any change to Book 24 itself."
+      ],
+      "competing_reading": null
+    },
+    {
+      "title": "The conversion as a recorded event of Arc IV",
+      "status": "preserved",
+      "earlier": null,
+      "proposed": null,
+      "reading": "The proposal changes only the open questions. The recorded phase for Settled Water still describes draw converted in proportion to unreturned hands, so the conversion remains in the Series as an event even though it is no longer an open question.",
+      "evidence": [
+        "E1",
+        "E11"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "The packet shows no component comparison, so any other reference to the conversion elsewhere in the architecture was not examined here."
+      ],
+      "competing_reading": "Keeping the event while retiring the question could read as the conversion being treated as fixed, or as an unresolved tension left without a place to be tracked."
+    }
+  ],
+  "no_concern_reason": null,
+  "prospective": [
+    {
+      "kind": "recorded_relationship",
+      "text": "Book 24, The Uncounted Crew, holds a current decision whose wording matches the retired question. The relationship is by identity. The record does not show whether the decision needs to change.",
+      "evidence": [
+        "E6",
+        "E13"
+      ]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: with the settlement question gone, Book 24 might be read as dramatising the cost of the conversion rather than the open status of the settlement, which would fit the recorded Settled Water emphasis on the cost of counting.",
+      "evidence": [
+        "E6",
+        "E11"
+      ]
+    },
+    {
+      "kind": "proposed_possibility",
+      "text": "Speculation: the Book 30 finale choice among the three mechanisms is recorded in the Unmeasured phase. Whether the finale touches the Book 20 conversion would then rest on the finale mechanism question alone.",
+      "evidence": [
+        "E12"
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "a1",
+      "approach": "retain",
+      "title": "Retire the question and treat the conversion as settled",
+      "summary": "Apply the instruction as written. The conversion stays a settled event of Arc IV, and the Book 24 decision is reworded later to stand without the question. The finale mechanism question and the Special Draw Right question stay open as they are.",
+      "questions": [
+        "q-finale-mechanism",
+        "q-right-revocable"
+      ],
+      "gains": "Follows the author's instruction exactly; fewer open threads to hold across Books.",
+      "costs": "The finale can no longer be developed as revisiting the conversion unless the author reopens the matter.",
+      "next_investigation": "Read the Book 24 decision and decide whether its wording needs to change once the question is gone."
+    },
+    {
+      "id": "a2",
+      "approach": "integrate",
+      "title": "Fold the revisit concern into the finale mechanism question",
+      "summary": "Retire the standalone question, but let the finale mechanism question carry the concern: whichever mechanism the author picks also states what it does to the Book 20 conversion. This is an author choice, not something the instruction asks for.",
+      "questions": [
+        "q-finale-mechanism",
+        "q-conversion-settlement"
+      ],
+      "gains": "Keeps the concern alive in the one place where the finale is decided, without an extra question.",
+      "costs": "Goes beyond the instruction, which changes nothing else, and enlarges an already broad question.",
+      "next_investigation": "Ask the author whether retiring the question meant settled or merely no longer asked."
+    },
+    {
+      "id": "a3",
+      "approach": "separate",
+      "title": "Keep the conversion's human cost apart from the finale",
+      "summary": "Retire the settlement question, and track the household cost of the conversion within Book 24 and the Compact and Special Draw Right questions. A distinct question about whose care goes unreturned would be described in a later review and is not given an identity here.",
+      "questions": [
+        "q-right-revocable",
+        "q-compact-settlement"
+      ],
+      "gains": "Keeps the cost of counting visible to Books 24 and 25 without reopening the settlement.",
+      "costs": "Spreads the concern over several questions, so no single place records it.",
+      "next_investigation": "Read Book 25, which was listed only by title, to see whether it relies on the retired question."
+    }
+  ],
+  "not_established": [
+    "Why the author retired the question: E5 records no reason and E4 shows the history before revision 3 was not recorded.",
+    "Whether retiring the question means the conversion is settled or abandoned as a concern.",
+    "Whether Book 25 depends on the retired question; it was listed by title only and not read for its decisions (E14).",
+    "Whether the Book 24 decision should change, since the proposal records no change to it.",
+    "The packet shows no component comparison, so no effect on links, emotion targets or phases was examined."
+  ],
+  "schema": "studio-revision-consequence/1",
+  "authority": "noncanonical_consequence_analysis_not_working_architecture",
+  "revision_request_sha256": "fcc2d288e9c92bcfbe2c0d3f71b9d4c4ee6050e7b2a0cd7e3626953641169852",
+  "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "proposal_sha256": "8eb81b920c6102a079cb266a680429305216f5496e3dc16c41134fcd9e917e91",
+  "evidence": {
+    "authority": "noncanonical_consequence_analysis_not_working_architecture",
+    "baseline_question_ids": [
+      "q-other-0",
+      "q-other-1",
+      "q-finale-mechanism",
+      "q-other-3",
+      "q-right-revocable",
+      "q-conversion-settlement",
+      "q-compact-settlement",
+      "q-surge-route",
+      "q-other-8",
+      "q-hesper-motive",
+      "q-other-10",
+      "q-other-11",
+      "q-reform-stance",
+      "q-plurality",
+      "q-gate-table",
+      "q-other-15"
+    ],
+    "coverage": {
+      "books_listed_by_title_only": [
+        25
+      ],
+      "books_read": [
+        24,
+        25
+      ],
+      "books_with_decisions_on_examined_questions": [
+        24
+      ],
+      "note": "A Working Book listed by title only was not read for its decisions about these questions. That is not evidence that it is unaffected.",
+      "unreadable_books": []
+    },
+    "evidence": [
+      {
+        "id": "E1",
+        "kind": "instruction",
+        "sha256": "41423dd6bbd2849c16884c4dd66d9309674361b8d3fc9cc4d3ecc2ce7ae82684",
+        "text": "Retire the Book 20 hands-to-draw conversion question: the author has decided that the conversion is not a question this series will carry forward. Remove that question from the open questions and its identity from open_question_ids, and change nothing else."
+      },
+      {
+        "id": "E2",
+        "kind": "author_vision",
+        "text": "The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\n\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\n\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confl…"
+      },
+      {
+        "id": "E3",
+        "index": 5,
+        "kind": "baseline_wording",
+        "question_id": "q-conversion-settlement",
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      {
+        "gap": "no_identity_before",
+        "id": "E4",
+        "kind": "named_gap",
+        "question_id": "q-conversion-settlement",
+        "text": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded."
+      },
+      {
+        "basis": "recorded_change",
+        "change": "introduced",
+        "from_revision": 3,
+        "id": "E5",
+        "kind": "recorded_history",
+        "note": null,
+        "question_id": "q-conversion-settlement",
+        "recorded_reason": null,
+        "selected_alternative": null,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "to_revision": 3
+      },
+      {
+        "book_number": 24,
+        "current_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "decision_id": "dec-conversion-settlement",
+        "id": "E6",
+        "identity_basis": "resolved_by_owner_from_recorded_version",
+        "kind": "book_decision",
+        "proposal_status": "removed",
+        "question_id": "q-conversion-settlement",
+        "recorded_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "standing": "current",
+        "state": "current_wording",
+        "text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+        "title": "The Uncounted Crew"
+      },
+      {
+        "id": "E7",
+        "kind": "removed",
+        "proposal_status": "removed",
+        "question_id": "q-conversion-settlement",
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      {
+        "id": "E8",
+        "kind": "recorded_phase",
+        "phase_id": "ph_1_reckoned_water",
+        "text": "1. Reckoned Water: The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance."
+      },
+      {
+        "id": "E9",
+        "kind": "recorded_phase",
+        "phase_id": "ph_2_the_turn",
+        "text": "2. The Turn: The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge."
+      },
+      {
+        "id": "E10",
+        "kind": "recorded_phase",
+        "phase_id": "ph_3_old_hand",
+        "text": "3. The Old Hand: The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings."
+      },
+      {
+        "id": "E11",
+        "kind": "recorded_phase",
+        "phase_id": "ph_4_settled_water",
+        "text": "4. Settled Water: Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record."
+      },
+      {
+        "id": "E12",
+        "kind": "recorded_phase",
+        "phase_id": "ph_5_unmeasured",
+        "text": "5. Unmeasured: The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with …"
+      },
+      {
+        "book_number": 24,
+        "id": "E13",
+        "kind": "working_book",
+        "records_examined_decisions": true,
+        "text": "Book 24: The Uncounted Crew"
+      },
+      {
+        "book_number": 25,
+        "id": "E14",
+        "kind": "working_book",
+        "records_examined_decisions": false,
+        "text": "Book 25: The Counted Hands"
+      }
+    ],
+    "evidence_sha256": "0083b509e4d4c6dceab2b932599b5d278f60a08dfa406602ee7d3ece3235b818",
+    "examined_questions": [
+      {
+        "baseline_evidence": [
+          "E3",
+          "E5",
+          "E6"
+        ],
+        "book_decisions_omitted": 0,
+        "history_items_omitted": 0,
+        "id": "q-conversion-settlement",
+        "proposal_status": "removed",
+        "proposed_evidence": [
+          "E7"
+        ]
+      }
+    ],
+    "limits": {
+      "book_decisions_per_question": 4,
+      "books_omitted": 0,
+      "books_shown": 2,
+      "components_omitted": 0,
+      "components_shown": 0,
+      "examined_questions_shown": 4,
+      "instruction_characters": 1200,
+      "phases_omitted": 0,
+      "phases_shown": 5,
+      "questions_omitted": 0,
+      "text_characters": 600
+    },
+    "proposal": {
+      "baseline_candidate_sha256": "37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b",
+      "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "proposal_sha256": "8eb81b920c6102a079cb266a680429305216f5496e3dc16c41134fcd9e917e91",
+      "proposed_summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+      "requested_change_sha256": "41423dd6bbd2849c16884c4dd66d9309674361b8d3fc9cc4d3ecc2ce7ae82684",
+      "revision_request_sha256": "fcc2d288e9c92bcfbe2c0d3f71b9d4c4ee6050e7b2a0cd7e3626953641169852"
+    },
+    "schema": "studio-revision-consequence/1"
+  },
+  "evidence_sha256": "0083b509e4d4c6dceab2b932599b5d278f60a08dfa406602ee7d3ece3235b818"
+}

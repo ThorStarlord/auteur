@@ -355,6 +355,55 @@
   function layoutColumns(count) {
     return Math.max(3, Math.min(7, Math.ceil(Math.sqrt(count * 1.5))));
   }
+  // The consequence analysis of the pending revision: shown only while a revision is pending for review, and loaded once per
+  // revision. Its investigations go through the same creative agent bridge as every other inquiry.
+  var consequencePanel = null, lastConsequenceReviewSha = null;
+  function ensureConsequencePanel() {
+    if (consequencePanel) return consequencePanel;
+    if (!window.AuteurStudioConsequence || !$("architecture-consequence-root")) return null;
+    consequencePanel = window.AuteurStudioConsequence.createConsequencePanel({
+      root: $("architecture-consequence-root"),
+      live: {status: $("architecture-consequence-status"), alert: $("architecture-consequence-alert")},
+      canvasId: function () { return remote.canvasId; },
+      onInvestigate: function (alternative, requestSha) {
+        ensureCreativeGraph();
+        if (!creativeAgentBridge) throw new Error("The creative panel is not ready yet; try again in a moment.");
+        return creativeAgentBridge.prepareInquiry({
+          anchors: alternative.questions.map(function (identifier) { return {kind: "question", id: identifier}; }),
+          operation: "compare",
+          authorText: alternative.next_investigation,
+          fromConsequence: {requestSha256: requestSha, alternativeId: alternative.id}
+        }).then(function () {
+          status("Investigation of “" + alternative.title + "” prepared for your coding agent. The Architecture is unchanged.");
+        });
+      }
+    });
+    return consequencePanel;
+  }
+  function syncConsequence(projection) {
+    var section = $("architecture-consequence");
+    var panel = ensureConsequencePanel();
+    if (!section || !panel) return;
+    var review = projection.review;
+    var pending = projection.status === "review_ready" && !!review;
+    section.hidden = !pending;
+    if (!pending) { resetConsequence(); return; }
+    // Standing depends on the proposal and on the Architecture it would replace: either changing re-reads the analysis.
+    var key = review.request_sha256 + "|" + projection.candidate_request_sha256;
+    if (key === lastConsequenceReviewSha) return;
+    lastConsequenceReviewSha = key;
+    panel.reset();
+    panel.load().catch(function (error) {
+      status("Consequence analysis unavailable: " + error.message);
+    });
+  }
+  // A canvas switch or a cleared review leaves no consequence panel behind: its results belong to the canvas they were asked on.
+  function resetConsequence() {
+    var section = $("architecture-consequence");
+    if (section) section.hidden = true;
+    lastConsequenceReviewSha = null;
+    if (consequencePanel) consequencePanel.reset();
+  }
   function applyArchitectureProjection(projection, openGraph) {
     var previousSource = state.architectureRequestSha || state.restoredArchitectureSha;
     state.restoredArchitectureSha = null;
@@ -437,6 +486,11 @@
       if (chosen && chosen.from_discovery) {
         appendReviewLine("Developed from a discovered possibility: “" + chosen.from_discovery.title + "”. Discovery proposed it; " +
           "you chose to investigate it and then the alternative above. It is advisory until you apply this revision.", "review-discovery-origin");
+      }
+      if (chosen && chosen.from_consequence) {
+        appendReviewLine("Developed from an alternative that a consequence analysis of this proposal set out: “" + chosen.from_consequence.title +
+          "” (" + String(chosen.from_consequence.approach || "alternative").replace(/_/g, " ") + "). The analysis is advisory; you chose to investigate it. " +
+          "It is advisory until you apply this revision.", "review-consequence-origin");
       }
       if (chosen && chosen.book_evidence) {
         var be = chosen.book_evidence, bk = be.book || {}, elm = be.element || {};
@@ -551,6 +605,7 @@
     render(); rememberFocus();
     ensureCreativeGraph();
     if (graphSelectionController) graphSelectionController.onCandidateChange();
+    syncConsequence(projection);
     if (creativeFeedbackController && projection.status==="review_ready" &&
         projection.review && projection.review.request_sha256!==lastCreativeReviewSha) {
       lastCreativeReviewSha=projection.review.request_sha256;
@@ -840,6 +895,7 @@
     status("Copied as editable working note. Original agent proposal remains available.");
   }
   function loadRemote(doc) {
+    resetConsequence();
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
     state.architectureSourceStatus = "not_started";
     state.selectedPhase = null;
@@ -932,6 +988,7 @@
     if (graphSelectionController) graphSelectionController.clear();
     if (creativePanel) creativePanel.reset();
     if (creativeAgentBridge) creativeAgentBridge.reset();
+    resetConsequence();
     lastCreativeReviewSha=null;
     state.atelierAsk = null; state.atelierInquiryStatus = null; state.atelierRevisionContext = null;
     state.atelierSentInquiry = null; state.architectureRequestIntent = null; state.creativeSentText = null;
