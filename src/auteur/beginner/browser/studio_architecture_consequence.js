@@ -1,8 +1,23 @@
 /* Consequences of a pending working revision, as the owner recorded them. Presentation only: every word here states what
-   the owner read, and nothing here judges the proposal, accepts it, or applies it. Built with text nodes only. */
+   the owner read, and nothing here judges the proposal, accepts it, or applies it. Built with text nodes only.
+   Version 2 analyses add recorded mechanisms, Working Book inheritance and hypothetical trajectories. Their labels and
+   definitions come from the owner's vocabulary in the projection, so the page and the owner cannot drift apart. */
 (function(global){'use strict';
   var STATUS={preserved:'Still represented',transformed:'Transformed',possibly_displaced:'May be displaced',introduced:'New concern'};
-  var APPROACH={replace:'Replace',integrate:'Integrate',separate:'Separate',retain:'Retain',defer:'Defer',reframe:'Reframe'};
+  var APPROACH={keep_baseline:'Keep the baseline concern',accept_proposal:'Accept the proposal as written',replace:'Replace',
+    integrate:'Integrate',separate:'Separate',defer:'Defer',reframe:'Reframe',
+    retain:'Retain (version 1 wording; its meaning is not fixed)'};
+  var PROVENANCE={preserved:'Preserved in the proposal',transformed:'Transformed by the proposal',removed:'Removed by the proposal',
+    introduced:'Introduced by the proposal',historical:'Historical: no longer current'};
+  var ROUTE={changed_by_proposal:'the proposal changes it',referenced_by_working_book:'a Working Book references it',
+    historical_in_revision:'an earlier applied version recorded it',adjacent_to:'one recorded link away from a seed'};
+  var REACH={local:'Local to this change',conditional_inheritance:'May reach later Books through a conditional inheritance',
+    long_horizon:'May reach a long-horizon development',not_established:'Not established by the record'};
+  var INHERITANCE_KIND={recorded_inheritance:'Recorded inheritance',plausible_inheritance:'Plausible inheritance',
+    proposed_inheritance:'Proposed inheritance',unknown_inheritance:'Unknown inheritance'};
+  var STAGE={local_decision:'Local decision',mechanism_transformation:'Mechanism transformed',tension:'Tension',
+    opportunity:'Opportunity',inheritance:'Possible inheritance',long_horizon:'Long-horizon development'};
+  var BASIS={recorded:'Cites the record',interpreted:'Agent interpretation',speculative:'Speculative'};
   var INTENT={
     instruction_names_it:'Your instruction names this concern.',
     selected_alternative_names_it:'The alternative you chose names this concern.',
@@ -19,15 +34,24 @@
     author_vision:'Story Vision',accepted_constraint:'Accepted constraint',accepted_not_this:'Accepted “not this”',
     baseline_wording:'Earlier wording (applied)',proposed_wording:'Proposed wording',removed:'Question the proposal removes',
     recorded_history:'Recorded history',book_decision:'Working Book decision',proposed_component:'Changed component',
-    recorded_phase:'Narrative phase',working_book:'Working Book (title)',named_gap:'Missing or unreadable'
+    recorded_phase:'Narrative phase',working_book:'Working Book (title)',named_gap:'Missing or unreadable',
+    mechanism:'Recorded mechanism',book_element:'Working Book element'
   };
   var FOCUS_FALLBACK='.consequence-error,.consequence-notice,.consequence-standing,.consequence-heading';
+  var VOCAB={};
 
   function statusWords(status){return STATUS[status]||status;}
   function standingWords(standing){return STANDING[standing]||{label:'Standing not read.',tone:'note'};}
   function approachWords(approach){return APPROACH[approach]||approach;}
   function intentWords(intent){return INTENT[intent]||null;}
   function kindWords(kind){return KIND[kind]||kind;}
+  function provenanceWords(p){return PROVENANCE[p]||p;}
+  function reachWords(r){return REACH[r]||r;}
+  function inheritanceWords(k){return INHERITANCE_KIND[k]||k;}
+  function stageWords(s){return STAGE[s]||s;}
+  function basisWords(b){return BASIS[b]||b;}
+  // The owner's own definition of an approach, reach value, inheritance kind or provenance, read from the projection.
+  function meaningOf(group,key){return ((VOCAB[group]||{})[key])||null;}
 
   function evidenceMap(packet){var map={};((packet&&packet.evidence)||[]).forEach(function(e){map[e.id]=e;});return map;}
 
@@ -45,7 +69,9 @@
   // One fact the owner recorded, with its identifier. The text is the owner's; the kind names what sort of fact it is.
   function evidenceLine(item){
     var tail=item.book_number!=null?' (Book '+item.book_number+')':'';
-    var status=item.proposal_status?' · proposal: '+item.proposal_status.replace(/_/g,' '):'';
+    // The status describes the question under the proposal. A Book decision's own record is not changed by it.
+    var label=(item.kind==='book_decision'||item.kind==='baseline_wording'||item.kind==='recorded_history')?'question in proposal: ':'proposal: ';
+    var status=item.proposal_status?' · '+label+item.proposal_status.replace(/_/g,' '):'';
     return item.id+' · '+kindWords(item.kind)+tail+status+' — '+(item.text||'');
   }
 
@@ -105,16 +131,111 @@
     });
   }
 
+  // A recorded mechanism: its provenance and what the record says are the owner's; the reading is the agent's interpretation.
+  // The summary line is always shown; everything else opens on request, so a long analysis stays readable.
+  function mechanismBlock(row,packet){
+    var record=row.record||{};
+    var map=evidenceMap(packet);
+    var source=map[row.evidence]||{};
+    var item=el('li','consequence-mechanism consequence-provenance-'+record.provenance);
+    var details=el('details','consequence-mechanism-details');
+    details.appendChild(el('summary',null,(record.record_kind||'record')+' '+(record.record_id||'')+' · '+provenanceWords(record.provenance)));
+    var meaning=meaningOf('provenance',record.provenance);
+    if(meaning)details.appendChild(el('p','consequence-note',meaning));
+    if(source.provenance==='transformed'){
+      details.appendChild(el('p','consequence-recorded','Recorded before: '+(source.baseline_text||'(none)')));
+      details.appendChild(el('p','consequence-recorded','Recorded in the proposal: '+(source.proposed_text||'(none)')));
+    }else{
+      details.appendChild(el('p','consequence-recorded','Recorded: '+(source.proposed_text||source.baseline_text||'(none)')));
+    }
+    if((record.changed_fields||[]).length)details.appendChild(el('p','consequence-note','Changed fields: '+record.changed_fields.join(', ')+'.'));
+    var routes=(source.routes||[]).map(function(route){
+      var name=route.split(':')[0];
+      return (ROUTE[name]||name)+(route.indexOf(':')>=0?' ('+route.split(':').slice(1).join(':')+')':'');
+    });
+    if(routes.length)details.appendChild(el('p','consequence-note','Why it is here: '+routes.join('; ')+'.'));
+    details.appendChild(el('p','consequence-reading','Reading (agent interpretation): '+row.reading));
+    if(row.transformation)details.appendChild(el('p','consequence-transformation','Change to its operation (agent interpretation): '+row.transformation));
+    if(row.conditional_consequence)details.appendChild(el('p','consequence-conditional','If adopted (conditional, not established): '+row.conditional_consequence));
+    if((row.counterevidence||[]).length){
+      var counter=el('ul','consequence-counter');
+      row.counterevidence.forEach(function(c){
+        counter.appendChild(el('li',null,'Counterevidence: '+c.text));
+      });
+      details.appendChild(counter);
+    }
+    if((row.unresolved||[]).length){
+      var open=el('ul','consequence-unresolved');
+      row.unresolved.forEach(function(text){open.appendChild(el('li',null,'Unresolved: '+text));});
+      details.appendChild(open);
+    }
+    details.appendChild(evidenceDisclosure(packet,[row.evidence],'Recorded item'));
+    item.appendChild(details);
+    return item;
+  }
+
+  function inheritanceBlock(link,packet){
+    var item=el('li','consequence-inheritance consequence-inheritance-'+link.kind);
+    item.appendChild(el('span','consequence-chip',inheritanceWords(link.kind)));
+    item.appendChild(el('p','consequence-from','From: '+(link.from_view?link.from_view.label:link.from)));
+    item.appendChild(el('p','consequence-to','To: '+(link.to_view?link.to_view.label:link.to)));
+    var meaning=meaningOf('inheritance_kinds',link.kind);
+    if(meaning)item.appendChild(el('p','consequence-note',meaning));
+    item.appendChild(el('p','consequence-reading','Reading (agent interpretation): '+link.text));
+    if((link.evidence||[]).length)item.appendChild(evidenceDisclosure(packet,link.evidence,'Evidence for this inheritance'));
+    return item;
+  }
+
+  // A trajectory is a hypothetical developmental sequence. Its badge is shown on every one; no step reads as an event.
+  function trajectoryBlock(trajectory,packet){
+    var item=el('li','consequence-trajectory');
+    item.appendChild(el('span','consequence-chip consequence-hypothetical','Hypothetical'));
+    item.appendChild(el('p','consequence-trajectory-title',trajectory.title));
+    var steps=el('ol','consequence-steps');
+    (trajectory.steps||[]).forEach(function(step){
+      var row=el('li','consequence-step consequence-basis-'+step.basis);
+      row.appendChild(el('span','consequence-chip',stageWords(step.stage)+' · '+basisWords(step.basis)));
+      row.appendChild(el('p',null,step.text));
+      if((step.evidence||[]).length)row.appendChild(evidenceDisclosure(packet,step.evidence,'Evidence for this step'));
+      steps.appendChild(row);
+    });
+    item.appendChild(steps);
+    if((trajectory.assumptions||[]).length){
+      var assumptions=el('ul','consequence-assumptions');
+      trajectory.assumptions.forEach(function(text){assumptions.appendChild(el('li',null,'Assumes: '+text));});
+      item.appendChild(assumptions);
+    }
+    var comparison=trajectory.comparison||{};
+    var labels={creative_gain:'Creative gain',narrative_cost:'Narrative cost',contrivance_risk:'Risk of contrivance',
+      future_commitment:'Future commitment',flexibility:'Flexibility for later development'};
+    var rows=Object.keys(labels).filter(function(key){return comparison[key];});
+    if(rows.length){
+      var list=el('ul','consequence-comparison');
+      rows.forEach(function(key){list.appendChild(el('li',null,labels[key]+': '+comparison[key]));});
+      item.appendChild(list);
+    }
+    return item;
+  }
+
   function alternativeBlock(alternative,packet,canInvestigate,onInvestigate,busy){
     var item=el('li','consequence-alternative');
     item.appendChild(el('span','consequence-chip',approachWords(alternative.approach)));
     item.appendChild(el('p','consequence-alternative-title',alternative.title));
+    var meaning=alternative.approach_meaning||meaningOf('approaches',alternative.approach);
+    if(meaning)item.appendChild(el('p','consequence-note',meaning));
+    if(alternative.approach==='retain'&&VOCAB.retain_legacy)item.appendChild(el('p','consequence-note',VOCAB.retain_legacy));
     item.appendChild(el('p',null,alternative.summary));
     var names=el('ul','consequence-questions');
     alternative.questions.forEach(function(identifier){
       names.appendChild(el('li',null,'Question: '+questionWording(packet,identifier)));
     });
     item.appendChild(names);
+    if((alternative.keeps_views||[]).length){
+      item.appendChild(el('p','consequence-keeps','Keeps: '+alternative.keeps_views.map(function(v){return v.label;}).join('; ')+'.'));
+    }
+    if((alternative.mechanism_views||[]).length){
+      item.appendChild(el('p','consequence-keeps','Mechanisms to examine: '+alternative.mechanism_views.map(function(v){return v.label;}).join('; ')+'.'));
+    }
     item.appendChild(el('p','consequence-gains','Gains: '+alternative.gains));
     item.appendChild(el('p','consequence-costs','Costs: '+alternative.costs));
     if(canInvestigate){
@@ -131,8 +252,12 @@
 
   function resultBlocks(root,result,standing,projection,handlers,busy){
     var packet=result.evidence||{};
+    var version2=result.schema==='studio-revision-consequence/2';
     root.appendChild(sectionHead('What the proposal does'));
     root.appendChild(el('p','consequence-reading','Reading (agent interpretation): '+result.reading));
+    if(version2){
+      root.appendChild(el('p','consequence-reach','Reach: '+reachWords(result.reach)+'. '+(result.reach_meaning||'')));
+    }
 
     root.appendChild(sectionHead('Creative concerns'));
     if(result.concerns&&result.concerns.length){
@@ -143,15 +268,39 @@
       root.appendChild(el('p','consequence-note',result.no_concern_reason||'No concern was judged consequential.'));
     }
 
-    var recorded=(result.prospective||[]).filter(function(p){return p.kind==='recorded_relationship';});
-    var possible=(result.prospective||[]).filter(function(p){return p.kind!=='recorded_relationship';});
-    if(recorded.length){
-      root.appendChild(sectionHead('Recorded relationships (what the Books record)'));
-      var r=el('ul','consequence-prospects');prospectBlock(r,recorded,packet);root.appendChild(r);
-    }
-    if(possible.length){
-      root.appendChild(sectionHead('Possibilities for later Books (proposed, not recorded)'));
-      var p=el('ul','consequence-prospects');prospectBlock(p,possible,packet);root.appendChild(p);
+    if(version2){
+      if((result.mechanisms||[]).length){
+        root.appendChild(sectionHead('Recorded mechanisms this reading rests on'));
+        root.appendChild(el('p','consequence-note','Each is a record the Architecture holds, with its provenance against the baseline and the proposal. The reading beneath it is the agent’s interpretation.'));
+        var mechs=el('ul','consequence-mechanisms');
+        result.mechanisms.forEach(function(m){mechs.appendChild(mechanismBlock(m,packet));});
+        root.appendChild(mechs);
+      }
+      if((result.inheritance||[]).length){
+        root.appendChild(sectionHead('What later Books may inherit'));
+        root.appendChild(el('p','consequence-note','Recorded inheritance is a Book’s own declaration. Plausible, proposed and unknown inheritance are not recorded facts.'));
+        var inh=el('ul','consequence-inheritances');
+        result.inheritance.forEach(function(link){inh.appendChild(inheritanceBlock(link,packet));});
+        root.appendChild(inh);
+      }
+      if((result.trajectories||[]).length){
+        root.appendChild(sectionHead('Possible developmental trajectories (hypothetical)'));
+        root.appendChild(el('p','consequence-note','Hypothetical: none of these has happened or been accepted. Each step says whether it cites the record, is interpreted, or is speculative.'));
+        var traj=el('ul','consequence-trajectories');
+        result.trajectories.forEach(function(t){traj.appendChild(trajectoryBlock(t,packet));});
+        root.appendChild(traj);
+      }
+    }else{
+      var recorded=(result.prospective||[]).filter(function(p){return p.kind==='recorded_relationship';});
+      var possible=(result.prospective||[]).filter(function(p){return p.kind!=='recorded_relationship';});
+      if(recorded.length){
+        root.appendChild(sectionHead('Recorded relationships (what the Books record)'));
+        var r=el('ul','consequence-prospects');prospectBlock(r,recorded,packet);root.appendChild(r);
+      }
+      if(possible.length){
+        root.appendChild(sectionHead('Possibilities for later Books (proposed, not recorded)'));
+        var p=el('ul','consequence-prospects');prospectBlock(p,possible,packet);root.appendChild(p);
+      }
     }
 
     // Only the latest analysis of the proposal on screen may be investigated from here. The owner refuses the rest.
@@ -182,12 +331,18 @@
     examined.appendChild(el('p',null,'Working Books listed by title only: '+((coverage.books_listed_by_title_only||[]).join(', ')||'none')+'. '+(coverage.note||'')));
     var limits=packet.limits||{};
     if(limits.questions_omitted)examined.appendChild(el('p',null,limits.questions_omitted+' further question(s) the proposal touches were not examined.'));
+    if(version2){
+      examined.appendChild(el('p',null,'Mechanisms offered: '+(limits.mechanisms_shown||0)+' of '+(limits.mechanisms_considered||0)+
+        (limits.mechanisms_omitted?' (' +limits.mechanisms_omitted+' not shown)':'')+'. Working Book elements offered: '+
+        (limits.book_elements_shown||0)+' of '+(limits.book_elements_considered||0)+(limits.book_elements_omitted?' (' +limits.book_elements_omitted+' not shown)':'')+'.'));
+    }
     examined.appendChild(evidenceDisclosure(packet,(packet.evidence||[]).map(function(e){return e.id;}),'All evidence in this request'));
     root.appendChild(examined);
   }
 
   function renderPanel(root,projection,handlers,ui){
     root.replaceChildren();
+    if(projection&&projection.vocabulary)VOCAB=projection.vocabulary;
     if(ui.notice)root.appendChild(el('p','consequence-notice',ui.notice));
     if(ui.error)root.appendChild(el('p','consequence-error',ui.error));
     if(ui.loadError){
@@ -376,7 +531,9 @@
   global.AuteurStudioConsequence={
     createConsequencePanel:createConsequencePanel,
     statusWords:statusWords,standingWords:standingWords,approachWords:approachWords,intentWords:intentWords,
+    provenanceWords:provenanceWords,reachWords:reachWords,inheritanceWords:inheritanceWords,stageWords:stageWords,
+    basisWords:basisWords,
     evidenceLine:evidenceLine,questionWording:questionWording,
-    STATUS:STATUS,APPROACH:APPROACH,STANDING:STANDING
+    STATUS:STATUS,APPROACH:APPROACH,STANDING:STANDING,PROVENANCE:PROVENANCE,REACH:REACH,INHERITANCE_KIND:INHERITANCE_KIND
   };
 })(window);

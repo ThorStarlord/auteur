@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "analysis": "Interpretation, not graph proof. You asked how Book 24's two decisions relate, and you chose to investigate the earlier analysis 'Hold conversion and Compact settlement together' (alternative a3, approach integrate). That proposal is still pending and nothing is decided. This answer continues that thread and does not repeat the earlier comparison.\n\nWhat is recorded. Book 24 (The Uncounted Crew) holds one decision on q-conversion-settlement (dec-conversion-settlement) and one on q-compact-settlement (dec-compact-settlement). The deliberation labels this a recorded co-reference only: the Book refers to both questions and says nothing about a story relationship between them. The graph intent records no relation between the two questions (status no_recorded_relation, relations empty). Both Book decisions were matched to their questions by the Book owner from revision 3's recorded version (identity_basis resolved_by_owner_from_recorded_version). You did not assert the match. Both questions entered the record at revision 3 under the instruction 'Give each open question a stable identity'. Their earlier history is a named gap (no identity before revision 3, 2 earlier versions), so I do not fill it in. That instruction records what was asked, not that any consequence was achieved. The two decisions carry the same posture. Dec-conversion-settlement says Book 24 makes the conversion concrete 'without answering it'. Dec-compact-settlement says Oona's offer is 'neither accepted nor refused'. Both are noncanonical working proposals.\n\nWhat a3 adds. a3 keeps both questions on their baseline wording, with no proposal status, and preserves two existing links unchanged: l_compact_hands_in_kind (under B, purchased draw owes grain-labour to the rebuild) and l_trade_draws_without_return (purchased shares draw without return labour). Both are recorded, but each is a link between mechanisms. Neither is a recorded relation between the two questions. The only recorded tie the two questions have is Book 24's co-reference. So 'hold together' is a proposed framing of that tie. It does not follow from a recorded relation. l_compact_hands_in_kind is written under B, so it is conditional on a finale choice you have not made. Also, the recorded conversion links (l_tally_counts_hands, l_conversion_sets_draw) concern households' hands owed. Nothing recorded says a Compact-held share falls under that conversion. So the graph does not show that the Compact's settlement bears on whether the conversion is lasting.\n\nWhat I interpret. Both decisions use the same device on different subjects, and one Book holds them. That supports reading them as parallel and not as causally ordered. Holding them together would be a way of keeping both open in one Book, which is consistent with both decisions declining to answer. It would become a stronger commitment only if it were read as linking the outcomes. The record gives no basis for that. The Gate Table schedule half of q-compact-settlement has no recorded decision text in Book 24, which states only the acceptance half. I cannot say whether that half is addressed anywhere.\n\nWhat remains your decision. Whether the two questions should be treated as linked or as independent. Whether a Compact-held share is subject to the Book 20 conversion. Whether 'held together' means a shared scene or a shared answer. Treating the questions as independent is a legitimate outcome and the record fits it as well as it fits a3.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Recorded as the working open question 'Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?'. Introduced at revision 3 under the author's instruction to give each open question a stable identity. Earlier history is a named gap."
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Recorded as the working open question about whether the Compact accepts grain-labour in exchange for settling its claim and whether the Gate Table's schedule reaches its lowland draw, marked 'Not decided'. Introduced at revision 3 under the same instruction. Earlier history is a named gap."
+    },
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "Recorded as 'under B, purchased draw owes grain-labour to the rebuild', from inst_mill_compact to th_maintenance. Preserved unchanged by a3. It is written under B, so it is conditional on a finale choice not made. It links mechanisms, not the two questions."
+    },
+    {
+      "kind": "link",
+      "id": "l_trade_draws_without_return",
+      "claim": "Recorded as 'purchased shares draw without return labour', from inst_mill_compact to eng_source. Preserved unchanged by a3. It links mechanisms and does not relate the two questions."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded as 'hands a household cannot return reduce its draw (Book 20)'. It concerns the conversion and its effect on draw, and nothing recorded says it applies to a Compact-held share."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Hold them together as shared non-resolution only",
+      "description": "Read a3 as keeping both questions open side by side, the way Book 24's two decisions already do ('without answering it' and 'neither accepted nor refused'). Holding together then means the questions share a Book and a posture, with no claim that one outcome depends on the other. This stays within the recorded co-reference and adds no story relationship. It is an interpretation of what a3 would amount to, not a finding that the questions are unconnected in the story."
+    },
+    {
+      "title": "Hold them together as the Compact testing the conversion's reach",
+      "description": "Read a3 as treating the Compact's settlement as the point where the conversion's reach is tested, since the conversion counts hands owed and the Compact's possible grain-labour is hands owed in kind. This would give the questions a causal order. It goes beyond the record. The graph is silent on whether a Compact share is subject to the conversion, and l_compact_hands_in_kind holds only under B. Choosing this reading would commit you to an answer on that point, so it is your decision."
+    },
+    {
+      "title": "Keep the questions independent and let a3 lapse",
+      "description": "Read the absence of any recorded relation, plus the two decisions' different subjects, as support for leaving the questions unlinked. Each Book 24 decision keeps its own question open and the Book needs no joint treatment. This is a legitimate outcome. It costs a shared frame that might help if the Compact's settlement and the conversion later turn out to matter to each other, and nothing recorded shows that they do."
+    }
+  ],
+  "uncertainties": [
+    "Whether Book 24 intends its two decisions to be read together. The record shows only that it refers to both.",
+    "Whether a Compact-held share is subject to the Book 20 conversion. The graph is silent.",
+    "Whether the Gate Table schedule half of q-compact-settlement is addressed in Book 24. The decision text states only the acceptance half.",
+    "How either question's wording stood before revision 3. The history is a named gap and is not filled in.",
+    "Whether 'hold together' in a3 means a shared scene, a shared answer or only a shared open status. The proposal's recorded content does not say.",
+    "Whether l_compact_hands_in_kind should count as supporting evidence for a3, given that it is stated under B and B is not chosen."
+  ]
+}

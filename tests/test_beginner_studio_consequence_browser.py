@@ -122,14 +122,24 @@ def test_the_proposal_is_examined_answered_and_investigated_without_gating_apply
         assert "About this proposal, not yet applied." in text
         assert "Whether the conversion is a lasting settlement" in text
         assert "May be displaced" in text and "New concern" in text
-        assert "Recorded relationships (what the Books record)" in text
+        assert "Reach: May reach later Books through a conditional inheritance." in text
         assert "Your instruction names this concern." in text
-        assert "Possibilities for later Books (proposed, not recorded)" in text
+        # Version 2: the recorded mechanisms behind the reading, each with its provenance, and the inheritance Book 24 records.
+        assert "Recorded mechanisms this reading rests on" in text
+        assert "What later Books may inherit" in text
+        assert "Recorded inheritance" in text and "Plausible inheritance" in text
+        assert "Possible developmental trajectories (hypothetical)" in text
+        assert page.locator("#architecture-consequence .consequence-hypothetical").first.text_content() == "Hypothetical"
+        mechanism = page.locator("#architecture-consequence details.consequence-mechanism-details").first
+        assert "Preserved in the proposal" in mechanism.text_content() or "Transformed by the proposal" in mechanism.text_content()
+        mechanism.locator(":scope > summary").click()
+        assert "Reading (agent interpretation):" in section_text(page)
         # The author sees what the analysis examined, and the evidence for a concern, behind disclosures.
         page.locator("#architecture-consequence details.consequence-examined > summary").click()
         assert "Working Books whose decisions were read: 24." in section_text(page)
+        assert "Mechanisms offered:" in section_text(page)
         page.locator("#architecture-consequence details.consequence-evidence summary").first.click()
-        assert "Working Book decision (Book 24) · proposal: reworded" in section_text(page)
+        assert "Working Book decision (Book 24) · question in proposal: reworded" in section_text(page)
         # Apply is not gated by the analysis, even though it reports a concern that may be displaced.
         assert page.locator("#architecture-apply").is_enabled()
         # Investigate the alternative: its questions go to the creative panel's inquiry, and nothing is applied.

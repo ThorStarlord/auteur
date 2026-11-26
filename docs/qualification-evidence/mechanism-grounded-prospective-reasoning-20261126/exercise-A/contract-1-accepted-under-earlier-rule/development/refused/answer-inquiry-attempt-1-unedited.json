@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "analysis": "Interpretation, not graph proof. What is recorded: Book 24 (The Uncounted Crew) holds one decision on q-conversion-settlement (dec-conversion-settlement) and one on q-compact-settlement (dec-compact-settlement). The deliberation labels this a recorded co-reference only: the Book records decisions about both questions, and says nothing about a story relationship between them. The graph intent records no relation between the two questions (status no_recorded_relation, relations empty). Both questions were introduced at revision 3 by the author's instruction to give each open question a stable identity; earlier history is a named gap (no identity before revision 3, 2 earlier versions), so nothing can be said about how either wording evolved. Both Book decisions were matched to their questions by the Book owner from revision 3's recorded version (resolved_by_owner_from_recorded_version); the author did not assert the match. Both decisions are working, noncanonical proposals.\n\nThe two decisions have the same posture and different subjects. The conversion decision asks whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit, and the record says Book 24 'makes it concrete without answering it.' The Compact decision asks whether the Mill Compact accepts grain-labour for settling its claim, and the record says Oona's offer is 'neither accepted nor refused.' So the recorded relation is parallel non-resolution inside one Book. The record does not show that either decision is conditioned on, or answers, the other. One small point: the decision text for the Compact covers only the acceptance half of the current question wording; the Gate Table schedule and lowland draw half has no Book 24 decision text attached. I do not treat that as a change or an omission by the author, only as a difference in what the decision text states.\n\nInterpretation of how they could relate, drawn from the working architecture, not from the Book record. Narrative function: the conversion question is about the rule that sets draw (hands owed, l_conversion_sets_draw, l_tally_counts_hands); the Compact question is about whether one institution's purchased draw, recorded as carrying no return labour (l_trade_draws_without_return), is brought into the labour economy in kind. Causal role: the graph is silent on whether a Compact-held share is subject to the conversion, so a link between the two would run through that gap. The earlier analysis you chose to investigate (alternative a3, integrate) rests on two preserved links. l_compact_hands_in_kind is worded 'under B', and Finale Alternative B is not chosen (alt_b_allotted), so that link is conditional on a choice nobody has made; it does not by itself show the Compact question depends on the conversion. Reader effect: holding both open in one Book could keep the reader's attention on who is counted for draw, but a recorded reason says what was asked, not that this effect is achieved, and no reader effect is recorded for Book 24 here.\n\nWhat remains the author's decision: whether the two questions should be treated as one linked settlement, as parallel but independent, or as sequenced (one answered first). Staying independent is a legitimate outcome. The record supports no more than co-reference. The pending a3 proposal is not assessed here as good or bad; this answer only reports that the recorded support for linking is thin and rests partly on a link conditional on an unchosen finale alternative.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Current wording (index 5, introduced at revision 3): whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit. History before revision 3 is a named gap."
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Current wording (index 6, introduced at revision 3): whether the Compact accepts grain-labour for settling its claim, and whether the Gate Table's schedule reaches its lowland draw; marked not decided. History before revision 3 is a named gap."
+    },
+    {
+      "kind": "question",
+      "id": "dec-conversion-settlement",
+      "claim": "Book 24 decision on q-conversion-settlement, matched by the Book owner from the revision 3 version; recorded as making the conversion concrete without answering it. A noncanonical working proposal."
+    },
+    {
+      "kind": "question",
+      "id": "dec-compact-settlement",
+      "claim": "Book 24 decision on q-compact-settlement, matched by the Book owner from the revision 3 version; recorded as leaving Oona's offer neither accepted nor refused. Its text states the acceptance half only. A noncanonical working proposal."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded: hands a household cannot return reduce its draw (Book 20). This is the mechanism behind q-conversion-settlement; the graph does not say whether it applies to a Compact-held share."
+    },
+    {
+      "kind": "link",
+      "id": "l_trade_draws_without_return",
+      "claim": "Recorded: purchased shares draw without return labour (Mill Compact to the Source). It is cited by the earlier analysis as preserved, and is the recorded basis for the Compact's draw carrying no return labour."
+    },
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "Recorded as 'under B, purchased draw owes grain-labour to the rebuild' (Mill Compact to Keeping the channels). It is conditioned on Finale Alternative B, which is not chosen, so it does not establish a link to the conversion question."
+    },
+    {
+      "kind": "node",
+      "id": "alt_b_allotted",
+      "claim": "Finale Alternative B is recorded as not chosen; it states hands owed in proportion to draw and grain-labour from the Compact within a window. The finale mechanism question remains open (q-finale-mechanism)."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Parallel non-resolution, no causal link",
+      "description": "Read Book 24's two decisions as the same device used twice: it makes a question concrete or live without answering it, applied to two subjects that the record does not connect. The co-reference is then an artefact of both being open in one Book. This fits the recorded absence of any relation and the 'neither accepted nor refused' posture. It is an interpretation of the difference and not a finding that the questions are unconnected in the story."
+    },
+    {
+      "title": "The Compact's settlement is a test case for the conversion",
+      "description": "Read the Compact question as the place where the conversion's reach is first tested: if the Compact settles by grain-labour, it is answering the hands-owed logic in kind; if not, the conversion binds households only. This would make the two decisions causally ordered, with the Compact outcome informing whether the conversion looks lasting. It goes beyond the record, since the graph is silent on whether a Compact share is subject to the conversion, and its supporting link is conditional on Alternative B."
+    },
+    {
+      "title": "Both depend on the unchosen finale mechanism",
+      "description": "Read the shared dependence on the finale choice as the real connection: the conversion question asks whether the finale must revisit it, and the Compact's grain-labour clause belongs to B or C. The two decisions would then be related only through q-finale-mechanism, not directly to each other, and linking them before that choice would fix more than the author has decided."
+    }
+  ],
+  "uncertainties": [
+    "Whether Book 24 intends its two decisions to be read together; the record shows only that it refers to both.",
+    "Whether a Compact-held share is subject to the Book 20 conversion; the graph is silent.",
+    "Whether the Gate Table schedule half of q-compact-settlement is addressed anywhere in Book 24; the decision text states only the acceptance half.",
+    "How either question's wording stood before revision 3; the history is a named gap and is not filled in.",
+    "Whether the Book owner's resolution of both decisions from the revision 3 version matches the author's own intent; it was not asserted by the author.",
+    "Whether the a3 mechanism l_compact_hands_in_kind remains relevant if Finale Alternative B is not chosen.",
+    "Whether the author wants the questions held together, sequenced, or kept independent; that is the author's decision."
+  ]
+}

@@ -379,7 +379,8 @@
         if (!creativeAgentBridge) throw new Error("The creative panel is not ready yet; try again in a moment.");
         return creativeAgentBridge.prepareInquiry({
           anchors: alternative.questions.map(function (identifier) { return {kind: "question", id: identifier}; }),
-          operation: "compare",
+          // A comparison needs two questions; an alternative about one question is read as an explanation of it.
+          operation: alternative.questions.length >= 2 ? "compare" : "explain",
           authorText: alternative.next_investigation,
           fromConsequence: {requestSha256: requestSha, alternativeId: alternative.id}
         }).then(function () {
