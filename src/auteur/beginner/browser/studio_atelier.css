@@ -610,3 +610,9 @@
 .atl-qbook .atl-look{margin-top:6px}
 .atl-qbook .atl-qdiff{margin:4px 0}
 .atl-question-source-note{margin:6px 0}
+
+/* Comparing open questions: the same quiet section as the open-questions list, one step lower. */
+.atl-qcompare{margin:10px 0 12px;padding:9px 11px 8px;border-radius:10px;background:#f7f3ea;border:1px solid var(--atl-hair)}
+.atl-qcompare>.atl-section-title{margin-top:0;padding-top:0;border-top:0}
+.atl-qcompare .atl-question-text{margin:0;font:13px/1.45 var(--atl-serif);overflow-wrap:anywhere}
+.atl-qcompare-item{list-style:none;margin:6px 0;padding:8px 10px 6px;border-radius:9px;background:#fffdf8;border:1px solid var(--atl-hair)}

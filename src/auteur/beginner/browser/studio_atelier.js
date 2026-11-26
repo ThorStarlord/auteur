@@ -1730,6 +1730,7 @@
         folio.append(el('h4','atl-section-title','No longer open · '+g.gone.length));
         folio.append(el('p','atl-note','Removing a question is not an answer. Each keeps the formulations it was recorded with.'));
         var u3=el('ul','atl-question-list');g.gone.forEach(function(q){u3.append(questionItem(q));});folio.append(u3);}
+      renderComparisonSection(null);
       var status=el('p','atl-note atl-series-status',c&&c.status==='loading'?'Reading again…':'Read at '+readTime(c)+'.');
       folio.append(status);
       actionButton(folio,'Read again',function(){readQuestions(true);},'questions-reread').classList.add('atl-action-quiet');
@@ -1783,6 +1784,7 @@
       renderQuestionFormulations(q);
       renderQuestionBooks(q,d);
       renderQuestionInvestigation(q,d);
+      renderComparisonSection(q);
       renderQuestionSource(q,d);
       var end=el('div','atl-actions');
       actionButton(end,'← '+questionBackLabel(v),closeQuestion,'question-back-end').classList.add('atl-action-primary');
@@ -1909,6 +1911,65 @@
       if(!binding.onDevelop){announce('The coding-agent desk is not available here, so nothing was asked.');return;}
       binding.onDevelop({conceptId:null,title:q.text,anchor:{kind:'question',id:q.id},precision:'question',subject:'Open question',
         quote:q.text,sourceRef:'open_questions/'+q.index,operation:operation,draft:Q.SUGGEST[operation]||''});
+    }
+    /* Comparing open questions: up to three, chosen in the folio and investigated together through the desk. Choosing
+       changes nothing; the desk's prepared request is the only thing that is ever sent, and only when the author asks. */
+    function comparison(){return S.qcompare||(S.qcompare=[]);}
+    function renderComparisonSection(q){
+      var d=questionsData(),list=comparison();
+      // Only questions the owner says may be asked about stay in the comparison, and each takes its current wording.
+      if(d&&d.available){var live={};(d.questions||[]).forEach(function(x){if(Q.isAskable(x,d))live[x.id]=x;});
+        list=list.filter(function(x){return live[x.id];}).map(function(x){return {id:x.id,title:live[x.id].text,index:live[x.id].index};});
+        S.qcompare=list;}
+      var sec=el('section','atl-qcompare');sec.setAttribute('aria-label','Compare open questions');
+      sec.append(el('h4','atl-section-title',list.length?'Comparing · '+list.length+' of 3':'Compare open questions'));
+      if(q&&q.id){
+        var inList=list.some(function(x){return x.id===q.id;});
+        if(inList||Q.isAskable(q,d))actionButton(sec,inList?'Remove this question from the comparison':'Add this question to a comparison',
+          function(){toggleCompare(q);},'question-compare:'+q.id).classList.add('atl-action-quiet');
+        else sec.append(el('p','atl-note','This question cannot be compared here: the Architecture does not record it as an open question you can ask about.'));
+      }
+      if(!list.length)sec.append(el('p','atl-note','Add two or three open questions to investigate how they relate. Nothing is sent until you choose an operation.'));
+      else{
+        var ul=el('ul','atl-question-list');
+        list.forEach(function(x){var li=el('li','atl-qcompare-item');li.append(el('p','atl-question-text',x.title));
+          actionButton(li,'Remove “'+M.shorten(x.title,40)+'”',function(){removeCompare(x.id);},'compare-remove:'+x.id).classList.add('atl-action-quiet');
+          ul.append(li);});
+        sec.append(ul);
+        if(list.length<2)sec.append(el('p','atl-note','Add one more question to compare.'));
+        else{
+          var row=el('div','atl-look atl-question-ask');
+          Q.compareOperations(list.length).forEach(function(op){
+            actionButton(row,op[1],function(){investigateTogether(op[0]);},'compare-ask:'+op[0]).classList.add('atl-action-quiet');});
+          sec.append(row,el('p','atl-note','Opens the coding-agent desk on these questions, with their recorded history. Asking changes nothing. An alternative becomes a revision only if you choose it, and then you review it and apply it yourself.'));
+        }
+        actionButton(sec,'Clear comparison',clearComparison,'compare-clear').classList.add('atl-action-quiet');
+      }
+      folio.append(sec);
+    }
+    function rerenderKeeping(key){
+      renderFolio();
+      var again=key&&folio.querySelector('[data-key="'+cssEscape(key)+'"]');
+      // Otherwise the comparison's own heading takes focus, so a keyboard user stays in the section they acted in.
+      if(!again){again=folio.querySelector('.atl-qcompare .atl-section-title');if(again)again.setAttribute('tabindex','-1');}
+      if(again)again.focus({preventScroll:true});else focusFolio();
+    }
+    function toggleCompare(q){
+      var r=Q.toggleComparison(comparison(),q);S.qcompare=r.list;
+      announce(r.full?'Three questions is the most one comparison can hold. Remove one to add another.':
+        (r.list.some(function(x){return x.id===q.id;})?'Added to the comparison. ':'Removed from the comparison. ')+'Nothing is changed by comparing them.');
+      rerenderKeeping('question-compare:'+q.id);
+    }
+    function removeCompare(id){S.qcompare=comparison().filter(function(x){return x.id!==id;});announce('Removed from the comparison. Nothing is changed.');
+      rerenderKeeping(S.qcompare.length?'compare-remove:'+S.qcompare[0].id:null);}
+    function clearComparison(){S.qcompare=[];announce('The comparison is cleared. Nothing is changed.');rerenderKeeping(null);}
+    function investigateTogether(operation){
+      var list=comparison();if(list.length<2)return;
+      if(!binding.onDevelop){announce('The coding-agent desk is not available here, so nothing was asked.');return;}
+      var anchors=list.map(function(x){return {kind:'question',id:x.id};});
+      binding.onDevelop({conceptId:null,title:'Comparing '+list.length+' open questions',anchor:anchors[0],anchors:anchors,
+        precision:'question',subject:'Open questions compared',quote:'',sourceRef:'open_questions/'+list[0].index,
+        operation:operation,draft:Q.COMPARE_SUGGEST[operation]||''});
     }
     /* What Architecture changes mean for the working Books. Read from each Book's own record: the concepts
        it cites by node id, judged against the fingerprint it kept, and its own freshness. The overview says

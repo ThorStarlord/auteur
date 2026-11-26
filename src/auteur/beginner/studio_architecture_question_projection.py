@@ -157,6 +157,7 @@ def _book_entry(book: dict, ref: dict, revision_of: dict[str, int | None]) -> di
         "book_number": book["book_number"],
         "title": book["title"],
         "freshness": book["freshness"],
+        "book_request_sha256": book.get("request_sha256"),
         "decision_id": ref["decision_id"],
         "decision_text": ref.get("decision_text"),
         # False when the decision names no identity itself: its identity is then the one the version it names carries at
@@ -219,7 +220,8 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
         except Exception as exc:  # noqa: BLE001 - one Book's damage stays with that Book
             unreadable_books.append({"book_number": number, "reason": type(exc).__name__})
             continue
-        book = {"book_number": number, "title": view["title"], "freshness": view["freshness"]}
+        book = {"book_number": number, "title": view["title"], "freshness": view["freshness"],
+                "request_sha256": view["request_sha256"]}
         for ref in view["question_references"]:
             entry = _book_entry(book, ref, revision_of)
             if ref.get("question_id"):

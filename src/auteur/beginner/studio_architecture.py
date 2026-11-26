@@ -1315,13 +1315,16 @@ def architecture_revision_chain(store: CanvasStore, limit: int = 200) -> dict:
     for _ in range(limit):
         try:
             review = _read(_root(store) / "requests" / sha / "review.json")
+            # A develop over an existing Architecture has no review; its lineage record names the version it replaced.
+            lineage = None if review else _read(_root(store) / "requests" / sha / "lineage.json")
         except (OSError, ValueError):
             return {"requests": chain, "complete": False}
-        prior = (review or {}).get("prior_request_sha256")
+        prior = (review or lineage or {}).get("prior_request_sha256")
         if prior is None:
-            # Only the first version has no review naming a prior; an applied revision always has one, so a
-            # missing review on a revision leaves the chain incomplete rather than ending it.
-            return {"requests": chain, "complete": review is None and _is_first_version(store, sha)}
+            # Only the first version has neither a review nor a lineage naming a prior. An applied revision always has
+            # a review; a missing one leaves the chain incomplete rather than ending it.
+            return {"requests": chain,
+                    "complete": review is None and lineage is None and _is_first_version(store, sha)}
         if not isinstance(prior, str) or prior in chain:
             return {"requests": chain, "complete": False}
         chain.append(prior)
@@ -1536,8 +1539,12 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
                             "Historical: the working Book or this element had changed or could not be read when this "
                             "revision was prepared; this is the evidence as the inquiry read it, not the Book's record."),
         }
+    # The questions the inquiry concerned, so a revision made from it states its scope: the owner never widens it.
+    considered = [{"id": anchor["id"], "title": anchor.get("title")}
+                  for anchor in intent.get("anchors") or [] if anchor.get("kind") == "question"]
     return {
         **({"book_evidence": book_evidence} if book_evidence else {}),
+        **({"considered_questions": considered} if considered else {}),
         "inquiry_request_sha256": selection.inquiry_request_sha256,
         "hypothesis_id": match["id"],
         "title": match["title"],
@@ -1669,6 +1676,10 @@ def prepare_architecture(
             "intention_sha256": _intention_fingerprint(store),
             "operation": "revise" if instruction.strip() else "develop",
         }
+        if not instruction.strip() and current:
+            # Developing over an existing Architecture regenerates it. The new version names the version it replaces,
+            # so the revision chain, and every identity retired along it, stays whole.
+            settings["prior_request_sha256"] = current["request_sha256"]
         copied = [
             item.id for item in store.load().items
             if item.proposal_origin is not None and item.proposal_origin.source_kind == _REALIZATION_COPY_KIND
@@ -1815,6 +1826,12 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 "the author's creative intentions changed; response retained as stale evidence"
             )
         _validate_author_provenance(proposal, submitted)
+        prior = settings.get("prior_request_sha256")
+        if prior is not None and (current is None or current["request_sha256"] != prior):
+            write_host_agent_response(base / "stale_response.json", response)
+            raise BeginnerConcurrencyError(
+                "the working Architecture changed after this develop was prepared; response retained as stale evidence"
+            )
         identity_check = proposal.model_dump(mode="json")
         chain = architecture_revision_chain(store)
         identity_history = [version for _sha, version in architecture_versions(store, requests=chain["requests"])]
@@ -1856,10 +1873,25 @@ def complete_architecture(store: CanvasStore, payload: dict) -> dict:
                 record["graph_intent_receipt"] = submitted["graph_intent"]
             if submitted.get("selected_creative_alternative"):
                 record["selected_creative_alternative"] = submitted["selected_creative_alternative"]
+                considered = submitted["selected_creative_alternative"].get("considered_questions") or []
+                if considered:
+                    changes = record["question_changes"]
+                    touched = {row["id"] for row in changes["questions"] if row["status"] != "unchanged"}
+                    touched |= {row["id"] for row in changes["removed"]}
+                    # Which questions the inquiry concerned, and which of them this revision actually changed.
+                    considered_ids = {row["id"] for row in considered}
+                    # A change outside the inquiry is never hidden by the scope: it is named, not folded in.
+                    record["question_scope"] = {
+                        "considered": considered,
+                        "changed_ids": [row["id"] for row in considered if row["id"] in touched],
+                        "changed_outside_ids": sorted(touched - considered_ids),
+                    }
             if submitted.get("selected_opportunity"):
                 record["selected_opportunity"] = submitted["selected_opportunity"]
             _atomic_json_write(base / "review.json", record)
         else:
+            if prior is not None:
+                _atomic_json_write(base / "lineage.json", {"prior_request_sha256": prior})
             _atomic_json_write(_root(store) / "current.json", record)
     return project_architecture(store)
 

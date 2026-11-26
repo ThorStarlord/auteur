@@ -23,8 +23,11 @@ _SYSTEM = """You are the active Auteur narrative-architecture inquiry agent.
 Reason about the author's exact question using the existing working architecture,
 recorded relationships, explicitly labeled hypotheses and accepted constraints.
 Return ONLY a JSON object with schema_version=1, analysis (your interpretation),
-recorded_observations (0-8 entries with source kind, id and an attributed claim),
-hypotheses (0-5 objects with title and description) and uncertainties (0-8 strings).
+recorded_observations (0-8 objects, each with exactly the keys "kind", "id" and "claim": kind is one of node, link,
+genre_interaction, emotion_target, complex_emotion, genre_contract, phase or question; id is the recorded identifier
+you cite; claim is your attributed statement about it),
+hypotheses (0-5 objects, each with the keys "title", "description" and, for explore, "divergence_axis") and
+uncertainties (0-8 strings).
 Do not return an ArchitectureCandidate or claim acceptance. All claims of literary
 causality are interpretations, not deterministic graph proof.
 prior_exchanges, when present, are the author's earlier questions and your earlier
@@ -90,6 +93,17 @@ _PRIOR_BOOK_EVIDENCE_GUIDANCE = (
     "A prior exchange with book_evidence was asked with one element of a working Book as evidence. Treat what it "
     "says about that element as the Book's noncanonical working proposal, and as historical when its status is "
     "changed or unreadable: the Book no longer records it that way."
+)
+
+_DELIBERATION_GUIDANCE = (
+    "deliberation is the recorded history of the selected open questions, read through the owners, for relating or "
+    "comparing them. Every item names its basis (basis_legend). Keep three things apart in your answer: what is "
+    "recorded, what you interpret, and what remains the author's decision. A changed formulation does not prove a Book "
+    "is inconsistent. A Book that records decisions about two questions does not prove they are causally linked. A "
+    "recorded reason says what the author asked for, not that the consequence was achieved. A decision whose "
+    "identity_basis is resolved_by_owner_from_recorded_version was matched by the Book owner from the version it names, "
+    "not asserted by the author; say so when you rely on it. A named_gap is missing history: never fill it in. An answer "
+    "that the questions should stay independent, or have no meaningful connection, is a legitimate outcome: say so plainly."
 )
 
 _MAX_PRIOR_IN_REQUEST = 3
@@ -291,7 +305,9 @@ def _parse_anchor(text: str) -> dict:
     return {"kind": kind, "id": identifier, "field": spec}
 
 
-def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
+def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool=True) -> dict:
+    """Prepare a read-only inquiry. Two or three question anchors also carry the questions' recorded history
+    (``deliberation``) unless ``question_history`` is False: the current-state baseline used for comparison."""
     arch,build_request,_,_,write_request,_,atomic_write=_helpers()
     graph_intent=dict(graph_intent)
     evidence_ref=graph_intent.pop('book_evidence',None)
@@ -338,6 +354,12 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
         }
         if book_packet:
             payload['book_evidence']=book_packet
+        deliberation=None
+        question_ids=[a.id for a in intent.anchors if a.kind=='question']
+        if question_history and intent.target=='current' and len(question_ids)>=2:
+            from .studio_architecture_deliberation import build_question_deliberation
+            deliberation=build_question_deliberation(store,question_ids)
+            payload['deliberation']=deliberation
         if review:
             payload['review_context']={
                 'request_sha256':review['request_sha256'],
@@ -356,6 +378,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
             system+='\n'+_PENDING_REVIEW_GUIDANCE
         if book_packet:
             system+='\n'+_BOOK_EVIDENCE_GUIDANCE
+        if deliberation:
+            system+='\n'+_DELIBERATION_GUIDANCE
         if any(p.get('book_evidence') for p in prior):
             system+='\n'+_PRIOR_BOOK_EVIDENCE_GUIDANCE
         settings={'operation':'inquire','canvas_id':store.canvas_id,
@@ -366,6 +390,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict) -> dict:
             'inquiry_target':intent.target}
         if review:
             settings['review_request_sha256']=review['request_sha256']
+        if deliberation:
+            settings['deliberation_evidence_sha256']=deliberation['evidence_sha256']
         if book_packet:
             settings['book_evidence']={'book_number':evidence_ref.book_number,'element_id':evidence_ref.element_id,
                 'book_request_sha256':book_packet['book']['request_sha256'],
@@ -548,6 +574,10 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
             'intent':submitted['graph_intent']}
         if submitted.get('book_evidence'):
             saved['book_evidence']=submitted['book_evidence']
+        if submitted.get('deliberation'):
+            from .studio_architecture_deliberation import deliberation_standing
+            saved['deliberation']=submitted['deliberation']
+            saved['deliberation_standing']=deliberation_standing(store,submitted['deliberation'])
         write_response(folder/'response.json',response)
         atomic_write(folder/'result.json',saved)
     return project_architecture_inquiry(store)

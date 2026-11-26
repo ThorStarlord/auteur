@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "analysis": "Short answer: the record supports a connection between two of the questions, a looser structural connection to the third, and no single shared mechanism. Whether they should be one problem is the author's decision.\n\nWHAT IS RECORDED. Book 24 (The Uncounted Crew) records a decision about each of the three questions. The deliberation labels this a co-reference, not a story relationship. All three decisions were matched to their questions by the Book owner from the revision-3 version they name (identity_basis resolved_by_owner_from_recorded_version). The author did not assert the matches. Each question was given an identity in revision 3 on the instruction 'Give each open question a stable identity.' Nothing earlier can be followed back, which is a named gap and I do not fill it. Only q-gate-table changed afterwards. Revision 4 added 'Revised: whether the Council may pass through it', on the instruction 'Reword the Gate Table question.' That instruction says what was asked. It does not show that the new clause says what the author meant, and the pronoun 'it' is ambiguous: it could be the Hollow Gate or the Gate Table. The Book 24 decision text for q-gate-table says 'Book 24 holds either way'. It was recorded against the earlier wording, and I do not read it as an inconsistency.\n\nA CORRECTION TO THE PREMISE. By their recorded wording, only q-reform-stance and q-gate-table name the Gate Table. q-plurality ('Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state?') names neither the Gate Table nor reform. If it connects to the others, the connection is through the graph, not through the wording of the questions.\n\nWHAT THE GRAPH SUPPORTS, AS INTERPRETATION. The working Architecture places the Hollow Gate as the single outlet that both practices depend on. The counted Turn holds water back at it (l_measured_holds_gate). The gift practice needs release at need from it (l_unmeasured_needs_release). The Gate schedule sets the outflow of the Source (l_gate_sets_outflow). Phase 4 describes the Gate Table as the valley's answer to two proven practices contesting one outlet. Plurality of practice therefore already runs through the Gate, and a plurality question about Book 30 plausibly depends on whether the Gate and Table exist. The Terrace Council sets the schedule until the Table takes it in Book 22. The Council is also the institution that keeps the counted Turn and holds the gift reading as legitimate. So 'reform from within' has a candidate carrier, the Council handing a power to a Table it helped form. Whether the story intends that reading is not recorded. The author's text calls this stance 'reform from within', and q-reform-stance asks whether the Table models it or warns against it. The graph records the Table's function (it sets the schedule and holds no record). It does not record whether the Table is a model or a warning.\n\nTHE POSSIBILITIES.\n(1) One mechanism. The Table is reform from within made institutional, and it is also the container in which several practices persist. It would make possible one finale argument: a shared practice outlasts the institution that began it (rx_hope), the Council's loss of sole control reads as reform and not as defeat, and Hesper's apprenticeship in Book 24 gains a thematic referent. Cost: the Series would be committing the Table to a role, so it is hard to treat the Table as a mere construction addition. Plurality would depend on one schedule-setting body, which is the risk the Architecture already names (gi_pastoral_political_gate: the Gate Table becomes a seat of power). The political payoff 'no single body holds both the record and the Gate schedule' would then carry the whole plurality claim. The Table would also stop being a neutral device and become the thesis.\n(2) The Table warns against one of them. Either it models plurality while warning that reform from within feeds a new monopoly (the genre trope 'the compromise that feeds a new monopoly'), or it models reform while showing plurality as stalemate or dependence. It would make possible a sharper, more costly argument and let the finale show the cost that rx_hope requires. The cost is that one of the Series' hopeful promises is weakened, and the questions would then pull apart: q-reform-stance and q-plurality would need opposite answers from the same device. The Series would also have to dramatise a warning without turning the Table into a villain. The Architecture elsewhere says costs are physical and not villainy.\n(3) Keep them independent. q-gate-table is an acceptance question (is this construction part of the world, and may the Council pass through it). q-reform-stance is a stance question, and q-plurality is an end-state and ledger question about Book 30. Treating them separately keeps each decidable, and the recorded Book 24 text says the Book holds either way. The cost is that an answer to one can silently constrain the others. If the Gate Table is not accepted, the 'models it or warns against it' half of q-reform-stance has no referent, and the Gate-dependence links behind plurality would need rebuilding. If it is accepted, q-reform-stance and q-plurality both have a place to be answered but are still not forced to the same answer.\n\nMY READING, WHICH IS INTERPRETATION. The two Gate-Table-wording questions (q-reform-stance and q-gate-table) share a real referent and are most naturally decided together or in order, with q-gate-table first because it asks whether the thing exists. q-plurality is more loosely coupled and can stay a separate decision. Its structural link to the Gate is real but is not in its wording and not in any recorded relationship (the selected relations are empty). Whether the three should be one creative problem, or whether the Table should model one stance and warn against another, is not something the record can settle. That is the author's decision.",
+  "recorded_observations": [
+    {
+      "source_kind": "deliberation.co_references",
+      "id": "book-24",
+      "claim": "Book 24 (The Uncounted Crew) records decisions dec-reform-stance, dec-plurality and dec-gate-table about the three questions. The deliberation states this is a recorded reference and not a relationship in the story."
+    },
+    {
+      "source_kind": "deliberation.questions.books",
+      "id": "dec-reform-stance, dec-plurality, dec-gate-table",
+      "claim": "All three Book 24 decisions have identity_basis resolved_by_owner_from_recorded_version: the Book owner matched them to the questions from the revision-3 version they name. The author did not assert the matches."
+    },
+    {
+      "source_kind": "open_question",
+      "id": "q-plurality",
+      "claim": "The current wording of q-plurality mentions a measured ledger in Book 30 and plurality of practice as an end state. It does not name the Gate Table or reform from within."
+    },
+    {
+      "source_kind": "deliberation.history",
+      "id": "q-gate-table",
+      "claim": "q-gate-table was reworded in revision 4 (recorded_change reworded), adding 'Revised: whether the Council may pass through it.' The recorded reason is the author's instruction 'Reword the Gate Table question.' The referent of 'it' is not specified."
+    },
+    {
+      "source_kind": "deliberation.history",
+      "id": "q-reform-stance, q-plurality",
+      "claim": "q-reform-stance and q-plurality each have an introduced change in revision 3 and no later change. For both, earlier history is a named gap (no_identity_before), and the gap is not filled."
+    },
+    {
+      "source_kind": "link",
+      "id": "l_measured_holds_gate, l_unmeasured_needs_release, l_gate_sets_outflow",
+      "claim": "The working Architecture records that both the counted practice and the gift practice depend on the Hollow Gate, and that the Gate's schedule sets the release from the high cistern."
+    },
+    {
+      "source_kind": "node",
+      "id": "inst_terrace_council, ph_4_settled_water, alt_a_reciprocal",
+      "claim": "The Terrace Council sets the Gate schedule until the Gate Table takes it in Book 22. Phase 4 describes a Gate Table that sets the schedule and holds no record. Alternative A states a Gate Table with no record authority. The graph does not state whether the Table models or warns against reform from within."
+    },
+    {
+      "source_kind": "genre_interaction",
+      "id": "gi_pastoral_political_gate",
+      "claim": "The Architecture records a creates_tension interaction between pastoral belonging and political institutions at the Gate, with the risk that the Gate Table becomes a seat of power."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "One mechanism: the Table as reform and as the home of plural practice",
+      "description": "Read together, the Table is the Council's reform from within carried one step further into a body that holds both practices at one outlet. This would let the finale argue that a shared practice outlasts the institution that began it. The cost is that plurality then depends on a single schedule-setting body, which is the seat-of-power risk the Architecture already names, and the Table stops being a removable construction addition."
+    },
+    {
+      "title": "The Table warns against reform from within while enabling plurality",
+      "description": "Read this way, the Table lets two practices share an outlet, but its formation by the Council shows reform from within feeding a new concentration of power. It makes the Series' stance critical of institutional reform and keeps plurality as a hopeful end state. The cost is tension with the Council's centrality to the Turn, and Hesper's apprenticeship in Book 24 would need a different thematic function."
+    },
+    {
+      "title": "The Table warns against plurality while modelling reform",
+      "description": "Here the Table shows reform from within working but shows plural practice as dependent on a single schedule and so not a free end state. The Series would then justify a measured ledger surviving in Book 30. The cost is a narrower, less hopeful reading of the unmeasured practice, which sits against the hope target (et_hope) that rests on the unmeasured return."
+    },
+    {
+      "title": "Independent questions with an ordering dependency",
+      "description": "The three questions stay separate decisions. q-gate-table is decided first because it asks whether the Gate and Table exist and may be passed through. q-reform-stance and q-plurality can then be answered separately, each with or without the Table. This keeps each decision small and avoids forcing one thematic reading. The cost is that an answer to one can quietly constrain another, and the Series could end up with a stance and an end state that do not agree."
+    }
+  ],
+  "uncertainties": [
+    "The recorded record does not say whether the three questions are one creative problem. Book 24 only records decisions about each of them.",
+    "q-plurality does not name the Gate Table or reform, so any link to them rests on the graph's structure and not on recorded wording or relations (the selected relations are empty).",
+    "The referent of 'it' in the revision-4 clause 'whether the Council may pass through it' is unclear: the Hollow Gate, the Gate Table, or both. It decides how closely q-gate-table touches reform from within.",
+    "The Book 24 decision text for q-gate-table was recorded against the earlier wording; whether the author means it to cover the revised clause is not recorded.",
+    "Whether the Gate Table 'models' or 'warns against' anything depends on authorial intent for the Series' stance, which is undecided and not in the graph.",
+    "The ledger engine now records hours worked beside each mark, so a count can be read from it. Whether that makes a measured ledger in Book 30 more or less likely is an author decision, not shown by the graph.",
+    "The history before revision 3 for all three questions is a named gap, so the questions cannot be followed back to earlier wordings."
+  ]
+}

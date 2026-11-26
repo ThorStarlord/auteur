@@ -188,6 +188,25 @@
   };
   var OPERATIONS=[['explore','Explore alternative formulations'],['challenge','Challenge this formulation'],['explain','Explain what it asks']];
 
+  // Comparing two or three open questions. Suggestions fill an empty field only; the author edits or replaces them,
+  // and nothing is sent until the author asks.
+  var COMPARE_SUGGEST={
+    compare:'Do these questions’ current formulations conceal a shared creative problem?',
+    connect_to_ask:'How might these two unresolved questions influence each other’s development?',
+    challenge:'Are the creative commitments behind these questions compatible, or should they stay independent? Say what connecting them would cost.',
+    explore:'Could one dramatic mechanism help develop all of these questions? Propose alternatives that differ in what each would make possible and what it would cost.'
+  };
+  var COMPARE_OPERATIONS=[['compare','Compare their meanings'],['connect_to_ask','Explore a possible relationship'],
+    ['challenge','Challenge their assumptions'],['explore','Explore shared alternatives']];
+  // The owner asks connect_to_ask for exactly two questions; the other operations take two or three.
+  function compareOperations(count){return COMPARE_OPERATIONS.filter(function(op){return op[0]!=='connect_to_ask'||count===2;});}
+  // Add a question to the comparison, or remove it if it is already there. The owner's limit is three anchors.
+  function toggleComparison(list,q){
+    if(list.some(function(x){return x.id===q.id;}))return {list:list.filter(function(x){return x.id!==q.id;}),full:false};
+    if(list.length>=3)return {list:list,full:true};
+    return {list:list.concat([{id:q.id,title:q.text,index:q.index}]),full:false};
+  }
+
   // The shortest honest account of how a Book references a question, for the Book's row.
   function bookFreshnessNote(book){
     if(!book)return null;
@@ -202,6 +221,8 @@
     bookRelation:bookRelation,bookAskRef:bookAskRef,changeCount:changeCount,booksOf:booksOf,
     chipsFor:chipsFor,overviewNote:overviewNote,groups:groups,find:find,keyOf:keyOf,
     SUGGEST:SUGGEST,OPERATIONS:OPERATIONS,bookFreshnessNote:bookFreshnessNote,
+    COMPARE_SUGGEST:COMPARE_SUGGEST,COMPARE_OPERATIONS:COMPARE_OPERATIONS,compareOperations:compareOperations,
+    toggleComparison:toggleComparison,
     CHANGE:CHANGE,wordDiff:B.wordDiff||null
   };
 })(typeof window!=='undefined'?window:this);

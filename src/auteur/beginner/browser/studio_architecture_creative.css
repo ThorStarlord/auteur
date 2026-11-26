@@ -34,3 +34,9 @@
 .creative-axis { font-size: .82rem; opacity: .8; }
 .creative-alternative-description { margin: .15rem 0 .3rem; }
 .creative-choose-how, .creative-decline { font-size: .9rem; }
+
+/* The recorded history a comparison was given: labelled by kind of evidence, never the answer itself. */
+.creative-deliberation { margin-block: .6rem; padding: .45rem .65rem; border: 1px dashed color-mix(in srgb,currentColor 35%,transparent); border-radius: .55rem; }
+.creative-deliberation > summary { cursor: pointer; font-size: .92rem; }
+.creative-deliberation h5 { margin: .55rem 0 .15rem; font-size: .88rem; }
+.creative-deliberation p { margin: .15rem 0; font-size: .86rem; max-width: 70ch; overflow-wrap: anywhere; }

@@ -1,0 +1,448 @@
+{
+  "label": "B-historical",
+  "status": "ready",
+  "request_sha256": "820027e9be6fc912af5a725f20b97281118048a2f742bd89dd8f9e1b92a65e82",
+  "result": {
+    "schema_version": 1,
+    "analysis": "RECORDED. Only one of the three questions names the Gate Table as its own subject (q-gate-table). q-reform-stance names it inside a clause (does the Gate Table model reform from within or warn against it). q-plurality does not name the Gate Table at all in its current wording or in Book 24's decision text; the premise that all three name it is only partly borne out. The only recorded link between the three is that Book 24 (The Uncounted Crew) holds a decision about each (dec-reform-stance, dec-plurality, dec-gate-table). That is a recorded co-reference, not a story relationship, and each decision was matched to its question by the Book owner from the revision-3 version it names (identity_basis resolved_by_owner_from_recorded_version), not asserted by the author. The history gives no earlier wording before revision 3 (named_gap, no_identity_before) and I do not fill it in. The only wording change is q-gate-table, which gained 'Revised: whether the Council may pass through it' in revision 4 at the author's instruction 'Reword the Gate Table question.' That instruction records what was asked, not what was intended or achieved. 'It' is ambiguous (the Gate, the Gate Table, or the Hollow Gate), and I cannot resolve that from the record. The reword does not show Book 24 is inconsistent, and Book 24 does not show the questions are causally linked. RECORDED in the architecture: the Gate Table is a construction addition, formed in Book 22 as a rotating body that sets the Gate schedule and holds no record (ph_4_settled_water, inst_terrace_council, alt_a_reciprocal). The Council set the schedule before it. gi_pastoral_political_gate names the risk that the Gate Table becomes a seat of power. The two practices, the counted Turn and the gift practice, both depend on the one Gate (l_measured_holds_gate, l_unmeasured_needs_release). The Book 30 payoff expectation is that no single body holds both the record and the Gate schedule. eng_ledger was revised to record hours worked, so a count can be read from it, which bears on whether a measured ledger survives in q-plurality. INTERPRETATION. The three questions touch a shared region, the Gate and the two practices that depend on it, but they ask different things. q-gate-table asks whether a construction addition is part of the world and whether the Council can pass through it. q-reform-stance asks what the Series endorses. q-plurality asks what Book 30 looks like. A shared object does not make a shared creative problem. The strongest coupling I can defend is one of order: if the Gate Table is not accepted, the 'model it or warn against it' clause of q-reform-stance has no object, and the Gate Table's role in plurality would need another vehicle (Alternatives A, B and C in the finale are the recorded candidates). That is a dependency of one question on another, not a merger. Whether the Gate Table develops reform and plurality together, or warns against one, is an author's decision. The record supports each reading as a possibility and none as established. The hypotheses below are distinct readings, none of them chosen or accepted. AUTHOR'S DECISIONS: whether the Gate Table and Hollow Gate exist at all; what 'it' means in the revised wording; whether reform from within remains the stance; whether plurality is the end state; whether any terrace keeps a measured ledger in Book 30; and the finale mechanism, which is open as q-finale-mechanism and was not selected for this inquiry.",
+    "recorded_observations": [
+      {
+        "kind": "question",
+        "id": "q-plurality",
+        "claim": "Recorded current wording: 'Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.' Neither this wording nor Book 24's dec-plurality text names the Gate Table, so the author's premise that all three name it is not borne out for this question.",
+        "sourceRef": "open_questions/13",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "question",
+        "id": "q-reform-stance",
+        "claim": "Recorded current wording asks whether reform from within remains the series' stance and whether the Gate Table 'models it or warns against it'. The Gate Table appears here as a clause. Book 24's dec-reform-stance, matched by the owner from the revision-3 version, says Book 24 keeping Hesper a Council apprentice is not a statement on the stance.",
+        "sourceRef": "open_questions/12",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "question",
+        "id": "q-gate-table",
+        "claim": "Recorded: this is the only selected question with revision history beyond introduction. Revision 4 reworded it, after the author instruction 'Reword the Gate Table question', by adding 'Revised: whether the Council may pass through it.' The recorded reason says what was asked, not what was achieved; the antecedent of 'it' is not recorded. Book 24's dec-gate-table says Book 24 'holds either way'.",
+        "sourceRef": "open_questions/14",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "genre_interaction",
+        "id": "gi_pastoral_political_gate",
+        "claim": "Recorded: two proven practices at one Gate force the question of whose practice sets the schedule, with the stated risk that the Gate Table becomes a seat of power. This is the nearest recorded statement of the Gate Table warning against something, and it names power, not reform or plurality directly.",
+        "sourceRef": "genre_interactions/4",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "node",
+        "id": "str_hollow_gate",
+        "claim": "Recorded: the Hollow Gate divides the high cistern's release between upper and lower channels; the Council set its schedule since the Turn. Its summary states that the surfeit mechanism is a construction the author may reject. Both practices depend on it (l_measured_holds_gate, l_unmeasured_needs_release), so the Gate is the recorded place where the counted and gift practices meet.",
+        "sourceRef": "nodes/11",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "node",
+        "id": "alt_a_reciprocal",
+        "claim": "Recorded: Alternative A (not chosen) includes a Gate Table with no record authority and counts care without owing it. Alternative B (alt_b_allotted) has lot-drawn, one-cycle Table seats and a sunset. The Gate Table's form differs between the finale alternatives, so which Gate Table the questions refer to depends on an undecided finale.",
+        "sourceRef": "nodes/28",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      },
+      {
+        "kind": "node",
+        "id": "eng_ledger",
+        "claim": "Recorded: the ledger summary carries a 'Revised' clause saying it now also records the hours each hand worked, so a count of the draw can be read straight from it. This bears on whether a measured ledger can persist in Book 30 (q-plurality), and it is a recorded revision whose author status I cannot see.",
+        "sourceRef": "nodes/5",
+        "observed_in": "current_architecture",
+        "interpretation_status": "agent_claim_not_causal_proof"
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "h1",
+        "title": "One mechanism: the Table holds both practices and is the reform",
+        "description": "Interpretation. The Gate Table is the valley's own answer, built out of the Council's practice rather than against it, and it keeps both the counted and the gift practice alive at one Gate. Reform from within and plurality become one thing: the institution changes by hosting its rivals. This would make possible one finale spine and a clear reader payoff for the hope target (et_hope names the Gate Table's first season). It would cost the Series a tidier thesis than the record currently earns, would risk the Table reading as the story's endorsed answer, and would tie q-reform-stance and q-plurality to the same decision so that one answer forecloses the other.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h2",
+        "title": "The Table warns against reform from within, plurality survives elsewhere",
+        "description": "Interpretation. The Council passing through the Gate Table (one reading of the revised wording) could dramatise how an incumbent institution turns a shared body into a new seat of power, the 'compromise that feeds a new monopoly' trope already recorded under gn_political_institutional. Plurality would then be carried by the practices themselves rather than by the Table. This would make possible a harder, more ironic Book 24 to Book 30 line and give Hesper's Council apprenticeship real stakes. It would cost the warmth the pastoral genre promises, would strain et_hope, and would pull q-reform-stance away from q-plurality, since plurality would no longer depend on the Table.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h3",
+        "title": "The Table warns against plurality, reform survives",
+        "description": "Interpretation. Two proven practices at one outlet may force a single schedule, so that plurality shows up as deadlock or as a standing claim on draw, and the Table's authority narrows the practices. Reform from within could still be modelled by the Council changing in order to survive. This would make possible a Book 30 where one measured ledger survives, which answers q-plurality's first clause. It would cost the Series belonging (gi_political_pastoral_constrains already names belonging becoming a labour rota) and would contradict a reading in which the valley's practices both outlast the Hall. I treat this as the least supported by the record, but not excluded.",
+        "divergence_axis": null
+      },
+      {
+        "id": "h4",
+        "title": "Keep the three independent, sequence q-gate-table first",
+        "description": "Interpretation, and a legitimate outcome. The questions differ in kind: world acceptance, thematic stance, and finale content. The only recorded tie is Book 24's co-reference, which is not a story relationship. Answering q-gate-table first (and settling what 'it' means) fixes whether the other two have an object, without merging them. This would make possible deciding each at its own scale, leaving the finale mechanism to decide plurality, and avoiding a premature thesis. It would cost some economy, because a shared motif could carry more than three separate decisions, and the Series might later find the questions were coupled after all.",
+        "divergence_axis": null
+      }
+    ],
+    "uncertainties": [
+      "What 'it' means in the revised q-gate-table wording: the Gate, the Gate Table or the Hollow Gate. The recorded reason does not say.",
+      "Why the author reworded only q-gate-table in revision 4; the record shows the instruction, not the intent or whether the result achieves it.",
+      "q-plurality never names the Gate Table, so any link to the Gate Table is interpretive rather than recorded.",
+      "Whether reform from within means the Council changing itself, or the valley building a new body (the Gate Table); the record does not say, and the answer decides whether the Table can 'model' the stance at all.",
+      "Which finale mechanism (A, B, C or another) is chosen, because the Gate Table takes a different form in each and q-finale-mechanism is not among the selected questions.",
+      "Whether the Hollow Gate and Gate Table are accepted: both are recorded as construction additions, so every reading of them as a mechanism is conditional on q-gate-table.",
+      "The Book 24 decisions were matched to their questions by the owner from the revision-3 version, and no author-asserted identity is recorded; there is no history for earlier revisions (named_gap, no_identity_before).",
+      "Whether the ledger revision recording hours worked is author-intended; it bears on q-plurality but its status is not shown in this record."
+    ],
+    "authority": "noncanonical_inquiry",
+    "baseline_candidate_request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+    "review_request_sha256": null,
+    "inquiry_target": "current",
+    "intent": {
+      "anchors": [
+        {
+          "authority": "working_noncanonical",
+          "id": "q-reform-stance",
+          "index": 12,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-reform-stance\", \"text\": \"Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.\"}",
+          "sourceRef": "open_questions/12",
+          "title": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided."
+        },
+        {
+          "authority": "working_noncanonical",
+          "id": "q-plurality",
+          "index": 13,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-plurality\", \"text\": \"Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.\"}",
+          "sourceRef": "open_questions/13",
+          "title": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided."
+        },
+        {
+          "authority": "working_noncanonical",
+          "id": "q-gate-table",
+          "index": 14,
+          "kind": "question",
+          "recordedSupport": "{\"id\": \"q-gate-table\", \"text\": \"Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it.\"}",
+          "sourceRef": "open_questions/14",
+          "title": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it."
+        }
+      ],
+      "author_text": "These three questions each name the Gate Table, or the stance it stands for. Do they share one creative problem? Does the Gate Table develop reform from within and the plurality of practice together, as one mechanism, or does it warn against one of them and so pull the questions apart? Say what each possibility would make possible and what it would cost the Series, and say plainly if the questions should remain independent.",
+      "between": {
+        "relations": [],
+        "status": "not_applicable"
+      },
+      "canvas_id": "spring-ledger",
+      "expected_candidate_request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+      "operation": "compare",
+      "recorded_relations": [],
+      "target": "current",
+      "version": 1
+    },
+    "deliberation": {
+      "authority": "recorded_history_noncanonical",
+      "basis_legend": {
+        "book_decision": "A Working Book decision that refers to the question. It is a noncanonical working proposal; identity_basis says whether the decision names the question itself or the Book owner resolved it from the version the decision names.",
+        "current_wording": "The working Architecture's wording of the question now.",
+        "named_gap": "History or a Book that could not be read, or is incomplete. It must not be filled in.",
+        "recorded_absence": "A readable applied version in which the question was not recorded.",
+        "recorded_change": "A change in recorded wording, judged only against the readable version before it.",
+        "recorded_co_reference": "Two or more selected questions are referred to by one Book. This is a recorded reference, not a relationship in the story.",
+        "recorded_reason": "The author's own revision instruction for that version. It says what was asked, not that the consequence was achieved.",
+        "recorded_selected_alternative": "An alternative a coding agent proposed earlier and the author chose. It is a historical interpretation.",
+        "recorded_wording": "A formulation one applied version recorded, with no change claimed for it."
+      },
+      "co_references": [
+        {
+          "authority": "recorded_reference",
+          "basis": "recorded_co_reference",
+          "book_number": 24,
+          "decision_ids": [
+            "dec-gate-table",
+            "dec-plurality",
+            "dec-reform-stance"
+          ],
+          "note": "This Book records decisions about these questions. It does not say they are related in the story.",
+          "question_ids": [
+            "q-gate-table",
+            "q-plurality",
+            "q-reform-stance"
+          ],
+          "title": "The Uncounted Crew"
+        }
+      ],
+      "current_architecture": {
+        "history_chain_complete": true,
+        "numbered": true,
+        "request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+        "revision_count": 4,
+        "revision_number": 4
+      },
+      "evidence_sha256": "154dccc31eef1ac4601aac8bdf3c22c139b559ebaf3edcf1da76b298a58058de",
+      "limits": {
+        "book_decisions_per_question": 4,
+        "history_items_per_question": 4,
+        "omitted": {
+          "q-gate-table": {
+            "book_decisions": 0,
+            "history_items": 0
+          },
+          "q-plurality": {
+            "book_decisions": 0,
+            "history_items": 0
+          },
+          "q-reform-stance": {
+            "book_decisions": 0,
+            "history_items": 0
+          }
+        },
+        "questions": 3,
+        "reason_characters": 400,
+        "text_characters": 600
+      },
+      "named_gaps": [],
+      "note": "These items are the recorded history of the selected open questions, read through the owners. Identity continuity is what the Architecture recorded; it does not establish that two wordings are semantically the same. Nothing here settles a question or states a story relationship.",
+      "questions": [
+        {
+          "books": [
+            {
+              "authority": "working_book_proposal_noncanonical",
+              "basis": "book_decision",
+              "book_number": 24,
+              "book_request_sha256": "32d864f027da3550eeee1466d4c50a8ab65976ea54847f5c2266b574841bc8bb",
+              "current": {
+                "index": 12,
+                "text": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided."
+              },
+              "decision_id": "dec-reform-stance",
+              "decision_text": "Whether reform from within remains the Series' stance. Book 24 keeps Hesper a Council apprentice, which is not a statement on it.",
+              "decision_text_sha256": "28772e8c644b7646f663fb2ed0f3943d6a4cf6e8061ea118650d3214186e0cca",
+              "identity_basis": "resolved_by_owner_from_recorded_version",
+              "recorded": {
+                "index": 12,
+                "revision_number": 3,
+                "text": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+                "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+              },
+              "state": "current_wording",
+              "title": "The Uncounted Crew"
+            }
+          ],
+          "current": {
+            "authority": "working_noncanonical",
+            "basis": "current_wording",
+            "index": 12,
+            "text": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+            "text_sha256": "2d05099da54a81099d11eef7b75d90e44260e666dd04f4958b01a1e3edddf812"
+          },
+          "history": [
+            {
+              "basis": "named_gap",
+              "gap": "no_identity_before",
+              "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+              "versions": 2
+            },
+            {
+              "authority": "historical_recorded",
+              "basis": "recorded_change",
+              "change": "introduced",
+              "from_revision": 3,
+              "index": 12,
+              "kind": "present",
+              "reason": {
+                "authority": "author_instruction_recorded",
+                "basis": "recorded_reason",
+                "instruction": "Give each open question a stable identity.",
+                "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+              },
+              "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+              "text": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+              "text_sha256": "2d05099da54a81099d11eef7b75d90e44260e666dd04f4958b01a1e3edddf812",
+              "to_revision": 4,
+              "versions": 2
+            }
+          ],
+          "history_complete": true,
+          "id": "q-reform-stance",
+          "index": 12
+        },
+        {
+          "books": [
+            {
+              "authority": "working_book_proposal_noncanonical",
+              "basis": "book_decision",
+              "book_number": 24,
+              "book_request_sha256": "32d864f027da3550eeee1466d4c50a8ab65976ea54847f5c2266b574841bc8bb",
+              "current": {
+                "index": 13,
+                "text": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided."
+              },
+              "decision_id": "dec-plurality",
+              "decision_text": "Whether any terrace keeps a measured ledger in Book 30, and whether plurality of practice is the intended end state.",
+              "decision_text_sha256": "ed1af0235f079d1eb8692ba04417ba84d145a393fd1f4ff96eb03988b592beda",
+              "identity_basis": "resolved_by_owner_from_recorded_version",
+              "recorded": {
+                "index": 13,
+                "revision_number": 3,
+                "text": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+                "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+              },
+              "state": "current_wording",
+              "title": "The Uncounted Crew"
+            }
+          ],
+          "current": {
+            "authority": "working_noncanonical",
+            "basis": "current_wording",
+            "index": 13,
+            "text": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+            "text_sha256": "372661a6591a917e4895387424a5dd2b418ed0aa998214732edd32fe14fee7a4"
+          },
+          "history": [
+            {
+              "basis": "named_gap",
+              "gap": "no_identity_before",
+              "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+              "versions": 2
+            },
+            {
+              "authority": "historical_recorded",
+              "basis": "recorded_change",
+              "change": "introduced",
+              "from_revision": 3,
+              "index": 13,
+              "kind": "present",
+              "reason": {
+                "authority": "author_instruction_recorded",
+                "basis": "recorded_reason",
+                "instruction": "Give each open question a stable identity.",
+                "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+              },
+              "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+              "text": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+              "text_sha256": "372661a6591a917e4895387424a5dd2b418ed0aa998214732edd32fe14fee7a4",
+              "to_revision": 4,
+              "versions": 2
+            }
+          ],
+          "history_complete": true,
+          "id": "q-plurality",
+          "index": 13
+        },
+        {
+          "books": [
+            {
+              "authority": "working_book_proposal_noncanonical",
+              "basis": "book_decision",
+              "book_number": 24,
+              "book_request_sha256": "32d864f027da3550eeee1466d4c50a8ab65976ea54847f5c2266b574841bc8bb",
+              "current": {
+                "index": 14,
+                "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it."
+              },
+              "decision_id": "dec-gate-table",
+              "decision_text": "Whether the Hollow Gate and the Gate Table are accepted parts of the world. Book 24 holds either way.",
+              "decision_text_sha256": "080e364ae1a28f622b7077fef66a0d20ed85c1750b5c46d04c5816643ee0be64",
+              "identity_basis": "resolved_by_owner_from_recorded_version",
+              "recorded": {
+                "index": 14,
+                "revision_number": 3,
+                "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.",
+                "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+              },
+              "state": "reworded",
+              "title": "The Uncounted Crew"
+            }
+          ],
+          "current": {
+            "authority": "working_noncanonical",
+            "basis": "current_wording",
+            "index": 14,
+            "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it.",
+            "text_sha256": "ef724048f50fd22d591993a147e4ae0ca102cc9321c9d1839ed90dccc4f86a8c"
+          },
+          "history": [
+            {
+              "basis": "named_gap",
+              "gap": "no_identity_before",
+              "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+              "versions": 2
+            },
+            {
+              "authority": "historical_recorded",
+              "basis": "recorded_change",
+              "change": "introduced",
+              "from_revision": 3,
+              "index": 14,
+              "kind": "present",
+              "reason": {
+                "authority": "author_instruction_recorded",
+                "basis": "recorded_reason",
+                "instruction": "Give each open question a stable identity.",
+                "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+              },
+              "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+              "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.",
+              "text_sha256": "fc83bf4ed418aec8df46fd0de885a3708ef946c957092c9b2da76cdda447cd57",
+              "to_revision": 3,
+              "versions": 1
+            },
+            {
+              "authority": "historical_recorded",
+              "basis": "recorded_change",
+              "change": "reworded",
+              "from_revision": 4,
+              "index": 14,
+              "kind": "present",
+              "previous": {
+                "index": 14,
+                "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions."
+              },
+              "reason": {
+                "authority": "author_instruction_recorded",
+                "basis": "recorded_reason",
+                "instruction": "Reword the Gate Table question.",
+                "instruction_sha256": "bf7b47ea26943df1a02025ab8990878cee75b400bd771ee19766e6d110ef6001"
+              },
+              "request_sha256": "cf278c5366d06f4eabf9f086d6df33d4ca04e0073b83ac41e920e713559d92e2",
+              "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions. Revised: whether the Council may pass through it.",
+              "text_sha256": "ef724048f50fd22d591993a147e4ae0ca102cc9321c9d1839ed90dccc4f86a8c",
+              "to_revision": 4,
+              "versions": 1
+            }
+          ],
+          "history_complete": true,
+          "id": "q-gate-table",
+          "index": 14
+        }
+      ],
+      "schema": "studio-question-deliberation/1"
+    },
+    "deliberation_standing": [
+      {
+        "book_number": 24,
+        "decision_id": "dec-reform-stance",
+        "question_id": "q-reform-stance",
+        "standing": "current"
+      },
+      {
+        "book_number": 24,
+        "decision_id": "dec-plurality",
+        "question_id": "q-plurality",
+        "standing": "current"
+      },
+      {
+        "book_number": 24,
+        "decision_id": "dec-gate-table",
+        "question_id": "q-gate-table",
+        "standing": "current"
+      }
+    ]
+  }
+}
