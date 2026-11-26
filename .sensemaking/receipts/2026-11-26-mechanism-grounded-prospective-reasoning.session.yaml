@@ -1,0 +1,108 @@
+artifact_id: sensemaking_session_receipt
+schema_version: 1
+session_ref: 2026-11-26-mechanism-grounded-prospective-reasoning
+state: final
+created_at: "2026-11-26T18:00:00Z"
+updated_at: "2026-11-26T19:45:00Z"
+target_repository: ThorStarlord/auteur
+source_identity:
+  start_ref: 1bf575417aa3de05434cbbb59330ec5c75e3d178
+  end_ref: 9a898c45f20a1b532634a634f606af50ea6b6891
+  worktree_clean_at_end: true
+skill_identity:
+  load_mode: harness_discovered
+  sensemaking_source_ref: null
+goal:
+  statement: Build Mechanism-Grounded Prospective Narrative Reasoning in Auteur: version-qualified mechanism evidence, inheritance, trajectories, approach definitions, served Atelier journey, PR and merge.
+  source: owner_message
+  source_ref: null
+delegation:
+  granted: [read, local_write, run_local_commands, commit, push, open_pr, merge]
+  withheld: [release, deploy, external_publication, knowledge_edit]
+continuity:
+  resumes: null
+  campaign_ref: null
+  resolves_questions: []
+responsibilities:
+  - id: R-1
+    responsibility: recover existing consequence, inquiry and graph owners; check skill identity
+    capability: using-sensemaking (installed copy) with ordinary repository reading
+    status: completed
+    reason: Mission requires recovery before design. Owners read; installed skill compared with pinned revision c5b8fee (differs).
+    artifact_refs: [docs/design/2026-11-26-mechanism-grounded-prospective-reasoning.md]
+    validation:
+      - command: git fetch origin main; compare origin/main with 1bf57541
+        result: PASS
+  - id: R-2
+    responsibility: design and implement version-qualified mechanism evidence, inheritance and trajectories
+    capability: ordinary_coding under the portable construction loop
+    status: completed
+    reason: Owner directive authorizes the bounded capability. Implemented in studio_architecture_mechanisms and studio_architecture_consequence; design records the contract as built.
+    artifact_refs: [src/auteur/beginner/studio_architecture_mechanisms.py, src/auteur/beginner/studio_architecture_consequence.py]
+    validation:
+      - command: pytest tests/test_architecture_consequence.py tests/test_architecture_consequence_mechanisms.py -n 4
+        result: PASS
+      - command: node --test tests/test_studio_architecture_consequence.mjs
+        result: PASS
+  - id: R-3
+    responsibility: authentic exercises (Spring Ledger motivating case, mechanism-transformation contrast, development investigation)
+    capability: fresh sub-agent reasoning through the owner; critics read stored outputs
+    status: completed
+    reason: Unedited answers passed through owners; refusals classified; corrections by the same agent after the owner's message.
+    artifact_refs: [docs/qualification-evidence/mechanism-grounded-prospective-reasoning-20261126/EVALUATION.md]
+    validation:
+      - command: owner acceptance of each final answer (consequence-complete, inquiry-complete)
+        result: PASS
+  - id: R-4
+    responsibility: served Atelier journey and independent review
+    capability: built-in browser on a detached served studio; read-only reviewers
+    status: completed
+    reason: Desktop 1440 and narrow 390 checked; no console errors; no page overflow. Two read-only reviews; findings addressed or recorded.
+    artifact_refs: [docs/qualification-evidence/mechanism-grounded-prospective-reasoning-20261126/served-final]
+    validation:
+      - command: browser tests for the served consequence journey
+        result: PASS
+  - id: R-5
+    responsibility: pull request and merge into main
+    capability: gh pr workflow
+    status: in_progress
+    reason: Branch committed at end_ref; pull request and merge performed by this session after this receipt commit. The merge is recorded in the PR and the final report, not here.
+    artifact_refs: []
+    validation: []
+findings:
+  - id: F-1
+    statement: The Spring Ledger proposal changes no architecture component, so change-seeded selection returns nothing for the motivating case. Selection now seeds from Working Book references and one-hop recorded relations.
+    epistemic_status: OBSERVED
+    evidence_refs: [docs/qualification-evidence/consequence-aware-narrative-development-20261126/exercise-A/pending-review.json]
+    disposition: resolved
+  - id: F-2
+    statement: Installed using-sensemaking SKILL.md differs from pinned c5b8fee (missing committed-review section). The revision the host loaded is not verified.
+    epistemic_status: OBSERVED
+    evidence_refs: [.sensemaking/receipts/2026-11-26-mechanism-grounded-prospective-reasoning.session.yaml]
+    disposition: open
+  - id: F-3
+    statement: A single-process pytest run of tests/test_architecture_consequence.py exits silently with status 127 after 18 tests on this host. The same tests pass under -n 4. Cause not isolated.
+    epistemic_status: OBSERVED
+    evidence_refs: [docs/qualification-evidence/mechanism-grounded-prospective-reasoning-20261126/EVALUATION.md]
+    disposition: open
+  - id: F-4
+    statement: Book text refers to questions by position ("open question 6"). The owner cannot follow a positional reference, and one analysis missed the link it implies.
+    epistemic_status: OBSERVED
+    evidence_refs: [docs/design/2026-11-26-mechanism-grounded-prospective-reasoning.md]
+    disposition: handed_off
+  - id: F-5
+    statement: The first owner contract let a proposal item count as a recorded basis and let counterevidence cite its own mechanism. Both fixed; both analyses re-run under the final contract.
+    epistemic_status: OBSERVED
+    evidence_refs: [docs/qualification-evidence/mechanism-grounded-prospective-reasoning-20261126/exercise-A/contract-1-accepted-under-earlier-rule]
+    disposition: resolved
+open_questions: []
+stop:
+  disposition: GOAL_SATISFIED
+  reason: Owner capability, exercises, served journey and reviews complete on this branch. Merge into main is the last step of this session and is recorded in the PR and the final report.
+next:
+  warranted_responsibility: Typed Working Book references to questions, so a cross-question reference survives reordering and the owner can check it. Recommended; not started; needs an owner decision on the Book record change.
+  blocked_on: []
+persistence: committed
+claim_ceiling: Establishes owner acceptance and refusal as specified, citation existence and side, and served rendering. Not literary correctness, authorial benefit or superiority over version 1; sub-agents were sonnet, and no human author judged.
+action_authorized_by_receipt: false
+immutable: true

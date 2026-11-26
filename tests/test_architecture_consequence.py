@@ -19,7 +19,7 @@ from auteur.beginner.studio_architecture import (
     complete_architecture, prepare_architecture,
 )
 from auteur.beginner.studio_architecture_consequence import (
-    ConsequenceAnswer, _SYSTEM, complete_architecture_consequence, consequence_origin,
+    ConsequenceAnswer, _SYSTEM_V2 as _SYSTEM, complete_architecture_consequence, consequence_origin,
     prepare_architecture_consequence, project_architecture_consequence,
 )
 from auteur.beginner.studio_architecture_inquiry import prepare_architecture_inquiry
@@ -99,6 +99,12 @@ def remove_compact(candidate: dict) -> None:
     del candidate["open_question_ids"][index]
 
 
+def remove_conversion(candidate: dict) -> None:
+    index = candidate["open_question_ids"].index(Q_CONVERSION)
+    del candidate["open_questions"][index]
+    del candidate["open_question_ids"][index]
+
+
 def replay(request: dict, payload: dict) -> dict:
     return build_host_agent_response(HostAgentRequest(**request), json.dumps(payload), runtime="consequence-test").model_dump()
 
@@ -113,14 +119,20 @@ def evidence_id(packet: dict, kind: str, **match) -> str:
 
 
 def valid_answer(packet: dict) -> dict:
+    """A version 2 answer that cites only what the packet gives, and states every basis the evidence shows."""
     instruction = evidence_id(packet, "instruction")
     baseline = evidence_id(packet, "baseline_wording", question_id=Q_CONVERSION)
     proposed = evidence_id(packet, "proposed_wording", question_id=Q_CONVERSION)
     decision = evidence_id(packet, "book_decision", question_id=Q_CONVERSION)
+    conversion = evidence_id(packet, "mechanism", record_kind="link", record_id="l_conversion_sets_draw")
+    purchased = evidence_id(packet, "mechanism", record_kind="link", record_id="l_trade_draws_without_return")
+    inherited = evidence_id(packet, "book_element", element_id="inh-uneven-draw", book_number=BOOK)
+    later = evidence_id(packet, "book_element", element_id="cons-conversion-blind-spot", book_number=BOOK)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "reading": ("The instruction narrows the Book 20 conversion question to the shares the Mill Compact purchased. The "
                     "proposed wording keeps its identity and drops the earlier question about settlement durability."),
+        "reach": "conditional_inheritance",
         "concerns": [
             {"title": "Whether the conversion is a lasting settlement", "status": "possibly_displaced",
              "earlier": "A lasting settlement, or a stage the finale must revisit.",
@@ -132,19 +144,42 @@ def valid_answer(packet: dict) -> dict:
              "reading": "The narrowed wording opens the purchased-share question as its own uncertainty.",
              "evidence": [proposed]},
         ],
-        "prospective": [
-            {"kind": "recorded_relationship",
-             "text": "Book 24's decision about this question still refers to the earlier wording.",
-             "evidence": [decision]},
-            {"kind": "proposed_possibility",
-             "text": "A later Book could treat the purchased shares as the place the finale tests the conversion.",
-             "evidence": []},
+        "mechanisms": [
+            {"evidence": conversion,
+             "reading": "The recorded link sets draw from hands a household cannot return (Book 20).",
+             "conditional_consequence": "If the conversion reaches the purchased shares, their draw would follow hands owed.",
+             "counterevidence": [{"text": "The record does not say the conversion applies to purchased shares.",
+                                  "evidence": [proposed]}],
+             "unresolved": ["Whether the author means the conversion to reach purchased shares."]},
+            {"evidence": purchased,
+             "reading": "The recorded link says purchased shares draw without return labour."},
+        ],
+        "inheritance": [
+            {"kind": "recorded_inheritance", "from": conversion, "to": inherited,
+             "text": "Book 24 records that hand-light draw has fallen since the conversion.", "evidence": [inherited]},
+            {"kind": "plausible_inheritance", "from": baseline, "to": later,
+             "text": "Book 24 names later pressure on the conversion for Books 25 and 26; whether they carry the durability "
+                     "question is not recorded.", "evidence": [later]},
+        ],
+        "trajectories": [
+            {"title": "The purchased shares carry the conversion question",
+             "steps": [
+                 {"stage": "local_decision", "text": "The proposal narrows the question to purchased shares.",
+                  "evidence": [proposed], "basis": "interpreted"},
+                 {"stage": "mechanism_transformation",
+                  "text": "If adopted, draw for purchased shares is set by hands owed rather than by the Compact's labour.",
+                  "evidence": [purchased], "basis": "interpreted"},
+                 {"stage": "inheritance", "text": "Books 25 and 26 could test the conversion against purchased shares.",
+                  "evidence": [later], "basis": "speculative"},
+             ],
+             "assumptions": ["The author keeps the conversion as recorded."]},
         ],
         "alternatives": [
             {"approach": "separate", "title": "Keep the settlement question beside the purchased-share question",
-             "summary": "Retain the earlier durability question and ask the purchased-share question beside it.",
-             "questions": [Q_CONVERSION, Q_COMPACT], "gains": "Both concerns stay visible.",
-             "costs": "Two questions to hold open.", "next_investigation": "Compare the two readings of the conversion."},
+             "summary": "Keep the earlier durability question and ask the purchased-share question beside it.",
+             "questions": [Q_CONVERSION], "keeps": [baseline], "mechanisms": [conversion],
+             "gains": "Both concerns stay visible.", "costs": "Two questions to hold open.",
+             "next_investigation": "Compare the two readings of the conversion."},
         ],
         "not_established": ["Whether the author intends the durability question to be dropped."],
     }
@@ -299,20 +334,75 @@ REFUSALS = {
         lambda a, p: a["concerns"].__setitem__(0, {**a["concerns"][0], "status": "transformed", "intent": "not_established",
                                                    "evidence": [evidence_id(p, "baseline_wording", question_id=Q_CONVERSION)]})),
         "must cite both"),
-    "a recorded relationship with no decision or history": (_mutated(
-        lambda a, p: a["prospective"][0].__setitem__("evidence", [evidence_id(p, "baseline_wording", question_id=Q_CONVERSION)])),
-        "must cite a Book decision"),
+    "a recorded inheritance that does not cite a Book's own inherited element": (_mutated(
+        lambda a, p: a["inheritance"][0].__setitem__("to", evidence_id(p, "book_decision", question_id=Q_CONVERSION))),
+        "must cite a Book's own inherited element"),
+    "a plausible inheritance that cites only a Working Book title": (_mutated(
+        lambda a, p: a["inheritance"][1].__setitem__("to", evidence_id(p, "working_book", book_number=25))),
+        "not a Book title"),
+    "an inheritance whose source is not an earlier development": (_mutated(
+        lambda a, p: a["inheritance"][1].__setitem__("from", evidence_id(p, "proposed_wording", question_id=Q_CONVERSION))),
+        "must name an earlier development"),
+    "a mechanism read twice": (_mutated(
+        lambda a, p: a["mechanisms"].append(dict(a["mechanisms"][0]))), "is read twice"),
+    "a mechanism reading that cites a non-mechanism": (_mutated(
+        lambda a, p: a["mechanisms"][0].__setitem__("evidence", evidence_id(p, "baseline_wording", question_id=Q_CONVERSION))),
+        "is not a recorded mechanism"),
+    "a counterevidence item with no evidence": (_mutated(
+        lambda a, p: a["mechanisms"][0]["counterevidence"][0].__setitem__("evidence", [])), "at least 1"),
+    "a local reach with a long-horizon trajectory step": (_mutated(
+        lambda a, p: (a.__setitem__("reach", "local"),
+                      a["trajectories"][0]["steps"][2].__setitem__("stage", "long_horizon"))),
+        "a local change has no long-horizon"),
+    "a long-horizon reach with no long-horizon or inheritance step": (_mutated(
+        lambda a, p: (a.__setitem__("reach", "long_horizon"), a.__setitem__("trajectories", []),
+                      a.__setitem__("inheritance", []))), "needs a long-horizon or inheritance step"),
+    "a recorded trajectory step that cites nothing": (_mutated(
+        lambda a, p: a["trajectories"][0]["steps"][0].update(basis="recorded", evidence=[])), "must cite evidence"),
     "an alternative over a question the baseline does not hold": (_mutated(
         lambda a, p: a["alternatives"][0].__setitem__("questions", [Q_CONVERSION, "q-not-a-question"])),
         "not a continuing question of the baseline"),
+    "a recorded step that cites only the proposal": (_mutated(
+        lambda a, p: a["trajectories"][0]["steps"][0].update(basis="recorded", evidence=[evidence_id(p, "proposed_wording", question_id=Q_CONVERSION)])),
+        "not the proposal"),
+    "a recorded inheritance whose Book element cites no node the mechanism involves": (_mutated(
+        lambda a, p: a["inheritance"][0].__setitem__("to", evidence_id(p, "book_element", element_id="inh-date", book_number=BOOK))),
+        "cites a node the mechanism involves"),
+    "counterevidence that is only the mechanism itself": (_mutated(
+        lambda a, p: a["mechanisms"][0]["counterevidence"][0].__setitem__("evidence", [evidence_id(p, "mechanism", record_kind="link", record_id="l_conversion_sets_draw")])),
+        "other than the mechanism itself"),
+    "a local reach that records a later development": (_mutated(
+        lambda a, p: a.__setitem__("reach", "local")), "records no later development"),
+    "a not established reach that rests on a recorded inheritance": (_mutated(
+        lambda a, p: a.__setitem__("reach", "not_established")), "cannot rest on a recorded inheritance"),
+    "a conditional reach with only an unknown inheritance": (_mutated(
+        lambda a, p: (a.__setitem__("inheritance", [{"kind": "unknown_inheritance", "from": evidence_id(p, "baseline_wording", question_id=Q_CONVERSION),
+                                                    "to": evidence_id(p, "book_decision", question_id=Q_CONVERSION), "text": "t", "evidence": []}]))),
+        "needs an inheritance other than unknown"),
+    "an alternative whose keeps omit one of its named questions": (_mutated(
+        lambda a, p: a["alternatives"][0].__setitem__("questions", [Q_CONVERSION, "q-other-1"])), "keeps no wording of q-other-1"),
+    "an accepted proposal that keeps baseline wording as well": (_mutated(
+        lambda a, p: a["alternatives"][0].update(approach="accept_proposal", keeps=[
+            evidence_id(p, "proposed_wording", question_id=Q_CONVERSION), evidence_id(p, "baseline_wording", question_id=Q_CONVERSION)])),
+        "keeps only proposal-side wording"),
+    "an alternative that keeps the wording of another question": (_mutated(
+        lambda a, p: (a["alternatives"][0].__setitem__("questions", [Q_CONVERSION]),
+                      a["alternatives"][0].__setitem__("keeps", [evidence_id(p, "instruction")]))),
+        "is not wording of its own questions"),
+    "a keep_baseline alternative that keeps only the proposal": (_mutated(
+        lambda a, p: a["alternatives"][0].update(approach="keep_baseline",
+                                                 keeps=[evidence_id(p, "proposed_wording", question_id=Q_CONVERSION)])),
+        "must keep the baseline wording"),
+    "an accept_proposal alternative that keeps no proposal-side item": (_mutated(
+        lambda a, p: a["alternatives"][0].update(approach="accept_proposal")), "keeps no proposal-side item"),
     "two concerns with one title": (_mutated(
         lambda a, p: a["concerns"][1].__setitem__("title", a["concerns"][0]["title"])), "share the title"),
     "intent stated for a preserved concern": (_mutated(
         lambda a, p: a["concerns"][1].__setitem__("intent", "not_established")), "intent applies only"),
-    "an alternative with one question": (_mutated(
-        lambda a, p: a["alternatives"][0].__setitem__("questions", [Q_CONVERSION])), "at least 2"),
     "an empty concern list without a reason": (_mutated(
         lambda a, p: (a.__setitem__("concerns", []), a.__setitem__("no_concern_reason", None))), "no_concern_reason"),
+    "the retired approach name": (_mutated(
+        lambda a, p: a["alternatives"][0].__setitem__("approach", "retain")), "retain"),
 }
 
 
@@ -331,31 +421,44 @@ def test_the_owner_refuses_an_answer_that_states_a_basis_the_evidence_does_not_s
 def test_the_instruction_names_every_field_value_and_limit_the_owner_enforces(project):
     from auteur.beginner import studio_architecture_consequence as module
 
-    for field in ("schema_version", "reading", "concerns", "no_concern_reason", "prospective", "alternatives",
-                  "not_established", "title", "status", "earlier", "proposed", "evidence", "intent", "counterevidence",
-                  "competing_reading", "kind", "approach", "questions", "gains", "costs", "next_investigation"):
+    for field in ("schema_version", "reading", "reach", "concerns", "no_concern_reason", "mechanisms", "inheritance",
+                  "trajectories", "alternatives", "not_established", "title", "status", "earlier", "proposed", "evidence",
+                  "intent", "counterevidence", "competing_reading", "approach", "questions", "keeps", "gains", "costs",
+                  "next_investigation", "conditional_consequence", "transformation", "unresolved", "steps", "stage",
+                  "basis", "assumptions", "comparison", "from", "to"):
         assert field in _SYSTEM, field
-    # The evidence rules the owner enforces are stated to the agent, so a refusal is never a surprise (the first exercise
-    # answer was refused for a rule the instruction did not state).
-    flat = " ".join(_SYSTEM.split())
-    for rule in ("preserved needs at least one cited item", "introduced needs at least one proposed_wording",
-                 "possibly_displaced needs at least one baseline_wording", "transformed needs at least one earlier-side item",
-                 "AND at least one proposed-side item", "recorded_relationship", "Concern titles are distinct"):
+    # The evidence rules the owner enforces are stated to the agent, so a refusal is never a surprise.
+    flat = " ".join(_SYSTEM.split()).lower()
+    for rule in ("preserved needs at least one cited item", "introduced needs a proposed_wording",
+                 "possibly_displaced needs an earlier-side item", "transformed needs an earlier-side item",
+                 "concern titles are distinct", "mechanism readings cite distinct mechanisms",
+                 "required for transformed, removed and introduced", "a step with basis recorded must cite a recorded item",
+                 "a working_book title never supports a recorded or plausible inheritance"):
         assert rule in flat, rule
     for value in ("preserved", "transformed", "possibly_displaced", "introduced", "instruction_names_it",
-                  "selected_alternative_names_it", "not_established", "recorded_relationship", "proposed_possibility",
-                  "replace", "integrate", "separate", "retain", "defer", "reframe"):
+                  "selected_alternative_names_it", "not_established", "removed", "historical",
+                  "keep_baseline", "accept_proposal", "replace", "integrate", "separate", "defer", "reframe",
+                  "local", "conditional_inheritance", "long_horizon", "recorded_inheritance", "plausible_inheritance",
+                  "proposed_inheritance", "unknown_inheritance", "local_decision", "mechanism_transformation",
+                  "tension", "opportunity", "inheritance", "recorded", "interpreted", "speculative"):
         assert value in _SYSTEM, value
+    # The approach names are the owner's table, and the retired name is not offered.
+    assert set(module.APPROACH_MEANINGS) == {"keep_baseline", "accept_proposal", "replace", "integrate", "separate",
+                                             "defer", "reframe"}
+    for name, meaning in module.APPROACH_MEANINGS.items():
+        assert meaning in _SYSTEM, name
     for limit in (module.READING_LIMIT, module.CONCERN_TITLE_LIMIT, module.CONCERN_READING_LIMIT,
-                  module.CONCERN_SIDE_LIMIT, module.COUNTER_LIMIT, module.PROSPECT_LIMIT, module.APPROACH_TITLE_LIMIT,
+                  module.CONCERN_SIDE_LIMIT, module.COUNTER_LIMIT, module.APPROACH_TITLE_LIMIT,
                   module.APPROACH_SUMMARY_LIMIT, module.APPROACH_GAINS_LIMIT, module.APPROACH_COSTS_LIMIT,
                   module.NEXT_LIMIT, module.NOT_ESTABLISHED_LIMIT, module.NO_CONCERN_LIMIT, module.MAX_CONCERNS,
-                  module.MAX_PROSPECTIVE, module.MAX_ALTERNATIVES):
+                  module.MAX_MECHANISM_READINGS, module.MAX_INHERITANCE, module.MAX_TRAJECTORIES,
+                  module.MAX_TRAJECTORY_STEPS, module.READING_ITEM_LIMIT, module.TRANSFORMATION_LIMIT,
+                  module.STEP_TEXT_LIMIT, module.INHERITANCE_TEXT_LIMIT):
         assert str(limit) in _SYSTEM, limit
     # The model, not only the prompt, enforces the same bound.
     with pytest.raises(ValueError):
-        ConsequenceAnswer.model_validate({"schema_version": 1, "reading": "x" * (module.READING_LIMIT + 1),
-                                          "concerns": [], "no_concern_reason": "none"})
+        module.ConsequenceAnswerV2.model_validate({"schema_version": 2, "reading": "x" * (module.READING_LIMIT + 1),
+                                                   "reach": "local", "concerns": [], "no_concern_reason": "none"})
 
 
 def test_an_alternative_is_investigated_on_its_own_continuing_questions_and_never_rebound(project):
@@ -364,9 +467,9 @@ def test_an_alternative_is_investigated_on_its_own_continuing_questions_and_neve
     alternative = projection["result"]["alternatives"][0]
     origin = {"request_sha256": projection["request_sha256"], "alternative_id": alternative["id"]}
     summary = consequence_origin(store, origin, list(alternative["questions"]))
-    assert summary["questions"] == [Q_CONVERSION, Q_COMPACT]
+    assert summary["questions"] == [Q_CONVERSION]
     with pytest.raises(ValueError, match="exactly the questions"):
-        consequence_origin(store, origin, [Q_CONVERSION])
+        consequence_origin(store, origin, [Q_COMPACT])
     with pytest.raises(ValueError, match="not completed|not recorded"):
         consequence_origin(store, {"request_sha256": "0" * 64, "alternative_id": "a1"}, [Q_CONVERSION, Q_COMPACT])
 
@@ -377,7 +480,7 @@ def test_an_alternative_whose_question_is_later_removed_is_refused_not_rebound(p
     projection = project_architecture_consequence(store)
     alternative = projection["result"]["alternatives"][0]
     origin = {"request_sha256": projection["request_sha256"], "alternative_id": alternative["id"]}
-    sha = propose(store, "Set the compact's settlement aside.", remove_compact)
+    sha = propose(store, "Set the conversion question aside.", remove_conversion)
     apply_architecture_review(store, sha)
     with pytest.raises(ValueError, match="no longer open"):
         consequence_origin(store, origin, list(alternative["questions"]))
@@ -389,9 +492,9 @@ def test_an_investigation_takes_one_origin_and_carries_the_alternative_it_came_f
     projection = project_architecture_consequence(store)
     alternative = projection["result"]["alternatives"][0]
     origin = {"request_sha256": projection["request_sha256"], "alternative_id": alternative["id"]}
-    intent = {"version": 1, "canvas_id": store.canvas_id, "operation": "compare", "target": "current",
+    intent = {"version": 1, "canvas_id": store.canvas_id, "operation": "explain", "target": "current",
               "expected_candidate_request_sha256": _candidate(store)["request_sha256"],
-              "anchors": [{"kind": "question", "id": Q_CONVERSION}, {"kind": "question", "id": Q_COMPACT}],
+              "anchors": [{"kind": "question", "id": Q_CONVERSION}],
               "author_text": alternative["next_investigation"], "from_consequence": origin}
     inquiry = prepare_architecture_inquiry(store, dict(intent))
     request = json.loads(inquiry["request"]["user"])

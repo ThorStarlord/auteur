@@ -1,0 +1,225 @@
+{
+  "schema_version": 2,
+  "reading": "The proposal changes one thing: the wording of the Book 20 conversion question. It no longer asks whether the hands-to-draw conversion is a lasting settlement or a stage the finale must revisit (E5). It asks whether the conversion reaches the shares the Mill Compact purchased, and marks the answer as not decided (E9). The instruction names this change and forbids deciding the answer (E1). The Compact-settlement question and the lowland-owing question keep their wording (E14, E18). The Architecture's mechanisms are identical on both sides. What shifts is which uncertainty the question carries into Books that cite it.",
+  "reach": "conditional_inheritance",
+  "concerns": [
+    {
+      "title": "The conversion question now asks who the conversion binds",
+      "status": "transformed",
+      "earlier": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "proposed": "Does the Book 20 hands-to-draw conversion reach the shares the Mill Compact purchased, or do those shares stay outside it? Not decided.",
+      "reading": "The same question identity now concerns the conversion's scope (whose shares it covers) rather than its permanence. The instruction asks for exactly this reframing and says not to decide it. The discovery origin reads purchased draw as the place where the Architecture is silent (E3).",
+      "evidence": ["E1", "E3", "E5", "E9"],
+      "intent": "instruction_names_it",
+      "counterevidence": ["E8 records Book 24 as treating the old wording as current, so the change is not known to match how Book 24 uses the question."],
+      "competing_reading": "The new wording could be read as an added sub-question about the same conversion, with durability still implied. The record shows only that the wording was replaced."
+    },
+    {
+      "title": "Whether the conversion is a lasting settlement",
+      "status": "possibly_displaced",
+      "earlier": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "reading": "The durability concern is not represented in the proposed wording of this question. The record does not say whether it was meant to be dropped, moved to another question, or left for later. Book 24 currently treats this wording as the one it makes concrete without answering (E8). The question has recorded identity only since revision 3, so no earlier history shows how durability was framed (E6, E7).",
+      "evidence": ["E5", "E6", "E7", "E8", "E9"],
+      "intent": "not_established",
+      "counterevidence": ["E9 states only that reach is not decided; it does not say durability is closed.", "E1 names only the reach reworking and says to change nothing else, so no instruction speaks to durability."],
+      "competing_reading": "Durability may be answered indirectly by whichever finale mechanism the author chooses, so it need not need a question of its own."
+    },
+    {
+      "title": "Compact settlement question stays as recorded",
+      "status": "preserved",
+      "reading": "The question about the Compact accepting grain-labour and the Gate Table's reach is word for word the same, and Book 24's decision on it is unchanged. It now sits beside a conversion question that also concerns the Compact, so the two may be read together. Whether they must be is the author's choice.",
+      "evidence": ["E10", "E13", "E14"]
+    },
+    {
+      "title": "Lowland-owing question stays as recorded",
+      "status": "preserved",
+      "reading": "What the lowland towns owe Ammen, and what Ammen owes them, is unchanged. The discovery origin says either answer to the reach question would change what lowland parties owe. That is an interpretation in the origin, not a recorded dependency.",
+      "evidence": ["E3", "E15", "E18"]
+    },
+    {
+      "title": "Purchased draw may owe hands: a new uncertainty",
+      "status": "introduced",
+      "proposed": "Does the Book 20 hands-to-draw conversion reach the shares the Mill Compact purchased, or do those shares stay outside it? Not decided.",
+      "reading": "The Architecture records that purchased shares draw without return labour (E78, E33). The proposed wording makes it an open question whether the conversion's hands-owed logic applies to those shares. The record does not give either answer. Either answer would be a deliberate choice about the Compact's status.",
+      "evidence": ["E9", "E33", "E78"],
+      "counterevidence": ["E54 records the conversion as reducing a household's draw, which may mean it was written only for households."],
+      "competing_reading": "If the shares stay outside the conversion, the recorded exemption simply holds and the new wording only makes the boundary explicit."
+    }
+  ],
+  "mechanisms": [
+    {
+      "evidence": "E54",
+      "reading": "The recorded link from Hands and draw to the Ledger says hands a household cannot return reduce its draw from Book 20. It is the mechanism the reworded question is about.",
+      "transformation": "The link is unchanged. The proposal bears on it by asking how far its subject (household shares) extends.",
+      "conditional_consequence": "if the conversion reaches purchased shares, the link's wording would need to cover non-household holders.",
+      "counterevidence": [{"text": "The link names a household, and purchased draw is recorded as carrying no return labour.", "evidence": ["E78"]}],
+      "unresolved": ["Whether the conversion applies to shares that were bought rather than held by households."]
+    },
+    {
+      "evidence": "E78",
+      "reading": "The record says the Mill Compact's purchased shares draw without return labour. This is the recorded behaviour the reach question tests against the conversion.",
+      "transformation": "The record is unchanged. The proposal puts it in doubt for Book 20 onward, since a conversion reaching it would be a limit on it.",
+      "conditional_consequence": "if the conversion reaches the Compact's shares, the Compact would carry an unreturned-hands balance that the Architecture does not currently record.",
+      "counterevidence": [{"text": "The conversion link names a household, which may mean it was never written to reach purchased shares.", "evidence": ["E54"]}],
+      "unresolved": ["Whether the exemption from return labour lasts after Book 20."]
+    },
+    {
+      "evidence": "E53",
+      "reading": "Under finale Alternative B, purchased draw owes grain-labour to the rebuild. It is the only recorded in-kind route for the Compact's hands.",
+      "transformation": "Unchanged. Its relevance to the conversion question is an interpretation.",
+      "conditional_consequence": "if the conversion reaches the Compact's shares, grain-labour could be read as the Compact's way to meet it, but only if Alternative B or C is chosen.",
+      "counterevidence": [{"text": "Book 24 records Oona's grain-labour offer as neither accepted nor refused, so the in-kind route is not settled.", "evidence": ["E13"]}],
+      "unresolved": ["Whether the Compact accepts grain-labour, which Book 24 leaves neither accepted nor refused (E13)."]
+    },
+    {
+      "evidence": "E44",
+      "reading": "Hands and draw is called the series' governing variable and says each finale mechanism answers it differently. The reworded question narrows one part of it: who is counted for draw after Book 20.",
+      "transformation": "Unchanged. The proposal moves the open question inside this thread from the conversion's permanence to its reach.",
+      "counterevidence": [{"text": "The thread already leaves the answer to the finale mechanism, so a reach answer may not need to come earlier.", "evidence": ["E26", "E27"]}],
+      "unresolved": ["Whether the reach answer must be settled before the finale mechanism is chosen."]
+    },
+    {
+      "evidence": "E26",
+      "reading": "Alternative A decouples draw from hands and counts care without owing anything. Under A, a conversion reaching the Compact's shares would carry no later force.",
+      "transformation": "Unchanged. The proposal makes the finale choice matter to a question that previously asked only about permanence.",
+      "conditional_consequence": "if A is chosen, the reach answer may only describe Books 20 to the finale and not the finale itself.",
+      "counterevidence": [{"text": "Alternative C has normal seasons follow A, so A's decoupling may hold only in calm seasons if C is chosen.", "evidence": ["E51"]}],
+      "unresolved": ["Which finale mechanism the author chooses."]
+    },
+    {
+      "evidence": "E27",
+      "reading": "Alternative B records that hands are owed in proportion to draw and that a shortfall is a deficit in the window. It would make the reach question concrete for every share, purchased or not.",
+      "transformation": "Unchanged. The proposal raises its relevance to the Compact.",
+      "conditional_consequence": "if B is chosen, the conversion's reach to purchased shares may be settled by B's own proportional rule.",
+      "counterevidence": [{"text": "Alternative C activates B's rota only at a ratified threshold, so B's rule may apply only within a window.", "evidence": ["E52"]}],
+      "unresolved": ["Whether B's proportional rule applies to purchased shares."]
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "plausible_inheritance",
+      "from": "E5",
+      "to": "E8",
+      "text": "Book 24's decision cites this question and records the old wording as current. It makes the conversion concrete without answering it. Whether Book 24's treatment fits the reach wording is an interpretation, and E8 shows the Book's decision is recorded as reworded.",
+      "evidence": ["E5", "E8", "E9"]
+    },
+    {
+      "kind": "plausible_inheritance",
+      "from": "E44",
+      "to": "E95",
+      "text": "A Book 24 element records the conversion's blind spot as public: counted hands only, so uncounted labour by hand-light households cannot restore draw. It cites Hands and draw. Whether it bears on the reach question is an interpretation.",
+      "evidence": ["E44", "E95"]
+    },
+    {
+      "kind": "proposed_inheritance",
+      "from": "E53",
+      "to": "E13",
+      "text": "Proposed, not recorded: Book 24's decision about Oona's grain-labour offer to the Compact could be where the reach question is first met, because both concern what the Compact owes.",
+      "evidence": ["E13", "E53"]
+    },
+    {
+      "kind": "unknown_inheritance",
+      "from": "E33",
+      "to": "E25",
+      "text": "Book 25 is listed by title only and its decisions on these questions were not read. The record does not show whether it carries the conversion question or the Compact's status.",
+      "evidence": ["E25", "E33"]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "The conversion is answered as reaching the Compact's shares",
+      "steps": [
+        {"stage": "local_decision", "text": "The author answers the reworded question yes: purchased shares fall under the Book 20 conversion.", "evidence": ["E9"], "basis": "speculative"},
+        {"stage": "mechanism_transformation", "text": "The record that purchased draw carries no return labour would then conflict with the conversion and need a stated change.", "evidence": ["E78", "E54"], "basis": "interpreted"},
+        {"stage": "tension", "text": "The Compact's unreturned hands would need a settlement. Grain-labour is recorded only under Alternative B.", "evidence": ["E53", "E2"], "basis": "interpreted"},
+        {"stage": "inheritance", "text": "Book 24's grain-labour decision could take on more weight if the author wants the two questions linked.", "evidence": ["E13"], "basis": "speculative"}
+      ],
+      "assumptions": ["The author wants the Compact brought under the conversion.", "A finale mechanism that gives grain-labour force is chosen."],
+      "comparison": {
+        "creative_gain": "Lowland parties and households would stand under one rule.",
+        "narrative_cost": "The Compact's recorded exemption would need an explanation.",
+        "contrivance_risk": "Grain-labour could look like a convenient fix if added late.",
+        "future_commitment": "The finale choice gains weight, since Alternative A would void it.",
+        "flexibility": "Reduced for later Books that rely on the exemption."
+      }
+    },
+    {
+      "title": "The conversion is answered as binding households only",
+      "steps": [
+        {"stage": "local_decision", "text": "The author answers that the Compact's shares stay outside the conversion.", "evidence": ["E9"], "basis": "speculative"},
+        {"stage": "mechanism_transformation", "text": "The recorded exemption for purchased draw holds, and the conversion keeps its household scope.", "evidence": ["E78", "E54"], "basis": "interpreted"},
+        {"stage": "tension", "text": "Households bear the cost of counting that the Compact does not, which sharpens the loss recorded for hand-light households.", "evidence": ["E37", "E3"], "basis": "interpreted"},
+        {"stage": "opportunity", "text": "The lowland-owing question could be answered asymmetrically: the lowlands owe less, and the valley's households owe more.", "evidence": ["E18"], "basis": "speculative"}
+      ],
+      "assumptions": ["The author accepts an asymmetric burden between households and the Compact."],
+      "comparison": {
+        "creative_gain": "A sharper cost of counting for households.",
+        "narrative_cost": "Fewer reasons for the Compact to engage with the rebuild.",
+        "future_commitment": "Alternative B's grain-labour clause would carry the full burden of the Compact's contribution."
+      }
+    },
+    {
+      "title": "Reach stays open and durability returns later",
+      "steps": [
+        {"stage": "local_decision", "text": "The reach question stays marked as not decided, as the proposal's wording says.", "evidence": ["E9"], "basis": "interpreted"},
+        {"stage": "inheritance", "text": "Book 24's decision on this question is recorded as reworded, so the Book carries the open reach question.", "evidence": ["E8"], "basis": "recorded"},
+        {"stage": "opportunity", "text": "The author could restate the durability concern as its own question when the finale mechanism is chosen.", "basis": "speculative"}
+      ],
+      "assumptions": ["The author wants both concerns kept and has not yet ordered them."]
+    }
+  ],
+  "alternatives": [
+    {
+      "approach": "keep_baseline",
+      "title": "Keep the durability question as recorded",
+      "summary": "Keep the baseline wording asking whether the conversion is a lasting settlement or a stage the finale must revisit. The reach change is not adopted, and reach is left to the Compact-settlement question.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E5"],
+      "mechanisms": ["E54", "E44"],
+      "gains": "Matches the wording Book 24 currently treats as current, and keeps durability visible.",
+      "costs": "Leaves the instruction's reach question unasked, so purchased shares stay unaddressed.",
+      "next_investigation": "Check whether Book 24's decision depends on the durability wording or only on the conversion itself."
+    },
+    {
+      "approach": "accept_proposal",
+      "title": "Accept the reach wording and its displacement",
+      "summary": "Accept the proposed wording that asks whether the conversion reaches the Compact's purchased shares. The displacement of the durability concern is recorded as accepted, not resolved.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E9"],
+      "mechanisms": ["E78", "E54", "E53"],
+      "gains": "Names the unaddressed gap around purchased draw and ties the Compact to the conversion.",
+      "costs": "Durability has no wording of its own, and Book 24's decision must be read against a new question.",
+      "next_investigation": "Read Book 25's decisions, which were not read, and check where Book 24 uses the old wording."
+    },
+    {
+      "approach": "integrate",
+      "title": "Hold conversion and Compact settlement together",
+      "summary": "Develop the conversion question and the Compact-settlement question as one development, answered together. The combined development gives up the ability to settle the conversion without deciding what the Compact owes.",
+      "questions": ["q-conversion-settlement", "q-compact-settlement"],
+      "keeps": ["E5", "E10"],
+      "mechanisms": ["E53", "E78"],
+      "gains": "One answer can cover reach, grain-labour and the Gate Table's schedule.",
+      "costs": "Ties two decisions that Book 24 currently keeps apart and could crowd out durability.",
+      "next_investigation": "Check how Book 24's two decisions on these questions relate."
+    },
+    {
+      "approach": "separate",
+      "title": "Split durability from reach",
+      "summary": "Keep durability as the named question and describe reach to purchased shares as a distinct new question, not given an identity. If one approach is favoured here, this one keeps the recorded concern and adds the one the instruction asks to open.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E5"],
+      "mechanisms": ["E54", "E78", "E44"],
+      "gains": "Neither concern is displaced, and the answers can be developed in different Books.",
+      "costs": "Adds a question and a link to track, and goes beyond the single-wording change the instruction names.",
+      "next_investigation": "Decide where the new reach question would be recorded and which Books cite it."
+    }
+  ],
+  "not_established": [
+    "Whether the conversion reaches the Compact's purchased shares; E9 marks it not decided.",
+    "Whether dropping the durability wording was intended; E1 names only the reach rewording.",
+    "Whether Book 25 carries any of these questions; its decisions were not read (E25).",
+    "Whether the Compact accepts grain-labour; E13 records the offer as neither accepted nor refused.",
+    "Whether E2's reading that grain-labour answers the conversion is an author choice; E2 says it goes beyond what is recorded.",
+    "Most Working Book elements were not shown, so no claim is made that other Books are unaffected."
+  ]
+}

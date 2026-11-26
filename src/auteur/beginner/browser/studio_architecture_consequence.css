@@ -40,6 +40,40 @@
 #architecture-consequence .consequence-status-possibly_displaced { border-left-color: #b87a1e; }
 #architecture-consequence .consequence-status-introduced { border-left-color: #2e7d6e; }
 #architecture-consequence .consequence-status-preserved { border-left-color: #7b9e6b; }
+/* Version 2: recorded mechanisms, inheritance and hypothetical trajectories. Provenance is a label the owner wrote, not a colour
+   that judges the proposal; each chip carries its words. */
+#architecture-consequence .consequence-reach { margin: 6px 0; font-weight: 600; color: #3b2a4d; }
+#architecture-consequence .consequence-mechanisms,
+#architecture-consequence .consequence-inheritances,
+#architecture-consequence .consequence-trajectories,
+#architecture-consequence .consequence-steps { list-style: none; padding: 0; margin: 6px 0; }
+#architecture-consequence .consequence-mechanism,
+#architecture-consequence .consequence-inheritance,
+#architecture-consequence .consequence-trajectory { padding: 8px 10px; margin: 6px 0; border-left: 3px solid #b9a6cc;
+  background: #fff; border-radius: 0 6px 6px 0; }
+#architecture-consequence .consequence-mechanism-details summary { font-weight: 600; }
+#architecture-consequence .consequence-provenance-preserved { border-left-color: #7b9e6b; }
+#architecture-consequence .consequence-provenance-transformed { border-left-color: #b87a1e; }
+#architecture-consequence .consequence-provenance-removed { border-left-color: #9b3d3d; }
+#architecture-consequence .consequence-provenance-introduced { border-left-color: #2e7d6e; }
+#architecture-consequence .consequence-provenance-historical { border-left-color: #8a8a8a; }
+#architecture-consequence .consequence-inheritance-unknown_inheritance { border-left-style: dashed; }
+#architecture-consequence .consequence-inheritance-proposed_inheritance { border-left-style: dotted; }
+#architecture-consequence .consequence-hypothetical { border-style: dashed; color: #5b3d00; background: #fff8ec; }
+#architecture-consequence .consequence-trajectory { border-left-style: dashed; }
+#architecture-consequence .consequence-step { margin: 6px 0; }
+#architecture-consequence .consequence-basis-speculative p { font-style: italic; color: #4a3d57; }
+#architecture-consequence .consequence-conditional { color: #5b3d00; }
+#architecture-consequence .consequence-transformation,
+#architecture-consequence .consequence-recorded,
+#architecture-consequence .consequence-unresolved,
+#architecture-consequence .consequence-keeps,
+#architecture-consequence .consequence-from,
+#architecture-consequence .consequence-to,
+#architecture-consequence .consequence-assumptions,
+#architecture-consequence .consequence-comparison { font-size: .9rem; color: #4a3d57; overflow-wrap: anywhere; }
+#architecture-consequence .consequence-comparison,
+#architecture-consequence .consequence-assumptions { margin: 6px 0; padding-left: 18px; }
 @media (max-width: 480px) {
   #architecture-consequence { padding: 12px; }
   #architecture-consequence ul { padding-left: 16px; }

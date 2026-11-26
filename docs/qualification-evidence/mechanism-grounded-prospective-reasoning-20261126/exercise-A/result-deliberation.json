@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "analysis": "Interpretation, not graph proof. The three selected questions are three different things. q-conversion-settlement asks whether the Book 20 hands-to-draw conversion is lasting or a stage the finale revisits. q-compact-settlement asks whether the Compact takes grain-labour for settling its claim, and whether the Gate Table's schedule reaches its lowland draw. q-other-1 asks what the lowland towns and Ammen owe each other. Your request is a traced path (one Compact share, Book 6 to Book 20, then a household's outcome). It touches the first two questions directly and the third only as background. The recorded history gives no basis for treating the three as one question or as causally linked.\n\nThe path as recorded. In Book 6 shares become tradable (l_ledger_opens_trade), and a purchased share draws on the spring without return labour (l_trade_draws_without_return). From Book 20 draw is partly set by hands owed, and hands a household cannot return reduce its draw (l_tally_counts_hands, l_conversion_sets_draw). The graph does not say whether a Compact-held share is subject to that conversion. The Compact's purchased draw is described as carrying no return labour, and the conversion is described in terms of households. That gap is what the discovery possibility p3 asks, and it is the first thing the scene needs. Until you decide it, the share can be followed to Book 19 but not honestly through Book 20. Both ways of closing it below are interpretations for you to choose between.\n\nThe two outcomes. I read 'both outcomes' as the finale Alternatives A and B, because pastoral_belonging's payoff expectation names exactly a household's care 'counted without being owed under A, or owed within a bounded window under B'. Neither is chosen; q-finale-mechanism is open. If you meant something else, for example the household accepting versus declining the share, the structure below changes.\n- Under A (alt_a_reciprocal, l_alt_a_decouples), draw is decoupled from hands and care is counted but nothing is owed. A declining household keeps its water. What it loses is standing in a tally that nobody is bound by. The Compact share is unaffected by the conversion because the conversion no longer binds. The cost is mostly social and the tension is the Compact's unhanded lowland draw, which A names as a failure mode.\n- Under B (alt_b_allotted, l_alt_b_bounds, l_compact_hands_in_kind), hands are owed in proportion to draw and, inside the rebuild window, a shortfall is a deficit to repay rather than a cut. The Compact owes grain-labour to the rebuild. The declining household carries a repayable deficit instead of losing water. The two contrast sharply on one point: the household's debt is a deficit under B and nothing under A, while the Compact's debt is in kind under B and none under A.\n\nA conflict to resolve in the scene. str_declined_share is recorded as a Book 21 exit that forfeits the share, so its water goes wild down the lowest Lowfen terrace. That is Book 21 and precedes the finale, so it sits before either Alternative applies. A household 'declining' after the Book 20 conversion therefore meets the Book 20 rule first and the finale rule second. The scene can show that sequence, but the graph does not say what the household's state is between Book 21 and the finale mechanism. I have not filled that in.\n\nRecorded versus decided. The Book 24 co-reference of dec-compact-settlement and dec-conversion-settlement is a recorded co-reference only. Book 24 states that it makes the conversion concrete without answering it, and says Oona's offer is neither accepted nor refused. Nothing recorded shows the two questions to be linked in the story. A scene that follows the share through both rests on your decision to link them, not on a recorded relationship. Keeping q-conversion-settlement and q-compact-settlement independent is also a legitimate outcome: the household's two outcomes can be written without deciding whether the Compact accepts grain-labour, by leaving the Compact's side of the share explicitly open in each.\n\nReader effect. et_cost_of_counting targets grief that a household's water is cut for hands it cannot return, with dignity for the family. A is weaker on that target because nothing is cut. B retains it in a softened, repayable form. This is an interpretation of effect, not something the graph guarantees.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Current wording (index 5), introduced at revision 3 with an author instruction to give each open question a stable identity: whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit. It is open. Earlier revisions record no identity, so there is a named gap before revision 3.",
+      "sourceRef": "open_questions/5",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Current wording (index 6) asks whether the Compact accepts grain-labour for settling its claim and whether the Gate Table's schedule reaches its lowland draw, and is marked not decided. Book 24's decision records that Oona's offer is neither accepted nor refused. The identity match to Book 24 was resolved by the Book owner from the recorded version, not asserted by the author.",
+      "sourceRef": "open_questions/6",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-other-1",
+      "claim": "Current wording (index 1) asks what the lowland towns owe Ammen and what Ammen owes them. No Book decision refers to it, so no recorded history ties it to the other two selected questions.",
+      "sourceRef": "open_questions/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_trade_draws_without_return",
+      "claim": "Recorded function: purchased shares draw without return labour (inst_mill_compact to eng_source). This is the Compact's side of the share from Book 6 on.",
+      "sourceRef": "links/4",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded function: hands a household cannot return reduce its draw (Book 20), running from th_hands_and_draw to eng_ledger. The recorded text speaks of households and does not state whether a Compact-held share is subject to it.",
+      "sourceRef": "links/17",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "Recorded function: under B, purchased draw owes grain-labour to the rebuild (inst_mill_compact to th_maintenance). The link exists only for B.",
+      "sourceRef": "links/27",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "str_declined_share",
+      "claim": "Recorded as a household's exit from the rota in Book 21. It forfeits its share, its water goes wild down the lowest Lowfen terrace, and this is a physical cost, not the act of a villain.",
+      "sourceRef": "nodes/13",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "genre_contract",
+      "id": "gn_pastoral_belonging",
+      "claim": "One recorded payoff expectation: a household's care is counted without being owed under A, or owed within a bounded window under B. This is the recorded basis for reading the two outcomes as A and B.",
+      "sourceRef": "genre_contracts/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "title": "The Compact share is exempt from the conversion",
+      "description": "Read the conversion as binding households only, so the Compact's purchased draw stays free of return labour through Book 20. The household then declines against a neighbour whose draw is untouched. This sharpens the pastoral tension that unshared draw erodes belonging, and under B it makes the Compact's grain-labour the first point at which the share is bound at all.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h2",
+      "title": "The Compact share is brought under the conversion",
+      "description": "Read the conversion as setting draw by hands owed for every share, so the Compact must meet it with something other than hands. Grain-labour is the in-kind answer already present in B. Under A it has no force, which shows how much weight the finale choice carries. This answers the Book 20 conversion question for the Compact's share and so goes beyond what is recorded.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h3",
+      "title": "Under A the household loses standing, under B it carries a debt",
+      "description": "A reading of the contrast. A turns the household's cost into recognition in a tally nobody is bound by. B turns it into a repayable deficit inside a bounded window. The two outcomes would then differ in the kind of harm (standing versus obligation) rather than its size. Whether the scene achieves this depends on how the household is written.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h4",
+      "title": "Keep the two questions independent",
+      "description": "Write the share's path and both outcomes while leaving q-compact-settlement open, treating the Compact's acceptance as unresolved in each outcome. The household's outcomes stay fully writable and the Book 24 co-reference stays only a co-reference. This is a legitimate result if you do not want the scene to answer the Compact's question.",
+      "divergence_axis": null
+    }
+  ],
+  "uncertainties": [
+    "Whether 'both outcomes' means finale Alternatives A and B, or the household accepting versus declining; I assumed A and B from the pastoral payoff expectation.",
+    "Whether the household that is 'declining' is one in decline (losing hands) or one that declines its share; Book 21 records only the latter as str_declined_share.",
+    "Whether a Compact-held share is subject to the Book 20 conversion; the graph is silent and p3 raises exactly this.",
+    "What the household's state is between its Book 21 exit and whichever finale mechanism is eventually chosen.",
+    "q-finale-mechanism is open, so neither A nor B (nor C) is accepted; both outcomes are working proposals.",
+    "Book 24 records both Compact and conversion decisions together but does not say they are related in the story; any link between them would be your decision.",
+    "q-other-1 (what the lowland towns owe Ammen) has no recorded connection to the other two; I used it only as background.",
+    "The request text I received for the working Architecture was truncated near the end of the open-question list, so I did not read the remaining open questions and may have missed one that bears on the household."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": null,
+  "inquiry_target": "current",
+  "intent": {
+    "anchors": [
+      {
+        "authority": "working_noncanonical",
+        "id": "q-conversion-settlement",
+        "index": 5,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-conversion-settlement\", \"text\": \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\"}",
+        "sourceRef": "open_questions/5",
+        "title": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "q-compact-settlement",
+        "index": 6,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-compact-settlement\", \"text\": \"Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.\"}",
+        "sourceRef": "open_questions/6",
+        "title": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "q-other-1",
+        "index": 1,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-other-1\", \"text\": \"What do the lowland towns owe Ammen, and what does Ammen owe them?\"}",
+        "sourceRef": "open_questions/1",
+        "title": "What do the lowland towns owe Ammen, and what does Ammen owe them?"
+      }
+    ],
+    "author_text": "Follow one Compact share from Book 6 through the Book 20 conversion and write both outcomes for a declining household.",
+    "between": {
+      "relations": [],
+      "status": "not_applicable"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "compare",
+    "recorded_relations": [],
+    "target": "current",
+    "version": 1
+  },
+  "from_discovery": {
+    "possibility_id": "p3",
+    "possibility_sha256": "d604c7876b062b404374b216714c14d35e8aa7221f497cc45403bdbd85502b06",
+    "request_sha256": "46138b5acbfe46077aefcf4069978d16e18810390b23c251f16803a153de53e5",
+    "status_at_transfer": "transferable",
+    "title": "Does the Book 20 conversion reach the Compact's purchased draw?"
+  },
+  "deliberation": {
+    "authority": "recorded_history_noncanonical",
+    "basis_legend": {
+      "book_decision": "A Working Book decision that refers to the question. It is a noncanonical working proposal; identity_basis says whether the decision names the question itself or the Book owner resolved it from the version the decision names.",
+      "current_wording": "The working Architecture's wording of the question now.",
+      "named_gap": "History or a Book that could not be read, or is incomplete. It must not be filled in.",
+      "recorded_absence": "A readable applied version in which the question was not recorded.",
+      "recorded_change": "A change in recorded wording, judged only against the readable version before it.",
+      "recorded_co_reference": "Two or more selected questions are referred to by one Book. This is a recorded reference, not a relationship in the story.",
+      "recorded_reason": "The author's own revision instruction for that version. It says what was asked, not that the consequence was achieved.",
+      "recorded_selected_alternative": "An alternative a coding agent proposed earlier and the author chose. It is a historical interpretation.",
+      "recorded_wording": "A formulation one applied version recorded, with no change claimed for it."
+    },
+    "co_references": [
+      {
+        "authority": "recorded_reference",
+        "basis": "recorded_co_reference",
+        "book_number": 24,
+        "decision_ids": [
+          "dec-compact-settlement",
+          "dec-conversion-settlement"
+        ],
+        "note": "This Book records decisions about these questions. It does not say they are related in the story.",
+        "question_ids": [
+          "q-compact-settlement",
+          "q-conversion-settlement"
+        ],
+        "title": "The Uncounted Crew"
+      }
+    ],
+    "current_architecture": {
+      "history_chain_complete": true,
+      "numbered": true,
+      "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "revision_count": 3,
+      "revision_number": 3
+    },
+    "evidence_sha256": "ef07ba12b8a27fcbba008fe8bd1a3e05166e0161b8cb8d220b0a72ea48d5dfa9",
+    "limits": {
+      "book_decisions_per_question": 4,
+      "history_items_per_question": 4,
+      "omitted": {
+        "q-compact-settlement": {
+          "book_decisions": 0,
+          "history_items": 0
+        },
+        "q-conversion-settlement": {
+          "book_decisions": 0,
+          "history_items": 0
+        },
+        "q-other-1": {
+          "book_decisions": 0,
+          "history_items": 0
+        }
+      },
+      "questions": 3,
+      "reason_characters": 400,
+      "text_characters": 600
+    },
+    "named_gaps": [],
+    "note": "These items are the recorded history of the selected open questions, read through the owners. Identity continuity is what the Architecture recorded; it does not establish that two wordings are semantically the same. Nothing here settles a question or states a story relationship.",
+    "questions": [
+      {
+        "books": [
+          {
+            "authority": "working_book_proposal_noncanonical",
+            "basis": "book_decision",
+            "book_number": 24,
+            "book_request_sha256": "32d864f027da3550eeee1466d4c50a8ab65976ea54847f5c2266b574841bc8bb",
+            "current": {
+              "index": 5,
+              "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+            },
+            "decision_id": "dec-conversion-settlement",
+            "decision_text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+            "decision_text_sha256": "f651d305ef08a234b4576345047b4a6d076749c678d920cdaa850cc1dd19e5af",
+            "identity_basis": "resolved_by_owner_from_recorded_version",
+            "recorded": {
+              "index": 5,
+              "revision_number": 3,
+              "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+              "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+            },
+            "state": "current_wording",
+            "title": "The Uncounted Crew"
+          }
+        ],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 5,
+          "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+          "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5"
+        },
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 5,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+            "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-conversion-settlement",
+        "index": 5
+      },
+      {
+        "books": [
+          {
+            "authority": "working_book_proposal_noncanonical",
+            "basis": "book_decision",
+            "book_number": 24,
+            "book_request_sha256": "32d864f027da3550eeee1466d4c50a8ab65976ea54847f5c2266b574841bc8bb",
+            "current": {
+              "index": 6,
+              "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+            },
+            "decision_id": "dec-compact-settlement",
+            "decision_text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+            "decision_text_sha256": "5d51f43757125f5e0d69b473782286c9718276f64d40e0e596c2593455ce90d6",
+            "identity_basis": "resolved_by_owner_from_recorded_version",
+            "recorded": {
+              "index": 6,
+              "revision_number": 3,
+              "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+              "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+            },
+            "state": "current_wording",
+            "title": "The Uncounted Crew"
+          }
+        ],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 6,
+          "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+          "text_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46"
+        },
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 6,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+            "text_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-compact-settlement",
+        "index": 6
+      },
+      {
+        "books": [],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 1,
+          "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+          "text_sha256": "e378f70321145594e99926f715e406835f99089d9ae2398b43ac1c606fa8534e"
+        },
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 1,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+            "text_sha256": "e378f70321145594e99926f715e406835f99089d9ae2398b43ac1c606fa8534e",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-other-1",
+        "index": 1
+      }
+    ],
+    "schema": "studio-question-deliberation/1"
+  },
+  "deliberation_standing": [
+    {
+      "book_number": 24,
+      "decision_id": "dec-conversion-settlement",
+      "question_id": "q-conversion-settlement",
+      "standing": "current"
+    },
+    {
+      "book_number": 24,
+      "decision_id": "dec-compact-settlement",
+      "question_id": "q-compact-settlement",
+      "standing": "current"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "schema_version": 2,
+  "reading": "The proposal rewrites one relation, Mill Compact to Keeping the channels (E3, E11). Before, purchased draw owed grain-labour to the rebuild only under Alternative B. After, it owes it in every season, whatever finale is chosen. E1 says nothing else changes and no finale is decided. Read plainly, the Compact's labour duty moves from one unchosen finale option into the baseline world. That sits beside records that still say the Compact's purchased draw carries no return labour (E19, E63), so the proposal may sharpen a tension with those retained statements rather than settle it.",
+  "reach": "conditional_inheritance",
+  "concerns": [
+    {
+      "title": "Compact's return duty becomes unconditional",
+      "status": "transformed",
+      "earlier": "Under B, purchased draw owes grain-labour to the rebuild.",
+      "proposed": "Purchased draw owes grain-labour to the rebuild in every season.",
+      "reading": "The relation keeps its identifier and its target, but its scope widens from a conditional on one finale option to a standing duty. Interpretation: the Compact moves from an outside buyer who draws without labour toward a party with a continuing obligation to the commons. The recorded text does not say what grain-labour does for the spring.",
+      "evidence": ["E1", "E3", "E11"],
+      "intent": "instruction_names_it",
+      "counterevidence": ["The change is one relation's function text; no node, question or other relation changes (E1)."],
+      "competing_reading": "The wording change may only generalise a clause already implied in the Compact's settlement, without changing how the Compact is staged."
+    },
+    {
+      "title": "Compact draws without return labour",
+      "status": "possibly_displaced",
+      "earlier": "Purchased shares draw without return labour; the Compact's purchased draw carries no return labour.",
+      "reading": "These records remain exactly as before while the changed relation now says purchased draw owes grain-labour every season. They may be read together (no labour at purchase, a later duty) or as a contradiction. The record does not say which the author intends.",
+      "evidence": ["E63", "E19", "E5", "E11"],
+      "intent": "not_established",
+      "counterevidence": ["E1 asks that every other relation stay as it is, so the retained wording may be a deliberate boundary and not an oversight."],
+      "competing_reading": "'Without return labour' may describe the Book 6 purchase moment, and the new duty a later, separate obligation, so both stand."
+    },
+    {
+      "title": "Grain-labour as B's distinguishing clause",
+      "status": "possibly_displaced",
+      "earlier": "Alternative B lists grain-labour from the Compact as one of its own features.",
+      "reading": "If the duty applies in every season, grain-labour is no longer something only B brings. B may then be defined by its binding rota, lot-drawn Table and sunset. The Book 30 phase still says the Compact's settlement is a clause of B or C, which the new relation may leave out of step.",
+      "evidence": ["E13", "E8", "E11"],
+      "intent": "not_established",
+      "counterevidence": ["B remains recorded unchanged, so its grain-labour clause is still present (E13)."]
+    },
+    {
+      "title": "Alternative A's 'nothing is owed' alongside a Compact duty",
+      "status": "possibly_displaced",
+      "earlier": "Under A, draw is decoupled from hands; care is counted and nothing is owed.",
+      "reading": "A is not chosen. If A were chosen, a standing Compact duty would be an obligation that A's wording says does not exist. Whether A's 'nothing is owed' covers outside buyers or only the valley's households is not recorded.",
+      "evidence": ["E35", "E12", "E11"],
+      "intent": "not_established",
+      "competing_reading": "A concerns the valley's mutual dependence; a Compact duty could be treated as a separate trade term outside A's care economy."
+    },
+    {
+      "title": "What 'the rebuild' means, and from when",
+      "status": "introduced",
+      "proposed": "Duty is owed to the rebuild in every season.",
+      "reading": "A new uncertainty. The records mention a Lowfen rebuild by lineage crews in Book 20 and channel labour needed before the Long Return in Book 30. Which rebuild the duty serves, and from which Book it starts, is not stated, and the choice changes what the Compact owes and when.",
+      "evidence": ["E3", "E11", "E31"],
+      "counterevidence": ["E31 names return labour and Book 20 lineage crews but does not mention the Compact or grain."]
+    },
+    {
+      "title": "Hands and draw remain the governing variable",
+      "status": "preserved",
+      "reading": "The governing thread, its Book 20 conversion and the Ledger link that sets draw by hands owed are all unchanged. The proposal adds a labour source in kind and does not recast how draw follows hands.",
+      "evidence": ["E30", "E39", "E62"]
+    }
+  ],
+  "mechanisms": [
+    {
+      "evidence": "E11",
+      "reading": "A link from the Mill Compact to Keeping the channels that records the Compact's labour relation to the commons, previously tied to Alternative B.",
+      "transformation": "Its function text drops 'under B' and adds 'in every season', so the duty is no longer conditional on a finale mechanism being chosen.",
+      "conditional_consequence": "If the author keeps this relation, then the Compact's Book 27-29 bid is made by a party already bound by a labour duty, not one offering it.",
+      "counterevidence": [
+        { "text": "The change is confined to the function text; the nodes and link endpoints are identical.", "evidence": ["E11", "E1"] }
+      ],
+      "unresolved": ["Which rebuild the duty serves.", "Whether the Compact's duty is the same as the valley's rota."]
+    },
+    {
+      "evidence": "E63",
+      "reading": "Records that purchased shares draw water without return labour, the Book 6 origin of the Compact's imbalance with the spring.",
+      "transformation": "Unchanged text, but it now sits beside a link saying purchased draw owes grain-labour every season, so its scope is open to dispute.",
+      "conditional_consequence": "If both stand, then the Compact owes labour that its purchase did not carry, which would need an event that creates the duty.",
+      "counterevidence": [
+        { "text": "E1 says every other relation stays exactly as it is, so this wording may be intentionally retained.", "evidence": ["E1"] }
+      ],
+      "unresolved": ["Whether 'without return labour' is still intended as written."]
+    },
+    {
+      "evidence": "E13",
+      "reading": "Alternative B, an allotted binding rota, lists grain-labour from the Compact as a feature.",
+      "conditional_consequence": "If the duty exists in every season, then B's Compact clause may become a baseline that B only formalises.",
+      "counterevidence": [
+        { "text": "B's own text is preserved, so the baseline still shows grain-labour as part of B.", "evidence": ["E13"] }
+      ],
+      "unresolved": ["Whether B should keep grain-labour as its own clause."]
+    },
+    {
+      "evidence": "E19",
+      "reading": "The Mill Compact node: lowland buyers whose purchased draw carries no return labour, with their own Book 27-29 bid.",
+      "conditional_consequence": "If the new relation is kept, then the node's 'no return labour' wording may need reconsideration by the author.",
+      "counterevidence": [
+        { "text": "The node is referenced by Books 24 and 25, but those Books' decisions on the examined questions were not read.", "evidence": ["E19", "E9", "E10"] }
+      ],
+      "unresolved": ["Whether the Compact node is to be revised separately."]
+    },
+    {
+      "evidence": "E31",
+      "reading": "Keeping the channels: who performs return labour and at what cost to families with few hands, with lineage crews carrying repair from Book 20.",
+      "transformation": "The proposal gives this thread an additional labour source in kind from outside the valley, a relation the thread's own text does not mention.",
+      "conditional_consequence": "If grain-labour counts toward the rebuild, then hand-light households may bear less of the cost.",
+      "counterevidence": [
+        { "text": "Nothing recorded says grain-labour substitutes for hands in channel repair.", "evidence": ["E31", "E11"] }
+      ],
+      "unresolved": ["Whether grain can stand in for hands."]
+    },
+    {
+      "evidence": "E51",
+      "reading": "The Long Return needs channel labour before its date.",
+      "conditional_consequence": "If the Compact's duty is meant to serve that labour need, then the need is partly met by the Compact before Book 30.",
+      "counterevidence": [
+        { "text": "The Source responds to balance, not to intention, so grain-labour's effect on balance is not shown.", "evidence": ["E17"] }
+      ],
+      "unresolved": ["Whether the duty is aimed at the Long Return at all."]
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "unknown_inheritance",
+      "from": "E19",
+      "to": "E9",
+      "text": "Book 24 is only listed by title, and its decisions on the examined questions were not read. The records do not show whether it carries any concern about the Compact's labour duty.",
+      "evidence": ["E9", "E19"]
+    },
+    {
+      "kind": "plausible_inheritance",
+      "from": "E11",
+      "to": "E70",
+      "text": "Book 24's inherited element says a generation has not seen the labour because lineage crews perform it. It cites the maintenance thread the changed relation targets. Whether the Book carries a Compact duty is an interpretation.",
+      "evidence": ["E70", "E11"]
+    },
+    {
+      "kind": "plausible_inheritance",
+      "from": "E11",
+      "to": "E86",
+      "text": "Book 24's function element concerns the Long Return's labour gap being met by people. A standing Compact labour duty could bear on that gap. This is an interpretation, since no recorded element cites the Compact.",
+      "evidence": ["E86", "E11"]
+    },
+    {
+      "kind": "proposed_inheritance",
+      "from": "E11",
+      "to": "E10",
+      "text": "Proposed, not recorded: if the author wishes, Book 25 (listed by title only) could take up how a labour duty on outside buyers appears to those counted for their hands. Nothing here changes that Working Book.",
+      "evidence": ["E10"]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "The Compact as standing labour participant",
+      "steps": [
+        { "stage": "local_decision", "text": "The relation now says purchased draw owes grain-labour to the rebuild in every season.", "evidence": ["E3"], "basis": "recorded" },
+        { "stage": "mechanism_transformation", "text": "The Compact shifts from drawing without labour toward a continuing labour relation with the maintenance thread.", "evidence": ["E11", "E63"], "basis": "interpreted" },
+        { "stage": "tension", "text": "Alternative B's grain-labour clause loses its exclusivity, so B's identity rests on its other features.", "evidence": ["E13"], "basis": "interpreted" },
+        { "stage": "opportunity", "text": "The Compact's Book 27-29 bid could be written as a party renegotiating a duty it already holds.", "evidence": ["E19"], "basis": "speculative" }
+      ],
+      "assumptions": ["The new duty is read as a later obligation and not as a contradiction of E63.", "The author keeps the Compact's bid in Books 27-29."],
+      "comparison": {
+        "creative_gain": "Gives the Compact a standing stake in the commons and removes a fully unpaid draw.",
+        "narrative_cost": "The Book 6 imbalance loses part of its edge.",
+        "contrivance_risk": "A duty with no creating event may feel imposed.",
+        "future_commitment": "Finale choices must account for a baseline duty.",
+        "flexibility": "Still undecided whether the duty is revisable."
+      }
+    },
+    {
+      "title": "The duty as a premise the finale answers",
+      "steps": [
+        { "stage": "local_decision", "text": "The duty applies whichever finale is later chosen.", "evidence": ["E1", "E3"], "basis": "recorded" },
+        { "stage": "tension", "text": "A's 'nothing is owed' must say whether it covers outside buyers.", "evidence": ["E35"], "basis": "interpreted" },
+        { "stage": "opportunity", "text": "A could keep valley care unowed while the Compact's duty is a separate trade term.", "basis": "speculative" },
+        { "stage": "inheritance", "text": "Later Books exploring counted and uncounted practice might show the valley treating insiders and outsiders differently.", "evidence": ["E76"], "basis": "speculative" }
+      ],
+      "assumptions": ["A is among the finales the author keeps open."],
+      "comparison": {
+        "creative_gain": "Insider and outsider obligation become a theme.",
+        "contrivance_risk": "A carve-out could look arranged to protect A.",
+        "flexibility": "Keeps all three finales open but constrains A."
+      }
+    },
+    {
+      "title": "Grain-labour that the spring does not credit",
+      "steps": [
+        { "stage": "mechanism_transformation", "text": "Grain-labour is owed, but the Source responds to the draw-return balance, not to what is promised.", "evidence": ["E17", "E11"], "basis": "interpreted" },
+        { "stage": "tension", "text": "If grain does not restore channels, the duty may be met on paper while the physical shortfall remains.", "basis": "speculative" },
+        { "stage": "opportunity", "text": "That gap could show why counting alone cannot keep a commons.", "evidence": ["E51"], "basis": "speculative" }
+      ],
+      "assumptions": ["Grain-labour is not equivalent to channel hands in the Source's balance."],
+      "comparison": {
+        "creative_gain": "Material consequence drives the story, not a rule.",
+        "narrative_cost": "Needs a clear account of what grain does.",
+        "future_commitment": "Commits to a physical model of grain-labour."
+      }
+    }
+  ],
+  "alternatives": [],
+  "not_established": [
+    "No examined question's wording or Book decisions was supplied, so no alternative anchored to question wording is offered.",
+    "Books 24 and 25 are listed by title; their decisions on the affected questions were not read.",
+    "Only 24 of 124 Book elements were shown, so whether any cites the Compact relation is unknown.",
+    "Which rebuild 'the rebuild' means, and from which Book the duty starts, is not recorded.",
+    "Whether grain-labour affects the Source's balance or can stand in for hands is not recorded.",
+    "Whether the retained 'no return labour' wording is intended to stand is not recorded."
+  ]
+}

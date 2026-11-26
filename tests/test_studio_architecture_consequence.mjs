@@ -36,7 +36,7 @@ test("an alternative is labelled by its approach, and an unknown approach is sho
 test("an evidence line names its kind, its Book and its proposal status, and keeps the owner's text", () => {
   const line = C.evidenceLine({ id: "E7", kind: "book_decision", book_number: 24, proposal_status: "reworded",
                                 text: "Whether the conversion is a lasting settlement." });
-  assert.equal(line, "E7 · Working Book decision (Book 24) · proposal: reworded — Whether the conversion is a lasting settlement.");
+  assert.equal(line, "E7 · Working Book decision (Book 24) · question in proposal: reworded — Whether the conversion is a lasting settlement.");
 });
 
 test("a question is worded as the analysis examined it: the proposed wording when there is one", () => {
@@ -49,4 +49,26 @@ test("a question is worded as the analysis examined it: the proposed wording whe
   };
   assert.equal(C.questionWording(packet, "q-conversion-settlement"), "Does it reach the purchased shares?");
   assert.equal(C.questionWording({ evidence: [], examined_questions: [] }, "q-missing"), "q-missing");
+});
+
+test("a recorded mechanism's provenance is named in the owner's words, and an unknown one is shown as written", () => {
+  assert.equal(C.provenanceWords("preserved"), "Preserved in the proposal");
+  assert.equal(C.provenanceWords("transformed"), "Transformed by the proposal");
+  assert.equal(C.provenanceWords("historical"), "Historical: no longer current");
+  assert.equal(C.provenanceWords("inferred"), "inferred");
+});
+
+test("version 2 approaches keep the baseline and the proposal apart, and the retired name is labelled as version 1", () => {
+  assert.equal(C.approachWords("keep_baseline"), "Keep the baseline concern");
+  assert.equal(C.approachWords("accept_proposal"), "Accept the proposal as written");
+  assert.match(C.approachWords("retain"), /version 1 wording; its meaning is not fixed/);
+});
+
+test("inheritance, reach, stage and basis are named as the owner names them, and a trajectory is never presented as an event", () => {
+  assert.equal(C.inheritanceWords("recorded_inheritance"), "Recorded inheritance");
+  assert.equal(C.inheritanceWords("unknown_inheritance"), "Unknown inheritance");
+  assert.equal(C.reachWords("local"), "Local to this change");
+  assert.equal(C.stageWords("long_horizon"), "Long-horizon development");
+  assert.equal(C.basisWords("speculative"), "Speculative");
+  assert.match(C.REACH.not_established, /Not established by the record/);
 });
