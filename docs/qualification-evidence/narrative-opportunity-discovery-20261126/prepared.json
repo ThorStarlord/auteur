@@ -1,0 +1,20 @@
+{
+  "author_question": "What promising creative opportunities am I overlooking?",
+  "book": 24,
+  "results": {
+    "A-current-state": {
+      "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\b451c138-658d-4953-b6cf-a70d28f71881\\scratchpad\\disc-exercise-root2\\arm-A-current-state",
+      "orientation": "current_state",
+      "request_sha256": "0e292421c8b58008a8fd0becc0e8f1218d951b39d7e2ce21e7179f5fa926a466",
+      "user_bytes": 54999,
+      "continuing_questions": 16
+    },
+    "B-grounded": {
+      "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\e91f3203f308aeba\\b451c138-658d-4953-b6cf-a70d28f71881\\scratchpad\\disc-exercise-root2\\arm-B-grounded",
+      "orientation": "full",
+      "request_sha256": "e32c1509a4b9e09eb2290f9121336e90c65003426346b5b5511e2dcaafd81ba9",
+      "user_bytes": 58458,
+      "continuing_questions": 16
+    }
+  }
+}

@@ -803,8 +803,8 @@
     function select(id,opts){
       opts=opts||{};
       if(!S.model||!S.model.byId[id])return;
-      // Choosing a concept leaves the question reading and list; the concept's own folio takes the place.
-      S.qv=null;S.qlist=false;
+      // Choosing a concept leaves the question reading, the list and the opportunities; the concept's folio takes the place.
+      S.qv=null;S.qlist=false;if(S.opp)S.opp.open=false;
       if(S.leaf&&S.leaf.from!==id)S.leaf=null;
       if(S.impactReturn&&S.impactReturn.concept!==id)S.impactReturn=null;
       var fromAtlas=!S.focus;
@@ -1187,6 +1187,7 @@
       renderWorking();
       // One question read in the folio, or the list of all of them, takes the folio while it is open. The atlas and
       // the focused concept beneath it are unchanged; Back returns to exactly where the author was.
+      if(S.opp&&S.opp.open&&Q)return renderOpportunities();
       if(S.qv&&Q)return renderQuestionView();
       if(S.leaf&&X)return renderSeriesLeaf();
       if(S.qlist&&Q)return renderQuestionList();
@@ -1556,7 +1557,7 @@
       // A Book opened from an open question remembers that question, and Back returns to it.
       S.leaf={from:S.focus,book:opts&&opts.book||null,impact:!!(opts&&opts.impact),opener:a&&folio.contains(a)&&a.dataset?a.dataset.key:null,scroll:folio.scrollTop,
         returnQuestion:opts&&opts.question||null};
-      S.qv=null;S.qlist=false;
+      S.qv=null;S.qlist=false;if(S.opp)S.opp.open=false;
       readSeries(true,false);renderFolio();folio.scrollTop=0;focusFolio();
       var from=S.focus&&S.model.byId[S.focus];
       announce((S.leaf.impact?'Working Books after the Architecture changes.':'Series and Book context.')+
@@ -1680,6 +1681,8 @@
       else{var ul=el('ul','atl-question-list');live.slice(0,5).forEach(function(q){ul.append(questionItem(q));});sec.append(ul);}
       var total=live.length+g.gone.length;
       if(total)actionButton(sec,'All questions · '+total,openQuestionList,'questions-all').classList.add('atl-action-quiet');
+      // Looking for opportunities is the author's explicit invitation; nothing runs until a request is prepared.
+      if(d.available)actionButton(sec,'Look for opportunities',openOpportunities,'discover-open').classList.add('atl-action-quiet');
       if(g.gone.length)sec.append(el('p','atl-note',Q.plural(g.gone.length,'question')+' recorded in earlier revisions '+(g.gone.length===1?'is':'are')+
         ' no longer open. Removing one is not an answer.'));
       folio.append(sec);
@@ -1911,6 +1914,144 @@
       if(!binding.onDevelop){announce('The coding-agent desk is not available here, so nothing was asked.');return;}
       binding.onDevelop({conceptId:null,title:q.text,anchor:{kind:'question',id:q.id},precision:'question',subject:'Open question',
         quote:q.text,sourceRef:'open_questions/'+q.index,operation:operation,draft:Q.SUGGEST[operation]||''});
+    }
+    /* Opportunity discovery, in the folio. The agent chooses what deserves a closer look; the author decides what to
+       investigate. Looking changes nothing. Preparing a request only writes the request the author will copy; a
+       possibility is investigated only through the same comparison and desk the author uses for their own questions. */
+    function oppState(){return S.opp||(S.opp={open:false,goal:'',response:'',pending:null,projection:null,loading:false,error:null});}
+    function openOpportunities(){
+      var d=oppState();d.open=true;S.qlist=false;S.qv=null;S.leaf=null;
+      readOpportunities(false);renderFolio();folio.scrollTop=0;focusFolio();
+      announce('Look for opportunities. Nothing runs until you prepare a request and give it to your coding agent. Looking changes nothing.');
+    }
+    function closeOpportunities(){var d=oppState();d.open=false;renderFolio();folio.scrollTop=0;focusFolio();announce('Back to the open questions. Nothing was changed.');}
+    function readOpportunities(force){
+      var d=oppState();
+      if(!binding.getDiscoveries){d.error='Opportunity discovery is not available here.';return;}
+      if(d.loading||(!force&&(d.projection||d.error)))return;
+      d.loading=true;
+      binding.getDiscoveries().then(function(p){d.projection=p;d.pending=p.pending||null;d.loading=false;d.error=null;renderFolio();})
+        .catch(function(e){d.loading=false;d.error='Could not read the earlier discoveries: '+e.message;renderFolio();});
+    }
+    function oppKey(row,p){return 'discover:'+row.request_sha256.slice(0,12)+':'+p.id;}
+    function questionTitleFor(id){
+      var data=questionsData()||{};var all=(data.questions||[]).concat(data.no_longer_open||[]);
+      var q=all.find(function(x){return x.id===id;});return q?q.text:id;
+    }
+    function prepareOpportunityRequest(){
+      var d=oppState();d.error=null;
+      binding.prepareDiscovery((d.goal||'').trim()||null).then(function(p){
+        d.projection=p;d.pending=p.pending||null;d.response='';
+        announce('Discovery request prepared. Copy it to your coding agent. Nothing has run.');renderFolio();
+      }).catch(function(e){d.error='The discovery request was not prepared: '+e.message;renderFolio();});
+    }
+    function validateOpportunityResponse(){
+      var d=oppState();var parsed;
+      try{parsed=JSON.parse(d.response);}catch(e){d.error='The answer is not JSON: '+e.message;renderFolio();return;}
+      binding.completeDiscovery(parsed).then(function(p){
+        d.projection=p;d.pending=p.pending||null;d.response='';d.error=null;
+        announce('Discovery answer accepted. Its possibilities are listed below. Nothing has been changed.');renderFolio();
+      }).catch(function(e){d.error='The answer was not accepted: '+e.message;renderFolio();});
+    }
+    function decideOpportunity(row,p,decision){
+      var d=oppState();
+      binding.decideDiscovery(row.request_sha256,p.id,decision,null).then(function(next){
+        d.projection=next;d.error=null;announce(decision==='declined'?'Declined. Nothing in the Architecture or a Book was changed.':'Reopened. Nothing was changed.');renderFolio();
+      }).catch(function(e){d.error='The decision was not recorded: '+e.message;announce(d.error);renderFolio();});
+    }
+    function investigatePossibility(row,p){
+      if(!binding.onDevelop){announce('The coding-agent desk is not available here, so nothing was asked.');return;}
+      var data=questionsData()||{};
+      var list=(p.questions||[]).map(function(qid){var q=(data.questions||[]).find(function(x){return x.id===qid;});
+        return {id:qid,title:q?q.text:qid,index:q?q.index:null};});
+      var replaced=(S.qcompare||[]).length>0;S.qcompare=list.slice();
+      if(replaced)announce('The comparison now holds this possibility’s questions. Your earlier selection was replaced.');
+      var anchors=list.map(function(x){return {kind:'question',id:x.id};});
+      binding.onDevelop({conceptId:null,title:'Possibility: '+p.title,anchor:anchors[0],anchors:anchors,precision:'question',
+        subject:'Discovered possibility',quote:'',sourceRef:'',operation:'compare',draft:p.next_investigation||'',
+        fromDiscovery:{requestSha256:row.request_sha256,possibilityId:p.id,title:p.title,questions:(p.questions||[]).slice()}});
+    }
+    function renderOpportunities(){
+      var d=oppState();
+      folio.setAttribute('aria-label','Look for opportunities in the working Architecture');
+      folio.append(el('p','atl-kicker-line','Opportunities · working Architecture'));
+      var nav=el('div','atl-look');
+      actionButton(nav,'← Back to the open questions',closeOpportunities,'discover-back').classList.add('atl-action-primary');
+      folio.append(nav);
+      folio.append(el('h3','atl-folio-title','Look for opportunities'));
+      folio.append(el('p','atl-note','The coding agent reads the whole working Architecture and its open questions, and chooses what deserves a closer look. Each possibility is advisory. Nothing is accepted, and nothing changes unless you choose to investigate one.'));
+      var req=el('section','atl-discover-request');req.setAttribute('aria-label','Ask the coding agent for opportunities');
+      var goal=el('label','atl-note','Optional: a goal or area of concern, in your words');
+      var field=document.createElement('textarea');field.setAttribute('aria-label','Optional goal for the discovery');
+      field.maxLength=600;field.rows=2;field.value=d.goal||'';field.dataset.key='discover-goal';field.addEventListener('input',function(){d.goal=field.value;});
+      goal.append(field);req.append(goal);
+      actionButton(req,'Prepare the discovery request',prepareOpportunityRequest,'discover-prepare').classList.add('atl-action-primary');
+      if(d.pending&&d.pending.request){
+        var pk=el('label','atl-note','Prepared discovery request: copy it to your coding agent. Nothing has been executed.');
+        var pre=document.createElement('textarea');pre.readOnly=true;pre.rows=5;pre.setAttribute('aria-label','Prepared discovery request');
+        pre.value=JSON.stringify(d.pending.request,null,2);pk.append(pre);
+        var rl=el('label','atl-note','Paste the signed host-agent response JSON from your coding agent');
+        var rt=document.createElement('textarea');rt.rows=4;rt.setAttribute('aria-label','Discovery response');rt.value=d.response||'';rt.dataset.key='discover-response';
+        rt.addEventListener('input',function(){d.response=rt.value;});rl.append(rt);
+        req.append(pk,rl);
+        actionButton(req,'Validate the response',validateOpportunityResponse,'discover-validate').classList.add('atl-action-quiet');
+      }
+      if(d.error){var err=el('p','atl-note atl-tone-bad',d.error);err.setAttribute('role','alert');req.append(err);}
+      actionButton(req,'Read again',function(){readOpportunities(true);},'discover-reread').classList.add('atl-action-quiet');
+      folio.append(req);
+      renderOpportunityResults(d);
+    }
+    function renderOpportunityResults(d){
+      var p=d.projection;
+      if(!p){folio.append(el('p','atl-note',d.loading?'Reading the earlier discoveries…':'No discovery has been read yet.'));
+        if(!d.loading&&!d.error)readOpportunities(false);return;}
+      if(!p.discoveries||!p.discoveries.length){folio.append(el('p','atl-note','No discovery has been run on this Architecture yet.'));return;}
+      p.discoveries.forEach(function(row,index){
+        var box=index===0?el('section','atl-discover-run'):el('details','atl-discover-run');
+        if(index!==0)box.append(el('summary','','Earlier discovery · '+row.created_at));
+        else box.append(el('h4','atl-section-title','Latest discovery'));
+        if(row.baseline!=='current')box.append(el('p','atl-note','Recorded against an earlier working Architecture. Each possibility says whether it can still be investigated.'));
+        if(row.author_goal)box.append(el('p','atl-note','Your goal: '+row.author_goal));
+        if(row.coverage_note){var cov=el('details','atl-series-how');cov.append(el('summary','','What the agent surveyed'),el('p','atl-note',row.coverage_note));box.append(cov);}
+        if(!row.possibilities.length)box.append(el('p','atl-note',row.no_possibility_reason||'No possibility was worth recording.'));
+        row.possibilities.forEach(function(item){box.append(opportunityCard(row,item));});
+        folio.append(box);
+      });
+    }
+    function opportunityCard(row,item){
+      var D=global.AuteurAtelierDiscovery;var art=el('article','atl-discover-card');
+      art.setAttribute('aria-label','Possibility: '+item.title);
+      art.append(el('h4','atl-discover-title',item.title));
+      var st=D.statusWords(item.status);
+      art.append(el('p','atl-discover-meta',['Agent proposal',D.kindLabel(item.kind),item.basis==='grounded'?'Grounded in recorded mechanisms':'Speculative, labelled as such',st.label].filter(Boolean).join(' · ')));
+      art.append(el('p','atl-discover-text',item.possibility),el('p','atl-discover-why',item.significance));
+      var qs=el('ul','atl-discover-questions');
+      item.questions.forEach(function(qid){qs.append(el('li','',questionTitleFor(qid)));});
+      art.append(el('p','atl-note','Concerns these questions:'),qs);
+      if(item.status&&item.status.note)art.append(el('p','atl-note',item.status.note));
+      art.append(el('p','atl-discover-next','Next: '+item.next_investigation));
+      var ev=el('details','atl-series-how');ev.dataset.key=oppKey(row,item)+':evidence';
+      ev.append(el('summary','','Evidence and provenance'));
+      var evl=el('ul','');item.evidence.forEach(function(e){evl.append(el('li','',D.evidenceLine(e)));});ev.append(evl);art.append(ev);
+      var un=el('details','atl-series-how');un.dataset.key=oppKey(row,item)+':uncertainty';
+      un.append(el('summary','','Interpretation, assumptions and counterevidence'));
+      un.append(el('p','atl-note','This is the agent’s proposal, not established fact. Its grounding is the evidence above.'));
+      if(item.assumptions&&item.assumptions.length)un.append(el('p','atl-note','Assumes: '+item.assumptions.join(' · ')));
+      if(item.counterevidence&&item.counterevidence.length)un.append(el('p','atl-note','Counterevidence: '+item.counterevidence.join(' · ')));
+      if(item.gains)un.append(el('p','atl-note','Could gain: '+item.gains));
+      if(item.costs)un.append(el('p','atl-note','Would cost: '+item.costs));
+      art.append(un);
+      var acts=el('div','atl-look atl-question-ask');
+      if(item.decision&&item.decision.decision==='declined'){
+        art.append(el('p','atl-note','Declined. Nothing in the Architecture or a Book was changed.'));
+        actionButton(acts,'Reopen',function(){decideOpportunity(row,item,'reopened');},'discover-decision:'+item.id).classList.add('atl-action-quiet');
+      }else{
+        if(D.canInvestigate(item))actionButton(acts,'Investigate these questions',function(){investigatePossibility(row,item);},'discover-investigate:'+item.id).classList.add('atl-action-primary');
+        actionButton(acts,'Decline',function(){decideOpportunity(row,item,'declined');},'discover-decision:'+item.id).classList.add('atl-action-quiet');
+      }
+      art.append(acts);
+      if(item.investigations&&item.investigations.length)art.append(el('p','atl-note','Investigated '+item.investigations.length+' time'+(item.investigations.length===1?'':'s')+(item.applied?'; a revision made from it has been applied':'; no revision applied from it yet')+'.'));
+      return art;
     }
     /* Comparing open questions: up to three, chosen in the folio and investigated together through the desk. Choosing
        changes nothing; the desk's prepared request is the only thing that is ever sent, and only when the author asks. */
@@ -3061,6 +3202,7 @@
       // Escape in a text field never closes the view around the words being written.
       if(e.target&&(e.target.tagName==='TEXTAREA'||(e.target.tagName==='INPUT'&&/^(text|search)$/.test(e.target.type)))&&folio.contains(e.target))return;
       // Escape closes an open question, then the list of them, back to where the author came from.
+      if(S.opp&&S.opp.open&&!S.leaf&&!S.qv&&!S.qlist&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeOpportunities();return;}
       if(S.qv&&!S.leaf&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeQuestion();return;}
       if(S.qlist&&!S.leaf&&!S.qv&&!(e.target.closest&&e.target.closest('details[open] summary'))){e.preventDefault();closeQuestionList();return;}
       if(S.leaf&&S.discovery&&discoveryFor(S.discovery.book)&&!(e.target.closest&&e.target.closest('details[open] summary'))){

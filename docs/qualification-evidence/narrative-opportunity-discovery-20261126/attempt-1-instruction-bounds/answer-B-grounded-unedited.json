@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "coverage_note": "Surveyed all 16 continuing questions, the five engines/structures around the Gate, Source, Ledger and lineage crews, the three finale alternatives with their stated failure modes, the genre interactions, and the five phases. Set aside: Old Hand intermediate readings (q-other-10) and the intent-versus-balance question (q-other-0), which I found interesting but could not tie to a recorded mechanism beyond the Old Hand-to-balance link; and the Gate Table acceptance question (q-gate-table), which is a gating decision for others rather than a source of new consequence. Pairings that rest only on shared Book 24 references were not used.",
+  "possibilities": [
+    {
+      "title": "The Ledger already makes 'nothing owed' a choice not to use a capability",
+      "kind": "overlooked_consequence",
+      "possibility": "The Ledger engine was revised so it records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. That means the machinery for owing (B's deficit, C's trigger, the Book 20 conversion) exists whatever finale is chosen. Interpretation: under Alternative A the care tally is then not merely 'not owed' but a record that could be turned into a debt at any moment, which is exactly the surveillance failure mode A names. The finale choice may be less about which accounting exists than about who is deliberately forbidden to read it as debt, and what a household feels when its hours are on record but nothing is owed.",
+      "significance": "It reframes the finale from 'which mechanism' to 'which uses of an already-existing record are renounced', and ties the cost-of-counting grief and the Stone Hall's debt reading to a single object the story already has.",
+      "questions": ["q-other-3", "q-conversion-settlement", "q-finale-mechanism"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "eng_ledger", "note": "Revision states the ledger now records hours worked beside the mark so a count of the draw can be read from it."},
+        {"ref_kind": "link", "ref_id": "l_tally_counts_hands", "note": "From Book 20 draw is partly set by hands owed, so the count feeds draw."},
+        {"ref_kind": "node", "ref_id": "alt_a_reciprocal", "note": "Names surveillance of the tally as a failure mode while stating care is counted and nothing is owed."},
+        {"ref_kind": "node", "ref_id": "str_measured_turn", "note": "The stewardship tally records labour as care and does not hold the water."},
+        {"ref_kind": "book_decision", "ref_id": "dec-conversion-settlement", "book_number": 24, "note": "The conversion is made concrete without being settled, so the finale may revisit it."}
+      ],
+      "basis": "grounded",
+      "assumptions": ["The hours-beside-the-mark record is retained and readable in the finale, not a drafting remnant.", "A count that can be read as debt is dramatically different from one that merely exists."],
+      "counterevidence": ["The author may regard the revision as a convenience for reading draw, not as a latent debt record.", "Alternative A is meant to be noncoercive, and a surveillance reading may over-darken it."],
+      "gains": "Gives Alternative A a concrete internal threat and gives B and C a shared precondition, without adding new facts.",
+      "costs": "May push the pastoral tone toward bureaucratic dread, which gi_political_pastoral_constrains already flags as a risk (belonging becomes a labour rota).",
+      "next_investigation": "Decide what the hours record is for in each of A, B and C, and whether any institution (Council, Reading Hall, Gate Table) is the one that holds it."
+    },
+    {
+      "title": "The Gate can only draw the cistern down, so the surge route may be decided long before Book 30",
+      "kind": "shared_mechanism",
+      "possibility": "Recorded: release from the high cistern draws it down and cannot raise it; the Long Return is predicted from Book 23 but needs routing through the Gate; the cistern's storage above tolerance is unestablished, yet B and C depend on it. Interpretation: if the only lever is to lower the cistern ahead of the pulse, then the real decision about which channel takes the surge is made by the Gate schedule in the seasons before Book 30, not at the climax. How much headroom is needed, and therefore how early and how costly the release is, turns on the storage figure and on how many shares may be drawn before the Balance Stones restrain them. One physical number may thus govern the flood choice, the Gate Table's power, and the Balance Stones threshold at once.",
+      "significance": "Turns an open set of numbers into a single causal chain and relocates the flood decision from a Book 30 act to a slow, institutional, earlier one, which affects who is culpable for any loss.",
+      "questions": ["q-other-15", "q-surge-route", "q-other-11"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "str_hollow_gate", "note": "Release draws the cistern down and cannot raise it; the Book 15 surfeit mechanism is an agent construction the author may reject."},
+        {"ref_kind": "link", "ref_id": "l_longreturn_needs_gate", "note": "The pulse must be routed through the Gate."},
+        {"ref_kind": "link", "ref_id": "l_gate_sets_outflow", "note": "The Gate's schedule sets release from the high cistern to the Source."},
+        {"ref_kind": "node", "ref_id": "alt_c_ratified_trigger", "note": "Depends on a published Balance Stones threshold being crossed."},
+        {"ref_kind": "question", "ref_id": "q-other-15", "note": "States Alternatives B and C depend on the cistern's physical storage."}
+      ],
+      "basis": "grounded",
+      "assumptions": ["A pulse of the Long Return's size would need headroom created in advance rather than absorbed at arrival.", "The Gate is the only means of changing cistern level."],
+      "counterevidence": ["The Long Return is a deep-store pulse, and its route may not pass the cistern in the way assumed.", "The Gate and its table are still construction additions the author may not accept (q-gate-table).", "An early, undramatic decision may weaken the climax."],
+      "gains": "Makes the Balance Stones prediction in Book 23 matter causally, and gives the Gate Table a real, time-bound decision.",
+      "costs": "Risks epic reduced to civics procedure (gi_epic_political_tension) if the decision is rendered as scheduling.",
+      "next_investigation": "Fix a working storage figure as an explicitly provisional assumption and trace how much release lead time the pulse would force, then check whether Book 23 to Book 30 has room for it."
+    },
+    {
+      "title": "Revocability sits inside the body whose apprentice must test it",
+      "kind": "productive_tension",
+      "possibility": "Recorded: the lineage crews' Special Draw Right is conditional on training outside apprentices and is, in the working design, revocable by the Council; Book 24 keeps Hesper a Council apprentice; the genre interaction records a risk that knowledge hardens into hereditary privilege. Interpretation: Hesper's position puts the power to revoke, the condition that is meant to prevent hereditary closure, and the reform-from-within question into one person's career. Whether her generational motive holds when it conflicts with the Turn's sustainability would be the test of both q-hesper-motive and q-reform-stance, and the right's fate would show whether reform from within can discipline the Council or only be absorbed by it. The same case shows who carries the Turn if the lineages end.",
+      "significance": "Gives three abstract questions one embodied scene-level test and a way to make reform from within a demonstrated outcome rather than a stance.",
+      "questions": ["q-right-revocable", "q-hesper-motive", "q-reform-stance"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "inst_lineage_crews", "note": "Right is conditional on training apprentices from outside; working design is revocable by the Council."},
+        {"ref_kind": "genre_interaction", "ref_id": "gi_pastoral_mystery_reinforces", "note": "Lineages hold the reading knowledge; risk is hereditary privilege."},
+        {"ref_kind": "book_decision", "ref_id": "dec-reform-stance", "book_number": 24, "note": "Book 24 keeps Hesper a Council apprentice, explicitly not a statement on reform."},
+        {"ref_kind": "book_decision", "ref_id": "dec-hesper-motive", "book_number": 24, "note": "Whether her motive is independent of the author's preference for sustainability."},
+        {"ref_kind": "link", "ref_id": "l_lineage_carries_repair", "note": "Lineage crews carry channel repair from Book 20, so their end affects the Turn."}
+      ],
+      "basis": "grounded",
+      "assumptions": ["Hesper's apprenticeship would give her a stake in decisions about the right, which the packet does not state.", "The Council would be the body deciding revocation in the finale."],
+      "counterevidence": ["Book 24 says her apprenticeship is not a statement on reform, so this reading may overload it.", "Gate Table or another body may take over revocation, weakening the Council link."],
+      "gains": "Makes the independence test of Hesper's motive concrete: a case where the sustainable outcome and her generational interest diverge.",
+      "costs": "Concentrates much political meaning in one character and may tilt the series toward a verdict on reform that the author has kept open.",
+      "next_investigation": "Write the cases where Hesper's motive and the Turn's sustainability pull apart, once with the right revoked and once permanent, and see whether her choice is explicable without the author's preference."
+    },
+    {
+      "title": "The valley's purchased draw and the valley's flood may fall on the same lowland",
+      "kind": "overlooked_consequence",
+      "possibility": "Recorded: the Mill Compact's purchased draw carries no return labour; B asks it for grain-labour; a declined share already runs wild down the lowest Lowfen terrace; wild water is a recorded fear target for the routed pulse. Interpretation: if the surge is routed toward the lower channels, the lowland that drew without returning and the households of Lower Ammen share a downstream exposure, and the question of what the lowland towns owe Ammen acquires a physical answer rather than only a contractual one. The Compact's grain-labour offer could then be read as buying a share of the risk, not just the rebuild. This is speculative on the imaginative step that the Compact's interests reach the same channels as the households' lowest terraces.",
+      "significance": "Could turn the Compact from an external bidder into a party with a stake in the flood, and give q-other-1 an answer that the physical commons already implies.",
+      "questions": ["q-other-1", "q-compact-settlement", "q-surge-route"],
+      "evidence": [
+        {"ref_kind": "link", "ref_id": "l_trade_draws_without_return", "note": "Purchased shares draw without return labour."},
+        {"ref_kind": "link", "ref_id": "l_compact_hands_in_kind", "note": "Under B, purchased draw owes grain-labour to the rebuild."},
+        {"ref_kind": "link", "ref_id": "l_declined_goes_wild", "note": "A declined share's water runs wild down the lowest Lowfen terrace."},
+        {"ref_kind": "node", "ref_id": "et_fear_of_wild_water", "note": "Fear target is elicited by the Long Return's routed pulse."},
+        {"ref_kind": "book_decision", "ref_id": "dec-surge-route", "book_number": 24, "note": "Book 24 neither designates nor excludes the Lowfen."}
+      ],
+      "basis": "speculative",
+      "assumptions": ["The Compact's draw or holdings are in or below the channels that might take the surge; the packet does not say so.", "Lowland towns in q-other-1 are the same parties as the Compact buyers."],
+      "counterevidence": ["The Compact is described as acting from outside the valley, so exposure may not apply.", "The questions may be better kept independent: a flood's losses and a settlement's terms can be decided separately without loss."],
+      "gains": "A single consequence connects debt, trade and flood without a new antagonist.",
+      "costs": "Could make the flood choice read as retribution on the lowland, which conflicts with the 'physical cost, not a villain' framing of declined shares.",
+      "next_investigation": "Establish whether the Compact's holdings or the lowland towns have any physical location relative to the Lowfen; if not, keep these three questions independent."
+    }
+  ],
+  "uncertainties": [
+    "The packet records only the introduction of every question at revision 3, so there is no history of the author's reasoning to weigh.",
+    "Whether the Hollow Gate and Gate Table are accepted (q-gate-table) bears on possibilities 2 and 3.",
+    "The storage capacity of the high cistern is not established, so possibility 2 is conditional on a provisional figure.",
+    "Hesper and Oona appear only in Book 24 decision text, not in the Architecture's nodes."
+  ]
+}

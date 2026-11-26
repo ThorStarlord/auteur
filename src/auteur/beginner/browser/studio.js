@@ -434,6 +434,10 @@
         appendReviewLine("Requested change: " + review.requested_change, "review-requested-change");
       }
       var chosen = review.selected_creative_alternative;
+      if (chosen && chosen.from_discovery) {
+        appendReviewLine("Developed from a discovered possibility: “" + chosen.from_discovery.title + "”. Discovery proposed it; " +
+          "you chose to investigate it and then the alternative above. It is advisory until you apply this revision.", "review-discovery-origin");
+      }
       if (chosen && chosen.book_evidence) {
         var be = chosen.book_evidence, bk = be.book || {}, elm = be.element || {};
         var now = be.status_now || be.status_at_revision;
@@ -3249,6 +3253,28 @@
           return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture-questions",
             {cache: "no-store"}).then(apiJson);
         },
+        // Opportunity discovery: explicit, advisory, and written only through the discovery owner.
+        getDiscoveries: function(){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture/discovery",
+            {cache: "no-store"}).then(apiJson);
+        },
+        prepareDiscovery: function(goal){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture/discovery/prepare",
+            {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({goal: goal || null})}).then(apiJson);
+        },
+        completeDiscovery: function(response){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture/discovery/host-agent-response",
+            {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(response)}).then(apiJson);
+        },
+        decideDiscovery: function(requestSha, possibilityId, decision, reason){
+          if (!remote.canvasId) return Promise.reject(new Error("no working canvas is open"));
+          return fetch("/api/beginner/studio/canvases/" + encodeURIComponent(remote.canvasId) + "/architecture/discovery/decision",
+            {method: "POST", headers: {"Content-Type": "application/json"},
+             body: JSON.stringify({request_sha256: requestSha, possibility_id: possibilityId, decision: decision, reason: reason || null})}).then(apiJson);
+        },
         getCanvasId: function(){ return remote.canvasId; },
         // One working Book's revision lifecycle, run by its own owner. Every result names the canvas it
         // came from, so a late answer is never shown in another canvas. Only prepare, a pasted response and
@@ -3320,6 +3346,8 @@
     }
     // Book evidence comes only with a request that brings it; any other hand-off leaves none behind.
     if (creativePanel.setBookEvidence) creativePanel.setBookEvidence(request.bookEvidence || null);
+    // A possibility taken from discovery travels with the investigation; it is never rebound to other questions.
+    if (creativePanel.setDiscoveryOrigin) creativePanel.setDiscoveryOrigin(request.fromDiscovery || null);
     var operation = request.operation;
     try { creativePanel.setOperation(operation); }
     catch (_) { status("“" + operation + "” is not offered for this kind of source; nothing was prepared."); return; }

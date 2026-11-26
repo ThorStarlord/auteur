@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "coverage_note": "Surveyed all 16 continuing questions, the Hollow Gate / Source / Ledger / lineage / Long Return mechanisms and their links, the three finale alternatives, the genre interactions and the emotion targets. No question has a recorded change or reason, and the Book 24 decisions are shown only by hash, so no possibility rests on recorded author reasoning; all rest on Architecture text. Set aside as better kept independent: q-other-1 (lowland debt), q-other-11 (Brightwater share count), q-other-8 (threshold ownership) beyond what the finale choice already covers, and q-plurality, which mostly restates the finale choice.",
+  "possibilities": [
+    {
+      "title": "The surge's destination is decided by the Gate fight, years earlier",
+      "kind": "overlooked_consequence",
+      "possibility": "Interpretation: the Long Return's routing may be physically pre-shaped by how the counted Turn and the gift practice use the Hollow Gate in Books 15-22, not only chosen in Book 30. The counted practice holds water back to protect the high cistern; release can lower the cistern but cannot raise it; the pulse must be routed through the Gate. So the headroom the cistern has when the surge comes, and therefore which channel can take it and whether a household floods, follows from which practice the Gate Table has favoured. The flood question then becomes a consequence of earlier settled practice, rather than a free-standing author choice.",
+      "significance": "It could tie the finale's physical cost to Arc IV's political conflict, so the earned-cost hope target is delivered by causation the reader has already watched, and it gives q-other-15 a narrative reason to be answered.",
+      "questions": ["q-surge-route", "q-other-15", "q-gate-table"],
+      "evidence": [
+        {"ref_kind": "link", "ref_id": "l_longreturn_needs_gate", "note": "The pulse must be routed through the Gate."},
+        {"ref_kind": "link", "ref_id": "l_measured_holds_gate", "note": "The counted practice holds water back to protect the high cistern."},
+        {"ref_kind": "link", "ref_id": "l_unmeasured_needs_release", "note": "The gift practice needs release at need."},
+        {"ref_kind": "node", "ref_id": "str_hollow_gate", "note": "Release draws the cistern down and cannot raise it; the cistern's storage above tolerance is not established."},
+        {"ref_kind": "question", "ref_id": "q-other-15", "note": "Alternatives B and C depend on what the cistern can store."},
+        {"ref_kind": "node", "ref_id": "str_long_return", "note": "The routing decides which channel takes the surge and that choice belongs to the valley."}
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The cistern's headroom at Book 30 is a function of Gate use, which the Architecture implies but does not state.",
+        "The author wants the surge outcome to feel caused rather than chosen."
+      ],
+      "counterevidence": [
+        "Str_long_return says the routing choice belongs to the valley; determinism could remove that agency.",
+        "A deep-store pulse may be independent of the high cistern altogether; the Architecture does not say."
+      ],
+      "gains": "Links Arc IV's political conflict to the finale's physical stakes and makes the Gate Table matter to the ending.",
+      "costs": "Constrains the cistern's capacity early; commits the Gate and cistern as accepted, while q-gate-table says both are construction additions.",
+      "next_investigation": "Decide whether the cistern's headroom may constrain the routing at all, then trace what each of A, B and C would leave in the cistern in Book 29."
+    },
+    {
+      "title": "The hours recorded in the ledger can quietly turn A into B",
+      "kind": "overlooked_consequence",
+      "possibility": "Interpretation: the revised Ledger records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. Alternative A depends on care being counted with nothing owed, and its listed failure mode includes surveillance of the tally. If the hours are readable from the ledger, any body that reads it can convert 'care counted' into 'hands owed' without a new rule, which is the Book 20 conversion done by inspection. This makes the question of whether shared accounting binds also a question of who may read the ledger, not only of what the rule says.",
+      "significance": "It identifies a route by which the noncoercive option erodes without any villain or vote, matching the story's stated preference for physical, non-villainous costs, and it gives q-conversion-settlement a concrete mechanism for being revisited.",
+      "questions": ["q-other-3", "q-conversion-settlement", "q-finale-mechanism"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "eng_ledger", "note": "Revised text: the ledger records hours worked beside the mark so a count of the draw can be read from it."},
+        {"ref_kind": "node", "ref_id": "alt_a_reciprocal", "note": "Care is counted and nothing is owed; failure modes include surveillance of the tally."},
+        {"ref_kind": "link", "ref_id": "l_conversion_sets_draw", "note": "Hands a household cannot return reduce its draw from Book 20."},
+        {"ref_kind": "node", "ref_id": "str_measured_turn", "note": "The stewardship tally records labour as care, not as holding the water."},
+        {"ref_kind": "question", "ref_id": "q-other-3", "note": "Whether shared accounting binds, and in what form, is undecided."}
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The recorded hours are readable by parties beyond the household that worked them; the Architecture does not say who may read them.",
+        "A reader of the ledger could act on the count within the existing Book 20 conversion."
+      ],
+      "counterevidence": [
+        "Alternative C's normal seasons follow A, and the Hall-style custody risks are already listed in B; the point may be already priced in.",
+        "The Reading Hall publishes records openly, so access may be intended and harmless."
+      ],
+      "gains": "A concrete, non-villainous way for the finale mechanism to fail or hold, usable as a scene family.",
+      "costs": "Raises the weight of ledger access, which touches the custody thread settled around Book 15.",
+      "next_investigation": "Decide who can read the hours-worked record, and test whether Alternative A as written survives that access."
+    },
+    {
+      "title": "Revoking the Special Draw Right removes the hands the pulse needs",
+      "kind": "productive_tension",
+      "possibility": "Interpretation: the lineage crews hold channel-repair skill and a Special Draw Right that the working design lets the Council revoke, while the Long Return needs channel labour before its date. The Right's revocability and its training condition may therefore not be a side detail of Book 20 but a lever on Book 30's readiness: revocation, or a lineage ending without outside apprentices, leaves the valley short of the hands the pulse needs. The question of who carries the Turn when lineages end is then also a question of who carries the surge.",
+      "significance": "It links a Book 20 settlement to the Book 30 deadline through the recorded labour dependency, and sets the apprentice condition as a long-fuse plot element rather than a bargaining term.",
+      "questions": ["q-right-revocable", "q-surge-route", "q-conversion-settlement"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "inst_lineage_crews", "note": "Special Draw Right conditional on training outside apprentices; working design is revocable by the Council."},
+        {"ref_kind": "link", "ref_id": "l_lineage_carries_repair", "note": "Lineage crews carry channel repair from Book 20."},
+        {"ref_kind": "link", "ref_id": "l_longreturn_needs_hands", "note": "The pulse needs channel labour before its date."},
+        {"ref_kind": "genre_interaction", "ref_id": "gi_pastoral_mystery_reinforces", "note": "Risk named: knowledge hardens into hereditary privilege."}
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "Channel repair before the pulse relies substantially on lineage skill; the Architecture says crews carry repair but not that others cannot.",
+        "The training condition produces apprentices at a rate that matters by Book 30."
+      ],
+      "counterevidence": [
+        "Households meeting the rota already carry the rest of maintenance, so the lineages may not be the bottleneck.",
+        "The Right's status is explicitly open; binding it to the finale may foreclose choices the author wants."
+      ],
+      "gains": "Gives the Right a cost to either decision: revocation endangers readiness, permanence risks the hereditary privilege already flagged.",
+      "costs": "Ties two separate questions together; if the author prefers a revocable Right, readiness risk must be accepted or answered.",
+      "next_investigation": "Establish how much of the pre-pulse channel labour only trained crews can do, and whether apprentices from outside would exist in time."
+    },
+    {
+      "title": "Keep the spring's intent-or-balance ambiguity alive through the Book 15 trial",
+      "kind": "narrative_inheritance",
+      "possibility": "Interpretation: the Book 15 surfeit is explained by a construction assumption that uncounted return exceeded the counted draw, and the Source is stated to respond to balance, not intention. Yet the trial reads, to characters, as the spring answering a gift. The author could stage the Old Hand readings between Books 8 and 15 so that both explanations remain available to characters and reader, with the physical balance account always sufficient but never proven, which would fit a deliberately partial ontology answer. The imaginative step: choosing to let each reading honestly look like evidence of intent in some scene.",
+      "significance": "It would let q-other-0 and q-other-10 be answered together as a craft of staged ambiguity, and would stop the mystery genre's staged readings drifting into a withheld revelation, a risk recorded in the genre interactions.",
+      "questions": ["q-other-0", "q-other-10", "q-gate-table"],
+      "evidence": [
+        {"ref_kind": "node", "ref_id": "eng_source", "note": "The spring responds to balance rather than to any character's intention."},
+        {"ref_kind": "node", "ref_id": "str_hollow_gate", "note": "The surfeit explanation is a construction assumption the author may reject."},
+        {"ref_kind": "genre_interaction", "ref_id": "gi_mystery_epic_enables", "note": "Risk: readings postponed into a withheld revelation."},
+        {"ref_kind": "question", "ref_id": "q-other-0", "note": "Book 15 gives a partial answer; the full ontology is deliberately not promised."}
+      ],
+      "basis": "speculative",
+      "assumptions": [
+        "The author values an unresolved ontology rather than wanting it resolved by the end.",
+        "Intermediate readings would be written to support both interpretations."
+      ],
+      "counterevidence": [
+        "Epic-fantasy contract promises a quest to understand a commons that answers choices; leaving 'answers' ambiguous may weaken the payoff.",
+        "If the author rejects the surfeit mechanism, the balance account itself loses its anchor."
+      ],
+      "gains": "Turns an unresolved question into a deliberate effect and spreads the Old Hand reveals over Books 8-15.",
+      "costs": "Risks reader frustration and demands disciplined staging across seven books.",
+      "next_investigation": "List what each partial reading shows in Books 8 and 12 and test whether each admits both a balance and an intent explanation."
+    }
+  ],
+  "uncertainties": [
+    "No question carries a recorded change or author reason, so priority among questions is not evidenced.",
+    "Book 24 decision texts are not shown, only hashes, so possibilities do not reflect their wording.",
+    "The Architecture does not state the Long Return's relation to the high cistern.",
+    "Who may read the ledger's hours-worked record is not stated.",
+    "Characters such as Hesper are not described in the Architecture, so q-hesper-motive was not used."
+  ]
+}

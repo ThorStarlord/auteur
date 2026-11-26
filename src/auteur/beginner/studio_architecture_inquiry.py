@@ -311,6 +311,7 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
     arch,build_request,_,_,write_request,_,atomic_write=_helpers()
     graph_intent=dict(graph_intent)
     evidence_ref=graph_intent.pop('book_evidence',None)
+    discovery_origin_ref=graph_intent.pop('from_discovery',None)
     intent=GraphIntent.model_validate(graph_intent)
     evidence_ref=BookEvidenceRef.model_validate(evidence_ref) if evidence_ref is not None else None
     if evidence_ref is not None and intent.target!='current':
@@ -354,6 +355,14 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
         }
         if book_packet:
             payload['book_evidence']=book_packet
+        origin_summary=None
+        if discovery_origin_ref is not None:
+            # A possibility taken into deliberation: its questions are the anchors, and it must still be transferable.
+            from .studio_architecture_discovery import discovery_origin
+            if intent.target!='current' or any(a.kind!='question' for a in intent.anchors):
+                raise ValueError('a discovered possibility is investigated on its own questions, as the current working architecture')
+            origin_summary=discovery_origin(store,discovery_origin_ref,[a.id for a in intent.anchors])
+            payload['from_discovery']=origin_summary
         deliberation=None
         question_ids=[a.id for a in intent.anchors if a.kind=='question']
         if question_history and intent.target=='current' and len(question_ids)>=2:
@@ -392,6 +401,8 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
             settings['review_request_sha256']=review['request_sha256']
         if deliberation:
             settings['deliberation_evidence_sha256']=deliberation['evidence_sha256']
+        if origin_summary:
+            settings['from_discovery']=origin_summary
         if book_packet:
             settings['book_evidence']={'book_number':evidence_ref.book_number,'element_id':evidence_ref.element_id,
                 'book_request_sha256':book_packet['book']['request_sha256'],
@@ -574,6 +585,8 @@ def complete_architecture_inquiry(store,payload:dict)->dict:
             'intent':submitted['graph_intent']}
         if submitted.get('book_evidence'):
             saved['book_evidence']=submitted['book_evidence']
+        if submitted.get('from_discovery'):
+            saved['from_discovery']=submitted['from_discovery']
         if submitted.get('deliberation'):
             from .studio_architecture_deliberation import deliberation_standing
             saved['deliberation']=submitted['deliberation']

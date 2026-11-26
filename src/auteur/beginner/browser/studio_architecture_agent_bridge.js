@@ -15,13 +15,15 @@
       anchors:anchors.map(a=>{const copy={kind:a.kind,id:a.id};if(a.field)copy.field=a.field;if(a.field&&Number.isInteger(a.index))copy.index=a.index;
         if(a.reference)copy.reference={field:a.reference.field,target_kind:a.reference.target_kind,target_id:a.reference.target_id};return copy}),author_text:authorText};
   };
-  async function prepareInquiry({anchors,operation,authorText,bookEvidence}){
+  async function prepareInquiry({anchors,operation,authorText,bookEvidence,fromDiscovery}){
     if(!['explain','challenge','explore','compare','connect_to_ask'].includes(operation))throw Error('revise is not an inquiry operation; only read-only operations allowed');
     const payload=graphIntent({anchors,operation,authorText}),token=++generation;
     // Book evidence travels as its own field, never inside the author's question.
     if(bookEvidence)payload.book_evidence={book_number:bookEvidence.book_number,element_id:bookEvidence.element_id,
       expected_book_request_sha256:bookEvidence.expected_book_request_sha256,
       expected_element_content_sha256:bookEvidence.expected_element_content_sha256};
+    // A possibility taken from discovery is named by its request and possibility id; the owner checks it.
+    if(fromDiscovery)payload.from_discovery={request_sha256:fromDiscovery.requestSha256,possibility_id:fromDiscovery.possibilityId};
     const result=await post(url('/inquiry/prepare'),payload);
     if(token===generation&&onInquiryResult)onInquiryResult(result);return result;
   }

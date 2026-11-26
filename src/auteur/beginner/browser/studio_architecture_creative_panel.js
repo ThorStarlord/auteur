@@ -3,12 +3,14 @@
  function createCreativePanel({root,onAction,onRevise,onClear,onComplete,onUseAlternative}={}){
   if(!root||typeof onAction!=='function'||typeof onRevise!=='function')throw Error('Creative panel requires callbacks');
   const doc=root.ownerDocument||document,make=(tag,text)=>{const e=doc.createElement(tag);if(text!==undefined)e.textContent=text;return e};
-  let anchors=[],actions=[],operation='explore',evidence=null,sentText=null;
+  let anchors=[],actions=[],operation='explore',evidence=null,sentText=null,discoveryOrigin=null;
   const heading=make('h3','Creative interaction with your coding agent');
   const notice=make('p','Working architecture only · No story canon accepted here.');
   const chips=make('div');chips.setAttribute('aria-label','Selected source anchors');
   const menu=make('div');menu.setAttribute('aria-label','Creative actions');
   // Book evidence the author brought from a working Book: shown apart from the question, sent apart from it.
+  // The discovered possibility this investigation came from, shown so the author knows what it was taken from.
+  const originNote=make('p');originNote.className='creative-origin';originNote.hidden=true;
   const evidenceBox=make('section');evidenceBox.setAttribute('aria-label','Book evidence');evidenceBox.className='creative-book-evidence';evidenceBox.hidden=true;
   const instruction=make('textarea');instruction.setAttribute('aria-label','Your creative intention');instruction.maxLength=4000;instruction.rows=3;
   instruction.placeholder='What would you like to understand or change about this selection?';
@@ -23,7 +25,7 @@
   const lineage=make('section');lineage.setAttribute('aria-label','Superseded creative exchanges');
   const result=make('section');result.setAttribute('aria-label','Inquiry result');
   const clear=make('button','Clear graph selection');clear.type='button';
-  root.append(heading,notice,chips,evidenceBox,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
+  root.append(heading,notice,chips,originNote,evidenceBox,menu,instruction,submit,status,packetLabel,packet,responseLabel,response,complete,history,lineage,result,clear);
   const agentOperations=new Set(['explain','challenge','explore','compare','connect_to_ask']);
   function updateSubmit(){const isRevision=operation==='revise';submit.textContent=isRevision?'Request holistic revision':
     agentOperations.has(operation)?'Ask coding agent (no revision)':operation==='trace'?'Trace recorded relationships':'Inspect recorded source';}
@@ -40,7 +42,14 @@
     evidenceBox.append(drop);
   }
   function setBookEvidence(next){evidence=next?Object.assign({},next):null;renderEvidence();}
+  function renderOrigin(){
+    originNote.hidden=!discoveryOrigin;
+    originNote.textContent=discoveryOrigin?'From a discovered possibility: “'+discoveryOrigin.title+'”. Discovery proposed it as advisory; this investigation is yours to direct.':'';
+  }
+  function setDiscoveryOrigin(next){discoveryOrigin=next?Object.assign({},next):null;renderOrigin();}
   function setSelection(next,available){anchors=next.slice();actions=(available||[]).slice();
+    // A possibility's origin holds only for its own questions; any other selection drops it, never rebinding it.
+    if(discoveryOrigin&&!(anchors.length===discoveryOrigin.questions.length&&anchors.every(a=>discoveryOrigin.questions.includes(a.id))))setDiscoveryOrigin(null);
     // Book evidence belongs to the concepts the Book records; another selection drops it.
     if(evidence&&!anchors.every(a=>a.kind==='node'&&(evidence.anchors||[]).includes(a.id))){evidence=null;renderEvidence();}
     chips.replaceChildren();for(const a of anchors){const item=make('span',a.kind+' · '+a.id+(a.field?' / '+a.field:'')+(a.index!=null?' · entry '+(a.index+1):''));
@@ -51,6 +60,7 @@
   submit.addEventListener('click',()=>{if(!anchors.length){status.textContent='Select a recorded graph element first.';return}
     const authorText=instruction.value;if(!authorText.trim()&&!['inspect','trace'].includes(operation)){status.textContent='Describe your creative intention first.';return}
     const payload={operation,anchors:anchors.slice(),authorText};
+    if(discoveryOrigin&&agentOperations.has(operation))payload.fromDiscovery=Object.assign({},discoveryOrigin);
     if(operation!=='revise')sentText=authorText;
     if(evidence&&agentOperations.has(operation))payload.bookEvidence=Object.assign({},evidence);
     if(operation==='revise')onRevise(payload);
@@ -217,7 +227,7 @@
   function invalidateResult(){result.replaceChildren();history.replaceChildren();lineage.replaceChildren();}
   // Bring the current answer to the author: its heading takes focus and comes into view.
   function focusResult(){const h=result.children&&result.children[0];if(h&&h.focus){h.focus({preventScroll:true});if(h.scrollIntoView)h.scrollIntoView({block:'start'});}}
-  updateSubmit();return {setSelection,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,focusResult,setAuthorText:text=>{instruction.value=text},
+  updateSubmit();return {setSelection,setDiscoveryOrigin,setStatus,setInquiryResult,setLocalInspection,invalidateResult,setBookEvidence,getBookEvidence:()=>evidence,focusResult,setAuthorText:text=>{instruction.value=text},
     setOperation:choose,getAuthorText:()=>instruction.value,reset:()=>{anchors=[];actions=[];evidence=null;renderEvidence();chips.replaceChildren();menu.replaceChildren();result.replaceChildren();history.replaceChildren();status.textContent='No host-agent request prepared.';packet.value='';},
     destroy:()=>root.replaceChildren()};
  }

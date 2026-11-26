@@ -1545,6 +1545,8 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
     return {
         **({"book_evidence": book_evidence} if book_evidence else {}),
         **({"considered_questions": considered} if considered else {}),
+        # A revision made from an investigation of a discovered possibility says which possibility it came from.
+        **({"from_discovery": inquiry["from_discovery"]} if inquiry.get("from_discovery") else {}),
         "inquiry_request_sha256": selection.inquiry_request_sha256,
         "hypothesis_id": match["id"],
         "title": match["title"],

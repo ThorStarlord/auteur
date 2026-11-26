@@ -616,3 +616,14 @@
 .atl-qcompare>.atl-section-title{margin-top:0;padding-top:0;border-top:0}
 .atl-qcompare .atl-question-text{margin:0;font:13px/1.45 var(--atl-serif);overflow-wrap:anywhere}
 .atl-qcompare-item{list-style:none;margin:6px 0;padding:8px 10px 6px;border-radius:9px;background:#fffdf8;border:1px solid var(--atl-hair)}
+
+/* Opportunity discovery: advisory cards in the folio. Each possibility states its status and its grounding plainly. */
+.atl-discover-request{margin:10px 0 12px;padding:9px 11px 8px;border-radius:10px;background:#f7f3ea;border:1px solid var(--atl-hair)}
+.atl-discover-request textarea{display:block;width:100%;margin:4px 0 8px;font:13px/1.45 var(--atl-sans);box-sizing:border-box}
+.atl-discover-run{margin:12px 0}
+.atl-discover-card{margin:10px 0;padding:10px 12px 8px;border-radius:12px;background:#fffdf8;border:1px solid var(--atl-hair)}
+.atl-discover-title{margin:0 0 4px;font:600 16px/1.3 var(--atl-serif);overflow-wrap:anywhere}
+.atl-discover-meta{margin:0 0 6px;font:600 11px/1.4 var(--atl-sans);color:#6a5f52;letter-spacing:.02em}
+.atl-discover-text,.atl-discover-why{margin:4px 0;font:14px/1.5 var(--atl-serif);overflow-wrap:anywhere}
+.atl-discover-next{margin:6px 0;font:600 13px/1.45 var(--atl-sans);color:#4d3d66;overflow-wrap:anywhere}
+.atl-discover-questions{margin:2px 0 6px;padding-left:18px;font:13px/1.45 var(--atl-serif);overflow-wrap:anywhere}
