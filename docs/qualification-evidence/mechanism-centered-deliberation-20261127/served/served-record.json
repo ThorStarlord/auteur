@@ -1,0 +1,14 @@
+{
+  "desktop-1440": {
+    "page_overflow_px": 0,
+    "has_connections_section": true,
+    "has_mechanism_only_alternative": true,
+    "console_page_errors": []
+  },
+  "phone-390": {
+    "page_overflow_px": 0,
+    "has_connections_section": true,
+    "has_mechanism_only_alternative": true,
+    "console_page_errors": []
+  }
+}

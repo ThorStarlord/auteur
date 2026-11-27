@@ -377,15 +377,20 @@
       onInvestigate: function (alternative, requestSha) {
         ensureCreativeGraph();
         if (!creativeAgentBridge) throw new Error("The creative panel is not ready yet; try again in a moment.");
+        // The owner names the anchors an investigation takes: the alternative's questions, and for a version 3 alternative the
+        // mechanism records it concerns. A single anchor is explained; two or three are compared.
+        var anchors = alternative.investigation_anchors || alternative.questions.map(function (identifier) {
+          return {kind: "question", id: identifier};
+        });
         return creativeAgentBridge.prepareInquiry({
-          anchors: alternative.questions.map(function (identifier) { return {kind: "question", id: identifier}; }),
-          // A comparison needs two questions; an alternative about one question is read as an explanation of it.
-          operation: alternative.questions.length >= 2 ? "compare" : "explain",
+          anchors: anchors,
+          operation: anchors.length >= 2 ? "compare" : "explain",
           authorText: alternative.next_investigation,
           fromConsequence: {requestSha256: requestSha, alternativeId: alternative.id}
         }).then(function () {
           creativePanel.setConsequenceOrigin({title: alternative.title, approach: String(alternative.approach || "").replace(/_/g, " "),
-            suggestion: alternative.next_investigation, questions: alternative.questions.slice()});
+            suggestion: alternative.next_investigation, questions: alternative.questions.slice(),
+            mechanisms: (alternative.mechanism_views || []).map(function (view) { return view.label; })});
           status("Investigation of “" + alternative.title + "” prepared for your coding agent. The Architecture is unchanged.");
         });
       }

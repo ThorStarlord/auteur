@@ -1,0 +1,37 @@
+12 validation errors for ConsequenceAnswerV3
+concerns.0
+  Value error, a transformed or possibly displaced concern states its intent basis [type=value_error, input_value={'title': 'Compact draw s...he term in one sense.']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
+concerns.2
+  Value error, a transformed or possibly displaced concern states its intent basis [type=value_error, input_value={'title': "Open question ...vidence': ['E11', 'E8']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
+concerns.3
+  Value error, a transformed or possibly displaced concern states its intent basis [type=value_error, input_value={'title': "Alternative B'...idence': ['E13', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
+concerns.4
+  Value error, a transformed or possibly displaced concern states its intent basis [type=value_error, input_value={'title': "Long Return's ...: ['E26', 'E51', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
+concerns.5
+  Value error, a transformed or possibly displaced concern states its intent basis [type=value_error, input_value={'title': "Alternative A'...: ['E12', 'E37', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/value_error
+inheritance.0.to
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='Books 24-25', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+inheritance.1.to
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='Books 27-29', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+trajectories.0.steps.0.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='recorded: rebuild labour link', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.1.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='long_horizon: Books 27-29 Compact bid', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.1.basis
+  Input should be 'recorded', 'interpreted' or 'speculative' [type=literal_error, input_value='hypothetical', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.2.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='long_horizon: Book 30 pulse', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.2.basis
+  Input should be 'recorded', 'interpreted' or 'speculative' [type=literal_error, input_value='hypothetical', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error

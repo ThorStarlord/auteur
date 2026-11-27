@@ -1,0 +1,16 @@
+5 validation errors for ConsequenceAnswerV3
+concerns.0.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='recorded', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.2.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='interpreted', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.3.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='interpreted', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.4.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='speculative', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.5.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='interpreted', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error

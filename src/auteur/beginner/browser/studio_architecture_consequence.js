@@ -5,8 +5,13 @@
 (function(global){'use strict';
   var STATUS={preserved:'Still represented',transformed:'Transformed',possibly_displaced:'May be displaced',introduced:'New concern'};
   var APPROACH={keep_baseline:'Keep the baseline concern',accept_proposal:'Accept the proposal as written',replace:'Replace',
-    integrate:'Integrate',separate:'Separate',defer:'Defer',reframe:'Reframe',
+    integrate:'Integrate',separate:'Separate',defer:'Defer',reframe:'Reframe',retire:'Retire',
     retain:'Retain (version 1 wording; its meaning is not fixed)'};
+  var CONNECTION_STANDING={recorded:'Recorded',inferred:'Inferred (agent reading)',hypothetical:'Hypothetical',
+    unestablished:'Not established'};
+  var GRAPH={joined_by_link:'A recorded link joins the two directly',shared_endpoint:'Both name the same node as an endpoint',
+    adjacent_by_link:'One recorded link away: adjacency, not a relation between them',
+    no_recorded_relation:'The Architecture records no link, shared endpoint or adjacency between them'};
   var PROVENANCE={preserved:'Preserved in the proposal',transformed:'Transformed by the proposal',removed:'Removed by the proposal',
     introduced:'Introduced by the proposal',historical:'Historical: no longer current'};
   var ROUTE={changed_by_proposal:'the proposal changes it',referenced_by_working_book:'a Working Book references it',
@@ -50,6 +55,8 @@
   function inheritanceWords(k){return INHERITANCE_KIND[k]||k;}
   function stageWords(s){return STAGE[s]||s;}
   function basisWords(b){return BASIS[b]||b;}
+  function connectionStandingWords(s){return CONNECTION_STANDING[s]||s;}
+  function graphWords(status){return GRAPH[status]||status||"Not read";}
   // The owner's own definition of an approach, reach value, inheritance kind or provenance, read from the projection.
   function meaningOf(group,key){return ((VOCAB[group]||{})[key])||null;}
 
@@ -220,6 +227,26 @@
     return item;
   }
 
+  // A connection between two recorded mechanisms: the agent's standing, shown beside what the recorded graph itself holds.
+  function connectionBlock(connection,packet){
+    var item=el('li','consequence-connection consequence-standing-'+connection.standing);
+    item.appendChild(el('span','consequence-chip',connectionStandingWords(connection.standing)));
+    item.appendChild(el('p','consequence-from','Between: '+(connection.between_views||[]).map(function(v){return v.label;}).join(' and ')+'.'));
+    var standingNote=meaningOf('connection_standings',connection.standing)||connection.standing_meaning;
+    if(standingNote)item.appendChild(el('p','consequence-note',standingNote));
+    if(connection.basis)item.appendChild(el('p','consequence-note','Basis: '+(meaningOf('connection_bases',connection.basis)||connection.basis)));
+    item.appendChild(el('p','consequence-reading','Claim (agent interpretation): '+connection.text));
+    if(connection.reasoning)item.appendChild(el('p','consequence-reading','Reasoning (agent): '+connection.reasoning));
+    if(connection.worth_developing)item.appendChild(el('p','consequence-reading','Worth developing (agent): '+connection.worth_developing));
+    (connection.assumptions||[]).forEach(function(text){item.appendChild(el('p','consequence-note','Assumes: '+text));});
+    (connection.counterevidence||[]).forEach(function(text){item.appendChild(el('p','consequence-note','Counterevidence: '+text));});
+    var graph=connection.graph||{};
+    var graphLine=graphWords(graph.status)+(graph.record?' ('+graph.record.kind+' '+graph.record.id+')':'');
+    item.appendChild(el('p','consequence-graph','The recorded graph: '+graphLine+'.'));
+    if((connection.evidence||[]).length)item.appendChild(evidenceDisclosure(packet,connection.evidence,'Evidence for this connection'));
+    return item;
+  }
+
   function alternativeBlock(alternative,packet,canInvestigate,onInvestigate,busy){
     var item=el('li','consequence-alternative');
     item.appendChild(el('span','consequence-chip',approachWords(alternative.approach)));
@@ -228,16 +255,21 @@
     if(meaning)item.appendChild(el('p','consequence-note',meaning));
     if(alternative.approach==='retain'&&VOCAB.retain_legacy)item.appendChild(el('p','consequence-note',VOCAB.retain_legacy));
     item.appendChild(el('p',null,alternative.summary));
-    var names=el('ul','consequence-questions');
-    alternative.questions.forEach(function(identifier){
-      names.appendChild(el('li',null,'Question: '+questionWording(packet,identifier)));
-    });
-    item.appendChild(names);
+    // A version 3 alternative may concern a mechanism alone: it then names no question at all.
+    var questions=alternative.questions||[];
+    if(questions.length){
+      var names=el('ul','consequence-questions');
+      questions.forEach(function(identifier){
+        names.appendChild(el('li',null,'Question: '+questionWording(packet,identifier)));
+      });
+      item.appendChild(names);
+    }
     if((alternative.keeps_views||[]).length){
       item.appendChild(el('p','consequence-keeps','Keeps: '+alternative.keeps_views.map(function(v){return v.label;}).join('; ')+'.'));
     }
     if((alternative.mechanism_views||[]).length){
-      item.appendChild(el('p','consequence-keeps','Mechanisms to examine: '+alternative.mechanism_views.map(function(v){return v.label;}).join('; ')+'.'));
+      var concerns=alternative.mechanism_views.map(function(v){return v.label;}).join('; ');
+      item.appendChild(el('p','consequence-keeps',(questions.length?'Mechanisms it concerns: ':'Mechanism it concerns (no question needed): ')+concerns+'.'));
     }
     item.appendChild(el('p','consequence-gains','Gains: '+alternative.gains));
     item.appendChild(el('p','consequence-costs','Costs: '+alternative.costs));
@@ -255,7 +287,10 @@
 
   function resultBlocks(root,result,standing,projection,handlers,busy){
     var packet=result.evidence||{};
-    var version2=result.schema==='studio-revision-consequence/2';
+    // Versions 2 and 3 share the structured sections (reach, mechanisms, inheritance, trajectories); version 3 adds connections
+    // and mechanism-anchored alternatives.
+    var version2=result.schema==='studio-revision-consequence/2'||result.schema==='studio-revision-consequence/3';
+    var version3=result.schema==='studio-revision-consequence/3';
     root.appendChild(sectionHead('What the proposal does'));
     root.appendChild(el('p','consequence-reading','Reading (agent interpretation): '+result.reading));
     if(version2){
@@ -306,11 +341,19 @@
       }
     }
 
+    if(version3&&(result.connections||[]).length){
+      root.appendChild(sectionHead('How the mechanisms relate'));
+      root.appendChild(el('p','consequence-note','A connection says how two recorded mechanisms relate. Its standing is the agent’s; the recorded graph line is read by the owner from the Architecture itself. The two are shown side by side, and they may differ.'));
+      var links=el('ul','consequence-connections');
+      result.connections.forEach(function(c){links.appendChild(connectionBlock(c,packet));});
+      root.appendChild(links);
+    }
+
     // Only the latest analysis of the proposal on screen may be investigated from here. The owner refuses the rest.
     var canInvestigate=standing==='current';
     if(result.alternatives&&result.alternatives.length){
       root.appendChild(sectionHead('Developable alternatives'));
-      root.appendChild(el('p','consequence-note','Each alternative is one way to develop the opportunity. Investigate prepares the request for your coding agent with this alternative’s questions and the analysis’s suggested wording, which the creative panel shows as the suggestion. Nothing is sent to a provider, and the Architecture is unchanged.'));
+      root.appendChild(el('p','consequence-note','Each alternative is one way to develop the opportunity. It may concern a question, a mechanism, or both. Investigate prepares the request for your coding agent with the alternative’s questions and mechanisms and the analysis’s suggested next step, which the creative panel shows as the suggestion. Nothing is sent to a provider, and the Architecture is unchanged.'));
       var alts=el('ul','consequence-alternatives');
       result.alternatives.forEach(function(a){
         alts.appendChild(alternativeBlock(a,packet,canInvestigate,function(alt){
@@ -535,7 +578,7 @@
     createConsequencePanel:createConsequencePanel,
     statusWords:statusWords,standingWords:standingWords,approachWords:approachWords,intentWords:intentWords,
     provenanceWords:provenanceWords,reachWords:reachWords,inheritanceWords:inheritanceWords,stageWords:stageWords,
-    basisWords:basisWords,
+    basisWords:basisWords,connectionStandingWords:connectionStandingWords,graphWords:graphWords,
     evidenceLine:evidenceLine,questionWording:questionWording,
     STATUS:STATUS,APPROACH:APPROACH,STANDING:STANDING,PROVENANCE:PROVENANCE,REACH:REACH,INHERITANCE_KIND:INHERITANCE_KIND
   };

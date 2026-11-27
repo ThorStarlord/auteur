@@ -275,7 +275,7 @@ MOTIVATING_LINKS = ("l_conversion_sets_draw", "l_trade_draws_without_return", "l
 def test_the_packet_cites_the_unchanged_mechanisms_the_motivating_case_turns_on(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    packet = packet_of(prepare_architecture_consequence(store))
+    packet = packet_of(prepare_architecture_consequence(store, contract_version=2))
     # Version 3 reserves a question-linked share of the Book elements; version 2 analyses keep their own meaning.
     assert packet["packet_version"] == 3
     cited = {item["record_id"]: item for item in packet["evidence"] if item["kind"] == "mechanism"}
@@ -291,7 +291,7 @@ def test_the_packet_cites_the_unchanged_mechanisms_the_motivating_case_turns_on(
 def test_a_book_element_of_each_readable_book_is_cited_by_its_identity_and_collection(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    packet = packet_of(prepare_architecture_consequence(store))
+    packet = packet_of(prepare_architecture_consequence(store, contract_version=2))
     elements = [item for item in packet["evidence"] if item["kind"] == "book_element"]
     assert {item["book_number"] for item in elements} >= {BOOK, 25}
     assert any(item["collection"] == "inherited" and item["element_id"] == "inh-uneven-draw" for item in elements)
@@ -308,7 +308,7 @@ def test_a_transformed_link_is_refused_without_its_transformation_and_accepted_w
                 row["function"] = "purchased shares draw labour in kind under the rebuild"
 
     propose(store, INSTRUCTION, change_purchase)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     packet = packet_of(prepared)
     purchased = next(item for item in packet["evidence"] if item["kind"] == "mechanism"
                      and item["record_id"] == "l_trade_draws_without_return")
@@ -327,7 +327,7 @@ def test_a_transformed_link_is_refused_without_its_transformation_and_accepted_w
 def test_a_completed_analysis_stores_provenance_and_hypothetical_trajectories_read_from_the_evidence(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     projection = complete_architecture_consequence(store, replay(prepared["request"], valid_answer(packet_of(prepared))))
     result = projection["result"]
     assert result["schema"] == "studio-revision-consequence/2"
@@ -344,7 +344,7 @@ def test_a_completed_analysis_stores_provenance_and_hypothetical_trajectories_re
 def test_an_alternative_carries_its_kept_wording_and_mechanisms_into_an_investigation_without_widening_it(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     projection = complete_architecture_consequence(store, replay(prepared["request"], valid_answer(packet_of(prepared))))
     alternative = projection["result"]["alternatives"][0]
     origin = consequence_origin(store, {"request_sha256": projection["request_sha256"],

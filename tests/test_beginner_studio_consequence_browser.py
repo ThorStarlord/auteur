@@ -27,7 +27,10 @@ sys.path.insert(0, str(REPO / "tests"))
 import seed_book_discovery_study as discovery  # noqa: E402
 import seed_book_impact_study as impact  # noqa: E402
 from test_architecture_consequence import (  # noqa: E402
-    INSTRUCTION, Q_CONVERSION, packet_of, propose, reword_conversion, snapshot, valid_answer,
+    INSTRUCTION, Q_CONVERSION, packet_of, propose, reword_conversion, snapshot,
+)
+from test_architecture_consequence_v3 import (  # noqa: E402
+    COMPACT, compact_under_retained_terms, mechanism_answer, valid_answer_v3,
 )
 from test_persistent_narrative_questions import assign_identities  # noqa: E402
 from test_persistent_question_journey import reconcile  # noqa: E402
@@ -97,13 +100,13 @@ def replay(request: dict, payload) -> str:
     return json.dumps(response.model_dump(), default=str)
 
 
-def ask_and_answer(page, store) -> dict:
+def ask_and_answer(page, store, answer=valid_answer_v3) -> dict:
     """Ask about the proposal on screen and paste the replayed answer built from its exact request."""
     page.locator("#architecture-consequence .consequence-prepare").click()
     page.wait_for_selector("#architecture-consequence textarea.consequence-request", timeout=15000)
     request = json.loads(page.locator("#architecture-consequence textarea.consequence-request").input_value())
     packet = json.loads(request["user"])["consequence_packet"]
-    page.locator("#consequence-response").fill(replay(request, valid_answer(packet)))
+    page.locator("#consequence-response").fill(replay(request, answer(packet)))
     page.locator("#architecture-consequence .consequence-submit").click()
     page.wait_for_selector("#architecture-consequence .consequence-concern", timeout=15000)
     return request
@@ -191,7 +194,7 @@ def test_an_analysis_of_an_earlier_proposal_is_labelled_and_the_proposal_on_scre
     from auteur.beginner.studio_architecture_consequence import (
         complete_architecture_consequence, prepare_architecture_consequence)
     prepared = prepare_architecture_consequence(store)
-    complete_architecture_consequence(store, owner_replay(prepared["request"], valid_answer(packet_of(prepared))))
+    complete_architecture_consequence(store, owner_replay(prepared["request"], valid_answer_v3(packet_of(prepared))))
     # A different revision replaces the proposal the analysis examined.
     propose(store, "Say how reading is taught.",
             lambda c: c["nodes"][0].__setitem__("summary", c["nodes"][0]["summary"] + " Revised for the test."))
@@ -254,3 +257,31 @@ def test_a_double_press_of_investigate_sends_one_inquiry(browser, identified, tm
             "document.querySelector('#architecture-consequence .consequence-notice').textContent.includes('Investigation prepared')",
             timeout=15000)
         assert len(posts) == 1, posts
+
+
+def test_a_mechanism_alone_is_read_as_a_connection_and_investigated_from_the_served_page(browser, identified, tmp_path):
+    """PR #647's motivating case: a recorded relation changes and no question does. The alternative concerns the mechanism alone."""
+    project = copy_of(identified, tmp_path)
+    store = store_for(project)
+    propose(store, "Make the Mill Compact's labour duty apply in every season.", compact_under_retained_terms)
+    before = narrative_snapshot(project)
+    with served_studio(browser, project) as (_server, page, _errors):
+        page.wait_for_selector("#architecture-consequence:not([hidden])", timeout=20000)
+        ask_and_answer(page, store, answer=lambda packet: mechanism_answer(packet))
+        text = section_text(page)
+        assert "How the mechanisms relate" in text
+        assert "Between: link l_compact_hands_in_kind (transformed) and link l_trade_draws_without_return" in text
+        assert "The recorded graph: Both name the same node as an endpoint (node inst_mill_compact)." in text
+        assert "Mechanism it concerns (no question needed): link l_compact_hands_in_kind" in text
+        assert page.locator("#architecture-consequence .consequence-alternative .consequence-questions").count() == 0
+        page.locator("#architecture-consequence .consequence-investigate").first.click()
+        page.wait_for_function(
+            "document.querySelector('#architecture-consequence .consequence-notice') && "
+            "document.querySelector('#architecture-consequence .consequence-notice').textContent.includes('Investigation prepared')",
+            timeout=15000)
+        inquiry = json.loads(project_architecture_inquiry(store)["request"]["user"])
+        assert inquiry["from_consequence"]["questions"] == []
+        assert inquiry["from_consequence"]["mechanisms"][0]["record_id"] == COMPACT
+        assert inquiry["graph_intent"]["anchors"][0]["kind"] == "link"
+        assert inquiry["graph_intent"]["anchors"][0]["id"] == COMPACT
+        assert narrative_snapshot(project) == before, "the mechanism's analysis and its investigation changed narrative state"

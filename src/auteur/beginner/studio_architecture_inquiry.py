@@ -87,7 +87,9 @@ _BOOK_EVIDENCE_GUIDANCE = (
     "a verified causal relationship. The Architecture concepts it cites are given by recorded node id. Keep "
     "three things apart: what the Book records, what you interpret, and what remains the author's decision. "
     "It is a legitimate answer that the observation should stay local to the Book and needs no "
-    "Architecture change; say so when that is your reading."
+    "Architecture change; say so when that is your reading. question_associations names the Series questions the element "
+    "engages, by identity, with whether each is still open in the current Architecture. An association is engagement only: it "
+    "is not an answer, a settlement or an inheritance, and an anchor on an open question names the question it engages."
 )
 
 _PRIOR_BOOK_EVIDENCE_GUIDANCE = (
@@ -377,11 +379,12 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
             payload['from_discovery']=origin_summary
         consequence_summary=None
         if consequence_origin_ref is not None:
-            # An alternative an analysis of a pending revision proposed: investigated on its own questions, still continuing.
+            # An alternative an analysis of a pending revision proposed: investigated on exactly its own anchors (questions and,
+            # for a version 3 alternative, mechanisms), on the current working architecture. The owner checks the match.
             from .studio_architecture_consequence import consequence_origin
-            if intent.target!='current' or any(a.kind!='question' for a in intent.anchors):
-                raise ValueError('an analysed alternative is investigated on its own questions, as the current working architecture')
-            consequence_summary=consequence_origin(store,consequence_origin_ref,[a.id for a in intent.anchors])
+            if intent.target!='current':
+                raise ValueError('an analysed alternative is investigated on the current working architecture')
+            consequence_summary=consequence_origin(store,consequence_origin_ref,[{'kind':a.kind,'id':a.id} for a in intent.anchors])
             payload['from_consequence']=consequence_summary
         deliberation=None
         question_ids=[a.id for a in intent.anchors if a.kind=='question']
@@ -457,7 +460,13 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
     # question still exists. A removed question is historical evidence, never an anchor.
     dq=evidence.get('decision_question') or {}
     anchorable_question=dq.get('question_id') if dq.get('state') in ('current_wording','moved','reworded','moved_and_reworded') else None
-    if not present and not anchorable_question:
+    # The questions the element is associated with (by identity) that the current Architecture still holds: an association is
+    # engagement, and an element may be investigated on the questions it engages. A question no longer open is never an anchor.
+    associations=_question_associations(current,element)
+    anchorable_questions={row['question_id'] for row in associations if row['standing']=='open_in_current_architecture'}
+    if anchorable_question:
+        anchorable_questions.add(anchorable_question)
+    if not present and not anchorable_questions:
         raise ValueError(
             f"Book {ref.book_number}'s element {ref.element_id} records no reference to a concept the current "
             "working architecture has, so there is no recorded concept to ask about; a concept it names only in "
@@ -470,7 +479,7 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
             "architecture no longer has; it can be read as historical evidence but cannot anchor an inquiry. "
             "Anchor on a current concept the element records: " + ', '.join(sorted(present)))
     stray=[a.id for a in intent.anchors if not (
-        (a.kind=='node' and a.id in present) or (a.kind=='question' and a.id==anchorable_question))]
+        (a.kind=='node' and a.id in present) or (a.kind=='question' and a.id in anchorable_questions))]
     if stray:
         raise ValueError(
             "with Book evidence, every anchor must be a current Architecture concept the element records a "
@@ -487,9 +496,30 @@ def _book_evidence_packet(store, current: dict, intent: GraphIntent, ref: BookEv
                 'written_against_current_architecture':
                     evidence['written_against_architecture_request_sha256']==current['request_sha256']},
         'element':element,
+        'question_associations':associations,
         'cited_architecture_concepts':[{**c,'used_as_anchor':c['node_id'] in {a.id for a in intent.anchors}}
                                        for c in evidence['cited_architecture_concepts']],
     }
+
+
+ASSOCIATION_NOTE=('The element engages these questions, named by identity. An association records engagement only: it is not an '
+                  'answer, a settlement or an inheritance, and two questions an element engages are not thereby related.')
+
+
+def _question_associations(current: dict, element: dict) -> list[dict]:
+    """The Series questions an element is associated with, each read against the current Architecture's open questions."""
+    candidate=current.get('candidate') or {}
+    identities=candidate.get('open_question_ids') or []
+    wording=dict(zip(identities,candidate.get('open_questions') or []))
+    rows=[]
+    for identifier in element.get('question_refs') or []:
+        if identifier in wording:
+            rows.append({'question_id':identifier,'standing':'open_in_current_architecture',
+                         'current_wording':wording[identifier],'note':ASSOCIATION_NOTE})
+        else:
+            rows.append({'question_id':identifier,'standing':'not_open_in_current_architecture',
+                         'current_wording':None,'note':ASSOCIATION_NOTE})
+    return rows
 
 
 def _live_matches(store,current,request,arch) -> bool:

@@ -1,0 +1,70 @@
+23 validation errors for ConsequenceAnswerV3
+concerns.0.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value="E1 requests this change ... an escalating villain.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.0.counterevidence.0
+  Input should be a valid string [type=string_type, input_value={'text': "E1 says the rec...evidence': ['E1', 'E2']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+concerns.1.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value="E2 says the lowest terra...re is cut into changes.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.1.counterevidence.0
+  Input should be a valid string [type=string_type, input_value={'text': 'E28 is recorded....', 'evidence': ['E28']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+concerns.2.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='E2 states the aim direct...scalating-villain epic.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.2.counterevidence.0
+  Input should be a valid string [type=string_type, input_value={'text': "E18 defines the...vidence': ['E18', 'E2']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+concerns.3.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value="E2 places the cost of re... targeting the refuser.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.3.counterevidence.0
+  Input should be a valid string [type=string_type, input_value={'text': 'E24 ties lost s....', 'evidence': ['E24']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+concerns.4.intent
+  Input should be 'instruction_names_it', 'selected_alternative_names_it' or 'not_established' [type=literal_error, input_value='E1 changes no other rela...ting choice stays open.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+concerns.4.counterevidence.0
+  Input should be a valid string [type=string_type, input_value={'text': 'The holding cou...idence': ['E27', 'E12']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.0.unresolved
+  Input should be a valid array [type=list_type, input_value="The holding's capacity, ...cord does not describe.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+mechanisms.1.unresolved
+  Input should be a valid array [type=list_type, input_value='Whether the node summary...ecords no change to it.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+mechanisms.2.unresolved
+  Input should be a valid array [type=list_type, input_value='Whether retained water i...the Source responds to.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+mechanisms.3.counterevidence.0.evidence
+  List should have at most 3 items after validation, not 4 [type=too_long, input_value=['E55', 'E66', 'E44', 'E51'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/too_long
+mechanisms.3.unresolved
+  Input should be a valid array [type=list_type, input_value='Whether the Lowfen chann...le reaches its release.', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+mechanisms.4.unresolved
+  Input should be a valid array [type=list_type, input_value='Whether any household fl...estion, q-surge-route).', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/list_type
+inheritance.0.to
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='Books 24 and 25 (hand-light household elements)', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+trajectories.0.steps.0.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='Refusal under the changed link', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.1.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='Overflow', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.1.basis
+  Input should be 'recorded', 'interpreted' or 'speculative' [type=literal_error, input_value='hypothetical', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.2.stage
+  Input should be 'local_decision', 'mechanism_transformation', 'tension', 'opportunity', 'inheritance' or 'long_horizon' [type=literal_error, input_value='Settled Water', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+trajectories.0.steps.2.basis
+  Input should be 'recorded', 'interpreted' or 'speculative' [type=literal_error, input_value='hypothetical', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/literal_error
+alternatives.0.keeps.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='q-surge-route', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch

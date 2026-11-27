@@ -35,8 +35,8 @@ from auteur.series.working_book_architecture import book_elements, book_numbers,
 from . import studio_architecture as arch
 from .studio_architecture_deliberation import _book_item, _history_for, deliberation_standing
 from .studio_architecture_mechanisms import (
-    MAX_BOOK_ELEMENTS, MAX_HISTORICAL_VERSIONS, MAX_MECHANISMS, PROVENANCE, PROVENANCE_MEANING, ROUTE_MEANING,
-    book_element_candidates, mechanism_inventory, provenance_summary, seed_node_identifiers,
+    MAX_BOOK_ELEMENTS, MAX_HISTORICAL_VERSIONS, MAX_MECHANISMS, PROVENANCE, PROVENANCE_MEANING, RELATION_MEANINGS, ROUTE_MEANING,
+    book_element_candidates, mechanism_inventory, provenance_summary, relation_status, seed_node_identifiers,
 )
 from .studio_architecture_question_projection import project_architecture_questions
 from .studio_architecture_questions import text_digest
@@ -44,6 +44,8 @@ from .studio_store import CanvasStore
 
 SCHEMA = "studio-revision-consequence/1"
 SCHEMA_V2 = "studio-revision-consequence/2"
+SCHEMA_V3 = "studio-revision-consequence/3"
+CONTRACT_VERSION = 3  # the answer contract a new analysis asks for; versions 1 and 2 are read unchanged
 PACKET_VERSION = 3  # 3: question-linked Book elements (a class of examined questions) take reserved shares; 2 is unchanged
 ROLE = "studio_architecture_consequence"
 AUTHORITY = "noncanonical_consequence_analysis_not_working_architecture"
@@ -146,6 +148,58 @@ INHERITANCE_MEANINGS: dict[str, str] = {
     "proposed_inheritance": "A relationship the agent suggests the author construct. It is not recorded.",
     "unknown_inheritance": "The records do not establish whether the later Book carries the earlier concern.",
 }
+# Version 3: alternatives anchored on a question, a mechanism or both; relations between two mechanisms, checked against the graph.
+MAX_V3_ANCHORS = 3
+MAX_CONNECTIONS = 4
+MAX_CONNECTION_ASSUMPTIONS = 3
+MAX_CONNECTION_COUNTEREVIDENCE = 2
+CONNECTION_TEXT_LIMIT = 400
+CONNECTION_REASON_LIMIT = 400
+CONNECTION_ITEM_LIMIT = 240
+ApproachV3 = Literal["keep_baseline", "accept_proposal", "replace", "integrate", "separate", "defer", "reframe", "retire"]
+ConnectionStanding = Literal["recorded", "inferred", "hypothetical", "unestablished"]
+ConnectionBasis = Literal["graph_miss", "competing_readings", "incomplete_evidence", "productive_independence"]
+
+APPROACH_MEANINGS_V3: dict[str, str] = {
+    "keep_baseline": "Keep the earlier concern as recorded: its baseline wording or record stays in play, and the proposal's change to it "
+                     "is not adopted. keeps cites the baseline wording of each named question and the baseline record of each named "
+                     "mechanism.",
+    "accept_proposal": "Accept the proposal as written for the named questions and mechanisms, including any displacement it causes. The "
+                       "displacement is recorded as accepted, not resolved. keeps cites the proposed side of each anchor: the proposed "
+                       "wording or removal of a question, and the proposed record of a mechanism.",
+    "replace": "Put a different formulation or mechanism in place of the earlier one. A new question or mechanism is described in the "
+               "summary; it is not given an identity. keeps cites the baseline wording or record of each anchor.",
+    "integrate": "Hold two or three named concerns or mechanisms in one development, answered together. The summary says what the "
+                 "combined development gives up. keeps cites the baseline wording or record of each anchor.",
+    "separate": "Split a concern or mechanism into parts developed independently. The parts keep the named anchors; a distinct new "
+                "question or mechanism is described, not given an identity. keeps cites the baseline wording or record of each anchor.",
+    "defer": "Postpone reconsideration and name the evidence or Book that would settle it. The named anchors keep their current form. "
+             "keeps cites their baseline wording or record.",
+    "reframe": "Restate the creative problem at another level, keeping the named anchors' identities. The restatement is in the summary. "
+               "keeps cites the baseline wording or record of each anchor.",
+    "retire": "Deliberately give up a named mechanism or question as part of the story: its recorded role is not carried forward. The "
+              "summary says what is lost and what, if anything, takes its place. keeps cites the baseline wording or record of each "
+              "anchor.",
+}
+CONNECTION_MEANINGS: dict[str, str] = {
+    "recorded": "The Architecture records a joining link or interaction, or a shared node, between the two mechanisms. The owner checks "
+                "this against the candidates and stores what it found beside the standing.",
+    "inferred": "Not recorded. The agent infers the connection from the packet's evidence; the reasoning and the assumptions are the "
+                "agent's interpretation.",
+    "hypothetical": "Not recorded and not established. A creative possibility worth developing, with what it would need to hold.",
+    "unestablished": "The evidence does not warrant a conclusion. The basis says why. graph_miss means only that this Architecture records "
+                     "no connection between them, never that the story has none.",
+}
+CONNECTION_BASIS_MEANINGS: dict[str, str] = {
+    "graph_miss": "The Architecture records no joining link or shared node between the two mechanisms, checked by the owner. This is "
+                  "not a claim about the story.",
+    "competing_readings": "The evidence supports more than one reading of how the two relate, and none is preferred.",
+    "incomplete_evidence": "The evidence the packet gives does not settle whether they relate.",
+    "productive_independence": "They may be better understood as independent: keeping them apart may be the stronger development.",
+}
+_V3_EARLIER_PROVENANCE = {"preserved", "transformed", "removed"}
+_V3_PROPOSED_PROVENANCE = {"preserved", "transformed", "introduced", "removed"}
+
 TRAJECTORY_STATUS = "hypothetical"
 _EARLIER_KINDS = {"baseline_wording", "recorded_history", "book_decision"}
 _EARLIER_PROVENANCE = {"preserved", "transformed", "removed", "historical"}
@@ -363,6 +417,94 @@ class ConsequenceAnswerV2(BaseModel):
 
     @model_validator(mode="after")
     def empty_concerns_say_why(self) -> "ConsequenceAnswerV2":
+        if not self.concerns and not (self.no_concern_reason or "").strip():
+            raise ValueError("an analysis with no concern must say why in no_concern_reason")
+        for text in self.not_established:
+            if not text.strip() or len(text) > NOT_ESTABLISHED_LIMIT:
+                raise ValueError(f"each not_established item is text under {NOT_ESTABLISHED_LIMIT} characters")
+        return self
+
+
+class AlternativeV3(BaseModel):
+    """An alternative anchored on a continuing question, a current mechanism, or both. It needs no question to exist."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    approach: ApproachV3
+    title: str = Field(min_length=1, max_length=APPROACH_TITLE_LIMIT)
+    summary: str = Field(min_length=1, max_length=APPROACH_SUMMARY_LIMIT)
+    questions: list[QuestionId] = Field(default_factory=list, max_length=3)
+    mechanisms: list[EvidenceId] = Field(default_factory=list, max_length=3)
+    keeps: list[EvidenceId] = Field(min_length=1, max_length=MAX_V3_ANCHORS)
+    gains: str = Field(min_length=1, max_length=APPROACH_GAINS_LIMIT)
+    costs: str = Field(min_length=1, max_length=APPROACH_COSTS_LIMIT)
+    next_investigation: str = Field(min_length=1, max_length=NEXT_LIMIT)
+
+    @model_validator(mode="after")
+    def anchored_and_distinct(self) -> "AlternativeV3":
+        if not self.questions and not self.mechanisms:
+            raise ValueError("an alternative names at least one question or mechanism it concerns")
+        if len(self.questions) + len(self.mechanisms) > MAX_V3_ANCHORS:
+            raise ValueError("an alternative names at most three anchors in all, because an investigation takes no more")
+        if len(set(self.questions)) != len(self.questions) or len(set(self.mechanisms)) != len(self.mechanisms):
+            raise ValueError("an alternative names each question and each mechanism once")
+        if len(set(self.keeps)) != len(self.keeps):
+            raise ValueError("an alternative cites each item once")
+        return self
+
+
+class MechanismConnection(BaseModel):
+    """A relation between two recorded mechanisms, with the standing the agent gives it. The owner checks the graph separately."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    between: list[EvidenceId] = Field(min_length=2, max_length=2)
+    standing: ConnectionStanding
+    text: str = Field(min_length=1, max_length=CONNECTION_TEXT_LIMIT)
+    reasoning: str | None = Field(default=None, max_length=CONNECTION_REASON_LIMIT)
+    worth_developing: str | None = Field(default=None, max_length=CONNECTION_REASON_LIMIT)
+    basis: ConnectionBasis | None = None
+    assumptions: list[ItemText] = Field(default_factory=list, max_length=MAX_CONNECTION_ASSUMPTIONS)
+    counterevidence: list[ItemText] = Field(default_factory=list, max_length=MAX_CONNECTION_COUNTEREVIDENCE)
+    evidence: list[EvidenceId] = Field(default_factory=list, max_length=4)
+
+    @model_validator(mode="after")
+    def standing_states_its_basis(self) -> "MechanismConnection":
+        if len(set(self.between)) != 2:
+            raise ValueError("a connection relates two distinct mechanisms")
+        if self.standing == "inferred":
+            if not (self.reasoning or "").strip():
+                raise ValueError("an inferred connection states its reasoning")
+            if not self.assumptions:
+                raise ValueError("an inferred connection states at least one assumption")
+        if self.standing == "hypothetical":
+            if not (self.worth_developing or "").strip():
+                raise ValueError("a hypothetical connection says what makes it worth developing (worth_developing)")
+            if not self.assumptions:
+                raise ValueError("a hypothetical connection states at least one assumption")
+        if self.standing == "unestablished" and self.basis is None:
+            raise ValueError("an unestablished connection states its basis")
+        if self.standing != "unestablished" and self.basis is not None:
+            raise ValueError("a basis is stated only for an unestablished connection")
+        if self.standing != "inferred" and self.reasoning is not None:
+            raise ValueError("reasoning is stated only for an inferred connection")
+        if self.standing != "hypothetical" and self.worth_developing is not None:
+            raise ValueError("worth_developing is stated only for a hypothetical connection")
+        return self
+
+
+class ConsequenceAnswerV3(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    schema_version: Literal[3]
+    reading: str = Field(min_length=1, max_length=READING_LIMIT)
+    reach: ReachKind
+    concerns: list[ConsequenceConcern] = Field(default_factory=list, max_length=MAX_CONCERNS)
+    no_concern_reason: str | None = Field(default=None, max_length=NO_CONCERN_LIMIT)
+    mechanisms: list[MechanismReading] = Field(default_factory=list, max_length=MAX_MECHANISM_READINGS)
+    inheritance: list[InheritanceItem] = Field(default_factory=list, max_length=MAX_INHERITANCE)
+    trajectories: list[Trajectory] = Field(default_factory=list, max_length=MAX_TRAJECTORIES)
+    alternatives: list[AlternativeV3] = Field(default_factory=list, max_length=MAX_ALTERNATIVES)
+    connections: list[MechanismConnection] = Field(default_factory=list, max_length=MAX_CONNECTIONS)
+    not_established: list[str] = Field(default_factory=list, max_length=MAX_NOT_ESTABLISHED)
+
+    @model_validator(mode="after")
+    def empty_concerns_say_why(self) -> "ConsequenceAnswerV3":
         if not self.concerns and not (self.no_concern_reason or "").strip():
             raise ValueError("an analysis with no concern must say why in no_concern_reason")
         for text in self.not_established:
@@ -675,8 +817,14 @@ def _standing(store: CanvasStore, request, pending: dict | None, current: dict |
     return "superseded"
 
 
-def prepare_architecture_consequence(store: CanvasStore) -> dict:
-    """Prepare the analysis of the pending revision. Explicit only; nothing is executed and no record changes."""
+def prepare_architecture_consequence(store: CanvasStore, *, contract_version: int = CONTRACT_VERSION) -> dict:
+    """Prepare the analysis of the pending revision. Explicit only; nothing is executed and no record changes.
+
+    ``contract_version`` names the answer contract the request asks for: the current one by default, or version 2 where a
+    version 2 analysis is deliberately reproduced (the historical exercises). A version 2 request accepts only version 2 answers.
+    """
+    if contract_version not in (2, 3):
+        raise ValueError("the consequence analysis contract is version 2 or 3")
     with arch._FilesystemLock(store._path(".canvas.lock")):
         current = arch._candidate(store)
         if not current:
@@ -708,14 +856,14 @@ def prepare_architecture_consequence(store: CanvasStore) -> dict:
             "proposal_sha256": packet["proposal"]["proposal_sha256"],
             "source_sha256": current["source_sha256"],
             "design_guidance_sha256": current.get("design_guidance_sha256"),
-            "consequence_schema_version": 2,
+            "consequence_schema_version": contract_version,
             "evidence_sha256": packet["evidence_sha256"],
             # Each explicit invocation is its own record, so an identical request is still a new ask.
             "invocation": uuid.uuid4().hex,
         }
         request = build_host_agent_request(
             candidate_id="studio-consequence-" + _digest({"settings": settings, "user": user})[:24],
-            role=ROLE, system=_SYSTEM_V2, user=user, settings=settings,
+            role=ROLE, system=_SYSTEM_V2 if contract_version == 2 else _SYSTEM_V3, user=user, settings=settings,
         )
         base = _root(store)
         write_host_agent_request(base / "requests" / request.request_sha256 / "request.json", request)
@@ -868,6 +1016,109 @@ or imply that the proposal is accepted, applied or canonical, and never say that
 _SYSTEM_V2 = _system_v2()
 
 
+def _contract_keys() -> str:
+    """The exact key names of the version 3 answer, read from the owner's models so the instruction cannot drift from them."""
+    def keys(model: type[BaseModel]) -> str:
+        return ", ".join(field.alias or name for name, field in model.model_fields.items())
+
+    return "\n".join([
+        f"- answer (top level): {keys(ConsequenceAnswerV3)}",
+        f"- concerns[]: {keys(ConsequenceConcern)}",
+        f"- mechanisms[]: {keys(MechanismReading)}; counterevidence[] items: {keys(MechanismCounterevidence)}",
+        f"- inheritance[]: {keys(InheritanceItem)}",
+        f"- trajectories[]: {keys(Trajectory)}; steps[]: {keys(TrajectoryStep)}; comparison: {keys(TrajectoryComparison)}",
+        f"- alternatives[]: {keys(AlternativeV3)}",
+        f"- connections[]: {keys(MechanismConnection)}",
+    ])
+
+
+def _system_v3() -> str:
+    """The version 3 instruction. Every bound, value and rule is generated from the constants the owner enforces."""
+    approaches = "\n".join(f"  - {name}: {meaning}" for name, meaning in APPROACH_MEANINGS_V3.items())
+    standings = "\n".join(f"  - {name}: {meaning}" for name, meaning in CONNECTION_MEANINGS.items())
+    bases = "\n".join(f"  - {name}: {meaning}" for name, meaning in CONNECTION_BASIS_MEANINGS.items())
+    reach = "\n".join(f"  - {name}: {meaning}" for name, meaning in REACH_MEANINGS.items())
+    kinds = "\n".join(f"  - {name}: {meaning}" for name, meaning in INHERITANCE_MEANINGS.items())
+    provenance = "\n".join(f"  - {name}: {meaning}" for name, meaning in PROVENANCE_MEANING.items())
+    return f"""You are the active Auteur consequence-analysis agent. The author is considering a proposed working revision of
+the narrative Architecture. The revision has been reviewed but NOT applied. Help the author understand what the proposal does
+through the recorded narrative mechanisms it touches, what earlier creative concerns it keeps, transforms or may displace, what
+later Books may inherit, which developmental trajectories become possible, and how the mechanisms relate to one another. You are
+not judging whether the proposal is right. Deliberate transformation and abandonment are legitimate, and a mechanism may be
+investigated without any question standing for it: a mechanism alone is a legitimate object of an alternative. Do not presume that
+preservation is better, and do not presume that a local change must have far consequences.
+
+Read the baseline candidate (the applied working Architecture), the proposed candidate (the un-applied revision) and the
+consequence packet. Evidence items E1, E2 and so on are facts the owners recorded or a deterministic comparison of the two
+candidates. Cite evidence only by these identifiers. A mechanism item is one recorded record (a node, link, phase, emotion target,
+complex emotion, genre contract or genre interaction) with its provenance:
+{provenance}
+A mechanism that keeps its identifier is not thereby unchanged in function. A book_element is a Working Book element that cites a
+recorded node; it is the Book's own noncanonical working proposal. A working_book item is a Book's title only and is not evidence of
+its content. A named_gap is missing history: never fill it in.
+
+Keep apart what the record shows (cite it), what you interpret (say so) and what the record cannot establish (say so in
+not_established or unresolved). A changed wording does not prove a changed meaning. A recorded relation is not a causal law of the
+story. An inheritance you propose is not recorded. A trajectory is a hypothetical developmental sequence, never an event. A
+connection is a claim about how two mechanisms relate, and its standing is yours; the owner separately reads the recorded graph and
+stores what it finds beside your standing.
+
+Return ONLY a JSON object with these keys. Everything in version 2 keeps its bounds and rules, except where stated here.
+Field names are exact, and are listed here from the owner's contract. Use these names and no others:
+{_contract_keys()}
+Identifiers. A mechanism is cited by its EVIDENCE identifier: the letter E followed by a number, as the packet lists it. Every field
+that takes a mechanism takes that identifier: mechanisms[].evidence (ONE string, not a list), alternatives[].mechanisms and keeps,
+connections[].between and connections[].evidence, and inheritance from. A record identifier such as l_compact_hands_in_kind is the
+record's own name; it appears in the packet's record_id field and is never cited in an identifier field. Likewise a question is cited
+by its question identifier from baseline_question_ids, never by its position.
+- schema_version: 3
+- reading, reach, concerns, no_concern_reason, mechanisms, inheritance, trajectories: as in version 2. Reach values:
+{reach}
+  Concern bounds: at most {MAX_CONCERNS} concerns; each reading at most {CONCERN_READING_LIMIT} characters; each evidence list 1 to
+  {MAX_EVIDENCE_PER_CONCERN} identifiers. Mechanism readings: 0 to {MAX_MECHANISM_READINGS}, one per mechanism; each reading at most
+  {READING_ITEM_LIMIT} characters; a transformed, removed or introduced mechanism states its transformation. Inheritance kinds:
+{kinds}
+- alternatives: 0 to {MAX_ALTERNATIVES} objects. Each names at least one anchor and at most three anchors in all: questions (0 to 3 continuing
+  baseline question identifiers) and mechanisms (0 to 3 mechanism identifiers). A mechanism-only alternative is legitimate. Do not
+  invent a question to satisfy it. Each has approach, title (at most {APPROACH_TITLE_LIMIT} characters), summary (at most
+  {APPROACH_SUMMARY_LIMIT} characters), keeps (1 to 3 identifiers), gains (at most {APPROACH_GAINS_LIMIT} characters), costs (at most
+  {APPROACH_COSTS_LIMIT} characters; state costs as well as gains) and next_investigation (at most {NEXT_LIMIT} characters). Approaches:
+{approaches}
+  keeps rules: every anchor is represented exactly once in keeps and keeps names nothing else. A named question is represented by its
+  wording on the side the approach keeps. A named mechanism is represented by its own identifier on the side the approach keeps: for
+  accept_proposal, a preserved, transformed, introduced or removed record; for every other approach, a preserved, transformed or removed
+  record. A historical mechanism is never an anchor. A distinct question or mechanism a proposal introduces is described in the summary
+  and is never given an identity. If you recommend one approach, say why it is stronger than the others here.
+- connections: 0 to {MAX_CONNECTIONS} objects. Each relates exactly two distinct mechanisms, between (two mechanism identifiers), with
+  standing, one of:
+{standings}
+  text (at most {CONNECTION_TEXT_LIMIT} characters). An inferred connection states reasoning (at most {CONNECTION_REASON_LIMIT}
+  characters) and 1 to {MAX_CONNECTION_ASSUMPTIONS} assumptions (each at most {CONNECTION_ITEM_LIMIT} characters). A hypothetical
+  connection states worth_developing (at most {CONNECTION_REASON_LIMIT} characters: why it could be worth developing) and 1 to
+  {MAX_CONNECTION_ASSUMPTIONS} assumptions. An unestablished connection states its basis, one of:
+{bases}
+  A basis is stated only for an unestablished connection, and reasoning only for an inferred one. A recorded connection is refused
+  unless the Architecture records a joining link or interaction, or a shared node, between the two; a graph_miss is refused when it
+  does record one. Each connection may give evidence (0 to 4 identifiers) and counterevidence (0 to {MAX_CONNECTION_COUNTEREVIDENCE}
+  strings, each at most {CONNECTION_ITEM_LIMIT} characters).
+- not_established: 0 to {MAX_NOT_ESTABLISHED} strings, each at most {NOT_ESTABLISHED_LIMIT} characters.
+
+Evidence rules, enforced exactly as written. Reach local allows no inheritance other than unknown_inheritance and no inheritance
+trajectory step; reach conditional_inheritance needs an inheritance other than unknown_inheritance; reach not_established allows no
+recorded_inheritance. Preserved needs at least one cited item. Introduced needs a proposed_wording, proposed_component or an
+introduced or transformed mechanism. Possibly_displaced needs an earlier-side item. Transformed needs an earlier-side item AND a
+proposed-side item. Concern titles are distinct. Mechanism readings cite distinct mechanisms. Alternative titles are distinct. A
+connection cites two distinct mechanisms, and no pair of mechanisms is connected twice.
+
+Use only the identifiers the packet gives. Do not invent narrative facts, Book content or future events. A proposed possibility,
+inheritance, trajectory, alternative and inferred or hypothetical connection are the only places for speculation, and each is labelled
+as such. Never state or imply that the proposal is accepted, applied or canonical, and never say that a Working Book has been changed
+by this analysis."""
+
+
+_SYSTEM_V3 = _system_v3()
+
+
 def _sides(item: dict[str, Any]) -> set[str]:
     """The side or sides of the proposal an evidence item lies on: earlier, proposed or both."""
     kind = item["kind"]
@@ -885,16 +1136,28 @@ def _sides(item: dict[str, Any]) -> set[str]:
     return set()
 
 
-def _check_answer_v2(answer: ConsequenceAnswerV2, packet: dict[str, Any]) -> None:
-    """Every reference resolves inside this request; every stated basis, side and bound is the one the evidence shows."""
+def _resolver(packet: dict[str, Any]):
+    """Resolve cited identifiers inside one request; an identifier the request does not give is refused by name."""
     evidence = {item["id"]: item for item in packet["evidence"]}
-    baseline_ids = set(packet["baseline_question_ids"])
 
     def resolve(identifiers: list[str], owner: str) -> list[dict[str, Any]]:
         for identifier in identifiers:
             if identifier not in evidence:
                 raise ValueError(f"{owner} cites {identifier}, which is not in this request")
         return [evidence[identifier] for identifier in identifiers]
+
+    return resolve
+
+
+def _check_answer_v2(answer: ConsequenceAnswerV2, packet: dict[str, Any]) -> None:
+    """Every reference resolves inside this request; every stated basis, side and bound is the one the evidence shows."""
+    _check_reading_v2(answer, packet)
+    _check_alternatives_v2(answer, packet)
+
+
+def _check_reading_v2(answer: Any, packet: dict[str, Any]) -> None:
+    """The concern, mechanism, inheritance, trajectory and reach rules, shared by versions 2 and 3."""
+    resolve = _resolver(packet)
 
     # Concerns: the version 1 rules, with mechanism items on the side their provenance puts them.
     titles: set[str] = set()
@@ -989,8 +1252,13 @@ def _check_answer_v2(answer: ConsequenceAnswerV2, packet: dict[str, Any]) -> Non
     if answer.reach == "not_established" and "recorded_inheritance" in inheritance_kinds:
         raise ValueError("a reach not established by the record cannot rest on a recorded inheritance")
 
-    # Alternatives: distinct; each names continuing baseline questions; its keeps cover every named question with the wording
-    # the approach keeps (proposal-side wording for accept_proposal, baseline wording otherwise), and nothing else.
+
+
+def _check_alternatives_v2(answer: ConsequenceAnswerV2, packet: dict[str, Any]) -> None:
+    """Alternatives: distinct; each names continuing baseline questions; its keeps cover every named question with the wording
+    the approach keeps (proposal-side wording for accept_proposal, baseline wording otherwise), and nothing else."""
+    resolve = _resolver(packet)
+    baseline_ids = set(packet["baseline_question_ids"])
     alternative_titles: set[str] = set()
     for alternative in answer.alternatives:
         key = " ".join(alternative.title.casefold().split())
@@ -1028,6 +1296,100 @@ def _check_answer_v2(answer: ConsequenceAnswerV2, packet: dict[str, Any]) -> Non
                 raise ValueError(f"alternative {alternative.title!r} names {identifier}, which is not a recorded mechanism")
 
 
+def _check_alternatives_v3(answer: ConsequenceAnswerV3, packet: dict[str, Any]) -> None:
+    """Version 3 alternatives: anchored on continuing questions and current mechanisms. Every anchor is kept once on the side its
+    approach keeps; a historical record is never an anchor; a keeps item that names nothing the alternative concerns is refused."""
+    resolve = _resolver(packet)
+    baseline_ids = set(packet["baseline_question_ids"])
+    titles: set[str] = set()
+    for alternative in answer.alternatives:
+        key = " ".join(alternative.title.casefold().split())
+        if key in titles:
+            raise ValueError(f"two alternatives share the title {alternative.title!r}")
+        titles.add(key)
+        owner = f"alternative {alternative.title!r}"
+        accepts = alternative.approach == "accept_proposal"
+        missing = [identifier for identifier in alternative.questions if identifier not in baseline_ids]
+        if missing:
+            raise ValueError(f"{owner} names {', '.join(missing)}, which is not a continuing question of the baseline")
+        for identifier in alternative.mechanisms:
+            item = resolve([identifier], owner)[0]
+            if item["kind"] != "mechanism":
+                raise ValueError(f"{owner} names {identifier}, which is not a recorded mechanism")
+            provenance = item.get("provenance")
+            if provenance == "historical":
+                raise ValueError(f"{owner} names {identifier}, a historical record, which is not a current mechanism")
+            if accepts and provenance not in _V3_PROPOSED_PROVENANCE:
+                raise ValueError(f"{owner} accepts the proposal but {identifier} has no proposed record ({provenance})")
+            if not accepts and provenance not in _V3_EARLIER_PROVENANCE:
+                raise ValueError(f"{owner} ({alternative.approach}) must keep the baseline record of {identifier}; the proposal "
+                                 f"{provenance} it, so it has no baseline record to keep")
+        kept = resolve(alternative.keeps, owner)
+        # Coverage is checked before the side of each kept wording, so an omitted anchor is named as omitted.
+        covered_questions = {item.get("question_id") for item in kept if item["kind"] in _QUESTION_KINDS}
+        uncovered = [identifier for identifier in alternative.questions if identifier not in covered_questions]
+        if uncovered:
+            raise ValueError(f"{owner} keeps no wording of {', '.join(uncovered)}; every named question's wording is kept")
+        kept_mechanisms = {item["id"] for item in kept if item["kind"] == "mechanism"}
+        not_kept = [identifier for identifier in alternative.mechanisms if identifier not in kept_mechanisms]
+        if not_kept:
+            raise ValueError(f"{owner} keeps no record of {', '.join(not_kept)}; every named mechanism's record is kept")
+        for item in kept:
+            if item["kind"] == "mechanism":
+                if item["id"] not in alternative.mechanisms:
+                    raise ValueError(f"{owner} keeps an item that is not wording of its own questions or a named mechanism")
+                continue
+            if item["kind"] not in _QUESTION_KINDS or item.get("question_id") not in alternative.questions:
+                raise ValueError(f"{owner} keeps an item that is not wording of its own questions or a named mechanism")
+            if accepts and item["kind"] not in ("proposed_wording", "removed"):
+                raise ValueError(f"{owner} accepts the proposal and must keep the proposal-side wording of {item['question_id']}")
+            if not accepts and item["kind"] != "baseline_wording":
+                raise ValueError(f"{owner} ({alternative.approach}) must keep the baseline wording of {item['question_id']}")
+
+
+def _check_connections_v3(answer: ConsequenceAnswerV3, packet: dict[str, Any], baseline: dict | None,
+                          proposed: dict | None) -> list[dict[str, Any]]:
+    """Each connection relates two current mechanisms. The owner reads the recorded graph of the baseline and the proposal and
+    refuses a recorded standing the graph does not show, and a graph miss the graph contradicts. Returns the graph reading of each
+    connection, in order, for the owner to store beside the agent's standing."""
+    resolve = _resolver(packet)
+    pairs: set[tuple[str, str]] = set()
+    readings: list[dict[str, Any]] = []
+    for connection in answer.connections:
+        first, second = resolve(connection.between, "a connection")
+        for item in (first, second):
+            if item["kind"] != "mechanism" or item.get("provenance") == "historical":
+                raise ValueError(f"a connection relates current mechanisms; {item.get('record_id', item['id'])} is not one")
+        key = tuple(sorted(connection.between))
+        if key in pairs:
+            raise ValueError("two connections relate the same pair of mechanisms")
+        pairs.add(key)
+        resolve(connection.evidence, "a connection")
+        reading = relation_status(first.get("endpoints") or [], second.get("endpoints") or [], [baseline, proposed],
+                                  exclude=[str(first.get("record_id")), str(second.get("record_id"))])
+        label = f"{first.get('record_id')} and {second.get('record_id')}"
+        # A recorded connection is a direct link between two nodes, or a node both mechanisms name. Adjacency is one link away and
+        # is not a relation between these two, so it cannot be claimed as recorded.
+        if connection.standing == "recorded" and reading["status"] not in ("joined_by_link", "shared_endpoint"):
+            raise ValueError(f"a recorded connection between {label} cannot stand: the Architecture records no relation between "
+                             f"them ({reading['status']}) in the baseline or the proposal")
+        if connection.standing == "unestablished" and connection.basis == "graph_miss" \
+                and reading["status"] != "no_recorded_relation":
+            raise ValueError(f"graph_miss is refused for {label}: the Architecture records a relation between them "
+                             f"({reading['status']}); cite it as recorded, or give another basis")
+        readings.append(reading)
+    return readings
+
+
+def _check_answer_v3(answer: ConsequenceAnswerV3, packet: dict[str, Any], baseline: dict | None,
+                     proposed: dict | None) -> list[dict[str, Any]]:
+    """Version 3: the shared reading rules, the anchored alternatives and the graph-checked connections. Returns the graph
+    reading of each connection."""
+    _check_reading_v2(answer, packet)
+    _check_alternatives_v3(answer, packet)
+    return _check_connections_v3(answer, packet, baseline, proposed)
+
+
 def _is_recorded(item: dict[str, Any]) -> bool:
     """A record the Architecture or a Working Book holds: never the proposal, an instruction or a title alone."""
     if item["kind"] in ("baseline_wording", "recorded_history", "book_decision", "book_element", "recorded_phase"):
@@ -1057,7 +1419,7 @@ def _evidence_label(item: dict[str, Any]) -> str:
     return kind
 
 
-def _enrich_v2(saved: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any]:
+def _enrich_v2(saved: dict[str, Any], packet: dict[str, Any], approach_meanings: dict[str, str] = APPROACH_MEANINGS) -> dict[str, Any]:
     """Attach the source-true view of each cited item, read from the evidence and never from the agent's words."""
     evidence = {item["id"]: item for item in packet["evidence"]}
 
@@ -1073,14 +1435,51 @@ def _enrich_v2(saved: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any]:
         link["to_view"] = view(link["to"])
         link["evidence_views"] = [view(identifier) for identifier in link.get("evidence", [])]
     for alternative in saved.get("alternatives", []):
-        alternative["approach_meaning"] = APPROACH_MEANINGS[alternative["approach"]]
+        alternative["approach_meaning"] = approach_meanings[alternative["approach"]]
         alternative["keeps_views"] = [view(identifier) for identifier in alternative["keeps"]]
         alternative["mechanism_views"] = [view(identifier) for identifier in alternative.get("mechanisms", [])]
+        alternative["question_views"] = [{"id": identifier, "label": _question_label(evidence, identifier)}
+                                         for identifier in alternative.get("questions", [])]
     for trajectory in saved.get("trajectories", []):
         trajectory["status"] = TRAJECTORY_STATUS
         for step in trajectory["steps"]:
             step["evidence_views"] = [view(identifier) for identifier in step.get("evidence", [])]
     saved["reach_meaning"] = REACH_MEANINGS[saved["reach"]]
+    return saved
+
+
+def _question_label(evidence: dict[str, dict[str, Any]], question_id: str) -> str:
+    """The question's wording as the packet gives it (the baseline's), for the page; never the agent's paraphrase."""
+    for item in evidence.values():
+        if item.get("kind") == "baseline_wording" and item.get("question_id") == question_id:
+            return item.get("text") or question_id
+    return question_id
+
+
+def _enrich_v3(saved: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any]:
+    """Version 3: the version 2 views, the version 3 approach meanings, and the source-true view of each connection."""
+    saved = _enrich_v2(saved, packet, APPROACH_MEANINGS_V3)
+    evidence = {item["id"]: item for item in packet["evidence"]}
+
+    def view(identifier: str) -> dict[str, Any]:
+        item = evidence[identifier]
+        return {"id": identifier, "kind": item["kind"], "label": _evidence_label(item)}
+
+    # What an investigation of each alternative takes as its anchors: its continuing questions and its mechanism records, read from
+    # the evidence, so the served page never reconstructs an anchor from a label.
+    for alternative in saved.get("alternatives", []):
+        alternative["investigation_anchors"] = (
+            [{"kind": "question", "id": identifier} for identifier in alternative["questions"]]
+            + [{"kind": evidence[identifier]["record_kind"], "id": evidence[identifier]["record_id"]}
+               for identifier in alternative.get("mechanisms", [])])
+
+    for connection in saved.get("connections", []):
+        connection["between_views"] = [view(identifier) for identifier in connection["between"]]
+        connection["evidence_views"] = [view(identifier) for identifier in connection.get("evidence", [])]
+        connection["standing_meaning"] = CONNECTION_MEANINGS[connection["standing"]]
+        if connection.get("basis"):
+            connection["basis_meaning"] = CONNECTION_BASIS_MEANINGS[connection["basis"]]
+        connection["graph"] = {**connection["graph"], "meaning": RELATION_MEANINGS[connection["graph"]["status"]]}
     return saved
 
 
@@ -1111,8 +1510,13 @@ def complete_architecture_consequence(store: CanvasStore, payload: dict) -> dict
                 "response retained as stale evidence")
         submitted = json.loads(request.user)
         version = request.settings.get("consequence_schema_version", 1)
+        graph: list[dict[str, Any]] = []
         try:
-            if version == 2:
+            if version == 3:
+                answer = ConsequenceAnswerV3.model_validate_json(response.text)
+                graph = _check_answer_v3(answer, submitted["consequence_packet"], submitted["baseline_candidate"],
+                                         submitted["proposed_candidate"])
+            elif version == 2:
                 answer = ConsequenceAnswerV2.model_validate_json(response.text)
                 _check_answer_v2(answer, submitted["consequence_packet"])
             else:
@@ -1129,7 +1533,7 @@ def complete_architecture_consequence(store: CanvasStore, payload: dict) -> dict
         saved = {
             **dumped,
             "alternatives": _with_ids(dumped["alternatives"]),
-            "schema": SCHEMA_V2 if version == 2 else SCHEMA,
+            "schema": SCHEMA_V3 if version == 3 else (SCHEMA_V2 if version == 2 else SCHEMA),
             "authority": AUTHORITY,
             "revision_request_sha256": request.settings["review_request_sha256"],
             "baseline_request_sha256": request.settings["baseline_candidate_request_sha256"],
@@ -1137,7 +1541,10 @@ def complete_architecture_consequence(store: CanvasStore, payload: dict) -> dict
             "evidence": submitted["consequence_packet"],
             "evidence_sha256": submitted["consequence_packet"]["evidence_sha256"],
         }
-        if version == 2:
+        if version == 3:
+            saved["connections"] = [{**row, "graph": reading} for row, reading in zip(dumped["connections"], graph)]
+            saved = _enrich_v3(saved, submitted["consequence_packet"])
+        elif version == 2:
             saved = _enrich_v2(saved, submitted["consequence_packet"])
         write_host_agent_response(folder / "response.json", response)
         _atomic_json_write(folder / "result.json", saved)
@@ -1172,7 +1579,9 @@ def _analysis_rows(store: CanvasStore, pending: dict | None, current: dict | Non
 
 def _vocabulary() -> dict[str, Any]:
     """The shared vocabulary the served page reads, so its labels and definitions are the owner's own."""
-    return {"approaches": APPROACH_MEANINGS, "retain_legacy": RETAIN_LEGACY_MEANING, "reach": REACH_MEANINGS,
+    return {"approaches": APPROACH_MEANINGS, "approaches_v3": APPROACH_MEANINGS_V3, "retain_legacy": RETAIN_LEGACY_MEANING,
+            "reach": REACH_MEANINGS, "connection_standings": CONNECTION_MEANINGS, "connection_bases": CONNECTION_BASIS_MEANINGS,
+            "graph": RELATION_MEANINGS, "contract": CONTRACT_VERSION,
             "inheritance_kinds": INHERITANCE_MEANINGS, "provenance": PROVENANCE_MEANING, "routes": ROUTE_MEANING,
             "trajectory_status": TRAJECTORY_STATUS,
             "stages": ["local_decision", "mechanism_transformation", "tension", "opportunity", "inheritance", "long_horizon"],
@@ -1234,11 +1643,13 @@ def _project_consequence(store: CanvasStore) -> dict[str, Any]:
     }
 
 
-def consequence_origin(store: CanvasStore, origin: dict, anchor_ids: list[str]) -> dict:
+def consequence_origin(store: CanvasStore, origin: dict, anchors: list) -> dict:
     """The check an investigation makes when it is taken from an analysed alternative. Raises ValueError if it may not be.
 
     The alternative's questions are identities. An investigation concerns exactly those questions, and only while each is
-    still a continuing question of the current working Architecture. Nothing is rebound to a replacement by wording.
+    still a continuing question of the current working Architecture. Nothing is rebound to a replacement by wording. A version 3
+    alternative also names mechanisms: the investigation takes them as ``{"kind", "id"}`` anchors, and a mechanism the proposal
+    introduces is not in the current Architecture, so it is refused. ``anchors`` may name a question by its identifier alone.
     """
     if not isinstance(origin, dict):
         raise ValueError("a consequence alternative is named by its analysis and its alternative id")
@@ -1255,17 +1666,39 @@ def consequence_origin(store: CanvasStore, origin: dict, anchor_ids: list[str]) 
     alternative = next((row for row in result.get("alternatives", []) if row["id"] == alternative_id), None)
     if alternative is None:
         raise ValueError("that alternative is not in the consequence analysis")
-    if set(alternative["questions"]) != set(anchor_ids):
-        raise ValueError("the investigation must concern exactly the questions the alternative names; "
+    version_three = result.get("schema") == SCHEMA_V3
+    recorded_items = {item["id"]: item for item in (result.get("evidence") or {}).get("evidence", [])}
+
+    def anchor_key(anchor: Any) -> tuple[str, str]:
+        if isinstance(anchor, str):
+            return ("question", anchor)
+        if isinstance(anchor, dict) and isinstance(anchor.get("kind"), str) and isinstance(anchor.get("id"), str):
+            return (anchor["kind"], anchor["id"])
+        raise ValueError("an investigation names each anchor by its kind and identifier")
+
+    supplied = {anchor_key(anchor) for anchor in anchors}
+    expected = {("question", identifier) for identifier in alternative["questions"]}
+    if version_three:
+        expected |= {(recorded_items[identifier]["record_kind"], recorded_items[identifier]["record_id"])
+                     for identifier in alternative.get("mechanisms", []) if identifier in recorded_items}
+    if supplied != expected:
+        raise ValueError("the investigation must concern exactly the questions and mechanisms the alternative names; "
+                         "it cannot substitute others" if version_three else
+                         "the investigation must concern exactly the questions the alternative names; "
                          "it cannot substitute other questions")
+    for identifier in alternative.get("mechanisms", []) if version_three else []:
+        item = recorded_items.get(identifier) or {}
+        if item.get("provenance") == "introduced":
+            raise ValueError(f"{item.get('record_kind')} {item.get('record_id')} is introduced by this proposal and is not in the "
+                             "current Architecture; it can be investigated once the revision is applied")
     continuing = {question["id"] for question in project_architecture_questions(store)["questions"]
                   if question["standing"] == "continuing"}
     missing = [identifier for identifier in alternative["questions"] if identifier not in continuing]
     if missing:
         raise ValueError("a question this alternative concerns is no longer open: " + ", ".join(missing) +
                          ". It is not rebound to another question.")
-    text = json.dumps({key: alternative[key] for key in ("title", "approach", "summary", "questions")},
-                      ensure_ascii=False, sort_keys=True)
+    keys = ("title", "approach", "summary", "questions") + (("mechanisms",) if version_three else ())
+    text = json.dumps({key: alternative.get(key) for key in keys}, ensure_ascii=False, sort_keys=True)
     # An investigation starts only from the latest analysis of the proposal on screen. An earlier analysis, or one whose
     # revision has been applied or replaced, is history: its alternatives are read there, not investigated from here.
     request = load_host_agent_request(folder / "request.json")

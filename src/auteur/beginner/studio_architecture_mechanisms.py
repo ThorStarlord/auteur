@@ -270,3 +270,53 @@ def provenance_summary(item: dict[str, Any]) -> dict[str, Any]:
     """What a reader or an investigation carries of one mechanism: identity, provenance, routes and changed fields."""
     return {"record_kind": item["record_kind"], "record_id": item["record_id"], "provenance": item["provenance"],
             "routes": list(item["routes"]), "changed_fields": list(item.get("changed_fields") or [])}
+
+RELATION_MEANINGS = {
+    "joined_by_link": "A recorded link or interaction joins the two mechanisms directly: each is a node, and the record's two ends are "
+                      "those nodes.",
+    "shared_endpoint": "Both mechanisms name the same node or genre as an endpoint, so the Architecture records that they touch it.",
+    "adjacent_by_link": "They are one recorded link apart: an endpoint of one is joined by a recorded link to an endpoint of the other. "
+                        "The Architecture records adjacency, not a relation between these two.",
+    "no_recorded_relation": "The Architecture records no direct link, shared endpoint or adjacency between them in the baseline or "
+                            "the proposal. This is a fact about this Architecture only, not about the story.",
+}
+
+
+def relation_status(endpoints_a: list[str], endpoints_b: list[str], candidates: Iterable[dict | None],
+                    exclude: Iterable[str] = ()) -> dict[str, Any]:
+    """The relation the Architecture records between two mechanisms, read from the candidates the caller names.
+
+    Pure and deterministic; the graph is read, never the names of the records. ``endpoints_*`` are the node or genre identifiers
+    each mechanism involves, and ``exclude`` names the two mechanisms themselves, so a record is never its own adjacency. The reading
+    is the strongest that holds, in this order: ``joined_by_link`` (two nodes joined by a link or interaction), ``shared_endpoint``,
+    ``adjacent_by_link`` (one recorded link away: adjacency, not a relation between these two) or ``no_recorded_relation``.
+    Returns ``status``, the ``record`` that establishes it and the ``side`` it was found on.
+    """
+    a_ends, b_ends = sorted(set(endpoints_a)), sorted(set(endpoints_b))
+    skip = set(exclude)
+    names = ("baseline", "proposed")
+    edges: list[tuple[str, str, str, tuple]] = []  # (record kind, record id, side, its two ends)
+    for side_index, candidate in enumerate(candidates):
+        if not candidate:
+            continue
+        side = names[side_index] if side_index < len(names) else f"candidate_{side_index}"
+        for kind, collection, source_key, target_key in (
+            ("link", "links", "source", "target"),
+            ("genre_interaction", "genre_interactions", "source_genre_id", "target_genre_id"),
+        ):
+            for row in candidate.get(collection, []) or []:
+                ends = (row.get(source_key), row.get(target_key))
+                if None not in ends and ends[0] != ends[1]:
+                    edges.append((kind, str(row.get("id")), side, ends))
+    for kind, identifier, side, ends in edges:
+        if len(a_ends) == 1 and len(b_ends) == 1 and a_ends[0] != b_ends[0] and {a_ends[0], b_ends[0]} == set(ends):
+            return {"status": "joined_by_link", "record": {"kind": kind, "id": identifier}, "side": side}
+    shared = sorted(set(a_ends) & set(b_ends))
+    if shared:
+        return {"status": "shared_endpoint", "record": {"kind": "node", "id": shared[0]}, "side": "both"}
+    for kind, identifier, side, ends in edges:
+        if identifier in skip:
+            continue
+        if any(x != y and {x, y} == set(ends) for x in a_ends for y in b_ends):
+            return {"status": "adjacent_by_link", "record": {"kind": kind, "id": identifier}, "side": side}
+    return {"status": "no_recorded_relation", "record": None, "side": None}

@@ -1,0 +1,289 @@
+{
+  "schema_version": 3,
+  "reading": "The proposal changes one recorded link, the declined-share link (E12), so that a refused share drains first into the refusing household's own holding and only the excess runs down the lowest Lowfen terrace. E1 asks for that function change alone: no node, open question or other relation changes, and no finale is decided. The first physical cost of refusal moves from the lowland terrace to the refusing household. The holding's capacity is not recorded, so how far the lowland exposure is displaced is not established.",
+  "reach": "not_established",
+  "concerns": [
+    {
+      "title": "Where a refused share's water first goes",
+      "status": "transformed",
+      "earlier": "A declined share runs wild down the lowest Lowfen terrace (E12, baseline).",
+      "proposed": "A declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace (E12, proposed).",
+      "reading": "The one changed record moves the first physical destination of a refusal from the lowest Lowfen terrace to the refusing household's own holding. The endpoints are unchanged, so the transformation lies in the function text alone. Whether the terrace still receives water depends on the holding's capacity, which the record does not give.",
+      "evidence": ["E12", "E4", "E1", "E2"],
+      "intent": "E1 requests this change to the link's function alone and decides no finale. E2 gives the aim: nothing in the spring targets the refuser, and the first cost falls on the refuser's own ground. E3 asks for material consequence without an escalating villain.",
+      "counterevidence": [
+        {
+          "text": "E1 says the record does not describe the holding's layout, so the holding's place above the Lowfen rests on E2 alone and is not recorded.",
+          "evidence": ["E1", "E2"]
+        }
+      ],
+      "competing_reading": "The change may only relocate the cost onto one family. That keeps the refusal physical but makes the household that declined bear it, which the author may judge worse than the lowland exposure it removes."
+    },
+    {
+      "title": "Lower Ammen's wells on the lowest Lowfen terrace",
+      "status": "possibly_displaced",
+      "earlier": "The lowest Lowfen terrace, which carries Lower Ammen's wells, is where a declined share runs wild (E28, preserved; E12, baseline).",
+      "proposed": "The lowest terrace receives only the excess after the holding takes what it can (E12, proposed).",
+      "reading": "The earlier wording put every refused share's water on the channel that carries Lower Ammen's wells. The proposal may displace that exposure, since the lowest terrace is spared unless the holding cannot take the water. The record does not say whether the excess reaches any well, so displacement is possible rather than shown.",
+      "evidence": ["E28", "E12", "E2"],
+      "intent": "E2 says the lowest terrace is spared when the household's own fields and well flood, and that only the channel the share is cut into changes.",
+      "counterevidence": [
+        {
+          "text": "E28 is recorded unchanged and still says the lowest terrace is where a declined share runs wild, which holds for any excess.",
+          "evidence": ["E28"]
+        }
+      ],
+      "competing_reading": "The lowland exposure may be reduced rather than displaced. Excess still runs down the terrace whenever a holding fills, so Lower Ammen's wells keep part of the earlier risk."
+    },
+    {
+      "title": "The spring does not target the refuser",
+      "status": "preserved",
+      "earlier": "The Source responds to balance rather than to any character's intention (E18).",
+      "proposed": "Nothing in the spring targets the refuser, and the Source still answers to balance (E2).",
+      "reading": "The Source's recorded rule is kept. The proposal changes the channel a share is cut into, not the engine's response to balance, so the refusal is not recorded as the spring's punishment. Whether water held in the holding alters the balance the Source responds to is not recorded.",
+      "evidence": ["E18", "E2"],
+      "intent": "E2 states the aim directly: the change must not make the spring a target. E3 asks that the identity avoid a generic escalating-villain epic.",
+      "counterevidence": [
+        {
+          "text": "E18 defines the balance as draw against return; the record does not say whether water held in a household's ground enters that balance.",
+          "evidence": ["E18", "E2"]
+        }
+      ],
+      "competing_reading": "Routing one share into one household's ground may make the refusal personal in effect even though the engine stays impersonal, so readers may still feel the spring singles out the refuser."
+    },
+    {
+      "title": "A refusing household's own ground as the first cost",
+      "status": "introduced",
+      "earlier": "The baseline link sends a refused share's water down the lowest Lowfen terrace and records nothing on the refusing household's own ground (E12, baseline).",
+      "proposed": "The refusing household's unkept water drains first into its own holding (E4).",
+      "reading": "The proposal introduces a physical consequence for the refusing household as routing wording only. The holding is not a node, so the record gives it no layout, capacity or standing effect. It may bear on the recorded standing loss tied to draw cut for hands (E24), but the record does not connect the two.",
+      "evidence": ["E4", "E2", "E24"],
+      "intent": "E2 places the cost of refusal on the refuser's own ground, with nothing in the spring targeting the refuser.",
+      "counterevidence": [
+        {
+          "text": "E24 ties lost standing to draw cut for hands from Book 20; the record does not say that a refused share is a draw cut.",
+          "evidence": ["E24"]
+        }
+      ],
+      "competing_reading": "The refuser's own flood may be read as a cost the household brings on itself, which weakens the sense that the cost belongs to the shared commons."
+    },
+    {
+      "title": "The Long Return's routing stays with the valley",
+      "status": "preserved",
+      "earlier": "The routing decides which channel takes the surge, and that choice belongs to the valley (E27).",
+      "proposed": "Unchanged. The changed link has no recorded join to the Long Return or the Gate (E27, E12).",
+      "reading": "The valley's choice over the Long Return's routing is kept as recorded. The declined-share link has no recorded join to the pulse, so this proposal neither advances nor settles whether any household floods. The surge-route question (q-surge-route) stays open.",
+      "evidence": ["E27", "E12"],
+      "intent": "E1 changes no other relation and decides no finale, so the routing choice stays open.",
+      "counterevidence": [
+        {
+          "text": "The holding could become a household-level flood case that the surge question asks about; no record makes that join.",
+          "evidence": ["E27", "E12"]
+        }
+      ],
+      "competing_reading": "The holding change may be read as the surge question at household scale, so the two are less separate than the record shows."
+    }
+  ],
+  "no_concern_reason": null,
+  "mechanisms": [
+    {
+      "evidence": "E12",
+      "reading": "The single changed record. Its earlier function sent a refused share's water down the lowest Lowfen terrace. Its proposed function drains it first into the refusing household's own holding, with only the excess running down the terrace. Endpoints are unchanged.",
+      "transformation": "Function text changed. Earlier: a declined share runs wild down the lowest Lowfen terrace. Proposed: a declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace. Endpoints and identifier unchanged.",
+      "conditional_consequence": "If the holding can take a refused share, the lowest terrace receives none of it. Where the holding cannot, the terrace receives the excess, as the earlier wording had it for the whole share. The difference is one of degree and depends on capacity.",
+      "counterevidence": [
+        {
+          "text": "The Lowfen node is recorded unchanged and still says its lowest terrace is where a declined share runs wild.",
+          "evidence": ["E28"]
+        }
+      ],
+      "unresolved": "The holding's capacity, whether excess reaches the terrace in practice, and the holding's layout, which the record does not describe."
+    },
+    {
+      "evidence": "E28",
+      "reading": "The Lowfen channel record is unchanged. It carries Lower Ammen's wells, and its lowest terrace is still named as where a declined share runs wild. Under the proposal that happens only to the excess, so this wording now reads more broadly than the changed link.",
+      "transformation": null,
+      "conditional_consequence": "If the change is kept, the node and the link describe the same refusal at different breadth, and a reader may take the node's sentence as the rule.",
+      "counterevidence": [
+        {
+          "text": "The node's sentence remains true for the excess, so the wording is not contradicted, only broader.",
+          "evidence": ["E28", "E12"]
+        }
+      ],
+      "unresolved": "Whether the node summary should be read as describing excess only; the packet records no change to it."
+    },
+    {
+      "evidence": "E18",
+      "reading": "The Source is recorded as responding to balance rather than to intention. The proposal keeps that rule: E2 says the change alters only the channel a share is cut into and that nothing in the spring targets the refuser.",
+      "transformation": null,
+      "conditional_consequence": "The Source's response to refusal stays set by draw and return. The change would alter the balance only if water held in a household's ground is counted in draw or return, which nothing records.",
+      "counterevidence": [
+        {
+          "text": "The Source is described through draw and return only, and the packet does not say whether retained water enters either.",
+          "evidence": ["E18", "E2"]
+        }
+      ],
+      "unresolved": "Whether retained water in the holding alters the balance the Source responds to."
+    },
+    {
+      "evidence": "E26",
+      "reading": "The Hollow Gate divides the high cistern's release between the upper and lower channels. The changed link has no recorded route to the Gate, and the record does not say whether the Lowfen is one of the lower channels the Gate divides.",
+      "transformation": null,
+      "conditional_consequence": "If the Lowfen's release is set by the Gate, the holding routing and the schedule would both shape the lowest terrace, and a schedule dispute could then bear on the cost of refusal.",
+      "counterevidence": [
+        {
+          "text": "The Gate's recorded links join the counted and gift practices, the Source and the Long Return; none joins the Lowfen channel.",
+          "evidence": ["E55", "E66", "E44", "E51"]
+        }
+      ],
+      "unresolved": "Whether the Lowfen channel is among the lower channels the Gate divides, and whether the schedule reaches its release."
+    },
+    {
+      "evidence": "E27",
+      "reading": "The Long Return's routing is a valley choice that needs channel labour and a Gate schedule. The changed link has no recorded join to the pulse or the Gate, so the proposal does not settle how the surge is routed.",
+      "transformation": null,
+      "conditional_consequence": "A holding that takes refused water could become one of the cases the surge routing must weigh; the record does not make that join.",
+      "counterevidence": [
+        {
+          "text": "The Long Return's recorded links join channel labour and the Gate, not the Lowfen channel or the declined share.",
+          "evidence": ["E51", "E52"]
+        }
+      ],
+      "unresolved": "Whether any household floods under the Long Return (surge-route question, q-surge-route)."
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "unknown_inheritance",
+      "from": "E12",
+      "to": "Books 24 and 25 (hand-light household elements)",
+      "text": "The records do not establish whether Books 24 and 25 carry the refusal concern. Their hand-light household elements cite the conversion and draw, not the declined-share link, and no Book element cites that link.",
+      "evidence": ["E73", "E74", "E79", "E80"]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "Refusal first on the household's own ground",
+      "steps": [
+        {
+          "stage": "Refusal under the changed link",
+          "text": "If a household leaves the rota, its unkept water drains first into its own holding, as the changed link states.",
+          "evidence": ["E12", "E4"],
+          "basis": "recorded"
+        },
+        {
+          "stage": "Overflow",
+          "text": "If the holding cannot take the share, only the excess runs down the lowest Lowfen terrace, where the earlier wording put all of it.",
+          "evidence": ["E12", "E28"],
+          "basis": "hypothetical"
+        },
+        {
+          "stage": "Settled Water",
+          "text": "If the Gate schedule and a refusal were linked, a schedule dispute could bear on the holding's water; the record gives no such link.",
+          "evidence": ["E8", "E26"],
+          "basis": "hypothetical"
+        }
+      ],
+      "assumptions": [
+        "The holding has a capacity the record does not give.",
+        "Refused water is not counted as draw or return on the Source."
+      ],
+      "comparison": {
+        "creative_gain": "The first cost of refusal falls on the household that chose it, and the lowest terrace is spared except for excess.",
+        "narrative_cost": "The lowest terrace loses a consequence the record had made visible, and the household's own flood may read as a penalty unless it is framed.",
+        "contrivance_risk": "If the holding's capacity is set only to make a scene work, the routing becomes a convenience rather than a structure.",
+        "future_commitment": "Fixes a holding layout that no record describes, which later Books would have to honour.",
+        "flexibility": "The capacity can still be recorded later, because no node depends on it yet."
+      }
+    }
+  ],
+  "alternatives": [
+    {
+      "approach": "defer",
+      "title": "Defer the link change until the holding is recorded",
+      "summary": "Keep the declined-share link as recorded and postpone the change until the holding's capacity and place above the Lowfen are recorded, and until a Book decides the surge-route question. Names the evidence that would settle it: a recorded holding capacity and a Book decision on whether any household floods.",
+      "questions": ["q-surge-route"],
+      "mechanisms": ["E12"],
+      "keeps": ["E12", "q-surge-route"],
+      "gains": "The lowest terrace keeps its recorded sink, no household's flood is added before its capacity is known, and the routing and finale stay open.",
+      "costs": "The selected alternative h1 waits, the lowland exposure stays as recorded while its displacement is unexamined, and the holding's consequence stays unrecorded.",
+      "next_investigation": "Check whether any later Book records a decision on the surge route or the declined share, and what capacity a holding would need to take a refused share."
+    },
+    {
+      "approach": "accept_proposal",
+      "title": "Accept the link change as written, with displacement recorded",
+      "summary": "Accept the proposed function of the declined-share link as written. The lowest Lowfen terrace is spared except for excess, the refusing household's own ground takes the first cost, and the displacement of lowland exposure is recorded as accepted, not resolved. No node, question or finale changes.",
+      "questions": [],
+      "mechanisms": ["E12"],
+      "keeps": ["E12"],
+      "gains": "Puts the first cost of refusal on the household that declines, keeps the spring impersonal (E18, E2), and develops the selected alternative as requested (E1, E2).",
+      "costs": "Displaces the lowland exposure at the Lowfen terrace without recording capacity; the holding's layout stays unrecorded; the refuser's own flood is a new consequence that no node carries.",
+      "next_investigation": "Record what the holding can take, or state that the record leaves it open, before any Book cites the link."
+    },
+    {
+      "approach": "integrate",
+      "title": "Hold the refusal's routing and the lowest terrace together",
+      "summary": "Develop the changed link and the Lowfen channel in one account: the household's holding takes the first water, and the terrace's exposure to excess is answered by a stated capacity and a named route rather than by silence. The combined development gives up the simple picture of one sink for refusal.",
+      "questions": [],
+      "mechanisms": ["E12", "E28"],
+      "keeps": ["E12", "E28"],
+      "gains": "Keeps the lowland wells in view while giving the refuser's ground a defined role, so the terrace does not become a silent sink.",
+      "costs": "Needs a recorded capacity and route, which are construction additions; gives up one clear sink for refusal; makes the Lowfen wording carry a second rule.",
+      "next_investigation": "Check whether the Lowfen is among the lower channels the Gate divides before choosing the route."
+    }
+  ],
+  "connections": [
+    {
+      "between": ["E12", "E28"],
+      "standing": "recorded",
+      "text": "The changed link ends at the Lowfen channel record (E28), so the change alters what reaches that node's lowest terrace.",
+      "evidence": ["E12", "E28"],
+      "counterevidence": [
+        "The node's wording is unchanged and still reads as though all refused water runs down the lowest terrace."
+      ]
+    },
+    {
+      "between": ["E12", "E18"],
+      "standing": "inferred",
+      "text": "The changed link leaves the Source's response to balance as recorded, so refusal routing does not by itself make the spring target anyone.",
+      "reasoning": "E2 says nothing in the spring targets the refuser and only the channel changes; E18 records the Source as responding to balance, not intention, so routing one share does not alter that response on the record.",
+      "assumptions": [
+        "Water held in the holding is not counted as draw or return.",
+        "The Source's response is set by the same balance after the change as before."
+      ],
+      "evidence": ["E18", "E2", "E12"],
+      "counterevidence": [
+        "E18 defines balance by draw and return only; the record does not say whether retained water enters it."
+      ]
+    },
+    {
+      "between": ["E12", "E26"],
+      "standing": "unestablished",
+      "text": "The Gate divides release between upper and lower channels and the Lowfen is a lower channel (E28), yet no record joins the changed link to the Gate.",
+      "basis": "incomplete_evidence",
+      "evidence": ["E26", "E28", "E12"],
+      "counterevidence": [
+        "Nothing records that the Lowfen is among the channels the Gate releases to."
+      ]
+    },
+    {
+      "between": ["E12", "E27"],
+      "standing": "hypothetical",
+      "text": "A household holding that takes refused water could become one of the cases the surge routing must weigh, through the question whether any household floods.",
+      "worth_developing": "It would tie the holding change to the valley's routing choice for the Long Return, which the record now keeps apart, and make the surge question concrete at household scale.",
+      "assumptions": [
+        "The holding has a capacity that some refusals reach during the surge.",
+        "The surge routing can weigh household holdings as a case."
+      ],
+      "evidence": ["E12", "E27"]
+    }
+  ],
+  "not_established": [
+    "No baseline question was examined (examined_questions is empty) and no Book decision on one is recorded (E10, E11), so whether later Books carry this change is not established.",
+    "The holding's capacity and layout are not recorded (E1), so how much excess reaches the lowest Lowfen terrace cannot be determined.",
+    "E2 is truncated in the packet after 'Who faces the decisiv', so the rest of the selected alternative's account of the decisive cost is not available.",
+    "The baseline and proposed summaries of the declined share (not among the evidence items) still say its water goes wild and runs down the lowest Lowfen terrace; the changed link qualifies that, and the summary is unchanged.",
+    "The packet does not establish whether retained water alters the draw and return balance the Source responds to (E18).",
+    "The Long Return and the Gate have no recorded join to the changed link (E12, E27, E26), so the packet does not show whether the change reaches the Book 30 routing."
+  ]
+}
