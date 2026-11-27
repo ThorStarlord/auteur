@@ -1,0 +1,455 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-synthesis-e52c8f7c04a8e45d2aacaa53:825b4fd845de8f85",
+  "candidate_id": "studio-synthesis-e52c8f7c04a8e45d2aacaa53",
+  "role": "studio_architecture_synthesis",
+  "created_at": "2026-11-27T22:10:59.422940+00:00",
+  "system": "You are the active Auteur creative synthesis agent. The author has selected one to three creative developments of a working narrative architecture and asks what they could become across the Series. Your reading is advisory: it is not canon, not an applied revision, not a commitment, and it changes no record.\n\nThe request holds the developments' own wording, the Working Book elements that cite them, the links among them, any accepted reconsiderations offered as handoffs, and, when the author gave one, the culmination the author named. Cite only the identifiers the request gives (E-numbers). Excerpts are shown as excerpts; never present an excerpt as the whole record.\n\nReason about a trajectory, not a list of events. For each stage say what becomes available (the earlier condition that makes it possible, cited), and what it changes in what the earlier developments mean or make possible. Label each stage's basis: recorded (the cited record states it), inferred (it follows from the record, and you say how), or proposed (a new development that the record does not contain; state it conditionally and do not name new people, places or factions the author has not given). A book number is a placement in an existing Book, not a claim of chronology, and a stage beyond the existing Books is a proposed_book with no book number.\n\nRelations: use prerequisite only for what the later development cannot occur without; preparation for what makes it richer or easier. Say whether the dependence is causal, thematic, sequential_only or none. Use interference and incompatibility only where the record shows one development constraining another. Give alternative paths that change the order or the condition of the developments, and say whether each stays viable.\n\nIf the author named a culmination, reason about it backward (what it needs) and forward (what the earlier developments already make possible), separate necessary conditions from enrichment, and state what the earlier Books keep as their own experience if the culmination never arrives. Earlier Books must remain meaningful in their own right.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, with a reason. A follow-up request may give an earlier judgement as text: it is not evidence, so cite nothing from it, and state in changes_from_prior what changed and why.\n\nKeep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.\n\nReturn ONLY one JSON object with these keys: schema_version (1), trajectory, relations, culmination (an object, or null when the author named none and you offer none), alternative_paths, opportunities, reader_experience, open_decisions, uncertainty, criticism_assessments, changes_from_prior. Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\"], \"criticism\": [{\"id\": \"c1\", \"text\": \"Book 25 (s2) is not a stage of the trajectory: its only evidence repeats Book 24's text word for word, so it records no development of its own and should be dropped rather than kept as a stage.\"}, {\"id\": \"c2\", \"text\": \"The claim that the public capability record may let the uncounted cohort give back without first being counted reads more into the record than its wording gives: the record says who can repair, not that it removes the count.\"}], \"culmination_requested\": false, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"mechanism\", \"ref\": \"th_maintenance\", \"text_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\", \"title\": \"Keeping the channels\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"7712ef53c92787b3dcebc33b59d35a2c6878a94913d718842829ea44a0004922\", \"text\": \"{\\\"category\\\": \\\"thread\\\", \\\"id\\\": \\\"th_maintenance\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\\\", \\\"title\\\": \\\"Keeping the channels\\\"}\", \"truncated\": false, \"version_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\"}, {\"freshness\": \"author_current\", \"id\": \"E2\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e\", \"text\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"agent-lineages\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E3\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46\", \"text\": \"Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"cons-belief-plural\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E4\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf\", \"text\": \"The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E5\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-cohort-belief\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E6\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204\", \"text\": \"A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-right-condition\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E7\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b\", \"text\": \"The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"later-cohort-seat\", \"epistemic_status\": \"hypothetical\", \"freshness\": \"current_read\", \"id\": \"E8\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4fdad0ce477d0370c085d7898b25b55dc8527285881a3cf730b5b4b4c06fde7d\", \"text\": \"The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work. Book 24 names no body that would grant that standing and creates none.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"agent-lineages\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E9\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46\", \"text\": \"Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"cons-belief-plural\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E10\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf\", \"text\": \"The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E11\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"inh-cohort-belief\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E12\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204\", \"text\": \"A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"inh-right-condition\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E13\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b\", \"text\": \"The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).\", \"truncated\": false, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 11, \"excerpted\": 11, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 10, \"listed\": [{\"book\": 24, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"fn-question\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [25]}, {\"book\": 25, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"fn-question\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [24]}], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E14\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"5378b06b572a9d291a8dbbc30982fdf3ea0c6c629e91b64d675ef3a9c4195741\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 11, \\\"excerpted\\\": 11, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 182, \\\"same_text_elsewhere\\\": {\\\"count\\\": 10, \\\"listed\\\": [{\\\"book\\\": 24, \\\"element_id\\\": \\\"agent-lineages\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"cons-belief-plural\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-cohort-belief\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-right-condition\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"agent-lineages\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"cons-belief-plural\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-cohort-belief\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-right-condition\\\", \\\"same_text_in_books\\\": [24]}], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}], \"existing_books\": [24, 25], \"handoffs\": [], \"inputs\": {\"criticism\": [\"Book 25 (s2) is not a stage of the trajectory: its only evidence repeats Book 24's text word for word, so it records no development of its own and should be dropped rather than kept as a stage.\", \"The claim that the public capability record may let the uncounted cohort give back without first being counted reads more into the record than its wording gives: the record says who can repair, not that it removes the count.\"], \"culmination\": null, \"developments\": [{\"kind\": \"mechanism\", \"ref\": \"th_maintenance\"}], \"handoffs\": [], \"prior_request_sha256\": \"55f1a81ddc561d4271a0da029e18ba80bc93e844fb2217f2f59db75a14148841\", \"question\": \"Weigh the criticism given. What in this trajectory still stands after it, and what should be reconsidered?\"}, \"operation\": \"synthesize_development\", \"prior_judgement\": {\"note\": \"Earlier judgement, not evidence: cite no identifier from it.\", \"request_sha256\": \"55f1a81ddc561d4271a0da029e18ba80bc93e844fb2217f2f59db75a14148841\", \"trajectory\": [{\"book\": 24, \"development\": \"Book 24 (Working Book text, agent-proposed): the labour gap is first met by people rather than by a schedule, and a generation that refuses to be counted is asked to give back the water before it is owed. The Special Draw Right's review point falls here, and the Right is conditional on training apprentices from outside the lineage.\", \"ref\": \"s1\"}, {\"book\": 25, \"development\": \"Book 25 repeats five of Book 24's six citing elements word for word, with matching source hashes (E14). No development specific to Book 25 is recorded.\", \"ref\": \"s2\"}, {\"book\": null, \"development\": \"Apprentices from outside the lineage are trained under the Right's condition, and the generation that came of age after Book 20 is brought into the labour for the first time, held to the lineage's craft standard. Conditional proposal; no new people or factions are named.\", \"ref\": \"s3\"}, {\"book\": null, \"development\": \"A public capability record, separate from debt, tally and aggregate balance, is used to show who can repair. Repair is recorded as capability rather than as obligation or count. Conditional proposal.\", \"ref\": \"s4\"}, {\"book\": null, \"development\": \"The cohort that now practises both counted and uncounted return may claim standing in how the valley coordinates channel work. This is conditional on s3. E8 is hypothetical and names no body that would grant standing, so the grantor is an open choice for a later Book.\", \"ref\": \"s5\"}]}, \"question\": \"Weigh the criticism given. What in this trajectory still stands after it, and what should be reconsidered?\"}",
+  "settings": {
+    "operation": "synthesize_architecture_development",
+    "inputs_sha256": "320acc62c66ec9e3e866afcc7fa325487c9d8999f69de213ae1df26c410b3a26",
+    "developments_sha256": "c0987bdae5c47e664ebedd7d715347972d442ee31e92d7831992b48c264a7c50",
+    "question_sha256": "99616545b16e949aeb0b3d650e59f7089a95a11baa29d16edbfbafc843a10209",
+    "culmination_sha256": null,
+    "handoffs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "criticism_sha256": "d89cde755b267f0a6b97372e31477fe91e1bbfc9bf1ced826ea3e0ee6685e265",
+    "prior_request_sha256": "55f1a81ddc561d4271a0da029e18ba80bc93e844fb2217f2f59db75a14148841",
+    "evidence_sha256": "c2604268e3d205951734376d08e071a517c31b3432482b7e753e51a2f7f1a405",
+    "synthesis_schema_version": 1
+  },
+  "request_sha256": "825b4fd845de8f85f3f5d9280176cee30989acff4e8fed2483e980e8dfc0b95e",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "SynthesisAnswer",
+    "json_schema": {
+      "$defs": {
+        "AlternativePath": {
+          "additionalProperties": false,
+          "properties": {
+            "ordering": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Ordering",
+              "type": "string"
+            },
+            "effect": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Effect",
+              "type": "string"
+            },
+            "viability": {
+              "enum": [
+                "viable",
+                "weakened",
+                "closed",
+                "unresolved"
+              ],
+              "title": "Viability",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "ordering",
+            "effect",
+            "viability"
+          ],
+          "title": "AlternativePath",
+          "type": "object"
+        },
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "Culmination": {
+          "additionalProperties": false,
+          "description": "The culmination the author named (or the answer reads), with what it needs and what earlier Books keep for themselves.",
+          "properties": {
+            "statement": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Statement",
+              "type": "string"
+            },
+            "necessary": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Necessary",
+              "type": "array"
+            },
+            "enrichment": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Enrichment",
+              "type": "array"
+            },
+            "standalone_value": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Standalone Value",
+              "type": "string"
+            }
+          },
+          "required": [
+            "statement",
+            "standalone_value"
+          ],
+          "title": "Culmination",
+          "type": "object"
+        },
+        "CulminationCondition": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "CulminationCondition",
+          "type": "object"
+        },
+        "Opportunity": {
+          "additionalProperties": false,
+          "description": "Something the interaction of two or three developments makes possible that none makes possible alone.",
+          "properties": {
+            "text": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "text",
+            "between",
+            "evidence"
+          ],
+          "title": "Opportunity",
+          "type": "object"
+        },
+        "SynthesisRelation": {
+          "additionalProperties": false,
+          "description": "How two developments or stages bear on each other. ``prerequisite`` is necessary; ``preparation`` is helpful only.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "prerequisite",
+                "preparation",
+                "enables",
+                "complicates",
+                "reinforces",
+                "independent",
+                "incompatible"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "dependence": {
+              "enum": [
+                "causal",
+                "thematic",
+                "sequential_only",
+                "none"
+              ],
+              "title": "Dependence",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "between",
+            "dependence",
+            "reason"
+          ],
+          "title": "SynthesisRelation",
+          "type": "object"
+        },
+        "SynthesisStage": {
+          "additionalProperties": false,
+          "description": "One stage of the trajectory. Stages are ordered by developmental dependency, not by book number.",
+          "properties": {
+            "book": {
+              "anyOf": [
+                {
+                  "maximum": 60,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Book"
+            },
+            "horizon": {
+              "enum": [
+                "existing_book",
+                "proposed_book"
+              ],
+              "title": "Horizon",
+              "type": "string"
+            },
+            "development": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Development",
+              "type": "string"
+            },
+            "becomes_available": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Becomes Available",
+              "type": "string"
+            },
+            "changes": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Changes",
+              "type": "string"
+            },
+            "basis": {
+              "enum": [
+                "recorded",
+                "inferred",
+                "proposed"
+              ],
+              "title": "Basis",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 4,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "horizon",
+            "development",
+            "becomes_available",
+            "changes",
+            "basis"
+          ],
+          "title": "SynthesisStage",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A structured synthesis of selected developments. The owner holds the developments and the question; the agent gives the reading.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "trajectory": {
+          "items": {
+            "$ref": "#/$defs/SynthesisStage"
+          },
+          "maxItems": 6,
+          "minItems": 2,
+          "title": "Trajectory",
+          "type": "array"
+        },
+        "relations": {
+          "items": {
+            "$ref": "#/$defs/SynthesisRelation"
+          },
+          "maxItems": 8,
+          "title": "Relations",
+          "type": "array"
+        },
+        "culmination": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Culmination"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "alternative_paths": {
+          "items": {
+            "$ref": "#/$defs/AlternativePath"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Alternative Paths",
+          "type": "array"
+        },
+        "opportunities": {
+          "items": {
+            "$ref": "#/$defs/Opportunity"
+          },
+          "maxItems": 3,
+          "title": "Opportunities",
+          "type": "array"
+        },
+        "reader_experience": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reader Experience",
+          "type": "string"
+        },
+        "open_decisions": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Open Decisions",
+          "type": "array"
+        },
+        "uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Uncertainty",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "changes_from_prior": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Changes From Prior",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "trajectory",
+        "alternative_paths",
+        "reader_experience"
+      ],
+      "title": "SynthesisAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "e64a30697bc5e841225aaf662bc0b2645c070e7e17c8ba7bce4aa278fbe74b0b"
+  }
+}

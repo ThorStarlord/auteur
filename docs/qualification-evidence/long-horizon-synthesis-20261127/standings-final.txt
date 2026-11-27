@@ -1,0 +1,8 @@
+ba4471e9e457 current ready [('mechanism', 'th_maintenance')] criticism prior
+e82c2232c6ac current ready [('mechanism', 'str_long_return'), ('question', 'q-finale-mechanism')]  
+443009d80db0 current ready [('mechanism', 'th_maintenance'), ('mechanism', 'inst_mill_compact')]  
+b9bf9fdbb483 superseded ready [('mechanism', 'th_maintenance')]  
+825b4fd845de superseded ready [('mechanism', 'th_maintenance')] criticism prior
+00a0b577c7bb superseded ready [('mechanism', 'str_long_return'), ('question', 'q-finale-mechanism')]  
+5972e8cb03a5 superseded ready [('mechanism', 'th_maintenance'), ('mechanism', 'inst_mill_compact')]  
+8aa565c4b03b superseded unanswered [('question', 'q-finale-mechanism')]  

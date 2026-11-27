@@ -1,0 +1,520 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-synthesis-1472c575466738ce373c5f19:e82c2232c6acf903",
+  "candidate_id": "studio-synthesis-1472c575466738ce373c5f19",
+  "role": "studio_architecture_synthesis",
+  "created_at": "2026-11-27T22:22:29.268368+00:00",
+  "system": "You are the active Auteur creative synthesis agent. The author has selected one to three creative developments of a working narrative architecture and asks what they could become across the Series. Your reading is advisory: it is not canon, not an applied revision, not a commitment, and it changes no record.\n\nThe request holds the developments' own wording, the Working Book elements that cite them, the links among them, any accepted reconsiderations offered as handoffs, and, when the author gave one, the culmination the author named. Cite only the identifiers the request gives (E-numbers). Excerpts are shown as excerpts; never present an excerpt as the whole record.\n\nReason about a trajectory, not a list of events. For each stage say what becomes available (the earlier condition that makes it possible, cited), and what it changes in what the earlier developments mean or make possible. Label each stage's basis: recorded (the cited record states it), inferred (it follows from the record, and you say how), or proposed (a new development that the record does not contain; state it conditionally and do not name new people, places or factions the author has not given). A book number is a placement in an existing Book, not a claim of chronology, and a stage beyond the existing Books is a proposed_book with no book number.\n\nRelations: use prerequisite only for what the later development cannot occur without; preparation for what makes it richer or easier. Say whether the dependence is causal, thematic, sequential_only or none. Use interference and incompatibility only where the record shows one development constraining another. Give alternative paths that change the order or the condition of the developments, and say whether each stays viable.\n\nIf the author named a culmination, reason about it backward (what it needs) and forward (what the earlier developments already make possible), separate necessary conditions from enrichment, and state what the earlier Books keep as their own experience if the culmination never arrives. Earlier Books must remain meaningful in their own right.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, with a reason. A follow-up request may give an earlier judgement as text: it is not evidence, so cite nothing from it, and state in changes_from_prior what changed and why.\n\nQuote the basis. Every claim that cites evidence (a stage, a relation, an alternative path, an opportunity or a culmination condition) must carry `quote`: the exact words, copied without change, from one of the items it cites, up to 240 characters, that carry the claim's premise. Do not quote words the cited items do not contain. If no words carry a premise, cite what does, or label the claim proposed and state what it assumes. State an absence as 'not stated in the cited items', never as a fact about the story. Read tense and attribution exactly as the words give them.\n\nKeep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.\n\nReturn ONLY one JSON object with these keys: schema_version (1), trajectory, relations, culmination (an object, or null when the author named none and you offer none), alternative_paths, opportunities, reader_experience, open_decisions, uncertainty, criticism_assessments, changes_from_prior. Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\", \"E15\", \"E16\", \"E17\"], \"criticism\": [], \"culmination_requested\": true, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"mechanism\", \"ref\": \"str_long_return\", \"text_sha256\": \"d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d\", \"title\": \"The Long Return (pulse)\"}, {\"evidence\": \"E2\", \"id\": \"d2\", \"kind\": \"question\", \"ref\": \"q-finale-mechanism\", \"text_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"title\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"745b0b3763e352efe3a0fce2f0061580e6c109235937365b96426ec92283aed6\", \"text\": \"{\\\"category\\\": \\\"structure\\\", \\\"id\\\": \\\"str_long_return\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to the valley.\\\", \\\"title\\\": \\\"The Long Return (pulse)\\\"}\", \"truncated\": false, \"version_sha256\": \"d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d\"}, {\"development\": \"d2\", \"freshness\": \"current_read\", \"id\": \"E2\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_question\", \"source_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"text\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\", \"truncated\": false, \"version_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\"}, {\"freshness\": \"author_current\", \"id\": \"E3\", \"kind\": \"author_culmination\", \"owner\": \"the author, on the canvas\", \"source\": \"author\", \"source_sha256\": \"504a772dc7296f3c97ebec21d2ef896ba5ae244b6cab0968226f9cb04685d89a\", \"text\": \"The Long Return is met by the generation that refused to be counted, who give back the water before it is owed.\", \"truncated\": false, \"version_sha256\": null}, {\"freshness\": \"author_current\", \"id\": \"E4\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e\", \"text\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"agent-steward\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E5\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"d2249463e6181993310bf1f7cf0bcef7edf0dc4d84f6464d6d1c9ee0cb50cfb7\", \"text\": \"The Council steward (Idrun in the source) wants the Turn humane. She needs trained hands before the date, fears gift without return, and knows what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"closed-book30-surprise\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E6\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cf47c38b5cab254b7e5f3d1b93c627d9fc01267b064fd20891143858ec33a010\", \"text\": \"The labour gap as a Book 30 surprise is closed: it is named and partly worked from Book 24.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"cons-labour-readiness\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E7\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"26a9cf730df11234fde451d118e3fce2df9f4835f4289ede170f9d24d5f376c2\", \"text\": \"Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": null, \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"edge-crew-setup\", \"epistemic_status\": null, \"freshness\": \"current_read\", \"id\": \"E8\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"a8fc0c33afa7e2640e7488078d340c12fead606d9ee671315fa3f11002e0f28e\", \"text\": \"Trained outside-lineage hands set up the Long Return's labour.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": null, \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"edge-function-long-return\", \"epistemic_status\": null, \"freshness\": \"current_read\", \"id\": \"E9\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"6a20d56d66ecd3cd1817d8af0133840bf21f5f5e9a7865fe658d5c1a1bb08333\", \"text\": \"The Long Return's labour need is the pressure this Book develops.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E10\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-date\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E11\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1bc5dd6a951540b41e2dbc49e3d2f5974c90142e6ad2183fac57d38dc1137e6c\", \"text\": \"The Long Return's date is public: the Balance Stones publish it and limit Brightwater's draw. Book 24 is the first Book in which the valley knows how long it has, and training takes years, so the labour question cannot wait for Books 27 to 29.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"res-first-group\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E12\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cd1de0fc06d1d2403afc3a2ee1366f80187acb08d023a862f4df75d9566f6ebc\", \"text\": \"A first group of outside-lineage hands is trained. The size is unstated, and the group does not close the Long Return's labour gap; it shows that the gap can be narrowed.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"unk-years\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E13\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"f74f194ab65122aedbd09fc44a7b3346c13f76a3db2b3e7d79a89a206f5da81a\", \"text\": \"The years between Book 24 and the Long Return, and how long a channel hand takes to train.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"agent-steward\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E14\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"d2249463e6181993310bf1f7cf0bcef7edf0dc4d84f6464d6d1c9ee0cb50cfb7\", \"text\": \"The Council steward (Idrun in the source) wants the Turn humane. She needs trained hands before the date, fears gift without return, and knows what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"closed-book30-surprise\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E15\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cf47c38b5cab254b7e5f3d1b93c627d9fc01267b064fd20891143858ec33a010\", \"text\": \"The labour gap as a Book 30 surprise is closed: it is named and partly worked from Book 24.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"cons-labour-readiness\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E16\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"26a9cf730df11234fde451d118e3fce2df9f4835f4289ede170f9d24d5f376c2\", \"text\": \"Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.\", \"truncated\": false, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 18, \"excerpted\": 12, \"listing_truncated\": true}, \"d2\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 18, \"listed\": [{\"book\": 24, \"element_id\": \"agent-steward\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"closed-book30-surprise\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"cons-labour-readiness\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"edge-crew-setup\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"edge-function-long-return\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"fn-question\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-date\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"res-first-group\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"unk-years\", \"same_text_in_books\": [25]}, {\"book\": 25, \"element_id\": \"agent-steward\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"closed-book30-surprise\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"cons-labour-readiness\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"edge-crew-setup\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"edge-function-long-return\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"fn-question\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-date\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"res-first-group\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"unk-years\", \"same_text_in_books\": [24]}], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E17\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8ef3b488ccedf56f207a68a9ff3a0a2a74940a070e2e5f7aa72f30c1948922ff\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 18, \\\"excerpted\\\": 12, \\\"listing_truncated\\\": true}, \\\"d2\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 182, \\\"same_text_elsewhere\\\": {\\\"count\\\": 18, \\\"listed\\\": [{\\\"book\\\": 24, \\\"element_id\\\": \\\"agent-steward\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"closed-book30-surprise\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"cons-labour-readiness\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"edge-crew-setup\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"edge-function-long-return\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-date\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"res-first-group\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"unk-years\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"agent-steward\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"closed-book30-surprise\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"cons-labour-readiness\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"edge-crew-setup\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"edge-function-long-return\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-date\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"res-first-group\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"unk-years\\\", \\\"same_text_in_books\\\": [24]}], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}], \"existing_books\": [24, 25], \"handoffs\": [], \"inputs\": {\"criticism\": [], \"culmination\": \"The Long Return is met by the generation that refused to be counted, who give back the water before it is owed.\", \"developments\": [{\"kind\": \"mechanism\", \"ref\": \"str_long_return\"}, {\"kind\": \"question\", \"ref\": \"q-finale-mechanism\"}], \"handoffs\": [], \"prior_request_sha256\": null, \"question\": \"What could make the finale's answer to who gives return labour feel earned rather than imposed?\"}, \"operation\": \"synthesize_development\", \"prior_judgement\": null, \"question\": \"What could make the finale's answer to who gives return labour feel earned rather than imposed?\"}",
+  "settings": {
+    "operation": "synthesize_architecture_development",
+    "inputs_sha256": "59b93c083155c30dd3c06c2987f1f4ad2c8a96a5ff983459335cf62e81595a45",
+    "developments_sha256": "3ef60886412082af1a64f12622e51b258470d8a3a0d1380b390dbab406ba4499",
+    "question_sha256": "6d00a948aae0c571895933dcbf984e35a6108e53f236b32070d063d78bfb8ced",
+    "culmination_sha256": "504a772dc7296f3c97ebec21d2ef896ba5ae244b6cab0968226f9cb04685d89a",
+    "handoffs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "criticism_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "prior_request_sha256": null,
+    "evidence_sha256": "101fe5e94e289d8a3ff6f7c3f4466f397d8152bd5c4eb5a54a63351f11f52426",
+    "synthesis_schema_version": 2
+  },
+  "request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "SynthesisAnswer",
+    "json_schema": {
+      "$defs": {
+        "AlternativePath": {
+          "additionalProperties": false,
+          "properties": {
+            "ordering": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Ordering",
+              "type": "string"
+            },
+            "effect": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Effect",
+              "type": "string"
+            },
+            "viability": {
+              "enum": [
+                "viable",
+                "weakened",
+                "closed",
+                "unresolved"
+              ],
+              "title": "Viability",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "ordering",
+            "effect",
+            "viability"
+          ],
+          "title": "AlternativePath",
+          "type": "object"
+        },
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "Culmination": {
+          "additionalProperties": false,
+          "description": "The culmination the author named (or the answer reads), with what it needs and what earlier Books keep for themselves.",
+          "properties": {
+            "statement": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Statement",
+              "type": "string"
+            },
+            "necessary": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Necessary",
+              "type": "array"
+            },
+            "enrichment": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Enrichment",
+              "type": "array"
+            },
+            "standalone_value": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Standalone Value",
+              "type": "string"
+            }
+          },
+          "required": [
+            "statement",
+            "standalone_value"
+          ],
+          "title": "Culmination",
+          "type": "object"
+        },
+        "CulminationCondition": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "CulminationCondition",
+          "type": "object"
+        },
+        "Opportunity": {
+          "additionalProperties": false,
+          "description": "Something the interaction of two or three developments makes possible that none makes possible alone.",
+          "properties": {
+            "text": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "text",
+            "between",
+            "evidence"
+          ],
+          "title": "Opportunity",
+          "type": "object"
+        },
+        "SynthesisRelation": {
+          "additionalProperties": false,
+          "description": "How two developments or stages bear on each other. ``prerequisite`` is necessary; ``preparation`` is helpful only.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "prerequisite",
+                "preparation",
+                "enables",
+                "complicates",
+                "reinforces",
+                "independent",
+                "incompatible"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "dependence": {
+              "enum": [
+                "causal",
+                "thematic",
+                "sequential_only",
+                "none"
+              ],
+              "title": "Dependence",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "kind",
+            "between",
+            "dependence",
+            "reason"
+          ],
+          "title": "SynthesisRelation",
+          "type": "object"
+        },
+        "SynthesisStage": {
+          "additionalProperties": false,
+          "description": "One stage of the trajectory. Stages are ordered by developmental dependency, not by book number.",
+          "properties": {
+            "book": {
+              "anyOf": [
+                {
+                  "maximum": 60,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Book"
+            },
+            "horizon": {
+              "enum": [
+                "existing_book",
+                "proposed_book"
+              ],
+              "title": "Horizon",
+              "type": "string"
+            },
+            "development": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Development",
+              "type": "string"
+            },
+            "becomes_available": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Becomes Available",
+              "type": "string"
+            },
+            "changes": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Changes",
+              "type": "string"
+            },
+            "basis": {
+              "enum": [
+                "recorded",
+                "inferred",
+                "proposed"
+              ],
+              "title": "Basis",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 4,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "horizon",
+            "development",
+            "becomes_available",
+            "changes",
+            "basis"
+          ],
+          "title": "SynthesisStage",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A structured synthesis of selected developments. The owner holds the developments and the question; the agent gives the reading.",
+      "properties": {
+        "schema_version": {
+          "const": 2,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "trajectory": {
+          "items": {
+            "$ref": "#/$defs/SynthesisStage"
+          },
+          "maxItems": 6,
+          "minItems": 2,
+          "title": "Trajectory",
+          "type": "array"
+        },
+        "relations": {
+          "items": {
+            "$ref": "#/$defs/SynthesisRelation"
+          },
+          "maxItems": 8,
+          "title": "Relations",
+          "type": "array"
+        },
+        "culmination": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Culmination"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "alternative_paths": {
+          "items": {
+            "$ref": "#/$defs/AlternativePath"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Alternative Paths",
+          "type": "array"
+        },
+        "opportunities": {
+          "items": {
+            "$ref": "#/$defs/Opportunity"
+          },
+          "maxItems": 3,
+          "title": "Opportunities",
+          "type": "array"
+        },
+        "reader_experience": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reader Experience",
+          "type": "string"
+        },
+        "open_decisions": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Open Decisions",
+          "type": "array"
+        },
+        "uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Uncertainty",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "changes_from_prior": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Changes From Prior",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "trajectory",
+        "alternative_paths",
+        "reader_experience"
+      ],
+      "title": "SynthesisAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "25b45abcff3cc312a754e5a6818d595c549abad368939321beb514e4223a180e"
+  }
+}

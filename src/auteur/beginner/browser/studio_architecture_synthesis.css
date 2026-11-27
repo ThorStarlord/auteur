@@ -1,0 +1,64 @@
+/* Long-horizon synthesis: layout for a reading that is trajectory first. Colour is never the only signal: each state has words. */
+.architecture-synthesis { margin: 1.25rem 0; padding: 1rem 1.1rem; border: 1px solid #d8cfc0; border-radius: 8px; background: #fffdf8; }
+.architecture-synthesis h2 { margin: 0 0 .25rem; font-size: 1.15rem; }
+.architecture-synthesis-intro, .synthesis-note { color: #5a5446; font-size: .92rem; margin: .25rem 0 .6rem; }
+.synthesis-live { min-height: 0; margin: 0; font-size: .92rem; }
+.synthesis-live:empty { display: none; }
+.synthesis-compose, .synthesis-current, .synthesis-follow, .synthesis-history { margin-top: .9rem; }
+.synthesis-subtitle, .synthesis-heading { font-size: 1rem; margin: .6rem 0 .35rem; }
+.synthesis-label { display: block; font-weight: 600; margin: .5rem 0 .25rem; font-size: .93rem; }
+.synthesis-developments, .synthesis-handoffs { border: 1px solid #e3dccd; border-radius: 6px; padding: .45rem .6rem; margin: .5rem 0; max-height: 14rem; overflow: auto; }
+.synthesis-developments legend, .synthesis-handoffs legend { padding: 0 .25rem; }
+.synthesis-choice { display: flex; gap: .45rem; align-items: flex-start; padding: .2rem 0; font-size: .92rem; }
+.synthesis-choice input { margin-top: .2rem; }
+.synthesis-choice-text { overflow-wrap: anywhere; }
+.synthesis-question, .synthesis-culmination, .synthesis-criticism, .synthesis-request, .synthesis-response {
+  width: 100%; max-width: 46rem; font: inherit; font-size: .95rem; padding: .45rem .55rem; border: 1px solid #b9b09c;
+  border-radius: 6px; background: #fff; color: #292922; }
+.synthesis-request { font-family: ui-monospace, Consolas, monospace; font-size: .8rem; }
+.synthesis-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: .6rem 0; }
+.synthesis-prepare, .synthesis-submit, .synthesis-continue, .synthesis-cancel {
+  font: inherit; font-size: .93rem; padding: .4rem .8rem; border-radius: 6px; border: 1px solid #5f6f5a; background: #eef4ea;
+  color: #243220; cursor: pointer; }
+.synthesis-prepare:disabled, .synthesis-submit:disabled { opacity: .6; cursor: default; }
+.synthesis-cancel { background: #fff; border-color: #b9b09c; color: #433d30; }
+.synthesis-error { color: #7a2422; font-weight: 600; margin: .4rem 0; }
+.synthesis-standing { font-weight: 600; margin: .3rem 0 .6rem; }
+.synthesis-standing-ok { color: #243220; }
+.synthesis-standing-warn { color: #6b4b10; }
+.synthesis-standing-note { color: #3d4a5c; }
+.synthesis-chip { display: inline-block; font-size: .78rem; padding: .05rem .45rem; border-radius: 999px; border: 1px solid #b9b09c;
+  background: #f4efe4; color: #433d30; margin-left: .15rem; }
+.synthesis-chip-ok { background: #e7f0e2; border-color: #7b9674; color: #243220; }
+.synthesis-chip-warn { background: #f7ecd4; border-color: #b8954b; color: #5a4212; }
+.synthesis-stages { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
+.synthesis-stage { border-left: 3px solid #7b9674; padding: .3rem .7rem; background: #fbfaf5; border-radius: 0 6px 6px 0; }
+.synthesis-stage-head { margin: 0 0 .2rem; font-size: .9rem; }
+.synthesis-stage-ref { font-weight: 700; color: #3d4a5c; }
+.synthesis-stage-place { font-weight: 600; }
+.synthesis-stage-development { margin: .2rem 0; line-height: 1.45; }
+.synthesis-stage-horizon { color: #5a5446; font-size: .85rem; margin: .2rem 0 0; }
+.synthesis-line { margin: .15rem 0; font-size: .92rem; line-height: 1.4; }
+.synthesis-line-label { font-weight: 600; font-size: .9rem; margin: .35rem 0 .1rem; }
+.synthesis-list { margin: .2rem 0 .4rem 1.1rem; padding: 0; line-height: 1.45; font-size: .93rem; }
+.synthesis-relation, .synthesis-alternative, .synthesis-opportunity, .synthesis-condition, .synthesis-verdict { margin-bottom: .35rem; }
+.synthesis-ordering { font-weight: 600; }
+.synthesis-effect { margin: .1rem 0 0; color: #433d30; }
+.synthesis-between { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; }
+.synthesis-evidence, .synthesis-history { margin-top: .7rem; }
+.synthesis-summary { cursor: pointer; font-weight: 600; font-size: .93rem; }
+.synthesis-evidence-list { list-style: none; padding: 0; margin: .4rem 0; font-size: .88rem; }
+.synthesis-evidence-item { margin-bottom: .55rem; overflow-wrap: anywhere; }
+.synthesis-evidence-id { font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+.synthesis-evidence-kind { font-weight: 600; }
+.synthesis-evidence-text { margin: .15rem 0 0; color: #433d30; white-space: pre-wrap; line-height: 1.4; }
+.synthesis-awaiting .synthesis-request { margin-top: .3rem; }
+.synthesis-history-item { overflow-wrap: anywhere; }
+
+@media (max-width: 480px) {
+  .architecture-synthesis { padding: .8rem; margin-left: 0; margin-right: 0; }
+  .synthesis-question, .synthesis-culmination, .synthesis-criticism, .synthesis-response { font-size: 16px; }
+  .synthesis-prepare, .synthesis-submit, .synthesis-continue, .synthesis-cancel { min-height: 44px; }
+  .synthesis-choice { min-height: 44px; align-items: center; }
+}
+.synthesis-quote { margin: .15rem 0 0 .2rem; color: #433d30; font-style: italic; overflow-wrap: anywhere; }

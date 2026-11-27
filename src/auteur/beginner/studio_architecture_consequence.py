@@ -851,6 +851,20 @@ def _standing(store: CanvasStore, request, pending: dict | None, current: dict |
     return "superseded"
 
 
+def analysis_standing(store: CanvasStore, analysis_request_sha256: str) -> str:
+    """The standing of one saved analysis now, read the same way the history rows read it.
+
+    It is ``current`` only while it is the latest analysis on the canvas and its proposal is still live. Any other analysis of
+    that proposal is ``superseded``; one whose proposal has changed is ``stale_context``. Read-only.
+    """
+    base = _root(store)
+    pointer = arch._read(base / "latest_request.json")
+    latest = pointer.get("request_sha256") if pointer else None
+    request = load_host_agent_request(base / "requests" / analysis_request_sha256 / "request.json")
+    pending = arch.project_architecture(store).get("review")
+    return _standing(store, request, pending, arch._candidate(store), latest=(analysis_request_sha256 == latest))
+
+
 def prepare_architecture_consequence(store: CanvasStore, *, contract_version: int = CONTRACT_VERSION) -> dict:
     """Prepare the analysis of the pending revision. Explicit only; nothing is executed and no record changes.
 

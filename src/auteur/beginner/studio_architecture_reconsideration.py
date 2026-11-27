@@ -21,7 +21,10 @@ from auteur.host_agent import (
 from auteur.series.working_book_architecture import book_elements, book_numbers
 
 from . import studio_architecture as arch
-from .studio_architecture_consequence import ROLE as CONSEQUENCE_ROLE, _digest, _refuse, _root as _consequence_root, _standing
+from .studio_architecture_consequence import (
+    ROLE as CONSEQUENCE_ROLE, _digest, _refuse, _root as _consequence_root, analysis_standing as _analysis_standing,
+)
+from .studio_architecture_questions import text_digest
 from .studio_store import CanvasStore
 
 ROLE = "studio_architecture_consequence_reconsideration"
@@ -31,7 +34,10 @@ RECONSIDERATION_SCHEMA_VERSION = 1
 
 VERDICTS = ("accepted", "partly_accepted", "rejected", "unresolved")
 CLAIM_KINDS = ("concern", "mechanism", "connection", "inheritance", "alternative", "reach")
-RECOVERED_TEXT_LIMIT = 2000
+HANDOFF_SCHEMA = "studio-consequence-reconsideration-handoff/1"
+# Recovered source is bounded for size, but a creative alternative's full description is what its significance rests on: the cap is
+# large enough that a recorded alternative is not cut in practice, and a longer record is labelled as truncated.
+RECOVERED_TEXT_LIMIT = 8000
 MAX_RECOVERED_RECORDS = 6
 # Identifier rows only, so the listing covers every element that cites a claim's nodes in a Study of this size. The count is exact
 # regardless; a truncated listing says so.
@@ -92,6 +98,10 @@ def reconsideration_standing(analysis_standing: str | None) -> str:
 
 def _root(store: CanvasStore):
     return _consequence_root(store) / "reconsiderations"
+
+
+def _identifier_number(identifier: str) -> int:
+    return int(identifier[1:])
 
 
 def _analysis(store: CanvasStore, analysis_request_sha256: str):
@@ -181,7 +191,71 @@ def _coverage(store: CanvasStore, packet: dict[str, Any], nodes: set[str]) -> di
     }
 
 
-def _recover(store: CanvasStore, analysis: dict[str, Any], packet: dict[str, Any], claim: dict[str, Any]):
+def selected_alternative_problems(selected: dict[str, Any] | None, item: dict[str, Any], full_text: str) -> list[str]:
+    """Why a selected creative alternative may not be recovered for a packet item; an empty list means its lineage holds.
+
+    The revision request must hold the alternative the packet names (same inquiry and hypothesis), and its full text must begin with
+    the text the analysis read (the packet clipped it, with an ellipsis). Nothing is recovered on a mismatch.
+    """
+    if not selected:
+        return ["the revision request holds no selected creative alternative"]
+    problems = []
+    if selected.get("inquiry_request_sha256") != item.get("inquiry_request_sha256"):
+        problems.append("its inquiry is not the inquiry the analysis read")
+    if selected.get("hypothesis_id") != item.get("hypothesis_id"):
+        problems.append("its hypothesis is not the one the analysis read")
+    clipped = str(item.get("text") or "")
+    prefix = clipped[:-1] if clipped.endswith("…") else clipped
+    if not full_text.startswith(prefix):
+        problems.append("its full text does not begin with the text the analysis read")
+    return problems
+
+
+def _origin_record(identifier: str, kind: str, review, text: str, record_id: str | None = None) -> dict[str, Any]:
+    """A recovered record of the revision request the analysis read: its full text, that request's identity, and its freshness."""
+    return {
+        "id": identifier, "source": "recovered", "owner": "Architecture revision request the analysis read",
+        "record_kind": kind, "record_id": record_id, "side": None, "version_sha256": review.request_sha256,
+        "freshness": "as_analysed", "truncated": len(text) > RECOVERED_TEXT_LIMIT, "text": text[:RECOVERED_TEXT_LIMIT],
+    }
+
+
+def _recover_origin(store: CanvasStore, packet: dict[str, Any], claim: dict[str, Any], review_sha256: str, number: int):
+    """The selected creative alternative and the revision instruction, in full, from the revision request they were adopted in.
+
+    A claim recovers them when its own evidence names them (a clipped packet line is then not the only wording it rests on), and a
+    reach claim always does, because the reach is the change those choices produced. Lineage is checked against the packet item
+    that names each; a mismatch refuses the reconsideration rather than recovering by title or position.
+    """
+    named = set(claim["evidence"])
+    alternative_item = next((item for item in packet["evidence"] if item["kind"] == "selected_alternative"), None)
+    instruction_item = next((item for item in packet["evidence"] if item["kind"] == "instruction"), None)
+    if claim["kind"] != "reach":
+        alternative_item = alternative_item if alternative_item and alternative_item["id"] in named else None
+        instruction_item = instruction_item if instruction_item and instruction_item["id"] in named else None
+    if alternative_item is None and instruction_item is None:
+        return [], number
+    review = load_host_agent_request(arch._root(store) / "requests" / review_sha256 / "request.json")
+    submitted = json.loads(review.user)
+    records: list[dict[str, Any]] = []
+    if alternative_item is not None:
+        selected = submitted.get("selected_creative_alternative")
+        full = f"{selected.get('title', '')}. {selected.get('description', '')}" if selected else ""
+        problems = selected_alternative_problems(selected, alternative_item, full)
+        if problems:
+            raise ValueError("the selected creative alternative cannot be recovered: " + "; ".join(problems))
+        records.append(_origin_record(f"E{number}", "selected_alternative", review, full, selected.get("hypothesis_id")))
+        number += 1
+    if instruction_item is not None:
+        text = str(submitted.get("revision_instruction") or "")
+        if text_digest(text) != instruction_item.get("sha256"):
+            raise ValueError("the revision instruction cannot be recovered: its text is not the one the analysis read")
+        records.append(_origin_record(f"E{number}", "revision_instruction", review, text))
+        number += 1
+    return records, number
+
+
+def _recover(store: CanvasStore, analysis: dict[str, Any], packet: dict[str, Any], claim: dict[str, Any], review_sha256: str):
     """Exact source wording for the claim's mechanisms, from the candidates the analysis read; coverage for coverage claims."""
     items = {item["id"]: item for item in packet["evidence"]}
     number = max(int(identifier[1:]) for identifier in items) + 1
@@ -212,6 +286,8 @@ def _recover(store: CanvasStore, analysis: dict[str, Any], packet: dict[str, Any
                 "truncated": len(text) > RECOVERED_TEXT_LIMIT, "text": text[:RECOVERED_TEXT_LIMIT],
             })
             number += 1
+    origin, number = _recover_origin(store, packet, claim, review_sha256, number)
+    records.extend(origin)
     coverage = None
     if claim["kind"] in ("reach", "inheritance"):
         for identifier in claim["evidence"]:
@@ -233,9 +309,7 @@ def _row(store: CanvasStore, folder, request) -> dict[str, Any]:
     payload = json.loads(request.user)
     result = arch._read(folder / "result.json")
     analysis_sha = request.settings["analysis_request_sha256"]
-    analysis_request = load_host_agent_request(_consequence_root(store) / "requests" / analysis_sha / "request.json")
-    pending = arch.project_architecture(store).get("review")
-    analysis_standing = _standing(store, analysis_request, pending, arch._candidate(store), latest=True)
+    analysis_standing = _analysis_standing(store, analysis_sha)
     refused = folder / "refused"
     return {
         "schema": SCHEMA,
@@ -273,11 +347,14 @@ def prepare_consequence_reconsideration(store: CanvasStore, *, analysis_request_
         claim = _claim(result, packet, selection)
         items = {item["id"]: item for item in packet["evidence"]}
         original_evidence = [items[identifier] for identifier in claim["evidence"] if identifier in items]
-        recovered, coverage = _recover(store, analysis, packet, claim)
+        recovered, coverage = _recover(store, analysis, packet, claim, analysis_request.settings["review_request_sha256"])
         criticism_rows = [{"id": f"c{number}", "text": text} for number, text in enumerate(criticism_texts, start=1)]
         recovery = {"records": recovered, "coverage": coverage}
-        allowed = sorted({identifier for identifier in items} | {row["id"] for row in recovered},
-                         key=lambda identifier: int(identifier[1:]))
+        # Admission: a citation resolves only to evidence whose content this request carries (the claim's own evidence) or the
+        # owner recovered. The rest of the packet existed when the analysis ran; its identifiers are named, never its content.
+        supplied = [item["id"] for item in original_evidence]
+        allowed = sorted(set(supplied) | {row["id"] for row in recovered}, key=_identifier_number)
+        historically = sorted(set(items) - set(supplied), key=_identifier_number)
         user = {
             "operation": "consequence_reconsideration",
             "analysis": {
@@ -293,7 +370,9 @@ def prepare_consequence_reconsideration(store: CanvasStore, *, analysis_request_
             "original_evidence": original_evidence,
             "recovery": recovery,
             "recovered_evidence": [row["id"] for row in recovered],
+            "supplied_evidence": supplied,
             "allowed_evidence": allowed,
+            "historically_available": historically,
             "instruction": instruction.strip(),
             "criticism": criticism_rows,
         }
@@ -328,10 +407,15 @@ def _check_answer(answer: ReconsiderationAnswer, payload: dict[str, Any]) -> Non
     supplied, assessed once."""
     allowed = set(payload["allowed_evidence"])
     recovered = set(payload["recovered_evidence"])
+    historically = set(payload.get("historically_available") or [])
     problems: list[str] = []
     cited = list(answer.evidence) + [identifier for item in answer.downstream for identifier in item.evidence]
     for identifier in dict.fromkeys(cited):
-        if identifier not in allowed:
+        if identifier in allowed:
+            continue
+        if identifier in historically:
+            problems.append(f"the answer cites {identifier}, whose content is not supplied to this reconsideration")
+        else:
             problems.append(f"the answer cites {identifier}, which is not in this request")
     if answer.disposition == "corrected" and not set(answer.evidence) & recovered:
         problems.append("a correction must rest on recovered source: cite at least one recovered record")
@@ -414,7 +498,61 @@ def project_consequence_reconsiderations(store: CanvasStore, analysis_request_sh
     return rows
 
 
+def reconsideration_handoff(store: CanvasStore, reconsideration_request_sha256: str) -> dict[str, Any]:
+    """Read-only: one completed reconsideration as a handoff to later creative work.
+
+    It carries the identities of the analysis, the claim and the reconsideration; the disposition and the revised judgement; each
+    cited record with its owner, version and freshness (recovered wording is included, nothing else); the remaining uncertainty,
+    the downstream items and the criticism verdicts; and the current or historical standing. It is advisory: it is not canon, not
+    an accepted Architecture, and it changes no record. A reconsideration still awaiting its answer is not handed off.
+    """
+    folder = _root(store) / reconsideration_request_sha256
+    result = arch._read(folder / "result.json") if (folder / "request.json").exists() else None
+    if result is None:
+        raise ValueError("no completed reconsideration for that request")
+    request = load_host_agent_request(folder / "request.json")
+    payload = json.loads(request.user)
+    answer = result["answer"]
+    recovered = {row["id"]: row for row in payload["recovery"]["records"]}
+    supplied = {row["id"]: row for row in payload["original_evidence"]}
+    evidence = []
+    for identifier in answer["evidence"]:
+        if identifier in recovered:
+            row = recovered[identifier]
+            evidence.append({"id": identifier, "source": "recovered", "owner": row["owner"], "record_kind": row["record_kind"],
+                             "freshness": row["freshness"], "version_sha256": row["version_sha256"],
+                             "truncated": row["truncated"], "text": row["text"]})
+        else:
+            row = supplied[identifier]
+            evidence.append({"id": identifier, "source": "analysis_packet",
+                             "owner": "consequence packet of the analysed request", "record_kind": row.get("kind"),
+                             "freshness": "as_analysed", "version_sha256": payload["analysis"]["evidence_sha256"],
+                             "truncated": False, "text": row.get("text")})
+    row = _row(store, folder, request)
+    return {
+        "schema": HANDOFF_SCHEMA,
+        "authority": AUTHORITY,
+        "analysis_request_sha256": request.settings["analysis_request_sha256"],
+        "analysis_result_sha256": request.settings["analysis_result_sha256"],
+        "analysis_standing": row["analysis_standing"],
+        "claim": {"kind": payload["claim"]["kind"], "ref": payload["claim"]["ref"],
+                  "claim_sha256": payload["claim"]["claim_sha256"]},
+        "reconsideration_request_sha256": request.request_sha256,
+        "standing": row["standing"],
+        "disposition": answer["disposition"],
+        "new_consideration": answer["new_consideration"],
+        "reconsidered_judgment": answer["reconsidered_judgment"],
+        "creative_significance": answer.get("creative_significance"),
+        "evidence": evidence,
+        "remaining_uncertainty": answer["remaining_uncertainty"],
+        "downstream": answer["downstream"],
+        "criticism_assessments": answer["criticism_assessments"],
+        "refused_attempts": row["refused_attempts"],
+    }
+
+
 __all__ = [
-    "ReconsiderationAnswer", "complete_consequence_reconsideration", "prepare_consequence_reconsideration",
-    "project_consequence_reconsiderations", "reconsideration_standing",
+    "AUTHORITY", "ReconsiderationAnswer", "complete_consequence_reconsideration", "prepare_consequence_reconsideration",
+    "project_consequence_reconsiderations", "reconsideration_handoff", "reconsideration_standing",
+    "selected_alternative_problems",
 ]
