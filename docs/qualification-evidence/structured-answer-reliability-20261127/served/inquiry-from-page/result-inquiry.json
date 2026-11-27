@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "analysis": "Compare framing applied to the two Compact links. Answer to the author's question: the packet records no start Book for the duty. The only packet-supported window is Books 27-30, and the duty's start depends on an undecided finale choice. The working candidate does rely on purchased draw carrying no labour, through the Phase 2 mechanism. 1. Narrative function. l_trade_draws_without_return (recorded) links inst_mill_compact to eng_source and is how Compact purchases thin the Source in Phase 2 (ph_2_the_turn, Books 6-11). l_compact_hands_in_kind (working) gives the same purchased draw a return duty to th_maintenance, but only under Alternative B. Its function is a settlement device that routes labour back to the channels, not a cause of thinning. The two links differ in function, not only in timing. 2. Causal role. Both concern the series' governing variable, th_hands_and_draw (who gives return labour and who is counted for draw), though neither link is recorded as attached to that thread. Alternative A keeps the no-labour state, since draw is decoupled from hands and nothing is owed. B reverses it, and under C the B rota applies only in a fixed window after a published threshold. The Compact's settlement is described as a clause of B or C (ph_5_unmeasured). On the recorded text the two links are conditional, not contradictory. 3. Start Book. Books 26-30 are absent. The packet places the Compact bid in Books 27-29, the C ratification window within Books 27-29, and the finale choice in Book 30. A B-conditional duty therefore cannot be recorded as starting before Book 27 and is undated within Books 27-30. If the title's every-season reading applies to all purchased draw, the first season it reaches is Book 6, the first recorded purchase. That reading is inferred, because alternative a1's proposed function text is not in the packet. 4. Reliance. Yes. The working candidate relies on purchased draw carrying no labour in l_trade_draws_without_return, in the inst_mill_compact summary, and in the Phase 2 narrative and its Book 6 activation. Route labels say Working Book 24 and 25 reference inst_mill_compact, but their text is absent, so reliance there is unverified. 5. Proposal conflict. Alternative a1 transforms l_compact_hands_in_kind, keeps inst_mill_compact with no changed fields, and lists neither l_trade_draws_without_return nor Phase 2 among its keeps or mechanisms. If the every-season duty binds purchased draw, the kept summary and the unaddressed recorded link would contradict it. The packet does not show whether a1 revises either one. This is a consistency gap to resolve before any acceptance. 6. Limits. These are interpretations of noncanonical working records, not deterministic graph proof. Nothing here accepts a candidate, and the settlement question (q-compact-settlement) and finale choice (q-finale-mechanism) remain undecided.",
+  "recorded_observations": [
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "Working link whose recorded function reads: under B, purchased draw owes grain-labour to the rebuild. It is conditional on Alternative B, which is not chosen. Alternative a1 transforms its function (changed_by_proposal) but the replacement text is not in the packet. No start Book is recorded for it.",
+      "sourceRef": "links/27",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_trade_draws_without_return",
+      "claim": "Recorded relation: purchased shares draw without return labour, running from inst_mill_compact to eng_source. It is not among alternative a1's keeps or mechanisms, so the proposal's effect on it is not stated. It is the means by which Compact purchases thin the Source in Phase 2.",
+      "sourceRef": "links/4",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "inst_mill_compact",
+      "claim": "Working summary states that purchased draw carries no return labour, and the Compact has its own Book 27-29 bid. Route labels say it is referenced by Working Book 24 and 25, whose text is absent. Alternative a1 preserves this node with no changed fields, so the summary would stand beside a transformed duty link.",
+      "sourceRef": "nodes/21",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "phase",
+      "id": "ph_2_the_turn",
+      "claim": "Books 6-11. The narrative function says Compact purchases draw water without return labour, so the physical balance constrains what the institutions can do. This is the earliest packet location where the no-labour property is load-bearing, and the first recorded purchase falls in Book 6.",
+      "sourceRef": "phases/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "phase",
+      "id": "ph_5_unmeasured",
+      "claim": "Books 23-30. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among A, B and C. The Compact's settlement is described as a clause of B or C. This is the only recorded decision point that could start the duty.",
+      "sourceRef": "phases/4",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_alt_c_triggers_b",
+      "claim": "Under Alternative C, the allotted rota of B activates only at a ratified threshold and for a fixed window. A B-conditional duty therefore starts at activation, which the packet does not date.",
+      "sourceRef": "links/31",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Open question: does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw. Not decided, so no settlement Book is recorded.",
+      "sourceRef": "open_questions/6",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-finale-mechanism",
+      "claim": "Open question: which finale mechanism, A, B, C or a third, governs who gives return labour and who is counted for it. Not decided, so whether any duty starts at all remains open.",
+      "sourceRef": "open_questions/2",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "title": "Duty as a late settlement clause",
+      "description": "Read literally, the recorded duty exists only as a clause of finale B or C, which the packet places in Books 27-30. Purchased draw would then carry no return labour until a settlement or activation replaces that state, so as far as the packet records, the Phase 2 reliance and l_trade_draws_without_return hold until that point. The start Book would be the settlement or activation Book, which the packet does not fix. If the finale instead chooses A, no duty arises and the start question closes without a start Book.",
+      "divergence_axis": "structure"
+    },
+    {
+      "id": "h2",
+      "title": "Every-season reading reaches back to Book 6",
+      "description": "If the accepted every-season duty binds all purchased draw, its earliest start is the first recorded Compact purchase in Book 6 (ph_2_the_turn, eng_ledger). Phase 2 thins the Source through draw without return labour, so the duty would overwrite the mechanism Phase 2 depends on. On this reading the no-labour reliance is a Phase 2 fact rather than a finale-stage fact. The packet does not contain alternative a1's proposed function text, so the reading is inferred and must be checked against that text before use.",
+      "divergence_axis": "causal_engine"
+    }
+  ],
+  "uncertainties": [
+    "Books 26 to 30 are absent, so no start Book for the duty is recorded; the Books 27-30 window comes from phase summaries.",
+    "The text of Working Book Books 24 and 25 is absent; only the route label referenced_by_working_book:24,25 is present, so their reliance on the no-labour property is unverified.",
+    "Alternative a1's proposed function text is not in the packet, only its sha256 and the changed field function, so the every-season timing is inferred.",
+    "Whether a1's duty binds purchased draw is not recorded, and l_trade_draws_without_return is absent from its keeps and mechanisms.",
+    "Finale mechanism A, B, C or a third is undecided, and C's threshold, gauge and ratifying body are undecided.",
+    "The Compact's settlement, including whether it accepts grain-labour for its claim, is undecided.",
+    "The preserved node summary says purchased draw carries no return labour; it would conflict with an every-season duty unless revised.",
+    "All readings are interpretations of noncanonical working records; graph structure does not prove literary causality."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": null,
+  "inquiry_target": "current",
+  "intent": {
+    "anchors": [
+      {
+        "authority": "working_noncanonical",
+        "id": "l_compact_hands_in_kind",
+        "kind": "link",
+        "recordedSupport": "{\"function\": \"under B, purchased draw owes grain-labour to the rebuild\", \"id\": \"l_compact_hands_in_kind\", \"source\": \"inst_mill_compact\", \"target\": \"th_maintenance\"}",
+        "sourceRef": "links/27"
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "inst_mill_compact",
+        "kind": "node",
+        "recordedSupport": "{\"category\": \"other\", \"id\": \"inst_mill_compact\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.\", \"title\": \"Mill Compact\"}",
+        "sourceRef": "nodes/21"
+      }
+    ],
+    "author_text": "Find the start Book of the duty and whether any Working Book element relies on purchased draw carrying no labour; Books 26 to 30 are not in the packet.",
+    "between": {
+      "relations": [],
+      "status": "no_recorded_relation"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "compare",
+    "recorded_relations": [
+      {
+        "authority": "recorded",
+        "function": "open records make shares tradable",
+        "id": "l_ledger_opens_trade",
+        "kind": "link",
+        "source": "eng_ledger",
+        "sourceRef": "links/3",
+        "target": "inst_mill_compact"
+      },
+      {
+        "authority": "recorded",
+        "function": "purchased shares draw without return labour",
+        "id": "l_trade_draws_without_return",
+        "kind": "link",
+        "source": "inst_mill_compact",
+        "sourceRef": "links/4",
+        "target": "eng_source"
+      },
+      {
+        "authority": "recorded",
+        "function": "under B, purchased draw owes grain-labour to the rebuild",
+        "id": "l_compact_hands_in_kind",
+        "kind": "link",
+        "source": "inst_mill_compact",
+        "sourceRef": "links/27",
+        "target": "th_maintenance"
+      }
+    ],
+    "target": "current",
+    "version": 1
+  },
+  "from_consequence": {
+    "alternative_id": "a1",
+    "alternative_sha256": "ac8b6e2d0cb12b0867ae3d90ce8672a6fa755341c35b4c7a2ff32bc19b77bcd9",
+    "approach": "accept_proposal",
+    "keeps": [
+      {
+        "changed_fields": [
+          "function"
+        ],
+        "provenance": "transformed",
+        "record_id": "l_compact_hands_in_kind",
+        "record_kind": "link",
+        "routes": [
+          "changed_by_proposal"
+        ]
+      },
+      {
+        "changed_fields": [],
+        "provenance": "preserved",
+        "record_id": "inst_mill_compact",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ]
+      }
+    ],
+    "mechanisms": [
+      {
+        "changed_fields": [
+          "function"
+        ],
+        "provenance": "transformed",
+        "record_id": "l_compact_hands_in_kind",
+        "record_kind": "link",
+        "routes": [
+          "changed_by_proposal"
+        ]
+      },
+      {
+        "changed_fields": [],
+        "provenance": "preserved",
+        "record_id": "inst_mill_compact",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ]
+      }
+    ],
+    "questions": [],
+    "request_sha256": "0b2decb003678738dda6e9512778b7c994f39414ad0a02ea806d309268e3df95",
+    "title": "Accept the every-season Compact duty as written"
+  }
+}

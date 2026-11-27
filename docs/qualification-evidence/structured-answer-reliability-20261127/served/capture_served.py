@@ -1,0 +1,75 @@
+"""Capture the served consequence panel for an accepted fresh-agent analysis, at desktop and phone widths.
+
+Usage (system Python 3.14, which has Playwright and its browsers):
+    capture_served.py <study discovery dir> <out dir>
+
+The study is copied first, so the captured canvas is never the one an exercise wrote to. The repository is found from this
+script's location, so the capture runs from whichever worktree holds it.
+"""
+import contextlib
+import json
+import shutil
+import tempfile
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(REPO / "src"))
+
+from playwright.sync_api import sync_playwright  # noqa: E402
+
+from auteur.beginner.server import BeginnerWorkspaceServer  # noqa: E402
+
+CANVAS = "spring-ledger"
+
+
+@contextlib.contextmanager
+def served(browser, project: Path, width: int, height: int):
+    server = BeginnerWorkspaceServer(project, port=0)
+    thread = server.start_in_thread()
+    page = browser.new_page(viewport={"width": width, "height": height})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    try:
+        page.goto(f"http://127.0.0.1:{server.port}/studio.html?canvas={CANVAS}", wait_until="networkidle")
+        page.wait_for_selector("#architecture-status", state="attached", timeout=30000)
+        yield page, errors
+    finally:
+        page.close()
+        server.stop()
+        thread.join(timeout=5)
+
+
+def main() -> None:
+    source, out = Path(sys.argv[1]), Path(sys.argv[2])
+    out.mkdir(parents=True, exist_ok=True)
+    # The working copy lives in a temporary directory, never beside the evidence.
+    scratch = Path(tempfile.mkdtemp(prefix="served-copy-"))
+    work = scratch / "study"
+    shutil.copytree(source, work)
+    record = {}
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True, args=["--no-sandbox"])
+        for name, width, height in (("desktop-1440", 1440, 900), ("phone-390", 390, 844)):
+            with served(browser, work, width, height) as (page, errors):
+                page.wait_for_selector("#architecture-consequence:not([hidden])", timeout=30000)
+                page.wait_for_selector("#architecture-consequence .consequence-concern", timeout=30000)
+                section = page.locator("#architecture-consequence")
+                section.evaluate("node => node.scrollIntoView({block: 'start'})")
+                page.screenshot(path=str(out / f"consequence-{name}.png"))
+                overflow = page.evaluate(
+                    "() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
+                text = section.inner_text()
+                record[name] = {
+                    "page_overflow_px": overflow,
+                    "has_connections_section": "How the mechanisms relate" in text,
+                    "has_mechanism_only_alternative": "no question needed" in text,
+                    "console_page_errors": errors,
+                }
+        browser.close()
+    (out / "served-record.json").write_text(json.dumps(record, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(json.dumps(record, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

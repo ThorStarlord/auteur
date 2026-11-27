@@ -1,0 +1,3353 @@
+{
+  "schema_version": 3,
+  "reading": "The proposal would change one recorded function. The link from a declined share to the Lowfen channel would drain the share first into its household's own holding, with only excess running down the lowest Lowfen terrace (E12, E4), as the selected alternative (E2) and the instruction (E1) describe. The Source still follows balance (E18), the rota record is unchanged (E32), and the Lowfen channel's wording is identical (E28), but that wording would then cover only excess. On this reading, the refusal's wild-water cost shifts from the lower valley's wells toward the refusing household, and the size of that shift depends on a holding capacity the record does not give. Reach is not established: no indexed Book element cites the changed link.",
+  "reach": "not_established",
+  "concerns": [
+    {
+      "title": "Refusal drains first into the refuser's own holding",
+      "status": "transformed",
+      "earlier": "A declined share's unkept water runs wild down the lowest Lowfen terrace.",
+      "proposed": "A declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace.",
+      "reading": "The proposed link function would give the refusing household's own holding the first flow of a declined share's unkept water, so that the lowest Lowfen terrace receives only what the holding cannot take. The change is stated only as the link's function, as the instruction asks, and is developed from the selected alternative's text.",
+      "evidence": [
+        "E12",
+        "E4",
+        "E2",
+        "E1"
+      ],
+      "intent": "instruction_names_it",
+      "counterevidence": [
+        "The holding's capacity, layout and location are not recorded as a node, so the routing rests on the link's wording alone.",
+        "The selected alternative's text is truncated in the packet, so its full account of the decision is not visible here."
+      ],
+      "competing_reading": null
+    },
+    {
+      "title": "Lower valley's wild-water exposure may be displaced",
+      "status": "possibly_displaced",
+      "earlier": "The lowest Lowfen terrace is where a declined share's water runs wild, in the channel that carries Lower Ammen's wells.",
+      "proposed": null,
+      "reading": "The lower valley's exposure to a refusal's full wild water may move onto the refusing household's own holding, because only excess would reach the lowest terrace. Whether it moves depends on the holding's capacity, which the record does not give, so the concern is reduced or displaced rather than removed.",
+      "evidence": [
+        "E28",
+        "E12",
+        "E2"
+      ],
+      "intent": "selected_alternative_names_it",
+      "counterevidence": [
+        "Only excess reaches the lowest terrace, so the exposure is reduced rather than removed.",
+        "The record does not say how often a declined share occurs, so the scale of the exposure is unknown."
+      ],
+      "competing_reading": "Read as a reduction rather than a displacement: the same terrace still takes the excess, so the lower wells keep part of the exposure."
+    },
+    {
+      "title": "Holding as an unrecorded first landing place",
+      "status": "introduced",
+      "earlier": null,
+      "proposed": "The refusing household's own holding, its plot and well branch above the Lowfen, as the first landing place for a declined share's water.",
+      "reading": "The holding enters the analysis only through the proposed link function and the selected alternative's text. The record gives it no node, layout or capacity, so this concern cannot yet be checked against the Architecture.",
+      "evidence": [
+        "E4",
+        "E2"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "The instruction asks for no node for the holding, so the concern lives in the link's wording alone."
+      ],
+      "competing_reading": "Read as a conceptual label for the household's own ground rather than a physical place that needs recording."
+    },
+    {
+      "title": "The spring does not target the refuser",
+      "status": "preserved",
+      "earlier": "The spring responds to balance, not to any character's intention.",
+      "proposed": "The spring responds to balance, not to any character's intention.",
+      "reading": "The Source record keeps the spring responsive to balance rather than to intention, and the selected alternative says nothing in the spring targets the refuser. The proposal leaves that wording unchanged, but whether a flooded holding reads as targeting is an interpretation.",
+      "evidence": [
+        "E18",
+        "E2"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "A refusal that loses its own holding first may read as targeted to the reader, whatever the spring's rule says."
+      ],
+      "competing_reading": null
+    },
+    {
+      "title": "The rota keeps the channels",
+      "status": "preserved",
+      "earlier": "Households that can meet the rota carry the rest.",
+      "proposed": "Households that can meet the rota carry the rest.",
+      "reading": "The rota record is unchanged, so the proposal states no change to who carries the channel labour. Whether a flood on a refusing household's holding bears on its ability to meet the rota is not recorded.",
+      "evidence": [
+        "E32",
+        "E2"
+      ],
+      "intent": null,
+      "counterevidence": [
+        "The changed link ends at the Lowfen channel that the rota serves, so the two are not wholly separate."
+      ],
+      "competing_reading": null
+    }
+  ],
+  "no_concern_reason": null,
+  "mechanisms": [
+    {
+      "evidence": "E12",
+      "reading": "Transformed record: the link would now drain a declined share first into its household's own holding, with only excess running down the lowest Lowfen terrace, where it ran wild in full before. The endpoints are unchanged and the link still ends at the Lowfen channel.",
+      "transformation": "Function changed (changed field: function). Baseline: the share runs wild down the lowest terrace. Proposed: it drains first into the household's holding, and only the excess runs down.",
+      "conditional_consequence": "If the holding can take a declined share in full, the lowest terrace is spared; where it cannot, the excess runs down as the baseline described.",
+      "counterevidence": [
+        {
+          "text": "E2 says only the channel the share is cut into changes, and the spring still answers to balance, so the change is one of place rather than of the spring's rule.",
+          "evidence": [
+            "E2",
+            "E18"
+          ]
+        }
+      ],
+      "unresolved": [
+        "The holding's capacity, and so the excess threshold, is not recorded.",
+        "Whether the change alters any later Book element is not established."
+      ],
+      "record": {
+        "record_kind": "link",
+        "record_id": "l_declined_goes_wild",
+        "provenance": "transformed",
+        "routes": [
+          "changed_by_proposal"
+        ],
+        "changed_fields": [
+          "function"
+        ]
+      },
+      "view": {
+        "id": "E12",
+        "kind": "mechanism",
+        "label": "link l_declined_goes_wild (transformed)"
+      }
+    },
+    {
+      "evidence": "E28",
+      "reading": "Identical record: the Lowfen channel still carries Lower Ammen's wells, and its lowest terrace is still named as where a declined share runs wild. Under the proposal that naming would cover only the excess, so the same words describe a narrower event.",
+      "transformation": null,
+      "conditional_consequence": "If a holding usually takes a declined share, the lower wells meet wild water less often; the record does not say how often that is.",
+      "counterevidence": [
+        {
+          "text": "The channel's own wording does not mention the holding; the narrower meaning comes from the link, so it is an interpretation.",
+          "evidence": [
+            "E12",
+            "E28"
+          ]
+        }
+      ],
+      "unresolved": [
+        "Whether the Book 19 break involved wild water is not recorded.",
+        "How often a declined share occurs is not recorded."
+      ],
+      "record": {
+        "record_kind": "node",
+        "record_id": "str_lowfen_channel",
+        "provenance": "preserved",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "changed_fields": []
+      },
+      "view": {
+        "id": "E28",
+        "kind": "mechanism",
+        "label": "node str_lowfen_channel (preserved)"
+      }
+    },
+    {
+      "evidence": "E18",
+      "reading": "Unchanged record: the Source follows the gap between draw and return and does not respond to any character's intention. The proposal moves where a declined share's water drains, not the balance the Source follows.",
+      "transformation": null,
+      "conditional_consequence": null,
+      "counterevidence": [
+        {
+          "text": "The record lists floods below as a Source outcome, and a holding that drains a share first may or may not count as balance.",
+          "evidence": [
+            "E18",
+            "E12"
+          ]
+        }
+      ],
+      "unresolved": [
+        "Whether a flooded holding changes the draw-return balance is not recorded."
+      ],
+      "record": {
+        "record_kind": "node",
+        "record_id": "eng_source",
+        "provenance": "preserved",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "changed_fields": []
+      },
+      "view": {
+        "id": "E18",
+        "kind": "mechanism",
+        "label": "node eng_source (preserved)"
+      }
+    },
+    {
+      "evidence": "E32",
+      "reading": "Unchanged record: the rota carries channel repair and return labour, and households that can meet it carry the rest. The proposal leaves this text as it is, so it states no change to who performs the labour.",
+      "transformation": null,
+      "conditional_consequence": "If a flood on a holding reduces a household's labour, the rota's remaining households would carry more; the record does not make that link.",
+      "counterevidence": [
+        {
+          "text": "E2 says only the channel the share is cut into changes, so the selected alternative states no change to the household's hands.",
+          "evidence": [
+            "E2"
+          ]
+        }
+      ],
+      "unresolved": [
+        "Whether a flood on a refusing household's holding affects its ability to meet the rota is not recorded."
+      ],
+      "record": {
+        "record_kind": "node",
+        "record_id": "th_maintenance",
+        "provenance": "preserved",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "changed_fields": []
+      },
+      "view": {
+        "id": "E32",
+        "kind": "mechanism",
+        "label": "node th_maintenance (preserved)"
+      }
+    },
+    {
+      "evidence": "E24",
+      "reading": "Unchanged wording: grief and anger follow changed standing, and from Book 20 households whose draw is cut for hands they cannot return also lose standing. The proposal may make a refuser's first loss physical in the refuser's own fields.",
+      "transformation": null,
+      "conditional_consequence": "If the reader takes the refuser's first loss as consequence, grief may attach to that household rather than to the valley's wells.",
+      "counterevidence": [
+        {
+          "text": "E2 says nothing in the spring targets the refuser, so reading the flood as blame goes beyond the record.",
+          "evidence": [
+            "E2"
+          ]
+        }
+      ],
+      "unresolved": [
+        "Whether readers take the refuser's first flood as consequence or as blame is not established."
+      ],
+      "record": {
+        "record_kind": "node",
+        "record_id": "rx_consequence",
+        "provenance": "preserved",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "changed_fields": []
+      },
+      "view": {
+        "id": "E24",
+        "kind": "mechanism",
+        "label": "node rx_consequence (preserved)"
+      }
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "unknown_inheritance",
+      "from": "E12",
+      "to": "E10",
+      "text": "The records do not establish whether Book 24 carries the declined-share routing. No indexed Book 24 decision bears on an examined question, and no indexed Book 24 element cites the changed link.",
+      "evidence": [
+        "E12",
+        "E10"
+      ],
+      "from_view": {
+        "id": "E12",
+        "kind": "mechanism",
+        "label": "link l_declined_goes_wild (transformed)"
+      },
+      "to_view": {
+        "id": "E10",
+        "kind": "working_book",
+        "label": "Book 24: The Uncounted Crew"
+      },
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E10",
+          "kind": "working_book",
+          "label": "Book 24: The Uncounted Crew"
+        }
+      ]
+    },
+    {
+      "kind": "unknown_inheritance",
+      "from": "E12",
+      "to": "E11",
+      "text": "The records do not establish whether Book 25 carries the declined-share routing. No indexed Book 25 decision bears on an examined question, and no indexed Book 25 element cites the changed link.",
+      "evidence": [
+        "E12",
+        "E11"
+      ],
+      "from_view": {
+        "id": "E12",
+        "kind": "mechanism",
+        "label": "link l_declined_goes_wild (transformed)"
+      },
+      "to_view": {
+        "id": "E11",
+        "kind": "working_book",
+        "label": "Book 25: The Counted Hands"
+      },
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E11",
+          "kind": "working_book",
+          "label": "Book 25: The Counted Hands"
+        }
+      ]
+    },
+    {
+      "kind": "proposed_inheritance",
+      "from": "E12",
+      "to": "E73",
+      "text": "Not recorded: the author could tie the refuser's flooded holding to the Book 24 draw concern for hand-light houses, giving that concern a physical trace.",
+      "evidence": [
+        "E12",
+        "E41",
+        "E73"
+      ],
+      "from_view": {
+        "id": "E12",
+        "kind": "mechanism",
+        "label": "link l_declined_goes_wild (transformed)"
+      },
+      "to_view": {
+        "id": "E73",
+        "kind": "book_element",
+        "label": "Book 24 · inh-uneven-draw"
+      },
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E41",
+          "kind": "mechanism",
+          "label": "link l_conversion_sets_draw (preserved)"
+        },
+        {
+          "id": "E73",
+          "kind": "book_element",
+          "label": "Book 24 · inh-uneven-draw"
+        }
+      ]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "Refusal's first loss stays in the refuser's household",
+      "steps": [
+        {
+          "stage": "local_decision",
+          "text": "If a household declines its share from the rota, the proposed link would drain its unkept water first into its own holding.",
+          "evidence": [
+            "E12",
+            "E32"
+          ],
+          "basis": "interpreted",
+          "evidence_views": [
+            {
+              "id": "E12",
+              "kind": "mechanism",
+              "label": "link l_declined_goes_wild (transformed)"
+            },
+            {
+              "id": "E32",
+              "kind": "mechanism",
+              "label": "node th_maintenance (preserved)"
+            }
+          ]
+        },
+        {
+          "stage": "mechanism_transformation",
+          "text": "Only the excess the holding cannot take would run down the lowest Lowfen terrace, which E28 names as the place of wild water.",
+          "evidence": [
+            "E12",
+            "E28"
+          ],
+          "basis": "interpreted",
+          "evidence_views": [
+            {
+              "id": "E12",
+              "kind": "mechanism",
+              "label": "link l_declined_goes_wild (transformed)"
+            },
+            {
+              "id": "E28",
+              "kind": "mechanism",
+              "label": "node str_lowfen_channel (preserved)"
+            }
+          ]
+        },
+        {
+          "stage": "tension",
+          "text": "The refusing household's own fields and well take the first loss, a cost of declining that falls on the one who declined.",
+          "evidence": [
+            "E2",
+            "E18"
+          ],
+          "basis": "interpreted",
+          "evidence_views": [
+            {
+              "id": "E2",
+              "kind": "selected_alternative",
+              "label": "selected_alternative"
+            },
+            {
+              "id": "E18",
+              "kind": "mechanism",
+              "label": "node eng_source (preserved)"
+            }
+          ]
+        },
+        {
+          "stage": "opportunity",
+          "text": "The page could show the holding flooding as a named household's consequence of the kind E24 records.",
+          "evidence": [
+            "E24"
+          ],
+          "basis": "speculative",
+          "evidence_views": [
+            {
+              "id": "E24",
+              "kind": "mechanism",
+              "label": "node rx_consequence (preserved)"
+            }
+          ]
+        }
+      ],
+      "assumptions": [
+        "The holding's capacity is set by the author, since the record does not give it.",
+        "The page shows the refusing household's own holding."
+      ],
+      "comparison": {
+        "creative_gain": "A named, physical cost of refusal that stays within one household.",
+        "narrative_cost": "The lower valley's wild-water threat recedes, weakening a Lowfen-based stake in refusal.",
+        "contrivance_risk": "A holding that floods only when refused may read as punishment rather than physics.",
+        "future_commitment": "Commits the link's routing and needs the holding's capacity recorded later.",
+        "flexibility": "The link can return to its baseline function (E12) without changing any node."
+      },
+      "status": "hypothetical"
+    },
+    {
+      "title": "Lower terrace exposed when the holding is full",
+      "steps": [
+        {
+          "stage": "local_decision",
+          "text": "If a refusal occurs while the refuser's holding still has room, the lowest terrace stays dry from that share.",
+          "evidence": [
+            "E12"
+          ],
+          "basis": "interpreted",
+          "evidence_views": [
+            {
+              "id": "E12",
+              "kind": "mechanism",
+              "label": "link l_declined_goes_wild (transformed)"
+            }
+          ]
+        },
+        {
+          "stage": "tension",
+          "text": "A share larger than the holding would send its excess down the Lowfen as the baseline did, so the lower wells meet wild water in that case.",
+          "evidence": [
+            "E28",
+            "E12"
+          ],
+          "basis": "interpreted",
+          "evidence_views": [
+            {
+              "id": "E28",
+              "kind": "mechanism",
+              "label": "node str_lowfen_channel (preserved)"
+            },
+            {
+              "id": "E12",
+              "kind": "mechanism",
+              "label": "link l_declined_goes_wild (transformed)"
+            }
+          ]
+        }
+      ],
+      "assumptions": [
+        "The holding's capacity is finite and not yet recorded."
+      ],
+      "comparison": null,
+      "status": "hypothetical"
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "a1",
+      "approach": "keep_baseline",
+      "title": "Keep the wild water running down the lowest terrace",
+      "summary": "Keep the link's recorded function, so a declined share's unkept water runs wild down the lowest Lowfen terrace as the baseline states. The proposed change is not adopted, and the refusing household is not placed first in the physical cost.",
+      "questions": [],
+      "mechanisms": [
+        "E12"
+      ],
+      "keeps": [
+        "E12"
+      ],
+      "gains": "Keeps the lower valley's cost exactly as recorded, and leaves the Lowfen wording and the spring's routing unchanged.",
+      "costs": "The lower wells meet the full wild water of a refusal, and the refusal drain the instruction asks for is not developed.",
+      "next_investigation": "Check whether the Book 19 break of the Lowfen (E28) involved wild water before choosing a routing.",
+      "approach_meaning": "Keep the earlier concern as recorded: its baseline wording or record stays in play, and the proposal's change to it is not adopted. keeps cites the baseline wording of each named question and the baseline record of each named mechanism.",
+      "keeps_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "mechanism_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "question_views": [],
+      "investigation_anchors": [
+        {
+          "kind": "link",
+          "id": "l_declined_goes_wild"
+        }
+      ]
+    },
+    {
+      "id": "a2",
+      "approach": "accept_proposal",
+      "title": "Adopt the refuser-first drain as written",
+      "summary": "Take the proposed link function as written: a declined share drains first into its household's own holding, and only the excess runs down the lowest Lowfen terrace. Choosing this would record the lower valley's displacement as accepted, not resolved; nothing is accepted here.",
+      "questions": [],
+      "mechanisms": [
+        "E12"
+      ],
+      "keeps": [
+        "E12"
+      ],
+      "gains": "Places the first loss on the refusing household and spares the lowest terrace except for excess, so declining becomes a visible physical choice.",
+      "costs": "The holding has no recorded node or capacity, so the excess threshold is undetermined, and the lower valley's exposure is displaced rather than removed.",
+      "next_investigation": "Decide whether the holding needs its own recorded node or only the link's function before any finale is considered.",
+      "approach_meaning": "Accept the proposal as written for the named questions and mechanisms, including any displacement it causes. The displacement is recorded as accepted, not resolved. keeps cites the proposed side of each anchor: the proposed wording or removal of a question, and the proposed record of a mechanism.",
+      "keeps_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "mechanism_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "question_views": [],
+      "investigation_anchors": [
+        {
+          "kind": "link",
+          "id": "l_declined_goes_wild"
+        }
+      ]
+    },
+    {
+      "id": "a3",
+      "approach": "defer",
+      "title": "Hold the routing until the holding is specified",
+      "summary": "Postpone reconsideration of the routing and keep the baseline link (E12) as it stands until the holding's capacity and layout are recorded, or until the author decides whether a holding node is wanted.",
+      "questions": [],
+      "mechanisms": [
+        "E12"
+      ],
+      "keeps": [
+        "E12"
+      ],
+      "gains": "Avoids fixing an unrecorded capacity into the link and keeps the recorded wild-water wording intact.",
+      "costs": "The refusal drain stays undeveloped, and the open question of the holding's capacity stays unanswered.",
+      "next_investigation": "Name the evidence that would settle it: a recorded capacity for the household's holding, or an author decision on whether a holding node is wanted.",
+      "approach_meaning": "Postpone reconsideration and name the evidence or Book that would settle it. The named anchors keep their current form. keeps cites their baseline wording or record.",
+      "keeps_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "mechanism_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        }
+      ],
+      "question_views": [],
+      "investigation_anchors": [
+        {
+          "kind": "link",
+          "id": "l_declined_goes_wild"
+        }
+      ]
+    },
+    {
+      "id": "a4",
+      "approach": "integrate",
+      "title": "Answer the refusal's first loss with the rota's labour",
+      "summary": "Hold the refusal routing (E12) and the rota's labour record (E32) in one development, so that a flooded holding is answered together with who can return labour. The combined development gives up a purely physical account of a refusal's cost.",
+      "questions": [],
+      "mechanisms": [
+        "E12",
+        "E32"
+      ],
+      "keeps": [
+        "E12",
+        "E32"
+      ],
+      "gains": "Connects a refusal's cost to the labour that keeps the channels, which the rota record already ties to households that can meet it.",
+      "costs": "Gives up a purely physical account of refusal, and the link from a flooded holding to labour is not recorded.",
+      "next_investigation": "Establish whether a flood on a holding reduces the household's rota labour, which the record does not say.",
+      "approach_meaning": "Hold two or three named concerns or mechanisms in one development, answered together. The summary says what the combined development gives up. keeps cites the baseline wording or record of each anchor.",
+      "keeps_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E32",
+          "kind": "mechanism",
+          "label": "node th_maintenance (preserved)"
+        }
+      ],
+      "mechanism_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E32",
+          "kind": "mechanism",
+          "label": "node th_maintenance (preserved)"
+        }
+      ],
+      "question_views": [],
+      "investigation_anchors": [
+        {
+          "kind": "link",
+          "id": "l_declined_goes_wild"
+        },
+        {
+          "kind": "node",
+          "id": "th_maintenance"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "between": [
+        "E12",
+        "E28"
+      ],
+      "standing": "recorded",
+      "text": "The changed link ends at the Lowfen channel that E28 records, so the two share that node; only the channel's lowest terrace would receive the excess.",
+      "reasoning": null,
+      "worth_developing": null,
+      "basis": null,
+      "assumptions": [],
+      "counterevidence": [],
+      "evidence": [
+        "E12",
+        "E28"
+      ],
+      "graph": {
+        "status": "shared_endpoint",
+        "record": {
+          "kind": "node",
+          "id": "str_lowfen_channel"
+        },
+        "side": "both",
+        "meaning": "Both mechanisms name the same node or genre as an endpoint, so the Architecture records that they touch it."
+      },
+      "between_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E28",
+          "kind": "mechanism",
+          "label": "node str_lowfen_channel (preserved)"
+        }
+      ],
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E28",
+          "kind": "mechanism",
+          "label": "node str_lowfen_channel (preserved)"
+        }
+      ],
+      "standing_meaning": "The Architecture records a joining link or interaction, or a shared node, between the two mechanisms. The owner checks this against the candidates and stores what it found beside the standing."
+    },
+    {
+      "between": [
+        "E12",
+        "E32"
+      ],
+      "standing": "inferred",
+      "text": "A refusing household's flooded holding may bear on the labour it can return to the rota that E32 describes.",
+      "reasoning": "E32 says households that can meet the rota carry the rest. If the first flood falls on the refuser's own holding, that household may be less able to meet the rota. The record does not join the two directly.",
+      "worth_developing": null,
+      "basis": null,
+      "assumptions": [
+        "A flooded holding reduces the labour its household can return.",
+        "The rota draws on households able to meet it, as E32 states."
+      ],
+      "counterevidence": [
+        "E2 says only the channel the share is cut into changes, not the household's hands."
+      ],
+      "evidence": [
+        "E12",
+        "E32",
+        "E2"
+      ],
+      "graph": {
+        "status": "adjacent_by_link",
+        "record": {
+          "kind": "link",
+          "id": "l_lowfen_needs_hands"
+        },
+        "side": "baseline",
+        "meaning": "They are one recorded link apart: an endpoint of one is joined by a recorded link to an endpoint of the other. The Architecture records adjacency, not a relation between these two."
+      },
+      "between_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E32",
+          "kind": "mechanism",
+          "label": "node th_maintenance (preserved)"
+        }
+      ],
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E32",
+          "kind": "mechanism",
+          "label": "node th_maintenance (preserved)"
+        },
+        {
+          "id": "E2",
+          "kind": "selected_alternative",
+          "label": "selected_alternative"
+        }
+      ],
+      "standing_meaning": "Not recorded. The agent infers the connection from the packet's evidence; the reasoning and the assumptions are the agent's interpretation."
+    },
+    {
+      "between": [
+        "E12",
+        "E18"
+      ],
+      "standing": "inferred",
+      "text": "The proposal may change where a refusal's wild water lands without changing the balance the Source follows.",
+      "reasoning": "E18 describes wild water below as an outcome of thinning and surfeit. A declined share's water is a local case of that, and the link decides where it drains rather than whether the balance shifts.",
+      "worth_developing": null,
+      "basis": null,
+      "assumptions": [
+        "A declined share's wild water is the wild water E18 describes.",
+        "Where a share drains does not alter the spring's balance."
+      ],
+      "counterevidence": [
+        "E18 does not mention declined shares, so tying the two together is the agent's inference."
+      ],
+      "evidence": [
+        "E18",
+        "E12",
+        "E2"
+      ],
+      "graph": {
+        "status": "no_recorded_relation",
+        "record": null,
+        "side": null,
+        "meaning": "The Architecture records no direct link, shared endpoint or adjacency between them in the baseline or the proposal. This is a fact about this Architecture only, not about the story."
+      },
+      "between_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E18",
+          "kind": "mechanism",
+          "label": "node eng_source (preserved)"
+        }
+      ],
+      "evidence_views": [
+        {
+          "id": "E18",
+          "kind": "mechanism",
+          "label": "node eng_source (preserved)"
+        },
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E2",
+          "kind": "selected_alternative",
+          "label": "selected_alternative"
+        }
+      ],
+      "standing_meaning": "Not recorded. The agent infers the connection from the packet's evidence; the reasoning and the assumptions are the agent's interpretation."
+    },
+    {
+      "between": [
+        "E12",
+        "E26"
+      ],
+      "standing": "unestablished",
+      "text": "E26 says the Hollow Gate divides release between the upper and lower channels, but whether a declined share's water is counted in that release is not established.",
+      "reasoning": null,
+      "worth_developing": null,
+      "basis": "incomplete_evidence",
+      "assumptions": [],
+      "counterevidence": [],
+      "evidence": [
+        "E12",
+        "E26"
+      ],
+      "graph": {
+        "status": "no_recorded_relation",
+        "record": null,
+        "side": null,
+        "meaning": "The Architecture records no direct link, shared endpoint or adjacency between them in the baseline or the proposal. This is a fact about this Architecture only, not about the story."
+      },
+      "between_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E26",
+          "kind": "mechanism",
+          "label": "node str_hollow_gate (preserved)"
+        }
+      ],
+      "evidence_views": [
+        {
+          "id": "E12",
+          "kind": "mechanism",
+          "label": "link l_declined_goes_wild (transformed)"
+        },
+        {
+          "id": "E26",
+          "kind": "mechanism",
+          "label": "node str_hollow_gate (preserved)"
+        }
+      ],
+      "standing_meaning": "The evidence does not warrant a conclusion. The basis says why. graph_miss means only that this Architecture records no connection between them, never that the story has none.",
+      "basis_meaning": "The evidence the packet gives does not settle whether they relate."
+    }
+  ],
+  "not_established": [
+    "The holding's capacity, layout and location are not recorded as a node; they appear only in the proposed link function and in the selected alternative's text (E2).",
+    "The declined-share node's own summary is not indexed in this packet, and it still describes its water running wild down the lowest terrace, so whether that node should change is not established.",
+    "No indexed Book 24 or Book 25 decision bears on an examined question, so whether those Books carry the change is not established.",
+    "Whether a declined share's water counts in the Hollow Gate's release is not established.",
+    "The selected alternative's text is truncated in the packet, so nothing beyond its visible text is relied on.",
+    "No finale is decided or analysed here, as the instruction asks; the historical gate-table records (E33 to E35) are not current and are not used."
+  ],
+  "schema": "studio-revision-consequence/3",
+  "authority": "noncanonical_consequence_analysis_not_working_architecture",
+  "revision_request_sha256": "214aa190874f2f2b19792d3507875e35921205f906b68afc1cd325ba8fa226e9",
+  "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "proposal_sha256": "3e96905c06e26b4682733db32fde4ffb4690e377c9b2a95f5f5998b122358ba2",
+  "evidence": {
+    "authority": "noncanonical_consequence_analysis_not_working_architecture",
+    "baseline_question_ids": [
+      "q-other-0",
+      "q-other-1",
+      "q-finale-mechanism",
+      "q-other-3",
+      "q-right-revocable",
+      "q-conversion-settlement",
+      "q-compact-settlement",
+      "q-surge-route",
+      "q-other-8",
+      "q-hesper-motive",
+      "q-other-10",
+      "q-other-11",
+      "q-reform-stance",
+      "q-plurality",
+      "q-gate-table",
+      "q-other-15"
+    ],
+    "citation_index": {
+      "current_mechanisms": [
+        "E12",
+        "E13",
+        "E14",
+        "E15",
+        "E16",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E36",
+        "E37",
+        "E38",
+        "E39",
+        "E40",
+        "E41",
+        "E42",
+        "E43",
+        "E44",
+        "E45",
+        "E46",
+        "E47",
+        "E48",
+        "E49",
+        "E50",
+        "E51",
+        "E52",
+        "E53",
+        "E54",
+        "E55",
+        "E56",
+        "E57",
+        "E58",
+        "E59",
+        "E60",
+        "E61",
+        "E62",
+        "E63",
+        "E64",
+        "E65",
+        "E66"
+      ],
+      "inheritance_from": [
+        "E12",
+        "E13",
+        "E14",
+        "E15",
+        "E16",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E33",
+        "E34",
+        "E35",
+        "E36",
+        "E37",
+        "E38",
+        "E39",
+        "E40",
+        "E41",
+        "E42",
+        "E43",
+        "E44",
+        "E45",
+        "E46",
+        "E47",
+        "E48",
+        "E49",
+        "E50",
+        "E51",
+        "E52",
+        "E53",
+        "E54",
+        "E55",
+        "E56",
+        "E57",
+        "E58",
+        "E59",
+        "E60",
+        "E61",
+        "E62",
+        "E63",
+        "E64",
+        "E65",
+        "E66"
+      ],
+      "inheritance_to": [
+        "E10",
+        "E11",
+        "E67",
+        "E68",
+        "E69",
+        "E70",
+        "E71",
+        "E72",
+        "E73",
+        "E74",
+        "E75",
+        "E76",
+        "E77",
+        "E78",
+        "E79",
+        "E80",
+        "E81",
+        "E82",
+        "E83",
+        "E84",
+        "E85",
+        "E86",
+        "E87",
+        "E88",
+        "E89",
+        "E90"
+      ],
+      "inheritance_to_recorded": [
+        "E67",
+        "E68",
+        "E69",
+        "E70",
+        "E71",
+        "E72",
+        "E73",
+        "E74",
+        "E85",
+        "E86",
+        "E87",
+        "E88"
+      ],
+      "instruction": [
+        "E1"
+      ],
+      "question_wording": [],
+      "recorded_steps": [
+        "E5",
+        "E6",
+        "E7",
+        "E8",
+        "E9",
+        "E13",
+        "E14",
+        "E15",
+        "E16",
+        "E17",
+        "E18",
+        "E19",
+        "E20",
+        "E21",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E33",
+        "E34",
+        "E35",
+        "E36",
+        "E37",
+        "E38",
+        "E39",
+        "E40",
+        "E41",
+        "E42",
+        "E43",
+        "E44",
+        "E45",
+        "E46",
+        "E47",
+        "E48",
+        "E49",
+        "E50",
+        "E51",
+        "E52",
+        "E53",
+        "E54",
+        "E55",
+        "E56",
+        "E57",
+        "E58",
+        "E59",
+        "E60",
+        "E61",
+        "E62",
+        "E63",
+        "E64",
+        "E65",
+        "E66",
+        "E67",
+        "E68",
+        "E69",
+        "E70",
+        "E71",
+        "E72",
+        "E73",
+        "E74",
+        "E75",
+        "E76",
+        "E77",
+        "E78",
+        "E79",
+        "E80",
+        "E81",
+        "E82",
+        "E83",
+        "E84",
+        "E85",
+        "E86",
+        "E87",
+        "E88",
+        "E89",
+        "E90"
+      ],
+      "selected_alternative": [
+        "E2"
+      ]
+    },
+    "coverage": {
+      "books_listed_by_title_only": [
+        24,
+        25
+      ],
+      "books_read": [
+        24,
+        25
+      ],
+      "books_with_decisions_on_examined_questions": [],
+      "note": "A Working Book listed by title only was not read for its decisions about these questions. That is not evidence that it is unaffected.",
+      "unreadable_books": []
+    },
+    "evidence": [
+      {
+        "id": "E1",
+        "kind": "instruction",
+        "sha256": "6e63b8f63e0862cb714d4847073e3481719afa0be582ad43bc97fbd9683f0510",
+        "text": "Develop the selected alternative h1, \"Refusal drains to the refuser's own ground\", by changing only the recorded function of the link l_declined_goes_wild. The function should state that a declined share's unkept water drains first into the declining household's own holding, and only what that holding cannot take runs down the lowest Lowfen terrace. Change no node, no open question and no other relation, and decide no finale. Do not add a node for the household's holding: the record does not describe that layout, so state the routing only as the link's function."
+      },
+      {
+        "considered_questions": [],
+        "hypothesis_id": "h1",
+        "id": "E2",
+        "inquiry_request_sha256": "e4e7da124a587c5c81a9f041bc287d59f643098a0fb1ac5c26f875e45aa061d2",
+        "kind": "selected_alternative",
+        "text": "Refusal drains to the refuser's own ground. What changes: the declined share's unkept water is routed into the refusing household's own holding, its plot and well branch on the ground above the Lowfen, instead of down the lowest Lowfen terrace. Nothing in the spring targets the refuser. The share still spills to the lowest point of whatever channel carries it, and the Source still answers to balance. Only the channel the share is cut into changes. How it operates: when the household stops tending its branch, its own fields and well flood and the lowest terrace is spared. Who faces the decisiv…"
+      },
+      {
+        "id": "E3",
+        "kind": "author_vision",
+        "text": "The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\n\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\n\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confl…"
+      },
+      {
+        "component_id": "l_declined_goes_wild",
+        "component_kind": "link",
+        "id": "E4",
+        "kind": "proposed_component",
+        "text": "link · str_declined_share -> str_lowfen_channel (changed): a declined share runs wild down the lowest Lowfen terrace -> a declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace"
+      },
+      {
+        "id": "E5",
+        "kind": "recorded_phase",
+        "phase_id": "ph_1_reckoned_water",
+        "text": "1. Reckoned Water: The Ledger governs. Stone Hall credit is proven false from the share-marks, and a lower terrace runs wild; the Hall's monopoly breaks at a local cost. Book 1 reads the measure-marks as evidence and does not read the script. The first partial reading of the script is Book 8. Protagonist's agency comes from evidence and a coalition, not inheritance."
+      },
+      {
+        "id": "E6",
+        "kind": "recorded_phase",
+        "phase_id": "ph_2_the_turn",
+        "text": "2. The Turn: The Source governs. Open records make shares a commodity. Compact purchases draw water without return labour, so the physical balance is the constraint on what the institutions can do. Maintenance knowledge concentrates in old lineages (Books 9-11). The first partial reading of the script (Book 8) makes the Old Hand contested knowledge."
+      },
+      {
+        "id": "E7",
+        "kind": "recorded_phase",
+        "phase_id": "ph_3_old_hand",
+        "text": "3. The Old Hand: The Old Hand governs. Legitimacy no longer rests on the Ledger alone. The Unmeasured Return is a costly, physically consequential choice: it stabilises the lower valley and disturbs the high cistern. The stewardship tally records care, not debt, and the counted Turn matches return to draw, which keeps the high terraces from surfeit. The Reading Hall is founded as a public institution with its own readings."
+      },
+      {
+        "id": "E8",
+        "kind": "recorded_phase",
+        "phase_id": "ph_4_settled_water",
+        "text": "4. Settled Water: Co-governance. Ledger, Source and Old Hand share the field, and no single engine dominates. Both conflicts come from settled practice, not from a new antagonist. Conflict A is unequal capacity to maintain shared channels. It makes hands set part of draw for the first time in the series, and it gives lineage crews a claim on draw. Conflict B is two proven practices, the counted Turn and the gift practice, which contest one outlet. The valley answers with a Gate Table that sets the schedule and holds no record."
+      },
+      {
+        "id": "E9",
+        "kind": "recorded_phase",
+        "phase_id": "ph_5_unmeasured",
+        "text": "5. Unmeasured: The Source is the physical deadline. The Long Return is a deep-store pulse, predicted by the Balance Stones from Book 23. It needs two things Arc IV left the valley: channel labour, which is hands, and a Gate schedule that routes the surge. Books 23-26 carry the Brightwater generation's inheritance. Books 27-29 carry the Compact's bid and, under Alternative C, the ratification window. Book 30 chooses among three mechanisms. A is noncoercive mutual dependence, in which care is counted and nothing is owed. B is an allotted binding rota under a lot-drawn, time-limited Table, with …"
+      },
+      {
+        "book_number": 24,
+        "id": "E10",
+        "kind": "working_book",
+        "records_examined_decisions": false,
+        "text": "Book 24: The Uncounted Crew"
+      },
+      {
+        "book_number": 25,
+        "id": "E11",
+        "kind": "working_book",
+        "records_examined_decisions": false,
+        "text": "Book 25: The Counted Hands"
+      },
+      {
+        "baseline_sha256": "0f719fdbb24abec0d0f00a349214185bd6a1340b488623a346870c90022f287b",
+        "baseline_text": "str_declined_share -> str_lowfen_channel: a declined share runs wild down the lowest Lowfen terrace",
+        "book_references": [],
+        "changed_fields": [
+          "function"
+        ],
+        "endpoints": [
+          "str_declined_share",
+          "str_lowfen_channel"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E12",
+        "kind": "mechanism",
+        "proposed_sha256": "0ddc5d7e3f16c55be8c3a7403803e9877e63aab666ab6f513c04fdd307d9acc1",
+        "proposed_text": "str_declined_share -> str_lowfen_channel: a declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace",
+        "provenance": "transformed",
+        "record_id": "l_declined_goes_wild",
+        "record_kind": "link",
+        "routes": [
+          "changed_by_proposal"
+        ],
+        "text": "transformed · str_declined_share -> str_lowfen_channel: a declined share runs wild down the lowest Lowfen terrace ⇒ str_declined_share -> str_lowfen_channel: a declined share drains first into its household's own holding; only the excess runs down the lowest Lowfen terrace",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "751ac747441f64782ca193ffce80a448271864185c270a87b845c96fffddf081",
+        "baseline_text": "Finale Alternative A (not chosen): Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlate…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_a_reciprocal"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E13",
+        "kind": "mechanism",
+        "proposed_sha256": "751ac747441f64782ca193ffce80a448271864185c270a87b845c96fffddf081",
+        "proposed_text": "Finale Alternative A (not chosen): Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlate…",
+        "provenance": "preserved",
+        "record_id": "alt_a_reciprocal",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Finale Alternative A (not chosen): Noncoercive coordination by mutual dependence: gate dependence, pair-hands, a care floor, and a Gate Table with no record authority. Draw is decoupled from hands; care is counted and nothing is owed. Failure modes: correlate…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "34123d30b4680ae5c0e57d457afb2601dbd12b56652569eb15c5e259008150f1",
+        "baseline_text": "Finale Alternative B (not chosen): An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a d…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_b_allotted"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E14",
+        "kind": "mechanism",
+        "proposed_sha256": "34123d30b4680ae5c0e57d457afb2601dbd12b56652569eb15c5e259008150f1",
+        "proposed_text": "Finale Alternative B (not chosen): An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a d…",
+        "provenance": "preserved",
+        "record_id": "alt_b_allotted",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Finale Alternative B (not chosen): An allotted binding rota for the rebuild window, with lot-drawn one-cycle Table seats, a sunset, a care floor, and grain-labour from the Compact. Hands are owed in proportion to draw, and inside the window a shortfall is a d…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "452f6d0ef16a19cda94c3cbef1f7227ecc1c1c94f22eb040f213a6e15dd21455",
+        "baseline_text": "Finale Alternative C (not chosen): Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure m…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_c_ratified_trigger"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E15",
+        "kind": "mechanism",
+        "proposed_sha256": "452f6d0ef16a19cda94c3cbef1f7227ecc1c1c94f22eb040f213a6e15dd21455",
+        "proposed_text": "Finale Alternative C (not chosen): Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure m…",
+        "provenance": "preserved",
+        "record_id": "alt_c_ratified_trigger",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Finale Alternative C (not chosen): Ratified in Books 27-29: normal seasons follow Alternative A, and a published Balance Stones threshold activates Alternative B's rota for a fixed window. The valley chooses the rule before the threshold is crossed. Failure m…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "57d8a89da854e9898ff0a6dfcbe17c81fa85402b08d581af917633bb3dbcec77",
+        "baseline_text": "Ledger engine: Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return …",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E16",
+        "kind": "mechanism",
+        "proposed_sha256": "57d8a89da854e9898ff0a6dfcbe17c81fa85402b08d581af917633bb3dbcec77",
+        "proposed_text": "Ledger engine: Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return …",
+        "provenance": "preserved",
+        "record_id": "eng_ledger",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Ledger engine: Recorded shares set the draw. Credit can be falsified or favoured (Book 1), opened to public access (Book 5), traded (Book 6), re-read as gift or contract (Book 15), and from Book 20 partly set by hands owed. Each change alters who must return …",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "c53a5391d702b015ed4a28bd15b1e2bb231c2ae0ab919fe7dc23c2f484c89a64",
+        "baseline_text": "Old Hand engine (interpretive legitimacy): Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_old_hand"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E17",
+        "kind": "mechanism",
+        "proposed_sha256": "c53a5391d702b015ed4a28bd15b1e2bb231c2ae0ab919fe7dc23c2f484c89a64",
+        "proposed_text": "Old Hand engine (interpretive legitimacy): Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+        "provenance": "preserved",
+        "record_id": "eng_old_hand",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Old Hand engine (interpretive legitimacy): Readings of the First Stones change what a share is: debt (Stone Hall), gift (Terrace Council) or contract (Mill Compact). A reading changes whether returns are recorded and therefore the balance on the Source.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "cd6a7afeec77c1d069eecb4aa6495a4dca67f37dac9eee876b8f69496bb09090",
+        "baseline_text": "Source engine (physical commons): The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention.…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E18",
+        "kind": "mechanism",
+        "proposed_sha256": "cd6a7afeec77c1d069eecb4aa6495a4dca67f37dac9eee876b8f69496bb09090",
+        "proposed_text": "Source engine (physical commons): The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention.…",
+        "provenance": "preserved",
+        "record_id": "eng_source",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Source engine (physical commons): The spring's balance follows the gap between draw and return. Thinning leaves channels dry and floods wild water below; surfeit brings stagnant pools and fever. It responds to balance rather than to any character's intention.…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "190470003d041d7b18c7172133ccae60c1a724cbafcaf1eeb66fa2faffe465ba",
+        "baseline_text": "Maintenance lineages: Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Counc…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_lineage_crews"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E19",
+        "kind": "mechanism",
+        "proposed_sha256": "190470003d041d7b18c7172133ccae60c1a724cbafcaf1eeb66fa2faffe465ba",
+        "proposed_text": "Maintenance lineages: Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Counc…",
+        "provenance": "preserved",
+        "record_id": "inst_lineage_crews",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Maintenance lineages: Old maintenance lineages (Ysa Trant's) who carry channel-maintenance skill from Books 9-11. From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage. Working design: revocable by the Counc…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "9578d43668b6f7f5d194dabe9f08df1f3b15a7e49e895534e02ae91df71ec73a",
+        "baseline_text": "Mill Compact: Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_mill_compact"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E20",
+        "kind": "mechanism",
+        "proposed_sha256": "9578d43668b6f7f5d194dabe9f08df1f3b15a7e49e895534e02ae91df71ec73a",
+        "proposed_text": "Mill Compact: Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.",
+        "provenance": "preserved",
+        "record_id": "inst_mill_compact",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Mill Compact: Lowland grain-buyers who purchase shares once records open. Their purchased draw carries no return labour. They pursue contract-debt and trade interests from outside the valley and have their own Book 27-29 bid.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "7504915590544ff8034f5d137faad65b54d8931b2ee653a9747f2af4ff0a3131",
+        "baseline_text": "Reading Hall: Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_reading_hall"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E21",
+        "kind": "mechanism",
+        "proposed_sha256": "7504915590544ff8034f5d137faad65b54d8931b2ee653a9747f2af4ff0a3131",
+        "proposed_text": "Reading Hall: Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+        "provenance": "preserved",
+        "record_id": "inst_reading_hall",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Reading Hall: Founded after the full reading in Book 15 to make the First Stones publicly readable. Keeps the public record and its readings. Publishes the Gate gauge reading (Book 22) and the Balance Stones (Book 23). It has no authority over the schedule.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "22687fa64d8e547160b4874c7c27a6183d9d3b1989d26e7e2c4c500827f4c661",
+        "baseline_text": "Stone Hall (Reckoners): Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_stone_hall"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E22",
+        "kind": "mechanism",
+        "proposed_sha256": "22687fa64d8e547160b4874c7c27a6183d9d3b1989d26e7e2c4c500827f4c661",
+        "proposed_text": "Stone Hall (Reckoners): Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+        "provenance": "preserved",
+        "record_id": "inst_stone_hall",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Stone Hall (Reckoners): Hereditary keepers of the Ledger. Under this working path the Hall splits in Book 5, as the original has it, and a remnant under Keeper Corrow continues as a dissenting institution. Typed as other because v2 has no institution category.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "c1b65eac54cd5b05616b5e5a0fcf266ba8fa01da4ee1f343701ec8ceecd3495e",
+        "baseline_text": "Everyday belonging: The warmth of shared labour and meals, which the series must keep specific across generations.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "rx_belonging"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E23",
+        "kind": "mechanism",
+        "proposed_sha256": "c1b65eac54cd5b05616b5e5a0fcf266ba8fa01da4ee1f343701ec8ceecd3495e",
+        "proposed_text": "Everyday belonging: The warmth of shared labour and meals, which the series must keep specific across generations.",
+        "provenance": "preserved",
+        "record_id": "rx_belonging",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Everyday belonging: The warmth of shared labour and meals, which the series must keep specific across generations.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "e61c6e279e4b0ee0fbb6f4677bc3e82c2c601c6092f0fcd701a5a0a760553ee3",
+        "baseline_text": "Consequential loss: Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "rx_consequence"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E24",
+        "kind": "mechanism",
+        "proposed_sha256": "e61c6e279e4b0ee0fbb6f4677bc3e82c2c601c6092f0fcd701a5a0a760553ee3",
+        "proposed_text": "Consequential loss: Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.",
+        "provenance": "preserved",
+        "record_id": "rx_consequence",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Consequential loss: Grief and anger that follow from changed standing: those once credited lose standing, and those once uncounted gain it. From Book 20, those whose draw is cut for hands they cannot return also lose standing.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "2700b1d5555f07feb9c1533ab5733a533820b2a11996db56cdaaa3848ef24875",
+        "baseline_text": "Wonder at a responsive order: The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "rx_wonder"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E25",
+        "kind": "mechanism",
+        "proposed_sha256": "2700b1d5555f07feb9c1533ab5733a533820b2a11996db56cdaaa3848ef24875",
+        "proposed_text": "Wonder at a responsive order: The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+        "provenance": "preserved",
+        "record_id": "rx_wonder",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Wonder at a responsive order: The reader's sense that the valley's order is larger and more responsive than any institution assumed.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "615af010f4ec263a82dc37e29c02b8dc09d109d84272a7d63c7d67416355581c",
+        "baseline_text": "The Hollow Gate: The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw an…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "str_hollow_gate"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E26",
+        "kind": "mechanism",
+        "proposed_sha256": "615af010f4ec263a82dc37e29c02b8dc09d109d84272a7d63c7d67416355581c",
+        "proposed_text": "The Hollow Gate: The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw an…",
+        "provenance": "preserved",
+        "record_id": "str_hollow_gate",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · The Hollow Gate: The sluice that divides the high cistern's release between the upper and lower channels. The Council has set its schedule since the Turn. In the Book 15 trial the high cistern showed surfeit. The Source responds to the balance between draw an…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d",
+        "baseline_text": "The Long Return (pulse): A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to t…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "str_long_return"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E27",
+        "kind": "mechanism",
+        "proposed_sha256": "d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d",
+        "proposed_text": "The Long Return (pulse): A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to t…",
+        "provenance": "preserved",
+        "record_id": "str_long_return",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · The Long Return (pulse): A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to t…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "ed6bac3aabe963e87bf9a7b6c797435541b02612946dbee3ce2cd359a0674f92",
+        "baseline_text": "The Lowfen channel: The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "str_lowfen_channel"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E28",
+        "kind": "mechanism",
+        "proposed_sha256": "ed6bac3aabe963e87bf9a7b6c797435541b02612946dbee3ce2cd359a0674f92",
+        "proposed_text": "The Lowfen channel: The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+        "provenance": "preserved",
+        "record_id": "str_lowfen_channel",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · The Lowfen channel: The lower channel that carries Lower Ammen's wells. It breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "3f3af44aceaccc003158147c6c475b029adbcbc19dfbc783fd2285ff43f13101",
+        "baseline_text": "The gift practice (Lower Ammen): Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "str_unmeasured_return"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E29",
+        "kind": "mechanism",
+        "proposed_sha256": "3f3af44aceaccc003158147c6c475b029adbcbc19dfbc783fd2285ff43f13101",
+        "proposed_text": "The gift practice (Lower Ammen): Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.",
+        "provenance": "preserved",
+        "record_id": "str_unmeasured_return",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · The gift practice (Lower Ammen): Labour given without a count, from the one-season Unmeasured Return in Book 15 onward. It keeps the lower channels working by release at need, and it depends on the Gate for that release.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "4261614146a943f2aad62a630556056374c7de11f97453389654f78be8064dc3",
+        "baseline_text": "Custody of the record: Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after th…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "th_custody"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E30",
+        "kind": "mechanism",
+        "proposed_sha256": "4261614146a943f2aad62a630556056374c7de11f97453389654f78be8064dc3",
+        "proposed_text": "Custody of the record: Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after th…",
+        "provenance": "preserved",
+        "record_id": "th_custody",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Custody of the record: Who holds the Ledger and on whose authority. Custody is the Stone Hall's source of legitimacy until Book 5. Public access to the credit record begins in Book 5. Custody of the master record is contested until Book 15 and plural after th…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "d8dbdaa23022e0f1e862f268aa40e5e5a6ce43e952c3f88fad1b3d0f9f1ca582",
+        "baseline_text": "Hands and draw: Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "th_hands_and_draw"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E31",
+        "kind": "mechanism",
+        "proposed_sha256": "d8dbdaa23022e0f1e862f268aa40e5e5a6ce43e952c3f88fad1b3d0f9f1ca582",
+        "proposed_text": "Hands and draw: Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.",
+        "provenance": "preserved",
+        "record_id": "th_hands_and_draw",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Hands and draw: Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380",
+        "baseline_text": "Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…",
+        "book_references": [
+          24,
+          25
+        ],
+        "changed_fields": [],
+        "endpoints": [
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E32",
+        "kind": "mechanism",
+        "proposed_sha256": "f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380",
+        "proposed_text": "Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…",
+        "provenance": "preserved",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ],
+        "text": "preserved · Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": null,
+        "baseline_text": null,
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_gate_table",
+          "str_hollow_gate"
+        ],
+        "historical_sha256": "0c2253caf4b0ab837bb14ce8ef8c5494bb686caa7a36df4566ee7c957f5d8f95",
+        "historical_text": "inst_gate_table -> str_hollow_gate: rotating seats set the schedule from the gauge (Book 22)",
+        "id": "E33",
+        "kind": "mechanism",
+        "proposed_sha256": null,
+        "proposed_text": null,
+        "provenance": "historical",
+        "record_id": "l_gate_table_sets",
+        "record_kind": "link",
+        "routes": [
+          "historical_in_revision"
+        ],
+        "text": "historical · inst_gate_table -> str_hollow_gate: rotating seats set the schedule from the gauge (Book 22)",
+        "version_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1"
+      },
+      {
+        "baseline_sha256": null,
+        "baseline_text": null,
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_gate_table",
+          "inst_reading_hall"
+        ],
+        "historical_sha256": "0f12bb9701a1432bea05696a7a45577da3611367037cfae9830571d87629417f",
+        "historical_text": "inst_reading_hall -> inst_gate_table: the Reading Hall publishes the gauge; the Table keeps no record",
+        "id": "E34",
+        "kind": "mechanism",
+        "proposed_sha256": null,
+        "proposed_text": null,
+        "provenance": "historical",
+        "record_id": "l_reading_separate_schedule",
+        "record_kind": "link",
+        "routes": [
+          "historical_in_revision"
+        ],
+        "text": "historical · inst_reading_hall -> inst_gate_table: the Reading Hall publishes the gauge; the Table keeps no record",
+        "version_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1"
+      },
+      {
+        "baseline_sha256": null,
+        "baseline_text": null,
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_gate_table"
+        ],
+        "historical_sha256": "7b2714eef41a3b083e9625f059ebcec7de7eefb6eb73dfadbe0c5f646e1791c3",
+        "historical_text": "Gate Table: A rotating inter-community body formed in Book 22 to set the Hollow Gate schedule from the gauge reading. Seats for each practice, and one seat drawn by lot from households without lineage craft. It holds power over the schedule only, with no auth…",
+        "id": "E35",
+        "kind": "mechanism",
+        "proposed_sha256": null,
+        "proposed_text": null,
+        "provenance": "historical",
+        "record_id": "inst_gate_table",
+        "record_kind": "node",
+        "routes": [
+          "historical_in_revision"
+        ],
+        "text": "historical · Gate Table: A rotating inter-community body formed in Book 22 to set the Hollow Gate schedule from the gauge reading. Seats for each practice, and one seat drawn by lot from households without lineage craft. It holds power over the schedule only, with no auth…",
+        "version_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1"
+      },
+      {
+        "baseline_sha256": "4ecda3b953788347733ac9824f1c4418b9e2661f932551075048ed029514c9f6",
+        "baseline_text": "alt_a_reciprocal -> th_hands_and_draw: decouples draw from hands; care counted, nothing owed",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_a_reciprocal",
+          "th_hands_and_draw"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E36",
+        "kind": "mechanism",
+        "proposed_sha256": "4ecda3b953788347733ac9824f1c4418b9e2661f932551075048ed029514c9f6",
+        "proposed_text": "alt_a_reciprocal -> th_hands_and_draw: decouples draw from hands; care counted, nothing owed",
+        "provenance": "preserved",
+        "record_id": "l_alt_a_decouples",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:alt_a_reciprocal,th_hands_and_draw"
+        ],
+        "text": "preserved · alt_a_reciprocal -> th_hands_and_draw: decouples draw from hands; care counted, nothing owed",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "6164adf14bb62aca07e8b248fdcc83479329250bb0ca639eccda0a77ea1e816b",
+        "baseline_text": "alt_b_allotted -> th_hands_and_draw: hands are owed by draw; a shortfall is a deficit, not a cut, in the window",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_b_allotted",
+          "th_hands_and_draw"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E37",
+        "kind": "mechanism",
+        "proposed_sha256": "6164adf14bb62aca07e8b248fdcc83479329250bb0ca639eccda0a77ea1e816b",
+        "proposed_text": "alt_b_allotted -> th_hands_and_draw: hands are owed by draw; a shortfall is a deficit, not a cut, in the window",
+        "provenance": "preserved",
+        "record_id": "l_alt_b_bounds",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:alt_b_allotted,th_hands_and_draw"
+        ],
+        "text": "preserved · alt_b_allotted -> th_hands_and_draw: hands are owed by draw; a shortfall is a deficit, not a cut, in the window",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "23e4bb85ee85b50dad9e2a2b5c08c64ad9f78b4732bfc2652ee472f462d07c3f",
+        "baseline_text": "alt_c_ratified_trigger -> alt_a_reciprocal: normal seasons follow the noncoercive arrangement",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_a_reciprocal",
+          "alt_c_ratified_trigger"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E38",
+        "kind": "mechanism",
+        "proposed_sha256": "23e4bb85ee85b50dad9e2a2b5c08c64ad9f78b4732bfc2652ee472f462d07c3f",
+        "proposed_text": "alt_c_ratified_trigger -> alt_a_reciprocal: normal seasons follow the noncoercive arrangement",
+        "provenance": "preserved",
+        "record_id": "l_alt_c_normal_is_a",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:alt_a_reciprocal,alt_c_ratified_trigger"
+        ],
+        "text": "preserved · alt_c_ratified_trigger -> alt_a_reciprocal: normal seasons follow the noncoercive arrangement",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "66765afc69f5e4ea1f9cba962469728f35100ec88c97feb3e0530f48b8743c1d",
+        "baseline_text": "alt_c_ratified_trigger -> alt_b_allotted: activates the allotted rule only at a ratified threshold",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "alt_b_allotted",
+          "alt_c_ratified_trigger"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E39",
+        "kind": "mechanism",
+        "proposed_sha256": "66765afc69f5e4ea1f9cba962469728f35100ec88c97feb3e0530f48b8743c1d",
+        "proposed_text": "alt_c_ratified_trigger -> alt_b_allotted: activates the allotted rule only at a ratified threshold",
+        "provenance": "preserved",
+        "record_id": "l_alt_c_triggers_b",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:alt_b_allotted,alt_c_ratified_trigger"
+        ],
+        "text": "preserved · alt_c_ratified_trigger -> alt_b_allotted: activates the allotted rule only at a ratified threshold",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "d4185fd7dda3e0bea1924e5ed87cbe08da3a0106b2fe36719ce66365a8c7f181",
+        "baseline_text": "inst_mill_compact -> th_maintenance: under B, purchased draw owes grain-labour to the rebuild",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_mill_compact",
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E40",
+        "kind": "mechanism",
+        "proposed_sha256": "d4185fd7dda3e0bea1924e5ed87cbe08da3a0106b2fe36719ce66365a8c7f181",
+        "proposed_text": "inst_mill_compact -> th_maintenance: under B, purchased draw owes grain-labour to the rebuild",
+        "provenance": "preserved",
+        "record_id": "l_compact_hands_in_kind",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:inst_mill_compact,th_maintenance"
+        ],
+        "text": "preserved · inst_mill_compact -> th_maintenance: under B, purchased draw owes grain-labour to the rebuild",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "0a1e25d1e52013bcbd0ac815c954bca7ecbacd755d4442822e3520b6aa607ad4",
+        "baseline_text": "th_hands_and_draw -> eng_ledger: hands a household cannot return reduce its draw (Book 20)",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "th_hands_and_draw"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E41",
+        "kind": "mechanism",
+        "proposed_sha256": "0a1e25d1e52013bcbd0ac815c954bca7ecbacd755d4442822e3520b6aa607ad4",
+        "proposed_text": "th_hands_and_draw -> eng_ledger: hands a household cannot return reduce its draw (Book 20)",
+        "provenance": "preserved",
+        "record_id": "l_conversion_sets_draw",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,th_hands_and_draw"
+        ],
+        "text": "preserved · th_hands_and_draw -> eng_ledger: hands a household cannot return reduce its draw (Book 20)",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "0a802f71b88bbf958a353eb7f1975685b2b9aa6153dbadb5fb5473e8a2e5d257",
+        "baseline_text": "inst_terrace_council -> eng_old_hand: the gift reading legitimises unmeasured return",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_old_hand",
+          "inst_terrace_council"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E42",
+        "kind": "mechanism",
+        "proposed_sha256": "0a802f71b88bbf958a353eb7f1975685b2b9aa6153dbadb5fb5473e8a2e5d257",
+        "proposed_text": "inst_terrace_council -> eng_old_hand: the gift reading legitimises unmeasured return",
+        "provenance": "preserved",
+        "record_id": "l_council_legitimises_gift",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_old_hand"
+        ],
+        "text": "preserved · inst_terrace_council -> eng_old_hand: the gift reading legitimises unmeasured return",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "fb13f2f52c013470e54135ea1019ce84a64669d63a68dbdb37cabdf926e17d87",
+        "baseline_text": "th_custody -> inst_stone_hall: custody of the record is the Hall's authority until Book 5",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_stone_hall",
+          "th_custody"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E43",
+        "kind": "mechanism",
+        "proposed_sha256": "fb13f2f52c013470e54135ea1019ce84a64669d63a68dbdb37cabdf926e17d87",
+        "proposed_text": "th_custody -> inst_stone_hall: custody of the record is the Hall's authority until Book 5",
+        "provenance": "preserved",
+        "record_id": "l_custody_grants_hall",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:inst_stone_hall,th_custody"
+        ],
+        "text": "preserved · th_custody -> inst_stone_hall: custody of the record is the Hall's authority until Book 5",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "4767780182926df7845c5da4a2f09d0edcea1d696d3e76958ce2c1c3344c8e4f",
+        "baseline_text": "str_hollow_gate -> eng_source: the Gate's schedule sets the release from the high cistern",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source",
+          "str_hollow_gate"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E44",
+        "kind": "mechanism",
+        "proposed_sha256": "4767780182926df7845c5da4a2f09d0edcea1d696d3e76958ce2c1c3344c8e4f",
+        "proposed_text": "str_hollow_gate -> eng_source: the Gate's schedule sets the release from the high cistern",
+        "provenance": "preserved",
+        "record_id": "l_gate_sets_outflow",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_source,str_hollow_gate"
+        ],
+        "text": "preserved · str_hollow_gate -> eng_source: the Gate's schedule sets the release from the high cistern",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "aa658bfc2ab3cdbec0daaedae54447e572e5950034bc442ee0060c195fb6b187",
+        "baseline_text": "inst_stone_hall -> eng_ledger: sealed custody allowed credit to favoured houses",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "inst_stone_hall"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E45",
+        "kind": "mechanism",
+        "proposed_sha256": "aa658bfc2ab3cdbec0daaedae54447e572e5950034bc442ee0060c195fb6b187",
+        "proposed_text": "inst_stone_hall -> eng_ledger: sealed custody allowed credit to favoured houses",
+        "provenance": "preserved",
+        "record_id": "l_hall_custody_credit",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,inst_stone_hall"
+        ],
+        "text": "preserved · inst_stone_hall -> eng_ledger: sealed custody allowed credit to favoured houses",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "2fc0284eef9b543667a615a86e9ba342e2a279fae1566fdd417129fe9a2e9073",
+        "baseline_text": "eng_ledger -> rx_consequence: lost standing hurts those once credited",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "rx_consequence"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E46",
+        "kind": "mechanism",
+        "proposed_sha256": "2fc0284eef9b543667a615a86e9ba342e2a279fae1566fdd417129fe9a2e9073",
+        "proposed_text": "eng_ledger -> rx_consequence: lost standing hurts those once credited",
+        "provenance": "preserved",
+        "record_id": "l_ledger_consequence",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,rx_consequence"
+        ],
+        "text": "preserved · eng_ledger -> rx_consequence: lost standing hurts those once credited",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "863acf11e04dc114072ed86806e3ceb69c137a5a9ebe0aa7efd92a4286a68ec2",
+        "baseline_text": "eng_ledger -> eng_source: recorded shares set the draw on the spring",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "eng_source"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E47",
+        "kind": "mechanism",
+        "proposed_sha256": "863acf11e04dc114072ed86806e3ceb69c137a5a9ebe0aa7efd92a4286a68ec2",
+        "proposed_text": "eng_ledger -> eng_source: recorded shares set the draw on the spring",
+        "provenance": "preserved",
+        "record_id": "l_ledger_draws_source",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,eng_source"
+        ],
+        "text": "preserved · eng_ledger -> eng_source: recorded shares set the draw on the spring",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "91462a92aecc3381c55208d9d1d269aba2b0154e407ed71c22c23c8e7dc8ada5",
+        "baseline_text": "eng_ledger -> inst_mill_compact: open records make shares tradable",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "inst_mill_compact"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E48",
+        "kind": "mechanism",
+        "proposed_sha256": "91462a92aecc3381c55208d9d1d269aba2b0154e407ed71c22c23c8e7dc8ada5",
+        "proposed_text": "eng_ledger -> inst_mill_compact: open records make shares tradable",
+        "provenance": "preserved",
+        "record_id": "l_ledger_opens_trade",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,inst_mill_compact"
+        ],
+        "text": "preserved · eng_ledger -> inst_mill_compact: open records make shares tradable",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "39c878a4f03b2b46bc2215cb7b7a6edce0b2eac1f8da747fcbfbde2eb279e67a",
+        "baseline_text": "inst_lineage_crews -> th_maintenance: lineage crews carry channel repair from Book 20",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "inst_lineage_crews",
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E49",
+        "kind": "mechanism",
+        "proposed_sha256": "39c878a4f03b2b46bc2215cb7b7a6edce0b2eac1f8da747fcbfbde2eb279e67a",
+        "proposed_text": "inst_lineage_crews -> th_maintenance: lineage crews carry channel repair from Book 20",
+        "provenance": "preserved",
+        "record_id": "l_lineage_carries_repair",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:inst_lineage_crews,th_maintenance"
+        ],
+        "text": "preserved · inst_lineage_crews -> th_maintenance: lineage crews carry channel repair from Book 20",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "bf8dff1caaba2aad92c769290f078ba2601413a97791da72f6116ddc3c2d6be8",
+        "baseline_text": "inst_lineage_crews -> eng_ledger: the Special Draw Right gives skill a claim on draw",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "inst_lineage_crews"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E50",
+        "kind": "mechanism",
+        "proposed_sha256": "bf8dff1caaba2aad92c769290f078ba2601413a97791da72f6116ddc3c2d6be8",
+        "proposed_text": "inst_lineage_crews -> eng_ledger: the Special Draw Right gives skill a claim on draw",
+        "provenance": "preserved",
+        "record_id": "l_lineage_right_on_draw",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,inst_lineage_crews"
+        ],
+        "text": "preserved · inst_lineage_crews -> eng_ledger: the Special Draw Right gives skill a claim on draw",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "0d0dac48a9e65cc535a7573fbaedfb5700a083c61a53b39ffc20a595108ca22f",
+        "baseline_text": "str_long_return -> str_hollow_gate: the pulse must be routed through the Gate",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "str_hollow_gate",
+          "str_long_return"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E51",
+        "kind": "mechanism",
+        "proposed_sha256": "0d0dac48a9e65cc535a7573fbaedfb5700a083c61a53b39ffc20a595108ca22f",
+        "proposed_text": "str_long_return -> str_hollow_gate: the pulse must be routed through the Gate",
+        "provenance": "preserved",
+        "record_id": "l_longreturn_needs_gate",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:str_hollow_gate,str_long_return"
+        ],
+        "text": "preserved · str_long_return -> str_hollow_gate: the pulse must be routed through the Gate",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "201b9b92ac62ef570a3717758aebcbe1834393f0f47e4cb33cd803b9ed7ffdf8",
+        "baseline_text": "str_long_return -> th_maintenance: the pulse needs channel labour before its date",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "str_long_return",
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E52",
+        "kind": "mechanism",
+        "proposed_sha256": "201b9b92ac62ef570a3717758aebcbe1834393f0f47e4cb33cd803b9ed7ffdf8",
+        "proposed_text": "str_long_return -> th_maintenance: the pulse needs channel labour before its date",
+        "provenance": "preserved",
+        "record_id": "l_longreturn_needs_hands",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:str_long_return,th_maintenance"
+        ],
+        "text": "preserved · str_long_return -> th_maintenance: the pulse needs channel labour before its date",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "e63202d7daf84ad6e200f355814749aae579e9b5c2cac2624919e04448d8cc13",
+        "baseline_text": "str_lowfen_channel -> th_maintenance: the Lowfen breaks in Book 19 and needs a rota's labour",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "str_lowfen_channel",
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E53",
+        "kind": "mechanism",
+        "proposed_sha256": "e63202d7daf84ad6e200f355814749aae579e9b5c2cac2624919e04448d8cc13",
+        "proposed_text": "str_lowfen_channel -> th_maintenance: the Lowfen breaks in Book 19 and needs a rota's labour",
+        "provenance": "preserved",
+        "record_id": "l_lowfen_needs_hands",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:str_lowfen_channel,th_maintenance"
+        ],
+        "text": "preserved · str_lowfen_channel -> th_maintenance: the Lowfen breaks in Book 19 and needs a rota's labour",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "ad5792a67e81ba53e24df1d13c0e972e7521857c73e01eb74e6038acd989dcde",
+        "baseline_text": "th_maintenance -> eng_source: return labour keeps the spring balanced",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source",
+          "th_maintenance"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E54",
+        "kind": "mechanism",
+        "proposed_sha256": "ad5792a67e81ba53e24df1d13c0e972e7521857c73e01eb74e6038acd989dcde",
+        "proposed_text": "th_maintenance -> eng_source: return labour keeps the spring balanced",
+        "provenance": "preserved",
+        "record_id": "l_maintenance_balances_source",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_source,th_maintenance"
+        ],
+        "text": "preserved · th_maintenance -> eng_source: return labour keeps the spring balanced",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "c5395ba2403a21ec508d0656fc45ddb61a5d38cc005ff722598941e7f25f07f4",
+        "baseline_text": "str_measured_turn -> str_hollow_gate: the counted practice holds water back to protect the high cistern",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "str_hollow_gate",
+          "str_measured_turn"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E55",
+        "kind": "mechanism",
+        "proposed_sha256": "c5395ba2403a21ec508d0656fc45ddb61a5d38cc005ff722598941e7f25f07f4",
+        "proposed_text": "str_measured_turn -> str_hollow_gate: the counted practice holds water back to protect the high cistern",
+        "provenance": "preserved",
+        "record_id": "l_measured_holds_gate",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:str_hollow_gate"
+        ],
+        "text": "preserved · str_measured_turn -> str_hollow_gate: the counted practice holds water back to protect the high cistern",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "7b08383c3dbee48dd84bae12d4eeedabe152335122db6cb86c2d88304bfee39c",
+        "baseline_text": "eng_old_hand -> eng_ledger: a reading changes what a share is: debt, gift or contract",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "eng_old_hand"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E56",
+        "kind": "mechanism",
+        "proposed_sha256": "7b08383c3dbee48dd84bae12d4eeedabe152335122db6cb86c2d88304bfee39c",
+        "proposed_text": "eng_old_hand -> eng_ledger: a reading changes what a share is: debt, gift or contract",
+        "provenance": "preserved",
+        "record_id": "l_oldhand_redefines_share",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,eng_old_hand"
+        ],
+        "text": "preserved · eng_old_hand -> eng_ledger: a reading changes what a share is: debt, gift or contract",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "4cebd79abe6b7852814d0502ca4d0f51257d9d44626dfa5b81c0ac9361bd4a03",
+        "baseline_text": "eng_old_hand -> th_core_question: the gift reading reframes who owes whom",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_old_hand",
+          "th_core_question"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E57",
+        "kind": "mechanism",
+        "proposed_sha256": "4cebd79abe6b7852814d0502ca4d0f51257d9d44626dfa5b81c0ac9361bd4a03",
+        "proposed_text": "eng_old_hand -> th_core_question: the gift reading reframes who owes whom",
+        "provenance": "preserved",
+        "record_id": "l_oldhand_reframes_core",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_old_hand"
+        ],
+        "text": "preserved · eng_old_hand -> th_core_question: the gift reading reframes who owes whom",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "5495caf37895af9b6f7d8307997189d70ef1bfaa6d0f5c509098f978a807b8de",
+        "baseline_text": "th_reading -> eng_old_hand: who reads decides which reading binds",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_old_hand",
+          "th_reading"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E58",
+        "kind": "mechanism",
+        "proposed_sha256": "5495caf37895af9b6f7d8307997189d70ef1bfaa6d0f5c509098f978a807b8de",
+        "proposed_text": "th_reading -> eng_old_hand: who reads decides which reading binds",
+        "provenance": "preserved",
+        "record_id": "l_reading_decides_binding",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_old_hand"
+        ],
+        "text": "preserved · th_reading -> eng_old_hand: who reads decides which reading binds",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "eb0c0e63542cf770109d50ae5e952acc38c983305a62c267c6a2762eee738e55",
+        "baseline_text": "inst_reading_hall -> eng_old_hand: public readings of the First Stones",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_old_hand",
+          "inst_reading_hall"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E59",
+        "kind": "mechanism",
+        "proposed_sha256": "eb0c0e63542cf770109d50ae5e952acc38c983305a62c267c6a2762eee738e55",
+        "proposed_text": "inst_reading_hall -> eng_old_hand: public readings of the First Stones",
+        "provenance": "preserved",
+        "record_id": "l_reading_hall_reads",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_old_hand,inst_reading_hall"
+        ],
+        "text": "preserved · inst_reading_hall -> eng_old_hand: public readings of the First Stones",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "37e7b06dd582210439f9b81b9dbed456d5c06bd3aea1a89d3c89cfad3ecdd436",
+        "baseline_text": "eng_source -> inst_terrace_council: thinning and surfeit force collective maintenance decisions",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source",
+          "inst_terrace_council"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E60",
+        "kind": "mechanism",
+        "proposed_sha256": "37e7b06dd582210439f9b81b9dbed456d5c06bd3aea1a89d3c89cfad3ecdd436",
+        "proposed_text": "eng_source -> inst_terrace_council: thinning and surfeit force collective maintenance decisions",
+        "provenance": "preserved",
+        "record_id": "l_source_forces_council",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_source"
+        ],
+        "text": "preserved · eng_source -> inst_terrace_council: thinning and surfeit force collective maintenance decisions",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "7a9b35fbdac1b2bf57ee25e496ff9aa8ba2749606c1635017e8831961a03a319",
+        "baseline_text": "eng_source -> eng_ledger: the spring balance decides which shares can honestly be honoured",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "eng_source"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E61",
+        "kind": "mechanism",
+        "proposed_sha256": "7a9b35fbdac1b2bf57ee25e496ff9aa8ba2749606c1635017e8831961a03a319",
+        "proposed_text": "eng_source -> eng_ledger: the spring balance decides which shares can honestly be honoured",
+        "provenance": "preserved",
+        "record_id": "l_source_limits_ledger",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,eng_source"
+        ],
+        "text": "preserved · eng_source -> eng_ledger: the spring balance decides which shares can honestly be honoured",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "12aacb31ed9957bcd95876c2678d7e8adf8a0fdc5c0b504683093861b41e870c",
+        "baseline_text": "eng_source -> rx_wonder: visible responses make the spring feel alive",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source",
+          "rx_wonder"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E62",
+        "kind": "mechanism",
+        "proposed_sha256": "12aacb31ed9957bcd95876c2678d7e8adf8a0fdc5c0b504683093861b41e870c",
+        "proposed_text": "eng_source -> rx_wonder: visible responses make the spring feel alive",
+        "provenance": "preserved",
+        "record_id": "l_source_wonder",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_source,rx_wonder"
+        ],
+        "text": "preserved · eng_source -> rx_wonder: visible responses make the spring feel alive",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "a06777da06bb7a96239ad65f6838ed416fabc9dcc499ad67c009ffe372df71df",
+        "baseline_text": "eng_ledger -> th_hands_and_draw: from Book 20, draw is partly set by hands owed",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_ledger",
+          "th_hands_and_draw"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E63",
+        "kind": "mechanism",
+        "proposed_sha256": "a06777da06bb7a96239ad65f6838ed416fabc9dcc499ad67c009ffe372df71df",
+        "proposed_text": "eng_ledger -> th_hands_and_draw: from Book 20, draw is partly set by hands owed",
+        "provenance": "preserved",
+        "record_id": "l_tally_counts_hands",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_ledger,th_hands_and_draw"
+        ],
+        "text": "preserved · eng_ledger -> th_hands_and_draw: from Book 20, draw is partly set by hands owed",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "976c7d37bb9e59a2d2278c19638b4e1c14009a74a1a2b8d0006515f1a87c4841",
+        "baseline_text": "inst_mill_compact -> eng_source: purchased shares draw without return labour",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "eng_source",
+          "inst_mill_compact"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E64",
+        "kind": "mechanism",
+        "proposed_sha256": "976c7d37bb9e59a2d2278c19638b4e1c14009a74a1a2b8d0006515f1a87c4841",
+        "proposed_text": "inst_mill_compact -> eng_source: purchased shares draw without return labour",
+        "provenance": "preserved",
+        "record_id": "l_trade_draws_without_return",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:eng_source,inst_mill_compact"
+        ],
+        "text": "preserved · inst_mill_compact -> eng_source: purchased shares draw without return labour",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "758224f607fbd12637cc2591bc3a7c5841de91db97e3748d95d3c14f4037ffda",
+        "baseline_text": "str_seasonal_turn -> rx_belonging: shared turns make belonging visible",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "rx_belonging",
+          "str_seasonal_turn"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E65",
+        "kind": "mechanism",
+        "proposed_sha256": "758224f607fbd12637cc2591bc3a7c5841de91db97e3748d95d3c14f4037ffda",
+        "proposed_text": "str_seasonal_turn -> rx_belonging: shared turns make belonging visible",
+        "provenance": "preserved",
+        "record_id": "l_turn_belonging",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:rx_belonging"
+        ],
+        "text": "preserved · str_seasonal_turn -> rx_belonging: shared turns make belonging visible",
+        "version_request_sha256": null
+      },
+      {
+        "baseline_sha256": "69967ead5c11504916a0feb3126c4e4cf719700350c7c0dd81b9f5a722bb38b5",
+        "baseline_text": "str_unmeasured_return -> str_hollow_gate: the gift practice needs release at need for the lower channels",
+        "book_references": [],
+        "changed_fields": [],
+        "endpoints": [
+          "str_hollow_gate",
+          "str_unmeasured_return"
+        ],
+        "historical_sha256": null,
+        "historical_text": null,
+        "id": "E66",
+        "kind": "mechanism",
+        "proposed_sha256": "69967ead5c11504916a0feb3126c4e4cf719700350c7c0dd81b9f5a722bb38b5",
+        "proposed_text": "str_unmeasured_return -> str_hollow_gate: the gift practice needs release at need for the lower channels",
+        "provenance": "preserved",
+        "record_id": "l_unmeasured_needs_release",
+        "record_kind": "link",
+        "routes": [
+          "adjacent_to:str_hollow_gate,str_unmeasured_return"
+        ],
+        "text": "preserved · str_unmeasured_return -> str_hollow_gate: the gift practice needs release at need for the lower channels",
+        "version_request_sha256": null
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "inst_reading_hall",
+          "str_long_return"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          },
+          {
+            "node_id": "str_long_return",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-date",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E67",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Long Return's date is public: the Balance Stones publish it and limit Brightwater's draw. Book 24 is the first Book in which the valley knows how long it has, and training takes years, so the labour question cannot wait for Books 27 to…"
+      },
+      {
+        "attribution": "derived",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "inst_reading_hall",
+          "str_long_return"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          },
+          {
+            "node_id": "str_long_return",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-date",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E68",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Long Return's date is public: the Balance Stones publish it and limit Brightwater's draw. Book 24 is the first Book in which the valley knows how long it has, and training takes years, so the labour question cannot wait for Books 27 to…"
+      },
+      {
+        "attribution": "agent_proposed",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "inst_lineage_crews",
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          },
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-right-condition",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E69",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it)."
+      },
+      {
+        "attribution": "agent_proposed",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "inst_lineage_crews",
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          },
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-right-condition",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E70",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it)."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-cohort-belief",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E71",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-cohort-belief",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E72",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "rx_consequence",
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "rx_consequence",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-uneven-draw",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E73",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Hand-light houses have drawn less since the Book 20 conversion."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "rx_consequence",
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "rx_consequence",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-uneven-draw",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E74",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Hand-light houses have drawn less since the Book 20 conversion."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-belief-plural",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E75",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-belief-plural",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E76",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "eng_ledger",
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_ledger",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-capability-record",
+        "epistemic_status": "conditional",
+        "examined_question_ids": [],
+        "id": "E77",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "A capability record exists, separate from the debt ledger, the tally, the Balance Stones and the ledger's hours column. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour. It records no hou…"
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "eng_ledger",
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_ledger",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-capability-record",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E78",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "A capability record exists, separate from the debt ledger, the tally and the Balance Stones. The Ledger engine gains it. It bears on the governing variable by showing who can give return labour, and it does not change who is counted for dr…"
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-conversion-blind-spot",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E79",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "th_hands_and_draw"
+        ],
+        "cites": [
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-conversion-blind-spot",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E80",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it."
+      },
+      {
+        "attribution": "agent_proposed",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "inst_lineage_crews",
+          "str_long_return",
+          "th_hands_and_draw",
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          },
+          {
+            "node_id": "str_long_return",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          },
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "function",
+        "decision_examined": false,
+        "element_id": "fn-question",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E81",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the …"
+      },
+      {
+        "attribution": "agent_proposed",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "inst_lineage_crews",
+          "str_long_return",
+          "th_hands_and_draw",
+          "th_maintenance"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          },
+          {
+            "node_id": "str_long_return",
+            "present": true
+          },
+          {
+            "node_id": "th_hands_and_draw",
+            "present": true
+          },
+          {
+            "node_id": "th_maintenance",
+            "present": true
+          }
+        ],
+        "collection": "function",
+        "decision_examined": false,
+        "element_id": "fn-question",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E82",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the …"
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "eng_ledger",
+          "eng_old_hand",
+          "inst_lineage_crews"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_ledger",
+            "present": true
+          },
+          {
+            "node_id": "eng_old_hand",
+            "present": true
+          },
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          }
+        ],
+        "collection": "engines",
+        "decision_examined": false,
+        "element_id": "eng-old-hand-ledger",
+        "epistemic_status": "conditional",
+        "examined_question_ids": [],
+        "id": "E83",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices, and so its work puts no hours in the ledger's hours column."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "eng_ledger",
+          "eng_old_hand",
+          "inst_lineage_crews"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_ledger",
+            "present": true
+          },
+          {
+            "node_id": "eng_old_hand",
+            "present": true
+          },
+          {
+            "node_id": "inst_lineage_crews",
+            "present": true
+          }
+        ],
+        "collection": "engines",
+        "decision_examined": false,
+        "element_id": "eng-old-hand-ledger",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E84",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Old Hand to Ledger: the cohort refuses to be entered in the stewardship tally when the Council asks for recorded apprentices."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "eng_old_hand",
+          "eng_source",
+          "inst_reading_hall",
+          "str_unmeasured_return"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_old_hand",
+            "present": true
+          },
+          {
+            "node_id": "eng_source",
+            "present": true
+          },
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          },
+          {
+            "node_id": "str_unmeasured_return",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-gift-reading",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E85",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The gift reading, 'water given; hands given back; nothing counted', belongs to the Old Hand. The Balance Stones are the Source's public measure, cut in Book 23 and published by the Reading Hall, and they do not depend on the Gate."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "eng_old_hand",
+          "eng_source",
+          "inst_reading_hall",
+          "str_unmeasured_return"
+        ],
+        "cites": [
+          {
+            "node_id": "eng_old_hand",
+            "present": true
+          },
+          {
+            "node_id": "eng_source",
+            "present": true
+          },
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          },
+          {
+            "node_id": "str_unmeasured_return",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-gift-reading",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E86",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The gift reading, 'water given; hands given back; nothing counted', belongs to the Old Hand. The Balance Stones are the Source's public measure, cut in Book 23 and published by the Reading Hall, and they do not depend on the Gate."
+      },
+      {
+        "attribution": "derived",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "str_hollow_gate"
+        ],
+        "cites": [
+          {
+            "node_id": "str_hollow_gate",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-gate-independence",
+        "epistemic_status": "asserted",
+        "examined_question_ids": [],
+        "id": "E87",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Book 24 does not depend on the Hollow Gate. Its acceptance is author-reserved, so the function holds whether or not the author keeps it."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "inst_gate_table",
+          "str_hollow_gate"
+        ],
+        "cites": [
+          {
+            "node_id": "inst_gate_table",
+            "present": false
+          },
+          {
+            "node_id": "str_hollow_gate",
+            "present": true
+          }
+        ],
+        "collection": "inherited",
+        "decision_examined": false,
+        "element_id": "inh-gate-independence",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E88",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "Book 24 does not depend on the Hollow Gate or the Gate Table. Their acceptance is author-reserved, so the function holds whether or not the author keeps them. The source states this without a provenance tag."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 24,
+        "cited_seed_nodes": [
+          "alt_b_allotted",
+          "alt_c_ratified_trigger",
+          "inst_reading_hall"
+        ],
+        "cites": [
+          {
+            "node_id": "alt_b_allotted",
+            "present": true
+          },
+          {
+            "node_id": "alt_c_ratified_trigger",
+            "present": true
+          },
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-reading-hall",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E89",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Reading Hall declines to attribute balance to persons while the Stones cannot resolve local return (P3). This matters to Alternative C's threshold and to Alternative B's deficit record, and it decides neither."
+      },
+      {
+        "attribution": "unknown_legacy",
+        "book_number": 25,
+        "cited_seed_nodes": [
+          "alt_b_allotted",
+          "alt_c_ratified_trigger",
+          "inst_reading_hall"
+        ],
+        "cites": [
+          {
+            "node_id": "alt_b_allotted",
+            "present": true
+          },
+          {
+            "node_id": "alt_c_ratified_trigger",
+            "present": true
+          },
+          {
+            "node_id": "inst_reading_hall",
+            "present": true
+          }
+        ],
+        "collection": "series_consequences",
+        "decision_examined": false,
+        "element_id": "cons-reading-hall",
+        "epistemic_status": "unknown_legacy",
+        "examined_question_ids": [],
+        "id": "E90",
+        "kind": "book_element",
+        "question_refs": [],
+        "text": "The Reading Hall declines to attribute balance to persons while the Stones cannot resolve local return (P3). This matters to Alternative C's threshold and to Alternative B's deficit record, and it decides neither."
+      }
+    ],
+    "evidence_sha256": "cc245380e441d99d423f6482a6110b87e0682f67d978d5d1af226eaad4f95f23",
+    "examined_questions": [],
+    "limits": {
+      "book_decisions_per_question": 4,
+      "book_element_cap": 24,
+      "book_elements_considered": 124,
+      "book_elements_omitted": 100,
+      "book_elements_shown": 24,
+      "books_omitted": 0,
+      "books_shown": 2,
+      "components_omitted": 0,
+      "components_shown": 1,
+      "examined_questions_shown": 4,
+      "historical_versions_read": 2,
+      "instruction_characters": 1200,
+      "mechanism_cap": 80,
+      "mechanisms_considered": 55,
+      "mechanisms_omitted": 0,
+      "mechanisms_shown": 55,
+      "phases_omitted": 0,
+      "phases_shown": 5,
+      "questions_omitted": 0,
+      "text_characters": 600
+    },
+    "mechanism_vocabulary": {
+      "provenance": {
+        "historical": "Absent from the baseline and the proposal, but recorded in an earlier applied version: no longer current.",
+        "introduced": "Absent from the applied baseline and recorded in the proposal.",
+        "preserved": "Recorded in both the applied baseline and the proposal with identical content. What it means in relation to the proposal is an interpretation.",
+        "removed": "Recorded in the applied baseline and absent from the proposal.",
+        "transformed": "Recorded on both sides under the same identifier, with different recorded content (changed_fields)."
+      },
+      "routes": {
+        "adjacent_to": "one recorded link or interaction away from a seed node",
+        "changed_by_proposal": "the proposal changes this record",
+        "historical_in_revision": "an earlier applied version recorded it",
+        "referenced_by_working_book": "a readable Working Book references this node"
+      }
+    },
+    "packet_version": 3,
+    "proposal": {
+      "baseline_candidate_sha256": "37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b",
+      "baseline_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "proposal_sha256": "3e96905c06e26b4682733db32fde4ffb4690e377c9b2a95f5f5998b122358ba2",
+      "proposed_summary": "The Spring Ledger, consolidated working architecture W6, derived from W5 (PR #554, commit d6dd636d). Working and noncanonical; not author-approved. The author-fixed intentions are recorded separately as Studio intentions. The prose architecture is 01-series-architecture.md in the package. The Series keeps five arcs, the three co-governing engines (Ledger, Source, Old Hand), the Arc IV conflicts, Book 23's inheritance and the Book 30 finale. Books 1-15 keep the original's events; Book 1 reads the share-marks as evidence, and the first partial reading of the script is Book 8. The Hollow Gate, the Gate Table, the Special Draw Right and the Book 15 surfeit mechanism are agent-proposed construction additions. Finale Alternatives A, B and C are not chosen, and each states its costs. Not decided: whether shared accounting binds; which finale alternative is preferred; the Compact's settlement; whether the Hollow Gate and Gate Table are accepted; the reform stance; the flood's losses; the Special Draw Right's status. The high cistern's storage is not established, and no value for it is canon. The Harrow Lowe gate is inherited from the original and is recorded as a provisional concept, not in this candidate.",
+      "requested_change_sha256": "6e63b8f63e0862cb714d4847073e3481719afa0be582ad43bc97fbd9683f0510",
+      "revision_request_sha256": "214aa190874f2f2b19792d3507875e35921205f906b68afc1cd325ba8fa226e9"
+    },
+    "schema": "studio-revision-consequence/1"
+  },
+  "evidence_sha256": "cc245380e441d99d423f6482a6110b87e0682f67d978d5d1af226eaad4f95f23",
+  "completion": {
+    "attempt": 1,
+    "refused_attempts": 0,
+    "first_pass": true
+  },
+  "reach_meaning": "The records do not show whether the change reaches later development."
+}

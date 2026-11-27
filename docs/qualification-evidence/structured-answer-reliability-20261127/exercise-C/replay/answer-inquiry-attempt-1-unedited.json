@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "analysis": "The record links l_declined_goes_wild, from str_declined_share to str_lowfen_channel. The str_declined_share node describes a household's exit from the rota in Book 21: it forfeits its share, so its water goes wild and runs down the lowest Lowfen terrace, and the node calls this a physical cost of declining, not the act of a villain. The recorded physical consequence therefore lands on the terrace. A separate household-side cost is recorded from Book 20: hands a household cannot return reduce its draw (l_conversion_sets_draw), and rx_consequence records loss of standing for those whose draw is cut that way. The record does not link the Book 21 flood to that conversion.\n\nInterpretation. The author asks whether the one who refuses should carry the consequence. Under the recorded design the spring answers to balance rather than to any character's intention (eng_source), so an alternative in which the Source punishes a named refuser would break a recorded commitment. The four alternatives below therefore change only the routing or containment of the unkept water, or the unit that is answerable for it, and leave the physics as the mechanism. H1 changes where the water goes (the refuser's own ground). H2 changes who must physically contain it (the refuser, in person, at the breach). H3 changes the unit of decision (a whole terrace, so a minority cannot opt out). H4 changes the route (the water stays upstream as stored water with no draw) and is included as a boundary test, since it moves the cost onto the counted Turn rather than onto the refuser.\n\nWho is answerable now, in the record. Return labour is carried by the rota and by households that can meet it (th_maintenance). Lineage crews carry channel repair under a Special Draw Right from Book 20, and the Terrace Council sets the Hollow Gate schedule until the Gate Table takes it in Book 22. The record places the flood on the lowest terrace but assigns it to none of these parties. Moving the consequence to the refuser would change the reader's sense from exposure created by the system to exposure created by the one who stepped out. The record's 'not the act of a villain' line is meant to prevent that reading, so each alternative tests whether a cost can stay physical while falling on a person.\n\nScope. None of the four alters the Book 30 finale mechanisms A, B or C, the Stone Hall's custody, or the Long Return's routing. These are constructions answering the author's question, not recorded facts. Flood losses and lives are open author choices (q-surge-route).",
+  "recorded_observations": [
+    {
+      "kind": "link",
+      "id": "l_declined_goes_wild",
+      "claim": "Recorded: a declined share runs wild down the lowest Lowfen terrace. The link runs from str_declined_share to str_lowfen_channel and states the physical consequence of the decline as falling on the terrace."
+    },
+    {
+      "kind": "node",
+      "id": "str_declined_share",
+      "claim": "Recorded: a household's exit from the rota in Book 21. It forfeits its share, so its water goes wild and runs down the lowest Lowfen terrace. The node calls this a physical cost of declining, not the act of a villain."
+    },
+    {
+      "kind": "node",
+      "id": "eng_source",
+      "claim": "Recorded: the spring's balance follows the gap between draw and return, and it responds to balance rather than to any character's intention. Thinning floods wild water below; surfeit brings stagnant pools and fever."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded: from Book 20, hands a household cannot return reduce its draw. The link attaches this cost to draw, not to the Book 21 flood. The reader-experience entry rx_consequence records loss of standing for those whose draw is cut this way."
+    },
+    {
+      "kind": "node",
+      "id": "th_maintenance",
+      "claim": "Recorded: return labour keeps the spring balanced, at a cost to families with few hands. Households that can meet the rota carry the rest, and from Book 20 lineage crews carry channel repair under a Special Draw Right."
+    },
+    {
+      "kind": "node",
+      "id": "str_hollow_gate",
+      "claim": "Recorded: the sluice divides the high cistern's release between the upper and lower channels, and the Council has set its schedule since the Turn. Surfeit is recorded as too much return or stored water with no draw; the cistern's storage above tolerance is not established."
+    },
+    {
+      "kind": "node",
+      "id": "alt_b_allotted",
+      "claim": "Recorded as not chosen: within the rebuild window hands are owed in proportion to draw, and a shortfall is a deficit to repay, not a cut in water. Its listed failure modes include standing power through the schedule."
+    },
+    {
+      "kind": "question",
+      "id": "q-surge-route",
+      "claim": "Recorded as undecided: which channel takes the Long Return's surge, whether any household floods, and whether a flood costs lives or lasting losses. The record marks these as author choices."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Refusal drains to the refuser's own ground",
+      "description": "What changes: the declined share's unkept water is routed into the refusing household's own holding, its plot and well branch on the ground above the Lowfen, instead of down the lowest Lowfen terrace. Nothing in the spring targets the refuser. The share still spills to the lowest point of whatever channel carries it, and the Source still answers to balance. Only the channel the share is cut into changes. How it operates: when the household stops tending its branch, its own fields and well flood and the lowest terrace is spared. Who faces the decisive choice: the household at its gate in Book 21, which must decide whether to leave the rota knowing the water will stand on its own ground. What it costs: its own harvest and its well, borne by no one else. What the reader must weigh: whether refusal is a real option when only households with spare hands can absorb a flooded holding, so refusing costs most for those with the fewest hands. The reader would see the Book 21 flood as the decliner's own loss rather than the rota's failure, which tests whether the 'not the act of a villain' line still holds when the cost is local.",
+      "divergence_axis": "causal_engine"
+    },
+    {
+      "title": "Refusal stays at the breach, in person",
+      "description": "What changes: a declined share is no longer left to run in the channel. The household still leaves the shared rota, but the water it drew stays held in the lowest Lowfen channel until the refusing household itself stands at the breach where the water would otherwise run wild. How it operates: the duty to contain the share becomes place-bound and personal rather than a rota entry. If the refuser is absent when the water comes, it runs down the lowest terrace as recorded, so the terrace is protected only by the refuser's arrival. Who faces the decisive choice: the refusing household, at the point of risk, in person. What it costs: bodily exposure in the flood path, the hours of standing there, and the risk that a household with few hands cannot be both at its own fields and at the breach. What the reader must weigh: whether withdrawing from the rota is still withdrawal when it ends at the most dangerous place, and whether answerability moves from an abstract rota to one identifiable person standing in the water. The spring's physics is unchanged and no one is punished; only the containment labour is relocated to the refuser and given a face.",
+      "divergence_axis": "character_agency"
+    },
+    {
+      "title": "Refusal exists only as a whole terrace's refusal",
+      "description": "What changes: the Ledger recognises a decline only when a whole terrace or lineage declines together, so a single household cannot leave the rota alone. How it operates: the group's unkept water spills to the lowest point of its own terraces instead of down the Lowfen's lowest terrace, so the decliners' own ground floods. Who faces the decisive choice: the terrace as a body, including members who wanted to keep the rota, who pay for a refusal they did not make. What it costs: a dissenting minority inside the refusing group carries the flood, and the group's answer is collective, so one household cannot discharge it by stepping back. What the reader must weigh: whether a refusal that a minority cannot opt out of is a collective political act, and whether the reader holds the terrace answerable as a community rather than as one household. This moves the moral question from individual conscience to collective coercion. The spring's physics is unchanged and nobody is singled out; what is removed is the single-household exit that the Book 21 decline depends on.",
+      "divergence_axis": "social_scale"
+    },
+    {
+      "title": "Declined water is held upstream in the high cistern",
+      "description": "What changes: the Hollow Gate does not release a declined share's water down the Lowfen. The water stays in the high cistern as stored water with no draw. How it operates: the record names stored water with no draw as one route to surfeit, so stagnant pools and fever would appear in the high terraces, where the counted Turn matches return to draw. Who faces the decisive choice: the decliner does not carry the cost; the Terrace Council and the high-terrace households face the surfeit, and the Council's schedule decides how much is held and how much released. What it costs: the counted practice loses its match between draw and return, and the Council must answer for water it did not draw. What the reader must weigh: whether counting makes one answerable for other people's refusals, and whether flood risk becomes a schedule problem answerable to the Gate's keeper rather than to any household or terrace. This is included as a boundary test that moves answerability away from the refuser, the opposite of the author's direction. It depends on storage above the cistern's tolerance, which the record does not establish.",
+      "divergence_axis": "structure"
+    }
+  ],
+  "uncertainties": [
+    "The record does not say what a flood costs, who repairs the lowest terrace after a declined share runs wild, or whether any household is lost; q-surge-route leaves these undecided.",
+    "H4 depends on storage above the high cistern's tolerance, which is not established in the record; no value is canon.",
+    "H1 assumes the refuser's branch is separate from the shared channel; the record does not describe that layout.",
+    "Whether shared accounting of care binds (q-other-3) could turn a decline into a recorded claim against the refuser, which none of the four alternatives assumes.",
+    "Whether the Book 20 hands-to-draw conversion is a lasting settlement (q-conversion-settlement) decides whether a decline already carries a self-facing draw cost, which would overlap with H1 and H2.",
+    "The reader's sense of answerability is my interpretation; the record contains no reader-response evidence for any of the four alternatives.",
+    "The reading that the spring cannot single out a refuser rests on eng_source and the 'not the act of a villain' line; the author has not confirmed that constraint for the decline.",
+    "Whether a household with few hands can refuse without ruin (H1, H2) depends on labour and terrace arrangements that the record does not describe."
+  ]
+}

@@ -96,13 +96,21 @@ def analyse_complete(project: Path, answer: Path, out: Path, attempt: int) -> No
 
 
 def inquire_prepare(project: Path, anchors: list[dict], operation: str, author_text: str, out: Path,
-                    from_consequence: dict | None) -> None:
+                    from_consequence: dict | None, book_evidence: dict | None = None) -> None:
     store = ce.store_at(project)
     intent = {"version": 1, "canvas_id": store.canvas_id, "operation": operation, "target": "current",
               "expected_candidate_request_sha256": _candidate(store)["request_sha256"], "anchors": anchors,
               "author_text": author_text}
     if from_consequence is not None:
         intent["from_consequence"] = from_consequence
+    if book_evidence is not None:
+        # One element of a working Book the author brings to the inquiry (the single-element path, PR #649's 16B). The owner's
+        # own read of that element supplies the freshness values, as the inquiry CLI does; nothing is typed by hand.
+        from auteur.series.working_book_architecture import book_element_evidence
+        seen = book_element_evidence(store, book_evidence["book_number"], book_evidence["element_id"])
+        intent["book_evidence"] = {**book_evidence,
+                                   "expected_book_request_sha256": seen["book_request_sha256"],
+                                   "expected_element_content_sha256": seen["element"]["content_sha256"]}
     prepare_architecture_inquiry(store, intent)
     pending = project_architecture_inquiry(store)
     ce.write(out, "request-inquiry.json", pending["request"])
@@ -180,6 +188,7 @@ def main() -> None:
     sub.add_argument("--operation", required=True, choices=["explain", "challenge", "explore", "compare", "connect_to_ask"])
     sub.add_argument("--author-file", required=True, type=Path)
     sub.add_argument("--from-consequence", default=None, help="JSON {request_sha256, alternative_id}")
+    sub.add_argument("--book-evidence", default=None, help="JSON {book_number, element_id}: one Working Book element")
     sub = commands.add_parser("inquire-complete")
     sub.add_argument("--root", required=True, type=Path)
     sub.add_argument("--answer", required=True, type=Path)
@@ -210,7 +219,8 @@ def main() -> None:
     elif args.stage == "inquire-prepare":
         inquire_prepare(args.root / "discovery", json.loads(args.anchors), args.operation,
                         args.author_file.read_text(encoding="utf-8").strip(), args.out,
-                        json.loads(args.from_consequence) if args.from_consequence else None)
+                        json.loads(args.from_consequence) if args.from_consequence else None,
+                        json.loads(args.book_evidence) if args.book_evidence else None)
     elif args.stage == "inquire-complete":
         inquire_complete(args.root / "discovery", args.answer, args.out, args.attempt)
     elif args.stage == "revise-prepare":

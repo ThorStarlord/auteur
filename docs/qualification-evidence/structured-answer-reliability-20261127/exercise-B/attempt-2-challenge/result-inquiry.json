@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "analysis": "Status: the proposal joins a recorded data field to a gap that the Book 24 element proposes. The element (cons-conversion-blind-spot) is a legacy, noncanonical working proposal with undecided commitment authority and no question or Book association. The hours field appears only in the node summary of eng_ledger, as a working revision. Nothing here is accepted canon or a verified causal link.\n\nLedger records: shares, and recorded shares set the draw on the spring. Credit has changed across the story: falsified or favoured in Book 1, opened to public access in Book 5, traded in Book 6, re-read in Book 15, and from Book 20 partly set by hands owed. The working revision adds the hours each hand worked beside the mark and says a count of draw can be read from it. Draw follows shares and, from Book 20, partly hands owed, so that sentence either claims hours feed draw, which no link states, or it is loose wording.\n\nBlind spot concerns: what the conversion can see and credit, not what labour is performed. The element says the Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. Uncounted is undefined. It may mean (a) extra labour by counted hands beyond the unit credited, or (b) labour by people not counted as hands at all. The hours field is keyed to each hand, so as worded it can reveal (a) but not (b). That is the weakest point of the proposal.\n\nStated directly: two Book 20 links form the conversion loop. Draw is partly set by hands owed (l_tally_counts_hands), and hands a household cannot return reduce its draw (l_conversion_sets_draw). Both use hands, not hours. Return labour keeps the spring balanced (l_maintenance_balances_source), and the Source responds to balance, not to intention (eng_source). The gift practice is labour given without a count and is physically effective (str_unmeasured_return). The record does not say whether that labour and the blind spot's uncounted labour are the same. Open question 6 (q-conversion-settlement) is recorded as undecided.\n\nNeeds inference: (1) that the hours cover labour the conversion does not credit; (2) that hours can be compared with the hand unit; (3) that the gap shows in the hours rather than being hidden by the same hand register; (4) that the ledger hours and the Terrace Council's stewardship tally (str_measured_turn) are one record or two, which the record does not relate; (5) that the hours began early enough to show Book 20, since the record gives no start date; (6) that hand-light labour is physically real return, so the Source would show a divergence the accounts miss.\n\nUnestablished: the timing and coverage of the hours; what public means, since the element says the blind spot is already public while the proposal treats it as unexposed; who reads the hours and could act on them; whether the exclusion is deliberate or unnoticed; and which body adopted the Book 20 conversion, which the record does not say.\n\nWorth developing, as a question rather than a structural claim, if: hours are recorded for labour outside the hand register; hours and counted hands diverge for named hand-light households in named seasons; the divergence reaches whoever must decide whether the conversion is a settlement or a stage (open question 6); and the hours do not become the surveillance the record already names as a failure mode of Alternative A's tally. The ledger's marks were the evidence of falsified credit in Book 1, so the proof and that earlier falsification would share one record. That can be dramatised, but it is a cost, not a gain.\n\nLeft to the author: whether counted means headcount, time or rota credit; whether the ledger records non-hand labour; whether the conversion is a settlement or a stage; and whether the finale should carry this exposure at all. I do not decide the finale or prefer an alternative. The observation can stay local to Book 24 and needs no Architecture change until the author fixes what counted means.",
+  "recorded_observations": [
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "claim": "Working revision, noncanonical: the ledger records shares, which set draw, and from Book 20 is partly set by hands owed. The node summary adds that the ledger now records the hours each hand worked beside the mark and that a count of draw can be read from it. No recorded link carries hours into draw or into the Book 20 conversion.",
+      "sourceRef": "nodes/5",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_tally_counts_hands",
+      "claim": "Recorded for Book 20: from Book 20, draw is partly set by hands owed, running from the ledger to hands and draw. This recorded ledger-side mechanism is stated in hands, not hours.",
+      "sourceRef": "links/16",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded for Book 20: hands a household cannot return reduce its draw, running from hands and draw to the ledger. With l_tally_counts_hands it forms the conversion loop. Its unit is hands, so any hours reading needs an inference about how hours relate to that unit.",
+      "sourceRef": "links/17",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "th_hands_and_draw",
+      "claim": "Anchor cited by the Book 24 element, present and unchanged. Until Book 19 draw follows shares alone; from Book 20 it partly follows hands owed. The record says each finale mechanism answers the governing question differently.",
+      "sourceRef": "nodes/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "str_unmeasured_return",
+      "claim": "Labour given without a count, from the Book 15 Unmeasured Return onward, keeping the lower channels working by release at need. Here uncounted labour is physically effective, a different sense from the Book 20 blind spot, where uncounted labour cannot restore draw. The record does not say whether they are the same labour.",
+      "sourceRef": "nodes/10",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "str_measured_turn",
+      "claim": "The counted Turn matches return to draw by rota in the high terraces. The Terrace Council's stewardship tally, from Book 15, records that labour as care and does not hold the water. The record does not relate that tally to the ledger's hours.",
+      "sourceRef": "nodes/9",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "eng_source",
+      "claim": "The Source responds to the balance between draw and return, not to any character's intention. A physical response does not depend on how the conversion counts return. Whether hand-light households' uncounted labour is physically real return is not recorded.",
+      "sourceRef": "nodes/6",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Open question 6, counting from one: is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit? Not decided. The Book 24 element says the blind spot makes this question concrete without answering it, but the element carries no question association.",
+      "sourceRef": "open_questions/5",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "title": "The blind spot as an exclusion, not a gap",
+      "description": "The counted-hands rule may be a deliberate exclusion by whoever set the Book 20 conversion, not an omission that hours would reveal. On this reading the hours would show labour that was seen and not credited, so the exposure is a finding about legitimacy and custody rather than missing data. That moves the question to who sets what counts, which the record does not answer for the Book 20 conversion. The reading differs from the proposal, which treats the gap as something the data could find. Uncertainty: the record does not say whether the rule was chosen to exclude or adopted without noticing what it excluded.",
+      "divergence_axis": "character_agency"
+    },
+    {
+      "id": "h2",
+      "title": "The spring, not the ledger, shows the gap",
+      "description": "The Source responds to real return and not to the count. If hand-light households' uncounted labour is real return, the thinning or surfeit the Source produces would reflect it while draw does not, so the gap could show first in the water rather than in the hours. On this reading the hours are one witness among others, and the new field may be unnecessary for exposure. The reading differs from the proposal by locating the exposure in the physical commons. Uncertainty: the record ties return to balance but does not say whether hand-light labour counts as return to the Source at all.",
+      "divergence_axis": "causal_engine"
+    },
+    {
+      "id": "h3",
+      "title": "Hours could entrench the blind spot",
+      "description": "If the ledger records hours only for hands it already registers, the new field reproduces the Book 20 rule, and the blind spot would appear in the hours as missing labour rather than as a surplus. On this reading the hours are an instrument of the rule, and exposure would need a record of labour outside the hand register, which the working revision does not describe. The reading also raises the surveillance cost the record already names for Alternative A's tally, as an observation about cost and not a choice between alternatives. Uncertainty: the record does not say which people the hours cover.",
+      "divergence_axis": "structure"
+    }
+  ],
+  "uncertainties": [
+    "Whether the hours cover only hands on the register or also labour outside it; the record says each hand and does not define hand or counted hand.",
+    "When the hours field began; if it starts after Book 20, exposure of the blind spot can only be prospective.",
+    "What the Book 20 unit is in practice (headcount, rota credit or time) and whether hours can be compared with it under a rule the record does not state.",
+    "Whether the claim that a count of draw can be read from the hours is an intended feed into draw or loose wording, since no recorded link states it.",
+    "What public means in the element's claim that the blind spot is already public, given the proposal treats it as unexposed.",
+    "Whether hand-light households' uncounted labour is the same kind as the gift practice's physically effective return, and whether the Source registers it.",
+    "Whether the ledger's hours and the stewardship tally are one record or two, and which custodian holds each; this is undecided.",
+    "Whether the Book 20 exclusion was deliberate or unnoticed, and which body adopted the conversion; the record does not say, and this is the author's decision."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": null,
+  "inquiry_target": "current",
+  "intent": {
+    "anchors": [
+      {
+        "authority": "working_noncanonical",
+        "id": "th_hands_and_draw",
+        "kind": "node",
+        "recordedSupport": "{\"category\": \"thread\", \"id\": \"th_hands_and_draw\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.\", \"title\": \"Hands and draw\"}",
+        "sourceRef": "nodes/1"
+      }
+    ],
+    "author_text": "A discovery proposed that hours recorded in the ledger could expose the conversion's blind spot, meaning the Book 20 conversion of hands into draw. Investigate that proposed relation. Separate what the ledger records, what the conversion's blind spot concerns, which relations the record states directly, which relations would need an inference, and which assumptions remain unestablished. If the relation is worth developing even though the record does not state it, say what would make it worth developing and what would have to be true. Do not decide the finale, and do not treat the proposal as established.",
+    "between": {
+      "relations": [],
+      "status": "not_applicable"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "challenge",
+    "recorded_relations": [
+      {
+        "authority": "recorded",
+        "function": "from Book 20, draw is partly set by hands owed",
+        "id": "l_tally_counts_hands",
+        "kind": "link",
+        "source": "eng_ledger",
+        "sourceRef": "links/16",
+        "target": "th_hands_and_draw"
+      },
+      {
+        "authority": "recorded",
+        "function": "hands a household cannot return reduce its draw (Book 20)",
+        "id": "l_conversion_sets_draw",
+        "kind": "link",
+        "source": "th_hands_and_draw",
+        "sourceRef": "links/17",
+        "target": "eng_ledger"
+      },
+      {
+        "authority": "recorded",
+        "function": "decouples draw from hands; care counted, nothing owed",
+        "id": "l_alt_a_decouples",
+        "kind": "link",
+        "source": "alt_a_reciprocal",
+        "sourceRef": "links/28",
+        "target": "th_hands_and_draw"
+      },
+      {
+        "authority": "recorded",
+        "function": "hands are owed by draw; a shortfall is a deficit, not a cut, in the window",
+        "id": "l_alt_b_bounds",
+        "kind": "link",
+        "source": "alt_b_allotted",
+        "sourceRef": "links/29",
+        "target": "th_hands_and_draw"
+      }
+    ],
+    "target": "current",
+    "version": 1
+  },
+  "book_evidence": {
+    "authority": "working_book_observation_noncanonical",
+    "book": {
+      "book_number": 24,
+      "content_sha256": "09aa776d359a7a7582ef3fe35e2128fb014ce12b312a03f7261d0349e2a972b9",
+      "freshness": "ready",
+      "request_sha256": "90b436beb00070a7bb91a09439e61b794ee6c64905630010dbc35b5f8d53a87e",
+      "revision_number": 2,
+      "title": "The Uncounted Crew",
+      "written_against_architecture_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "written_against_current_architecture": true
+    },
+    "cited_architecture_concepts": [
+      {
+        "node_id": "th_hands_and_draw",
+        "present": true,
+        "status": "unchanged",
+        "title": "Hands and draw",
+        "used_as_anchor": true
+      }
+    ],
+    "element": {
+      "attribution": "unknown_legacy",
+      "book_refs": [],
+      "collection": "series_consequences",
+      "commitment_authority": "undecided",
+      "content_sha256": "020cdae18a50a73de22070f3f8e69a867805a12d759714e4e4a3c16f555879bc",
+      "epistemic_status": "unknown_legacy",
+      "form": "legacy",
+      "id": "cons-conversion-blind-spot",
+      "question_refs": [],
+      "text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+      "title": null
+    },
+    "note": "One element of a working Book architecture, brought by the author for this inquiry. It is a noncanonical Book-level proposal: not author-declared Architecture context, not an accepted commitment, and not a verified relationship. Only the cited concepts are recorded links.",
+    "question_associations": []
+  }
+}
