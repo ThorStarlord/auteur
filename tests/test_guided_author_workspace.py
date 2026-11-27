@@ -52,18 +52,18 @@ def test_workspace_payload_is_read_only_and_reuses_author_attention(tmp_path: Pa
 
     payload = build_workspace_payload(project)
 
-    assert payload["authority_status"] == "DERIVED WORKSPACE / READ ONLY"
+    assert payload["authority_status"] == "READ-ONLY STORY VIEW"
     assert payload["mutates_story"] is False
     assert payload["primary_attention"]["artifact_id"] == "workspace_proposal"
     assert payload["primary_attention"]["state"] == "unselected"
-    assert payload["primary_attention"]["authority_status"] == "NONCANONICAL PROPOSAL / NOT APPLIED"
+    assert payload["primary_attention"]["authority_status"] == "SUGGESTED CHANGE / NOT APPLIED"
     assert "structure proposal inspect" in payload["primary_attention"]["next_command"]
     assert payload["workflow_stages"] == [
         "Tutor guidance",
         "Proposal review",
         "Revision plan",
         "Change preview",
-        "Explicit authority action",
+        "Confirm the change",
         "Reassessment",
     ]
     assert _snapshot(project) == before
@@ -87,7 +87,7 @@ def test_workspace_server_is_loopback_get_only_and_does_not_mutate_project(tmp_p
             health = json.loads(response.read().decode("utf-8"))
         assert health == {
             "status": "ok",
-            "authority_status": "DERIVED WORKSPACE / READ ONLY",
+            "authority_status": "READ-ONLY STORY VIEW",
             "mutates_story": False,
         }
 
