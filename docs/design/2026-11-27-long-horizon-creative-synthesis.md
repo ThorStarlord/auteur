@@ -60,6 +60,10 @@ Admission is explicit. The request carries four evidence sets, which are kept di
 An identifier's existence is not proof that its content was available. The reconsideration owner had admitted every packet
 identifier, not the claim's supplied identifiers, and section 6 repairs that.
 
+The coverage record also states, for each cited element, whether its identical text appears in another Book (an exact text
+comparison, not a judgement). The Spring Ledger study holds such repeats (Book 25 carries Book 24's elements word for word), and the
+owner states the fact so a reading does not mistake a repeated record for a new development.
+
 Bounds: at most three developments; at most twelve Working Book element excerpts per development, each excerpt at most 400
 characters and labelled when truncated; exact counts of readable elements, considered elements and citing elements regardless of
 listing bounds; at most two handoffs; at most four criticisms. Recovered records are capped at 8,000 characters and labelled when
@@ -134,9 +138,11 @@ verdicts, current or historical standing, and refused-attempt count. The bundle 
   stored response differs. Refused answers are kept under `refused/` with the owner's refusal. A valid answer is stored as
   `response.json` and `result.json`.
 - **Project** (`project_architecture_synthesis(store)`): the latest synthesis with its standing, and the earlier syntheses.
-  Standing is `current` when the latest pointer names it, the evidence fingerprint recomputed now equals the stored one, and the
-  developments still exist; `superseded` when another synthesis is later; `stale` when the evidence has changed since preparation.
-  A stale or superseded synthesis remains readable with its provenance.
+  Standing is `current` when it is the latest synthesis of the same developments and the evidence fingerprint recomputed now equals
+  the stored one. `superseded` means a later synthesis of the same developments exists; a synthesis of other developments does not
+  supersede it. `stale` means the evidence has changed since preparation, or a development is gone. The fingerprint covers the whole
+  source each record was read from, not only the excerpt the packet supplies: a change beyond an excerpt still makes the standing
+  stale. A stale or superseded synthesis remains readable with its provenance.
 - **Follow-up.** A follow-up request names the prior synthesis, may add criticism and handoffs, and carries the prior judgement as
   text only ("earlier judgement, not evidence; cite nothing from it"). Its answer states `changes_from_prior`. The follow-up is the
   continued creative investigation; it is the only route by which criticism changes a judgement.

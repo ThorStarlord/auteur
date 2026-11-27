@@ -421,6 +421,41 @@
     lastConsequenceReviewSha = null;
     if (consequencePanel) consequencePanel.reset();
   }
+  // The long-horizon synthesis of selected developments. Available whenever a working Architecture exists, reloaded when the
+  // Architecture's source changes, and cleared with the canvas. It reads the owner's projection; it never applies anything.
+  var synthesisPanel = null, lastSynthesisSourceSha = null;
+  function ensureSynthesisPanel() {
+    if (synthesisPanel) return synthesisPanel;
+    if (!window.AuteurStudioSynthesis || !$("architecture-synthesis-root")) return null;
+    synthesisPanel = window.AuteurStudioSynthesis.createSynthesisPanel({
+      root: $("architecture-synthesis-root"),
+      live: {status: $("architecture-synthesis-status"), alert: $("architecture-synthesis-alert")},
+      canvasId: function () { return remote.canvasId; },
+      candidate: function () { return state.architecture; }
+    });
+    return synthesisPanel;
+  }
+  function syncSynthesis(sourceSha) {
+    var section = $("architecture-synthesis");
+    var panel = ensureSynthesisPanel();
+    if (!section || !panel) return;
+    var available = !!(state.architecture && remote.canvasId);
+    section.hidden = !available;
+    if (!available) { resetSynthesis(); return; }
+    var key = remote.canvasId + "|" + sourceSha;
+    if (key === lastSynthesisSourceSha) return;
+    lastSynthesisSourceSha = key;
+    panel.reset();
+    panel.load().catch(function (error) {
+      status("Synthesis unavailable: " + error.message);
+    });
+  }
+  function resetSynthesis() {
+    var section = $("architecture-synthesis");
+    if (section) section.hidden = true;
+    lastSynthesisSourceSha = null;
+    if (synthesisPanel) synthesisPanel.reset();
+  }
   function applyArchitectureProjection(projection, openGraph) {
     var previousSource = state.architectureRequestSha || state.restoredArchitectureSha;
     state.restoredArchitectureSha = null;
@@ -623,6 +658,7 @@
     ensureCreativeGraph();
     if (graphSelectionController) graphSelectionController.onCandidateChange();
     syncConsequence(projection);
+    syncSynthesis(projection.candidate_request_sha256);
     if (creativeFeedbackController && projection.status==="review_ready" &&
         projection.review && projection.review.request_sha256!==lastCreativeReviewSha) {
       lastCreativeReviewSha=projection.review.request_sha256;
@@ -913,6 +949,7 @@
   }
   function loadRemote(doc) {
     resetConsequence();
+    resetSynthesis();
     state.architecture = null; state.architectureReview = null; state.architectureCenter = null;
     state.architectureSourceStatus = "not_started";
     state.selectedPhase = null;
@@ -1006,6 +1043,7 @@
     if (creativePanel) creativePanel.reset();
     if (creativeAgentBridge) creativeAgentBridge.reset();
     resetConsequence();
+    resetSynthesis();
     lastCreativeReviewSha=null;
     state.atelierAsk = null; state.atelierInquiryStatus = null; state.atelierRevisionContext = null;
     state.atelierSentInquiry = null; state.architectureRequestIntent = null; state.creativeSentText = null;

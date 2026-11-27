@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="/studio_architecture_revision.css">
   <link rel="stylesheet" href="/studio_architecture_creative.css">
   <link rel="stylesheet" href="/studio_architecture_consequence.css">
+  <link rel="stylesheet" href="/studio_architecture_synthesis.css">
   <link rel="stylesheet" href="/studio_atelier.css">
   <link rel="stylesheet" href="/studio_atelier_desk.css">
 </head>
@@ -134,6 +135,13 @@
             <section id="architecture-creative-agent-panel" class="architecture-creative-agent-panel" aria-label="Graph-grounded coding agent inquiry"></section>
           </div>
         </details>
+        <section id="architecture-synthesis" class="architecture-synthesis" aria-labelledby="architecture-synthesis-title" hidden>
+          <h2 id="architecture-synthesis-title">Long-horizon synthesis</h2>
+          <p class="architecture-synthesis-intro">Advisory. Reads the developments you choose across the Series, with the Working Book evidence that cites them. It changes no record, applies nothing and accepts nothing.</p>
+          <p id="architecture-synthesis-status" class="synthesis-live" role="status" aria-live="polite"></p>
+          <p id="architecture-synthesis-alert" class="synthesis-live" role="alert"></p>
+          <div id="architecture-synthesis-root"></div>
+        </section>
         <section id="architecture-review" class="architecture-review" hidden aria-label="Review working architecture changes">
           <strong>Proposed architecture revision — review before applying</strong>
           <p id="architecture-review-summary"></p>
@@ -426,6 +434,7 @@
   <script src="/studio_architecture_creative_panel.js" defer></script>
   <script src="/studio_architecture_creative_feedback.js" defer></script>
   <script src="/studio_architecture_consequence.js" defer></script>
+  <script src="/studio_architecture_synthesis.js" defer></script>
   <script src="/studio_architecture_revision_bridge.js" defer></script>
   <script src="/studio.js" defer></script>
 </body>
