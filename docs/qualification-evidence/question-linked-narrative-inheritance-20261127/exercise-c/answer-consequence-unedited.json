@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "reading": "The proposal rewords one open question, q-conversion-settlement, so that it asks whether the Book 20 hands-to-draw conversion \"for hand-light households\" is a lasting settlement or a stage the finale must revisit (E3, E6). The instruction asks that the question name those households without changing what it asks (E1). The rest of the compared Architecture is recorded as identical: every mechanism in the packet is preserved or historical, and none is transformed. Read this way, the change is a narrowing or sharpening of whom the question concerns, not a new settlement rule. Whether naming the group also narrows the question's reach is an interpretation the record does not settle.",
+  "reach": "conditional_inheritance",
+  "concerns": [
+    {
+      "title": "Who the conversion question is about",
+      "status": "transformed",
+      "earlier": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "proposed": "Is the Book 20 hands-to-draw conversion for hand-light households a lasting settlement, or a stage the finale must revisit?",
+      "reading": "The question keeps its form and its two alternatives but now names a group, hand-light households. The instruction asks for exactly this naming and says the question's content should not change. The wording change is recorded; whether the meaning changes is not shown by the wording alone.",
+      "evidence": ["E1", "E3", "E6"],
+      "intent": "instruction_names_it",
+      "counterevidence": ["The instruction says the question's content should not change, which weighs against reading this as a change of concern."],
+      "competing_reading": "The naming is only a clarification of who already bears the cost recorded in the baseline, so the concern is unchanged and 'transformed' overstates it."
+    },
+    {
+      "title": "Breadth of the settlement question beyond hand-light households",
+      "status": "possibly_displaced",
+      "earlier": "The baseline question asks about the conversion without limiting it to any class of household.",
+      "proposed": "The proposed question asks about the conversion only as it applies to hand-light households.",
+      "reading": "Other parties touched by the conversion (for example households that decline their share, or lineage crews with a claim on draw) are not named in the proposed wording. Whether the question should still cover them, or whether they need a separate question, is left open. The record does not show that narrowing was intended.",
+      "evidence": ["E3", "E6", "E42"],
+      "intent": "not_established",
+      "counterevidence": ["The baseline link and the ledger link are preserved unchanged, so the conversion's wider operation remains recorded elsewhere in the Architecture."],
+      "competing_reading": "A question about the conversion for hand-light households is the same question, since they are the households the conversion cuts, and nothing wider is displaced."
+    },
+    {
+      "title": "Lasting settlement or stage to revisit",
+      "status": "preserved",
+      "reading": "The core alternative, whether the Book 20 conversion is lasting or a stage the finale must revisit, appears in both wordings. The proposal does not answer it or lean either way.",
+      "evidence": ["E3", "E6"]
+    },
+    {
+      "title": "Meaning of 'hand-light households'",
+      "status": "introduced",
+      "proposed": "for hand-light households",
+      "reading": "The phrase is new to the question. The Architecture elsewhere speaks of families with few hands (E33) and Working Book elements use 'hand-light' (E75, E87), but the proposal does not define the group or say who counts. The instruction also says the conversion is meant to restore their draw, a claim the compared Architecture records only as a cut for unreturned hands (E42).",
+      "evidence": ["E1", "E6", "E75"],
+      "counterevidence": ["Book 24 elements already use the phrase 'hand-light' for the same households, so the term has a recorded usage outside the proposal."]
+    }
+  ],
+  "mechanisms": [
+    {
+      "evidence": "E42",
+      "reading": "This preserved link records that hands a household cannot return reduce its draw from Book 20. It is the recorded operation the examined question is about, and the proposed wording points the question at the households this link cuts.",
+      "transformation": "The link is unchanged. The proposal changes only how the question about it is worded, so its operation is not altered by the proposal.",
+      "conditional_consequence": "If the author adopts the proposed wording, later development of this question would be framed around who bears the cut, not around the conversion in general.",
+      "counterevidence": [
+        {
+          "text": "The ledger link says draw is partly set by hands owed, without limiting this to hand-light households.",
+          "evidence": ["E65"]
+        }
+      ],
+      "unresolved": ["Whether the conversion also reduces draw for households other than hand-light ones is not recorded."]
+    },
+    {
+      "evidence": "E32",
+      "reading": "The Hands and draw thread is the series' governing variable: draw follows shares until Book 19 and partly follows hands owed from Book 20. The examined question sits inside this thread.",
+      "transformation": "Unchanged by the proposal. The thread still says each finale mechanism answers the question differently.",
+      "unresolved": ["Which finale mechanism answers the conversion question for hand-light households is undecided in the record."]
+    },
+    {
+      "evidence": "E25",
+      "reading": "Consequential loss records that, from Book 20, those whose draw is cut for hands they cannot return lose standing. This is the reader-experience side of the same households the proposal names.",
+      "transformation": "Unchanged. The proposal does not alter how this loss is represented.",
+      "unresolved": ["Whether naming hand-light households changes how this loss should be rendered is not shown."]
+    },
+    {
+      "evidence": "E37",
+      "reading": "Alternative A, not chosen, decouples draw from hands, with care counted and nothing owed. It would answer the conversion question by removing the cut.",
+      "transformation": "Unchanged. The proposal neither favours nor excludes this alternative.",
+      "conditional_consequence": "If the author later chooses a finale mechanism like A, the conversion would more likely be a stage the finale revisits for the named households.",
+      "unresolved": ["No finale alternative has been chosen."]
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "plausible_inheritance",
+      "from": "E3",
+      "to": "E87",
+      "text": "A Book 24 element cites q-conversion-settlement and describes a conversion blind spot for hand-light households. Whether Book 24 carries the proposed wording is an interpretation, and its decisions on the question were not read.",
+      "evidence": ["E3", "E6", "E87"]
+    },
+    {
+      "kind": "unknown_inheritance",
+      "from": "E3",
+      "to": "E82",
+      "text": "A Book 25 element has the same blind-spot text but carries no question reference. The record does not show whether Book 25 carries this concern.",
+      "evidence": ["E82"]
+    },
+    {
+      "kind": "unknown_inheritance",
+      "from": "E42",
+      "to": "E75",
+      "text": "A Book 24 inherited element says hand-light houses have drawn less since the conversion. The record does not show whether it carries the examined question.",
+      "evidence": ["E42", "E75"]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "Hand-light wording carried into Book 24 and the finale",
+      "steps": [
+        {
+          "stage": "local_decision",
+          "text": "The author adopts the proposed wording, naming hand-light households in the conversion question.",
+          "evidence": ["E1", "E6"],
+          "basis": "interpreted"
+        },
+        {
+          "stage": "mechanism_transformation",
+          "text": "The recorded conversion link still cuts draw for unreturned hands; the question now asks about the households that bear that cut.",
+          "evidence": ["E42"],
+          "basis": "recorded"
+        },
+        {
+          "stage": "tension",
+          "text": "Book 24 records a blind spot: counted hands only are credited, so uncounted labour by hand-light households cannot restore draw.",
+          "evidence": ["E87"],
+          "basis": "recorded"
+        },
+        {
+          "stage": "inheritance",
+          "text": "If Book 24 takes the wording, its blind-spot element could be read as an early answer or pressure on the question.",
+          "evidence": ["E87", "E6"],
+          "basis": "speculative"
+        }
+      ],
+      "assumptions": [
+        "The author adopts the wording and Book 24 is revised or read against it.",
+        "Hand-light households are the group Book 24's element already means."
+      ],
+      "comparison": {
+        "creative_gain": "A sharper question that matches the Working Book's own terms.",
+        "narrative_cost": "Possibly less room for other affected parties in the same question.",
+        "contrivance_risk": "Low: no mechanism is changed.",
+        "future_commitment": "Little; the question stays open.",
+        "flexibility": "The wording can be reverted without touching any mechanism."
+      }
+    }
+  ],
+  "alternatives": [
+    {
+      "approach": "accept_proposal",
+      "title": "Accept the hand-light wording as written",
+      "summary": "Adopt the proposed wording for q-conversion-settlement. The question then concerns hand-light households, and any narrowing of its reach is accepted, not resolved.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E6"],
+      "mechanisms": ["E42", "E32"],
+      "gains": "Matches the instruction and the Book 24 vocabulary; clearer about who is affected.",
+      "costs": "Other affected parties are not named, and 'hand-light' is left undefined.",
+      "next_investigation": "Read Book 24 and 25 decisions on this question and check the term against the elements."
+    },
+    {
+      "approach": "keep_baseline",
+      "title": "Keep the unrestricted baseline wording",
+      "summary": "Leave the question as recorded, so the conversion is asked about generally and the proposal's change is not adopted.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E3"],
+      "mechanisms": ["E42"],
+      "gains": "Keeps the widest reach and avoids defining a new group.",
+      "costs": "Does not do what the instruction asks, and the question stays unnamed about who bears the cut.",
+      "next_investigation": "Decide whether the Working Books already make the group clear enough without a wording change."
+    },
+    {
+      "approach": "defer",
+      "title": "Defer until Book decisions are read",
+      "summary": "Postpone the rewording until the decisions Books 24 and 25 record on this question have been read, since none were read here.",
+      "questions": ["q-conversion-settlement"],
+      "keeps": ["E3"],
+      "mechanisms": ["E42", "E25"],
+      "gains": "Avoids deciding without evidence on whether the Books carry the concern.",
+      "costs": "Delays the clarity the instruction asks for.",
+      "next_investigation": "Read Book 24 and 25 decisions on q-conversion-settlement, and the elements not shown here."
+    }
+  ],
+  "not_established": [
+    "No Book decision on the examined question was read, so nothing shows whether Books 24 and 25 carry the proposed wording.",
+    "Only 24 of 124 Working Book elements were shown, so other elements about this question may exist.",
+    "The Architecture records no definition of 'hand-light households'.",
+    "Whether the conversion is meant to restore the draw of hand-light households is not recorded; the baseline link only records a cut.",
+    "No earlier wording exists before revision 3, so the question cannot be traced further back."
+  ]
+}

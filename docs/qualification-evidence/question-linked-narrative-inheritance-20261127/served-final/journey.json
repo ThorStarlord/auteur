@@ -1,0 +1,27 @@
+[
+  {
+    "step": "1 Mill Compact question, association pending",
+    "engagements_shown": false
+  },
+  {
+    "step": "2 Book 24 review before Apply",
+    "review_names_association": true
+  },
+  {
+    "step": "3 explicit Apply of the reviewed revision",
+    "result": "applied"
+  },
+  {
+    "step": "4 Mill Compact question after Apply",
+    "engagements_shown": true,
+    "limit_line_shown": true
+  },
+  {
+    "step": "5 narrow screen 390 px",
+    "horizontal_overflow_px": 0
+  },
+  {
+    "step": "page errors",
+    "errors": []
+  }
+]

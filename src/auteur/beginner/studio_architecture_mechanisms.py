@@ -47,11 +47,16 @@ ROUTE_MEANING = {
 # Working Book element classes, each with a reserved share of the cap so that no class crowds out another: a Book's recorded
 # inheritance declarations (``inherited``), its forward-looking records (``later_possibilities``, ``series_consequences``) and
 # the rest. ``open_author_decisions`` are not elements: they are cited through their book_decision items.
+# Reserved shares of MAX_BOOK_ELEMENTS, in the order a share left unused is given away. An element that references an examined
+# Series question (by its identity) is question-linked, whatever its collection. It is listed last, so a question association
+# can never take slots that inherited developments or later possibilities leave unused: it has its own reserved share only.
 _ELEMENT_CLASSES: tuple[tuple[str, int, frozenset[str]], ...] = (
-    ("inherited", 10, frozenset({"inherited"})),
-    ("forward", 10, frozenset({"later_possibilities", "series_consequences"})),
+    ("inherited", 8, frozenset({"inherited"})),
+    ("forward", 6, frozenset({"later_possibilities", "series_consequences"})),
     ("other", 4, frozenset()),
+    ("question_linked", 6, frozenset()),
 )
+_CLASS_INDEX = {name: index for index, (name, _, _) in enumerate(_ELEMENT_CLASSES)}
 _EXCLUDED_COLLECTIONS = {"open_author_decisions"}
 _EDGE_KINDS = {"link": ("source", "target"), "genre_interaction": ("source_genre_id", "target_genre_id")}
 
@@ -192,23 +197,29 @@ def seed_node_identifiers(inventory: dict[str, Any]) -> set[str]:
             and any(not route.startswith("adjacent_to:") for route in row["routes"])}
 
 
-def _element_class(collection: str) -> int:
+def _element_class(collection: str, question_linked: bool = False) -> int:
+    if question_linked:
+        return _CLASS_INDEX["question_linked"]
     for index, (_, _, collections) in enumerate(_ELEMENT_CLASSES):
-        if collection in collections:
+        if collections and collection in collections:
             return index
-    return len(_ELEMENT_CLASSES) - 1
+    return _CLASS_INDEX["other"]
 
 
 def book_element_candidates(
     books: dict[int, list[dict]], seed_nodes: set[str], present_nodes: set[str], limit: int = MAX_BOOK_ELEMENTS,
+    question_ids: Iterable[str] = (),
 ) -> dict[str, Any]:
-    """Working Book elements that cite a seed node by a typed ``series_refs`` entry, under reserved class shares.
+    """Working Book elements that cite a seed node or an examined question, under reserved class shares.
 
     ``books`` maps a Book number to its element rows as the Book owner reads them. Each element names every node it cites and
-    whether that node is present in the current Architecture, so an element that cites a removed record says so. Within a
-    class the elements are taken round by round, one Book at a time, in the Book's own order. Each class first takes its
-    reserved share; any share it does not use is then given to the classes that still have elements, in class order.
+    whether that node is present in the current Architecture, so an element that cites a removed record says so. An element
+    that references an examined Series question (``question_ids``, by identity) is question-linked and takes the first class.
+    A question association records engagement, not inheritance: the row says so by carrying the question's identity only.
+    Within a class the elements are taken round by round, one Book at a time, in the Book's own order. Each class first takes
+    its reserved share; any share it does not use is then given to the classes that still have elements, in class order.
     """
+    examined = set(question_ids)
     queues: dict[tuple[int, int], list[dict[str, Any]]] = {}
     considered = 0
     for number in sorted(books):
@@ -218,15 +229,19 @@ def book_element_candidates(
                 continue
             refs = [node for node in row.get("series_refs") or [] if isinstance(node, str)]
             cited = [node for node in refs if node in seed_nodes]
-            if not cited:
+            questions = [item for item in row.get("question_refs") or [] if isinstance(item, str)]
+            examined_questions = [item for item in questions if item in examined]
+            if not cited and not examined_questions:
                 continue
             considered += 1
-            queues.setdefault((_element_class(collection), number), []).append({
+            queues.setdefault((_element_class(collection, bool(examined_questions)), number), []).append({
                 "book_number": number, "element_id": row.get("id"), "collection": collection,
                 "text": _clip(str(row.get("text") or row.get("title") or ""), MAX_BOOK_ELEMENT_TEXT),
                 "attribution": row.get("attribution"), "epistemic_status": row.get("epistemic_status"),
                 "cites": [{"node_id": node, "present": node in present_nodes} for node in refs],
                 "cited_seed_nodes": cited,
+                "question_refs": questions,
+                "examined_question_ids": examined_questions,
             })
     chosen: list[dict[str, Any]] = []
 

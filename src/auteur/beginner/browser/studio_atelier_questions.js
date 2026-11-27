@@ -155,6 +155,8 @@
     if(q.history&&!q.history.complete&&q.standing!=='wording_only')out.push({tone:'warn',text:'History incomplete'});
     var b=booksOf(q).length;
     if(b)out.push({tone:'note',text:plural(b,'Book decision')});
+    var e=engagementsOf(q).length;
+    if(e)out.push({tone:'note',text:plural(e,'Book engagement')});
     return out;
   }
   function overviewNote(data){
@@ -214,6 +216,50 @@
     return 'This Book is out of date with the working Architecture or its own sources. Its decision is shown as the Book recorded it.';
   }
 
+  // Book engagements: elements of a Book that record an association with this question. The Book's own collection names are
+  // used, in plain words; no new taxonomy is introduced. An association records engagement only.
+  var COLLECTION_LABEL={
+    'function':'Book function',inherited:'Inherited development',engines:'Narrative mechanism',agents:'Motive or constraint',
+    choice:'Choice',local_resolution:'Local resolution',series_consequences:'Series consequence',
+    later_possibilities:'Later possibility',assumptions:'Assumption',alternatives:'Alternative',unresolved:'Unresolved',
+    typed_edges:'Dependency'
+  };
+  function collectionLabel(c){return COLLECTION_LABEL[c]||String(c||'Element').replace(/[._]/g,' ');}
+  var AUTHORITY_WORDS={
+    agent_working:'A working proposal the Book records, not an accepted commitment.',
+    not_adopted:'A hypothetical alternative, not adopted.',
+    undecided:'Undecided in the working Book.',
+    withdrawn:'Withdrawn from the working proposal.',
+    author_reserved:'Reserved to the author.',
+    not_established:'Its authority is not established.'
+  };
+  var ENGAGEMENT_LIMIT='This records that the element engages the question. It does not say the element answers, settles, develops or inherits from the question, and it does not change the element’s own status.';
+  function engagementsOf(q){return (q&&q.engagements)||[];}
+  // How an element's association stands now. The association refers to the question; it is never a decision, and it never
+  // says the question is answered. The owner's states, said in the association's own words.
+  function associationRelation(state){
+    switch(state){
+      case 'current_wording':return {tone:'ok',text:'The association refers to this question as it now stands.'};
+      case 'moved':return {tone:'note',text:'The question now sits at another position with the same wording. The association still refers to it by identity.'};
+      case 'reworded':return {tone:'warn',text:'The association was recorded against an earlier wording of this question. The question kept its identity, so this may warrant reconsideration. The Book is not declared inconsistent.'};
+      case 'moved_and_reworded':return {tone:'warn',text:'The question has moved and been reworded since the association was recorded. This may warrant reconsideration. The Book is not declared inconsistent.'};
+      case 'removed':return {tone:'warn',text:'The question is no longer open in the Architecture. Removing it is not an answer, and nothing here decides what the Book should do.'};
+      case 'version_unavailable':return {tone:'bad',text:'The Architecture version this association was recorded against cannot be read, so its question cannot be followed here.'};
+      case 'binding_mismatch':return {tone:'bad',text:'The recorded binding does not match the Architecture version it names, so this association cannot be trusted.'};
+      default:return null;
+    }
+  }
+  // What one engagement shows, as data the page renders: the Book's own words, what the association now stands for, and the element's authority.
+  function engagementView(entry){
+    return {book_number:entry.book_number,title:entry.title,element_id:entry.element_id,
+      collection:collectionLabel(entry.collection),text:entry.element_text||'',
+      standing:associationRelation(entry.state),
+      authority:AUTHORITY_WORDS[entry.commitment_authority]||null,
+      epistemic_status:entry.epistemic_status||null,
+      attribution:entry.attribution||null,
+      limit:ENGAGEMENT_LIMIT};
+  }
+
   global.AuteurAtelierQuestions={
     plural:plural,clip:clip,label:label,Label:Label,rangeOf:rangeOf,numbered:numbered,
     isAskable:isAskable,standing:standing,askNote:askNote,gapLines:gapLines,
@@ -223,6 +269,8 @@
     SUGGEST:SUGGEST,OPERATIONS:OPERATIONS,bookFreshnessNote:bookFreshnessNote,
     COMPARE_SUGGEST:COMPARE_SUGGEST,COMPARE_OPERATIONS:COMPARE_OPERATIONS,compareOperations:compareOperations,
     toggleComparison:toggleComparison,
+    engagementsOf:engagementsOf,engagementView:engagementView,collectionLabel:collectionLabel,associationRelation:associationRelation,
+    ENGAGEMENT_LIMIT:ENGAGEMENT_LIMIT,AUTHORITY_WORDS:AUTHORITY_WORDS,
     CHANGE:CHANGE,wordDiff:B.wordDiff||null
   };
 })(typeof window!=='undefined'?window:this);
