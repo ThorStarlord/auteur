@@ -249,8 +249,8 @@ def test_positional_prose_resolves_at_the_recorded_version_without_becoming_a_bi
     assert blind["position"] == 6 and blind["numbering"] == "one_based"
     assert blind["referent_index"] == CONVERSION_INDEX
     assert blind["referent_text"].startswith("Is the Book 20 hands-to-draw conversion")
-    assert blind["state"] == "resolved_at_recorded_version"
-    assert blind["identity_at_recorded_version"] is None  # the recorded version carries no identities
+    assert blind["state"] == "resolved"
+    assert blind["identity_at_read_version"] is None  # the version it was written against carries no identities
     assert blind["binding"] == "none"
     # Nothing is written: the record and its references are as they were.
     assert element_references(store) == []

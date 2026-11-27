@@ -124,7 +124,8 @@ def test_the_question_reading_names_the_book_element_that_engages_it_and_what_th
         assert "Book 24" in text and "Series consequence" in text
         assert "The Book records:" in text
         assert "does not say the element answers, settles, develops or inherits from the question" in text
-        assert page.locator('#studio-atelier [data-element="cons-conversion-blind-spot"]').count() == 1
+        # Book 24's engagement. A lead from Book 25 names the same element id, so the Book is named too.
+        assert page.locator('#studio-atelier [data-element="cons-conversion-blind-spot"][data-book="24"]').count() == 1
 
 
 def test_the_question_reading_fits_a_narrow_screen_without_horizontal_scroll(browser, applied, tmp_path):

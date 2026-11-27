@@ -1,0 +1,449 @@
+{
+  "author_goal": null,
+  "authority": "agent_discovery_request_noncanonical",
+  "current_architecture": {
+    "history_chain_complete": true,
+    "numbered": true,
+    "revision_number": 3
+  },
+  "evidence_sha256": "720f2e5377d69afa271044fe6a85a3d95924a454bc707ff0548570f920781417",
+  "limits": {
+    "book_decisions_omitted": {
+      "q-compact-settlement": 0,
+      "q-conversion-settlement": 0,
+      "q-finale-mechanism": 0,
+      "q-gate-table": 0,
+      "q-hesper-motive": 0,
+      "q-other-0": 0,
+      "q-other-1": 0,
+      "q-other-10": 0,
+      "q-other-11": 0,
+      "q-other-15": 0,
+      "q-other-3": 0,
+      "q-other-8": 0,
+      "q-plurality": 0,
+      "q-reform-stance": 0,
+      "q-right-revocable": 0,
+      "q-surge-route": 0
+    },
+    "book_decisions_per_question": 2,
+    "book_element_associations_omitted": {
+      "q-compact-settlement": 0,
+      "q-conversion-settlement": 0,
+      "q-finale-mechanism": 0,
+      "q-gate-table": 0,
+      "q-hesper-motive": 0,
+      "q-other-0": 0,
+      "q-other-1": 0,
+      "q-other-10": 0,
+      "q-other-11": 0,
+      "q-other-15": 0,
+      "q-other-3": 0,
+      "q-other-8": 0,
+      "q-plurality": 0,
+      "q-reform-stance": 0,
+      "q-right-revocable": 0,
+      "q-surge-route": 0
+    },
+    "book_element_associations_per_question": 2,
+    "decision_characters": 300,
+    "note": "The full working Architecture is in the request, bounded by its own schema. Question history is compact here; a possibility's full history is recovered only when it is taken into deliberation.",
+    "possibilities": 4,
+    "questions_shown": "all continuing questions",
+    "reason_characters": 240,
+    "wording_characters": 600
+  },
+  "no_longer_open_historical": [],
+  "orientation": "full",
+  "questions": [
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.",
+      "history_complete": true,
+      "id": "q-other-0",
+      "index": 0,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "4015a4dd26d685fbbf4a66f4908383f6ad5984a62d236377fd0c374288099048"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "What do the lowland towns owe Ammen, and what does Ammen owe them?",
+      "history_complete": true,
+      "id": "q-other-1",
+      "index": 1,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "e378f70321145594e99926f715e406835f99089d9ae2398b43ac1c606fa8534e"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-finale-mechanism",
+          "decision_text": "Which finale mechanism the author chooses. Book 24 selects none and records a capability record usable by all three.",
+          "decision_text_sha256": "472e16a78cfc933d0055a812b7676316e546d1578d5dd42190c1ae628f1d88de",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+      "history_complete": true,
+      "id": "q-finale-mechanism",
+      "index": 2,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "a3d8a93bf787bd2be63a7660f78ffdd44bf779ad61b60cad2da434e5d732d1d9"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "Does the shared accounting of care bind, and in what form? Not decided.",
+      "history_complete": true,
+      "id": "q-other-3",
+      "index": 3,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "05c0193fd645965bd0a0d363947efc520831745e18122c21a922e02decc45158"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-right-revocable",
+          "decision_text": "Whether the lineage Special Draw Right is revocable or permanent, and the training condition it carries. Book 24 reaches its review point.",
+          "decision_text_sha256": "9e503565b17c3212d1e4492e17e1a583fba4d2aeea6aca381e60bd2639f99891",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+      "history_complete": true,
+      "id": "q-right-revocable",
+      "index": 4,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "f92c6a7509c9a718f93e59aaa1274f4b51e88e1a0e7d05556fee76001a443eb9"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-conversion-settlement",
+          "decision_text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+          "decision_text_sha256": "f651d305ef08a234b4576345047b4a6d076749c678d920cdaa850cc1dd19e5af",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [
+        {
+          "attribution": "unattributed",
+          "book_number": 24,
+          "collection": "series_consequences",
+          "commitment_authority": "undecided",
+          "element_id": "cons-conversion-blind-spot",
+          "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+          "element_text_sha256": "de35e2d6fbc796145919a098b7399acfcfbb28c5e748fa63459c51c92805c374",
+          "epistemic_status": "unresolved",
+          "standing": "current_wording",
+          "title": "The Uncounted Crew"
+        },
+        {
+          "attribution": "unattributed",
+          "book_number": 25,
+          "collection": "series_consequences",
+          "commitment_authority": "undecided",
+          "element_id": "cons-conversion-blind-spot",
+          "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+          "element_text_sha256": "de35e2d6fbc796145919a098b7399acfcfbb28c5e748fa63459c51c92805c374",
+          "epistemic_status": "unresolved",
+          "standing": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "current_wording": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "history_complete": true,
+      "id": "q-conversion-settlement",
+      "index": 5,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-compact-settlement",
+          "decision_text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+          "decision_text_sha256": "5d51f43757125f5e0d69b473782286c9718276f64d40e0e596c2593455ce90d6",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+      "history_complete": true,
+      "id": "q-compact-settlement",
+      "index": 6,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-surge-route",
+          "decision_text": "Which channel takes the Long Return's surge. Book 24 neither designates nor excludes the Lowfen.",
+          "decision_text_sha256": "15356efb5a5387479f4fb1a02ca43837ec694452cd1cc60d2cdfd08aaca9f481",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.",
+      "history_complete": true,
+      "id": "q-surge-route",
+      "index": 7,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "45e67ed584bb451b078d5318111af7cd36035ecca2215456f81ce691bbe1cbeb"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.",
+      "history_complete": true,
+      "id": "q-other-8",
+      "index": 8,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "ffd4a8804740a202afb7bb850bdb66a3138c45474f53dc526942b3d9b0ec05e1"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-hesper-motive",
+          "decision_text": "Whether Hesper's generational motive is independent of the author's preference for the Turn's sustainability.",
+          "decision_text_sha256": "fb38b3dbcb469c36bf9e4444d197bfc413aaf51065bb48053e729088e09266e8",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+      "history_complete": true,
+      "id": "q-hesper-motive",
+      "index": 9,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "a07cb0bc96e204a1984f6fc17966867bfb96f5d64c7065b4894875a79eaf7b7f"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided.",
+      "history_complete": true,
+      "id": "q-other-10",
+      "index": 10,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "5834062ac9fd0baad5fcf1a961f1e366e8f57df4db60c4de4d5ba46e628010dd"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "How many Brightwater shares may be drawn before the Balance Stones restrain them?",
+      "history_complete": true,
+      "id": "q-other-11",
+      "index": 11,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "f8adb9cf2c4aa951ccb31bab809c17513160284bf5b490bac574b08aa8b64127"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-reform-stance",
+          "decision_text": "Whether reform from within remains the Series' stance. Book 24 keeps Hesper a Council apprentice, which is not a statement on it.",
+          "decision_text_sha256": "28772e8c644b7646f663fb2ed0f3943d6a4cf6e8061ea118650d3214186e0cca",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.",
+      "history_complete": true,
+      "id": "q-reform-stance",
+      "index": 12,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "2d05099da54a81099d11eef7b75d90e44260e666dd04f4958b01a1e3edddf812"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-plurality",
+          "decision_text": "Whether any terrace keeps a measured ledger in Book 30, and whether plurality of practice is the intended end state.",
+          "decision_text_sha256": "ed1af0235f079d1eb8692ba04417ba84d145a393fd1f4ff96eb03988b592beda",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.",
+      "history_complete": true,
+      "id": "q-plurality",
+      "index": 13,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "372661a6591a917e4895387424a5dd2b418ed0aa998214732edd32fe14fee7a4"
+    },
+    {
+      "book_decisions": [
+        {
+          "book_number": 25,
+          "decision_id": "dec-gate-table",
+          "decision_text": "Whether the Hollow Gate and the Gate Table are accepted parts of the world. Book 24 holds either way.",
+          "decision_text_sha256": "080e364ae1a28f622b7077fef66a0d20ed85c1750b5c46d04c5816643ee0be64",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "book_element_associations": [],
+      "current_wording": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.",
+      "history_complete": true,
+      "id": "q-gate-table",
+      "index": 14,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "fc83bf4ed418aec8df46fd0de885a3708ef946c957092c9b2da76cdda447cd57"
+    },
+    {
+      "book_decisions": [],
+      "book_element_associations": [],
+      "current_wording": "What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it.",
+      "history_complete": true,
+      "id": "q-other-15",
+      "index": 15,
+      "last_change": {
+        "change": "introduced",
+        "from_revision": 3,
+        "reason_instruction": "Give each open question a stable identity.",
+        "reason_recorded": true,
+        "to_revision": 3
+      },
+      "readable_formulations": 1,
+      "text_sha256": "0b6ed2b3f5a888e0ad6f95ed3891b3b3eace9faf42313844fb46d5f1e5a9a247"
+    }
+  ],
+  "schema": "studio-opportunity-discovery/1",
+  "stage": "A_orientation"
+}

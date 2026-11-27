@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope. I tested possibility p2, a noncanonical discovery proposal marked grounded. It says: (a) the revised ledger records hours beside each mark; (b) the Book 20 conversion credits counted hands only; (c) so hours may let uncounted labour be read and the conversion becomes a stage; (d) the same record is what Alternative A's failure mode, surveillance of the tally, would feed on, while the Special Draw Right is a separate claim.\n\nWhat the records support. Each cited fragment exists. eng_ledger's summary carries the sentence that the ledger now also records the hours each hand worked beside the mark. cons-conversion-blind-spot records that the conversion credits counted hands only and uncounted labour by hand-light households cannot restore draw; it appears under Books 24 and 25 with identical text, unattributed, unresolved, commitment authority undecided, and it says it makes the question concrete without answering it. alt_a_reciprocal lists surveillance of the tally as a failure mode. l_lineage_right_on_draw records that the Special Draw Right gives skill a claim on draw.\n\nWhat they do not support as stated.\n1. The join between (a) and (b). Nothing records that hours bear on the blind spot. The hours sentence says each hand, so it describes labour of hands already counted; the blind spot is labour outside the count. Assumption 1 (hours include labour by households without counted hands) is not recorded, and the possibility's gain depends on it. The element association shows engagement, not that hours address it; the discovery agent concedes this. 'Grounded' therefore overstates: the join is an interpretation resting on topical closeness.\n2. The tally. Surveillance of the tally is recorded under Alternative A, which is not chosen and decouples draw from hands. The stewardship tally is kept by the Terrace Council from Book 15 under the counted Turn. Nothing records that the tally and the ledger's hours are one record (assumption 2), so the surveillance cost crosses over by analogy, not by a recorded mechanism.\n3. 'One recorded mechanism' across three questions. Only q-conversion-settlement has an element engagement. q-other-3 (does shared accounting bind) has no engagement and no Book decision. q-right-revocable has only Book 25's decision, matched by the Book owner from the recorded version, not asserted by the author. Book 25's decisions about the conversion and the right are a co-reference, a fact about that Book's record, not a story link. l_lineage_right_on_draw targets the ledger engine, not the hours field, and as recorded the skill claim does not depend on hours.\n4. The proposed next check. The packet records no named hand-light household in Book 21. Book 21 records str_declined_share (a household exits the rota and its share runs wild) and et_cost_of_counting (draw cut for hands it cannot return): declining and cutting, not uncounted labour. When the hours revision entered the ledger relative to Books 20-21 is not recorded, so crediting a household cannot be checked from the packet.\n\nInterpretation, mine. The most defensible narrowing: if hours were recorded for labour the conversion does not credit, the gap between hours and credited hands would be visible, and the conversion could read as unfinished. That needs an author decision to extend what the ledger records. That exposure and surveillance are one property of any legible count is a reading, recorded only for A's tally.\n\nWhat the record would have to show: hours entered for labour outside the counted hands; the conversion or a later Book taking hours or the gap as input; the tally and ledger hours being one record or linked; who wrote and accepted the hours revision and where it sits in the Books; an engagement of q-other-3 or q-right-revocable with this mechanism.\n\nUndecided and the author's: whether the conversion is a settlement or a stage, whether the hours revision is accepted, and whether these questions should be linked or stay independent. Staying independent is a legitimate outcome.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Engaged by one Working Book element, cons-conversion-blind-spot (Books 24 and 25, same text hash). It records that the Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore draw, and that it makes the question concrete without answering it. Unattributed, unresolved, commitment authority undecided. This establishes engagement only; it does not say hours address the blind spot."
+    },
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "claim": "The summary carries the revision sentence that the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read from it. It is a working-candidate summary. Its author, acceptance and place among the Books are not recorded. It says each hand; it does not say labour outside the count is recorded."
+    },
+    {
+      "kind": "link",
+      "id": "l_lineage_right_on_draw",
+      "claim": "Records that the Special Draw Right, held by inst_lineage_crews, gives skill a claim on draw, and it targets eng_ledger as a whole, not the hours field. The lineage summary adds a training condition and a working design of revocable by the Council. Nothing here ties the right to hours."
+    },
+    {
+      "kind": "node",
+      "id": "alt_a_reciprocal",
+      "claim": "Not chosen. Draw is decoupled from hands, care is counted and nothing is owed. Its failure modes include surveillance of the tally. The tally itself is recorded under str_measured_turn and the Terrace Council from Book 15; no record joins the tally to the ledger's hours."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Records that hands a household cannot return reduce its draw (Book 20). With l_tally_counts_hands, the recorded conversion input is hands owed against hands returned; hours are not mentioned in either link."
+    },
+    {
+      "kind": "node",
+      "id": "str_declined_share",
+      "claim": "Book 21: a household exits the rota, forfeits its share and its water runs wild down the lowest Lowfen terrace. A physical cost of declining. It does not record uncounted labour by a hand-light household, and no named household is recorded in the packet."
+    },
+    {
+      "kind": "question",
+      "id": "q-other-3",
+      "claim": "Current wording only (does shared accounting of care bind). No element engagement and no Book decision are recorded; history has a named gap before identity. The possibility's tie to the binding force of shared accounting has no recorded engagement here."
+    },
+    {
+      "kind": "question",
+      "id": "q-right-revocable",
+      "claim": "Only Book 25's decision dec-right-revocable is recorded, matched by the Book owner from the recorded version (resolved_by_owner_from_recorded_version). No element engagement. Book 25 also records a decision on the conversion question; that is a co-reference in the Book's record, not a relationship in the story. The wording also asks who carries the Turn when the lineages end."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Hours extended to uncounted labour expose the gap",
+      "description": "Interpretation. The possibility holds in a narrower form: if the ledger records hours for labour the conversion does not credit, the gap between recorded hours and credited hands becomes legible and the conversion can be read as a stage. This needs an author decision that uncounted labour can be entered; none is recorded, and it would extend what eng_ledger records beyond its revision sentence. Without it, the possibility joins two recorded items by topical closeness."
+    },
+    {
+      "title": "Hours repeat the blind spot instead of exposing it",
+      "description": "Counter-reading, consistent with the records. The hours sentence says each hand, so hours may describe labour already counted. If hand-light households' labour has no mark, the field renders counted work more precisely and leaves the omission in place, perhaps more rigorous-looking. The records leave open whether uncounted labour can be given an hour. This reading would make the possibility's remedy a restatement of the blind spot."
+    },
+    {
+      "title": "Surveillance is recorded for the tally, not for hours",
+      "description": "Interpretation. Exposure and surveillance may be two faces of one legibility, but the record names surveillance only for Alternative A's tally, which is not chosen and is not shown to be the ledger's hours record. Whether the cost carries over is the author's reading to take up or reject. If hours were separate from the tally, the cost could be artistic (belonging reduced to a rota, as gi_political_pastoral_constrains warns), not a recorded story fact."
+    },
+    {
+      "title": "Keep the conversion, accounting and lineage-right questions apart",
+      "description": "Counter-reading. Only the conversion question has an element engagement. q-other-3 has none, and q-right-revocable has a Book decision whose recorded co-reference with the conversion is not a story link. The Special Draw Right gives skill a claim on draw whether or not hours are recorded, and its open parts (revocability, training, who carries the Turn) are not touched by the hours field. The records do not contradict treating the three as independent."
+    }
+  ],
+  "uncertainties": [
+    "Who wrote the eng_ledger hours sentence, whether the author accepted it, and where it falls relative to Books 20 and 21 are not recorded.",
+    "Whether 'each hand' includes labour by households without counted hands is not recorded; assumption 1 of the possibility rests on it.",
+    "Whether the stewardship tally and the ledger's hours are one record (assumption 2) is not recorded.",
+    "No record says the conversion, or the finale's revisit of it, can take hours as input.",
+    "The element text and the lineage summary name questions by position ('open question 6', 'open question 5'). Six positional names are recorded as untied named gaps, so I do not rely on them as identities.",
+    "Book 25's recorded decisions on the conversion and the right show a co-reference only; whether the author sees the questions as connected is undecided.",
+    "No Book records the hours mechanism engaging q-other-3 or q-right-revocable, and the Book prose is not shown, so Book development of them is unknown.",
+    "The history of every question before revision 3 is a named gap; the recorded reason for revision 3 concerns identity, not hours or the conversion."
+  ]
+}

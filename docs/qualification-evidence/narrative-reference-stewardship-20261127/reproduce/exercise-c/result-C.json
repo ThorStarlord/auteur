@@ -1,0 +1,264 @@
+{
+  "author_goal": null,
+  "baseline": "current",
+  "coverage_note": "Surveyed all 16 continuing questions, the Book 25 decisions, the one element association (cons-conversion-blind-spot), engines, links, Alternatives A-C and genre interactions. Set aside questions with no recorded mechanism tying them to others (lowland towns, Compact settlement, plurality, Brightwater share count); they stay independent.",
+  "created_at": "2026-11-27T11:36:36.436585+00:00",
+  "no_possibility_reason": null,
+  "possibilities": [
+    {
+      "applied": false,
+      "assumptions": [
+        "The pulse arrives as surplus the cistern must absorb or pass on.",
+        "Pre-release is available before Book 30."
+      ],
+      "basis": "grounded",
+      "costs": "Fixing storage early may remove author freedom on flood losses.",
+      "counterevidence": [
+        "The routing is recorded as the valley's choice, which a physical limit could narrow.",
+        "No cistern value is canon."
+      ],
+      "decision": null,
+      "evidence": [
+        {
+          "book_number": null,
+          "note": "Release draws the cistern down and cannot raise it; Book 15 trial showed surfeit.",
+          "present_now": true,
+          "ref_id": "str_hollow_gate",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "The pulse must be routed through the Gate.",
+          "present_now": true,
+          "ref_id": "l_longreturn_needs_gate",
+          "ref_kind": "link"
+        },
+        {
+          "book_number": null,
+          "note": "A declined share runs wild down the lowest Lowfen terrace.",
+          "present_now": true,
+          "ref_id": "l_declined_goes_wild",
+          "ref_kind": "link"
+        },
+        {
+          "book_number": null,
+          "note": "Storage above tolerance is not established; B and C depend on it.",
+          "present_now": true,
+          "ref_id": "q-other-15",
+          "ref_kind": "question"
+        },
+        {
+          "book_number": 25,
+          "note": "Book 24 neither designates nor excludes the Lowfen.",
+          "present_now": null,
+          "ref_id": "dec-surge-route",
+          "ref_kind": "book_decision"
+        }
+      ],
+      "gains": "One physical constraint shared by three open questions.",
+      "id": "p1",
+      "investigations": [],
+      "kind": "overlooked_consequence",
+      "next_investigation": "Test three storage values against Long Return routing and list which channel and household each leaves exposed.",
+      "possibility": "Recorded: Gate release draws the high cistern down and cannot raise it, and the Long Return pulse must be routed through the Gate. Interpretation: if the cistern tolerates little above its limit, the valley must release water before Book 30, and release goes to lower channels, including the Lowfen where a declined share already runs wild. Surge route, the rota window of B and C, and any flood loss would then follow one physical constraint instead of three separate author choices.",
+      "questions": [
+        "q-other-15",
+        "q-surge-route",
+        "q-finale-mechanism"
+      ],
+      "significance": "Alternatives B and C are recorded as depending on cistern storage, yet the surge route and finale mechanism are posed as independent choices. Settling storage first could constrain both and show who bears a flood.",
+      "status": {
+        "note": null,
+        "state": "transferable",
+        "transferable": true
+      },
+      "title": "The cistern's storage limit may decide whether the Long Return can be routed at all"
+    },
+    {
+      "applied": false,
+      "assumptions": [
+        "Recorded hours include labour by households without counted hands.",
+        "Care counted under A uses the same record."
+      ],
+      "basis": "grounded",
+      "costs": "May harden accounting into the surveillance that A warns of.",
+      "counterevidence": [
+        "The element association shows engagement only, not that hours address the blind spot.",
+        "q-right-revocable also turns on who carries the Turn after the lineages end."
+      ],
+      "decision": null,
+      "evidence": [
+        {
+          "book_number": 25,
+          "note": "Uncounted labour by hand-light households cannot restore draw.",
+          "present_now": null,
+          "ref_id": "cons-conversion-blind-spot",
+          "ref_kind": "book_element"
+        },
+        {
+          "book_number": null,
+          "note": "Ledger now records hours beside the mark, so a count can be read from it.",
+          "present_now": true,
+          "ref_id": "eng_ledger",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "The Special Draw Right gives skill a claim on draw.",
+          "present_now": true,
+          "ref_id": "l_lineage_right_on_draw",
+          "ref_kind": "link"
+        },
+        {
+          "book_number": null,
+          "note": "Lists surveillance of the tally as a failure mode.",
+          "present_now": true,
+          "ref_id": "alt_a_reciprocal",
+          "ref_kind": "node"
+        }
+      ],
+      "gains": "A concrete route for revisiting the conversion.",
+      "id": "p2",
+      "investigations": [],
+      "kind": "productive_tension",
+      "next_investigation": "Check whether the hours record could have credited one named hand-light household in Book 21, and what that exposes.",
+      "possibility": "Recorded: the revised ledger records hours worked beside each mark, the Book 20 conversion credits counted hands only, and the stewardship tally records care. Interpretation: the hours record may let uncounted labour be read, so the conversion becomes a stage rather than a settlement. The same record is what Alternative A's failure mode, surveillance of the tally, would feed on, and the Special Draw Right already gives skill a separate claim.",
+      "questions": [
+        "q-conversion-settlement",
+        "q-other-3",
+        "q-right-revocable"
+      ],
+      "significance": "It links the conversion, the binding force of shared accounting and the lineage right through one recorded mechanism, and shows a remedy that carries its own cost.",
+      "status": {
+        "note": null,
+        "state": "transferable",
+        "transferable": true
+      },
+      "title": "Hours recorded in the ledger could expose the conversion's blind spot, and be surveilled"
+    },
+    {
+      "applied": false,
+      "assumptions": [
+        "The threshold reading resembles earlier readings in effect.",
+        "Alternative C is a live option."
+      ],
+      "basis": "grounded",
+      "costs": "Risks making the finale hinge on interpretation procedure.",
+      "counterevidence": [
+        "Without C, q-other-8 has nothing to ground this.",
+        "q-other-0 may be answered by Book 15 without it."
+      ],
+      "decision": null,
+      "evidence": [
+        {
+          "book_number": null,
+          "note": "A reading changes whether returns are recorded and therefore the balance.",
+          "present_now": true,
+          "ref_id": "eng_old_hand",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "Publishes the Balance Stones; no authority over the schedule.",
+          "present_now": true,
+          "ref_id": "inst_reading_hall",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "Activation by the Hall's reading may be unchecked; gauge may be disputed.",
+          "present_now": true,
+          "ref_id": "alt_c_ratified_trigger",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "Whether intermediate readings are needed is undecided.",
+          "present_now": true,
+          "ref_id": "q-other-10",
+          "ref_kind": "question"
+        }
+      ],
+      "gains": "Gives intermediate readings a purpose beyond pacing.",
+      "id": "p3",
+      "investigations": [],
+      "kind": "shared_mechanism",
+      "next_investigation": "Sketch one intermediate reading in Books 9-14 that changes recorded returns, and see whether it prefigures the threshold reading.",
+      "possibility": "Recorded: a reading changes whether returns are recorded and so the balance on the Source; the Reading Hall publishes the Balance Stones but has no schedule authority; under C its reading may activate B unchecked. Interpretation: the spring can answer balance only while readings still steer what is recorded and when rules switch, so intermediate readings between Books 8 and 15 could set the precedent the threshold later inherits.",
+      "questions": [
+        "q-other-8",
+        "q-other-10",
+        "q-other-0"
+      ],
+      "significance": "It lets the spring-and-intent question stay open without a metaphysical answer, and ties the threshold and Old Hand staging to a mechanism the Architecture already records.",
+      "status": {
+        "note": null,
+        "state": "transferable",
+        "transferable": true
+      },
+      "title": "A reading that activates Alternative C would be the Old Hand engine acting on the spring"
+    },
+    {
+      "applied": false,
+      "assumptions": [
+        "Hesper's motive can be dramatised, not only declared.",
+        "The Gate Table or a lot seat is accepted."
+      ],
+      "basis": "speculative",
+      "costs": "Couples character to an unchosen finale mechanism.",
+      "counterevidence": [
+        "The Gate Table and lot seats are construction additions.",
+        "A lot seat is recorded only under B, which is not chosen."
+      ],
+      "decision": null,
+      "evidence": [
+        {
+          "book_number": 25,
+          "note": "Whether her motive is independent is recorded as untested.",
+          "present_now": null,
+          "ref_id": "dec-hesper-motive",
+          "ref_kind": "book_decision"
+        },
+        {
+          "book_number": 25,
+          "note": "Hesper stays a Council apprentice, not a statement on reform.",
+          "present_now": null,
+          "ref_id": "dec-reform-stance",
+          "ref_kind": "book_decision"
+        },
+        {
+          "book_number": 25,
+          "note": "Whether the Gate Table is accepted is undecided.",
+          "present_now": null,
+          "ref_id": "dec-gate-table",
+          "ref_kind": "book_decision"
+        }
+      ],
+      "gains": "Makes an authorial question testable in one scene.",
+      "id": "p4",
+      "investigations": [],
+      "kind": "thematic_resonance",
+      "next_investigation": "Decide whether q-gate-table is accepted, then see if any Hesper beat survives without the lot seat.",
+      "possibility": "Imaginative step, not recorded: Hesper, a Council apprentice in Book 24, holds a seat the Gate Table fills in a way she does not choose, such as Alternative B's lot-drawn one-cycle seats. How she acts there would test whether her generational motive is independent of the author's preference for the Turn's sustainability, and whether reform from within looks like a model or a warning at the Gate Table.",
+      "questions": [
+        "q-hesper-motive",
+        "q-reform-stance",
+        "q-gate-table"
+      ],
+      "significance": "Three open questions are about authorial stance made visible in a character; one scene could show whether the Series endorses reform from within.",
+      "status": {
+        "note": null,
+        "state": "transferable",
+        "transferable": true
+      },
+      "title": "Testing Hesper's motive by placing her where authorial preference cannot choose"
+    }
+  ],
+  "request_sha256": "ed53c172f190875aaf6c58a7c9a4e548278f51e21dd493b8b13d1f880e5aea12",
+  "uncertainties": [
+    "No question shows a recorded change or reason beyond introduction at revision 3, so no question history supports any possibility.",
+    "Only one element association was supplied, so the others rest on Architecture nodes and links.",
+    "The cistern's storage may be settled by the author so as to make the first possibility trivial.",
+    "q-other-1 and q-compact-settlement could connect to the Lowfen possibility, but no recorded mechanism ties them, so they stay independent."
+  ]
+}

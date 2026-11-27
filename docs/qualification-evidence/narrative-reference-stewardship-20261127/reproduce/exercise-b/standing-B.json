@@ -1,0 +1,30 @@
+[
+  {
+    "book_number": 24,
+    "element_id": "cons-conversion-blind-spot",
+    "kind": "book_element_association",
+    "question_id": "q-conversion-settlement",
+    "standing": "current"
+  },
+  {
+    "book_number": 25,
+    "element_id": "cons-conversion-blind-spot",
+    "kind": "book_element_association",
+    "question_id": "q-conversion-settlement",
+    "standing": "current"
+  },
+  {
+    "book_number": 25,
+    "decision_id": "dec-conversion-settlement",
+    "kind": "book_decision",
+    "question_id": "q-conversion-settlement",
+    "standing": "current"
+  },
+  {
+    "book_number": 25,
+    "decision_id": "dec-compact-settlement",
+    "kind": "book_decision",
+    "question_id": "q-compact-settlement",
+    "standing": "current"
+  }
+]

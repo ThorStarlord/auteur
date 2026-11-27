@@ -1787,6 +1787,7 @@
       renderQuestionFormulations(q);
       renderQuestionBooks(q,d);
       renderQuestionEngagements(q);
+      renderPositionalLeads(q);
       renderQuestionInvestigation(q,d);
       renderComparisonSection(q);
       renderQuestionSource(q,d);
@@ -1855,6 +1856,29 @@
     }
     // Book elements that record an association with this question. Each shows its Book, what the Book's element records, what
     // the association now stands for, and the element's own authority. Engagement only: never a settlement, an answer or inheritance.
+    // Book prose that names this question by its position. A lead to review in that Book, never a reference: nothing is recorded here.
+    function renderPositionalLeads(q){
+      var leads=(q&&q.positional_leads)||[];
+      if(!leads.length)return;
+      var sec=el('section','atl-qleads');sec.setAttribute('aria-label','Book prose that names this question by position');
+      sec.append(el('h4','atl-section-title','Book prose that names it by position · '+leads.length));
+      var seenLead={};
+      leads.forEach(function(l){
+        var leadBase=l.book_number+':'+l.element_id,leadSlot=keySlot(seenLead,leadBase);
+        var box=el('article','atl-qbook atl-qlead');box.dataset.book=String(l.book_number);box.dataset.element=l.element_id;
+        box.append(el('p','atl-series-book','Book '+l.book_number+' · '+Q.collectionLabel(l.collection)));
+        box.append(el('p','atl-series-text','The prose says “'+l.phrase+'”.'));
+        box.append(toneLine(l.matched_by==='recorded_identity'?
+          {tone:'note',text:'The version that prose was written against recorded this question at that position. It is a lead to review, not a reference: nothing is recorded from it.'}:
+          {tone:'warn',text:'The version that prose was written against recorded no identity. Its wording matches this question as it reads now. That is a lead to review, not an identity, and nothing is recorded from it.'}));
+        var row=el('div','atl-look');
+        actionButton(row,'Read Book '+l.book_number,function(){openBookFromQuestion(l.book_number);},
+          'question-lead:'+leadBase+leadSlot).classList.add('atl-action-quiet');
+        box.append(row);
+        sec.append(box);
+      });
+      folio.append(sec);
+    }
     function renderQuestionEngagements(q){
       var entries=Q.engagementsOf(q);
       if(!entries.length)return;
@@ -2500,7 +2524,7 @@
           (b.last_applied.changed.length?'; it changed '+X.plural(b.last_applied.changed.length,'element'):'')+
           (b.last_applied.added.length?'; it added '+X.plural(b.last_applied.added.length,'element'):'')+
           '. That was a change to this working Book, not to the Architecture.'));
-        renderBookDevelopment(det,b,from);
+        renderBookDevelopment(det,b,from,!!l&&b.book_number===l.book);
         renderDiscovery(det,b,from);
         renderBeyondBook(det,b,from);
         var others=(b.references||[]).filter(function(r){return !from||r.node_id!==from.nodeId;});
@@ -2618,10 +2642,12 @@
     function closeDevelop(n){var dev=devFor(n);S.dev=null;renderFolio();
       focusKey(dev&&dev.targets.length===1?'book-dev:'+n+':'+dev.targets[0]:'series-back');}
     function nodeName(nodeId){var c=conceptForNode(nodeId);return c?c.title:nodeId;}
-    function renderBookDevelopment(det,b,from){
+    function renderBookDevelopment(det,b,from,ownLeaf){
       if(!binding.books)return;
       var n=b.book_number,summary=b.development,dev=devFor(n),st=bookState(n),k=bookKey(n),note=S.notes&&S.notes[k];
-      if(!summary&&!dev&&!note)return;
+      // The Book the author opened (for instance from a question that it names) shows its own record, so what it records about
+      // the question, and any positional name, is there to review.
+      if(!summary&&!dev&&!note&&!ownLeaf)return;
       if(!st)readBook(n,false);
       // The context and this Book's own read can disagree only for a moment: the newer read decides.
       else if(st.status==='ready'&&S.seriesCtx&&S.seriesCtx.readAt&&st.readAt<S.seriesCtx.readAt&&
@@ -2666,15 +2692,71 @@
           'book-question:'+n+':'+a.element_id).classList.add('atl-action-quiet');
         sec.append(card);
       });
+      var seenObs={};
       obs.forEach(function(o){
+        var obsSlot=keySlot(seenObs,n+':'+o.element_id);
         var card=el('article','atl-qbook atl-qobservation');card.dataset.element=o.element_id;card.dataset.phrase=o.phrase;
-        var read=o.referent_text?'position '+o.position+' of the question list it was written against, “'+B.clip(o.referent_text,180)+'”':
-          'a position the recorded question list cannot resolve';
+        var read=o.referent_text?'position '+o.position+' of the question list the prose was written against, “'+B.clip(o.referent_text,180)+'”':
+          'a position that version cannot resolve';
         card.append(el('p','atl-note','The prose names “'+o.phrase+'” in '+Q.collectionLabel(o.collection)+': read as '+read+
-          '. This is an observation, not a reference. Nothing is recorded from it; a question association needs a reviewed revision that names the question’s current identity.'));
+          '. This is an observation, not a reference. Nothing is recorded from it.'));
+        renderStewardship(card,n,data,o,obsSlot);
         sec.append(card);
       });
       box.append(sec);
+    }
+    // What an author can do about one positional name. The owner says what is possible; the author chooses the question, and
+    // nothing is inferred from wording or position. Preparing a request changes nothing: only Apply of a reviewed revision does.
+    // A key is suffixed only when the same Book element has a second card, so the first keeps its plain key.
+    function keySlot(seen,base){var count=seen[base]||0;seen[base]=count+1;return count?':'+count:'';}
+    function renderStewardship(card,n,data,o,slot){
+      var a=o.adoption||{};
+      var origin=!o.origin?'Read at the Book’s recorded version':
+        (o.origin.revision_number?'Written in working revision '+o.origin.revision_number:'Written in the Book’s first version')+
+        (o.origin.complete?'':'; an earlier version cannot be read, so an earlier writer may exist');
+      card.append(el('p','atl-note',origin+'. Numbering: one-based, as the Book writes it. The other reading would name '+
+        (o.other_reading&&o.other_reading.referent_text?'“'+B.clip(o.other_reading.referent_text,120)+'”':'no question')+'.'));
+      if(a.reason)card.append(toneLine({tone:a.recordable?'note':a.state==='already_recorded'?'ok':'warn',text:a.reason}));
+      if(!a.recordable)return;
+      if(data.book.freshness!=='ready')card.append(el('p','atl-note','This Book is out of date with the working Architecture, so this request covers the whole Book. The review shows each change, and nothing is applied until you apply it.'));
+      var choices=a.choices||[];
+      if(!choices.length)return;
+      var pick=el('label','atl-bookdev-label','Current question this element engages');
+      var suffix=o.element_id+slot;
+      var sel=el('select','atl-book-choice-select');sel.id='atl-observation-question-'+n+'-'+suffix.replace(/[^A-Za-z0-9_-]/g,'_');pick.htmlFor=sel.id;
+      sel.dataset.key='observation-question:'+n+':'+suffix;
+      choices.forEach(function(c){var opt=el('option','','Open question '+(c.index+1)+' · '+B.clip(c.text,120));opt.value=c.id;sel.append(opt);});
+      var memo=S.observationPick=S.observationPick||{},pickKey=n+':'+suffix;
+      sel.value=memo[pickKey]||a.proposed_question_id||choices[0].id;
+      sel.addEventListener('change',function(){memo[pickKey]=sel.value;});
+      card.append(pick,sel);
+      var busyNow=busy(n);
+      var go=actionButton(card,busyNow==='prepare'?'Preparing…':'Prepare a reviewed revision that records this association',
+        function(){prepareAssociation(n,data,o,sel.value);},'observation-prepare:'+n+':'+suffix);
+      go.classList.add('atl-action-primary');go.disabled=!!busyNow;
+      card.append(el('p','atl-note','Preparing calls no model and changes nothing. Your coding agent checks the element’s own prose against this question. The association is recorded only if you review and apply the revision that records it.'));
+    }
+    function prepareAssociation(n,data,o,questionId){
+      var canvas=canvasKey();
+      if(busy(n)||!data||data.state!=='working'||!questionId)return;
+      if(data.pending){refusal(n,'A request for Book '+n+' is already waiting. Finish or replace it first; nothing was prepared.');renderFolio();return;}
+      // An out-of-date Book takes only a whole-Book revision, so the request then covers the whole Book and the review shows each change.
+      var outOfDate=data.book.freshness!=='ready';
+      var body={instruction:'',targets:outOfDate?[]:[o.element_id],holistic:outOfDate,
+        expected_book_request_sha256:data.book.request_sha256,associations:[{element_id:o.element_id,question_id:questionId}]};
+      setBusy(n,'prepare');renderFolio();
+      var call;try{call=Promise.resolve(binding.books.prepare(n,body));}catch(error){call=Promise.reject(error);}
+      call.then(function(r){
+        setBusy(n,null);if(r.canvasId!==canvas||canvasKey()!==canvas)return;
+        S.books[bookKey(n)]={status:'ready',data:r.data,readAt:new Date(),seq:S.bookSeq=(S.bookSeq||0)+1};
+        bookNote(n,'ok','Prepared for your coding agent. Nothing in Book '+n+' has changed. Apply only after you review the association it records.','awaiting_coding_agent');
+        openOnce('book-agent:'+n);readSeries(true,false,true);renderFolio();focusKey('book-copy:'+n);
+        announce('Association request prepared for your coding agent. Nothing in Book '+n+' has changed.');
+      },function(error){
+        setBusy(n,null);if(error.canvasId&&error.canvasId!==canvasKey())return;
+        refusal(n,'Not prepared: '+(error&&error.message||String(error))+'. Nothing changed.');
+        readBook(n,true);renderFolio();focusKey('book-note:'+n);
+      });
     }
     function scopeWords(n,pending,data){
       if(!pending)return '';
@@ -2944,6 +3026,13 @@
         var ql=el('ul','atl-series-elements');g.questions.forEach(function(q){
           ql.append(el('li','',q.label+' '+q.verb+' “'+B.clip(q.question||'',120)+'”'+(q.standing?' · '+q.standing:'')+(q.authority?' · '+q.authority:'')));});sec.append(ql);
         sec.append(el('p','atl-note','A question association records that an element engages the question. It does not say the element answers, settles, develops or inherits from it.'));}
+      if(g.unrequestedQuestions&&g.unrequestedQuestions.length){sec.append(el('p','atl-series-kicker','Association added that you did not ask for · '+g.unrequestedQuestions.length));
+        var uq=el('ul','atl-series-elements');g.unrequestedQuestions.forEach(function(r){uq.append(el('li','atl-tone-warn',r.label+' · “'+B.clip(r.question||'',120)+'” · check it before you apply.'));});sec.append(uq);}
+      if(g.requestedQuestions&&g.requestedQuestions.length){sec.append(el('p','atl-series-kicker','Association you asked for · '+g.requestedQuestions.length));
+        var rq=el('ul','atl-series-elements');g.requestedQuestions.forEach(function(r){
+          rq.append(el('li',r.established?'':'atl-tone-warn',r.label+' · “'+B.clip(r.question||'',120)+'” · '+
+            (r.established?'recorded in this revision':'not recorded: this revision does not record the association you asked for')));});sec.append(rq);
+        sec.append(el('p','atl-note','Apply changes only what this review lists. Declining is leaving it unapplied: the working Book stays as it is.'));}
       if(g.questionRetained)sec.append(el('p','atl-note',g.questionRetained+' existing question '+(g.questionRetained===1?'association is':'associations are')+' kept at the version each was recorded against.'));
       g.decisions.forEach(function(t){sec.append(toneLine({tone:'warn',text:t}));});
       if(g.authority.length)sec.append(el('p','atl-note','Standing changes: '+g.authority.join(' ')));

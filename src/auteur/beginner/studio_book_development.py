@@ -28,7 +28,7 @@ from auteur.series.working_book_architecture import (
     book_complete,
     book_elements,
     book_pending_state,
-    book_positional_observations,
+    book_observation_stewardship,
     book_prepare,
     book_project,
     book_review_elements,
@@ -143,7 +143,7 @@ def project_book_development(project_root: Path, canvas_id: str, book_number: in
         # Each element's question association, with its standing and what the association establishes (engagement only).
         "question_associations": refs["element_question_references"],
         # Positional names in the Book's prose, resolved at the Series version the Book was written against. Observations only.
-        "positional_observations": book_positional_observations(store, book_number)["observations"],
+        "positional_observations": book_observation_stewardship(store, book_number)["observations"],
         "phase": phase,
         "pending": pending,
         "review": review,
@@ -162,6 +162,20 @@ def _string_list(value: Any, name: str) -> tuple[str, ...]:
     return tuple(value)
 
 
+def _association_list(value: Any) -> tuple[dict, ...]:
+    """Requested question associations: each names an element and a current question, by identity. The owner checks them."""
+    if value is None:
+        return ()
+    if not isinstance(value, list) or len(value) > 6:
+        raise ValueError("associations must be a list of at most six element and question identities")
+    items = []
+    for item in value:
+        if not isinstance(item, dict) or set(item) != {"element_id", "question_id"}                 or not all(isinstance(item[key], str) and item[key] for key in ("element_id", "question_id")):
+            raise ValueError("each association names exactly an element_id and a question_id")
+        items.append({"element_id": item["element_id"], "question_id": item["question_id"]})
+    return tuple(items)
+
+
 def preview_book_scope(project_root: Path, canvas_id: str, book_number: int, payload: dict) -> dict:
     """Read-only: the elements a targeted revision of these targets would permit (the owner's own rule)."""
     store = _store(project_root, canvas_id)
@@ -172,10 +186,11 @@ def preview_book_scope(project_root: Path, canvas_id: str, book_number: int, pay
 def prepare_book_revision(project_root: Path, canvas_id: str, book_number: int, payload: dict) -> dict:
     """Prepare a reviewed revision through the owner. Calls no model; changes no working Book."""
     store = _store(project_root, canvas_id)
-    instruction = payload.get("instruction")
+    instruction = payload.get("instruction", "")
     if not isinstance(instruction, str):
         raise ValueError("instruction must be a string")
     targets = _string_list(payload.get("targets"), "targets")
+    associations = _association_list(payload.get("associations"))
     holistic = payload.get("holistic", False)
     if not isinstance(holistic, bool):
         raise ValueError("holistic must be true or false")
@@ -194,7 +209,8 @@ def prepare_book_revision(project_root: Path, canvas_id: str, book_number: int, 
     expect = RevisionExpectation(baseline_request_sha256=expected, pending_request_sha256=replace,
                                  pending_reviewed=reviewed, current_only=True)
     with _owner_records(book_number):
-        book_prepare(store, book_number, instruction=instruction, targets=targets, holistic=holistic, expect=expect)
+        book_prepare(store, book_number, instruction=instruction, targets=targets, holistic=holistic, expect=expect,
+                     associations=associations)
     return project_book_development(project_root, canvas_id, book_number)
 
 

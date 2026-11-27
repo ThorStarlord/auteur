@@ -123,14 +123,22 @@
     recorded_absence:'Not recorded in this revision',recorded_reason:'The author’s request then',
     recorded_selected_alternative:'Alternative the author chose then (a historical agent interpretation)',
     book_decision:'Working Book decision (a noncanonical proposal)',recorded_co_reference:'Recorded reference',
+    book_element_association:'Working Book element that engages this question (an association: engagement only)',
+    recorded_element_co_reference:'Recorded element association with two of these questions (a fact about one element’s record)',
+    positional_observation:'Positional name in Book prose (an observation, not a reference)',
     named_gap:'Missing or unreadable history'};
   const STANDING_WORDS={current:'the decision stands as it did',book_revised:'the Book has been revised since; this decision reads as it did',
     decision_changed:'the decision has changed since',decision_gone:'the decision is no longer recorded',unreadable:'the Book cannot be read now'};
+  // An element association's standing is the element's own, not a decision's.
+  const ENGAGEMENT_STANDING={current:'the element reads as it did',book_revised:'the Book has been revised since; the element reads as it did',
+    element_changed:'the element has changed since it was read',association_gone:'the element no longer records this association',
+    unreadable:'the Book cannot be read now'};
   function deliberationEvidence(packet,standing){
     const box=make('details');box.className='creative-deliberation';box.dataset.deliberation='true';
     box.append(make('summary','Evidence this answer was given · '+(packet.questions||[]).length+' open questions · recorded history'));
     box.append(make('p','Each line says what kind of evidence it is. The answer above is an agent interpretation, not part of this record.'));
-    const standingBy={};(standing||[]).forEach(row=>{standingBy[row.book_number+':'+row.decision_id]=row.standing;});
+    const standingBy={};(standing||[]).forEach(row=>{standingBy[row.kind==='book_element_association'?
+      row.book_number+':'+row.element_id+':'+row.question_id:row.book_number+':'+row.decision_id]=row.standing;});
     for(const q of packet.questions||[]){
       const section=make('section');section.className='creative-deliberation-question';
       section.append(make('h5',BASIS_WORDS.current_wording+' · “'+(q.current?.text||'')+'”'));
@@ -160,10 +168,27 @@
           (now?' · '+now:'');
         section.append(decision);
       }
+      for(const item of q.engagements||[]){
+        const line=make('p');line.dataset.basis='book_element_association';
+        const now=ENGAGEMENT_STANDING[standingBy[item.book_number+':'+item.element_id+':'+q.id]];
+        const authority=[item.attribution,item.epistemic_status,item.commitment_authority].filter(Boolean).join(' · ');
+        line.textContent='Book '+item.book_number+' · '+BASIS_WORDS.book_element_association+' · '+(item.collection||'element')+' · “'+
+          (item.element_text||'')+'” · the element’s own status: '+authority+(now?' · '+now:'');
+        section.append(line);
+        for(const dep of item.dependencies||[]){const d=make('p');d.dataset.basis='book_element_association';
+          d.textContent='   The Book records a dependency: '+(dep.direction==='to'?'it gives to ':'it receives from ')+dep.other+' ('+dep.dependency+')'+
+            (dep.function?' · '+dep.function:'');section.append(d);}
+      }
       box.append(section);
     }
-    for(const co of packet.co_references||[]){const line=make('p');line.dataset.basis='recorded_co_reference';
-      line.textContent='Book '+co.book_number+' records decisions about '+(co.question_ids||[]).length+' of these questions. This is a recorded reference, not a relationship in the story.';
+    for(const co of packet.co_references||[]){const line=make('p');line.dataset.basis=co.basis==='recorded_element_co_reference'?'recorded_element_co_reference':'recorded_co_reference';
+      line.textContent=co.basis==='recorded_element_co_reference'?
+        'Book '+co.book_number+': one element records associations with '+(co.question_ids||[]).length+' of these questions. The record does not say the questions are related in the story.':
+        'Book '+co.book_number+' records decisions about '+(co.question_ids||[]).length+' of these questions. This is a recorded reference, not a relationship in the story.';
+      box.append(line);}
+    for(const obs of packet.positional_observations||[]){const line=make('p');line.dataset.basis='positional_observation';
+      line.textContent='Book '+obs.book_number+' · '+BASIS_WORDS.positional_observation+' · “'+obs.phrase+'” in '+(obs.collection||'the prose')+
+        ', read as position '+obs.position+' at the version the prose was written against. Nothing is recorded from it.';
       box.append(line);}
     for(const gap of packet.named_gaps||[]){const line=make('p');line.dataset.basis='named_gap';line.textContent=gap.note;box.append(line);}
     return box;

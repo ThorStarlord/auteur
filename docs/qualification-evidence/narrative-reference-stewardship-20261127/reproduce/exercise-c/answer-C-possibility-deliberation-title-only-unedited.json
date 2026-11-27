@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope. The packet carries only the possibility's title, id (p2) and hashes, not its body. I can test only what the title asserts and what the packet records about the elements it plausibly rests on. I do not reconstruct the discovery agent's reasoning.\n\nWhat the title asserts, in three parts: (1) hours recorded in the ledger (2) could expose the conversion's blind spot, and (3) be surveilled.\n\nPart 1, recorded. The eng_ledger summary carries a revision sentence: the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. That is a working-candidate node summary. The packet gives it no attribution or commitment authority of its own, and the candidate is working and noncanonical, not author-approved. It is not one of the deliberation items.\n\nPart 2, recorded versus interpreted. The recorded blind spot is cons-conversion-blind-spot, a Working Book element in Books 24 and 25 (identical text and hash in both). It is unattributed, unresolved, commitment authority undecided. It states that the Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw, and that it makes the conversion question concrete without answering it. It engages q-conversion-settlement (index 5). The element depends on th_hands_and_draw via transforms. The links l_tally_counts_hands and l_conversion_sets_draw record that draw is partly set by hands owed from Book 20 and that unreturned hands reduce draw. So the blind spot is recorded. That hours could expose it is an interpretation, and the records give a reason to doubt it. The blind spot is labour that is not counted, and hours are recorded beside the mark for each hand. The packet does not say whether uncounted labour by a hand-light household has a mark to sit beside. If it has none, hour records would repeat the same omission and not expose it. If hours were recorded for labour outside the count, that would be a further change to what the ledger records, which the packet does not show. Nothing says hours enter the conversion's formula, so the possibility rests on an unrecorded dependency between the hours field and the conversion rule.\n\nPart 3, recorded versus interpreted. The only recorded surveillance risk is a failure mode of Finale Alternative A (alt_a_reciprocal): surveillance of the tally. That alternative is labelled not chosen. The tally in question is the stewardship tally (str_measured_turn, from Book 15), which records care. Hours beside the ledger mark are a different record, held in a different engine. The packet does not link them, so the claim that hours be surveilled borrows a risk recorded for another mechanism. Whether the borrowed risk transfers is interpretation. The ledger's own recorded hazards are falsification or favouring of credit (Book 1) and custody, not surveillance.\n\nRelation to the three questions. Only q-conversion-settlement has any engagement. q-other-3 (does the shared accounting of care bind) and q-right-revocable have no engagements, and Book 25's decision on q-right-revocable (dec-right-revocable) concerns the right's revocability and training condition, not hours. Book 25 records decisions on q-conversion-settlement and q-right-revocable, a co-reference only. Both decision identities were resolved by the Book owner from the recorded version and not asserted by the author. The possibility's link to q-other-3 is not recorded anywhere in the packet beyond the topical similarity of care accounting and tally. Six positional names remain untied (named gap) and I do not fill them in.\n\nWhat the record would have to show for the possibility to hold. (a) Which elements, if any, record hours as part of the ledger, with attribution and authority. (b) That uncounted labour by hand-light households can receive a recorded hour, and that this is recorded or decided. (c) That the conversion, or its review by the finale, can take hours as input. (d) That the hours record is exposed to the same watching the alt A failure mode describes, or some other recorded mechanism of watching exists. (e) That the author wants the hours field kept. None of (a) to (e) is established. Only the blind spot's existence and the unresolved state of the conversion question are.\n\nVerdict. The possibility is not unsupported as an idea, but the packet supports only its middle noun phrase, the conversion's blind spot, and the ledger revision sentence. The two linking verbs, expose and be surveilled, rest on interpretation. The author decides whether the hours field stays and whether it should bear on the conversion question. A reading that the hours field is unrelated to the blind spot is also consistent with the records.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Book 24 and Book 25 each carry the element cons-conversion-blind-spot as an engagement of this question (index 5, current wording). The element is unattributed, unresolved, commitment authority undecided, and states that the Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. An association shows engagement only."
+    },
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "claim": "The working-candidate summary says the ledger now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it. It is part of a working, noncanonical candidate. The packet gives it no element attribution or commitment authority and does not tie it to any question."
+    },
+    {
+      "kind": "link",
+      "id": "l_tally_counts_hands",
+      "claim": "Recorded function: from Book 20, draw is partly set by hands owed (eng_ledger to th_hands_and_draw). It does not mention hours."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded function: hands a household cannot return reduce its draw (Book 20). The packet records no link between hours and this conversion."
+    },
+    {
+      "kind": "node",
+      "id": "alt_a_reciprocal",
+      "claim": "Finale Alternative A, marked not chosen, lists surveillance of the tally among its failure modes. This is the only recorded surveillance risk. It is tied to Alternative A and to the tally, not to hours beside ledger marks."
+    },
+    {
+      "kind": "node",
+      "id": "str_measured_turn",
+      "claim": "The stewardship tally, from Book 15, records labour as a record of care for the counted practice and does not hold the water. It is a different record from the hours the ledger summary describes, and the packet does not link the two."
+    },
+    {
+      "kind": "question",
+      "id": "q-other-3",
+      "claim": "Current wording: does the shared accounting of care bind, and in what form? Not decided. It has no Book decisions or element engagements in the deliberation, and its history is only its introduction in revision 3. No record ties it to hours or to the ledger."
+    },
+    {
+      "kind": "question",
+      "id": "q-right-revocable",
+      "claim": "Book 25 records dec-right-revocable, matched by the Book owner from the recorded version, about revocability and the training condition. It has no element engagements. Book 25 recording it beside the conversion question is a co-reference only and says nothing about hours."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Hours repeat the blind spot instead of exposing it",
+      "description": "Interpretation. The blind spot is labour outside the count. Hours recorded beside each mark describe labour already marked. If hand-light households' uncounted labour has no mark, an hours field would render counted work more precisely and leave the omission in place, perhaps making it look more rigorous. The records leave open whether uncounted labour could be given an hour. The author would decide, and what the Book 20 conversion counts decides the rest.",
+      "divergence_axis": null
+    },
+    {
+      "title": "Hours could expose it only if they extend what is counted",
+      "description": "Interpretation. The possibility holds in this narrower form: hours exposes the blind spot if the ledger records hours for labour that the conversion does not credit, so the gap between recorded hours and credited hands becomes visible. This needs a recorded decision that uncounted labour can be entered. The packet records none. It would also change what the ledger engine records beyond the revision sentence, which is a decision for the author.",
+      "divergence_axis": null
+    },
+    {
+      "title": "Surveillance as the cost of any legible count",
+      "description": "Interpretation, partly anchored in Alternative A's failure mode. A record legible enough to read a count straight from it is also legible to whoever reads it, so exposure and surveillance may be two faces of one property. The packet records this only for the tally under Alternative A. Whether it carries over to a ledger field is a reading the author could take up or reject. Under it, the cost is artistic and political, and it is not shown to be a recorded story fact.",
+      "divergence_axis": null
+    },
+    {
+      "title": "Hours and the blind spot stay independent",
+      "description": "Counter-reading, consistent with the records. The hours sentence in eng_ledger and cons-conversion-blind-spot are separate items. Nothing in the packet links them, and the conversion question could be answered without the hours field. The possibility would then join two unconnected recorded items by topical closeness. The author can keep them apart.",
+      "divergence_axis": null
+    }
+  ],
+  "uncertainties": [
+    "The packet gives only the possibility's title and hashes. Its full body and cited elements are not shown, so I tested the title's three claims, not the discovery agent's argument.",
+    "Who wrote the eng_ledger hours sentence, and whether the author accepted it, is not recorded in the packet.",
+    "Whether uncounted labour by hand-light households can be recorded as hours is not recorded.",
+    "No record says the Book 20 conversion, or the finale's revisit of it, can use hours as input.",
+    "The surveillance risk is recorded only for the tally under the unchosen Alternative A. Its transfer to hours beside ledger marks is interpretation.",
+    "q-other-3 and q-right-revocable have no engagements, so any link from the possibility to them is unrecorded. Book 25's co-reference of two decisions is not a story relation.",
+    "Six untied positional names are a named gap, and I have not filled them in or used them.",
+    "Whether the author wants the hours field kept, and whether it should bear on the conversion question, is the author's decision."
+  ]
+}

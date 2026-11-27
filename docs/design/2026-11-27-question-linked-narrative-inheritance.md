@@ -156,3 +156,33 @@ observation shows the reading and the numbering convention it assumes, so the au
   the element is about the question, and it does not check the reading of a cited item. Semantic reasoning limits remain
   where the exercises record them.
 - No backfill. Prose mentions are not converted to references. Each association is a reviewed, explicit revision.
+
+## K. Compatibility and rollback (correction, 2026-11-27)
+
+PR #648's merge-risk description said that reverting the implementation restores the earlier contract and that stored records
+remain readable. That is only partly true. The pre-#648 `Ref` model accepts exactly `series_node`, `book_element` and
+`source_item`, with no other fields (`extra="forbid"`). The new model also accepts `series_question` and its owner-recorded binding
+fields. Measured with the pre-#648 owner module (`git show 77c5848a^1:src/auteur/series/working_book_architecture.py`) on the same
+Book records:
+
+| Record | Pre-#648 code | Current code |
+|---|---|---|
+| Legacy Book record (no `series_question` reference) | reads | reads |
+| Book record with an applied `series_question` reference | refused (`ValidationError`, 4 errors) | reads |
+
+The refused record is one Book. Its Working Book reads and the question projections report that Book as unreadable; nothing
+else is affected. The downgrade boundary is therefore the first applied association, not the code revert:
+
+- **Reading legacy records with the current implementation:** supported. Nothing is migrated or rewritten.
+- **Reading newly written records with the pre-#648 implementation:** not supported for any Book that holds an applied
+  `series_question` reference. Responses containing one are refused by the old validator as well.
+- **Reverting before any association is applied:** the Books remain readable by the old code. Pending requests carry the
+  `requested_question_associations` setting, which the old code keeps as an opaque setting and does not validate.
+- **Reverting after authors have applied associations:** requires a compatibility step. The supported path is to restore the
+  affected Book's `current.json` from its lineage: each applied revision keeps its reviewed candidate under
+  `requests/<sha>/review.json`, and the candidate from the revision before the association has no `series_question` reference.
+  That restore is manual and is not implemented. Alternatively, keep the current reference model in the rolled-back build.
+  No general migration or downgrade framework was added, since the current responsibility does not need one.
+
+Not checked: whether the pre-#648 consequence and deliberation readers accept packet version 3 and the new deliberation keys.
+Those readers are not part of the record check above, and no claim is made about them.

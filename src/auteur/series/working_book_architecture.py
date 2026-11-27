@@ -755,12 +755,19 @@ class RevisionExpectation(BaseModel):
 def book_prepare(
     store: CanvasStore, book_number: int, *, instruction: str | None = None,
     targets: tuple[str, ...] = (), holistic: bool = False, expect: RevisionExpectation | None = None,
+    associations: tuple[dict, ...] = (),
 ) -> dict:
-    """Develop a Book when none exists. With an instruction, prepare a reviewed revision of the existing one."""
+    """Develop a Book when none exists. With an instruction or requested associations, prepare a reviewed revision.
+
+    ``associations`` asks that named elements record an association with a named current question, by identity. The owner
+    checks each one, adds its element to the revision's scope, and states in the request which associations it asked for.
+    The coding agent records one only if the element's own prose engages that question.
+    """
     _check_number(book_number)
-    if instruction is None:
+    if instruction is None and not associations:
         return _prepare_develop(store, book_number)
-    return _prepare_revision(store, book_number, instruction, tuple(targets), holistic, expect)
+    return _prepare_revision(store, book_number, instruction or "", tuple(targets), holistic, expect,
+                             tuple(associations))
 
 
 def _prepare_develop(store: CanvasStore, book_number: int) -> dict:
@@ -1236,6 +1243,7 @@ def book_series_references(store: CanvasStore, book_number: int, *,
                     versions=version_map, current=(series or {}).get("candidate"),
                 ),
                 "question_id": ref.id,
+                "dependencies": _element_dependencies(artifact, element.id),
             })
     return {
         "book_number": book_number,
@@ -1263,26 +1271,11 @@ def book_series_references(store: CanvasStore, book_number: int, *,
 _POSITIONAL_QUESTION = re.compile(r"\bopen questions? (\d{1,2})\b", re.IGNORECASE)
 _PROSE_FIELDS = ("text", "title", "question", "pressure", "condition", "choice", "consequence", "changed_state",
                  "new_possibility", "rationale", "reversal", "interpretation")
+_ASSOCIATION_LIMIT = 6
 
 
-def book_positional_observations(store: CanvasStore, book_number: int, *, versions=None) -> dict:
-    """Read-only: positional question names in one Book's prose, resolved at the Series version it was written against.
-
-    An observation, never a binding. It reports the referent a position named at that exact version, whether that version
-    recorded an identity for it, and the other reading of the number, so the author can judge the numbering. Attaching a
-    typed association is a reviewed revision that names a current identity; the owner never infers one from a position.
-    Typed-edge prose is read too, since an edge's function is prose the Book states.
-    """
-    _check_number(book_number)
-    record = _read(_book_root(store, book_number) / "current.json")
-    if record is None:
-        return {"book_number": book_number, "status": "not_started", "authority": "read_only_owner_records",
-                "observations": []}
-    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
-    version_sha = record["series_request_sha256"]
-    version = dict(versions if versions is not None else architecture_versions(store)).get(version_sha)
-    questions = list((version or {}).get("open_questions") or [])
-    identities = list((version or {}).get("open_question_ids") or [])
+def _prose_sources(artifact: WorkingBookArchitecture) -> list[tuple[str, str, str, str]]:
+    """(element id, collection, field, text) for every prose field a Book states, typed-edge functions included."""
     sources: list[tuple[str, str, str, str]] = []
     for collection, element in _labelled_elements(artifact):
         dumped = element.model_dump(mode="json")
@@ -1291,26 +1284,136 @@ def book_positional_observations(store: CanvasStore, book_number: int, *, versio
                 sources.append((element.id, collection, field, dumped[field]))
     for edge in artifact.typed_edges:
         sources.append((edge.id, "typed_edges", "function", edge.function))
+    return sources
+
+
+def _prose_text(artifact: WorkingBookArchitecture, identifier: str, field: str) -> str | None:
+    for source_id, _collection, name, text in _prose_sources(artifact):
+        if source_id == identifier and name == field:
+            return text
+    return None
+
+
+def _kept_version(base: Path, sha: str, revision: int | None) -> dict:
+    """One applied version of a Book as the owner kept it. An unreadable one is marked, never guessed at."""
+    row: dict[str, Any] = {"request_sha256": sha, "revision_number": revision, "readable": False,
+                           "series_request_sha256": None, "artifact": None}
+    try:
+        request = load_host_agent_request(base / "requests" / sha / "request.json")
+        review = _read(base / "requests" / sha / "review.json")
+        if review is not None and review.get("candidate") is not None:
+            artifact_json = review["candidate"]
+        else:  # a develop request keeps its response only; its artifact is what that response said
+            response = _read(base / "requests" / sha / "response.json")
+            artifact_json = json.loads(response["text"])
+        artifact = WorkingBookArchitecture.model_validate_json(json.dumps(artifact_json))
+        series = request.settings.get("series_request_sha256")
+    except (OSError, KeyError, TypeError, ValueError):
+        return row
+    if not isinstance(series, str):
+        return row
+    row.update(readable=True, series_request_sha256=series, artifact=artifact)
+    return row
+
+
+def _applied_chain(store: CanvasStore, book_number: int, record: dict) -> list[dict]:
+    """Oldest first: each version this Book has held, the current one last.
+
+    The current version's prose was written against the Series version its own request named, which a partial revision of
+    an out-of-date Book does not record on the Book: the record keeps the baseline it was written against. So the current
+    entry reads its series from that request, and falls back to the record only when the request cannot be read.
+    """
+    base = _book_root(store, book_number)
+    current = _kept_version(base, record["request_sha256"], record.get("revision_number", 0))
+    current.update(readable=True, artifact=WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"])))
+    if current["series_request_sha256"] is None:
+        # The request cannot be read: the record's Book-wide version stands in, and the origin is marked as not established.
+        current["series_request_sha256"] = record["series_request_sha256"]
+        current["series_from_record"] = True
+    earlier = [entry for entry in (record.get("lineage") or [])
+               if entry.get("request_sha256") != record["request_sha256"]]
+    return [_kept_version(base, entry["request_sha256"], entry.get("revision")) for entry in earlier] + [current]
+
+
+def _prose_origin(chain: list[dict], identifier: str, field: str, text: str) -> dict | None:
+    """The applied version that wrote this exact prose, counting back from the current version.
+
+    The prose is compared exactly, never by similarity. The walk stops at the first older version that read differently
+    (so the version after it wrote this text), at the first version that cannot be read (so an earlier writer may exist
+    that the record cannot show), or at the oldest version the record holds.
+    """
+    origin = None
+    stopped = "start"
+    for entry in reversed(chain):
+        if not entry["readable"]:
+            stopped = "unreadable"
+            break
+        if _prose_text(entry["artifact"], identifier, field) != text:
+            stopped = "mismatch"
+            break
+        origin = entry
+    if origin is None:
+        return None
+    if origin.get("series_from_record"):
+        basis, complete = "current_series_not_recorded", False
+    elif stopped == "unreadable":
+        basis, complete = "earlier_version_unreadable", False
+    else:
+        basis, complete = "written_in_this_version", True
+    return {"request_sha256": origin["request_sha256"], "revision_number": origin["revision_number"],
+            "series_request_sha256": origin["series_request_sha256"], "basis": basis, "complete": complete}
+
+
+def book_positional_observations(store: CanvasStore, book_number: int, *, versions=None) -> dict:
+    """Read-only: positional question names in one Book's prose, read at the Series version that prose was written against.
+
+    The read version is the one the element's own prose first read in, where the owner's records show it. The Book-wide
+    version can be later than the version the prose came from, so it is used only where that history cannot be read, and
+    the observation says which. An observation is never a binding. It reports the referent a position named at that version,
+    the identity recorded there (if any) and the other reading of the number. Attaching a typed association is a reviewed
+    revision that names a current identity; the owner never infers one from a position.
+    """
+    _check_number(book_number)
+    record = _read(_book_root(store, book_number) / "current.json")
+    if record is None:
+        return {"book_number": book_number, "status": "not_started", "authority": "read_only_owner_records",
+                "observations": []}
+    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    book_version = record["series_request_sha256"]
+    known = dict(versions if versions is not None else architecture_versions(store))
+    chain = _applied_chain(store, book_number, record)
     observations: list[dict] = []
-    for element_id, collection, field, text in sources:
-        for match in _POSITIONAL_QUESTION.finditer(text):
+    for element_id, collection, field, text in _prose_sources(artifact):
+        matches = list(_POSITIONAL_QUESTION.finditer(text))
+        if not matches:
+            continue
+        origin = _prose_origin(chain, element_id, field, text)
+        read_sha = origin["series_request_sha256"] if origin else book_version
+        version = known.get(read_sha)
+        questions = list((version or {}).get("open_questions") or [])
+        identities = list((version or {}).get("open_question_ids") or [])
+        for match in matches:
             position = int(match.group(1))
             row: dict[str, Any] = {
                 "element_id": element_id, "collection": collection, "field": field,
                 "phrase": match.group(0).lower(), "position": position, "numbering": "one_based",
-                "recorded_version_request_sha256": version_sha, "binding": "none",
+                "binding": "none",
+                "recorded_version_request_sha256": book_version,
+                "read_at_request_sha256": read_sha,
+                "read_basis": "element_origin" if origin else "book_recorded_version",
+                "origin": ({"request_sha256": origin["request_sha256"], "revision_number": origin["revision_number"],
+                            "basis": origin["basis"], "complete": origin["complete"]} if origin else None),
             }
             if version is None:
-                row.update(state="historical_version_unavailable", referent_index=None, referent_text=None,
-                           identity_at_recorded_version=None)
+                row.update(state="read_version_unavailable", referent_index=None, referent_text=None,
+                           identity_at_read_version=None)
             elif not 1 <= position <= len(questions):
                 row.update(state="position_out_of_range", referent_index=None, referent_text=None,
-                           identity_at_recorded_version=None)
+                           identity_at_read_version=None)
             else:
                 row.update(
-                    state="resolved_at_recorded_version", referent_index=position - 1,
-                    referent_text=questions[position - 1],
-                    identity_at_recorded_version=identities[position - 1] if position <= len(identities) else None,
+                    state="resolved", referent_index=position - 1, referent_text=questions[position - 1],
+                    identity_at_read_version=identities[position - 1] if position <= len(identities) else None,
                 )
             other = questions[position] if version is not None and position < len(questions) else None
             row["other_reading"] = {"numbering": "zero_based", "referent_index": position, "referent_text": other}
@@ -1318,12 +1421,160 @@ def book_positional_observations(store: CanvasStore, book_number: int, *, versio
     return {
         "book_number": book_number,
         "authority": "read_only_owner_records",
-        "recorded_version_request_sha256": version_sha,
+        "recorded_version_request_sha256": book_version,
         "observations": observations,
-        "note": ("A positional name is a qualified observation of the recorded version. It is not a typed reference, and "
-                 "the owner records nothing from it. Attach an association through a reviewed revision that names the "
-                 "question's current identity."),
+        "note": ("A positional name is a qualified observation of the version its prose was written against. It is not a "
+                 "typed reference, and the owner records nothing from it. Attach an association through a reviewed revision "
+                 "that names the question's current identity."),
     }
+
+
+_NOT_RECORDABLE = {
+    "typed_edge": "This phrase is in a typed edge's function. An edge cannot carry a question association, and the owner "
+                  "does not attach one to another element on its behalf.",
+    "element_missing": "The element that states this phrase is no longer in this Book, so there is nothing to associate.",
+    "decision_binding": "A decision's binding is the question it asks. A decision cannot carry a second, element association.",
+}
+
+
+def _adoption_view(row: dict, entry: dict | None, current_ids: list[str], choices: list[dict]) -> dict:
+    """What an author can do with one observation, in the owner's terms. Nothing is inferred from wording or position."""
+    held: list[str] = []
+    if entry is not None and entry.get("element") is not None:
+        held = [ref.id for ref in entry["element"].refs if ref.kind == "series_question"]
+    identity = row.get("identity_at_read_version")
+    view: dict[str, Any] = {"identity_at_read_version": identity, "held_question_ids": held, "choices": [],
+                            "proposed_question_id": None, "recordable": False}
+    choices = [choice for choice in choices if choice["id"] not in held]
+    if row["collection"] == "typed_edges":
+        return {**view, "state": "not_recordable", "reason": _NOT_RECORDABLE["typed_edge"]}
+    if entry is None:
+        return {**view, "state": "not_recordable", "reason": _NOT_RECORDABLE["element_missing"]}
+    if row["collection"] == "open_author_decisions":
+        return {**view, "state": "not_recordable", "reason": _NOT_RECORDABLE["decision_binding"]}
+    if not current_ids:
+        return {**view, "state": "no_current_identities",
+                "reason": "The working Architecture gives its open questions no stable identities, so an association cannot "
+                          "name one yet. Give them identities through an Architecture revision first."}
+    origin = row.get("origin")
+    if origin is not None and not origin.get("complete"):
+        # An earlier version the record cannot show may have written this prose, so the identity it read is not this prose's.
+        return {**view, "state": "origin_not_established", "recordable": True, "choices": list(choices),
+                "reason": "The version this prose was written against cannot be established from the record: an earlier version "
+                          "cannot be read. Its recorded identity is not offered. Choose the current question this element "
+                          "engages; the owner records your choice."}
+    if identity is None:
+        return {**view, "state": "identity_not_recorded_at_read_version", "recordable": True, "choices": list(choices),
+                "reason": "The version this prose was written against records no identity for the question it names. Choose "
+                          "the current question this element engages; the owner records your choice, and the historical "
+                          "wording stays a reading of that version."}
+    if identity in current_ids:
+        state = "already_recorded" if identity in held else "recordable"
+        return {**view, "state": state, "recordable": state == "recordable", "choices": list(choices),
+                "proposed_question_id": identity,
+                "reason": ("This element already records an association with that question." if state == "already_recorded"
+                           else "The version this prose was written against records this identity for the question it "
+                                "names, and it is still open. Confirm it, or choose another current question.")}
+    return {**view, "state": "question_no_longer_open", "recordable": True, "choices": list(choices),
+            "reason": "The question recorded at that version is no longer open, so no current question carries its identity. "
+                      "Choosing a current question is your judgement; the owner does not carry the old reference across."}
+
+
+def book_observation_stewardship(store: CanvasStore, book_number: int, *, versions=None) -> dict:
+    """The positional observations, each with what an author can do about it. Read-only."""
+    observed = book_positional_observations(store, book_number, versions=versions)
+    if not observed["observations"]:
+        return observed
+    record = _read(_book_root(store, book_number) / "current.json")
+    artifact = WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"]))
+    index = _index_elements(artifact)
+    series = (_candidate(store) or {}).get("candidate") or {}
+    current_ids = list(series.get("open_question_ids") or [])
+    current_questions = list(series.get("open_questions") or [])
+    choices = [{"id": identity, "index": position, "text": current_questions[position]}
+               for position, identity in enumerate(current_ids) if position < len(current_questions)]
+    for row in observed["observations"]:
+        row["adoption"] = _adoption_view(row, index.get(row["element_id"]), current_ids, choices)
+    return observed
+
+
+def _requested_associations(store: CanvasStore, index: dict[str, dict], associations: tuple[dict, ...],
+                            observed: dict) -> list[dict]:
+    """Check the author's requested associations against the owner's records. Raises ValueError with the reason."""
+    if len(associations) > _ASSOCIATION_LIMIT:
+        raise ValueError(f"at most {_ASSOCIATION_LIMIT} associations can be requested in one revision")
+    series = (_candidate(store) or {}).get("candidate") or {}
+    identities = list(series.get("open_question_ids") or [])
+    questions = list(series.get("open_questions") or [])
+    seen: set[tuple[str, str]] = set()
+    requested: list[dict] = []
+    for item in associations:
+        if not isinstance(item, dict) or not isinstance(item.get("element_id"), str) \
+                or not isinstance(item.get("question_id"), str):
+            raise ValueError("each association names an element_id and a question_id")
+        element_id, question_id = item["element_id"], item["question_id"]
+        if (element_id, question_id) in seen:
+            raise ValueError("the same association is requested twice")
+        seen.add((element_id, question_id))
+        entry = index.get(element_id)
+        if entry is None:
+            raise ValueError(f"unknown element for an association: {element_id}")
+        if entry["collection"] == "open_author_decisions":
+            raise ValueError(f"{element_id} is a decision: a decision's binding is its question, not an association")
+        if not identities:
+            raise ValueError("the working Architecture gives its open questions no identities, so no association can name one")
+        if question_id not in identities:
+            raise ValueError(f"{question_id} is not an open question of the current working Architecture")
+        held = [ref.id for ref in entry["element"].refs if ref.kind == "series_question"] if entry["element"] else []
+        if question_id in held:
+            raise ValueError(f"{element_id} already records an association with {question_id}")
+        position = identities.index(question_id)
+        observed_here = [{key: row.get(key) for key in ("phrase", "position", "state", "referent_text",
+                                                        "identity_at_read_version", "read_at_request_sha256", "read_basis")}
+                         for row in observed["observations"] if row["element_id"] == element_id]
+        requested.append({
+            "element_id": element_id, "question_id": question_id, "question_index": position,
+            "question_text": questions[position] if position < len(questions) else None,
+            "question_text_sha256": _text_digest(questions[position]) if position < len(questions) else None,
+            "observed_positions": observed_here,
+        })
+    return sorted(requested, key=lambda row: (row["element_id"], row["question_id"]))
+
+
+def _association_instruction(requested: list[dict]) -> str:
+    lines = ["The author asked for these question associations. Record each one only if the element's own prose engages "
+             "that question: compare the element's prose with the question's current wording and with any historical reading "
+             "in observed_positions. If the element engages the question, add a series_question reference with exactly that "
+             "identity to the element's refs. If it does not, add no reference and leave the element as it is.",
+             "Do not add an association to any other element for this request, and do not change any element's prose."]
+    lines += [f"- {row['element_id']} may record an association with {row['question_id']}." for row in requested]
+    lines.append("A changed element uses the explicit form: restate any legacy provenance field as attribution and "
+                 "epistemic_status, as the owner requires for a changed element.")
+    return "\n".join(lines)
+
+
+def _records_association(index: dict[str, dict], element_id: str, question_id: str) -> bool:
+    entry = index.get(element_id)
+    if not entry or entry.get("element") is None:
+        return False
+    return any(ref.kind == "series_question" and ref.id == question_id for ref in entry["element"].refs)
+
+
+_MAX_DEPENDENCIES = 3
+
+
+def _element_dependencies(artifact: WorkingBookArchitecture, identifier: str) -> list[dict]:
+    """The typed edges that start at or end on one element: the Book's own recorded dependencies for it. Bounded."""
+    rows: list[dict] = []
+    for edge in artifact.typed_edges:
+        if edge.source == identifier:
+            rows.append({"edge_id": edge.id, "direction": "to", "other": edge.target.id,
+                         "other_kind": edge.target.kind, "dependency": edge.dependency.value, "function": edge.function})
+        elif edge.target.kind == "book_element" and edge.target.id == identifier:
+            rows.append({"edge_id": edge.id, "direction": "from", "other": edge.source, "other_kind": "book_element",
+                         "dependency": edge.dependency.value, "function": edge.function})
+    return rows[:_MAX_DEPENDENCIES]
+
 
 def _node_view(node: dict) -> dict:
     return {field: node.get(field) for field in ("title", "category", "summary", "scope", "parent_id")}
@@ -1960,6 +2211,7 @@ def _build_review(
 def _revision_packet(
     artifact: WorkingBookArchitecture, index: dict, book_number: int, current: dict, series: dict,
     source: dict, targets: set[str], dependents: set[str], holistic: bool, instruction: str,
+    requested: list[dict] | None = None,
 ) -> dict:
     in_scope = set(index) if holistic else targets | dependents
     views = {view["id"]: view for view in project_artifact(artifact)["elements"]}
@@ -2015,6 +2267,7 @@ def _revision_packet(
             ],
         },
         "visible_source_ids": _visible_source_ids(source),
+        **({"requested_question_associations": requested} if requested else {}),
     }
 
 
@@ -2061,15 +2314,15 @@ def _check_expectation(store: CanvasStore, book_number: int, base: Path, current
 
 def _prepare_revision(
     store: CanvasStore, book_number: int, instruction: str, targets: tuple[str, ...], holistic: bool,
-    expect: RevisionExpectation | None = None,
+    expect: RevisionExpectation | None = None, associations: tuple[dict, ...] = (),
 ) -> dict:
-    if not instruction.strip():
+    if not instruction.strip() and not associations:
         raise ValueError("a revision needs a non-empty instruction")
     if len(instruction) > 4000:
         raise ValueError("revision instruction must be under 4000 characters")
     if holistic and targets:
         raise ValueError("choose either --target elements or --holistic, not both")
-    if not holistic and not targets:
+    if not holistic and not targets and not associations:
         raise ValueError("name the elements to revise with --target, or use --holistic")
     with _FilesystemLock(store._path(".canvas.lock")):
         base = _book_root(store, book_number)
@@ -2083,14 +2336,22 @@ def _prepare_revision(
         unknown = sorted(identifier for identifier in targets if identifier not in index)
         if unknown:
             raise ValueError(f"unknown target elements: {', '.join(unknown)}")
-        target_set = set(targets)
+        requested = (_requested_associations(store, index, associations, book_positional_observations(store, book_number))
+                     if associations else [])
+        target_set = set(targets) | {row["element_id"] for row in requested}
+        if not holistic and not target_set:
+            raise ValueError("name the elements to revise with --target, or use --holistic")
+        if requested:
+            instruction = (instruction.strip() + "\n\n" if instruction.strip() else "") + _association_instruction(requested)
+            if len(instruction) > 4000:
+                raise ValueError("the revision instruction with the requested associations must be under 4000 characters")
         dependents = set() if holistic else _dependents_of(index, target_set)
         series = _candidate(store)
         if series is None or _current_candidate_freshness(store, series) != "ready":
             raise BeginnerConcurrencyError("the Series working architecture must be current before a Book revision")
         source = _author_source(store, book_number)
         packet = _revision_packet(artifact, index, book_number, current, series, source,
-                                  target_set, dependents, holistic, instruction)
+                                  target_set, dependents, holistic, instruction, requested)
         user = json.dumps(packet, ensure_ascii=False, sort_keys=True)
         settings = {
             "book_number": book_number,
@@ -2106,6 +2367,9 @@ def _prepare_revision(
             "allowed_ids": None if holistic else sorted(target_set | dependents),
             "attempt": _revision_attempt(base, current["request_sha256"]),
             "freshness_format": 2,
+            **({"requested_question_associations": [
+                {"element_id": row["element_id"], "question_id": row["question_id"]} for row in requested]}
+               if requested else {}),
         }
         request = build_host_agent_request(
             candidate_id=f"book-{book_number}-rev{settings['baseline_revision_number'] + 1}-"
@@ -2198,6 +2462,23 @@ def _complete_revision(
         request_sha256=sha, question_texts=question_texts,
     )
     review["decision_versions"] = decision_versions
+    requested_rows = settings.get("requested_question_associations") or []
+    if requested_rows:
+        # Whether this response established each association the author asked for. Not established is reported, and it
+        # does not change what else the revision proposes: Apply stays the author's explicit choice.
+        wording = {(row["element_id"], row["question_id"]): row.get("question_text")
+                   for row in packet.get("requested_question_associations") or []}
+        review["requested_question_associations"] = [
+            {**item, "question_text": wording.get((item["element_id"], item["question_id"])),
+             "established": _records_association(cand_index, item["element_id"], item["question_id"])}
+            for item in requested_rows
+        ]
+        asked = {(item["element_id"], item["question_id"]) for item in requested_rows}
+        review["unrequested_question_associations"] = [
+            {"element_id": row["element_id"], "question_id": row["question_id"]}
+            for row in review["question_associations"]["added"]
+            if (row["element_id"], row["question_id"]) not in asked
+        ]
     # Each association's standing now, read against the Series version this revision was checked on. Without identities in
     # that version, no identity can be read as present, so the standing says so rather than calling the question removed.
     for block in ("added", "retained"):
@@ -2380,6 +2661,7 @@ def book_apply_review(store: CanvasStore, book_number: int, request_sha256: str)
                 "consequence_candidates": [entry["id"] for entry in review["consequence_candidates"]],
                 "author_decisions": [entry["decision_id"] for entry in review["author_decisions"]],
                 "question_associations": review.get("question_associations"),
+                "requested_question_associations": review.get("requested_question_associations"),
                 "withdrawal": review.get("withdrawal"),
                 "currentness": currentness,
             },

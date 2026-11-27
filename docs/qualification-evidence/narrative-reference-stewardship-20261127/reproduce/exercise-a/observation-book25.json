@@ -1,0 +1,119 @@
+[
+  {
+    "adoption": {
+      "choices": [
+        {
+          "id": "q-other-0",
+          "index": 0,
+          "text": "Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised."
+        },
+        {
+          "id": "q-other-1",
+          "index": 1,
+          "text": "What do the lowland towns owe Ammen, and what does Ammen owe them?"
+        },
+        {
+          "id": "q-finale-mechanism",
+          "index": 2,
+          "text": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided."
+        },
+        {
+          "id": "q-other-3",
+          "index": 3,
+          "text": "Does the shared accounting of care bind, and in what form? Not decided."
+        },
+        {
+          "id": "q-right-revocable",
+          "index": 4,
+          "text": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided."
+        },
+        {
+          "id": "q-conversion-settlement",
+          "index": 5,
+          "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+        },
+        {
+          "id": "q-compact-settlement",
+          "index": 6,
+          "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+        },
+        {
+          "id": "q-surge-route",
+          "index": 7,
+          "text": "Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided."
+        },
+        {
+          "id": "q-other-8",
+          "index": 8,
+          "text": "Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided."
+        },
+        {
+          "id": "q-hesper-motive",
+          "index": 9,
+          "text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested."
+        },
+        {
+          "id": "q-other-10",
+          "index": 10,
+          "text": "Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided."
+        },
+        {
+          "id": "q-other-11",
+          "index": 11,
+          "text": "How many Brightwater shares may be drawn before the Balance Stones restrain them?"
+        },
+        {
+          "id": "q-reform-stance",
+          "index": 12,
+          "text": "Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided."
+        },
+        {
+          "id": "q-plurality",
+          "index": 13,
+          "text": "Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided."
+        },
+        {
+          "id": "q-gate-table",
+          "index": 14,
+          "text": "Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions."
+        },
+        {
+          "id": "q-other-15",
+          "index": 15,
+          "text": "What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it."
+        }
+      ],
+      "held_question_ids": [],
+      "identity_at_read_version": null,
+      "proposed_question_id": null,
+      "reason": "The version this prose was written against records no identity for the question it names. Choose the current question this element engages; the owner records your choice, and the historical wording stays a reading of that version.",
+      "recordable": true,
+      "state": "identity_not_recorded_at_read_version"
+    },
+    "binding": "none",
+    "collection": "series_consequences",
+    "element_id": "cons-conversion-blind-spot",
+    "field": "text",
+    "identity_at_read_version": null,
+    "numbering": "one_based",
+    "origin": {
+      "basis": "written_in_this_version",
+      "complete": true,
+      "request_sha256": "f35081661abb4f5998dda43547d076930d478c58992249a1a4783c0552f9b57a",
+      "revision_number": 0
+    },
+    "other_reading": {
+      "numbering": "zero_based",
+      "referent_index": 6,
+      "referent_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+    },
+    "phrase": "open question 6",
+    "position": 6,
+    "read_at_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1",
+    "read_basis": "element_origin",
+    "recorded_version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "referent_index": 5,
+    "referent_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+    "state": "resolved"
+  }
+]
