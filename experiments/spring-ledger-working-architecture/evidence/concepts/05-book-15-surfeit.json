@@ -1,0 +1,19 @@
+{
+  "name": "Book 15 surfeit mechanism",
+  "definition": "The construction's assumption that the Book 15 trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern. Surfeit is too much return, or stored water with no draw.",
+  "motivating_story_use": "Explains why the trial's cost fell on the high cistern, which the Book 22 Gate Table then inherits.",
+  "why_existing_concepts_insufficient": "The original names the cost but not its mechanism.",
+  "related_concepts": [
+    "Unmeasured Return",
+    "Surfeit",
+    "Stewardship tally"
+  ],
+  "proposed_relations": [
+    "Makes the trial's cost a Source consequence, not a Ledger one"
+  ],
+  "compatibility_concerns": [
+    "Must not be read as release causing surfeit: release draws the cistern down",
+    "The author may reject it"
+  ],
+  "status": "provisional"
+}
