@@ -56,8 +56,10 @@ def test_a_reach_claim_offers_a_reconsideration_that_is_prepared_bound_to_the_an
         request = json.loads(page.locator("textarea.consequence-reconsider-request").input_value())
         assert request["settings"]["analysis_request_sha256"] == analysis_sha
         assert request["settings"]["operation"] == "reconsider_consequence"
-        response = build_host_agent_response(HostAgentRequest(**request), json.dumps(reconsideration_answer(packet)),
-                                             runtime="consequence-test").model_dump()
+        admitted = json.loads(request["user"])["allowed_evidence"][:1]
+        response = build_host_agent_response(
+            HostAgentRequest(**request), json.dumps(reconsideration_answer(packet, evidence=admitted)),
+            runtime="consequence-test").model_dump()
         page.locator("textarea.consequence-reconsider-response").fill(json.dumps(response))
         page.locator(f'button[data-key="reconsider-submit:{REACH_KEY}"]').click()
         page.wait_for_selector('article.consequence-reconsideration[data-disposition="qualified"]', timeout=15000)
@@ -81,8 +83,9 @@ def test_a_refused_reconsideration_keeps_the_author_text_and_says_why(browser, i
         page.locator(f'button[data-key="reconsider-prepare:{REACH_KEY}"]').click()
         page.wait_for_selector("textarea.consequence-reconsider-request", timeout=15000)
         request = json.loads(page.locator("textarea.consequence-reconsider-request").input_value())
+        admitted = json.loads(request["user"])["allowed_evidence"][:1]
         wrong = build_host_agent_response(HostAgentRequest(**request), json.dumps(reconsideration_answer(
-            packet, disposition="corrected")), runtime="consequence-test").model_dump()
+            packet, disposition="corrected", evidence=admitted)), runtime="consequence-test").model_dump()
         pasted = json.dumps(wrong)
         page.locator("textarea.consequence-reconsider-response").fill(pasted)
         page.locator(f'button[data-key="reconsider-submit:{REACH_KEY}"]').click()

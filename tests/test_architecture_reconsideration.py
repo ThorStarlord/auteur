@@ -60,6 +60,11 @@ def answer(packet, **overrides):
     return base
 
 
+def supplied_for(prepared):
+    """The identifiers this request admits: what its claim supplies and what the owner recovered. An answer may cite nothing else."""
+    return json.loads(prepared["request"]["user"])["allowed_evidence"][:2]
+
+
 def concern_selection():
     return {"kind": "concern", "ref": 0}
 
@@ -95,7 +100,7 @@ def test_reconsidering_a_claim_never_rewrites_the_original_analysis(project):
     before = result_bytes(store, analysis_sha)
     prepared = prepare_consequence_reconsideration(store, analysis_request_sha256=analysis_sha, selection=concern_selection(),
                                                    instruction="Check the concern.")
-    complete_consequence_reconsideration(store, replay(prepared["request"], answer(packet)))
+    complete_consequence_reconsideration(store, replay(prepared["request"], answer(packet, evidence=supplied_for(prepared))))
     assert result_bytes(store, analysis_sha) == before
 
 
@@ -149,7 +154,7 @@ def test_a_completed_reconsideration_is_stored_beside_the_analysis_and_is_curren
     store, analysis_sha, packet = analysed(project)
     prepared = prepare_consequence_reconsideration(store, analysis_request_sha256=analysis_sha, selection=concern_selection(),
                                                    instruction="Check the concern.")
-    completed = complete_consequence_reconsideration(store, replay(prepared["request"], answer(packet)))
+    completed = complete_consequence_reconsideration(store, replay(prepared["request"], answer(packet, evidence=supplied_for(prepared))))
     assert completed["status"] == "ready" and completed["answer"]["disposition"] == "retained"
     (row,) = project_consequence_reconsiderations(store, analysis_sha)
     assert row == completed
@@ -182,9 +187,9 @@ def test_criticism_is_assessed_only_where_the_request_supplied_it_and_each_asses
         criticism=["The duty may be a clarification rather than an extension."])
     with pytest.raises(ValueError, match="c2 is not a criticism this request supplied"):
         complete_consequence_reconsideration(store, replay(prepared["request"], answer(
-            packet, criticism_assessments=[{"criticism": "c2", "verdict": "rejected", "reason": "No such criticism."}])))
+            packet, evidence=supplied_for(prepared), criticism_assessments=[{"criticism": "c2", "verdict": "rejected", "reason": "No such criticism."}])))
     complete_consequence_reconsideration(store, replay(prepared["request"], answer(
-        packet, criticism_assessments=[{"criticism": "c1", "verdict": "rejected", "reason": "The text says every season."}])))
+        packet, evidence=supplied_for(prepared), criticism_assessments=[{"criticism": "c1", "verdict": "rejected", "reason": "The text says every season."}])))
 
 
 def test_a_refused_reconsideration_is_kept_beside_its_message_and_leaves_the_analysis_standing(project):
