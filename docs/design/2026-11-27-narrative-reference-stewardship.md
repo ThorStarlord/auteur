@@ -39,6 +39,7 @@ discovery read explicitly.
 
 **Where the prose was written.** `_applied_chain` lists each applied version of a Book, oldest first. The current version reads
 its series from its own request, because a partial revision of an out-of-date Book keeps the Book-wide baseline on the record.
+If that request cannot be read, the record's Book-wide version stands in, and the origin is marked not established.
 `_prose_origin` walks back from the current version and compares each prose field exactly. The origin is the oldest version
 whose text equals the current text, and the walk stops at the first version that read differently (`written_in_this_version`)
 or cannot be read (`earlier_version_unreadable`, which is not claimed to be complete). Similar wording is never matched.
@@ -54,6 +55,7 @@ or cannot be read (`earlier_version_unreadable`, which is not claimed to be comp
 | `identity_not_recorded_at_read_version` | The version recorded no identity for that position | Choose the current question; the owner records the choice and the historical wording remains a reading |
 | `question_no_longer_open` | The identity recorded then is no longer open | Choose a current question, knowing the old reference is not carried across |
 | `already_recorded` | The element already records that association | Nothing (shown) |
+| `origin_not_established` | An earlier version the record cannot read may have written this prose | Choose the current question; the recorded identity is not offered |
 | `no_current_identities` | The working Architecture has no identities yet | Give identities first, through an Architecture revision |
 | `not_recordable` | A typed-edge function, a decision, or a missing element | Nothing; the reason is stated |
 
@@ -68,10 +70,12 @@ associations with the question's current wording and the historical positional r
 them. Requests without associations produce the same request identity as before.
 
 **Reviewing.** `requested_question_associations` in the review says, for each request, whether the response recorded it, and gives
-the question's wording. "Not recorded" is reported and does not block the rest of the revision. Apply stays the author's explicit
+the question's wording. `unrequested_question_associations` names any association the response added that was not asked for, and
+the Atelier names those before Apply. "Not recorded" is reported and does not block the rest of the revision. Apply stays the author's explicit
 choice; the review lists exactly what Apply will change.
 
-**Lead from the question.** A question's `positional_leads` lists Book prose that names it by position. A lead matched by identity
+**Lead from the question.** A question's `positional_leads` lists Book prose that names it by position. A name whose origin is
+not established is not a lead, and is counted as untied in deliberation. A lead matched by identity
 is one whose version recorded that identity at that position. A lead matched by wording is one whose version recorded no
 identity and whose named wording equals the question's current wording exactly; it is labelled as a lead, not an identity. An
 element that already records the association is an engagement, not a lead.
@@ -148,6 +152,8 @@ the committed unedited answer), the served Apply control, and the question readi
 - Wording matches for leads are exact string equality, and only where the version recorded no identity. They are labelled, not
   promoted.
 - Typed-edge observations and decision text are not adoptable, by design.
+- An out-of-date Book takes a whole-Book request from the Atelier, because the adapter prepares against the current working
+  Architecture only. The card says so, and the review shows each change.
 - Deliberation and discovery see at most four and two element associations per question. Omitted counts are reported.
 - The evidence is one specimen, one author model run per arm, with identities assigned by the study's helper. It shows the
   mechanism works and where the reasoning is fallible; it does not establish general reasoning quality.

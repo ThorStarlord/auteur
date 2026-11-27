@@ -1862,7 +1862,9 @@
       if(!leads.length)return;
       var sec=el('section','atl-qleads');sec.setAttribute('aria-label','Book prose that names this question by position');
       sec.append(el('h4','atl-section-title','Book prose that names it by position · '+leads.length));
+      var seenLead={};
       leads.forEach(function(l){
+        var leadBase=l.book_number+':'+l.element_id,leadSlot=keySlot(seenLead,leadBase);
         var box=el('article','atl-qbook atl-qlead');box.dataset.book=String(l.book_number);box.dataset.element=l.element_id;
         box.append(el('p','atl-series-book','Book '+l.book_number+' · '+Q.collectionLabel(l.collection)));
         box.append(el('p','atl-series-text','The prose says “'+l.phrase+'”.'));
@@ -1871,7 +1873,7 @@
           {tone:'warn',text:'The version that prose was written against recorded no identity. Its wording matches this question as it reads now. That is a lead to review, not an identity, and nothing is recorded from it.'}));
         var row=el('div','atl-look');
         actionButton(row,'Read Book '+l.book_number,function(){openBookFromQuestion(l.book_number);},
-          'question-lead:'+l.book_number+':'+l.element_id).classList.add('atl-action-quiet');
+          'question-lead:'+leadBase+leadSlot).classList.add('atl-action-quiet');
         box.append(row);
         sec.append(box);
       });
@@ -2690,20 +2692,24 @@
           'book-question:'+n+':'+a.element_id).classList.add('atl-action-quiet');
         sec.append(card);
       });
+      var seenObs={};
       obs.forEach(function(o){
+        var obsSlot=keySlot(seenObs,n+':'+o.element_id);
         var card=el('article','atl-qbook atl-qobservation');card.dataset.element=o.element_id;card.dataset.phrase=o.phrase;
         var read=o.referent_text?'position '+o.position+' of the question list the prose was written against, “'+B.clip(o.referent_text,180)+'”':
           'a position that version cannot resolve';
         card.append(el('p','atl-note','The prose names “'+o.phrase+'” in '+Q.collectionLabel(o.collection)+': read as '+read+
           '. This is an observation, not a reference. Nothing is recorded from it.'));
-        renderStewardship(card,n,data,o);
+        renderStewardship(card,n,data,o,obsSlot);
         sec.append(card);
       });
       box.append(sec);
     }
     // What an author can do about one positional name. The owner says what is possible; the author chooses the question, and
     // nothing is inferred from wording or position. Preparing a request changes nothing: only Apply of a reviewed revision does.
-    function renderStewardship(card,n,data,o){
+    // A key is suffixed only when the same Book element has a second card, so the first keeps its plain key.
+    function keySlot(seen,base){var count=seen[base]||0;seen[base]=count+1;return count?':'+count:'';}
+    function renderStewardship(card,n,data,o,slot){
       var a=o.adoption||{};
       var origin=!o.origin?'Read at the Book’s recorded version':
         (o.origin.revision_number?'Written in working revision '+o.origin.revision_number:'Written in the Book’s first version')+
@@ -2712,17 +2718,21 @@
         (o.other_reading&&o.other_reading.referent_text?'“'+B.clip(o.other_reading.referent_text,120)+'”':'no question')+'.'));
       if(a.reason)card.append(toneLine({tone:a.recordable?'note':a.state==='already_recorded'?'ok':'warn',text:a.reason}));
       if(!a.recordable)return;
+      if(data.book.freshness!=='ready')card.append(el('p','atl-note','This Book is out of date with the working Architecture, so this request covers the whole Book. The review shows each change, and nothing is applied until you apply it.'));
       var choices=a.choices||[];
       if(!choices.length)return;
       var pick=el('label','atl-bookdev-label','Current question this element engages');
-      var sel=el('select','atl-book-choice-select');sel.id='atl-observation-question-'+n+'-'+o.element_id;pick.htmlFor=sel.id;
-      sel.dataset.key='observation-question:'+n+':'+o.element_id;
+      var suffix=o.element_id+slot;
+      var sel=el('select','atl-book-choice-select');sel.id='atl-observation-question-'+n+'-'+suffix.replace(/[^A-Za-z0-9_-]/g,'_');pick.htmlFor=sel.id;
+      sel.dataset.key='observation-question:'+n+':'+suffix;
       choices.forEach(function(c){var opt=el('option','','Open question '+(c.index+1)+' · '+B.clip(c.text,120));opt.value=c.id;sel.append(opt);});
-      sel.value=a.proposed_question_id||choices[0].id;
+      var memo=S.observationPick=S.observationPick||{},pickKey=n+':'+suffix;
+      sel.value=memo[pickKey]||a.proposed_question_id||choices[0].id;
+      sel.addEventListener('change',function(){memo[pickKey]=sel.value;});
       card.append(pick,sel);
       var busyNow=busy(n);
       var go=actionButton(card,busyNow==='prepare'?'Preparing…':'Prepare a reviewed revision that records this association',
-        function(){prepareAssociation(n,data,o,sel.value);},'observation-prepare:'+n+':'+o.element_id);
+        function(){prepareAssociation(n,data,o,sel.value);},'observation-prepare:'+n+':'+suffix);
       go.classList.add('atl-action-primary');go.disabled=!!busyNow;
       card.append(el('p','atl-note','Preparing calls no model and changes nothing. Your coding agent checks the element’s own prose against this question. The association is recorded only if you review and apply the revision that records it.'));
     }
@@ -3016,6 +3026,8 @@
         var ql=el('ul','atl-series-elements');g.questions.forEach(function(q){
           ql.append(el('li','',q.label+' '+q.verb+' “'+B.clip(q.question||'',120)+'”'+(q.standing?' · '+q.standing:'')+(q.authority?' · '+q.authority:'')));});sec.append(ql);
         sec.append(el('p','atl-note','A question association records that an element engages the question. It does not say the element answers, settles, develops or inherits from it.'));}
+      if(g.unrequestedQuestions&&g.unrequestedQuestions.length){sec.append(el('p','atl-series-kicker','Association added that you did not ask for · '+g.unrequestedQuestions.length));
+        var uq=el('ul','atl-series-elements');g.unrequestedQuestions.forEach(function(r){uq.append(el('li','atl-tone-warn',r.label+' · “'+B.clip(r.question||'',120)+'” · check it before you apply.'));});sec.append(uq);}
       if(g.requestedQuestions&&g.requestedQuestions.length){sec.append(el('p','atl-series-kicker','Association you asked for · '+g.requestedQuestions.length));
         var rq=el('ul','atl-series-elements');g.requestedQuestions.forEach(function(r){
           rq.append(el('li',r.established?'':'atl-tone-warn',r.label+' · “'+B.clip(r.question||'',120)+'” · '+

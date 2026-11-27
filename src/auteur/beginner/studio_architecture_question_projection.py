@@ -269,6 +269,9 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
         for row in observed:
             if row.get("state") != "resolved":
                 continue
+            # A name whose origin cannot be established is not tied to any question: the version it was read at may not be its own.
+            if row.get("origin") is not None and not row["origin"].get("complete"):
+                continue
             read_identity = row.get("identity_at_read_version")
             for index, text in enumerate(current_questions):
                 identifier = current_ids[index] if current_ids is not None else None

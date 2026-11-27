@@ -112,6 +112,7 @@
       ):[]),
       questionRetained:review.question_associations?(review.question_associations.retained||[]).length:0,
       // Associations the author asked for. Whether the response recorded each one is stated; nothing is applied by this.
+      unrequestedQuestions:(review.unrequested_question_associations||[]).map(function(r){return {label:label(r.element_id),question:r.question_id};}),
       requestedQuestions:(review.requested_question_associations||[]).map(function(r){return {label:label(r.element_id),
         question:r.question_text||r.question_id,established:!!r.established};}),
       series:(review.series_consequences||[]).map(function(s){var who=s.cited_by.map(label).join(', ');

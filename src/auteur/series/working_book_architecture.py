@@ -1327,7 +1327,9 @@ def _applied_chain(store: CanvasStore, book_number: int, record: dict) -> list[d
     current = _kept_version(base, record["request_sha256"], record.get("revision_number", 0))
     current.update(readable=True, artifact=WorkingBookArchitecture.model_validate_json(json.dumps(record["artifact"])))
     if current["series_request_sha256"] is None:
+        # The request cannot be read: the record's Book-wide version stands in, and the origin is marked as not established.
         current["series_request_sha256"] = record["series_request_sha256"]
+        current["series_from_record"] = True
     earlier = [entry for entry in (record.get("lineage") or [])
                if entry.get("request_sha256") != record["request_sha256"]]
     return [_kept_version(base, entry["request_sha256"], entry.get("revision")) for entry in earlier] + [current]
@@ -1352,10 +1354,14 @@ def _prose_origin(chain: list[dict], identifier: str, field: str, text: str) -> 
         origin = entry
     if origin is None:
         return None
+    if origin.get("series_from_record"):
+        basis, complete = "current_series_not_recorded", False
+    elif stopped == "unreadable":
+        basis, complete = "earlier_version_unreadable", False
+    else:
+        basis, complete = "written_in_this_version", True
     return {"request_sha256": origin["request_sha256"], "revision_number": origin["revision_number"],
-            "series_request_sha256": origin["series_request_sha256"],
-            "basis": "earlier_version_unreadable" if stopped == "unreadable" else "written_in_this_version",
-            "complete": stopped != "unreadable"}
+            "series_request_sha256": origin["series_request_sha256"], "basis": basis, "complete": complete}
 
 
 def book_positional_observations(store: CanvasStore, book_number: int, *, versions=None) -> dict:
@@ -1439,6 +1445,7 @@ def _adoption_view(row: dict, entry: dict | None, current_ids: list[str], choice
     identity = row.get("identity_at_read_version")
     view: dict[str, Any] = {"identity_at_read_version": identity, "held_question_ids": held, "choices": [],
                             "proposed_question_id": None, "recordable": False}
+    choices = [choice for choice in choices if choice["id"] not in held]
     if row["collection"] == "typed_edges":
         return {**view, "state": "not_recordable", "reason": _NOT_RECORDABLE["typed_edge"]}
     if entry is None:
@@ -1449,6 +1456,13 @@ def _adoption_view(row: dict, entry: dict | None, current_ids: list[str], choice
         return {**view, "state": "no_current_identities",
                 "reason": "The working Architecture gives its open questions no stable identities, so an association cannot "
                           "name one yet. Give them identities through an Architecture revision first."}
+    origin = row.get("origin")
+    if origin is not None and not origin.get("complete"):
+        # An earlier version the record cannot show may have written this prose, so the identity it read is not this prose's.
+        return {**view, "state": "origin_not_established", "recordable": True, "choices": list(choices),
+                "reason": "The version this prose was written against cannot be established from the record: an earlier version "
+                          "cannot be read. Its recorded identity is not offered. Choose the current question this element "
+                          "engages; the owner records your choice."}
     if identity is None:
         return {**view, "state": "identity_not_recorded_at_read_version", "recordable": True, "choices": list(choices),
                 "reason": "The version this prose was written against records no identity for the question it names. Choose "
@@ -2458,6 +2472,12 @@ def _complete_revision(
             {**item, "question_text": wording.get((item["element_id"], item["question_id"])),
              "established": _records_association(cand_index, item["element_id"], item["question_id"])}
             for item in requested_rows
+        ]
+        asked = {(item["element_id"], item["question_id"]) for item in requested_rows}
+        review["unrequested_question_associations"] = [
+            {"element_id": row["element_id"], "question_id": row["question_id"]}
+            for row in review["question_associations"]["added"]
+            if (row["element_id"], row["question_id"]) not in asked
         ]
     # Each association's standing now, read against the Series version this revision was checked on. Without identities in
     # that version, no identity can be read as present, so the standing says so rather than calling the question removed.

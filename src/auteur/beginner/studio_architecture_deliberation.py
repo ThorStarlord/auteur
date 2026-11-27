@@ -245,6 +245,9 @@ def _positional_uncertainties(store: CanvasStore, selected: set[str], versions: 
             continue  # an unreadable Book is already a named gap for the questions
         for row in observed:
             identity = row.get("identity_at_read_version")
+            if row.get("origin") is not None and not row["origin"].get("complete"):
+                untied += 1  # the origin of this prose cannot be established, so it is tied to no question
+                continue
             if identity in selected:
                 items.append({
                     "basis": "positional_observation", "authority": "owner_observation_not_reference",
@@ -342,8 +345,9 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
         named_gaps.append({"basis": "named_gap", "gap": "chain_incomplete", "note": GAP_NOTES["chain_incomplete"]})
     if untied:
         named_gaps.append({"basis": "named_gap", "gap": "positional_names_untied", "count": untied,
-                           "note": "Prose in these Books names a question by position at a version that recorded no identity. "
-                                   "Nothing ties that name to a selected question, so it is not shown as one."})
+                           "note": "Prose in these Books names a question by position at a version that recorded no identity, or "
+                                   "whose origin cannot be established. Nothing ties that name to a selected question, so it is "
+                                   "not shown as one."})
 
     packet: dict[str, Any] = {
         "schema": SCHEMA,

@@ -188,8 +188,9 @@ def test_a_prepared_inquiry_carries_the_frozen_packet_and_a_baseline_without_it(
     done = project_architecture_inquiry(store)
     assert done["status"] == "ready"
     assert done["result"]["deliberation"]["evidence_sha256"] == packet["evidence_sha256"]
+    decisions = [row for row in done["result"]["deliberation_standing"] if row["kind"] == "book_decision"]
     assert all(row["standing"] in {"current", "book_revised", "decision_changed", "decision_gone", "unreadable"}
-               for row in done["result"]["deliberation_standing"])
+               for row in decisions)
 
     # A later revision moves the record on. The stored request keeps the packet it was asked with.
     impact.revise_architecture(store, "Reword the Gate Table question again.", reword_gate)
@@ -216,7 +217,8 @@ def test_a_book_revised_after_the_answer_is_reported_and_the_answer_stays_ready(
 
     reconcile(store, project, BOOK)
 
-    standing = {(row["book_number"], row["decision_id"]): row["standing"] for row in deliberation_standing(store, packet)}
+    standing = {(row["book_number"], row["decision_id"]): row["standing"]
+                for row in deliberation_standing(store, packet) if row["kind"] == "book_decision"}
     gate_items = question(packet, GATE_ID)["books"]
     assert gate_items, "the packet must include the Gate Table decision of the reconciled Book"
     for item in gate_items:

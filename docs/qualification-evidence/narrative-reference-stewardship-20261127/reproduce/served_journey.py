@@ -45,6 +45,13 @@ BLIND = exercise_a.BLIND_SPOT
 CONVERSION = exercise_a.CONVERSION
 
 
+def scroll_panel(page) -> None:
+    """The Book's development panel re-renders as the page reads; a viewport capture of it does not depend on one element."""
+    page.evaluate("() => { const p = document.querySelector('#studio-atelier [aria-label=\"Developing Book 25\"]');"
+                  " if (p) p.scrollIntoView({block: 'start'}); }")
+    page.wait_for_timeout(500)
+
+
 def digest_tree(project: Path) -> dict[str, str]:
     return {str(p.relative_to(project)): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(project.rglob("*")) if p.is_file() and not p.name.endswith(".lock")}
@@ -94,7 +101,8 @@ def main() -> None:
             page.wait_for_selector(f'#studio-atelier [data-key="observation-prepare:{BOOK}:{BLIND}"]', timeout=30000)
             step("Book 25 shows the observation with the owner's choices", True)
             page.locator(f'#studio-atelier [data-key="observation-question:{BOOK}:{BLIND}"]').select_option(CONVERSION)
-            page.locator('#studio-atelier [aria-label="Developing Book 25"]').screenshot(path=str(shots / "02-observation-desktop.png"))
+            scroll_panel(page)
+            page.screenshot(path=str(shots / "02-observation-desktop.png"))
 
             page.locator(f'#studio-atelier [data-key="observation-prepare:{BOOK}:{BLIND}"]').click()
             page.wait_for_function("() => /Prepared for your coding agent/.test(document.querySelector('#studio-atelier').textContent)",
@@ -120,10 +128,12 @@ def main() -> None:
             page.locator(f'#studio-atelier [data-key="question-lead:{BOOK}:{BLIND}"]').click()
             page.wait_for_function("""() => { const p = document.querySelector('#studio-atelier [aria-label="Developing Book 25"]');
                                        return !!p && p.textContent.indexOf('Association you asked for') >= 0; }""", timeout=30000)
-            page.locator('#studio-atelier [aria-label="Developing Book 25"]').screenshot(path=str(shots / "03-review-before-apply.png"))
+            scroll_panel(page)
+            page.screenshot(path=str(shots / "03-review-before-apply.png"))
 
             page.locator(f'#studio-atelier [data-key="book-apply:{BOOK}"]').click()
-            page.wait_for_function("() => /applied/i.test(document.querySelector('#studio-atelier').textContent)", timeout=30000)
+            page.wait_for_function("() => /Applied to working Book 25/.test(document.querySelector('#studio-atelier').textContent)",
+                                   timeout=30000)
             applied = book_project(store, BOOK)
             step("Apply, through the served control, records the association", applied["review"] is None
                  and any(ref["kind"] == "series_question" and ref["id"] == CONVERSION

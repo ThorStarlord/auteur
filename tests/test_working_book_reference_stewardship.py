@@ -95,7 +95,7 @@ def test_an_unchanged_prose_still_reads_at_its_origin_and_says_so(project):
     store = store_of(project)
     row = observation(store, BLIND_SPOT)
     # Book 24's blind-spot prose was not rewritten by any later revision, so the Book's recorded version is its origin.
-    assert row["read_basis"] in ("element_origin", "book_recorded_version")
+    assert row["read_basis"] == "element_origin"
     assert row["referent_index"] == CONVERSION_INDEX
     assert row["other_reading"]["numbering"] == "zero_based"
     assert row["other_reading"]["referent_index"] == 6  # the other reading of "open question 6" names index 6
@@ -125,6 +125,7 @@ def test_a_requested_association_is_checked_and_reported_in_its_review(project):
     assert review["applicable"], review["unexpected_changes"]
     assert [(row["element_id"], row["question_id"], row["established"]) for row in review["requested_question_associations"]] == [
         (BLIND_SPOT, CONVERSION_ID, True)]
+    assert review["unrequested_question_associations"] == []  # nothing else was added to the record
     # The review names the question's own wording, so the author reads what was asked, not only its identity.
     assert review["requested_question_associations"][0]["question_text"].startswith("Is the Book 20 hands-to-draw conversion")
 
@@ -211,3 +212,30 @@ def test_the_observation_read_is_unchanged_by_the_stewardship_view(project):
     plain = book_positional_observations(store, 24)["observations"]
     viewed = book_observation_stewardship(store, 24)["observations"]
     assert [{k: v for k, v in row.items() if k != "adoption"} for row in viewed] == plain
+
+
+def test_an_origin_that_cannot_be_established_is_neither_proposed_nor_tied_to_a_question(project):
+    """An earlier version the record cannot read may have written this prose. Its identity is then not offered, and no lead
+    ties the name to a question. The author chooses instead."""
+    from auteur.beginner.studio_architecture_question_projection import project_architecture_questions
+
+    store = store_of(project)
+    give_identities(store)
+    artifact = reconciled(project, 24)
+    make_explicit(element(artifact, BLIND_SPOT))
+    element(artifact, BLIND_SPOT)["text"] += " The finale must answer open question 6."
+    prepared = book_prepare(store, 24, instruction="Sharpen the blind spot's reference to open question 6.", targets=TARGETS)
+    book_complete(store, 24, respond(prepared["request"], artifact))
+    assert book_apply_review(store, 24, prepared["pending_request_sha256"])["result"] == "applied"
+
+    # The Book's first version can no longer be read: its response is gone from the records.
+    earlier = current(project, 24)["lineage"][0]["request_sha256"]
+    response = project / ".auteur/beginner/studio/canvases" / seed.SPRING / "architecture/books/24/requests" / earlier / "response.json"
+    response.unlink()
+
+    row = observation(store, BLIND_SPOT)
+    assert row["origin"]["complete"] is False and row["origin"]["basis"] == "earlier_version_unreadable"
+    assert row["adoption"]["state"] == "origin_not_established"
+    assert row["adoption"]["proposed_question_id"] is None and row["adoption"]["recordable"] is True
+    conversion = next(item for item in project_architecture_questions(store)["questions"] if item["id"] == CONVERSION_ID)
+    assert not [lead for lead in conversion["positional_leads"] if lead["book_number"] == 24 and lead["element_id"] == BLIND_SPOT]
