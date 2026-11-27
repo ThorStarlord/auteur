@@ -1,0 +1,117 @@
+{
+  "schema": "studio-consequence-reconsideration/1",
+  "authority": "advisory_reconsideration_not_working_architecture",
+  "request_sha256": "b08948d7782e6ab8a38b50c749e1a204449375f63506737622b3eb1cbb5356a4",
+  "analysis_request_sha256": "1c821d4a435199d1b0b0e1804fac0c95ae1b51d537b14bb53e34aef3b72a1f83",
+  "status": "ready",
+  "claim": {
+    "kind": "mechanism",
+    "ref": "E32",
+    "original_text": {
+      "conditional_consequence": "If a flood on a holding reduces a household's labour, the rota's remaining households would carry more; the record does not make that link.",
+      "counterevidence": [
+        {
+          "evidence": [
+            "E2"
+          ],
+          "text": "E2 says only the channel the share is cut into changes, so the selected alternative states no change to the household's hands."
+        }
+      ],
+      "evidence": "E32",
+      "reading": "Unchanged record: the rota carries channel repair and return labour, and households that can meet it carry the rest. The proposal leaves this text as it is, so it states no change to who performs the labour.",
+      "record": {
+        "changed_fields": [],
+        "provenance": "preserved",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ]
+      },
+      "transformation": null,
+      "unresolved": [
+        "Whether a flood on a refusing household's holding affects its ability to meet the rota is not recorded."
+      ],
+      "view": {
+        "id": "E32",
+        "kind": "mechanism",
+        "label": "node th_maintenance (preserved)"
+      }
+    },
+    "evidence": [
+      "E32",
+      "E2"
+    ],
+    "claim_sha256": "a92be3577edde81e1cf26dd5d962704f111d5183d15f7ee77f9de6d836ef2a49"
+  },
+  "instruction": "Reconsider the interpretation of maintenance responsibility in this analysis, and its relevance to the proposed change to the declined-share link. Where the summary given is incomplete, read the exact source that the material recovered for this reconsideration provides. Say what the record supports about who performs the maintenance and channel work, what the proposed change alters, and whether any dependent claim should change. Preserve any uncertainty the record leaves open.",
+  "criticism": [],
+  "recovery": {
+    "coverage": null,
+    "records": [
+      {
+        "freshness": "as_analysed",
+        "id": "E91",
+        "owner": "Architecture candidate the analysis read",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "side": "baseline",
+        "source": "recovered",
+        "text": "{\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\", \"title\": \"Keeping the channels\"}",
+        "truncated": false,
+        "version_sha256": "37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b"
+      },
+      {
+        "freshness": "as_analysed",
+        "id": "E92",
+        "owner": "Architecture candidate the analysis read",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "side": "proposed",
+        "source": "recovered",
+        "text": "{\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\", \"title\": \"Keeping the channels\"}",
+        "truncated": false,
+        "version_sha256": "3e96905c06e26b4682733db32fde4ffb4690e377c9b2a95f5f5998b122358ba2"
+      }
+    ]
+  },
+  "answer": {
+    "schema_version": 1,
+    "disposition": "corrected",
+    "new_consideration": "The author asks for the maintenance reading of th_maintenance to be reconsidered against its recovered wording (E91 baseline, E92 proposed) and against the declined-share link proposal (E2). The request supplies no criticism to assess.",
+    "reconsidered_judgment": "Corrected. The reading said the rota carries channel repair and return labour; the record does not say that. E91 and E92 (identical summary text, no changed fields) state that from Book 20 lineage crews carry channel repair under a Special Draw Right, and that households able to meet the rota carry the rest. Old lineages hold the repair skill from Books 9-11. The proposal leaves th_maintenance as it is, so the thread states no change to who performs the labour. E2 changes only the channel: unkept water goes into the refuser's own holding, and its fields and well flood when it stops tending its branch. The conditional consequence stands, qualified: the record states the rota's allocation rule, but not that a flood reduces a household's labour.",
+    "evidence": [
+      "E91",
+      "E92",
+      "E32",
+      "E2"
+    ],
+    "criticism_assessments": [],
+    "creative_significance": "Under the selected alternative, refusal costs the refuser its own fields and well when it stops tending its branch (E2). That is a recorded consequence, not a change to labour, and the record leaves open whether it affects the refuser's place on the rota.",
+    "remaining_uncertainty": [
+      "Whether a flood on a refusing household's holding affects its ability to meet the rota is not recorded (E32).",
+      "The summary's 'carry the rest' does not say whether 'the rest' means remaining return labour or remaining channel work.",
+      "The record does not say who carried channel work in Books 12-19, between the repair skill from Books 9-11 and the crews from Book 20.",
+      "The E2 text supplied is cut off after 'Who faces the decisiv'; its statement on who bears the decisive cost was not read."
+    ],
+    "downstream": [
+      {
+        "text": "Any dependent claim that the rota carries channel repair should be corrected: the record gives channel repair from Book 20 to lineage crews under a Special Draw Right.",
+        "evidence": [
+          "E91",
+          "E92"
+        ]
+      },
+      {
+        "text": "A claim about who bears the cost of refusal should cite E2 for the refuser's own fields and well, not th_maintenance, which the proposal leaves unchanged.",
+        "evidence": [
+          "E2",
+          "E92"
+        ]
+      }
+    ]
+  },
+  "refused_attempts": 0,
+  "analysis_standing": "current",
+  "standing": "current"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "disposition": "qualified",
+  "new_consideration": "The author asks whether the inferred connection from a proposed every-season duty on purchased draw to the hands-and-draw thread is a defensible reading. Criticism c1 says it should be withdrawn, because no recorded relation joins them and the thread says draw follows shares alone until Book 19.",
+  "reconsidered_judgment": "Qualified: the connection stands only as a labelled inference. Recorded: the proposed text of E11 says purchased draw owes grain-labour to the rebuild in every season, where the baseline says under B; E30 says draw follows shares alone until Book 19 and partly follows hands owed from Book 20, and E30 is the same in the proposal. Related: no endpoint, link or adjacency joins E11 to E30. Interpreted: a duty of this kind could give hands owed a bearing on purchased draw from Book 20 onward. Unestablished: when the duty starts, whether purchased draw is the draw the thread governs, and whether the grain-labour debt is what E30 calls hands owed. The direction, hands owed bearing on draw, matches E30; the recorded edge runs from purchased draw to the rebuild.",
+  "evidence": ["E11", "E30", "E90", "E91", "E92", "E93"],
+  "criticism_assessments": [
+    {
+      "criticism": "c1",
+      "verdict": "partly_accepted",
+      "reason": "Accepted that no recorded relation joins the duty to the thread and that the thread's draw follows shares alone until Book 19, so the reading must state a Book 20 start. Rejected as a withdrawal: the claim already labels the connection inferred with no recorded relation, and the Book 19 limit narrows timing rather than refuting the reading."
+    }
+  ],
+  "creative_significance": "Speculative and labelled as such: if the duty took effect from Book 20, purchased draw could become a second place where return labour bears on who is counted, the variable the thread calls the series' governing one. The packet does not establish this.",
+  "remaining_uncertainty": [
+    "The packet does not state when the every-season duty starts; the thread gives hands owed a bearing on draw only from Book 20.",
+    "The packet does not say purchased draw is the draw the hands-and-draw thread governs; the reading holds only if it is.",
+    "The packet does not define hands owed, so it cannot show that the rebuild's grain-labour debt is the hands owed E30 names.",
+    "No recorded link, endpoint or adjacency joins the link to the thread in either version; the connection is an inference from wording."
+  ],
+  "downstream": []
+}

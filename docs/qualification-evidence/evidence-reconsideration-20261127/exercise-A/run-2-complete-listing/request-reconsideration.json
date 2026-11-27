@@ -1,0 +1,186 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-reconsideration-f12ec1ffab42cb6ec70df70e:0d14a92dd77dd4a8",
+  "candidate_id": "studio-reconsideration-f12ec1ffab42cb6ec70df70e",
+  "role": "studio_architecture_consequence_reconsideration",
+  "created_at": "2026-11-27T19:45:37.941490+00:00",
+  "system": "You are the active Auteur reconsideration agent. An earlier consequence analysis of a proposed working revision was accepted by the owner. The author asks you to reconsider ONE claim of that analysis. Your reading is advisory: it is not an applied revision, it is not canon, and it changes no record.\n\nThe request gives you the claim, with its original text held by the owner. Do not restate that original text. It gives the original evidence the analysis cited, and the recovered records: exact full source wording read from the version the analysis read, and, where the claim concerns Working Book coverage, a coverage record with exact counts. Recovered records are the only source of exact wording. A clipped packet line is not exact wording.\n\nDecide what the claim now warrants, and say why. Use exactly one disposition: retained (the claim stands as it was), qualified (it stands with a stated limit), narrowed (its scope is reduced), corrected (its reading was wrong on the source), expanded (it omits a consequence the source supports), reframed (the same source supports a different reading), withdrawn (it is not supported and should not be relied on), or unresolved (the source does not decide it).\n\nRules. Cite only the identifiers the request gives. A correction must cite at least one recovered record, because a correction rests on exact source. A coverage statement must use the counts the coverage record gives, and must not say that an element was read unless the coverage record lists it. Keep apart what the record states, what it relates, what you interpret, what is a hypothesis and what remains unestablished. Do not present an inference as recorded.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, and give a reason for each. A criticism that overstates what the source shows may be rejected. A criticism that correctly finds a misreading must be accepted. Preserve legitimate creative speculation that the record labels as speculation: qualify it, and do not withdraw it merely because the record does not state it.\n\nDo not claim that this reconsideration is accepted, applied or canonical, and do not describe a narrative change as if it were made.\n\nReturn ONLY one JSON object with these keys: schema_version (1), disposition, new_consideration (what prompted the reconsideration), reconsidered_judgment (what is now retained, corrected, qualified, expanded or withdrawn), evidence (1 to 6 identifiers), criticism_assessments (0 to 4 objects with criticism, verdict and reason), creative_significance (optional), remaining_uncertainty (0 to 4 strings), and downstream (0 to 3 objects with text and evidence, for consequences of a correction that matter later). Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\", \"E15\", \"E16\", \"E17\", \"E18\", \"E19\", \"E20\", \"E21\", \"E22\", \"E23\", \"E24\", \"E25\", \"E26\", \"E27\", \"E28\", \"E29\", \"E30\", \"E31\", \"E32\", \"E33\", \"E34\", \"E35\", \"E36\", \"E37\", \"E38\", \"E39\", \"E40\", \"E41\", \"E42\", \"E43\", \"E44\", \"E45\", \"E46\", \"E47\", \"E48\", \"E49\", \"E50\", \"E51\", \"E52\", \"E53\", \"E54\", \"E55\", \"E56\", \"E57\", \"E58\", \"E59\", \"E60\", \"E61\", \"E62\", \"E63\", \"E64\", \"E65\", \"E66\", \"E67\", \"E68\", \"E69\", \"E70\", \"E71\", \"E72\", \"E73\", \"E74\", \"E75\", \"E76\", \"E77\", \"E78\", \"E79\", \"E80\", \"E81\", \"E82\", \"E83\", \"E84\", \"E85\", \"E86\", \"E87\", \"E88\", \"E89\", \"E90\", \"E91\", \"E92\"], \"analysis\": {\"analysis_request_sha256\": \"0b2decb003678738dda6e9512778b7c994f39414ad0a02ea806d309268e3df95\", \"analysis_result_sha256\": \"1e28e8cffc7a744571b6ff885bc59c059db64b0fb6bb18d8c688ff45a0fc1473\", \"baseline_request_sha256\": \"7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0\", \"evidence_sha256\": \"a43b0fa321d2b19c1798fced1afebe5360d43634abb1cd07cd61de380665fb58\", \"proposal_sha256\": \"1143ffb51179356dc27e7d6d7d90010e318854ff394faafb8c1d073c1669541d\", \"revision_request_sha256\": \"7ee94e0b53c5959d77afc216fcb81b6ccc62901ec47ba82c327d08df3da3acb4\"}, \"claim\": {\"claim_sha256\": \"3f63a07ab5374ff5e97f2e56991b87b6bedaf1a1469c7b37c68555314f03a6fc\", \"evidence\": [\"E11\"], \"kind\": \"reach\", \"original_text\": {\"reach\": \"long_horizon\", \"reading\": \"The proposal changes one recorded relation. The Mill Compact's duty to the rebuild (the link cited as E11) moves from holding under Alternative B to holding in every season, as instruction E1 asks. No other node, question or relation changes, and no finale is decided. The change touches the Compact's no-labour premise (E5, E19, E63), the Alternative B clause (E13), the hands-and-draw thread (E30) and the maintenance thread (E31). Those records are unchanged, so each conflict is recorded but not resolved. Recorded later development that the change may reach is the Compact's Books 27 to 29 bid and the Book 30 choice among finale alternatives (E8). Books 24 and 25 do not cite the Compact.\"}, \"ref\": null}, \"criticism\": [], \"instruction\": \"Reconsider the claims this analysis makes about later Books and about the Compact's mechanisms. Are they adequately supported by the evidence the analysis examined and by the material recovered for this reconsideration? Say what the record supports, what it does not support, and whether any claim should be corrected, narrowed or qualified. Do not decide the finale.\", \"operation\": \"consequence_reconsideration\", \"original_evidence\": [{\"baseline_sha256\": \"d4185fd7dda3e0bea1924e5ed87cbe08da3a0106b2fe36719ce66365a8c7f181\", \"baseline_text\": \"inst_mill_compact -> th_maintenance: under B, purchased draw owes grain-labour to the rebuild\", \"book_references\": [], \"changed_fields\": [\"function\"], \"endpoints\": [\"inst_mill_compact\", \"th_maintenance\"], \"historical_sha256\": null, \"historical_text\": null, \"id\": \"E11\", \"kind\": \"mechanism\", \"proposed_sha256\": \"57c8bc21f2deff06f8fdb487040dc36a482151d4832d3f556f85530c871971e5\", \"proposed_text\": \"inst_mill_compact -> th_maintenance: purchased draw owes grain-labour to the rebuild in every season\", \"provenance\": \"transformed\", \"record_id\": \"l_compact_hands_in_kind\", \"record_kind\": \"link\", \"routes\": [\"changed_by_proposal\"], \"text\": \"transformed · inst_mill_compact -> th_maintenance: under B, purchased draw owes grain-labour to the rebuild ⇒ inst_mill_compact -> th_maintenance: purchased draw owes grain-labour to the rebuild in every season\", \"version_request_sha256\": null}], \"recovered_evidence\": [\"E90\", \"E91\", \"E92\"], \"recovery\": {\"coverage\": {\"books_read\": [24, 25], \"books_unreadable\": [], \"citing_claim_nodes\": [{\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"fn-question\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"inh-right-condition\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"inh-cohort-belief\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"agent-lineages\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"agent-mill-compact\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"res-custody-declined\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"cons-belief-plural\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"later-cohort-seat\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"later-oona-offer\"}, {\"book_number\": 24, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"alt-early-compact\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"fn-question\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"inh-right-condition\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"inh-cohort-belief\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"agent-lineages\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"agent-mill-compact\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"res-custody-declined\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"th_maintenance\"], \"element_id\": \"cons-belief-plural\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"later-oona-offer\"}, {\"book_number\": 25, \"cites_claim_nodes\": [\"inst_mill_compact\"], \"element_id\": \"alt-early-compact\"}], \"citing_count\": 19, \"claim_nodes\": [\"inst_mill_compact\", \"th_maintenance\"], \"elements_considered_by_packet\": 124, \"elements_read\": 182, \"elements_supplied_to_analysis\": 24, \"freshness\": \"current_read\", \"listing_truncated\": false, \"owner\": \"Working Book owner, read now\"}, \"records\": [{\"freshness\": \"as_analysed\", \"id\": \"E90\", \"owner\": \"Architecture candidate the analysis read\", \"record_id\": \"l_compact_hands_in_kind\", \"record_kind\": \"link\", \"side\": \"baseline\", \"source\": \"recovered\", \"text\": \"{\\\"function\\\": \\\"under B, purchased draw owes grain-labour to the rebuild\\\", \\\"id\\\": \\\"l_compact_hands_in_kind\\\", \\\"source\\\": \\\"inst_mill_compact\\\", \\\"target\\\": \\\"th_maintenance\\\"}\", \"truncated\": false, \"version_sha256\": \"37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b\"}, {\"freshness\": \"as_analysed\", \"id\": \"E91\", \"owner\": \"Architecture candidate the analysis read\", \"record_id\": \"l_compact_hands_in_kind\", \"record_kind\": \"link\", \"side\": \"proposed\", \"source\": \"recovered\", \"text\": \"{\\\"function\\\": \\\"purchased draw owes grain-labour to the rebuild in every season\\\", \\\"id\\\": \\\"l_compact_hands_in_kind\\\", \\\"source\\\": \\\"inst_mill_compact\\\", \\\"target\\\": \\\"th_maintenance\\\"}\", \"truncated\": false, \"version_sha256\": \"1143ffb51179356dc27e7d6d7d90010e318854ff394faafb8c1d073c1669541d\"}, {\"freshness\": \"current_read\", \"id\": \"E92\", \"owner\": \"Working Book owner, read now\", \"record_id\": null, \"record_kind\": \"coverage\", \"side\": null, \"source\": \"recovered\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"books_unreadable\\\": [], \\\"citing_claim_nodes\\\": [{\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"fn-question\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"inh-right-condition\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"inh-cohort-belief\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"agent-lineages\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"agent-mill-compact\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"res-custody-declined\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"cons-belief-plural\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"later-cohort-seat\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"later-oona-offer\\\"}, {\\\"book_number\\\": 24, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"alt-early-compact\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"fn-question\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"inh-right-condition\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"inh-cohort-belief\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"agent-lineages\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"agent-mill-compact\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"res-custody-declined\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"th_maintenance\\\"], \\\"element_id\\\": \\\"cons-belief-plural\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"later-oona-offer\\\"}, {\\\"book_number\\\": 25, \\\"cites_claim_nodes\\\": [\\\"inst_mill_compact\\\"], \\\"element_id\\\": \\\"alt-early-compact\\\"}], \\\"citing_count\\\": 19, \\\"claim_nodes\\\": [\\\"inst_mill_compact\\\", \\\"th_maint\", \"truncated\": true, \"version_sha256\": null}]}}",
+  "settings": {
+    "operation": "reconsider_consequence",
+    "analysis_request_sha256": "0b2decb003678738dda6e9512778b7c994f39414ad0a02ea806d309268e3df95",
+    "analysis_result_sha256": "1e28e8cffc7a744571b6ff885bc59c059db64b0fb6bb18d8c688ff45a0fc1473",
+    "claim_kind": "reach",
+    "claim_ref": null,
+    "claim_sha256": "3f63a07ab5374ff5e97f2e56991b87b6bedaf1a1469c7b37c68555314f03a6fc",
+    "instruction_sha256": "e7ceb5103484045256030bf52b8a42c2caad92e5f35e050637119ca19765f81c",
+    "criticism_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "recovery_sha256": "3302aa0f1bc798f27233fdb11e2fdd87ae6a8234250d489c96912a0cdb8e1854",
+    "evidence_sha256": "a43b0fa321d2b19c1798fced1afebe5360d43634abb1cd07cd61de380665fb58",
+    "reconsideration_schema_version": 1
+  },
+  "request_sha256": "0d14a92dd77dd4a8d3e9d536c3e9888d3fe1c34ae9f218dc3a3dd4854b57ce66",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ReconsiderationAnswer",
+    "json_schema": {
+      "$defs": {
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "DownstreamItem": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "DownstreamItem",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A focused reconsideration of one claim. The owner holds the original claim; the agent gives the judgement.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "disposition": {
+          "enum": [
+            "retained",
+            "qualified",
+            "narrowed",
+            "corrected",
+            "expanded",
+            "reframed",
+            "withdrawn",
+            "unresolved"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "new_consideration": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "New Consideration",
+          "type": "string"
+        },
+        "reconsidered_judgment": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Reconsidered Judgment",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "pattern": "^E[1-9][0-9]{0,2}$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "creative_significance": {
+          "anyOf": [
+            {
+              "maxLength": 600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Creative Significance"
+        },
+        "remaining_uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Remaining Uncertainty",
+          "type": "array"
+        },
+        "downstream": {
+          "items": {
+            "$ref": "#/$defs/DownstreamItem"
+          },
+          "maxItems": 3,
+          "title": "Downstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "disposition",
+        "new_consideration",
+        "reconsidered_judgment",
+        "evidence"
+      ],
+      "title": "ReconsiderationAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "cd5065e9250cffc1172ceb104f911b4b7f725a9936d768f3363dc8c893073c5c"
+  }
+}
