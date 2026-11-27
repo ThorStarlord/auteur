@@ -9,6 +9,11 @@
   var SERIES=global.AuteurAtelierSeries||{};
   var COLLECTION=Object.assign({},SERIES.COLLECTION||{},{typed_edges:'Link'});
   var AUTHORITY=SERIES.AUTHORITY||{};
+  // How an association stands now, in words. The owner states it; these words only say it. A question's removal is never an answer.
+  var STANDING_WORDS={current_wording:'refers to the question as it now stands',moved:'the question moved',
+    reworded:'the question was reworded since',moved_and_reworded:'the question moved and was reworded since',
+    removed:'the question is no longer open',version_unavailable:'its recorded version cannot be read',
+    binding_mismatch:'its recorded binding does not match',identity_not_established:'no identity is recorded'};
   var CHANGE={interpretive:'Its wording or interpretation changed',working_status:'Its working status changed',
     withdrawal:'Withdrawn from the working proposal',representation:'Only how its support is labelled changed',
     representation_reclassified_from_legacy:'Restated in the explicit form (what supports it, and where it stands)',
@@ -98,6 +103,14 @@
       reread:(review.consequence_candidates||[]).map(function(c){return label(c.id)+' refers to '+c.via.map(label).join(' and ')+
         ', which this revision changes. Re-read it: the reference is recorded, whether it still holds is not.';})
         .concat((review.dependency_implications||[]).map(function(i){return label(i.from)+' refers to '+label(i.to)+'.';})),
+      // Question associations the revision adds or removes. An association records engagement only; nothing here settles a question.
+      questions:(review.question_associations?[].concat(
+        (review.question_associations.added||[]).map(function(r){return {verb:'now engages',label:label(r.element_id),question:r.question_text||r.question_id,
+          standing:r.standing?STANDING_WORDS[r.standing.state]||null:null,authority:AUTHORITY[r.commitment_authority]||null};}),
+        (review.question_associations.removed||[]).map(function(r){return {verb:'no longer engages',label:label(r.element_id),question:r.question_text||r.question_id,
+          standing:null,authority:AUTHORITY[r.commitment_authority]||null};})
+      ):[]),
+      questionRetained:review.question_associations?(review.question_associations.retained||[]).length:0,
       series:(review.series_consequences||[]).map(function(s){var who=s.cited_by.map(label).join(', ');
         return s.exists_in_series?{tone:'note',text:'“'+name(s.series_node_id)+'” is cited by '+who+'. The Architecture is unchanged; check that the Book still fits it.'}:
           {tone:'bad',text:who+' cites '+s.series_node_id+', which the working Architecture no longer records.'};}),

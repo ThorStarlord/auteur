@@ -44,7 +44,7 @@ from .studio_store import CanvasStore
 
 SCHEMA = "studio-revision-consequence/1"
 SCHEMA_V2 = "studio-revision-consequence/2"
-PACKET_VERSION = 2
+PACKET_VERSION = 3  # 3: question-linked Book elements (a class of examined questions) take reserved shares; 2 is unchanged
 ROLE = "studio_architecture_consequence"
 AUTHORITY = "noncanonical_consequence_analysis_not_working_architecture"
 
@@ -576,12 +576,16 @@ def build_consequence_packet(store: CanvasStore, review: dict[str, Any], baselin
             proposed_sha256=row["proposed_sha256"], historical_sha256=row["historical_sha256"],
             version_request_sha256=row["version_request_sha256"])
     present_nodes = {node["id"] for node in list(baseline.get("nodes", [])) + list(proposed.get("nodes", []))}
-    elements = book_element_candidates(book_rows, seed_node_identifiers(inventory), present_nodes)
+    elements = book_element_candidates(
+        book_rows, seed_node_identifiers(inventory), present_nodes, question_ids=examined)
     for row in elements["items"]:
         add("book_element", row["text"], book_number=row["book_number"], element_id=row["element_id"],
             collection=row["collection"], attribution=row["attribution"], epistemic_status=row["epistemic_status"],
             cites=row["cites"], cited_seed_nodes=row["cited_seed_nodes"],
-            decision_examined=row["book_number"] in examined_books)
+            decision_examined=row["book_number"] in examined_books,
+            # The question identities this element references, and those among them the proposal examines. An association
+            # records engagement only: it is not a recorded inheritance or an accepted answer.
+            question_refs=row["question_refs"], examined_question_ids=row["examined_question_ids"])
 
     packet: dict[str, Any] = {
         "packet_version": PACKET_VERSION,

@@ -72,7 +72,10 @@
     // The status describes the question under the proposal. A Book decision's own record is not changed by it.
     var label=(item.kind==='book_decision'||item.kind==='baseline_wording'||item.kind==='recorded_history')?'question in proposal: ':'proposal: ';
     var status=item.proposal_status?' · '+label+item.proposal_status.replace(/_/g,' '):'';
-    return item.id+' · '+kindWords(item.kind)+tail+status+' — '+(item.text||'');
+    // A Book element that references an examined question records an association only: engagement, never inheritance.
+    var association=(item.kind==='book_element'&&item.examined_question_ids&&item.examined_question_ids.length)?
+      ' · records an association with the examined question (engagement only, not inheritance)':'';
+    return item.id+' · '+kindWords(item.kind)+tail+status+association+' — '+(item.text||'');
   }
 
   function el(tag,className,text){

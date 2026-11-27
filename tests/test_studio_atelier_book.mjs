@@ -122,3 +122,21 @@ test('two separate edits are marked separately, not as one span', () => {
   assert.deepEqual(plain(d.after.filter((part) => part[1]).map((part) => part[0].trim())), ['a', 'Revised now.']);
   assert.ok(d.after.some((part) => !part[1] && part[0].includes('first need and the second.')));
 });
+
+test('a revision names each question association with its standing and the element’s own authority', () => {
+  const withAssociation = {
+    ...review,
+    question_associations: {
+      added: [{element_id: 'eng-record-form', collection: 'engines', question_id: 'q-conversion-settlement',
+        question_text: 'Is the conversion a settlement?', commitment_authority: 'agent_working',
+        standing: {state: 'current_wording'}}],
+      removed: [],
+      retained: [],
+    },
+  };
+  const digest = plain(B.reviewDigest(withAssociation, elements, null, null));
+  assert.equal(digest.questions.length, 1);
+  assert.equal(digest.questions[0].verb, 'now engages');
+  assert.equal(digest.questions[0].standing, 'refers to the question as it now stands');
+  assert.equal(digest.questions[0].authority, 'agent working proposal');  // the review's own authority vocabulary
+});

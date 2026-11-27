@@ -28,6 +28,7 @@ from auteur.series.working_book_architecture import (
     book_complete,
     book_elements,
     book_pending_state,
+    book_positional_observations,
     book_prepare,
     book_project,
     book_review_elements,
@@ -139,6 +140,10 @@ def project_book_development(project_root: Path, canvas_id: str, book_number: in
             "request_sha256", "series_request_sha256", "content_sha256", "revision_number",
             "open_author_decisions", "last_applied")},
         "elements": elements,
+        # Each element's question association, with its standing and what the association establishes (engagement only).
+        "question_associations": refs["element_question_references"],
+        # Positional names in the Book's prose, resolved at the Series version the Book was written against. Observations only.
+        "positional_observations": book_positional_observations(store, book_number)["observations"],
         "phase": phase,
         "pending": pending,
         "review": review,

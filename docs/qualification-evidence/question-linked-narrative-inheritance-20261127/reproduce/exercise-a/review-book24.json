@@ -1,0 +1,212 @@
+{
+  "authority": "working_revision_review_not_acceptance",
+  "request_sha256": "0e9632f20a333c6ef92d9eaa64a896f2b9a2a31bf3729f32cf8a3a395c24d30d",
+  "book_number": 24,
+  "baseline": {
+    "request_sha256": "126c307e498e6a8a2f38182eac18083ad83c70e9817e3d156f4f0155fd397d97",
+    "content_sha256": "4a056b2028b6a5e6cc0d80cfb274bde425ba4b673c610c438163bf7a6dd9f047",
+    "revision_number": 1
+  },
+  "revision_number": 2,
+  "mode": "targeted",
+  "instruction": "Check which open questions of the working Architecture, if any, this element actually engages, and record each one as a question association by its identity. Leave the element otherwise as it is.",
+  "permitted_ids": [
+    "cons-conversion-blind-spot",
+    "edge-conversion-draw"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      {
+        "id": "cons-conversion-blind-spot",
+        "collection": "series_consequences",
+        "classification": "representation_reclassified_from_legacy",
+        "fields_changed": [
+          "attribution",
+          "epistemic_status",
+          "provenance",
+          "refs"
+        ],
+        "before_text": null,
+        "after_text": null
+      }
+    ],
+    "removed": []
+  },
+  "preserved": {
+    "ids": [
+      "agent-best-handed",
+      "agent-hand-light",
+      "agent-hesper",
+      "agent-lineages",
+      "agent-mill-compact",
+      "agent-reading-hall",
+      "agent-steward",
+      "agent-stone-hall",
+      "alt-cistern",
+      "alt-early-compact",
+      "alt-right-revocation",
+      "alt-stones-restraint",
+      "alt-threshold",
+      "assume-hours-column",
+      "assume-p1",
+      "assume-p10",
+      "assume-p2",
+      "assume-p3",
+      "assume-p4",
+      "assume-p5",
+      "assume-p6",
+      "assume-p7",
+      "assume-p8",
+      "assume-p9",
+      "choice-craft-mark",
+      "closed-book30-surprise",
+      "closed-idle-generation",
+      "closed-ignored-right",
+      "closed-invisible-gift",
+      "closed-remnant-keeper",
+      "cons-belief-plural",
+      "cons-capability-record",
+      "cons-finale-open",
+      "cons-labour-readiness",
+      "cons-reading-hall",
+      "cons-relationship",
+      "cost-counted-crewmates",
+      "cost-draw-stays-cut",
+      "dec-compact-settlement",
+      "dec-conversion-settlement",
+      "dec-finale-mechanism",
+      "dec-gate-table",
+      "dec-hesper-motive",
+      "dec-plurality",
+      "dec-reform-stance",
+      "dec-right-revocable",
+      "dec-surge-route",
+      "edge-capability-hands",
+      "edge-capability-lineage",
+      "edge-conversion-draw",
+      "edge-craft-mark-outside-hours",
+      "edge-crew-setup",
+      "edge-finale-open",
+      "edge-function-long-return",
+      "edge-hours-cost",
+      "edge-hours-pressure",
+      "edge-reading-hall-threshold",
+      "edge-refusal-hours",
+      "edge-remnant-register",
+      "eng-ledger-source",
+      "eng-old-hand-ledger",
+      "eng-record-form",
+      "eng-source-witness",
+      "fn-question",
+      "inh-cohort-belief",
+      "inh-date",
+      "inh-gate-independence",
+      "inh-gift-reading",
+      "inh-hesper",
+      "inh-right-condition",
+      "inh-uneven-draw",
+      "later-books-25-26",
+      "later-channel-skill",
+      "later-cohort-seat",
+      "later-finale-capability",
+      "later-oona-offer",
+      "opt-accept-count",
+      "opt-craft-mark",
+      "opt-refuse",
+      "res-closing-image",
+      "res-craft-mark-provisional",
+      "res-custody-declined",
+      "res-first-group",
+      "res-lowfen-upkeep",
+      "trans-hesper-idrun",
+      "unk-apprenticeship-return",
+      "unk-character-sourcing",
+      "unk-corrow",
+      "unk-lineage-count",
+      "unk-sallow-house",
+      "unk-stones-local-return",
+      "unk-tally-hours",
+      "unk-years"
+    ],
+    "count": 93
+  },
+  "unexpected_changes": [],
+  "dependency_implications": [],
+  "consequence_candidates": [
+    {
+      "id": "edge-conversion-draw",
+      "via": [
+        "cons-conversion-blind-spot"
+      ],
+      "classification": "mechanical_link",
+      "basis": "explicit_book_reference",
+      "reason": "unchanged element references an element this revision changed; inspect whether it still holds"
+    }
+  ],
+  "series_consequences": [
+    {
+      "series_node_id": "th_hands_and_draw",
+      "cited_by": [
+        "cons-conversion-blind-spot",
+        "edge-conversion-draw"
+      ],
+      "exists_in_series": true,
+      "basis": "explicit_series_reference",
+      "series_state": "unchanged",
+      "status": "inspection_recommended"
+    }
+  ],
+  "author_decisions": [],
+  "question_associations": {
+    "added": [
+      {
+        "element_id": "cons-conversion-blind-spot",
+        "collection": "series_consequences",
+        "question_id": "q-conversion-settlement",
+        "recorded_index": 5,
+        "recorded_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5",
+        "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+        "question_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "attribution": "unattributed",
+        "epistemic_status": "unresolved",
+        "commitment_authority": "undecided",
+        "standing": {
+          "state": "current_wording",
+          "question_id": "q-conversion-settlement",
+          "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+          "recorded_index": 5,
+          "recorded_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+          "current_index": 5,
+          "current_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+        }
+      }
+    ],
+    "removed": [],
+    "retained": [],
+    "authority": "association_only",
+    "note": "An association records that an element engages a question. It does not establish that the element answers, settles, develops or inherits from the question, and it changes no element's authority."
+  },
+  "authority_changes": [],
+  "unresolved_effects": [],
+  "withdrawal": null,
+  "responsibility": {
+    "delegated": {
+      "book_number": 24,
+      "question": "Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?",
+      "pressure": "The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work."
+    },
+    "deliverable": {
+      "advanced": false,
+      "advanced_ids": [],
+      "local_resolution_count": 5
+    },
+    "alternative_responsibilities_added": [],
+    "alternative_responsibility_total": 0,
+    "note": "The delegated Book deliverable is its function, choice and local resolution. An alternative responsibility is a direction discovered while doing that work; adding one is reported, and it is never by itself a reason to abandon the Book."
+  },
+  "applicable": true,
+  "applied": false,
+  "note": "Mechanical references are dependencies to inspect, not evidence of a narrative contradiction. This is a working proposal. It changes no Series, accepted, or intention state.",
+  "decision_versions": []
+}

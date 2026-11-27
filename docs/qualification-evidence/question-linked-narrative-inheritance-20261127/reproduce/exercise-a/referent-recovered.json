@@ -1,0 +1,70 @@
+{
+  "book": 24,
+  "recorded_against_architecture_request_sha256": "dd0448f754564715a11719dba76984d098543abd8862f658ad7da31d59af1177",
+  "recorded_version_has_identities": false,
+  "recorded_version_open_questions": 16,
+  "position_six_one_based": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+  "position_seven_one_based": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+  "current_architecture_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "current_identity_at_index_5": "q-conversion-settlement",
+  "current_wording_at_index_5": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+  "positional_observations": [
+    {
+      "element_id": "eng-ledger-source",
+      "collection": "engines",
+      "field": "new_possibility",
+      "phrase": "open question 6",
+      "position": 6,
+      "numbering": "one_based",
+      "recorded_version_request_sha256": "dd0448f754564715a11719dba76984d098543abd8862f658ad7da31d59af1177",
+      "binding": "none",
+      "state": "resolved_at_recorded_version",
+      "referent_index": 5,
+      "referent_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "identity_at_recorded_version": null,
+      "other_reading": {
+        "numbering": "zero_based",
+        "referent_index": 6,
+        "referent_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      }
+    },
+    {
+      "element_id": "agent-hesper",
+      "collection": "agents",
+      "field": "text",
+      "phrase": "open question 10",
+      "position": 10,
+      "numbering": "one_based",
+      "recorded_version_request_sha256": "dd0448f754564715a11719dba76984d098543abd8862f658ad7da31d59af1177",
+      "binding": "none",
+      "state": "resolved_at_recorded_version",
+      "referent_index": 9,
+      "referent_text": "Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.",
+      "identity_at_recorded_version": null,
+      "other_reading": {
+        "numbering": "zero_based",
+        "referent_index": 10,
+        "referent_text": "Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided."
+      }
+    },
+    {
+      "element_id": "cons-conversion-blind-spot",
+      "collection": "series_consequences",
+      "field": "text",
+      "phrase": "open question 6",
+      "position": 6,
+      "numbering": "one_based",
+      "recorded_version_request_sha256": "dd0448f754564715a11719dba76984d098543abd8862f658ad7da31d59af1177",
+      "binding": "none",
+      "state": "resolved_at_recorded_version",
+      "referent_index": 5,
+      "referent_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "identity_at_recorded_version": null,
+      "other_reading": {
+        "numbering": "zero_based",
+        "referent_index": 6,
+        "referent_text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      }
+    }
+  ]
+}

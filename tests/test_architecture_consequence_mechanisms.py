@@ -16,7 +16,8 @@ from auteur.beginner.studio_architecture_consequence import (
     consequence_origin, prepare_architecture_consequence, project_architecture_consequence,
 )
 from auteur.beginner.studio_architecture_mechanisms import (
-    MAX_BOOK_ELEMENTS, MAX_MECHANISMS, book_element_candidates, mechanism_inventory, seed_node_identifiers,
+    MAX_BOOK_ELEMENTS, MAX_MECHANISMS, _ELEMENT_CLASSES as ELEMENT_CLASSES, book_element_candidates, mechanism_inventory,
+    seed_node_identifiers,
 )
 from auteur.beginner.studio_store import CanvasStore
 
@@ -114,9 +115,44 @@ def test_each_class_keeps_its_reserved_share_and_open_decisions_are_not_elements
     counts = {}
     for row in selected["items"]:
         counts[row["collection"]] = counts.get(row["collection"], 0) + 1
-    assert counts == {"inherited": 10, "later_possibilities": 10, "engines": MAX_BOOK_ELEMENTS - 20}
+    # Reserved shares: inherited 8, forward 6, other 4. The question-linked share goes unused here and is given away in
+    # class order, inherited first: 4 more inherited, then 2 more forward, to fill the cap.
+    assert counts == {"inherited": 12, "later_possibilities": 8, "engines": 4}
     assert all(row["element_id"] != "dec" for row in selected["items"])
     assert selected["considered"] == 36 and selected["omitted"] == 36 - MAX_BOOK_ELEMENTS
+
+
+def test_the_reserved_shares_fill_the_cap_exactly():
+    assert sum(share for _, share, _ in ELEMENT_CLASSES) == MAX_BOOK_ELEMENTS
+
+
+def test_an_element_that_references_an_examined_question_takes_the_question_linked_share():
+    # Inherited evidence is plentiful, so it would fill the cap alone. The reserved question-linked share still holds six
+    # slots: the leftover pass is given to inherited evidence first and to question associations last.
+    rows = [element(f"inh{i}", "inherited", ["n1"]) for i in range(30)]
+    rows += [element(f"q{i}", "engines", [], text=f"association {i}") for i in range(10)]
+    for row in rows[30:]:
+        row["question_refs"] = ["q-conversion"]
+    selected = book_element_candidates({24: rows}, {"n1"}, {"n1"}, question_ids=["q-conversion"])
+    linked = [row for row in selected["items"] if row["examined_question_ids"]]
+    assert len(linked) == 6
+    assert all(row["examined_question_ids"] == ["q-conversion"] for row in linked)
+    assert selected["items"][0]["collection"] == "inherited"  # class order: inherited keeps the first reserved share
+
+
+def test_a_question_association_to_an_unexamined_question_is_not_selected_for_that_reason():
+    rows = [element("q1", "engines", [])]
+    rows[0]["question_refs"] = ["q-other"]
+    assert book_element_candidates({24: rows}, {"n1"}, {"n1"}, question_ids=["q-conversion"])["items"] == []
+
+
+def test_a_question_linked_element_is_reported_with_its_identities_and_what_it_establishes_nothing_more():
+    rows = [element("q1", "series_consequences", ["n1"])]
+    rows[0]["question_refs"] = ["q-conversion"]
+    (row,) = book_element_candidates({24: rows}, {"n1"}, {"n1"}, question_ids=["q-conversion"])["items"]
+    assert row["question_refs"] == ["q-conversion"]
+    assert row["examined_question_ids"] == ["q-conversion"]
+    assert row["cited_seed_nodes"] == ["n1"]
 
 
 def test_every_readable_book_with_a_citing_element_is_represented_within_the_cap():
@@ -240,7 +276,8 @@ def test_the_packet_cites_the_unchanged_mechanisms_the_motivating_case_turns_on(
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
     packet = packet_of(prepare_architecture_consequence(store))
-    assert packet["packet_version"] == 2
+    # Version 3 reserves a question-linked share of the Book elements; version 2 analyses keep their own meaning.
+    assert packet["packet_version"] == 3
     cited = {item["record_id"]: item for item in packet["evidence"] if item["kind"] == "mechanism"}
     for identifier in MOTIVATING_LINKS:
         assert identifier in cited, identifier

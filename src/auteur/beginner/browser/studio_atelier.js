@@ -1786,6 +1786,7 @@
       // The question's own story first: how it has been recorded, then the Books that refer to it, then investigation.
       renderQuestionFormulations(q);
       renderQuestionBooks(q,d);
+      renderQuestionEngagements(q);
       renderQuestionInvestigation(q,d);
       renderComparisonSection(q);
       renderQuestionSource(q,d);
@@ -1850,6 +1851,37 @@
       // Decisions whose named version cannot be read, or no longer matches them, cannot be attached to any question.
       var unattached=(u.unattributed_references||[]).length;
       if(unattached)sec.append(el('p','atl-note',Q.plural(unattached,'decision')+' in the Books refer to an Architecture version that cannot be read or no longer matches the decision, so none can be attached to a question here.'));
+      folio.append(sec);
+    }
+    // Book elements that record an association with this question. Each shows its Book, what the Book's element records, what
+    // the association now stands for, and the element's own authority. Engagement only: never a settlement, an answer or inheritance.
+    function renderQuestionEngagements(q){
+      var entries=Q.engagementsOf(q);
+      if(!entries.length)return;
+      var sec=el('section','atl-qengagements');sec.setAttribute('aria-label','Book elements that engage this question');
+      sec.append(el('h4','atl-section-title','Book elements that engage it · '+entries.length));
+      entries.forEach(function(entry){
+        var v=Q.engagementView(entry);
+        var box=el('article','atl-qbook atl-qengagement');box.dataset.book=String(v.book_number);box.dataset.element=v.element_id;
+        box.append(el('p','atl-series-book','Book '+v.book_number+(v.title?' · '+v.title:'')+' · '+v.collection));
+        if(v.text)box.append(el('p','atl-series-text','The Book records: “'+Q.clip(v.text,260)+'”'));
+        if(v.standing)box.append(toneLine(v.standing));
+        if(v.authority)box.append(el('p','atl-note',v.authority));
+        box.append(el('p','atl-note',v.limit));
+        var tech=el('details','atl-series-how');tech.dataset.key='question-engagement-source:'+v.book_number+':'+v.element_id;
+        tech.append(el('summary','','Source details'));
+        var dl=el('dl','atl-facts');
+        fact(dl,'Element',v.element_id);
+        fact(dl,'Recorded position in the question list',entry.recorded&&entry.recorded.index!==null&&entry.recorded.index!==undefined?String(entry.recorded.index+1):null);
+        fact(dl,'Attribution',v.attribution);
+        fact(dl,'Epistemic status',v.epistemic_status);
+        tech.append(dl);box.append(tech);
+        var row=el('div','atl-look');
+        actionButton(row,'Read Book '+v.book_number,function(){openBookFromQuestion(v.book_number);},
+          'question-engagement:'+v.book_number+':'+v.element_id).classList.add('atl-action-quiet');
+        box.append(row);
+        sec.append(box);
+      });
       folio.append(sec);
     }
     // A Book's decision that refers to this question. Its own words, what the reference now means, and the wording it
@@ -2611,8 +2643,38 @@
       if(phase==='stale'&&!dev)renderStale(box,n,data,from);
       else if(phase==='awaiting_coding_agent'&&!dev)renderAwaiting(box,n,data,from);
       else if((phase==='review_ready'||phase==='review_blocked')&&!dev)renderBookReview(box,n,data,from);
+      renderBookQuestionLinks(box,n,data);
       if(dev)renderComposer(box,n,b,data,dev,from);
       det.append(box);
+    }
+    // The questions this Book's elements engage. Each association says what it stands for now; it records engagement only.
+    // Prose that names a question by its position is a qualified observation at the version the Book was written against, never
+    // a reference: nothing is recorded from it.
+    function renderBookQuestionLinks(box,n,data){
+      var assoc=data.question_associations||[],obs=data.positional_observations||[];
+      if(!assoc.length&&!obs.length)return;
+      var sec=el('section','atl-book-questions');sec.setAttribute('aria-label','Questions Book '+n+' engages');
+      sec.append(el('h6','atl-series-subtitle','Questions Book '+n+' engages · '+assoc.length));
+      assoc.forEach(function(a){
+        var card=el('article','atl-qbook');card.dataset.element=a.element_id;card.dataset.question=a.question_id||'';
+        card.append(el('p','atl-series-text',Q.collectionLabel(a.collection)+' · '+B.clip(a.text||'',180)));
+        var rel=Q.associationRelation(a.state);if(rel)card.append(toneLine(rel));
+        var shown=a.current_text||a.recorded_text;
+        if(shown)card.append(el('p','atl-series-line','Engages the question: “'+shown+'”'));
+        card.append(el('p','atl-note',Q.ENGAGEMENT_LIMIT));
+        if(a.question_id)actionButton(card,'Read this question',function(){openQuestion({id:a.question_id});},
+          'book-question:'+n+':'+a.element_id).classList.add('atl-action-quiet');
+        sec.append(card);
+      });
+      obs.forEach(function(o){
+        var card=el('article','atl-qbook atl-qobservation');card.dataset.element=o.element_id;card.dataset.phrase=o.phrase;
+        var read=o.referent_text?'position '+o.position+' of the question list it was written against, “'+B.clip(o.referent_text,180)+'”':
+          'a position the recorded question list cannot resolve';
+        card.append(el('p','atl-note','The prose names “'+o.phrase+'” in '+Q.collectionLabel(o.collection)+': read as '+read+
+          '. This is an observation, not a reference. Nothing is recorded from it; a question association needs a reviewed revision that names the question’s current identity.'));
+        sec.append(card);
+      });
+      box.append(sec);
     }
     function scopeWords(n,pending,data){
       if(!pending)return '';
@@ -2878,6 +2940,11 @@
         sec.append(el('p','atl-note','The Architecture is unchanged; check that the Book still fits each concept.'));
         var sl=el('ul','atl-series-elements');g.seriesItems.forEach(function(t){sl.append(el('li',t.exists?'':'atl-tone-bad',
           (t.exists?'“'+t.name+'”':t.name+' — no longer recorded in the working Architecture')+' · cited by '+t.citedBy.join('; ')));});sec.append(sl);}
+      if(g.questions.length){sec.append(el('p','atl-series-kicker','Question associations in this revision · '+g.questions.length));
+        var ql=el('ul','atl-series-elements');g.questions.forEach(function(q){
+          ql.append(el('li','',q.label+' '+q.verb+' “'+B.clip(q.question||'',120)+'”'+(q.standing?' · '+q.standing:'')+(q.authority?' · '+q.authority:'')));});sec.append(ql);
+        sec.append(el('p','atl-note','A question association records that an element engages the question. It does not say the element answers, settles, develops or inherits from it.'));}
+      if(g.questionRetained)sec.append(el('p','atl-note',g.questionRetained+' existing question '+(g.questionRetained===1?'association is':'associations are')+' kept at the version each was recorded against.'));
       g.decisions.forEach(function(t){sec.append(toneLine({tone:'warn',text:t}));});
       if(g.authority.length)sec.append(el('p','atl-note','Standing changes: '+g.authority.join(' ')));
       if(g.unresolvedLabels.length)sec.append(el('p','atl-note','Reworded with no recorded dependency, so what follows from the change is not established: '+g.unresolvedLabels.join('; ')+'.'));

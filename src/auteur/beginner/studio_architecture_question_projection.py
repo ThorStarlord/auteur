@@ -153,16 +153,11 @@ def _history(spans: list[dict], chain_complete: bool) -> dict[str, Any]:
 
 def _book_entry(book: dict, ref: dict, revision_of: dict[str, int | None]) -> dict[str, Any]:
     version = ref.get("version_request_sha256")
-    return {
+    entry: dict[str, Any] = {
         "book_number": book["book_number"],
         "title": book["title"],
         "freshness": book["freshness"],
         "book_request_sha256": book.get("request_sha256"),
-        "decision_id": ref["decision_id"],
-        "decision_text": ref.get("decision_text"),
-        # False when the decision names no identity itself: its identity is then the one the version it names carries at
-        # the decision's position, which the owner resolves exactly (index and digest), never by wording.
-        "records_identity": bool(ref.get("decision_records_identity")),
         "state": ref["state"],
         "question_id": ref.get("question_id"),
         "anchorable": ref["state"] in ANCHORABLE_STATES,
@@ -175,6 +170,28 @@ def _book_entry(book: dict, ref: dict, revision_of: dict[str, int | None]) -> di
         "current": ({"index": ref.get("current_index"), "text": ref.get("current_text")}
                     if ref.get("current_index") is not None else None),
     }
+    if ref.get("reference_kind") == "element":
+        # An element's association: what the element is, with its own attribution and authority. The association
+        # establishes engagement only, never that the element answers, settles or inherits from the question.
+        entry.update({
+            "reference_kind": "element",
+            "element_id": ref["element_id"],
+            "collection": ref["collection"],
+            "element_text": ref.get("text"),
+            "attribution": ref.get("attribution"),
+            "epistemic_status": ref.get("epistemic_status"),
+            "commitment_authority": ref.get("commitment_authority"),
+        })
+        return entry
+    entry.update({
+        "reference_kind": "decision",
+        "decision_id": ref["decision_id"],
+        "decision_text": ref.get("decision_text"),
+        # False when the decision names no identity itself: its identity is then the one the version it names carries at
+        # the decision's position, which the owner resolves exactly (index and digest), never by wording.
+        "records_identity": bool(ref.get("decision_records_identity")),
+    })
+    return entry
 
 
 def _wording_only_item(index: int, text: str, rows: list[dict]) -> dict[str, Any]:
@@ -211,6 +228,7 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
 
     # Book references, read through the Working Book owner and joined only by a recorded identity.
     by_identity: dict[str, list[dict]] = {}
+    engagements_by_identity: dict[str, list[dict]] = {}
     wording_only: list[dict] = []
     unattributed: list[dict] = []
     unreadable_books: list[dict] = []
@@ -230,6 +248,12 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
                 wording_only.append(entry)
             else:
                 unattributed.append(entry)
+        for ref in view.get("element_question_references") or []:
+            entry = _book_entry(book, {**ref, "reference_kind": "element"}, revision_of)
+            if ref.get("question_id"):
+                engagements_by_identity.setdefault(ref["question_id"], []).append(entry)
+            else:
+                unattributed.append(entry)
 
     questions: list[dict[str, Any]] = []
     for index, text in enumerate(current_questions):
@@ -241,7 +265,8 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
         questions.append({"id": identifier, "standing": "continuing", "index": index, "text": text,
                           "text_sha256": text_digest(text), "spans": spans,
                           "history": _history(spans, chain["complete"]),
-                          "books": by_identity.get(identifier, [])})
+                          "books": by_identity.get(identifier, []),
+                          "engagements": engagements_by_identity.get(identifier, [])})
 
     # Identities recorded in an earlier version and absent now, most recently present first. Never shown as answered.
     current_identities = set(current_ids or [])
@@ -257,7 +282,8 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
         no_longer_open.append({"id": identifier, "standing": "no_longer_open", "index": last["index"],
                                "text": last["text"], "text_sha256": last["text_sha256"], "spans": spans,
                                "history": _history(spans, chain["complete"]),
-                               "books": by_identity.get(identifier, [])})
+                               "books": by_identity.get(identifier, []),
+                               "engagements": engagements_by_identity.get(identifier, [])})
 
     unreadable_count = sum(1 for row in rows if not row["readable"])
     return {

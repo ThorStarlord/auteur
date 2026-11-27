@@ -147,3 +147,53 @@ test('a formulation keeps its wording whole and gives its version an honest labe
   assert.equal(Q.label({revision_number: null, request_sha256: 'abcdef0123456789'}), 'version abcdef01');
   assert.equal(Q.rangeOf({from_revision: 2, to_revision: 4, versions: [v(2, 'a'), v(3, 'b'), v(4, 'c')]}), 'revisions 2–4');
 });
+
+// Book engagements: elements that record an association with a question. An association is engagement only, so every
+// view says what it does not establish, and the element keeps its own authority and status.
+const engagement = {
+  book_number: 24, title: 'The Counted Hands', element_id: 'cons-conversion-blind-spot', collection: 'series_consequences',
+  element_text: 'The conversion’s blind spot is public.', state: 'current_wording', commitment_authority: 'agent_working',
+  attribution: 'agent_proposed', epistemic_status: 'asserted', recorded: {index: 5, text: 'Is the conversion a settlement?'},
+};
+
+test('an engagement is said in the Book’s own collection names, with its element’s authority and what it does not establish', () => {
+  const view = plain(Q.engagementView(engagement));
+  assert.equal(view.collection, 'Series consequence');
+  assert.equal(view.authority, 'A working proposal the Book records, not an accepted commitment.');
+  assert.equal(view.standing.tone, 'ok');
+  assert.match(view.limit, /does not say the element answers, settles, develops or inherits/);
+});
+
+test('a hypothetical alternative and an undecided element say so, and never read as an accepted commitment', () => {
+  assert.equal(plain(Q.engagementView({...engagement, commitment_authority: 'not_adopted'})).authority,
+    'A hypothetical alternative, not adopted.');
+  assert.equal(plain(Q.engagementView({...engagement, commitment_authority: 'undecided'})).authority,
+    'Undecided in the working Book.');
+});
+
+test('a removed question keeps its engagement as recorded, and is never an answer', () => {
+  const view = plain(Q.engagementView({...engagement, state: 'removed'}));
+  assert.equal(view.standing.tone, 'warn');
+  assert.match(view.standing.text, /no longer open/);
+});
+
+test('a question with engagements counts them as a chip beside its Book decisions', () => {
+  const q = {id: 'q-conv', standing: 'continuing', history: complete, spans: [], books: [], engagements: [engagement, engagement]};
+  assert.deepEqual(plain(Q.chipsFor(q)).map((c) => c.text), ['2 Book engagements']);
+  assert.equal(Q.engagementsOf({engagements: [engagement]}).length, 1);
+  assert.equal(Q.engagementsOf({}).length, 0);
+});
+
+test('an element of an unnamed collection is said plainly, not as a new taxonomy term', () => {
+  assert.equal(Q.collectionLabel('choice.options'), 'choice options');
+  assert.equal(Q.collectionLabel('later_possibilities'), 'Later possibility');
+});
+
+test('an association is described as a reference, never as a decision, in every standing', () => {
+  for (const state of ['current_wording', 'moved', 'reworded', 'moved_and_reworded', 'removed', 'version_unavailable', 'binding_mismatch']) {
+    const line = plain(Q.associationRelation(state));
+    assert.ok(line && line.text, state);
+    assert.doesNotMatch(line.text, /decision/i, state);
+  }
+  assert.equal(Q.associationRelation('not_a_state'), null);
+});
