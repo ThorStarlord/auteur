@@ -1542,9 +1542,14 @@ def _selected_alternative_context(store: CanvasStore, current: dict, selection: 
     # The questions the inquiry concerned, so a revision made from it states its scope: the owner never widens it.
     considered = [{"id": anchor["id"], "title": anchor.get("title")}
                   for anchor in intent.get("anchors") or [] if anchor.get("kind") == "question"]
+    # The mechanisms the investigation concerned (records of the Architecture, not questions): the revision states them too, so
+    # a mechanism-centred development names its scope as a question-centred one does. The owner never widens the scope from this.
+    considered_mechanisms = [{"kind": anchor["kind"], "id": anchor["id"]}
+                             for anchor in intent.get("anchors") or [] if anchor.get("kind") not in (None, "question")]
     return {
         **({"book_evidence": book_evidence} if book_evidence else {}),
         **({"considered_questions": considered} if considered else {}),
+        **({"considered_mechanisms": considered_mechanisms} if considered_mechanisms else {}),
         # A revision made from an investigation of a discovered possibility says which possibility it came from.
         **({"from_discovery": inquiry["from_discovery"]} if inquiry.get("from_discovery") else {}),
         # Likewise for an alternative a consequence analysis of a pending revision proposed.

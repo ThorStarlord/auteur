@@ -72,3 +72,19 @@ test("inheritance, reach, stage and basis are named as the owner names them, and
   assert.equal(C.basisWords("speculative"), "Speculative");
   assert.match(C.REACH.not_established, /Not established by the record/);
 });
+
+test("version 3 alternatives: the retire approach is named, and a mechanism is never presented as a question", () => {
+  assert.equal(C.approachWords("retire"), "Retire");
+  assert.equal(C.connectionStandingWords("recorded"), "Recorded");
+  assert.equal(C.connectionStandingWords("inferred"), "Inferred (agent reading)");
+  assert.equal(C.connectionStandingWords("hypothetical"), "Hypothetical");
+  assert.equal(C.connectionStandingWords("unestablished"), "Not established");
+});
+
+test("the recorded graph is named as the owner read it, and adjacency is never presented as a relation between two mechanisms", () => {
+  assert.match(C.graphWords("joined_by_link"), /joins the two directly/);
+  assert.match(C.graphWords("shared_endpoint"), /same node as an endpoint/);
+  assert.match(C.graphWords("adjacent_by_link"), /adjacency, not a relation between them/);
+  assert.match(C.graphWords("no_recorded_relation"), /records no link, shared endpoint or adjacency/);
+  assert.equal(C.graphWords(undefined), "Not read");
+});

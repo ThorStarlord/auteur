@@ -1,0 +1,193 @@
+64 validation errors for ConsequenceAnswerV3
+concerns.0.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='transformed', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.0.status
+  Field required [type=missing, input_value={'title': 'Compact draw s...1', 'E3', 'E19', 'E63']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+concerns.1.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.1.status
+  Field required [type=missing, input_value={'title': 'Trade and draw...idence': ['E47', 'E63']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+concerns.2.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='possibly_displaced', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.2.status
+  Field required [type=missing, input_value={'title': "Open question ...vidence': ['E11', 'E8']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+concerns.3.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='possibly_displaced', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.3.status
+  Field required [type=missing, input_value={'title': "Alternative B'...idence': ['E13', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+concerns.4.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='possibly_displaced', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.4.status
+  Field required [type=missing, input_value={'title': "Long Return's ...: ['E26', 'E51', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+concerns.5.disposition
+  Extra inputs are not permitted [type=extra_forbidden, input_value='possibly_displaced', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+concerns.5.status
+  Field required [type=missing, input_value={'title': "Alternative A'...: ['E12', 'E37', 'E11']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+mechanisms.0.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.0.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='transformed', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.0.evidence
+  Input should be a valid string [type=string_type, input_value=['E11', 'E3'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.1.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='inst_mill_compact', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.1.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.1.evidence
+  Input should be a valid string [type=string_type, input_value=['E19', 'E11'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.2.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='l_trade_draws_without_return', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.2.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.2.evidence
+  Input should be a valid string [type=string_type, input_value=['E63', 'E11'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.3.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='alt_b_allotted', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.3.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.3.evidence
+  Input should be a valid string [type=string_type, input_value=['E13', 'E11'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.4.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='alt_a_reciprocal', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.4.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.4.evidence
+  Input should be a valid string [type=string_type, input_value=['E12', 'E37', 'E11'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+mechanisms.5.mechanism
+  Extra inputs are not permitted [type=extra_forbidden, input_value='th_maintenance', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.5.provenance
+  Extra inputs are not permitted [type=extra_forbidden, input_value='preserved', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+mechanisms.5.evidence
+  Input should be a valid string [type=string_type, input_value=['E31', 'E11'], input_type=list]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_type
+inheritance.0.books
+  Extra inputs are not permitted [type=extra_forbidden, input_value='24-25', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+inheritance.0.from
+  Field required [type=missing, input_value={'kind': 'unknown_inherit...idence': ['E70', 'E74']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+inheritance.0.to
+  Field required [type=missing, input_value={'kind': 'unknown_inherit...idence': ['E70', 'E74']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+inheritance.1.books
+  Extra inputs are not permitted [type=extra_forbidden, input_value='27-29', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+inheritance.1.from
+  Field required [type=missing, input_value={'kind': 'proposed_inheri...vidence': ['E8', 'E19']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+inheritance.1.to
+  Field required [type=missing, input_value={'kind': 'proposed_inheri...vidence': ['E8', 'E19']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.hypothetical
+  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.0.order
+  Extra inputs are not permitted [type=extra_forbidden, input_value=1, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.0.kind
+  Extra inputs are not permitted [type=extra_forbidden, input_value='recorded_context', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.0.hypothetical
+  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.0.stage
+  Field required [type=missing, input_value={'order': 1, 'kind': 'rec...idence': ['E11', 'E51']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.steps.0.basis
+  Field required [type=missing, input_value={'order': 1, 'kind': 'rec...idence': ['E11', 'E51']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.steps.1.order
+  Extra inputs are not permitted [type=extra_forbidden, input_value=2, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.1.kind
+  Extra inputs are not permitted [type=extra_forbidden, input_value='long_horizon', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.1.hypothetical
+  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.1.stage
+  Field required [type=missing, input_value={'order': 2, 'kind': 'lon...vidence': ['E8', 'E19']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.steps.1.basis
+  Field required [type=missing, input_value={'order': 2, 'kind': 'lon...vidence': ['E8', 'E19']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.steps.2.order
+  Extra inputs are not permitted [type=extra_forbidden, input_value=3, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.2.kind
+  Extra inputs are not permitted [type=extra_forbidden, input_value='long_horizon', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.2.hypothetical
+  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+trajectories.0.steps.2.stage
+  Field required [type=missing, input_value={'order': 3, 'kind': 'lon...vidence': ['E8', 'E26']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+trajectories.0.steps.2.basis
+  Field required [type=missing, input_value={'order': 3, 'kind': 'lon...vidence': ['E8', 'E26']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+alternatives.0.keeps.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='q-compact-settlement', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+alternatives.0.keeps.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+alternatives.1.keeps.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+alternatives.1.keeps.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='q-compact-settlement', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+alternatives.2.keeps.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='q-compact-settlement', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+alternatives.2.keeps.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.0.between.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.0.between.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_trade_draws_without_return', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.1.between.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.1.between.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_longreturn_needs_hands', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.2.between.0
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='l_compact_hands_in_kind', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch
+connections.2.between.1
+  String should match pattern '^E[1-9][0-9]{0,2}$' [type=string_pattern_mismatch, input_value='alt_b_allotted', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_pattern_mismatch

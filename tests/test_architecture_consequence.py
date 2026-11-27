@@ -187,7 +187,7 @@ def valid_answer(packet: dict) -> dict:
 
 def completed(store, project: Path, instruction: str = INSTRUCTION, edit=reword_conversion) -> tuple[str, dict]:
     sha = propose(store, instruction, edit)
-    projection = prepare_architecture_consequence(store)
+    projection = prepare_architecture_consequence(store, contract_version=2)
     complete_architecture_consequence(store, replay(projection["request"], valid_answer(packet_of(projection))))
     return sha, project_architecture_consequence(store)
 
@@ -196,7 +196,7 @@ def test_the_packet_names_the_reworded_question_and_its_book_decision_without_ap
     store = store_for(project)
     sha = propose(store, INSTRUCTION, reword_conversion)
     before = snapshot(project)
-    projection = prepare_architecture_consequence(store)
+    projection = prepare_architecture_consequence(store, contract_version=2)
     assert projection["status"] == "awaiting_host_agent"
     assert projection["standing"] == "current"
     assert projection["revision_request_sha256"] == sha
@@ -225,7 +225,7 @@ def test_a_removed_question_is_examined_before_the_positions_its_removal_shifts(
         del candidate["open_question_ids"][index]
 
     propose(store, "Retire the conversion question.", retire_conversion)
-    packet = packet_of(prepare_architecture_consequence(store))
+    packet = packet_of(prepare_architecture_consequence(store, contract_version=2))
     rows = {row["id"]: row for row in packet["examined_questions"]}
     assert Q_CONVERSION in rows, "the retired question must be examined"
     assert rows[Q_CONVERSION]["proposal_status"] == "removed"
@@ -238,7 +238,7 @@ def test_a_removed_question_is_examined_before_the_positions_its_removal_shifts(
 def test_every_fact_the_request_cites_has_a_stable_identifier_in_order(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    packet = packet_of(prepare_architecture_consequence(store))
+    packet = packet_of(prepare_architecture_consequence(store, contract_version=2))
     identifiers = [item["id"] for item in packet["evidence"]]
     assert identifiers == [f"E{index}" for index in range(1, len(identifiers) + 1)]
     assert packet["evidence_sha256"] and packet["proposal"]["proposal_sha256"]
@@ -250,7 +250,7 @@ def test_every_fact_the_request_cites_has_a_stable_identifier_in_order(project):
 def test_a_valid_answer_is_stored_as_current_for_its_proposal_and_changes_no_record(project):
     store = store_for(project)
     sha = propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     before = snapshot(project)
     projection = complete_architecture_consequence(store, replay(prepared["request"], valid_answer(packet_of(prepared))))
     assert projection["status"] == "ready"
@@ -286,7 +286,7 @@ def test_a_later_revision_supersedes_the_analysis_and_its_result_is_not_presente
 def test_a_response_for_a_proposal_that_is_no_longer_pending_is_retained_as_stale_and_refused(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     propose(store, "Say how reading is taught.", lambda c: c["nodes"][0].__setitem__("summary", c["nodes"][0]["summary"] + " Revised."))
     folder = _root(store) / "consequences" / "requests" / prepared["request_sha256"]
     with pytest.raises(Exception, match="changed since this analysis was prepared"):
@@ -298,7 +298,7 @@ def test_a_response_for_a_proposal_that_is_no_longer_pending_is_retained_as_stal
 def test_a_refused_answer_is_preserved_and_a_corrected_one_completes(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     bad = valid_answer(packet_of(prepared))
     bad["concerns"][0]["evidence"] = ["E999"]
     with pytest.raises(ValueError, match="E999"):
@@ -410,7 +410,7 @@ REFUSALS = {
 def test_the_owner_refuses_an_answer_that_states_a_basis_the_evidence_does_not_show(project, label):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     mutate, message = REFUSALS[label]
     answer = mutate(packet_of(prepared))
     with pytest.raises(ValueError, match=re.escape(message)):
@@ -531,7 +531,7 @@ def test_no_analysis_is_offered_without_a_pending_revision(project):
     store = store_for(project)
     assert project_architecture_consequence(store)["status"] == "not_started"
     with pytest.raises(ValueError, match="no pending architecture revision"):
-        prepare_architecture_consequence(store)
+        prepare_architecture_consequence(store, contract_version=2)
 
 
 def edit_vision(store) -> None:
@@ -548,7 +548,7 @@ def test_a_recorded_change_carries_the_authors_instruction_into_its_history_evid
     complete_revision_applied(store)
     propose(store, "Narrow the conversion question once more.",
             lambda c: c["open_questions"].__setitem__(CONVERSION_INDEX, NARROWED + " Narrowed again."))
-    packet = packet_of(prepare_architecture_consequence(store))
+    packet = packet_of(prepare_architecture_consequence(store, contract_version=2))
     evidence = {item["id"]: item for item in packet["evidence"]}
     row = next(r for r in packet["examined_questions"] if r["id"] == Q_CONVERSION)
     reworded = [evidence[i] for i in row["baseline_evidence"]
@@ -570,7 +570,7 @@ def project_architecture_request(store) -> str:
 def test_an_analysis_goes_stale_when_the_pending_review_context_changes_and_apply_refuses_it(project):
     store = store_for(project)
     sha = propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     complete_architecture_consequence(store, replay(prepared["request"], valid_answer(packet_of(prepared))))
     assert project_architecture_consequence(store)["standing"] == "current"
     edit_vision(store)
@@ -583,9 +583,9 @@ def test_an_analysis_goes_stale_when_the_pending_review_context_changes_and_appl
 def test_a_second_analysis_of_the_same_proposal_makes_the_first_earlier_in_history(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    first = prepare_architecture_consequence(store)
+    first = prepare_architecture_consequence(store, contract_version=2)
     complete_architecture_consequence(store, replay(first["request"], valid_answer(packet_of(first))))
-    prepare_architecture_consequence(store)
+    prepare_architecture_consequence(store, contract_version=2)
     projection = project_architecture_consequence(store)
     assert projection["standing"] == "current" and projection["status"] == "awaiting_host_agent"
     earlier = [row for row in projection["history"] if row["request_sha256"] == first["request_sha256"]]
@@ -595,7 +595,7 @@ def test_a_second_analysis_of_the_same_proposal_makes_the_first_earlier_in_histo
 def test_a_damaged_result_is_named_and_the_projection_still_reads(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     complete_architecture_consequence(store, replay(prepared["request"], valid_answer(packet_of(prepared))))
     result = _root(store) / "consequences" / "requests" / prepared["request_sha256"] / "result.json"
     result.write_text("{ not json", encoding="utf-8")
@@ -606,7 +606,7 @@ def test_a_damaged_result_is_named_and_the_projection_still_reads(project):
 def test_an_interrupted_completion_is_finished_by_the_same_response(project):
     store = store_for(project)
     propose(store, INSTRUCTION, reword_conversion)
-    prepared = prepare_architecture_consequence(store)
+    prepared = prepare_architecture_consequence(store, contract_version=2)
     payload = replay(prepared["request"], valid_answer(packet_of(prepared)))
     complete_architecture_consequence(store, payload)
     result = _root(store) / "consequences" / "requests" / prepared["request_sha256"] / "result.json"

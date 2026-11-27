@@ -1,0 +1,1 @@
+inheritance must name a later Book, not recorded_phase
