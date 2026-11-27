@@ -32,7 +32,7 @@ from .studio_store import CanvasStore
 ROLE = "studio_architecture_synthesis"
 SCHEMA = "studio-architecture-synthesis/1"
 AUTHORITY = "advisory_synthesis_not_working_architecture"
-SYNTHESIS_SCHEMA_VERSION = 1
+SYNTHESIS_SCHEMA_VERSION = 2
 DEVELOPMENT_KINDS = ("question", "mechanism", "creative_alternative")
 MAX_DEVELOPMENTS = 3
 MAX_HANDOFFS = 2
@@ -40,6 +40,7 @@ MAX_CRITICISM = 4
 MAX_HISTORY = 8
 MAX_ELEMENTS_PER_DEVELOPMENT = 12
 QUESTION_CHARS = 1200
+QUOTE_CHARS = 240
 CULMINATION_CHARS = 600
 ELEMENT_TEXT_LIMIT = 400
 VISION_LIMIT = 800
@@ -65,6 +66,7 @@ class SynthesisStage(BaseModel):
     changes: str = Field(min_length=1, max_length=400)
     basis: Literal["recorded", "inferred", "proposed"]
     evidence: list[EvidenceId] = Field(default_factory=list, max_length=4)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
 
 
 class SynthesisRelation(BaseModel):
@@ -75,12 +77,14 @@ class SynthesisRelation(BaseModel):
     dependence: Literal["causal", "thematic", "sequential_only", "none"]
     reason: str = Field(min_length=1, max_length=400)
     evidence: list[EvidenceId] = Field(default_factory=list, max_length=3)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
 
 
 class CulminationCondition(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     text: str = Field(min_length=1, max_length=300)
     evidence: list[EvidenceId] = Field(min_length=1, max_length=3)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
 
 
 class Culmination(BaseModel):
@@ -98,6 +102,7 @@ class AlternativePath(BaseModel):
     effect: str = Field(min_length=1, max_length=400)
     viability: Literal["viable", "weakened", "closed", "unresolved"]
     evidence: list[EvidenceId] = Field(default_factory=list, max_length=3)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
 
 
 class Opportunity(BaseModel):
@@ -106,12 +111,13 @@ class Opportunity(BaseModel):
     text: str = Field(min_length=1, max_length=400)
     between: list[Reference] = Field(min_length=2, max_length=3)
     evidence: list[EvidenceId] = Field(min_length=1, max_length=3)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
 
 
 class SynthesisAnswer(BaseModel):
     """A structured synthesis of selected developments. The owner holds the developments and the question; the agent gives the reading."""
     model_config = ConfigDict(extra="forbid", strict=True)
-    schema_version: Literal[1]
+    schema_version: Literal[2]
     trajectory: list[SynthesisStage] = Field(min_length=2, max_length=6)
     relations: list[SynthesisRelation] = Field(default_factory=list, max_length=8)
     culmination: Culmination | None = None
@@ -135,6 +141,8 @@ Relations: use prerequisite only for what the later development cannot occur wit
 If the author named a culmination, reason about it backward (what it needs) and forward (what the earlier developments already make possible), separate necessary conditions from enrichment, and state what the earlier Books keep as their own experience if the culmination never arrives. Earlier Books must remain meaningful in their own right.
 
 Criticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, with a reason. A follow-up request may give an earlier judgement as text: it is not evidence, so cite nothing from it, and state in changes_from_prior what changed and why.
+
+Quote the basis. Every claim that cites evidence (a stage, a relation, an alternative path, an opportunity or a culmination condition) must carry `quote`: the exact words, copied without change, from one of the items it cites, up to 240 characters, that carry the claim's premise. Do not quote words the cited items do not contain. If no words carry a premise, cite what does, or label the claim proposed and state what it assumes. State an absence as 'not stated in the cited items', never as a fact about the story. Read tense and attribution exactly as the words give them.
 
 Keep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.
 
@@ -410,6 +418,23 @@ def prepare_architecture_synthesis(store: CanvasStore, *, question: str, develop
     return {"request": request.model_dump(), "synthesis": row}
 
 
+def _squash(text: str) -> str:
+    return " ".join(str(text).split())
+
+
+def _grounded(label: str, quote: str | None, cited: list[str], texts: dict[str, str]) -> list[str]:
+    """A claim that cites evidence must carry the exact words of one cited item that carry its premise. The owner checks the words,
+    not their meaning: a quote that is really in the cited text is a basis the author can read, and a quote that is not is refused."""
+    if not cited:
+        return []
+    if not quote or not quote.strip():
+        return [f"{label} cites evidence and gives no quote from it"]
+    needle = _squash(quote)
+    if not any(needle in _squash(texts.get(identifier) or "") for identifier in cited):
+        return [f"{label}'s quote is not in the evidence it cites"]
+    return []
+
+
 def _check_answer(answer: SynthesisAnswer, payload: dict[str, Any]) -> None:
     """Every citation resolves to evidence this request carries; every reference names a development or stage of it; each
     basis rests on cited evidence; and a named culmination is reasoned about."""
@@ -464,6 +489,20 @@ def _check_answer(answer: SynthesisAnswer, payload: dict[str, Any]) -> None:
         problems.append("changes_from_prior names a change from an earlier judgement; this request has none")
     if payload["culmination_requested"] and answer.culmination is None:
         problems.append("the author named a culmination; the answer must reason about it")
+    texts = {row["id"]: row.get("text") or "" for row in payload["evidence"]}
+    for index, stage in enumerate(answer.trajectory, start=1):
+        problems += _grounded(f"s{index}", stage.quote, stage.evidence, texts)
+    for index, relation in enumerate(answer.relations, start=1):
+        problems += _grounded(f"relation r{index}", relation.quote, relation.evidence, texts)
+    for index, path in enumerate(answer.alternative_paths, start=1):
+        problems += _grounded(f"alternative a{index}", path.quote, path.evidence, texts)
+    for index, opportunity in enumerate(answer.opportunities, start=1):
+        problems += _grounded(f"opportunity o{index}", opportunity.quote, opportunity.evidence, texts)
+    if answer.culmination is not None:
+        for index, condition in enumerate(answer.culmination.necessary, start=1):
+            problems += _grounded(f"necessary condition n{index}", condition.quote, condition.evidence, texts)
+        for index, condition in enumerate(answer.culmination.enrichment, start=1):
+            problems += _grounded(f"enrichment condition e{index}", condition.quote, condition.evidence, texts)
     _refuse(problems)
 
 

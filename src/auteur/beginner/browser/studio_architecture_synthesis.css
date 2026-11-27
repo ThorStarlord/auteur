@@ -61,3 +61,4 @@
   .synthesis-prepare, .synthesis-submit, .synthesis-continue, .synthesis-cancel { min-height: 44px; }
   .synthesis-choice { min-height: 44px; align-items: center; }
 }
+.synthesis-quote { margin: .15rem 0 0 .2rem; color: #433d30; font-style: italic; overflow-wrap: anywhere; }

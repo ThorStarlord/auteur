@@ -334,6 +334,7 @@
         item.appendChild(el('p', 'synthesis-stage-development', stage.development));
         item.appendChild(labelledLine('Becomes available', stage.becomes_available));
         item.appendChild(labelledLine('What it changes', stage.changes));
+        if (stage.quote) item.appendChild(labelledLine('Quoted basis', '“' + stage.quote + '”'));
         item.appendChild(el('p', 'synthesis-stage-horizon', HORIZON[stage.horizon] || stage.horizon));
         list.appendChild(item);
       });
@@ -362,6 +363,7 @@
         item.appendChild(document.createTextNode(' '));
         item.appendChild(el('span', 'synthesis-between', relation.between.join(' with ')));
         item.appendChild(document.createTextNode(' — ' + words(DEPENDENCE, relation.dependence) + '. ' + relation.reason));
+        if (relation.quote) item.appendChild(el('p', 'synthesis-quote', '“' + relation.quote + '”'));
         list.appendChild(item);
       });
       block.appendChild(list);

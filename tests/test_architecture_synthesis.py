@@ -40,19 +40,24 @@ def question_selection(ref=COMPACT_QUESTION):
     return {"kind": "question", "ref": ref}
 
 
+def text_of(user: dict, identifier: str) -> str:
+    return next(item["text"] for item in user["evidence"] if item["id"] == identifier)
+
+
 def valid_answer(user: dict, **overrides) -> dict:
-    """A well-formed synthesis that cites the first development and never invents a Book."""
+    """A well-formed synthesis that cites the first development, quotes its words, and never invents a Book."""
     cited = user["developments"][0]["evidence"]
+    quote = text_of(user, cited)[:40]
     answer = {
-        "schema_version": 1,
+        "schema_version": 2,
         "trajectory": [
             {"book": 24, "horizon": "existing_book", "development": "The compact's grain-labour duty is first met by a named household.",
              "becomes_available": "The labour duty is recorded as owed to the rebuild.", "changes": "It makes the settlement a question of who carries the duty.",
-             "basis": "recorded", "evidence": [cited]},
+             "basis": "recorded", "evidence": [cited], "quote": quote},
             {"book": None, "horizon": "proposed_book", "development": "A later Book tests whether the settlement holds under a poor harvest.",
              "becomes_available": "The settlement has been carried by a household for a full season.",
              "changes": "It turns the settlement from a promise into a practice the reader can judge.",
-             "basis": "proposed", "evidence": [cited]},
+             "basis": "proposed", "evidence": [cited], "quote": quote},
         ],
         "relations": [],
         "culmination": None,
@@ -208,9 +213,11 @@ def test_a_named_culmination_must_be_reasoned_about(project):
     request = prepared(store, culmination="The household that refuses the rota is the one the finale must answer.")["request"]
     with pytest.raises(ValueError, match="the author named a culmination; the answer must reason about it"):
         complete(store, request, valid_answer(json.loads(request["user"])))
-    culminating = valid_answer(json.loads(request["user"]), culmination={
+    user = json.loads(request["user"])
+    cited = user["developments"][0]["evidence"]
+    culminating = valid_answer(user, culmination={
         "statement": "The finale answers the refusing household.", "necessary": [
-            {"text": "The duty has been carried once in full.", "evidence": [json.loads(request["user"])["developments"][0]["evidence"]]}],
+            {"text": "The duty has been carried once in full.", "evidence": [cited], "quote": text_of(user, cited)[:40]}],
         "enrichment": [], "standalone_value": "Books 24 and 25 keep their own reckoning of the duty."})
     assert complete(store, request, culminating)["result"]["culmination"]["statement"].startswith("The finale")
 
@@ -294,6 +301,7 @@ def test_an_accepted_reconsideration_is_carried_as_a_handoff_with_its_standing(p
     assert user["handoffs"][0]["evidence"] == handoff["id"]
     answer = valid_answer(user)
     answer["trajectory"][0]["evidence"] = [handoff["id"]]
+    answer["trajectory"][0]["quote"] = text_of(user, handoff["id"])[:30]
     assert complete(store, result["request"], answer)["result"]["trajectory"][0]["evidence"] == [handoff["id"]]
 
 
@@ -320,3 +328,31 @@ def test_a_synthesis_of_other_developments_does_not_supersede_an_earlier_one(pro
     assert other["synthesis"]["standing"] == "current"
     history = {row["request_sha256"]: row for row in project_architecture_synthesis(store)["history"]}
     assert history[first["request_sha256"]]["standing"] == "current", "superseded only by a later reading of the same developments"
+
+
+def test_a_claim_that_cites_evidence_must_quote_the_words_that_carry_it(project):
+    store = store_for(project)
+    request = prepared(store)["request"]
+    answer = valid_answer(json.loads(request["user"]))
+    answer["trajectory"][0]["quote"] = None
+    with pytest.raises(ValueError, match="s1 cites evidence and gives no quote from it"):
+        complete(store, request, answer)
+
+
+def test_a_quote_the_cited_evidence_does_not_contain_is_refused(project):
+    store = store_for(project)
+    request = prepared(store)["request"]
+    answer = valid_answer(json.loads(request["user"]))
+    answer["trajectory"][0]["quote"] = "The compact pays its duty in silver every season."
+    with pytest.raises(ValueError, match="s1's quote is not in the evidence it cites"):
+        complete(store, request, answer)
+
+
+def test_a_quote_is_matched_through_whitespace_and_not_through_meaning(project):
+    store = store_for(project)
+    request = prepared(store)["request"]
+    user = json.loads(request["user"])
+    answer = valid_answer(user)
+    quote = text_of(user, user["developments"][0]["evidence"])[:40]
+    answer["trajectory"][0]["quote"] = "   " + quote.replace(" ", "   ") + "  "
+    assert complete(store, request, answer)["result"]["trajectory"][0]["quote"].strip()
