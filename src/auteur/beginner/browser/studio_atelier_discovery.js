@@ -16,6 +16,7 @@
     genre_interaction:'Genre interaction',
     question:'Open question',
     book_decision:'Working Book decision',
+    book_element:'Working Book element that engages this question (an association, not significance)',
     candidate_opportunity:'Recorded opportunity'
   };
 

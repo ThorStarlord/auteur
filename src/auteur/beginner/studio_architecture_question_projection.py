@@ -23,7 +23,7 @@ from auteur.beginner.studio_architecture import _candidate, _root, architecture_
 from auteur.beginner.studio_architecture_questions import text_digest
 from auteur.beginner.studio_store import CanvasStore
 from auteur.host_agent import load_host_agent_request
-from auteur.series.working_book_architecture import book_numbers, book_series_references
+from auteur.series.working_book_architecture import book_numbers, book_series_references, book_positional_observations
 
 SCHEMA = "studio-architecture-questions/1"
 AUTHORITY = "read_only_owner_records"
@@ -181,6 +181,8 @@ def _book_entry(book: dict, ref: dict, revision_of: dict[str, int | None]) -> di
             "attribution": ref.get("attribution"),
             "epistemic_status": ref.get("epistemic_status"),
             "commitment_authority": ref.get("commitment_authority"),
+            # The Book's own typed dependencies for this element: recorded, bounded, and never inferred.
+            "dependencies": ref.get("dependencies") or [],
         })
         return entry
     entry.update({
@@ -255,18 +257,53 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
             else:
                 unattributed.append(entry)
 
+    # Positional names in Book prose that may refer to a continuing question: a lead to review, never a binding. A name whose
+    # version recorded the question's identity at that position is a lead by identity. One whose version recorded no identity is
+    # a lead only when the wording it names is exactly the question's wording now, and it says so.
+    leads: dict[str, list[dict[str, Any]]] = {}
+    for number in book_numbers(store):
+        try:
+            observed = book_positional_observations(store, number, versions=versions)["observations"]
+        except Exception:  # noqa: BLE001 - one Book's damage stays with that Book
+            continue
+        for row in observed:
+            if row.get("state") != "resolved":
+                continue
+            read_identity = row.get("identity_at_read_version")
+            for index, text in enumerate(current_questions):
+                identifier = current_ids[index] if current_ids is not None else None
+                if identifier is None:
+                    continue
+                # An element that already records this association is an engagement, not a lead.
+                if any(entry["book_number"] == number and entry["element_id"] == row["element_id"]
+                       for entry in engagements_by_identity.get(identifier, [])):
+                    continue
+                if read_identity is not None and read_identity == identifier:
+                    matched = "recorded_identity"
+                elif read_identity is None and row.get("referent_text") == text:
+                    matched = "unidentified_wording_match"
+                else:
+                    continue
+                leads.setdefault(identifier, []).append({
+                    "book_number": number, "title": None, "element_id": row["element_id"],
+                    "collection": row["collection"], "phrase": row["phrase"], "position": row["position"],
+                    "read_at_request_sha256": row["read_at_request_sha256"], "matched_by": matched,
+                    "referent_text": row.get("referent_text"),
+                })
+
     questions: list[dict[str, Any]] = []
     for index, text in enumerate(current_questions):
         identifier = current_ids[index] if current_ids is not None else None
         if identifier is None:
-            questions.append(_wording_only_item(index, text, rows))
+            questions.append({**_wording_only_item(index, text, rows), "positional_leads": []})
             continue
         spans = _spans(rows, identifier, chain["complete"], reasons)
         questions.append({"id": identifier, "standing": "continuing", "index": index, "text": text,
                           "text_sha256": text_digest(text), "spans": spans,
                           "history": _history(spans, chain["complete"]),
                           "books": by_identity.get(identifier, []),
-                          "engagements": engagements_by_identity.get(identifier, [])})
+                          "engagements": engagements_by_identity.get(identifier, []),
+                          "positional_leads": leads.get(identifier, [])})
 
     # Identities recorded in an earlier version and absent now, most recently present first. Never shown as answered.
     current_identities = set(current_ids or [])
@@ -283,7 +320,8 @@ def project_architecture_questions(store: CanvasStore) -> dict[str, Any]:
                                "text": last["text"], "text_sha256": last["text_sha256"], "spans": spans,
                                "history": _history(spans, chain["complete"]),
                                "books": by_identity.get(identifier, []),
-                               "engagements": engagements_by_identity.get(identifier, [])})
+                               "engagements": engagements_by_identity.get(identifier, []),
+                               "positional_leads": leads.get(identifier, [])})
 
     unreadable_count = sum(1 for row in rows if not row["readable"])
     return {

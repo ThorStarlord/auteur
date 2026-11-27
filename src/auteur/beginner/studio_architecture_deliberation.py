@@ -16,8 +16,9 @@ import hashlib
 import json
 from typing import Any
 
-from auteur.series.working_book_architecture import book_series_references
+from auteur.series.working_book_architecture import book_numbers, book_positional_observations, book_series_references
 
+from .studio_architecture import architecture_versions
 from .studio_architecture_question_projection import project_architecture_questions
 from .studio_architecture_questions import text_digest
 from .studio_store import CanvasStore
@@ -28,6 +29,9 @@ MAX_QUESTIONS = 3
 # how it has moved since. Items between them are counted, not inlined.
 MAX_HISTORY_ITEMS = 4
 MAX_BOOK_DECISIONS = 4
+# Element associations per question, spread across Books so that one Book cannot take the whole allowance.
+MAX_ENGAGEMENTS = 4
+MAX_DEPENDENCIES_SHOWN = 2
 TEXT_LIMIT = 600
 REASON_LIMIT = 400
 
@@ -45,6 +49,11 @@ BASIS_LEGEND = {
                      "from the version the decision names.",
     "recorded_co_reference": "Two or more selected questions are referred to by one Book. This is a recorded reference, "
                              "not a relationship in the story.",
+    "book_element_association": "A Working Book element records an association with this question. The element engages "
+                                "the question: that is all the association establishes. It does not say the element answers, "
+                                "settles, develops or inherits from the question.",
+    "positional_observation": "A Book's prose names this question by its position, read at the version that prose was written "
+                              "against. It is an observation of the prose, never a reference, and nothing was recorded from it.",
     "named_gap": "History or a Book that could not be read, or is incomplete. It must not be filled in.",
 }
 
@@ -182,6 +191,75 @@ def _book_item(entry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _engagement_item(entry: dict[str, Any]) -> dict[str, Any]:
+    """One Book element that records an association with a selected question, as its owner reads it."""
+    current = entry.get("current")
+    recorded = entry["recorded"]
+    return {
+        "basis": "book_element_association",
+        "authority": "working_book_element_noncanonical",
+        "book_number": entry["book_number"],
+        "title": entry["title"],
+        "element_id": entry["element_id"],
+        "collection": entry["collection"],
+        "element_text": _clip(entry.get("element_text")),
+        "element_text_sha256": text_digest(entry.get("element_text") or ""),
+        "attribution": entry.get("attribution"),
+        "epistemic_status": entry.get("epistemic_status"),
+        "commitment_authority": entry.get("commitment_authority"),
+        "standing": entry["state"],
+        "book_request_sha256": entry.get("book_request_sha256"),
+        "recorded": {"index": recorded.get("index"), "text": _clip(recorded.get("text")),
+                     "revision_number": recorded.get("revision_number"),
+                     "version_request_sha256": recorded.get("version_request_sha256")},
+        "current": ({"index": current.get("index"), "text": _clip(current.get("text"))} if current else None),
+        "dependencies": [{"direction": dependency["direction"], "other": dependency["other"],
+                          "dependency": dependency["dependency"], "function": _clip(dependency["function"], REASON_LIMIT)}
+                         for dependency in (entry.get("dependencies") or [])[:MAX_DEPENDENCIES_SHOWN]],
+    }
+
+
+def _spread(entries: list[dict[str, Any]], limit: int) -> tuple[list[dict[str, Any]], int]:
+    """Up to ``limit`` entries, one Book at a time in turn, so no single Book takes the whole allowance. Each Book keeps its
+    own order. Returns the chosen entries and how many were left out, so the packet can say so."""
+    by_book: dict[int, list[dict[str, Any]]] = {}
+    for entry in entries:
+        by_book.setdefault(entry["book_number"], []).append(entry)
+    chosen: list[dict[str, Any]] = []
+    while len(chosen) < limit and any(by_book.values()):
+        for number in sorted(by_book):
+            if by_book[number] and len(chosen) < limit:
+                chosen.append(by_book[number].pop(0))
+    return chosen, len(entries) - len(chosen)
+
+
+def _positional_uncertainties(store: CanvasStore, selected: set[str], versions: list) -> tuple[list[dict], int]:
+    """Positional names in Book prose that the owner ties to a selected question by identity, at the version each was written
+    against. A name whose version recorded no identity is tied to no question: the count of those is returned, not filled in."""
+    items: list[dict[str, Any]] = []
+    untied = 0
+    for number in book_numbers(store):
+        try:
+            observed = book_positional_observations(store, number, versions=versions)["observations"]
+        except (OSError, KeyError, TypeError, ValueError):
+            continue  # an unreadable Book is already a named gap for the questions
+        for row in observed:
+            identity = row.get("identity_at_read_version")
+            if identity in selected:
+                items.append({
+                    "basis": "positional_observation", "authority": "owner_observation_not_reference",
+                    "book_number": number, "element_id": row["element_id"], "collection": row["collection"],
+                    "question_id": identity, "phrase": row["phrase"], "position": row["position"],
+                    "numbering": row["numbering"], "read_at_request_sha256": row["read_at_request_sha256"],
+                    "read_basis": row["read_basis"],
+                    "note": "The prose names this question by position. Nothing is recorded from it: it is one reading of the "
+                            "numbering, at the version the prose was written against.",
+                })
+            elif row.get("state") == "resolved" and identity is None:
+                untied += 1
+    return items, untied
+
+
 def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> dict[str, Any]:
     """The bounded, labelled packet for two or three continuing questions. Read-only; raises ValueError if the
     selection is not two or three distinct continuing questions of the current working Architecture."""
@@ -205,8 +283,12 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
         history, omitted_history = _history_for(question)
         books_all = sorted(question["books"], key=lambda entry: (entry["book_number"], entry["decision_id"]))
         books = [_book_item(entry) for entry in books_all[:MAX_BOOK_DECISIONS]]
+        engagements_all = sorted(question.get("engagements") or [],
+                                 key=lambda entry: (entry["book_number"], entry["element_id"]))
+        engagements, omitted_engagements = _spread(engagements_all, MAX_ENGAGEMENTS)
         omitted[question["id"]] = {"history_items": omitted_history,
-                                   "book_decisions": max(0, len(books_all) - MAX_BOOK_DECISIONS)}
+                                   "book_decisions": max(0, len(books_all) - MAX_BOOK_DECISIONS),
+                                   "book_element_associations": omitted_engagements}
         questions.append({
             "id": question["id"],
             "index": question["index"],
@@ -216,6 +298,7 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
             "history_complete": bool(question["history"]["complete"]),
             "history": history,
             "books": books,
+            "engagements": [_engagement_item(entry) for entry in engagements],
         })
 
     # Working Books that refer to two or more selected questions. Counted over every decision, not only the shown ones.
@@ -232,6 +315,23 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
          "note": "This Book records decisions about these questions. It does not say they are related in the story."}
         for number, row in sorted(co_reference.items()) if len(row["questions"]) >= 2
     ]
+    # One element that records associations with two or more selected questions. That is a fact about the record, not a
+    # relation between the questions.
+    element_questions: dict[tuple[int, str], dict[str, Any]] = {}
+    for question in selected:
+        for entry in question.get("engagements") or []:
+            row = element_questions.setdefault((entry["book_number"], entry["element_id"]),
+                                               {"title": entry["title"], "questions": set()})
+            row["questions"].add(question["id"])
+    co_references += [
+        {"basis": "recorded_element_co_reference", "authority": "recorded_reference", "book_number": number,
+         "title": row["title"], "element_id": element_id, "question_ids": sorted(row["questions"]),
+         "note": "One element of this Book records associations with these questions. The record does not say the questions "
+                 "are related in the story, nor that the element relates them."}
+        for (number, element_id), row in sorted(element_questions.items()) if len(row["questions"]) >= 2
+    ]
+    # Positional names: read at the version each was written against, and tied to a selected question only by identity.
+    uncertainties, untied = _positional_uncertainties(store, set(distinct), list(architecture_versions(store)))
 
     named_gaps = []
     if view["books"]["unreadable"]:
@@ -240,6 +340,10 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
                                    "is not shown."})
     if not view["history"]["chain_complete"]:
         named_gaps.append({"basis": "named_gap", "gap": "chain_incomplete", "note": GAP_NOTES["chain_incomplete"]})
+    if untied:
+        named_gaps.append({"basis": "named_gap", "gap": "positional_names_untied", "count": untied,
+                           "note": "Prose in these Books names a question by position at a version that recorded no identity. "
+                                   "Nothing ties that name to a selected question, so it is not shown as one."})
 
     packet: dict[str, Any] = {
         "schema": SCHEMA,
@@ -255,11 +359,13 @@ def build_question_deliberation(store: CanvasStore, question_ids: list[str]) -> 
         },
         "questions": questions,
         "co_references": co_references,
+        "positional_observations": uncertainties,
         "named_gaps": named_gaps,
         "limits": {
             "questions": MAX_QUESTIONS,
             "history_items_per_question": MAX_HISTORY_ITEMS,
             "book_decisions_per_question": MAX_BOOK_DECISIONS,
+            "book_element_associations_per_question": MAX_ENGAGEMENTS,
             "text_characters": TEXT_LIMIT,
             "reason_characters": REASON_LIMIT,
             "omitted": omitted,
@@ -277,9 +383,38 @@ def deliberation_standing(store: CanvasStore, packet: dict[str, Any]) -> list[di
     ``unreadable``: the Book cannot be read. The answer stays historical; nothing here marks it stale.
     """
     standing = []
+    live_by_book: dict[int, dict[str, Any] | None] = {}
+
+    def live_reading(number: int) -> dict[str, Any] | None:
+        if number not in live_by_book:
+            try:
+                live_by_book[number] = book_series_references(store, number)
+            except Exception:  # noqa: BLE001 - one Book's damage is reported for that Book only
+                live_by_book[number] = None
+        return live_by_book[number]
+
+    for question in packet["questions"]:
+        for item in question.get("engagements") or []:
+            row = {"kind": "book_element_association", "book_number": item["book_number"],
+                   "element_id": item["element_id"], "question_id": question["id"]}
+            live = live_reading(item["book_number"])
+            if live is None:
+                standing.append({**row, "standing": "unreadable"})
+                continue
+            reference = next((ref for ref in live["element_question_references"]
+                              if ref["element_id"] == item["element_id"] and ref["question_id"] == question["id"]), None)
+            if reference is None:
+                value = "association_gone"
+            elif text_digest(reference["text"] or "") != item["element_text_sha256"]:
+                value = "element_changed"
+            elif live["request_sha256"] != item["book_request_sha256"]:
+                value = "book_revised"
+            else:
+                value = "current"
+            standing.append({**row, "standing": value})
     for question in packet["questions"]:
         for book in question["books"]:
-            row = {"book_number": book["book_number"], "decision_id": book["decision_id"],
+            row = {"kind": "book_decision", "book_number": book["book_number"], "decision_id": book["decision_id"],
                    "question_id": question["id"]}
             try:
                 live = book_series_references(store, book["book_number"])

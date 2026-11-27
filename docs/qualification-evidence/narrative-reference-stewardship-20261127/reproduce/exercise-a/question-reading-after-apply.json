@@ -1,0 +1,100 @@
+{
+  "engagements": [
+    {
+      "anchorable": true,
+      "attribution": "unattributed",
+      "book_number": 24,
+      "book_request_sha256": "ec4fbc133909d3931eee73d720c4ee5fb82573299ccbf3545ccfb43bf3ba5e9c",
+      "collection": "series_consequences",
+      "commitment_authority": "undecided",
+      "current": {
+        "index": 5,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      "dependencies": [
+        {
+          "dependency": "transforms",
+          "direction": "to",
+          "edge_id": "edge-conversion-draw",
+          "function": "The conversion's blind spot changes how hands become draw.",
+          "other": "th_hands_and_draw",
+          "other_kind": "series_node"
+        }
+      ],
+      "element_id": "cons-conversion-blind-spot",
+      "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+      "epistemic_status": "unresolved",
+      "freshness": "stale",
+      "question_id": "q-conversion-settlement",
+      "recorded": {
+        "index": 5,
+        "revision_number": 3,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+      },
+      "reference_kind": "element",
+      "state": "current_wording",
+      "title": "The Uncounted Crew"
+    },
+    {
+      "anchorable": true,
+      "attribution": "unattributed",
+      "book_number": 25,
+      "book_request_sha256": "4b1694e384b8594fab19f73e476ad139832f2cef3b13bfbb8a0f66b62a793e6f",
+      "collection": "series_consequences",
+      "commitment_authority": "undecided",
+      "current": {
+        "index": 5,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      },
+      "dependencies": [
+        {
+          "dependency": "transforms",
+          "direction": "to",
+          "edge_id": "edge-conversion-draw",
+          "function": "The conversion's blind spot changes how hands become draw.",
+          "other": "th_hands_and_draw",
+          "other_kind": "series_node"
+        }
+      ],
+      "element_id": "cons-conversion-blind-spot",
+      "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+      "epistemic_status": "unresolved",
+      "freshness": "ready",
+      "question_id": "q-conversion-settlement",
+      "recorded": {
+        "index": 5,
+        "revision_number": 3,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+      },
+      "reference_kind": "element",
+      "state": "current_wording",
+      "title": "The Counted Hands"
+    }
+  ],
+  "positional_leads": [
+    {
+      "book_number": 24,
+      "collection": "engines",
+      "element_id": "eng-ledger-source",
+      "matched_by": "unidentified_wording_match",
+      "phrase": "open question 6",
+      "position": 6,
+      "read_at_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1",
+      "referent_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "title": null
+    },
+    {
+      "book_number": 25,
+      "collection": "engines",
+      "element_id": "eng-ledger-source",
+      "matched_by": "unidentified_wording_match",
+      "phrase": "open question 6",
+      "position": 6,
+      "read_at_request_sha256": "2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1",
+      "referent_text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+      "title": null
+    }
+  ]
+}

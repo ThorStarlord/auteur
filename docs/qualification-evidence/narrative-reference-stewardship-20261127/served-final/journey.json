@@ -1,0 +1,60 @@
+{
+  "steps": [
+    {
+      "step": "question reading names a lead in Book 25",
+      "ok": true,
+      "note": "not a reference"
+    },
+    {
+      "step": "Book 25 shows the observation with the owner's choices",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "prepare writes exactly the request the evidence answers",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "preparing changes nothing in Book 25",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "the owner reviews the unedited answer as applicable",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "the review states the requested association was recorded",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "Apply, through the served control, records the association",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "the question reading lists Books 24 and 25 as engaging it",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "Book 25's lead is gone once the association is recorded",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "step": "the question reading at 390 px has no horizontal overflow",
+      "ok": true,
+      "note": "overflow 0"
+    },
+    {
+      "step": "no page errors during the journey",
+      "ok": true,
+      "note": ""
+    }
+  ],
+  "all_passed": true
+}

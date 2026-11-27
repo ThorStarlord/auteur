@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "analysis": "The records do not establish that these two questions concern one problem, and they do not establish that different Books develop different parts of a shared problem. What they establish is narrower. The graph intent records no relation between the two questions (between.status is no_recorded_relation, relations is empty). The only recorded link is that Book 25 (The Counted Hands) records a decision about each question, dec-conversion-settlement and dec-compact-settlement. The deliberation note says this is a recorded co-reference, not a relationship in the story. The conversion question's decision is matched by the Book owner from the recorded version (resolved_by_owner_from_recorded_version) and so is the compact question's decision, so neither identity was asserted by the author.\n\nThe engagement records are asymmetric. The conversion question (index 5) is engaged by one Working Book element, cons-conversion-blind-spot, which appears under Book 24 (The Uncounted Crew) and again under Book 25. It is unattributed, unresolved, and its commitment authority is undecided. Its text and hash are identical in both Books, so the records show the same element engaging the question twice, not two Books developing different dimensions. The compact question (index 6) has no element engagements. It has only Book 25's decision. So the records do not support a picture in which Book 24 and Book 25 each develop a different part of one problem. They support only that Book 24 and Book 25 both engage the conversion question, and that Book 25 alone also records a decision about the compact question.\n\nInterpretation, separate from the records. Read against the working architecture, both questions sit near the thread th_hands_and_draw (who gives return labour and who is counted for draw). The conversion question is about whether the Book 20 hands-to-draw rule (links l_tally_counts_hands, l_conversion_sets_draw) is lasting. The compact question is about whether the Compact's draw can be tied to grain-labour (link l_compact_hands_in_kind, labelled as holding under Alternative B) and whether the Gate Table's schedule reaches lowland draw. A reader could take these as two sides of one distributional problem, hands and draw, one concerning households inside the valley and one concerning a lowland buyer. That is my reading of the architecture's wording, not a recorded relation. The compact question is also compound: it joins the Compact's settlement to the Gate Table's reach, and the architecture links the Gate to the schedule through other nodes (str_hollow_gate, l_gate_sets_outflow). So the two questions overlap in part of the architecture, while the compact question also reaches a Gate and schedule dimension that the conversion question's records do not touch.\n\nWhat the records leave undecided: whether the author sees one problem or two, whether answering one constrains the other, whether Book 25 treats them as connected or as adjacent, and whether Books 24 and 25 diverge on the conversion question at all. Keeping the two questions independent is a legitimate reading, and the records do not rule it out. Nothing recorded settles either question.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Recorded at current index 5 and introduced in revision 3 under the instruction to give each open question a stable identity; no earlier wording is attached. Engaged by element cons-conversion-blind-spot in Book 24 and in Book 25, and by Book 25's decision dec-conversion-settlement (owner-resolved identity)."
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Recorded at current index 6 and introduced in revision 3 under the same identity instruction; no earlier wording is attached. It has no recorded element engagements. Its only recorded Book reference is Book 25's decision dec-compact-settlement (owner-resolved identity)."
+    },
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "The engaging element cons-conversion-blind-spot is unattributed, epistemic status unresolved, commitment authority undecided. It has the same text hash in Book 24 and Book 25 and a recorded transforms dependency to th_hands_and_draw. This establishes engagement only, not that the element answers or develops the question."
+    },
+    {
+      "kind": "question",
+      "id": "q-compact-settlement",
+      "claim": "Book 25 records a co-reference to both questions (decisions dec-compact-settlement and dec-conversion-settlement). The record states this is not a relation in the story. The graph intent records no relation between the two questions."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "The working architecture records that hands a household cannot return reduce its draw (Book 20), running from th_hands_and_draw to eng_ledger. This is the architecture's wording of the conversion, not a link between the two questions."
+    },
+    {
+      "kind": "link",
+      "id": "l_compact_hands_in_kind",
+      "claim": "The working architecture records that under B, purchased draw owes grain-labour to the rebuild, running from inst_mill_compact to th_maintenance. It is tied to Alternative B, which is not chosen, and is not a link to the conversion question."
+    },
+    {
+      "kind": "node",
+      "id": "th_hands_and_draw",
+      "claim": "The thread is described as the series' governing variable: who gives return labour and who is counted for draw. It is the node recorded as touched by the conversion rule and by alternatives A and B. No record ties the compact question to it directly."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "One distributional problem, two stakeholder fronts",
+      "description": "Both questions can be read as parts of the hands-and-draw problem. The conversion question asks whether counting hands is a lasting rule for households. The compact question asks whether a lowland buyer's draw can be settled by grain-labour. Under this reading Book 25 develops the outside-buyer front while Books 24 and 25 develop the inside-household front. This is interpretation only: no record relates the questions, and the compact question has no element engagement."
+    },
+    {
+      "title": "Adjacent but independent questions",
+      "description": "The conversion question concerns whether a Book 20 settlement lasts. The compact question concerns a Compact bid and the Gate Table's reach. The shared Book 25 decisions may reflect only that one Book touches both. Under this reading either could be answered without constraining the other. The records do not contradict this."
+    },
+    {
+      "title": "Compact question as the point where the Gate dimension enters",
+      "description": "The compact question's second clause (whether the Gate Table's schedule reaches lowland draw) links to the Gate and schedule structure, which the conversion question's records do not mention. Under this reading the compact question carries a dimension the conversion question lacks, and any connection between them would run only through the hands-and-draw thread. The author would have to decide whether that second clause belongs with the first."
+    }
+  ],
+  "uncertainties": [
+    "No record relates q-conversion-settlement to q-compact-settlement. Whether they are one problem or two is the author's decision.",
+    "Book 25 records decisions about both questions, but a co-reference is a fact about the Book's record, not a story link.",
+    "Book 24 and Book 25 carry the same element text for the conversion question, so the records do not show the Books developing different dimensions of it.",
+    "The compact question has no element engagements, so there is no recorded Book development of it beyond Book 25's decision text. The records say nothing about how any Book treats it in prose.",
+    "Both decisions' identities were resolved by the Book owner from the recorded version, not asserted by the author.",
+    "The compact question joins two clauses (the Compact's settlement and the Gate Table's reach). The records do not show whether the author treats them as one question.",
+    "Six positional names in Book prose were left untied to any question because they refer to versions that recorded no identity. Their content is not known here and must not be filled in. The element text refers to 'open question 6', which I cannot tie to either question from the records alone.",
+    "The history for both questions begins at revision 3, with two earlier versions recorded as a named gap, so any earlier change in wording or meaning cannot be assessed."
+  ]
+}

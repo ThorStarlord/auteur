@@ -28,6 +28,7 @@ genre_interaction, emotion_target, complex_emotion, genre_contract, phase or que
 you cite; claim is your attributed statement about it),
 hypotheses (0-5 objects, each with the keys "title", "description" and, for explore, "divergence_axis") and
 uncertainties (0-8 strings).
+Length limits are enforced strictly and an answer that exceeds one is refused as a whole, so count before you answer: analysis at most 5000 characters; at most 8 recorded_observations, each claim at most 700 characters; at most 5 hypotheses, each title at most 120 and each description at most 1400 characters; at most 8 uncertainties.
 Do not return an ArchitectureCandidate or claim acceptance. All claims of literary
 causality are interpretations, not deterministic graph proof.
 prior_exchanges, when present, are the author's earlier questions and your earlier
@@ -103,7 +104,15 @@ _DELIBERATION_GUIDANCE = (
     "recorded reason says what the author asked for, not that the consequence was achieved. A decision whose "
     "identity_basis is resolved_by_owner_from_recorded_version was matched by the Book owner from the version it names, "
     "not asserted by the author; say so when you rely on it. A named_gap is missing history: never fill it in. An answer "
-    "that the questions should stay independent, or have no meaningful connection, is a legitimate outcome: say so plainly."
+    "that the questions should stay independent, or have no meaningful connection, is a legitimate outcome: say so plainly. "
+    "A book_element_association says that one element of a Working Book engages a question, with that element's own "
+    "attribution, epistemic status and commitment authority. It is evidence of engagement, not of significance, and it does "
+    "not establish that the element answers, settles, develops or inherits from the question; a shared association is not a "
+    "relation between two questions, and a recorded_element_co_reference is a fact about one element's record only. Several "
+    "Books that engage one question may repeat it, develop different dimensions of it, complement or contradict one another, "
+    "or be better understood apart: say which the records support, and what they leave undecided. A positional_observation "
+    "reads a Book's prose by position at the version it was written against. It is an observation, never a reference, and "
+    "you may cite it only as an uncertainty about that Book."
 )
 
 _MAX_PRIOR_IN_REQUEST = 3

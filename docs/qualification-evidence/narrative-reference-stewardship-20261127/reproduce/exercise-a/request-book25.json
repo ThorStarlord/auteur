@@ -1,0 +1,1632 @@
+{
+  "candidate_id": "book-25-rev2-a2b4ff9a0c15ec0d",
+  "created_at": "2026-11-27T11:18:37.224329+00:00",
+  "output_contract": {
+    "json_schema": {
+      "$defs": {
+        "AgentElement": {
+          "additionalProperties": false,
+          "description": "A Book-level motive or constraint. A proper name requires a visible source for the name.",
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "maxLength": 120,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Name"
+            },
+            "name_source": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text"
+          ],
+          "title": "AgentElement",
+          "type": "object"
+        },
+        "AlternativeElement": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "rationale": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "title": "Rationale",
+              "type": "string"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "responsibility": {
+              "default": "in_service",
+              "enum": [
+                "in_service",
+                "alternative_responsibility"
+              ],
+              "title": "Responsibility",
+              "type": "string"
+            },
+            "status": {
+              "const": "hypothetical",
+              "title": "Status",
+              "type": "string"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "title",
+            "status",
+            "rationale"
+          ],
+          "title": "AlternativeElement",
+          "type": "object"
+        },
+        "AssumptionElement": {
+          "additionalProperties": false,
+          "description": "A provisional assumption. An unknown reversal is recorded as unknown; it is not an open author question.",
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "reversal": {
+              "anyOf": [
+                {
+                  "maxLength": 1200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Reversal"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text"
+          ],
+          "title": "AssumptionElement",
+          "type": "object"
+        },
+        "BookElement": {
+          "additionalProperties": false,
+          "description": "One Book element. Two forms are readable; an element uses only one of them.\n\nLegacy form (Book records written before this correction): `provenance` alone. Its `unresolved`\nvalue mixed unknown attribution, genuine open questions and assumptions without a reversal, so\nlegacy `unresolved` stays ambiguous and is never reinterpreted.\n\nExplicit form: `attribution` (what supports the statement) and `epistemic_status` (where the statement\nstands in the working proposal). Commitment authority is projected from these and from the author\ndecision list. It is never stored, so no element can carry an authority claim of its own.",
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text"
+          ],
+          "title": "BookElement",
+          "type": "object"
+        },
+        "ChoiceBlock": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "chosen_option_id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Chosen Option Id",
+              "type": "string"
+            },
+            "costs_kept_visible": {
+              "items": {
+                "$ref": "#/$defs/BookElement"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Costs Kept Visible",
+              "type": "array"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "options": {
+              "items": {
+                "$ref": "#/$defs/BookElement"
+              },
+              "maxItems": 6,
+              "minItems": 2,
+              "title": "Options",
+              "type": "array"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "transformation": {
+              "$ref": "#/$defs/BookElement"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "options",
+            "chosen_option_id",
+            "costs_kept_visible",
+            "transformation"
+          ],
+          "title": "ChoiceBlock",
+          "type": "object"
+        },
+        "ClosureElement": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "closure": {
+              "title": "Closure",
+              "type": "boolean"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "closure"
+          ],
+          "title": "ClosureElement",
+          "type": "object"
+        },
+        "ConsequenceElement": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "kind": {
+              "enum": [
+                "changes",
+                "preserves",
+                "complicates"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "kind"
+          ],
+          "title": "ConsequenceElement",
+          "type": "object"
+        },
+        "DecisionElement": {
+          "additionalProperties": false,
+          "description": "An author decision, bound to one Series open question by index and text hash. It stays unresolved.",
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "series_question_id": {
+              "anyOf": [
+                {
+                  "pattern": "^q-[a-z0-9][a-z0-9_-]{0,60}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Series Question Id"
+            },
+            "series_question_index": {
+              "maximum": 63,
+              "minimum": 0,
+              "title": "Series Question Index",
+              "type": "integer"
+            },
+            "series_question_sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Series Question Sha256",
+              "type": "string"
+            },
+            "series_question_version": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Series Question Version"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "series_question_index",
+            "series_question_sha256"
+          ],
+          "title": "DecisionElement",
+          "type": "object"
+        },
+        "DependencyType": {
+          "enum": [
+            "sets_up",
+            "pays_off",
+            "depends_on",
+            "pressures",
+            "contradicts",
+            "transforms"
+          ],
+          "title": "DependencyType",
+          "type": "string"
+        },
+        "EngineElement": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "changed_state": {
+              "maxLength": 1200,
+              "minLength": 1,
+              "title": "Changed State",
+              "type": "string"
+            },
+            "choice": {
+              "anyOf": [
+                {
+                  "maxLength": 1200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Choice"
+            },
+            "condition": {
+              "maxLength": 1200,
+              "minLength": 1,
+              "title": "Condition",
+              "type": "string"
+            },
+            "consequence": {
+              "maxLength": 1200,
+              "minLength": 1,
+              "title": "Consequence",
+              "type": "string"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "new_possibility": {
+              "anyOf": [
+                {
+                  "maxLength": 1200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "New Possibility"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "condition",
+            "consequence",
+            "changed_state"
+          ],
+          "title": "EngineElement",
+          "type": "object"
+        },
+        "FunctionBlock": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "pressure": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "title": "Pressure",
+              "type": "string"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "question": {
+              "maxLength": 1000,
+              "minLength": 1,
+              "title": "Question",
+              "type": "string"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "question",
+            "pressure"
+          ],
+          "title": "FunctionBlock",
+          "type": "object"
+        },
+        "PossibilityElement": {
+          "additionalProperties": false,
+          "properties": {
+            "attribution": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "derived",
+                    "agent_proposed",
+                    "unattributed"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Attribution"
+            },
+            "epistemic_status": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "asserted",
+                    "hypothetical",
+                    "unresolved",
+                    "conditional",
+                    "rejected"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Epistemic Status"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "interpretation": {
+              "anyOf": [
+                {
+                  "maxLength": 2000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Interpretation"
+            },
+            "kind": {
+              "enum": [
+                "enabled",
+                "closed"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "provenance": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "author_fixed",
+                    "derived",
+                    "agent_proposed",
+                    "hypothetical",
+                    "unresolved",
+                    "accepted",
+                    "unlabelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Provenance"
+            },
+            "refs": {
+              "items": {
+                "$ref": "#/$defs/Ref"
+              },
+              "maxItems": 24,
+              "title": "Refs",
+              "type": "array"
+            },
+            "text": {
+              "maxLength": 8000,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "text",
+            "kind"
+          ],
+          "title": "PossibilityElement",
+          "type": "object"
+        },
+        "Ref": {
+          "additionalProperties": false,
+          "description": "A typed reference: a Series node, a Book element, a visible author-source item, or a persistent Series question.\n\nA `series_question` reference names the question by its stable identity; the owner records the binding (the\nquestion's position and wording at one Series version, and that version). The binding fields are owner-recorded:\na response may repeat them only when they equal what the owner records. They are dropped from the stored JSON\nwhen unset, so records written before question references existed keep their shape and content digest.",
+          "properties": {
+            "id": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "series_node",
+                "book_element",
+                "source_item",
+                "series_question"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "series_question_index": {
+              "anyOf": [
+                {
+                  "maximum": 63,
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Series Question Index"
+            },
+            "series_question_sha256": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Series Question Sha256"
+            },
+            "series_question_version": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Series Question Version"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ],
+          "title": "Ref",
+          "type": "object"
+        },
+        "TypedEdge": {
+          "additionalProperties": false,
+          "properties": {
+            "dependency": {
+              "$ref": "#/$defs/DependencyType"
+            },
+            "function": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Function",
+              "type": "string"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "source": {
+              "pattern": "^[a-z][a-z0-9_-]{0,79}$",
+              "title": "Source",
+              "type": "string"
+            },
+            "target": {
+              "$ref": "#/$defs/Ref"
+            }
+          },
+          "required": [
+            "id",
+            "source",
+            "target",
+            "dependency",
+            "function"
+          ],
+          "title": "TypedEdge",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "agents": {
+          "items": {
+            "$ref": "#/$defs/AgentElement"
+          },
+          "maxItems": 16,
+          "title": "Agents",
+          "type": "array"
+        },
+        "alternatives": {
+          "items": {
+            "$ref": "#/$defs/AlternativeElement"
+          },
+          "maxItems": 12,
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/AssumptionElement"
+          },
+          "maxItems": 24,
+          "minItems": 1,
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "book_number": {
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Book Number",
+          "type": "integer"
+        },
+        "choice": {
+          "$ref": "#/$defs/ChoiceBlock"
+        },
+        "engines": {
+          "items": {
+            "$ref": "#/$defs/EngineElement"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Engines",
+          "type": "array"
+        },
+        "function": {
+          "$ref": "#/$defs/FunctionBlock"
+        },
+        "inherited": {
+          "items": {
+            "$ref": "#/$defs/BookElement"
+          },
+          "maxItems": 24,
+          "title": "Inherited",
+          "type": "array"
+        },
+        "later_possibilities": {
+          "items": {
+            "$ref": "#/$defs/PossibilityElement"
+          },
+          "maxItems": 16,
+          "title": "Later Possibilities",
+          "type": "array"
+        },
+        "local_resolution": {
+          "items": {
+            "$ref": "#/$defs/ClosureElement"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Local Resolution",
+          "type": "array"
+        },
+        "open_author_decisions": {
+          "items": {
+            "$ref": "#/$defs/DecisionElement"
+          },
+          "maxItems": 16,
+          "title": "Open Author Decisions",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "series_consequences": {
+          "items": {
+            "$ref": "#/$defs/ConsequenceElement"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Series Consequences",
+          "type": "array"
+        },
+        "title": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "typed_edges": {
+          "items": {
+            "$ref": "#/$defs/TypedEdge"
+          },
+          "maxItems": 120,
+          "title": "Typed Edges",
+          "type": "array"
+        },
+        "unresolved": {
+          "items": {
+            "$ref": "#/$defs/BookElement"
+          },
+          "maxItems": 32,
+          "title": "Unresolved",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "book_number",
+        "title",
+        "function",
+        "engines",
+        "choice",
+        "local_resolution",
+        "series_consequences",
+        "assumptions"
+      ],
+      "title": "WorkingBookArchitecture",
+      "type": "object"
+    },
+    "json_schema_sha256": "a840b0c1164d80d781daadf4be6a1050f8c16c8684f26ebbdd39a5e425bb4973",
+    "model": "WorkingBookArchitecture",
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1
+  },
+  "request_id": "book-25-rev2-a2b4ff9a0c15ec0d:4b1694e384b8594f",
+  "request_sha256": "4b1694e384b8594fab19f73e476ad139832f2cef3b13bfbb8a0f66b62a793e6f",
+  "role": "working_book_architecture",
+  "schema": "auteur_host_agent_request_v1",
+  "settings": {
+    "allowed_ids": [
+      "cons-conversion-blind-spot",
+      "edge-conversion-draw"
+    ],
+    "attempt": 1,
+    "baseline_content_sha256": "5161d0e162463e6c242cfd5d9d8f37d43fbd85db73ad778f828db8d058276ed5",
+    "baseline_request_sha256": "5700599a7fbd641db58632d74e2be2c99bb094788b19791de3ccd22a156bf39a",
+    "baseline_revision_number": 1,
+    "book_number": 25,
+    "dependents": [
+      "edge-conversion-draw"
+    ],
+    "freshness_format": 2,
+    "mode": "targeted",
+    "operation": "revise",
+    "requested_question_associations": [
+      {
+        "element_id": "cons-conversion-blind-spot",
+        "question_id": "q-conversion-settlement"
+      }
+    ],
+    "series_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "source_sha256": "d853214d70bc8a3cec2160adfcc67c65d1253253a5709a4b86514f6aa0ca1bb3",
+    "targets": [
+      "cons-conversion-blind-spot"
+    ]
+  },
+  "system": "You are revising ONE existing working Book architecture. Output exactly one JSON object with schema_version 1 and nothing else. It is the COMPLETE revised Book object, not a patch. This is a noncanonical working proposal: never accept, never write prose or chapters, never create character identities, character commitments or relationship states.\n\nScope. Change only the elements whose ids appear in permitted_ids. Copy every other element exactly as it appears in the baseline (the record you are given in full for scoped elements, and the unchanged_elements manifest for the rest). You may refer to unchanged elements by id in refs. Keep a stable id wherever the same narrative responsibility continues. Introduce a new id only for a genuinely new element, and make it reference a permitted element.\n\nForm. Every element you change or add uses the explicit form: attribution (derived, with at least one ref to the source; agent_proposed; or unattributed when the source gives no attribution) and epistemic_status (asserted, hypothetical, unresolved, conditional or rejected). Put your own contribution to a source-derived statement in interpretation. Never write provenance, author_fixed, accepted, unlabelled, author-declared or author-supplied. An element that depends on an assumption or an author decision is conditional and cites it in refs. An assumption may state no reversal (reversal null) when none is known.\n\nFixed. Open questions and author decisions stay unresolved and keep their Series binding. A working revision does not settle an open question or an author decision. Never assert a claim that depends on an author decision. Do not invent names, character commitments or relationship states.\n\nQuestion associations. An element may carry a series_question reference (kind series_question, id = a question identity from series_architecture.open_questions) when it engages that continuing question. Keep an association a fact of engagement: it never means the element answers, settles or inherits from the question. Keep each existing association unchanged unless the instruction changes that element's engagement. Give only kind and id; the owner records the position, wording and version. Do not add one for a question the element does not engage, and do not use a position number in prose as a reference.\n\nInstruction. The instruction is a working revision requested by the operator. Treat it as a hypothetical working change to develop and test, not as canon or an author decision. When it changes a mechanism, state the changed condition as an assumption, and record the condition it replaces as its reversal where you know it. Reflect the consequences inside the permitted elements, and record each dependency you establish as a typed edge. Do not rewrite the Series architecture and do not choose an accepted ending.\n",
+  "user": "{\"baseline\": {\"content_sha256\": \"5161d0e162463e6c242cfd5d9d8f37d43fbd85db73ad778f828db8d058276ed5\", \"request_sha256\": \"5700599a7fbd641db58632d74e2be2c99bb094788b19791de3ccd22a156bf39a\", \"revision_number\": 1}, \"book_number\": 25, \"governing\": {\"alternatives\": [{\"attribution\": null, \"epistemic_status\": null, \"id\": \"alt-cistern\", \"interpretation\": null, \"provenance\": \"hypothetical\", \"rationale\": \"Rejected as a global redesign.\", \"refs\": [{\"id\": \"alt_b_allotted\", \"kind\": \"series_node\"}, {\"id\": \"alt_c_ratified_trigger\", \"kind\": \"series_node\"}], \"responsibility\": \"in_service\", \"status\": \"hypothetical\", \"text\": \"A discovery Book testing what the high cistern can store. Rich in wonder, but it would settle the unresolved physical fact on which Alternatives B and C depend, deciding the finale's feasibility by physics.\", \"title\": \"The cistern's measure\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"alt-stones-restraint\", \"interpretation\": null, \"provenance\": \"hypothetical\", \"rationale\": \"Rejected: it would pre-run Alternative A against Alternative B.\", \"refs\": [{\"id\": \"eng_source\", \"kind\": \"series_node\"}], \"responsibility\": \"in_service\", \"status\": \"hypothetical\", \"text\": \"A dispute over how the Balance Stones' limit on Brightwater draw is shared. A strong L1 conflict, but it would rehearse 'counted but not owed' against 'owed' directly and largely repeat Conflict A.\", \"title\": \"Who bears the Stones' restraint\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"alt-threshold\", \"interpretation\": null, \"provenance\": \"hypothetical\", \"rationale\": \"Rejected as finale-leaning.\", \"refs\": [{\"id\": \"alt_c_ratified_trigger\", \"kind\": \"series_node\"}], \"responsibility\": \"in_service\", \"status\": \"hypothetical\", \"text\": \"An early fight over reading the Stones as a trigger. It would front-load Alternative C and make the Stones an authority by Book 24.\", \"title\": \"The threshold dispute\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"alt-early-compact\", \"interpretation\": null, \"provenance\": \"hypothetical\", \"rationale\": \"Reduced to a standing offer.\", \"refs\": [{\"id\": \"inst_mill_compact\", \"kind\": \"series_node\"}], \"responsibility\": \"in_service\", \"status\": \"hypothetical\", \"text\": \"Oona's bid brought forward. It would displace Books 27 to 29 and press on the author-reserved settlement.\", \"title\": \"An early Compact move\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"alt-right-revocation\", \"interpretation\": null, \"provenance\": \"hypothetical\", \"rationale\": \"Reduced to a one-cycle provisional acceptance.\", \"refs\": [{\"id\": \"inst_lineage_crews\", \"kind\": \"series_node\"}], \"responsibility\": \"in_service\", \"status\": \"hypothetical\", \"text\": \"The Council revokes or confirms the Right. This decides author-reserved choice 7.\", \"title\": \"The Right's revocation\"}], \"assumptions\": [{\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p1\", \"interpretation\": null, \"provenance\": \"agent_proposed\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": \"The pressure arises from the lineage's own count of the shortfall instead.\", \"text\": \"The Special Draw Right has a review point in Book 24.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p2\", \"interpretation\": null, \"provenance\": \"agent_proposed\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": \"The belief comes from invisible lineage labour alone. The function survives this.\", \"text\": \"The cohort reads 'nothing counted' as 'nothing owed'.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p3\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"Return labour shows on the Balance Stones in aggregate, without attribution. Agent-proposed in the source; it follows from eng_source, but the Stones' resolution of local return is not established.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p4\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"Gift-hands without skill can damage a channel, through the silted section. Agent-proposed in the source; no reversal is stated.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p5\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"The craft-mark is a record of capability, cut by teacher and learner on the channel stone and held by no institution. Agent-proposed in the source; no reversal is stated.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p6\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"The Council accepts craft-marks for one review cycle only. This does not decide author-reserved choice 7. Agent-proposed in the source; no reversal is stated.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p7\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"The Reading Hall refuses attribution. Agent-proposed in the source; no reversal is stated.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p8\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"The remnant's custody offer and Oona's labour offer stand as described. Agent-proposed in the source; no reversal is stated.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p9\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"Hesper remains a Council apprentice after the Book. This is deliberately not a statement on reform from within. The source notes that the author may instead have her leave; that is an alternative, not a stated reversal.\"}, {\"attribution\": null, \"epistemic_status\": null, \"id\": \"assume-p10\", \"interpretation\": null, \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"book-25-source\", \"kind\": \"source_item\"}], \"reversal\": null, \"text\": \"The Lowfen upkeep is the crew's work site. Any channel the crew can work would serve. The surge route is author-reserved, and this Book neither designates nor excludes the Lowfen. Agent-proposed in the source; no reversal is stated.\"}], \"book_source\": [{\"content\": \"# Book 24: The Uncounted Crew (architectural function)\\n\\nStatus: working, noncanonical. Not author-approved. Every new element is labelled **[Agent]** (agent-proposed, reversible) or **[Derived: source]**. Nothing here is author-declared. Candidate IDs refer to the W6 working candidate read through `resume` (canvas revision 10).\\n\\n---\\n\\n## 1. The Book's question and the pressure it develops\\n\\n**Question.** *Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?* [Agent]\\n\\n**Pressure developed.** The labour gap of the Long Return. The pulse needs channel labour, which means trained hands, before its date (`str_long_return`, link `l_longreturn_needs_hands`). Since Book 20 the repair skill has sat with the maintenance lineages under the Special Draw Right (`inst_lineage_crews`, `th_maintenance`). The Brightwater cohort believes abundance needs no work (`ph_5_unmeasured`, Book 23). Book 24 is where the pressure is first met by people, not by a schedule. It exercises **L2** (Old Hand → Ledger → Source) and **L1** (Ledger ↔ Source), and it exports one pressure: a new kind of record, and who may trust it. [Derived: 01 §2.4 rule for development]\\n\\n## 2. Why now: the inherited state it uses\\n\\n- **The date is public.** The Balance Stones publish the Long Return's date and limit Brightwater's draw (`ph_5_unmeasured`; `inst_reading_hall`). Book 24 is the first Book in which the valley knows how long it has. Training takes years, so the labour question cannot wait for Books 27–29. [Derived]\\n- **The Right's condition.** The Special Draw Right is conditional on training apprentices from outside the lineage (`inst_lineage_crews`; `l_lineage_right_on_draw`; 01 §7). [Derived] The condition comes up for review in Book 24. [Agent]\\n- **The cohort's belief.** A generation that came of age after Book 20 has never seen the labour, because lineage crews do it under the Right (`th_maintenance`; 01 §3.2). [Derived]\\n- **Uneven abundance.** Hand-light houses have drawn less since the Book 20 conversion (`th_hands_and_draw`; `l_conversion_sets_draw`; `rx_consequence`). [Derived]\\n- **Hesper** led Brightwater and took a Council apprenticeship (01 §3.2). [Derived]\\n- **The gift reading**: \\\"water given; hands given back; nothing counted\\\" (`eng_old_hand`; `str_unmeasured_return`; `ph_3_old_hand`). **The Balance Stones** (`eng_source`; 01 §2.2). The Stones are the Source's public measure, cut in Book 23 and published by the Reading Hall. They do not depend on the Gate. [Derived]\\n\\nBook 24 does not depend on the Hollow Gate or the Gate Table (`str_hollow_gate`, `inst_gate_table`). Their acceptance is author-reserved (01 §8.1), so the function holds whether or not the author keeps them.\\n\\n## 3. The engines and how they interact\\n\\n**Old Hand → Ledger (L2, first half).**\\n*Condition:* the cohort has inherited the gift reading as a slogan and kept only its last clause, \\\"nothing counted\\\". It hears this as \\\"nothing owed\\\". [Agent]\\n*Choice:* asked by the Council to supply recorded apprentices, the cohort refuses to be entered in the stewardship tally.\\n*Consequence:* the Right's training condition cannot be shown in the form the Council expected.\\n*Changed state:* the Council, the lineage and the cohort are each blocked, by their own reasons.\\n*New possibility:* Hesper forms a crew that will learn and work uncounted.\\n\\n**Ledger → Source (L2, second half; L1).**\\n*Condition:* the hands-to-draw conversion credits only counted hands (`l_conversion_sets_draw`). [Derived]\\n*Choice:* the cohort's young from hand-light houses work uncounted.\\n*Consequence:* their labour improves the balance, but it cannot restore their own households' draw. Their families stay cut while the best-handed houses keep their counted advantage.\\n*Changed state:* the conversion's blind spot becomes visible. It sees the record, not the hands. [Agent, derived from Book 20 mechanism]\\n*New possibility:* the question of whether the conversion is a lasting settlement (open question 6) gains a concrete case.\\n\\n**Source (balance as witness).**\\n*Condition:* the Source responds to balance, not to intention or record (`eng_source`). [Derived]\\n*Choice:* the crew keeps a stretch of the Lowfen's thaw upkeep (`str_lowfen_channel`) under Ysa Trant's instruction.\\n*Consequence:* the Balance Stones show the return, in aggregate. It cannot show whose hands. One badly laid section silts and must be relaid by lineage hands. [Agent]\\n*Changed state:* the valley sees that uncounted gift is real on the water and invisible on the record. Gift without skill also fails. This is a new physical assumption (P4), not a consequence of the caveat in 01 §2.3, which concerns gift without return and gift with unequal hands.\\n*New possibility:* a record of capability, rather than of hands owed.\\n\\n**Ledger (a new record form).**\\n*Condition:* the lineage needs proof of training, the cohort refuses a count of hours, and the Council needs to know who can repair before the date.\\n*Choice:* the craft-mark (see §5). [Agent]\\n*Consequence:* the condition is met in a form that records who *can*, not who *owes*.\\n*Changed state:* the valley holds four kinds of record: the debt reading's ledger (remnant), the stewardship tally (care), the Balance Stones (aggregate balance) and craft-marks (capability).\\n*New possibility:* any finale mechanism can draw on a public record of capability. Any of them can also be undermined if that record is falsified.\\n\\n## 4. Characters and institutions with independent motivations\\n\\n- **Hesper Sallow** [motive Agent; derived from the cohort's Book 23 belief, which her household's burden complicates]. She wants her generation's abundance to remain a freedom from counting. She does not want to inherit her grandmother's tally. She does not convert to the Turn. She learns that the work is real while still refusing that it must be counted. Her motive is designed to be judged against open question 10 (01 §8.11). Whether it is independent of the author's preference remains the author's decision.\\n- **Idrun Sallow** [Derived: wants the Turn humane; Council steward]. She needs trained hands before the date. She fears gift without return, and she knows from Book 1 what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.\\n- **Ysa Trant and the maintenance lineages** [Derived: Right conditional on training; Agent: their stake in the review]. They need the training condition demonstrated, or the Right is exposed. They also guard craft standards and fear dilution by untrained gift-hands. Their motive is neither the Council's nor the cohort's.\\n- **Hand-light households** [Derived: drawn less since Book 20]. They need draw restored. Many would rather their children's labour be counted, because the count is how the conversion gives water back. They are not obstacles. Their reasons are coherent from their side (`et_cost_of_counting`).\\n- **The best-handed houses** [Derived: drew most of the surplus]. Counting rewards those with hands, so they want labour counted.\\n- **The Reading Hall** [Derived: publishes the Balance Stones, no schedule authority]. Asked to certify the crew from the Stones, it declines to attribute aggregate balance to named hands, because the Stones do not resolve local return (P3). Whether the Hall should keep any person-level record is not settled here, and B's deficit-record cost (01 §6) is unchanged. [Agent: the refusal]\\n- **The Stone Hall remnant** [Derived: debt reading; Corrow's survival unresolved]. It calls uncounted labour an unrecorded debt that will default, and offers to keep the apprentices' register. The valley declines. [Agent: the offer]\\n- **Oona Brisk and the Mill Compact** [Derived: contract claims; Book 27–29 bid]. She offers hired lowland labour if it is credited against the Compact's draw. The offer is neither accepted nor refused, because the Compact's settlement is author-reserved (01 §8.4). [Agent: the offer]\\n\\n## 5. The meaningful choice and the transformation it produces\\n\\n**The setting of the choice.** After the thaw, the Balance Stones show the crew's return, and the silted section has cost one hand-light household a season on its terrace. This is the household of a crewmate. [Agent: the crewmate is an unnamed agent-proposed role] The Council, through Idrun, offers to enter the crew in the stewardship tally retroactively. That would meet the Right's condition and, through the conversion, restore the hand-light families' draw.\\n\\n**Hesper's choice** [Agent]. Hesper and the crew face three paths:\\n- accept the count (families' draw restored, but the cohort enters the tally it refused);\\n- refuse it (the gift stays pure, the families stay cut, and the lineage's condition stays unmet);\\n- take a third path that Hesper proposes.\\n\\nHesper proposes the craft-mark. When a lineage hand judges that an apprentice can perform a named repair, teacher and learner each cut a mark on the channel stone where the repair was done. The mark records capability and place. It does not record hours, does not record debt, and does not touch draw. It is public and on the water, held by no institution. [Agent; it echoes Book 1's share-marks read as evidence, `ph_1_reckoned_water`, and Book 22's separation of schedule from record, `ph_4_settled_water`]\\n\\n**Its cost, kept visible.** The craft-mark does not restore draw. The crew chooses it knowing that their own hand-light households stay cut this cycle. Several crewmates, including the one whose terrace silted, choose to be counted instead, for their families. Hesper respects their choice. The cohort leaves the Book split between counted and uncounted youth.\\n\\n**Transformation.** Hesper moves from \\\"abundance needs no work\\\" to \\\"the work is real and the water sees it, but people need not count it\\\". The cohort as a whole moves from one belief to two practices. Idrun moves from keeping a tally that should be complete to accepting a record she does not hold. This is a relationship across generations with emotional consequence: the granddaughter, as her grandmother did in Book 1, sets evidence against an institution's record; here the evidence is a craft-mark on the water, not a share-mark.\\n\\n## 6. The local resolution\\n\\n- Ysa Trant accepts craft-marks as proof of training. The Council accepts them as meeting the Right's condition **for one review cycle**. This is provisional, and it does not settle the Right's revocability or final condition (01 §8.7). [Agent]\\n- A first group of outside-lineage hands is trained. The size is unstated, and the group does not close the Long Return's labour gap. It shows that the gap can be narrowed. [Agent]\\n- The Lowfen upkeep holds through the thaw, apart from the silted section, which is relaid.\\n- The remnant's custody offer is declined. Oona's offer stands, neither accepted nor refused.\\n- The Book closes on the cohort's first craft-marks beside the lineage's old ones. The belonging is everyday and specific (`rx_belonging`, `et_belonging`), and the wonder is quiet: the water registered what no ledger did (`rx_wonder`).\\n\\n## 7. Changes to the wider Series\\n\\n1. **The cohort's belief is no longer uniform.** The Brightwater inheritance (01 §3.2) splits into counted and uncounted practice within one generation. Plurality of practice now crosses generations as well as communities.\\n2. **A capability record exists.** It is separate from the debt ledger, the tally and the Balance Stones. The Ledger engine gains a capability record, which bears on the governing variable (`th_hands_and_draw`) by showing who is able to give return labour. It does not change who is counted for draw.\\n3. **The conversion's blind spot is public.** The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.\\n4. **The Reading Hall declines to attribute balance to persons** while the Stones cannot resolve local return (P3). This matters to Alternative C's threshold and to B's deficit record, and it decides neither.\\n5. **Labour readiness has begun.** The Long Return preparation is no longer only a schedule. It has trained people, and a visible shortfall remains.\\n6. **Idrun and Hesper's relationship has changed.** Continuity between them is now a matter of disagreement, not inheritance.\\n\\n## 8. Later possibilities enabled and closed\\n\\n**Enabled.**\\n- The uncounted crew as a possible carrier of channel skill when the lineages end. This is a possibility, not an answer (01 §8.10).\\n- A capability record usable by any finale mechanism: pair-hands under A, rota assignment under B, the pre-drawn panel under C. It lowers some costs in each and chooses none.\\n- Books 25–26 pressures: whether craft-marks can be falsified or favoured (the Ledger engine at a new record, without a villain); and hand-light draw against the conversion, now with a concrete case.\\n- A cohort claim to standing in coordination, for example a Gate Table seat if the author keeps the Table.\\n- Oona's standing offer meets a valley with some hands of its own before the Book 27–29 bid.\\n\\n**Closed or narrowed.**\\n- A uniformly idle Brightwater generation. The cohort has shown both practices.\\n- Uncounted gift as invisible to the spring. The Balance Stones show it in aggregate.\\n- Quietly ignoring the Right's condition. It has been tested and met provisionally.\\n- The remnant as keeper of the labour record. It offered and was declined.\\n- The labour gap as a Book 30 surprise. It is named and partly worked from Book 24.\\n\\n## 9. Provisional assumptions\\n\\n- **P1 [Agent].** The Right has a review point in Book 24. Reversal: the pressure arises from the lineage's own count of the shortfall instead.\\n- **P2 [Agent].** The cohort reads \\\"nothing counted\\\" as \\\"nothing owed\\\". Reversal: the belief comes from invisible lineage labour alone. The function survives this.\\n- **P3 [Agent].** Return labour shows on the Balance Stones in aggregate, without attribution. This follows from `eng_source`, but the Stones' resolution of local return is not established.\\n- **P4 [Agent].** Gift-hands without skill can damage a channel, through the silted section.\\n- **P5 [Agent].** The craft-mark is a record of capability, cut by teacher and learner on the channel stone, and held by no institution.\\n- **P6 [Agent].** The Council accepts craft-marks for one review cycle only. This does not decide author-reserved choice 7.\\n- **P7 [Agent].** The Reading Hall refuses attribution.\\n- **P8 [Agent].** The remnant's custody offer and Oona's labour offer.\\n- **P9 [Agent].** Hesper remains a Council apprentice after the Book. This is deliberately not a statement on reform from within (01 §8.5). The craft-mark came from a crew outside the Council, and the Council only accepted it. The author may instead have her leave.\\n- **P10 [Agent].** Lowfen upkeep as the crew's work site. Any channel the crew can work would serve. The surge route is author-reserved (01 §8.6). This Book neither designates the Lowfen as the surge route nor excludes it.\\n\\n## 10. Alternatives considered\\n\\n- **The cistern's measure.** A discovery Book that tests what the high cistern can store. It is rich in wonder, but it would settle the unresolved physical fact on which B and C depend (01 §6, §8). That would decide the finale's feasibility by physics. Rejected as a global redesign.\\n- **Who bears the Stones' restraint.** A dispute over how the Balance Stones' limit on Brightwater draw is shared. It is a strong L1 conflict, but it would rehearse \\\"counted but not owed\\\" against \\\"owed\\\" directly. That would pre-run A against B, and it would largely repeat Conflict A. Rejected.\\n- **The threshold dispute.** An early fight over reading the Stones as a trigger. It would front-load Alternative C and make the Stones an authority by Book 24. Rejected as finale-leaning.\\n- **An early Compact move.** Oona's bid brought forward. It would displace Books 27–29 and press on the author-reserved settlement. Reduced to a standing offer.\\n- **The Right's revocation.** The Council revokes or confirms the Right. That decides author-reserved choice 7. Reduced to a one-cycle provisional acceptance.\\n\\nI chose the uncounted crew for four reasons. It is the only candidate that develops the Book 23 belief locally, with a Book-length arc and closure. It uses all three engines without new physics beyond P3 and P4. It puts a real choice and a real cost in a new-generation character. And it produces consequences that all three finale alternatives must reckon with without favouring one of them.\\n\\n## 11. Information needed and not available\\n\\n- The years between Book 24 and the Long Return, and how long a channel hand takes to train.\\n- The number of lineage hands and the size of the shortfall.\\n- Whether the Balance Stones can resolve local return at all (P3).\\n- Whether Corrow is alive in Book 24.\\n- Whether the Sallow house is hand-light. This changes the personal cost of Hesper's choice.\\n- What Hesper's apprenticeship involves, and what return labour consists of in normal seasons.\\n\", \"group\": \"book-25\", \"id\": \"book-25-source\", \"title\": \"Book 25 cold-start function (noncanonical source)\"}, {\"content\": \"Develop a meaningful architectural function for Book 24 of The Spring Ledger.\\nBook 23 has transformed the next generation's understanding of the water commons.\\nThe later Series must still confront the Long Return and unresolved questions about shared responsibility.\\nConstruct a distinct Book 24 contribution that emerges from the inherited conditions without prematurely deciding the finale.\\nThe Book must offer a satisfying local narrative transformation while producing consequences relevant to later Series development.\\nPreserve the established narrative identity, causal systems, character agency, and author-reserved choices.\", \"group\": \"book-25\", \"id\": \"book-25-responsibility\", \"title\": \"Author's Book 25 responsibility (verbatim)\"}], \"creative_intentions\": [{\"content\": \"Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\", \"id\": \"intention-5fbc97e54e90\", \"status\": \"active\", \"title\": \"Experience brief\"}, {\"content\": \"Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.\", \"id\": \"intention-f4a17a2820db\", \"status\": \"active\", \"title\": \"Victories change the world\"}, {\"content\": \"No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.\", \"id\": \"intention-5a1bfa5884bf\", \"status\": \"active\", \"title\": \"No escalation; local closure\"}, {\"content\": \"Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.\", \"id\": \"intention-aba6fb5d675f\", \"status\": \"active\", \"title\": \"Independent agency across generations\"}], \"function\": {\"pressure\": \"The labour gap of the Long Return: the pulse needs trained channel hands before its date. The maintenance lineages hold the repair skill under the Special Draw Right, and the Brightwater cohort believes abundance needs no work.\", \"question\": \"Can a generation that refuses to be counted learn to give back the water before the water is owed, and what does the valley record when it does?\"}, \"story_vision\": [{\"content\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some conflicts must emerge from consequences of earlier successes. Author-fixed; working and noncanonical.\\n\\nNo escalation; local closure: No escalating antagonists, arbitrary new threats or indefinitely postponed revelations. Local closure with continuing long-range questions is permitted. Author-fixed; working and noncanonical.\\n\\nIndependent agency across generations: Several characters, communities or institutions have independent agency. Transformation spans generations. Fresh original concept; do not reuse prior Wandering Islands answers, Book 11 prose or crossing mechanism. Author-fixed; working and noncanonical.\", \"id\": \"story-vision\", \"title\": \"Story Vision\"}]}, \"instruction\": \"The author asked for these question associations. Record each one only if the element's own prose engages that question: compare the element's prose with the question's current wording and with any historical reading in observed_positions. If the element engages the question, add a series_question reference with exactly that identity to the element's refs. If it does not, add no reference and leave the element as it is.\\nDo not add an association to any other element for this request, and do not change any element's prose.\\n- cons-conversion-blind-spot may record an association with q-conversion-settlement.\\nA changed element uses the explicit form: restate any legacy provenance field as attribution and epistemic_status, as the owner requires for a changed element.\", \"mode\": \"targeted\", \"operation\": \"revise\", \"permitted_ids\": [\"cons-conversion-blind-spot\", \"edge-conversion-draw\"], \"requested_question_associations\": [{\"element_id\": \"cons-conversion-blind-spot\", \"observed_positions\": [{\"identity_at_read_version\": null, \"phrase\": \"open question 6\", \"position\": 6, \"read_at_request_sha256\": \"2c26a7c5aa5a90b5062682206a572d42723ba04edea4e976025babb93b16acf1\", \"read_basis\": \"element_origin\", \"referent_text\": \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\", \"state\": \"resolved\"}], \"question_id\": \"q-conversion-settlement\", \"question_index\": 5, \"question_text\": \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\", \"question_text_sha256\": \"797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5\"}], \"schema\": \"auteur_working_book_revision_request_v1\", \"scoped_elements\": [{\"collection\": \"series_consequences\", \"content_sha256\": \"020cdae18a50a73de22070f3f8e69a867805a12d759714e4e4a3c16f555879bc\", \"id\": \"cons-conversion-blind-spot\", \"record\": {\"attribution\": null, \"epistemic_status\": null, \"id\": \"cons-conversion-blind-spot\", \"interpretation\": null, \"kind\": \"changes\", \"provenance\": \"unresolved\", \"refs\": [{\"id\": \"th_hands_and_draw\", \"kind\": \"series_node\"}], \"text\": \"The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.\"}}, {\"collection\": \"typed_edges\", \"content_sha256\": \"5680b72fe6956dea48503722bd54f74acb58fdedf35cff5069da37fa35ea1b50\", \"id\": \"edge-conversion-draw\", \"record\": {\"dependency\": \"transforms\", \"function\": \"The conversion's blind spot changes how hands become draw.\", \"id\": \"edge-conversion-draw\", \"source\": \"cons-conversion-blind-spot\", \"target\": {\"id\": \"th_hands_and_draw\", \"kind\": \"series_node\"}}}], \"series_architecture\": {\"candidate_sha256\": \"98235cfe5d0651dd46f2845bbce48059f321e3e407809f486ed18a53c49d9ea5\", \"node_index\": [{\"category\": \"theme\", \"id\": \"th_core_question\", \"title\": \"Central question\"}, {\"category\": \"thread\", \"id\": \"th_hands_and_draw\", \"title\": \"Hands and draw\"}, {\"category\": \"thread\", \"id\": \"th_custody\", \"title\": \"Custody of the record\"}, {\"category\": \"thread\", \"id\": \"th_maintenance\", \"title\": \"Keeping the channels\"}, {\"category\": \"thread\", \"id\": \"th_reading\", \"title\": \"Reading the First Stones\"}, {\"category\": \"engine\", \"id\": \"eng_ledger\", \"title\": \"Ledger engine\"}, {\"category\": \"engine\", \"id\": \"eng_source\", \"title\": \"Source engine (physical commons)\"}, {\"category\": \"engine\", \"id\": \"eng_old_hand\", \"title\": \"Old Hand engine (interpretive legitimacy)\"}, {\"category\": \"structure\", \"id\": \"str_seasonal_turn\", \"title\": \"The seasonal turn\"}, {\"category\": \"structure\", \"id\": \"str_measured_turn\", \"title\": \"The counted Turn (high terraces)\"}, {\"category\": \"structure\", \"id\": \"str_unmeasured_return\", \"title\": \"The gift practice (Lower Ammen)\"}, {\"category\": \"structure\", \"id\": \"str_hollow_gate\", \"title\": \"The Hollow Gate\"}, {\"category\": \"structure\", \"id\": \"str_lowfen_channel\", \"title\": \"The Lowfen channel\"}, {\"category\": \"structure\", \"id\": \"str_declined_share\", \"title\": \"A declined share\"}, {\"category\": \"structure\", \"id\": \"str_long_return\", \"title\": \"The Long Return (pulse)\"}, {\"category\": \"reader_experience\", \"id\": \"rx_wonder\", \"title\": \"Wonder at a responsive order\"}, {\"category\": \"reader_experience\", \"id\": \"rx_belonging\", \"title\": \"Everyday belonging\"}, {\"category\": \"reader_experience\", \"id\": \"rx_consequence\", \"title\": \"Consequential loss\"}, {\"category\": \"reader_experience\", \"id\": \"rx_hope\", \"title\": \"Hopeful flourishing\"}, {\"category\": \"other\", \"id\": \"inst_stone_hall\", \"title\": \"Stone Hall (Reckoners)\"}, {\"category\": \"other\", \"id\": \"inst_terrace_council\", \"title\": \"Terrace Council\"}, {\"category\": \"other\", \"id\": \"inst_mill_compact\", \"title\": \"Mill Compact\"}, {\"category\": \"other\", \"id\": \"inst_reading_hall\", \"title\": \"Reading Hall\"}, {\"category\": \"other\", \"id\": \"inst_lineage_crews\", \"title\": \"Maintenance lineages\"}, {\"category\": \"genre\", \"id\": \"gn_epic_fantasy\", \"title\": \"Epic fantasy\"}, {\"category\": \"genre\", \"id\": \"gn_pastoral_belonging\", \"title\": \"Pastoral belonging\"}, {\"category\": \"genre\", \"id\": \"gn_political_institutional\", \"title\": \"Political-institutional\"}, {\"category\": \"genre\", \"id\": \"gn_mystery_discovery\", \"title\": \"Mystery and discovery\"}, {\"category\": \"structure\", \"id\": \"alt_a_reciprocal\", \"title\": \"Finale Alternative A (not chosen)\"}, {\"category\": \"structure\", \"id\": \"alt_b_allotted\", \"title\": \"Finale Alternative B (not chosen)\"}, {\"category\": \"structure\", \"id\": \"alt_c_ratified_trigger\", \"title\": \"Finale Alternative C (not chosen)\"}], \"open_questions\": [{\"id\": \"q-other-0\", \"index\": 0, \"sha256\": \"4015a4dd26d685fbbf4a66f4908383f6ad5984a62d236377fd0c374288099048\", \"text\": \"Does the spring respond to intent, or only to measured balance? Book 15 gives a partial answer; the full ontology is deliberately not promised.\"}, {\"id\": \"q-other-1\", \"index\": 1, \"sha256\": \"e378f70321145594e99926f715e406835f99089d9ae2398b43ac1c606fa8534e\", \"text\": \"What do the lowland towns owe Ammen, and what does Ammen owe them?\"}, {\"id\": \"q-finale-mechanism\", \"index\": 2, \"sha256\": \"a3d8a93bf787bd2be63a7660f78ffdd44bf779ad61b60cad2da434e5d732d1d9\", \"text\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\"}, {\"id\": \"q-other-3\", \"index\": 3, \"sha256\": \"05c0193fd645965bd0a0d363947efc520831745e18122c21a922e02decc45158\", \"text\": \"Does the shared accounting of care bind, and in what form? Not decided.\"}, {\"id\": \"q-right-revocable\", \"index\": 4, \"sha256\": \"f92c6a7509c9a718f93e59aaa1274f4b51e88e1a0e7d05556fee76001a443eb9\", \"text\": \"Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.\"}, {\"id\": \"q-conversion-settlement\", \"index\": 5, \"sha256\": \"797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5\", \"text\": \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\"}, {\"id\": \"q-compact-settlement\", \"index\": 6, \"sha256\": \"d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46\", \"text\": \"Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.\"}, {\"id\": \"q-surge-route\", \"index\": 7, \"sha256\": \"45e67ed584bb451b078d5318111af7cd36035ecca2215456f81ce691bbe1cbeb\", \"text\": \"Which channel takes the Long Return's surge, does any household flood, and does the flood cost lives or lasting losses? These are author choices and are not decided.\"}, {\"id\": \"q-other-8\", \"index\": 8, \"sha256\": \"ffd4a8804740a202afb7bb850bdb66a3138c45474f53dc526942b3d9b0ec05e1\", \"text\": \"Does a Balance Stones threshold exist (Alternative C), who reads it, and which body ratifies it? Not decided.\"}, {\"id\": \"q-hesper-motive\", \"index\": 9, \"sha256\": \"a07cb0bc96e204a1984f6fc17966867bfb96f5d64c7065b4894875a79eaf7b7f\", \"text\": \"Is Hesper's generational motive independent of the author's preference for the Turn's sustainability? Not yet tested.\"}, {\"id\": \"q-other-10\", \"index\": 10, \"sha256\": \"5834062ac9fd0baad5fcf1a961f1e366e8f57df4db60c4de4d5ba46e628010dd\", \"text\": \"Do the Old Hand's readings need intermediate states between Books 8 and 15? Not decided.\"}, {\"id\": \"q-other-11\", \"index\": 11, \"sha256\": \"f8adb9cf2c4aa951ccb31bab809c17513160284bf5b490bac574b08aa8b64127\", \"text\": \"How many Brightwater shares may be drawn before the Balance Stones restrain them?\"}, {\"id\": \"q-reform-stance\", \"index\": 12, \"sha256\": \"2d05099da54a81099d11eef7b75d90e44260e666dd04f4958b01a1e3edddf812\", \"text\": \"Does reform from within remain the series' stance, and does the Gate Table model it or warn against it? Not decided.\"}, {\"id\": \"q-plurality\", \"index\": 13, \"sha256\": \"372661a6591a917e4895387424a5dd2b418ed0aa998214732edd32fe14fee7a4\", \"text\": \"Will any terrace keep a measured ledger in Book 30, and is plurality of practice the intended end state? Not decided.\"}, {\"id\": \"q-gate-table\", \"index\": 14, \"sha256\": \"fc83bf4ed418aec8df46fd0de885a3708ef946c957092c9b2da76cdda447cd57\", \"text\": \"Are the Hollow Gate and the Gate Table accepted parts of the world? Not decided; both are construction additions.\"}, {\"id\": \"q-other-15\", \"index\": 15, \"sha256\": \"0b6ed2b3f5a888e0ad6f95ed3891b3b3eace9faf42313844fb46d5f1e5a9a247\", \"text\": \"What can the high cistern physically store above its tolerance? Not established; Alternatives B and C depend on it.\"}], \"referenced_nodes\": [{\"category\": \"thread\", \"id\": \"th_hands_and_draw\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who gives return labour, and who is counted for draw. This is the series' governing variable. Until Book 19 draw follows shares alone. From Book 20 it partly follows hands owed. Each finale mechanism answers the question differently.\", \"title\": \"Hands and draw\"}], \"request_sha256\": \"7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0\"}, \"unchanged_elements\": [{\"attribution\": \"derived\", \"collection\": \"agents\", \"content_sha256\": \"3d059e98e6aa518026cd1e089a071e851e19cc6de0f8c9531a8f4200d402dc51\", \"epistemic_status\": \"asserted\", \"id\": \"agent-best-handed\"}, {\"attribution\": \"derived\", \"collection\": \"agents\", \"content_sha256\": \"f218d7feeab8a9193ad27745fb7df290513525db32bfd4a35a72c1514947e838\", \"epistemic_status\": \"asserted\", \"id\": \"agent-hand-light\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"agents\", \"content_sha256\": \"d5ad728e17224ecfe9c912f37590a75d4527541d129711dd0c613fba5889bd13\", \"epistemic_status\": \"asserted\", \"id\": \"agent-hesper\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"agents\", \"content_sha256\": \"75eac8fe6f39d2c92a0a62fc59b846a5e8a3c6e5a230532cf2fa0740c66c1132\", \"epistemic_status\": \"asserted\", \"id\": \"agent-lineages\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"agents\", \"content_sha256\": \"b1f00bf9ea08decdd1c824d95e818e51a9357810fc5cad72c0acad8b9f63a3f0\", \"epistemic_status\": \"asserted\", \"id\": \"agent-mill-compact\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"agents\", \"content_sha256\": \"55251710b819e351c2367537e182a892cdb0b8b8bd25edfea6f9ef4c359d6030\", \"epistemic_status\": \"asserted\", \"id\": \"agent-reading-hall\"}, {\"attribution\": \"derived\", \"collection\": \"agents\", \"content_sha256\": \"520ada27711798b33f33d50c8535ebeccd4697f57b714b20bf35fc5616fd3ef2\", \"epistemic_status\": \"asserted\", \"id\": \"agent-steward\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"agents\", \"content_sha256\": \"dc5bfdbc2f5f02ff5e3dcaeb7789ace4f4fd7695c4493b646e4b82f84b9f5e17\", \"epistemic_status\": \"asserted\", \"id\": \"agent-stone-hall\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"alternatives\", \"content_sha256\": \"8992202b4f345c02e2c6a2bee00ea5b8d8f61aa0b3787bdbe898f851759e5670\", \"epistemic_status\": \"hypothetical\", \"id\": \"alt-cistern\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"alternatives\", \"content_sha256\": \"f6681b348ef1131a2d18e2749cf5e7ad13a29e963f28da88ec8dc7ecf8901374\", \"epistemic_status\": \"hypothetical\", \"id\": \"alt-early-compact\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"alternatives\", \"content_sha256\": \"7adf7c361db62f5dd4534bcfd444c9ca1e789ffe7fa1fba9875b8e2c5b9c6dae\", \"epistemic_status\": \"hypothetical\", \"id\": \"alt-right-revocation\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"alternatives\", \"content_sha256\": \"7b852d3b171515260c453e46f5398d4774a2b4bb3ee9793f666215bc3b4caadc\", \"epistemic_status\": \"hypothetical\", \"id\": \"alt-stones-restraint\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"alternatives\", \"content_sha256\": \"ec0453337d848b622390beece364cb61bb3f725bd7fe74fa4f2c885b4815d2e3\", \"epistemic_status\": \"hypothetical\", \"id\": \"alt-threshold\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"assumptions\", \"content_sha256\": \"9e19bb78c0b935f8b94e2a8e14a7f99b07c60e5c1cf551a5140d20a4cc987a01\", \"epistemic_status\": \"asserted\", \"id\": \"assume-p1\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"a4fc771757e847308d4bbf9de7feda1890c69ae046df89daff097defbda13ac0\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p10\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"assumptions\", \"content_sha256\": \"ee0b5a83403b47616d5f9561fafa8a91a39d6c99ec69f946e5e8d8568a51d744\", \"epistemic_status\": \"asserted\", \"id\": \"assume-p2\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"08d8b835eadb92a739a83fbb10b69bc73c9ef0d57cd542d1b5d4c415b2f42577\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p3\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"cc33aad04c9f1cc2dfa998009c00994646ec108f9ee48fc563effda4f5127a51\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p4\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"0feb5f30711c8402738b552031c7a528b820bca1087c3ed0b980bc1bb8cc84d3\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p5\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"fba67bd17b6e98fe327b68fb7b0b89f8c28a15b71a21a2913456104fb2e2c493\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p6\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"8a46327350786fd0ff7d754c98c6b54eeedba771acfbae03edcdb7f2f9c7171a\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p7\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"e9edd6b4265cae817475b2dcf764b7d9cfdcf407a0514fbd9204be86832eabff\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p8\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"assumptions\", \"content_sha256\": \"8bd3904b65a45008228d2a460139c85e145cb94c6fd27ac1c89e4ef0d0c0eeb5\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"assume-p9\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice\", \"content_sha256\": \"6bf373720fec24b188ffe03c712f95950b08e6e1d97953f1ed8d28829d513f6d\", \"epistemic_status\": \"asserted\", \"id\": \"choice-craft-mark\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"542536f839029d07267b65b61884d510502f4bad4e689d02a0d726402f842043\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"closed-book30-surprise\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"0473f6c112b99b1aafef5bd1f094a67c907b34aff1c9f4823e09543800541212\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"closed-idle-generation\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"11398875ff238732f495110b80b2be265cbdcd55c6796f44af82da84925f1d03\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"closed-ignored-right\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"ddd2aef89d48b8641b96200108fb6f368a1a749c3158853b8ddbd0a882ce10df\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"closed-invisible-gift\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"f0e5a736a84ab1692e82a10d8cc6af167cbcc62781b529dc6b175b1882be5135\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"closed-remnant-keeper\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"32dfe6ddca2adb5e32a1a4c7a9294d56bd0cca60595ef5fca593c7a43ac91eb9\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-belief-plural\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"2a574cfdb52ab33527fa65d97ee067089cc75d8a3254bb5365daf7828163992e\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-capability-record\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"5a216695f72ca5d845e13b06ef27e9f398917ea8589a747c85196d864e05038e\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-finale-open\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"385aac9dea47ec104453efa11a9ebb1cc34bbee3d67a6e542c467a6c8600e7d1\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-labour-readiness\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"c54d87f564ca20ddc93fdfc96e69d43c1bc4ec044c209fc8443cafbb7c585776\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-reading-hall\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"series_consequences\", \"content_sha256\": \"1f10f39e951de163cac3ca1b02a4d95bc58c50fd55c0fb95e376e8657cb60663\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"cons-relationship\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.costs_kept_visible\", \"content_sha256\": \"d40ffe3d1501452edb9e89485515575e9b30ce3a63cba278598f53936c5da525\", \"epistemic_status\": \"asserted\", \"id\": \"cost-counted-crewmates\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.costs_kept_visible\", \"content_sha256\": \"5d8083f981b442e837871dd485ff12e7f3f9ea3223053191faf33bc8989583cc\", \"epistemic_status\": \"asserted\", \"id\": \"cost-draw-stays-cut\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"ccfd45c7e5de5baeb004edcb91417054fa04cf6eb367baad0873db31d3ff3cb4\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-compact-settlement\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"ed3a4ee9eb8cc5a5872ae47bc8e5af1fca364309b3190e166631a7dc27b74310\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-conversion-settlement\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"f2be6c2e93b6ebe61d264355beb7246d7bf2ca9ad19e5872d56b106a23a79f28\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-finale-mechanism\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"5193fb83f9eab97c8402ec90c1365b9aea6097008dfa1c6d6a6fcd3b4417e378\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-gate-table\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"2df7d71d76f13e0ce2721bc82a2d858345bfdc6d34d8e31a392b191c04acbc5d\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-hesper-motive\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"3d1172f709212bcafd07f499dab792fa6fd0fa61aeff3f3454c16d84160029d6\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-plurality\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"26038b6ffb457a3c362161f1aeaa88e50ff0a934ba477a5ed6ab9add85ddcc40\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-reform-stance\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"706b8f82d4d1df1d8804a254855189ff56234ebad180aa73d0d2bc9c70cc1d9a\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-right-revocable\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"open_author_decisions\", \"content_sha256\": \"c8249e726f32a887597b38b474403ae517f361deafae1217a8937ac50e30374a\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"dec-surge-route\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"482d3f3da2fd3dac945542d283ba06c8e7d201c15ddb94e484ddcc307b9c16c8\", \"epistemic_status\": null, \"id\": \"edge-capability-hands\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"d4ce29c192221c8d492221dc9dba7e90077ec539428438371b531a97f90e87ee\", \"epistemic_status\": null, \"id\": \"edge-capability-lineage\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"aebf70df3dc738287134eab16e37e6be3265f32f52b81fc32e63e9de573b0b2f\", \"epistemic_status\": null, \"id\": \"edge-crew-setup\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"8fdef6900250374c459e7a60eb2a5cdb86ae1411def8ddf34e268e52bea62915\", \"epistemic_status\": null, \"id\": \"edge-finale-open\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"e7a815ff6b18f4d4adc266bfe21b229ac7d427322e56c34e2bf7f3b01c228ec5\", \"epistemic_status\": null, \"id\": \"edge-function-long-return\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"b0ff5fa18a636576f952e1ab91687acd656fcbf445631ca770ced7e3eade5ad2\", \"epistemic_status\": null, \"id\": \"edge-reading-hall-threshold\"}, {\"attribution\": null, \"collection\": \"typed_edges\", \"content_sha256\": \"87e484f3ead6344c783eafef5811694178274bb2f1996755bcfd8068fb4701c9\", \"epistemic_status\": null, \"id\": \"edge-remnant-register\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"engines\", \"content_sha256\": \"c7f430e804df46b6882e1677016d2fb69f289d41ba2ff8f798294e0c3011426e\", \"epistemic_status\": \"asserted\", \"id\": \"eng-ledger-source\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"engines\", \"content_sha256\": \"9a55608bb7022b6811bde13d45ce699e689e8c67c958cfc2e2e963d9401b8c0a\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"eng-old-hand-ledger\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"engines\", \"content_sha256\": \"3415451d98c997743fc8050eaa154176c404a62ef75afc630e26ec27a42dd7a4\", \"epistemic_status\": \"asserted\", \"id\": \"eng-record-form\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"engines\", \"content_sha256\": \"6e4d01b55a14d8aacda810cfd32770b410df505cb26c51865bfe3b266af577e7\", \"epistemic_status\": \"asserted\", \"id\": \"eng-source-witness\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"function\", \"content_sha256\": \"d385cb5785fea428b881fcaeda20ff2d6e135b7f49c4798c6efc5ebfa4d5fc98\", \"epistemic_status\": \"asserted\", \"id\": \"fn-question\"}, {\"attribution\": \"derived\", \"collection\": \"inherited\", \"content_sha256\": \"3c870c9db3aff8099be618520523f9f5a1e32fb9a5351f4fe85744194ad551a4\", \"epistemic_status\": \"asserted\", \"id\": \"inh-cohort-belief\"}, {\"attribution\": \"derived\", \"collection\": \"inherited\", \"content_sha256\": \"bd01999745b380327110c5e713f70d2c8b0b75b9b33219a8d8ec76aa1cb53f01\", \"epistemic_status\": \"asserted\", \"id\": \"inh-date\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"inherited\", \"content_sha256\": \"2d417f61744bb2fc58e84e8aa5f4a5517d8add7ac3ab324f1d9096f9c1403765\", \"epistemic_status\": \"asserted\", \"id\": \"inh-gate-independence\"}, {\"attribution\": \"derived\", \"collection\": \"inherited\", \"content_sha256\": \"4fefcf9d27f9351bb6d6f1d64f9d09c7c34c62d46eca621d7e752eac57909f04\", \"epistemic_status\": \"asserted\", \"id\": \"inh-gift-reading\"}, {\"attribution\": \"derived\", \"collection\": \"inherited\", \"content_sha256\": \"0f821e086f92fe6a08613671e091787290e832d774b46e46db6d3b30f8fea9d9\", \"epistemic_status\": \"asserted\", \"id\": \"inh-hesper\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"inherited\", \"content_sha256\": \"7d4269d99814a9fbffe1dc18daea1c7c1c19b831fec8f7b0445746fb5fabd63f\", \"epistemic_status\": \"asserted\", \"id\": \"inh-right-condition\"}, {\"attribution\": \"derived\", \"collection\": \"inherited\", \"content_sha256\": \"204946efde8a4b482c0fbc343c5bb4ac47f1ee9a12be90d14402a8452ceb64fe\", \"epistemic_status\": \"asserted\", \"id\": \"inh-uneven-draw\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"369cdb1ba64b2b6f7b21921136affafae990176eb481941da8e0835c0eb6a008\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"later-books-25-26\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"2ce8940c0e297d053a71e317dc80256918de365cb6f84324f730f697423bc313\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"later-channel-skill\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"later_possibilities\", \"content_sha256\": \"717384bf5b8900e5d2d58dcbf9c425830f4a3683cd36d9f391cf182bf3968e0a\", \"epistemic_status\": \"asserted\", \"id\": \"later-cohort-seat\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"8b88cac8ef4e513a4002917579005ce933932b393e6d639e162b14f27e5f4285\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"later-finale-capability\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"later_possibilities\", \"content_sha256\": \"cffbeed6b7d9fa9ec6c4f91b5517d766ef7ee7ff93a8bfb71fd954a39d25caea\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"later-oona-offer\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.options\", \"content_sha256\": \"22ed95b02b1a41729a5c2e5b585e9ae45ecfd005e5ca7d15c7fe43f4f9af5472\", \"epistemic_status\": \"asserted\", \"id\": \"opt-accept-count\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.options\", \"content_sha256\": \"a14b947788947f761b90c24f6d0734d81ddd82605939cca6f61dffd8f7c7f9f2\", \"epistemic_status\": \"asserted\", \"id\": \"opt-craft-mark\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.options\", \"content_sha256\": \"a7c5e8255ecb906bfa7708464c97b5fec689f023c45b98b12b7047eae29a60d7\", \"epistemic_status\": \"asserted\", \"id\": \"opt-refuse\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"local_resolution\", \"content_sha256\": \"ff134b7b9ea5a9f46384e2212ae60cdec425cf4d2c39808bd1de25e930b808c6\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"res-closing-image\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"local_resolution\", \"content_sha256\": \"f98cbd3d3fd6af11b48b576e813f1023dca7cdbfa99b572fe789a171a89e925e\", \"epistemic_status\": \"asserted\", \"id\": \"res-craft-mark-provisional\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"local_resolution\", \"content_sha256\": \"0e9f548f1fe9c8dc4f841b0a7be496cb8d8d4b2eb6c9bb3c4c339e1826132692\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"res-custody-declined\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"local_resolution\", \"content_sha256\": \"5c6d1be34c1bba3720b657a57d6c51b03c78d3a2fe2a470e44e4cf4d77506108\", \"epistemic_status\": \"asserted\", \"id\": \"res-first-group\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"local_resolution\", \"content_sha256\": \"91bdb94e50391a036adbdfe5ada0067625f4060cc9aada93f49747d8616e1808\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"res-lowfen-upkeep\"}, {\"attribution\": \"agent_proposed\", \"collection\": \"choice.transformation\", \"content_sha256\": \"6192e9170b7f0bd7cd110041e79d7628e25889f4edbdd0e7902868c0b68395de\", \"epistemic_status\": \"asserted\", \"id\": \"trans-hesper-idrun\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"a490125a3a92d76a17450344ef624f51b75ba1eb2ce5727bfee813457574c316\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-apprenticeship-return\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"14349281ddf814216098bf85d5a52d015f91ebbbdead53eec12d79acdbb237b3\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-character-sourcing\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"2d58d946491d5430c07693131af14007eb7b89be7e5e9686c337741885d12cc4\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-corrow\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"942f9720ef019c92e181f08c5e97fbe632e52aadeab96d3d388e9af2756e56b6\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-lineage-count\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"7234b5f25e7181b3b2db0a84fa2ecd15a40b5576676db2579cd3e9d38a488712\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-sallow-house\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"20f8b6f7809285c45bab0a42060c2cebd948c40eaf850345e04c1931926ff52d\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-stones-local-return\"}, {\"attribution\": \"unknown_legacy\", \"collection\": \"unresolved\", \"content_sha256\": \"42fed6a762fca988bf3489403f20bc37148045d4ca2873bdb0b92bd1ed053110\", \"epistemic_status\": \"unknown_legacy\", \"id\": \"unk-years\"}], \"visible_source_ids\": [\"book-25-responsibility\", \"book-25-source\", \"intention-5a1bfa5884bf\", \"intention-5fbc97e54e90\", \"intention-aba6fb5d675f\", \"intention-f4a17a2820db\", \"story-vision\"]}"
+}

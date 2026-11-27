@@ -1,0 +1,269 @@
+{
+  "authority": "recorded_history_noncanonical",
+  "basis_legend": {
+    "book_decision": "A Working Book decision that refers to the question. It is a noncanonical working proposal; identity_basis says whether the decision names the question itself or the Book owner resolved it from the version the decision names.",
+    "book_element_association": "A Working Book element records an association with this question. The element engages the question: that is all the association establishes. It does not say the element answers, settles, develops or inherits from the question.",
+    "current_wording": "The working Architecture's wording of the question now.",
+    "named_gap": "History or a Book that could not be read, or is incomplete. It must not be filled in.",
+    "positional_observation": "A Book's prose names this question by its position, read at the version that prose was written against. It is an observation of the prose, never a reference, and nothing was recorded from it.",
+    "recorded_absence": "A readable applied version in which the question was not recorded.",
+    "recorded_change": "A change in recorded wording, judged only against the readable version before it.",
+    "recorded_co_reference": "Two or more selected questions are referred to by one Book. This is a recorded reference, not a relationship in the story.",
+    "recorded_reason": "The author's own revision instruction for that version. It says what was asked, not that the consequence was achieved.",
+    "recorded_selected_alternative": "An alternative a coding agent proposed earlier and the author chose. It is a historical interpretation.",
+    "recorded_wording": "A formulation one applied version recorded, with no change claimed for it."
+  },
+  "co_references": [
+    {
+      "authority": "recorded_reference",
+      "basis": "recorded_co_reference",
+      "book_number": 25,
+      "decision_ids": [
+        "dec-compact-settlement",
+        "dec-conversion-settlement"
+      ],
+      "note": "This Book records decisions about these questions. It does not say they are related in the story.",
+      "question_ids": [
+        "q-compact-settlement",
+        "q-conversion-settlement"
+      ],
+      "title": "The Counted Hands"
+    }
+  ],
+  "current_architecture": {
+    "history_chain_complete": true,
+    "numbered": true,
+    "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "revision_count": 3,
+    "revision_number": 3
+  },
+  "evidence_sha256": "7c4cbe9ce7eb42e18e5f283b4001e8beab29724d65ba5d5745a0855a21aa63dd",
+  "limits": {
+    "book_decisions_per_question": 4,
+    "book_element_associations_per_question": 4,
+    "history_items_per_question": 4,
+    "omitted": {
+      "q-compact-settlement": {
+        "book_decisions": 0,
+        "book_element_associations": 0,
+        "history_items": 0
+      },
+      "q-conversion-settlement": {
+        "book_decisions": 0,
+        "book_element_associations": 0,
+        "history_items": 0
+      }
+    },
+    "questions": 3,
+    "reason_characters": 400,
+    "text_characters": 600
+  },
+  "named_gaps": [
+    {
+      "basis": "named_gap",
+      "count": 6,
+      "gap": "positional_names_untied",
+      "note": "Prose in these Books names a question by position at a version that recorded no identity. Nothing ties that name to a selected question, so it is not shown as one."
+    }
+  ],
+  "note": "These items are the recorded history of the selected open questions, read through the owners. Identity continuity is what the Architecture recorded; it does not establish that two wordings are semantically the same. Nothing here settles a question or states a story relationship.",
+  "positional_observations": [],
+  "questions": [
+    {
+      "books": [
+        {
+          "authority": "working_book_proposal_noncanonical",
+          "basis": "book_decision",
+          "book_number": 25,
+          "book_request_sha256": "4b1694e384b8594fab19f73e476ad139832f2cef3b13bfbb8a0f66b62a793e6f",
+          "current": {
+            "index": 5,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+          },
+          "decision_id": "dec-conversion-settlement",
+          "decision_text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+          "decision_text_sha256": "f651d305ef08a234b4576345047b4a6d076749c678d920cdaa850cc1dd19e5af",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "recorded": {
+            "index": 5,
+            "revision_number": 3,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+            "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+          },
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "current": {
+        "authority": "working_noncanonical",
+        "basis": "current_wording",
+        "index": 5,
+        "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+        "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5"
+      },
+      "engagements": [
+        {
+          "attribution": "unattributed",
+          "authority": "working_book_element_noncanonical",
+          "basis": "book_element_association",
+          "book_number": 24,
+          "book_request_sha256": "ec4fbc133909d3931eee73d720c4ee5fb82573299ccbf3545ccfb43bf3ba5e9c",
+          "collection": "series_consequences",
+          "commitment_authority": "undecided",
+          "current": {
+            "index": 5,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+          },
+          "dependencies": [
+            {
+              "dependency": "transforms",
+              "direction": "to",
+              "function": "The conversion's blind spot changes how hands become draw.",
+              "other": "th_hands_and_draw"
+            }
+          ],
+          "element_id": "cons-conversion-blind-spot",
+          "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+          "element_text_sha256": "de35e2d6fbc796145919a098b7399acfcfbb28c5e748fa63459c51c92805c374",
+          "epistemic_status": "unresolved",
+          "recorded": {
+            "index": 5,
+            "revision_number": 3,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+            "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+          },
+          "standing": "current_wording",
+          "title": "The Uncounted Crew"
+        },
+        {
+          "attribution": "unattributed",
+          "authority": "working_book_element_noncanonical",
+          "basis": "book_element_association",
+          "book_number": 25,
+          "book_request_sha256": "4b1694e384b8594fab19f73e476ad139832f2cef3b13bfbb8a0f66b62a793e6f",
+          "collection": "series_consequences",
+          "commitment_authority": "undecided",
+          "current": {
+            "index": 5,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+          },
+          "dependencies": [
+            {
+              "dependency": "transforms",
+              "direction": "to",
+              "function": "The conversion's blind spot changes how hands become draw.",
+              "other": "th_hands_and_draw"
+            }
+          ],
+          "element_id": "cons-conversion-blind-spot",
+          "element_text": "The conversion's blind spot is public. The Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. This makes open question 6 concrete without answering it.",
+          "element_text_sha256": "de35e2d6fbc796145919a098b7399acfcfbb28c5e748fa63459c51c92805c374",
+          "epistemic_status": "unresolved",
+          "recorded": {
+            "index": 5,
+            "revision_number": 3,
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+            "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+          },
+          "standing": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "history": [
+        {
+          "basis": "named_gap",
+          "gap": "no_identity_before",
+          "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+          "versions": 2
+        },
+        {
+          "authority": "historical_recorded",
+          "basis": "recorded_change",
+          "change": "introduced",
+          "from_revision": 3,
+          "index": 5,
+          "kind": "present",
+          "reason": {
+            "authority": "author_instruction_recorded",
+            "basis": "recorded_reason",
+            "instruction": "Give each open question a stable identity.",
+            "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+          },
+          "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+          "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+          "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5",
+          "to_revision": 3,
+          "versions": 1
+        }
+      ],
+      "history_complete": true,
+      "id": "q-conversion-settlement",
+      "index": 5
+    },
+    {
+      "books": [
+        {
+          "authority": "working_book_proposal_noncanonical",
+          "basis": "book_decision",
+          "book_number": 25,
+          "book_request_sha256": "4b1694e384b8594fab19f73e476ad139832f2cef3b13bfbb8a0f66b62a793e6f",
+          "current": {
+            "index": 6,
+            "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+          },
+          "decision_id": "dec-compact-settlement",
+          "decision_text": "Whether the Mill Compact accepts grain-labour in exchange for settling its claim. Oona's offer is neither accepted nor refused.",
+          "decision_text_sha256": "5d51f43757125f5e0d69b473782286c9718276f64d40e0e596c2593455ce90d6",
+          "identity_basis": "resolved_by_owner_from_recorded_version",
+          "recorded": {
+            "index": 6,
+            "revision_number": 3,
+            "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+            "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+          },
+          "state": "current_wording",
+          "title": "The Counted Hands"
+        }
+      ],
+      "current": {
+        "authority": "working_noncanonical",
+        "basis": "current_wording",
+        "index": 6,
+        "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+        "text_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46"
+      },
+      "engagements": [],
+      "history": [
+        {
+          "basis": "named_gap",
+          "gap": "no_identity_before",
+          "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+          "versions": 2
+        },
+        {
+          "authority": "historical_recorded",
+          "basis": "recorded_change",
+          "change": "introduced",
+          "from_revision": 3,
+          "index": 6,
+          "kind": "present",
+          "reason": {
+            "authority": "author_instruction_recorded",
+            "basis": "recorded_reason",
+            "instruction": "Give each open question a stable identity.",
+            "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+          },
+          "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+          "text": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided.",
+          "text_sha256": "d4a50402dcbe537bc878d32873b644eaf23994e0ab4dc2cf80a9ff65789c8e46",
+          "to_revision": 3,
+          "versions": 1
+        }
+      ],
+      "history_complete": true,
+      "id": "q-compact-settlement",
+      "index": 6
+    }
+  ],
+  "schema": "studio-question-deliberation/1"
+}

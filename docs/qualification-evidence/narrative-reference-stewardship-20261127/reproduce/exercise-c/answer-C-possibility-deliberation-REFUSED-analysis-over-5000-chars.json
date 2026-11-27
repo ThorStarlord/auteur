@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope note: the request packet carries only the identity of the discovered possibility (p2, 'Hours recorded in the ledger could expose the conversion's blind spot, and be surveilled', status transferable, with hashes). It does not carry the possibility's own text or its cited mechanisms. I can therefore test only the claims its title makes, against the records in this packet. I do not reconstruct the rest.\n\nThe title makes three claims: (1) the ledger records hours; (2) hours would expose the conversion's blind spot; (3) the hours could be surveilled. The records bear on them unevenly.\n\nClaim 1, recorded in the working architecture. The text of node eng_ledger says it was revised so that the ledger 'now also records the hours each hand worked beside the mark, so a count of the draw can be read straight from it'. This is a working, noncanonical statement. The architecture does not say which Book introduces it, who asked for it, or whether the author accepted it. The packet's graph_intent has no recorded relations. The hours-recording is a working node revision. It is not evidence of an author commitment.\n\nClaim 2, partly supported, mostly interpretation. The record of the 'blind spot' is the element cons-conversion-blind-spot. It is unattributed, epistemic status unresolved, commitment authority undecided. It sits under Book 24 (The Uncounted Crew) and Book 25 (The Counted Hands) with the same text and hash. It records that the Book 20 conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. It has a recorded 'transforms' dependency toward th_hands_and_draw. It engages q-conversion-settlement, and Book 25's decision dec-conversion-settlement says Book 24 'makes it concrete without answering it'. So the blind spot is a recorded, unresolved element that engages the conversion question. What is not recorded is any link from the ledger's hour-recording to that blind spot. Existing links relate eng_ledger to th_hands_and_draw (l_tally_counts_hands, l_conversion_sets_draw). Neither link mentions hours or uncounted labour. That hours would 'expose' the blind spot is therefore an interpretation. It is plausible, since hours beside the mark could in principle make labour outside the hands count visible. But it is also unrecorded whether hours are credited toward draw at all. The conversion is recorded as crediting hands only. If hours are recorded but not credited, the ledger would show the blind spot without removing it. The record does not say which. Exposure and repair are different outcomes, and nothing recorded distinguishes them.\n\nClaim 3, supported only by a neighbouring record. The only recorded surveillance concern is in the text of alt_a_reciprocal, a not-chosen finale alternative, whose failure modes include 'surveillance of the tally'. That concerns the stewardship tally (the Council's record of care, from Book 15) under Alternative A. It does not concern hours in the ledger under the current conversion. Attaching it to hours is a reading across two different records. Alternative A is also explicitly not chosen. Alt A is the alternative that decouples draw from hands. In it, a record of hours would be a record of care rather than a basis for draw, so the surveillance risk is attached to a mechanism the Series may not adopt. Under the conversion as it stands (hands owed set part of draw), hour-recording would bear on a different function. The two are not shown to be the same hazard.\n\nThe three questions. The possibility came with the three questions q-conversion-settlement (index 5), q-other-3 on shared accounting of care (index 3), and q-right-revocable (index 4). Only q-conversion-settlement has any engagement or Book decision tied to the possibility's subject. q-other-3 has no engagements and no Book decisions. q-right-revocable has Book 25's dec-right-revocable but no element engagement. Book 25 records decisions about q-conversion-settlement and q-right-revocable, but the packet states this is a recorded co-reference, not a story relationship. Both decision identities were resolved by the Book owner from the recorded version, not asserted by the author. The history of all three begins at revision 3 with the author instruction 'Give each open question a stable identity'. Nothing earlier is attached to them, which is a named gap. A recorded reason says only what the author asked for. The six untied positional names are a named gap and I do not fill them in. Whether hour-recording relates to q-other-3 (whether the shared accounting of care binds) or q-right-revocable (whether the lineage right is revocable, with a training condition) is not recorded. Any connection through a hours-based count of lineage labour or of care would be my construction.\n\nWhat the possibility, as titled, would need the record to show to hold: (a) an author-attributed or at least Book-recorded statement that hour-recording is part of the working design, not only a node revision; (b) a recorded dependency from the hours to the conversion's crediting rule (whether hours are credited toward draw or only displayed); (c) a recorded element or decision engaging q-other-3 that ties its 'accounting of care' to the ledger hours, since the surveillance concern is recorded only for the tally; (d) a recorded statement of who can read the hours and to what effect. None of these is present in this packet. What is present is a recorded unresolved blind spot, a working ledger revision, and a recorded surveillance failure mode for a not-chosen alternative. The possibility is a coherent interpretation joining them. The records do not establish the joins.\n\nA legitimate outcome is that the possibility stays an unrecorded interpretation, and that the author decides whether hour-recording is meant to answer the blind spot, to display it, or neither.",
+  "recorded_observations": [
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "claim": "The working node summary says the ledger was revised to record the hours each hand worked beside the mark, so a count of the draw can be read from it. It is a working, noncanonical statement. The packet gives no Book, instruction or author attribution for the revision."
+    },
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Index 5. One Working Book element (cons-conversion-blind-spot, Books 24 and 25, unattributed, unresolved, commitment authority undecided) engages it, and Book 25's decision dec-conversion-settlement (owner-resolved identity) refers to it. The element says the Book 20 conversion credits counted hands only, so uncounted labour cannot restore draw. The engagement shows engagement only, not that the element answers or develops the question."
+    },
+    {
+      "kind": "link",
+      "id": "l_tally_counts_hands",
+      "claim": "Recorded: from Book 20, draw is partly set by hands owed, running eng_ledger to th_hands_and_draw. The link text does not mention hours or uncounted labour."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded: hands a household cannot return reduce its draw (Book 20), running th_hands_and_draw to eng_ledger. Nothing in it says hours are credited toward draw."
+    },
+    {
+      "kind": "node",
+      "id": "alt_a_reciprocal",
+      "claim": "Finale Alternative A, explicitly not chosen, lists 'surveillance of the tally' among its failure modes. The recorded surveillance concern concerns the stewardship tally under that alternative, not hours in the ledger under the current conversion."
+    },
+    {
+      "kind": "question",
+      "id": "q-other-3",
+      "claim": "Index 3, 'Does the shared accounting of care bind, and in what form? Not decided.' It has no Book decision and no element engagement in the packet. Nothing recorded ties it to the ledger's hours."
+    },
+    {
+      "kind": "question",
+      "id": "q-right-revocable",
+      "claim": "Index 4. Book 25 records dec-right-revocable (owner-resolved identity) and co-references it with q-conversion-settlement. The packet states that this co-reference is not a story relationship. It has no element engagement."
+    }
+  ],
+  "hypotheses": [
+    {
+      "title": "Hours display the blind spot without repairing it",
+      "description": "Interpretation only. If the ledger records hours but the Book 20 conversion still credits counted hands only, the ledger would make uncounted labour visible while draw is still cut. This would sharpen q-conversion-settlement (a stage the finale must revisit) rather than answer it. It depends on whether hours are credited, which is not recorded. It is a reading the author could test, not a record."
+    },
+    {
+      "title": "The surveillance risk belongs to the tally, not to the hours",
+      "description": "Interpretation only. The only recorded surveillance concern is attached to the stewardship tally under Alternative A. Under this reading the possibility joins two separate records, and surveillance of hours would need its own recorded reader, purpose and consequence before it could count as a mechanism. Without those it is a plausible risk imported from a not-chosen alternative."
+    },
+    {
+      "title": "Hour-recording as an unaccepted node revision",
+      "description": "Counter-reading. The hours clause in eng_ledger may be a working addition, like the other agent-proposed construction additions the architecture names, and the author may decline it. If so, the possibility rests on a mechanism that is not a commitment, and it should be held as conditional on the author accepting hour-recording."
+    }
+  ],
+  "uncertainties": [
+    "The packet gives only the possibility's title and hashes. Any element or mechanism the discovery cited beyond what is named in the title cannot be tested here.",
+    "Who introduced hour-recording into eng_ledger, in which revision, and whether the author accepted it is not recorded.",
+    "Whether recorded hours are credited toward draw or only displayed is not recorded, so 'expose' versus 'repair' the blind spot is undecided.",
+    "The blind-spot element is unattributed, unresolved and has undecided commitment authority. It is the same text under Books 24 and 25, so it shows no development across Books.",
+    "No record ties q-other-3 or q-right-revocable to the ledger's hours. Book 25's decisions on two of the questions are a co-reference only, and both identities were matched by the Book owner, not asserted by the author.",
+    "The surveillance concern is recorded only for the tally under a not-chosen alternative. Who could read the hours and with what effect is undecided.",
+    "History of all three questions starts at revision 3 (no_identity_before), and six positional names are untied. No earlier history is filled in.",
+    "Whether the questions should stay independent of this possibility, or whether the possibility belongs to one question only (q-conversion-settlement), is the author's decision."
+  ]
+}

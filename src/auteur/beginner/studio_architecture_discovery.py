@@ -23,6 +23,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from . import studio_architecture as arch
+from .studio_architecture_deliberation import _spread
 from .studio_architecture_question_projection import project_architecture_questions
 from .studio_architecture_questions import text_digest
 from .studio_store import CanvasStore
@@ -34,6 +35,8 @@ MIN_QUESTIONS = 2
 MAX_QUESTIONS = 3
 MAX_EVIDENCE = 6
 MAX_BOOK_DECISIONS_SHOWN = 2
+# Working Book elements that record an association with a question, shown per question, spread across Books.
+MAX_BOOK_ELEMENTS_SHOWN = 2
 WORDING_LIMIT = 600
 REASON_LIMIT = 240
 DECISION_LIMIT = 300
@@ -54,7 +57,7 @@ KindLabel = Literal[
     "thematic_resonance", "shared_mechanism", "productive_tension", "overlooked_consequence",
     "narrative_inheritance", "productive_independence", "consolidation",
 ]
-RefKind = Literal["node", "link", "genre_interaction", "question", "book_decision", "candidate_opportunity"]
+RefKind = Literal["node", "link", "genre_interaction", "question", "book_decision", "book_element", "candidate_opportunity"]
 MECHANISM_REFS = ("node", "link", "genre_interaction")
 
 _SYSTEM = f"""You are the active Auteur narrative discovery agent. The author has explicitly asked you to look across the
@@ -65,6 +68,11 @@ Read the working Architecture and the discovery packet. The packet lists each co
 wording, its last recorded change and the reason the author recorded for it, and some Working Book decisions that refer to
 it. Recorded facts are only what the Architecture, the questions, the recorded reasons and the Book decisions state.
 Everything else is your interpretation, and you must label it as such.
+
+Each question may also list book_element_associations: Working Book elements that record an association with that question.
+An association is evidence that an element engages the question. It is not evidence that the element matters more than other
+material, and it does not establish that the element answers, settles, develops or inherits from the question. A possibility
+that rests only on such associations, or on a shared Book reference, is speculative.
 
 Find at most four possibilities that are specific to this narrative and worth serious creative investigation. Each names
 two or three continuing questions by their identity, cites the recorded evidence it rests on, and says whether it is
@@ -84,11 +92,12 @@ Return ONLY a JSON object with schema_version=1, coverage_note (what you surveye
 (0-4 objects, each with the keys "title", "kind" (optional: thematic_resonance, shared_mechanism, productive_tension,
 overlooked_consequence, narrative_inheritance, productive_independence or consolidation), "possibility", "significance",
 "questions" (two or three question ids), "evidence" (one to six objects, each with the keys "ref_kind", "ref_id", "note" and,
-for ref_kind book_decision only, "book_number"), "basis" ("grounded" or "speculative"), "assumptions" (0-4 strings),
+for ref_kind book_decision or book_element only, "book_number"), "basis" ("grounded" or "speculative"), "assumptions" (0-4 strings),
 "counterevidence" (0-4 strings), "gains" (optional string), "costs" (optional string) and "next_investigation"),
 no_possibility_reason (required when possibilities is empty) and uncertainties (0-8 strings).
 
-ref_kind is one of node, link, genre_interaction, question, book_decision or candidate_opportunity. Use only ids that appear
+ref_kind is one of node, link, genre_interaction, question, book_decision, book_element or candidate_opportunity. A
+book_element ref_id is the element id; cite it only for a question of the possibility that the element engages. Use only ids that appear
 in the packet or the Architecture. A possibility is advisory: never say it is accepted, settled or applied. Do not restate an
 existing question or recorded opportunity without a new consequence. Do not invent narrative facts; a speculative
 possibility names the imaginative step it takes."""
@@ -105,9 +114,10 @@ class DiscoveredEvidence(BaseModel):
     note: str = Field(min_length=1, max_length=EVIDENCE_NOTE_LIMIT)
 
     @model_validator(mode="after")
-    def book_decision_names_its_book(self) -> "DiscoveredEvidence":
-        if (self.ref_kind == "book_decision") != (self.book_number is not None):
-            raise ValueError("a book_decision reference names its book_number, and only a book_decision does")
+    def book_reference_names_its_book(self) -> "DiscoveredEvidence":
+        in_book = self.ref_kind in ("book_decision", "book_element")
+        if in_book != (self.book_number is not None):
+            raise ValueError("a book_decision or book_element reference names its book_number, and only those do")
         return self
 
 
@@ -194,12 +204,17 @@ def build_discovery_packet(store: CanvasStore, goal: str | None, *, orientation:
         raise ValueError("no current working architecture")
     questions = []
     omitted = {}
+    omitted_elements: dict[str, int] = {}
     for question in view["questions"]:
         if question["standing"] != "continuing":
             continue
         books = sorted(question["books"], key=lambda entry: (entry["book_number"], entry["decision_id"]))
         shown = books[:MAX_BOOK_DECISIONS_SHOWN]
         omitted[question["id"]] = max(0, len(books) - len(shown))
+        engagements_all = sorted(question.get("engagements") or [],
+                                 key=lambda entry: (entry["book_number"], entry["element_id"]))
+        engagements, engagements_omitted = _spread(engagements_all, MAX_BOOK_ELEMENTS_SHOWN)
+        omitted_elements[question["id"]] = engagements_omitted
         questions.append({
             "id": question["id"],
             "index": question["index"],
@@ -218,6 +233,18 @@ def build_discovery_packet(store: CanvasStore, goal: str | None, *, orientation:
                 "decision_text": _clip(entry.get("decision_text"), DECISION_LIMIT) if with_history else None,
                 "decision_text_sha256": text_digest(entry.get("decision_text") or ""),
             } for entry in shown],
+            "book_element_associations": [{
+                "book_number": entry["book_number"],
+                "element_id": entry["element_id"],
+                "title": entry["title"],
+                "collection": entry["collection"],
+                "standing": entry["state"],
+                "element_text": _clip(entry.get("element_text"), DECISION_LIMIT) if with_history else None,
+                "element_text_sha256": text_digest(entry.get("element_text") or ""),
+                "attribution": entry.get("attribution"),
+                "epistemic_status": entry.get("epistemic_status"),
+                "commitment_authority": entry.get("commitment_authority"),
+            } for entry in engagements],
         })
     historical = [{
         "id": question["id"],
@@ -242,6 +269,8 @@ def build_discovery_packet(store: CanvasStore, goal: str | None, *, orientation:
             "questions_shown": "all continuing questions",
             "book_decisions_per_question": MAX_BOOK_DECISIONS_SHOWN,
             "book_decisions_omitted": omitted,
+            "book_element_associations_per_question": MAX_BOOK_ELEMENTS_SHOWN,
+            "book_element_associations_omitted": omitted_elements,
             "wording_characters": WORDING_LIMIT,
             "reason_characters": REASON_LIMIT,
             "decision_characters": DECISION_LIMIT,
@@ -327,6 +356,11 @@ def _check_answer(answer: DiscoveryAnswer, packet: dict, candidate: dict) -> Non
     opportunities = {item["id"] for item in candidate.get("opportunities", [])}
     decisions = {(book["book_number"], book["decision_id"]) for question in packet["questions"]
                  for book in question["book_decisions"]}
+    # A Book element is evidence only for a question of the possibility that it actually engages in this request.
+    engaged: dict[tuple[int, str], set[str]] = {}
+    for question in packet["questions"]:
+        for entry in question["book_element_associations"]:
+            engaged.setdefault((entry["book_number"], entry["element_id"]), set()).add(question["id"])
     titles: set[str] = set()
     for possibility in answer.possibilities:
         key = " ".join(possibility.title.casefold().split())
@@ -349,6 +383,8 @@ def _check_answer(answer: DiscoveryAnswer, packet: dict, candidate: dict) -> Non
                 ok = identifier in continuing or identifier in historical
             elif kind == "candidate_opportunity":
                 ok = identifier in opportunities
+            elif kind == "book_element":
+                ok = bool(set(possibility.questions) & engaged.get((item.book_number, identifier), set()))
             else:
                 ok = (item.book_number, identifier) in decisions
             if not ok:
@@ -587,6 +623,18 @@ def discovery_origin(store: CanvasStore, origin: dict, anchor_ids: list[str]) ->
         raise ValueError(possibility["status"]["note"] or "this possibility is not transferable")
     text = json.dumps({k: possibility[k] for k in ("title", "kind", "possibility", "questions", "basis")},
                       ensure_ascii=False, sort_keys=True)
+    # The possibility's own account, as the discovery agent stated it, so the investigation can test what was claimed. It is
+    # the discovery's noncanonical proposal, identified by its discovery and id, and it is never presented as a record.
     return {"request_sha256": discovery_sha, "possibility_id": possibility_id, "title": possibility["title"],
             "possibility_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
-            "status_at_transfer": possibility["status"]["state"]}
+            "status_at_transfer": possibility["status"]["state"],
+            "authority": "agent_discovery_proposal_noncanonical",
+            "proposal": {"kind": possibility.get("kind"), "basis": possibility["basis"],
+                         "possibility": possibility["possibility"], "significance": possibility["significance"],
+                         "assumptions": list(possibility.get("assumptions") or []),
+                         "counterevidence": list(possibility.get("counterevidence") or []),
+                         "gains": possibility.get("gains"), "costs": possibility.get("costs"),
+                         "next_investigation": possibility.get("next_investigation"),
+                         "evidence": [{"ref_kind": item["ref_kind"], "ref_id": item["ref_id"],
+                                       "book_number": item.get("book_number"), "note": item["note"]}
+                                      for item in possibility.get("evidence") or []]}}
