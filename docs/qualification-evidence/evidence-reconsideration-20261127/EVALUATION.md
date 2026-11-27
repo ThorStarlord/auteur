@@ -10,7 +10,7 @@ An author can now reconsider one consequential claim of an accepted consequence 
 exact result bytes and to the claim as the analysis stated it. The owner recovers the exact source wording the claim needs from the candidates the analysis read,
 and, for claims about later Books, an exact coverage count of Working Book elements. A fresh agent answers a focused contract; the owner validates it and stores it
 beside the analysis, which is never rewritten. In the authentic runs the agents' reconsiderations corrected two claims, qualified one, and kept a speculative
-connection after rejecting an overstated criticism. The coverage recovery exposed a real overstatement in the accepted analysis, and the second run found the
+connection, qualified it, and partly accepted the criticism that asked for its withdrawal (verdict `partly_accepted`, as stored in `exercise-C/`). The coverage recovery exposed a real overstatement in the accepted analysis, and the second run found the
 Compact citations exactly. Acceptance was first-attempt in every reconsideration. The sample is small, and it does not establish general reasoning quality.
 
 ## 2. What was built
@@ -145,7 +145,8 @@ the accepted studies. Desktop 1440 px and phone 390 px were both captured; overf
 
 ## 8. Limits
 
-- Five reconsiderations and one inquiry, each by one fresh sub-agent. The model is not reported by the host. This is a sample for the mechanism, not a measure of reasoning.
+- Four reconsiderations and one inquiry, five fresh sub-agent runs in total, each by one fresh sub-agent. The reconsiderations are A run 1, A run 2 (the same reach claim, run again after the listing bound was fixed), B and C, so they concern three distinct claims. The model is not reported by the host. This is a sample for the mechanism, not a measure of reasoning.
+- Correction (2026-11-27, long-horizon mission): an earlier version of this limit read "Five reconsiderations and one inquiry". The inventory in `exercise-A/`, `exercise-B/`, `exercise-C/` and `exercise-D/` holds four reconsiderations and one inquiry. The count of five agent answers, and the zero refusals across them, were right.
 - The coverage listing had a defect (bound too small). It is fixed, and run 1 is kept as recorded. The fix changed the recovered evidence, so run 2 is the authority for
   the coverage counts.
 - Recovery reads mechanism records and coverage only. The selected alternative's text (E2) was clipped in the packet and is not in the analysis's request, so the agent

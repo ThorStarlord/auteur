@@ -1,0 +1,26 @@
+{
+  "expected_request_sha256": "55f1a81ddc561d4271a0da029e18ba80bc93e844fb2217f2f59db75a14148841",
+  "passes": {
+    "first": {
+      "stages": 5,
+      "standing_text": "Current: the Architecture and Working Book it read are unchanged, and this is the latest synthesis.",
+      "evidence_disclosed": 13,
+      "page_overflow_px": 0
+    },
+    "follow_up": {
+      "verdicts_shown": 2,
+      "changes_shown": 4,
+      "page_overflow_px": 0
+    },
+    "phone": {
+      "stages": 4,
+      "page_overflow_px": 0,
+      "console_page_errors": []
+    }
+  },
+  "page_request_sha256": "55f1a81ddc561d4271a0da029e18ba80bc93e844fb2217f2f59db75a14148841",
+  "page_request_equals_recorded": true,
+  "follow_page_request_sha256": "825b4fd845de8f85f3f5d9280176cee30989acff4e8fed2483e980e8dfc0b95e",
+  "follow_page_request_equals_recorded": true,
+  "console_page_errors": []
+}

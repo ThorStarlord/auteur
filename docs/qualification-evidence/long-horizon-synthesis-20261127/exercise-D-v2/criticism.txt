@@ -1,0 +1,4 @@
+Stage s1 is labelled "recorded" although E5 and E7 are agent-proposed and E7 calls its review point "agent-proposed as P1", so it should be labelled proposed or inferred (s1; E5, E7).
+Stage s5 turns E8's "may claim standing" into a cohort that "claims standing" and treats eleven excerpts as proof that Books 24 and 25 "do not ask" the question, so it should stay conditional and state the absence as not stated in the cited items (s5; E8, E14).
+Relation R5 says a capability record gives standing "something to rest on", but E8 never mentions a record, so the enables link has no cited premise (R5, s4 to s5; E8).
+Relation R1 is a prerequisite on the Book 24 review point, yet E7 only makes the Right conditional on training, so the strongest relation type is used without the necessity it requires (R1, s1 to s3; E7).
