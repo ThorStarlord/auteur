@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope: a Book-level inquiry into one proposal: that hours recorded in the ledger could expose the blind spot of the Book 20 hands-to-draw conversion. The Book 24 element (cons-conversion-blind-spot, revision 2) is noncanonical, unknown_legacy and commitment-undecided, so nothing below treats the proposal as established or decides the finale. (1) WHAT THE LEDGER RECORDS: the working node eng_ledger says recorded shares set the draw, and from Book 20 draw is partly set by hands owed. Its revision note adds that the ledger also records the hours each hand worked beside the mark, and that a count of the draw can be read from them. That revision is a working claim, not canon, and it gives no start date. (2) WHAT THE BLIND SPOT CONCERNS: the element says the conversion credits counted hands only, so uncounted labour by hand-light households cannot restore their draw. The unit of credit is the counted hand; the blind spot is labour outside that unit. The element also calls the blind spot already public. (3) STATED RELATIONS: two recorded links carry the conversion. l_tally_counts_hands runs from the ledger to hands-and-draw (draw is partly set by hands owed); l_conversion_sets_draw runs back (hands a household cannot return reduce its draw). Both name hands, not hours. No recorded link connects the hours revision to either link or to draw. (4) RELATIONS NEEDING INFERENCE: (a) that hours beside a mark are the uncounted labour the blind spot names; (b) that hours can be set against the hands count, which needs an hours-to-hands rule no one has recorded; (c) that hand-light households' hours sit in the ledger at all, since the gift practice is labour given without a count (str_unmeasured_return) and a record kept beside marks would not hold it; (d) that exposure reaches a character or reader, given that the blind spot is already public. The stewardship tally holds care but not water (str_measured_turn), so uncounted labour may be kept there instead; the record does not say. (5) UNESTABLISHED: when the hours begin and whether they cover the years before Book 20; whether hand in the hours record means the counted unit or any worker; how hands owed is computed after Book 20; whether any body reads hours against hands; whether exposure changes draw or standing or only makes the cost visible. The note that a draw count can be read straight from the hours is not supported by the recorded rules, where shares set draw and hands owed only partly set it; it would need an unrecorded hours-to-draw rule, so treat it as unverified. (6) WORTH DEVELOPING: probably, as a craft relation and not as canon. It turns the blind spot from a general complaint into a checkable mechanism. For example, a household whose recorded hours exceed its hands credit while its draw is still cut. That links the ledger engine to the hands-and-draw thread, to the standing consequence (rx_consequence) and to the cost-of-counting target (et_cost_of_counting), and it gives open question 6 a concrete test. (7) WHAT WOULD MAKE IT WORTH DEVELOPING: a named reader who must weigh hours against the hands count; hours for hand-light households on the marks, shown in the record rather than only in the revision note; and an exposure that changes what a character must weigh. The element says uncounted labour cannot restore draw under the conversion, and exposure alone would not change that rule, so without a consequence the proposal is a discovery without a choice. (8) WHAT WOULD HAVE TO BE TRUE: hours beside marks exist from before the Book 20 conversion, or the blind spot is limited to labour that leaves a trace on a mark; hands and hours can be retrieved for the same households; and either a rule maps hours to hands, or the Book shows that the absence of such a rule is the point. (9) ARCHITECTURE: the observation can stay local to Book 24 as an exploration and needs no Architecture change for that. A recorded link from hours to hands-and-draw would be a new structural commitment, and that is the author's decision. (10) FINALE: Alternatives A and B both reshape the hands-to-draw link (decoupling; a deficit rather than a cut). Hours would bear on either, but this inquiry chooses neither, and open question 6 stays open.",
+  "recorded_observations": [
+    {
+      "kind": "node",
+      "id": "eng_ledger",
+      "claim": "Working node summary, noncanonical: recorded shares set the draw, and from Book 20 draw is partly set by hands owed. The revision says the ledger also records the hours each hand worked beside the mark, and that a count of the draw can be read straight from them. The node states no link from hours to draw or to hands owed."
+    },
+    {
+      "kind": "link",
+      "id": "l_tally_counts_hands",
+      "claim": "Recorded link from the ledger to the hands-and-draw thread, function: from Book 20, draw is partly set by hands owed. The input it names is hands owed, not hours. It carries no rule for computing hands owed from the ledger."
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "Recorded link from the hands-and-draw thread back to the ledger, function: hands a household cannot return reduce its draw (Book 20). This is the conversion itself. The blind spot concerns what this rule leaves out: labour that the counted hands do not credit."
+    },
+    {
+      "kind": "node",
+      "id": "th_hands_and_draw",
+      "claim": "The governing thread: who gives return labour and who is counted for draw. Its summary says that from Book 20 draw partly follows hands owed. The unit it names is counted hands. The Book 24 element anchors here, and the thread is recorded as unchanged."
+    },
+    {
+      "kind": "node",
+      "id": "str_unmeasured_return",
+      "claim": "Recorded as labour given without a count, from Book 15 onward, keeping the lower channels working by release at need. It is uncounted labour in the architecture's own terms, but no recorded link ties it to the Book 20 conversion or to the ledger. Whether the blind spot's uncounted labour is this practice is an inference."
+    },
+    {
+      "kind": "node",
+      "id": "str_measured_turn",
+      "claim": "The stewardship tally, from Book 15, records the counted Turn's labour as a record of care, and the summary says the tally does not hold the water. A record of uncounted labour could sit in the tally rather than the ledger, and the record does not say which holds it."
+    },
+    {
+      "kind": "question",
+      "id": "q-conversion-settlement",
+      "claim": "Open question 6: is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit? Not decided. The Book 24 element engages it in its text only. Its question refs and question associations are empty, so that engagement is not recorded."
+    },
+    {
+      "kind": "emotion_target",
+      "id": "et_cost_of_counting",
+      "claim": "Intended effect: grief that a household's water is cut for hands it cannot return, with dignity for the family. The eliciting condition is the Book 20 conversion and a declined share in Book 21. An hours-against-hands mechanism would give this target concrete texture, but the target does not record one."
+    }
+  ],
+  "hypotheses": [],
+  "uncertainties": [
+    "Which labour the blind spot means: hours recorded beside a mark, which the ledger could expose, or labour outside any mark, such as the gift practice, which the ledger would not hold.",
+    "When the hours revision begins in the story, and whether the hours cover the years before the Book 20 conversion.",
+    "Whether hand in the hours record means the counted unit that the conversion uses, or any worker.",
+    "How hands owed is computed from the ledger after Book 20, and whether any hours-to-hands rule exists at all.",
+    "Whether the stewardship tally rather than the ledger holds the uncounted labour, and what the tally's relation to draw is.",
+    "The element calls the blind spot already public; the proposal adds something only if the exposure has a different audience or precision.",
+    "Whether exposure would change draw or standing, or only make the cost visible; the recorded conversion rule is unchanged by exposure alone.",
+    "Whether finale Alternatives A and B, which both reshape the hands-to-draw link, change what hours would be needed for. Not decided here."
+  ]
+}

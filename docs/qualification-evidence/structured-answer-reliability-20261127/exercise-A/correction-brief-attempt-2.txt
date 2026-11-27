@@ -1,0 +1,7 @@
+Correction attempt 2 for request studio-consequence-89cf2825a5e7c7b412c968d1:0b2decb003678738. The owner refused your previous answer with this message, quoted unedited:
+
+2 rules are not met:
+1. counterevidence to E13 must cite material other than the mechanism itself
+2. counterevidence to E12 must cite material other than the mechanism itself
+
+Return a complete corrected JSON object for the same request, under its output_contract. Change only what the message names, and keep the rest of the analysis as it was. Do not add new claims, new evidence identifiers, new questions or new mechanisms. Use only identifiers that the consequence_packet gives, and the citation_index for the field each is cited in. Return ONLY the JSON object.

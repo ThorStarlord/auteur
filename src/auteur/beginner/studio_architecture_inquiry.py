@@ -432,8 +432,11 @@ def prepare_architecture_inquiry(store,graph_intent:dict,*,question_history:bool
             settings['book_evidence']={'book_number':evidence_ref.book_number,'element_id':evidence_ref.element_id,
                 'book_request_sha256':book_packet['book']['request_sha256'],
                 'element_content_sha256':book_packet['element']['content_sha256']}
+        # The answer's authoritative contract is generated from the model the owner validates the answer against.
+        from auteur.host_agent import model_output_contract
         request=build_request(candidate_id='studio-inquiry-'+arch._digest({'settings':settings,'user':user})[:24],
-            role='studio_architecture_inquiry',system=system,user=user,settings=settings)
+            role='studio_architecture_inquiry',system=system,user=user,settings=settings,
+            output_contract=model_output_contract(ArchitectureInquiryResult))
         base=_inquiry_root(store)
         write_request(base/'requests'/request.request_sha256/'request.json',request)
         atomic_write(base/'latest_request.json',{'request_sha256':request.request_sha256})
