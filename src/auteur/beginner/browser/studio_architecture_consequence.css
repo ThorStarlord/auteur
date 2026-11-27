@@ -78,3 +78,21 @@
   #architecture-consequence { padding: 12px; }
   #architecture-consequence ul { padding-left: 16px; }
 }
+
+/* Reconsideration of one claim: opt-in, collapsed by default, beneath the claim it concerns. */
+.consequence-reconsider-slot{list-style:none;margin:6px 0 10px;padding:0;}
+.consequence-reconsider{border-left:3px solid #8a7aa8;padding:4px 10px;background:#faf8fd;}
+.consequence-reconsider>summary{cursor:pointer;font-weight:600;padding:4px 0;}
+.consequence-reconsider textarea{display:block;width:100%;max-width:100%;box-sizing:border-box;margin:6px 0;font:inherit;}
+.consequence-reconsider button{margin:4px 0 8px;}
+.consequence-reconsideration{border-top:1px solid #e6e0ef;margin:8px 0;padding:8px 0 4px;}
+.consequence-reconsideration-standing{color:#5a5170;font-size:0.9em;}
+.consequence-disposition{display:inline-block;border:1px solid #8a7aa8;border-radius:999px;padding:0 10px;font-weight:600;margin:4px 0;}
+.consequence-reconsidered-judgment,.consequence-reconsidered-new,.consequence-reconsidered-significance{margin:4px 0;}
+.consequence-criticism-verdicts,.consequence-uncertainty{margin:4px 0 4px 1.2em;}
+.consequence-recovered{margin:6px 0;font-size:0.92em;}
+.consequence-recovered-text{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,Consolas,monospace;font-size:0.88em;}
+@media (max-width: 480px){
+  .consequence-reconsider{padding:4px 6px;}
+  .consequence-reconsider textarea{font-size:16px;}
+}

@@ -63,6 +63,9 @@ from .studio_architecture_discovery import (
 from .studio_architecture_consequence import (
     complete_architecture_consequence, prepare_architecture_consequence, project_architecture_consequence,
 )
+from .studio_architecture_reconsideration import (
+    complete_consequence_reconsideration, prepare_consequence_reconsideration, project_consequence_reconsiderations,
+)
 from .studio_architecture_inquiry import (
     complete_architecture_inquiry, prepare_architecture_inquiry, project_architecture_inquiry,
 )
@@ -693,6 +696,16 @@ class _RequestHandler(BaseHTTPRequestHandler):
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return
+            if (len(parts) == 9 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:7] == ["architecture", "consequence"] and parts[8] == "reconsiderations"
+                    and len(parts[7]) == 64 and all(c in "0123456789abcdef" for c in parts[7])):
+                # Read-only: the reconsiderations of one saved analysis, each with its binding and owner-validated answer.
+                try:
+                    self._send_json(200, {"reconsiderations": project_consequence_reconsiderations(
+                        CanvasStore(self.project_root, parts[4]), parts[7])})
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
             if (len(parts) == 7 and parts[:4] == ["api", "beginner", "studio", "canvases"]
                     and parts[5:] == ["architecture", "consequence"]):
                 # Read-only: the analyses of pending revisions on this canvas, and the latest one's standing now.
@@ -840,6 +853,24 @@ class _RequestHandler(BaseHTTPRequestHandler):
                             payload.get("decision"), payload.get("reason")))
                     else:
                         self._send_json(200, complete_architecture_discovery(store, payload))
+                except FileNotFoundError as exc:
+                    raise BeginnerRequestError(404, "working canvas not found") from exc
+                return
+            if (len(parts) == 8 and parts[:4] == ["api", "beginner", "studio", "canvases"]
+                    and parts[5:7] == ["architecture", "consequence"]
+                    and parts[7] in {"reconsider", "reconsider-response"}):
+                # Advisory reconsideration of one claim of an accepted analysis. Nothing here applies or changes a revision.
+                store = CanvasStore(self.project_root, parts[4])
+                try:
+                    if parts[7] == "reconsider":
+                        body = self._read_json()
+                        prepared = prepare_consequence_reconsideration(
+                            store, analysis_request_sha256=body.get("analysis_request_sha256", ""),
+                            selection=body.get("selection") or {}, instruction=body.get("instruction", ""),
+                            criticism=body.get("criticism") or [])
+                        self._send_json(202, prepared)
+                    else:
+                        self._send_json(200, complete_consequence_reconsideration(store, self._read_json()))
                 except FileNotFoundError as exc:
                     raise BeginnerRequestError(404, "working canvas not found") from exc
                 return

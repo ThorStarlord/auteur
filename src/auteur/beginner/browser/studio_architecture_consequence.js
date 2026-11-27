@@ -285,7 +285,125 @@
     return item;
   }
 
-  function resultBlocks(root,result,standing,projection,handlers,busy){
+  // Reconsider this claim: an explicit, optional step on one claim of the accepted analysis. It asks the coding agent to examine the
+  // claim against exact recovered source, and shows the owner-validated reconsideration beneath the claim. The analysis is kept as it is.
+  var DISPOSITION={retained:'Retained',qualified:'Qualified',narrowed:'Narrowed',corrected:'Corrected',expanded:'Expanded',
+    reframed:'Reframed',withdrawn:'Withdrawn',unresolved:'Unresolved'};
+  var VERDICT={accepted:'Accepted',partly_accepted:'Partly accepted',rejected:'Rejected',unresolved:'Unresolved'};
+  function claimKey(claim){return claim.kind+':'+String(claim.ref);}
+  function reconsiderationsFor(projection,claim){
+    return ((projection&&projection.reconsiderations)||[]).filter(function(row){
+      return row.claim&&row.claim.kind===claim.kind&&String(row.claim.ref)===String(claim.ref);});
+  }
+  // The original claim as the analysis stated it, shown by the owner's own text for that claim.
+  function originalWords(claim){
+    var o=(claim&&claim.original_text)||{};
+    var text=o.reading||o.text||o.title||o.summary||o.reach||'';
+    if(o.title&&o.reading)text=o.title+'. '+o.reading;
+    return text||'The analysis stated this claim.';
+  }
+  function reconsiderationCard(row){
+    var card=el('article','consequence-reconsideration');
+    card.setAttribute('data-disposition',row.answer?row.answer.disposition:'awaiting');
+    card.appendChild(el('p','consequence-reconsideration-standing',row.standing==='current'
+      ?'Advisory. It reads the analysis as it stands on this proposal.'
+      :'Advisory. The analysis it reads is no longer the one on this proposal; it is kept as history.'));
+    if(!row.answer)return card;
+    card.appendChild(el('p','consequence-original','Original, as the analysis stated it: '+originalWords(row.claim)));
+    card.appendChild(el('p','consequence-disposition',DISPOSITION[row.answer.disposition]||row.answer.disposition));
+    card.appendChild(el('p','consequence-reconsidered-judgment','Judgment: '+row.answer.reconsidered_judgment));
+    card.appendChild(el('p','consequence-reconsidered-new','What prompted it: '+row.answer.new_consideration));
+    if(row.answer.criticism_assessments&&row.answer.criticism_assessments.length){
+      var weighed=el('ul','consequence-criticism-verdicts');
+      row.answer.criticism_assessments.forEach(function(a){
+        var text=((row.criticism||[]).filter(function(c){return c.id===a.criticism;})[0]||{}).text||a.criticism;
+        weighed.appendChild(el('li',null,(VERDICT[a.verdict]||a.verdict)+': '+text+' — '+a.reason));
+      });
+      card.appendChild(el('p','consequence-note','Criticism weighed:'));
+      card.appendChild(weighed);
+    }
+    if(row.answer.creative_significance)card.appendChild(el('p','consequence-reconsidered-significance','Creative significance: '+row.answer.creative_significance));
+    if(row.answer.remaining_uncertainty&&row.answer.remaining_uncertainty.length){
+      var open=el('ul','consequence-uncertainty');
+      row.answer.remaining_uncertainty.forEach(function(text){open.appendChild(el('li',null,text));});
+      card.appendChild(el('p','consequence-note','Remaining uncertainty:'));
+      card.appendChild(open);
+    }
+    var source=el('details','consequence-recovered');
+    source.appendChild(el('summary',null,'Evidence this reconsideration examined ('+((row.recovery&&row.recovery.records)||[]).length+' recovered)'));
+    var list=el('ul',null);
+    ((row.recovery&&row.recovery.records)||[]).forEach(function(rec){
+      var line=rec.id+' · '+rec.owner+' · '+rec.freshness.replace(/_/g,' ')+(rec.side?' · '+rec.side+' version':'')+(rec.truncated?' · cut at the display limit':'');
+      list.appendChild(el('li',null,line));
+      if(rec.text)list.appendChild(el('li','consequence-recovered-text',rec.text));
+    });
+    source.appendChild(list);
+    card.appendChild(source);
+    return card;
+  }
+  function reconsiderSlot(claim,projection,handlers,ui,busy){
+    var key=claimKey(claim);
+    var draft=ui.reconsiderDrafts[key]||(ui.reconsiderDrafts[key]={question:'',criticism:'',response:''});
+    var li=el('li','consequence-reconsider-slot');
+    var details=el('details','consequence-reconsider');
+    details.setAttribute('data-key','reconsider:'+key);
+    details.open=!!ui.reconsiderOpen[key];
+    details.addEventListener('toggle',function(){ui.reconsiderOpen[key]=details.open;});
+    details.appendChild(el('summary',null,'Reconsider this claim'));
+    details.appendChild(el('p','consequence-note','Asks your coding agent to examine this claim against the exact source it cites, and any criticism you supply. The analysis stays as it is, and nothing is applied.'));
+    var idBase='reconsider-'+key.replace(/[^a-zA-Z0-9]+/g,'-');
+    var qlabel=el('label','consequence-reconsider-label','What should be reconsidered about this claim?');
+    qlabel.htmlFor=idBase+'-question';details.appendChild(qlabel);
+    var question=el('textarea','consequence-reconsider-question');
+    question.id=idBase+'-question';
+    question.rows=2;question.value=draft.question;
+    question.setAttribute('aria-label','What should be reconsidered about this claim?');
+    question.setAttribute('data-key','reconsider-question:'+key);
+    question.addEventListener('input',function(){draft.question=question.value;});
+    details.appendChild(question);
+    var clabel=el('label','consequence-reconsider-label','Criticism to weigh (optional, one per line)');
+    clabel.htmlFor=idBase+'-criticism';details.appendChild(clabel);
+    var criticism=el('textarea','consequence-reconsider-criticism');
+    criticism.id=idBase+'-criticism';
+    criticism.rows=2;criticism.value=draft.criticism;
+    criticism.setAttribute('aria-label','Criticism to weigh, optional, one per line');
+    criticism.setAttribute('data-key','reconsider-criticism:'+key);
+    criticism.addEventListener('input',function(){draft.criticism=criticism.value;});
+    details.appendChild(criticism);
+    var go=el('button','consequence-reconsider-prepare','Prepare reconsideration');
+    go.type='button';go.setAttribute('data-key','reconsider-prepare:'+key);
+    if(busy)go.setAttribute('aria-disabled','true');
+    go.addEventListener('click',function(){
+      var lines=criticism.value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+      handlers.reconsider(claim,question.value.trim(),lines,key);
+    });
+    details.appendChild(go);
+    reconsiderationsFor(projection,claim).forEach(function(row){
+      details.appendChild(reconsiderationCard(row));
+      if(!row.answer&&row.request){
+        details.appendChild(el('p','consequence-note','Copy this request to your coding agent. Paste its response below.'));
+        var box=el('textarea','consequence-reconsider-request');
+        box.readOnly=true;box.rows=5;box.value=JSON.stringify(row.request,null,2);
+        box.setAttribute('aria-label','Reconsideration request for your coding agent');
+        details.appendChild(box);
+        var response=el('textarea','consequence-reconsider-response');
+        response.rows=4;response.value=draft.response;
+        response.setAttribute('aria-label','The coding agent’s reconsideration response (HostAgentResponse JSON)');
+        response.setAttribute('data-key','reconsider-response:'+key);
+        response.addEventListener('input',function(){draft.response=response.value;});
+        details.appendChild(response);
+        var submit=el('button','consequence-reconsider-submit','Submit the reconsideration response');
+        submit.type='button';submit.setAttribute('data-key','reconsider-submit:'+key);
+        if(busy)submit.setAttribute('aria-disabled','true');
+        submit.addEventListener('click',function(){handlers.submitReconsideration(key,response.value);});
+        details.appendChild(submit);
+      }
+    });
+    li.appendChild(details);
+    return li;
+  }
+
+  function resultBlocks(root,result,standing,projection,handlers,busy,ui){
     var packet=result.evidence||{};
     // Versions 2 and 3 share the structured sections (reach, mechanisms, inheritance, trajectories); version 3 adds connections
     // and mechanism-anchored alternatives.
@@ -295,12 +413,14 @@
     root.appendChild(el('p','consequence-reading','Reading (agent interpretation): '+result.reading));
     if(version2){
       root.appendChild(el('p','consequence-reach','Reach: '+reachWords(result.reach)+'. '+(result.reach_meaning||'')));
+      root.appendChild(reconsiderSlot({kind:'reach',ref:null,label:'Reach and reading'},projection,handlers,ui,busy));
     }
 
     root.appendChild(sectionHead('Creative concerns'));
     if(result.concerns&&result.concerns.length){
       var concerns=el('ul','consequence-concerns');
-      result.concerns.forEach(function(c){concerns.appendChild(concernBlock(c,packet));});
+      result.concerns.forEach(function(c,i){concerns.appendChild(concernBlock(c,packet));
+        concerns.appendChild(reconsiderSlot({kind:'concern',ref:i,label:c.title},projection,handlers,ui,busy));});
       root.appendChild(concerns);
     }else{
       root.appendChild(el('p','consequence-note',result.no_concern_reason||'No concern was judged consequential.'));
@@ -311,14 +431,16 @@
         root.appendChild(sectionHead('Recorded mechanisms this reading rests on'));
         root.appendChild(el('p','consequence-note','Each is a record the Architecture holds, with its provenance against the baseline and the proposal. The reading beneath it is the agent’s interpretation.'));
         var mechs=el('ul','consequence-mechanisms');
-        result.mechanisms.forEach(function(m){mechs.appendChild(mechanismBlock(m,packet));});
+        result.mechanisms.forEach(function(m){mechs.appendChild(mechanismBlock(m,packet));
+          mechs.appendChild(reconsiderSlot({kind:'mechanism',ref:m.evidence,label:m.reading},projection,handlers,ui,busy));});
         root.appendChild(mechs);
       }
       if((result.inheritance||[]).length){
         root.appendChild(sectionHead('What later Books may inherit'));
         root.appendChild(el('p','consequence-note','Recorded inheritance is a Book’s own declaration. Plausible, proposed and unknown inheritance are not recorded facts.'));
         var inh=el('ul','consequence-inheritances');
-        result.inheritance.forEach(function(link){inh.appendChild(inheritanceBlock(link,packet));});
+        result.inheritance.forEach(function(link,i){inh.appendChild(inheritanceBlock(link,packet));
+          inh.appendChild(reconsiderSlot({kind:'inheritance',ref:i,label:link.text},projection,handlers,ui,busy));});
         root.appendChild(inh);
       }
       if((result.trajectories||[]).length){
@@ -345,7 +467,8 @@
       root.appendChild(sectionHead('How the mechanisms relate'));
       root.appendChild(el('p','consequence-note','A connection says how two recorded mechanisms relate. Its standing is the agent’s; the recorded graph line is read by the owner from the Architecture itself. The two are shown side by side, and they may differ.'));
       var links=el('ul','consequence-connections');
-      result.connections.forEach(function(c){links.appendChild(connectionBlock(c,packet));});
+      result.connections.forEach(function(c,i){links.appendChild(connectionBlock(c,packet));
+        links.appendChild(reconsiderSlot({kind:'connection',ref:i,label:c.text},projection,handlers,ui,busy));});
       root.appendChild(links);
     }
 
@@ -359,6 +482,7 @@
         alts.appendChild(alternativeBlock(a,packet,canInvestigate,function(alt){
           handlers.investigate(alt,projection.request_sha256);
         },busy));
+        alts.appendChild(reconsiderSlot({kind:'alternative',ref:a.id,label:a.title},projection,handlers,ui,busy));
       });
       root.appendChild(alts);
     }
@@ -410,7 +534,7 @@
 
     if(result){
       root.appendChild(standingLine(standing));
-      resultBlocks(root,result,standing,projection,handlers,ui.busy);
+      resultBlocks(root,result,standing,projection,handlers,ui.busy,ui);
     }
 
     if(projection.request&&current){
@@ -485,10 +609,17 @@
     var live=options.live||{};
     var fetchJson=options.fetchJson||defaultFetch;
     var base=function(){return '/api/beginner/studio/canvases/'+encodeURIComponent(canvasId())+'/architecture/consequence';};
-    var projection=null,ui={notice:null,error:null,loadError:null,busy:false,draft:''},generation=0;
+    var projection=null,ui={notice:null,error:null,loadError:null,busy:false,draft:'',reconsiderDrafts:{},reconsiderOpen:{}},generation=0;
 
     function say(text){if(live.status)live.status.textContent=text||'';}
     function alertUser(text){if(live.alert)live.alert.textContent=text||'';}
+    // The owner's reconsiderations of this analysis ride with its projection, so each claim shows what was reconsidered.
+    function attach(next){
+      if(!next||!next.result||!next.request_sha256){if(next)next.reconsiderations=[];return Promise.resolve(next);}
+      return fetchJson(base()+'/'+next.request_sha256+'/reconsiderations',null,'GET').then(function(data){
+        next.reconsiderations=(data&&data.reconsiderations)||[];return next;
+      },function(){next.reconsiderations=[];return next;});
+    }
     // Keyboard focus stays on the control the author used when it survives; otherwise it moves to the new message or heading.
     function keyInside(){var a=document.activeElement;return a&&root.contains(a)&&a.getAttribute?(a.getAttribute('data-key')||'#inside'):null;}
     function draw(keep){
@@ -505,7 +636,7 @@
     // After a refused action the owner's current state is read again, so a label never describes a request that no longer applies.
     function reloadAfterError(message,keep,canvas){
       var token=++generation;
-      return fetchJson(base(),null,'GET').then(function(next){
+      return fetchJson(base(),null,'GET').then(attach).then(function(next){
         if(token!==generation||canvas!==canvasId())return null;
         projection=next;ui.error=message;alertUser(message);draw(keep);return null;
       },function(){
@@ -516,7 +647,7 @@
     function run(promise,doneText){
       var token=++generation,canvas=canvasId(),keep=keyInside();
       begin();draw(keep);
-      return promise.then(function(next){
+      return promise.then(attach).then(function(next){
         if(token!==generation||canvas!==canvasId())return next;
         end();projection=next;if(next&&next.result)ui.draft='';
         say(doneText);draw(keep);return next;
@@ -531,7 +662,7 @@
       retry:function(){if(ui.busy)return Promise.resolve(null);return handlers.load();},
       load:function(){
         var canvas=canvasId(),keep=keyInside();
-        return fetchJson(base(),null,'GET').then(function(next){
+        return fetchJson(base(),null,'GET').then(attach).then(function(next){
           if(canvas!==canvasId())return next;
           projection=next;ui.loadError=null;draw(keep);return next;
         },function(error){
@@ -548,6 +679,23 @@
           return Promise.resolve(null);
         }
         return run(fetchJson(base()+'/host-agent-response',payload,'POST'),'Analysis accepted.');
+      },
+      reconsider:function(claim,question,criticism,key){
+        if(ui.busy||!projection||!projection.request_sha256)return Promise.resolve(null);
+        if(!question){ui.error='Say what should be reconsidered first.';alertUser(ui.error);draw(keyInside());return Promise.resolve(null);}
+        var body={analysis_request_sha256:projection.request_sha256,selection:{kind:claim.kind,ref:claim.ref},instruction:question,criticism:criticism};
+        return run(fetchJson(base()+'/reconsider',body,'POST').then(function(){return fetchJson(base(),null,'GET');}),
+          'Reconsideration prepared. Copy its request to your coding agent.').then(function(next){
+          var d=ui.reconsiderDrafts[key];if(d){d.question='';d.criticism='';}return next;});
+      },
+      submitReconsideration:function(key,text){
+        if(ui.busy)return Promise.resolve(null);
+        var payload;
+        try{payload=JSON.parse(text||'');}
+        catch(error){ui.error='The response must be valid HostAgentResponse JSON.';alertUser(ui.error);draw(keyInside());return Promise.resolve(null);}
+        return run(fetchJson(base()+'/reconsider-response',payload,'POST').then(function(){return fetchJson(base(),null,'GET');}),
+          'Reconsideration accepted and stored beside its analysis.').then(function(next){
+          var d=ui.reconsiderDrafts[key];if(d){d.response='';}return next;});
       },
       investigate:function(alternative,requestSha){
         if(ui.busy)return Promise.resolve(null);
@@ -567,7 +715,7 @@
     return{
       load:handlers.load,
       reset:function(){
-        generation+=1;projection=null;ui={notice:null,error:null,loadError:null,busy:false,draft:''};
+        generation+=1;projection=null;ui={notice:null,error:null,loadError:null,busy:false,draft:'',reconsiderDrafts:{},reconsiderOpen:{}};
         root.replaceChildren();say('');alertUser('');
       },
       show:function(){return projection;}

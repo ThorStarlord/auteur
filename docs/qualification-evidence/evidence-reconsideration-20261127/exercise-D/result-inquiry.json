@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope. The integrate alternative (a4) answers the refusal's first loss, the declined share's water running wild down the lowest Lowfen terrace (l_declined_goes_wild), with the rota's labour. The packet shows only that the proposal changes this link's function field; the new function text is absent, so the comparison works from the recorded function and the labour each option names. Both anchors are working_noncanonical in this candidate, and the packet records no direct relation between them; they meet only through the Lowfen channel. This is an interpretive reading. It does not decide the finale (q-finale-mechanism remains open) and does not treat the proposal as established.\n\nWhat both share. Neither option changes the physics. The Source answers to balance rather than intention (eng_source), and return labour is part of that balance (l_maintenance_balances_source). The refused water lands on the terrace in either case. The options differ only in which labour is counted as answering the repair of the lowest terrace, and the record does not say what a flood costs or who repairs that terrace (q-surge-route).\n\nThe rota's labour. Narrative function: the answer returns the first loss to the shared practice the series has already made visible (str_seasonal_turn makes belonging visible). It is also the need the record named for the Lowfen in Book 19 (l_lowfen_needs_hands), before lineage crews rebuilt it in Book 20. Reader effect: warmth and strain together. The refusal is absorbed by the households that stayed, so the reader feels whether belonging survives an exit, and the grief of a household whose water is cut for hands it cannot return (et_cost_of_counting, rx_consequence) lands on the same families. Causal role: labour meets water through the Book 20 conversion (l_conversion_sets_draw). Households that cannot return the hands owed lose draw, so the burden tends to fall on those with most hands while the cost falls on those with fewest, the cost th_maintenance already names. Cost: the refuser is not made answerable, the loss is socialised across those who stayed, and belonging risks becoming a labour rota (gi_political_pastoral_constrains).\n\nThe lineage crews' labour. Narrative function: the answer goes to skill holders the record already credits, Ysa Trant's maintenance lineages (inst_lineage_crews), and matches the Book 20 rebuild of the Lowfen itself (str_lowfen_channel). Causal role: the Special Draw Right gives those crews a claim on draw (l_lineage_right_on_draw), so the Ledger would gain a claim drawn from skill rather than only from shares and hands. Reader effect: competence and a sense that the repair will hold, but less shared warmth; the reader sees the answer delivered by a few hereditary lineages. That rhymes with the Stone Hall's hereditary custody of the Ledger (inst_stone_hall, th_custody), so the reader may take repair expertise as another custody. Cost: a privilege of the kind the political-institutional genre is built to dispute (gn_political_institutional), the record's own risk that maintenance knowledge hardens into hereditary privilege (gi_pastoral_mystery_reinforces), and an unsettled permanence (q-right-revocable). The rota would still carry 'the rest', so this option relieves only the repair.\n\nDifference. The rota answer makes the valley's shared labour answer its own refusal; the lineage answer makes a claim on draw do so. Read as reader experience, the rota hides the cost in community warmth and the lineage answer hides it in competence, so each makes a different kind of answerability visible. Read as causal structure, the rota keeps the refusal inside the hands-to-draw variable the series has already set (th_hands_and_draw), while the lineage answer adds skill as a new claim beside it. Neither option, as the packet describes them, makes the refuser answerable, and neither settles whether the Book 20 conversion is lasting (q-conversion-settlement).\n\nLimits. Each cost above is an interpretation of recorded links, not proof of literary or causal mechanism. The packet does not say which labour the proposal finally assigns to containment, so the comparison is between two labour units named in the question, not between drafted scenes.",
+  "recorded_observations": [
+    {
+      "kind": "link",
+      "id": "l_declined_goes_wild",
+      "claim": "Recorded as a declined share running wild down the lowest Lowfen terrace, from str_declined_share to str_lowfen_channel. The integrate proposal changes this link's function field only; its new function text is not in the packet.",
+      "sourceRef": "links/24",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "th_maintenance",
+      "claim": "Recorded thread: from Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest. Working Book 24 and 25 reference it, and the proposal preserves it.",
+      "sourceRef": "nodes/3",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "str_lowfen_channel",
+      "claim": "The Lowfen breaks in the thaw of Book 19 and is rebuilt by lineage crews in Book 20. Its lowest terrace is where a declined share runs wild.",
+      "sourceRef": "nodes/12",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_lowfen_needs_hands",
+      "claim": "Recorded need: the Lowfen breaks in Book 19 and needs a rota's labour. The rota answer returns to this earlier need, while the Book 20 rebuild used lineage crews.",
+      "sourceRef": "links/20",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_lineage_right_on_draw",
+      "claim": "The Special Draw Right gives skill a claim on draw, linking inst_lineage_crews to eng_ledger. The Ledger otherwise sets draw from shares and, from Book 20, partly from hands owed.",
+      "sourceRef": "links/18",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_conversion_sets_draw",
+      "claim": "From Book 20, hands a household cannot return reduce its draw, linking th_hands_and_draw to eng_ledger. The record does not link the Book 21 flood to this conversion.",
+      "sourceRef": "links/17",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "genre_interaction",
+      "id": "gi_political_pastoral_constrains",
+      "claim": "Recorded mechanism: share markets and maintenance duties limit how belonging can be expressed. The stated risk is that belonging becomes a labour rota.",
+      "sourceRef": "genre_interactions/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "question",
+      "id": "q-right-revocable",
+      "claim": "Open and not decided: whether the lineage Special Draw Right is revocable or permanent, and what training condition it carries.",
+      "sourceRef": "open_questions/4",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "title": "The rota answer tests belonging; the lineage answer tests competence",
+      "description": "Read through reader experience, the difference is what the reader is asked to feel about the refusal. A rota answer stages the refusal as a strain the shared turn must absorb, so the reader feels whether belonging survives an exit. A lineage answer stages the same loss as work for skill, so the reader is reassured about the repair and does not see the community carry its own cost. This is one reading of the difference. It would need scene-level testing before any claim about reader response, and it is not a recorded effect.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h2",
+      "title": "The lineage answer adds skill as a claim on water",
+      "description": "Read through causal role, the lineage answer converts repair into a Special Draw Right, so the Ledger engine gains skill as a basis for draw beside shares and hands. The rota answer keeps the repair inside the hands-to-draw conversion recorded from Book 20, where hands a household cannot return reduce its draw. On this reading the real difference is not who repairs the terrace but whether the Ledger gains a new kind of claim. The reading depends on whether the Special Draw Right is permanent, which the record leaves undecided (q-right-revocable).",
+      "divergence_axis": null
+    },
+    {
+      "id": "h3",
+      "title": "The lineage answer re-stages custody as expertise",
+      "description": "Read through genre relation, the lineage answer moves the answer from pastoral belonging toward political-institutional custody. A small hereditary group that holds the repair skill and a claim on draw echoes the Stone Hall's hereditary custody of the Ledger, which the series has already contested. The rota answer stays within pastoral belonging, where the recorded risk is a labour rota rather than hereditary privilege. This reading depends on whether the reader takes lineage competence as a custody claim, which the record does not settle.",
+      "divergence_axis": null
+    }
+  ],
+  "uncertainties": [
+    "The packet does not give the proposal's new function for l_declined_goes_wild, so which labour the proposal assigns to containment is not established.",
+    "The record does not say what a flood costs, who repairs the lowest terrace after a declined share runs wild, or whether any household is lost (q-surge-route).",
+    "Whether the Special Draw Right stays revocable or becomes permanent, and under what apprentice-training condition, is undecided (q-right-revocable).",
+    "Whether the Book 20 hands-to-draw conversion is a lasting settlement or a stage the finale must revisit is undecided (q-conversion-settlement), so the draw cost of the rota answer is not settled.",
+    "No recorded relation links the declined share and the maintenance thread directly; the comparison relies on the path through the Lowfen channel.",
+    "The record does not link the Book 21 flood to the Book 20 conversion, so the household cost of the rota answer is interpretive.",
+    "Who carries the Turn when the maintenance lineages end is undecided, so the long-run staffing of the lineage answer is unknown.",
+    "The finale mechanism is not decided (q-finale-mechanism); neither Alternative A, B nor C is assumed here."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": null,
+  "inquiry_target": "current",
+  "intent": {
+    "anchors": [
+      {
+        "authority": "working_noncanonical",
+        "id": "l_declined_goes_wild",
+        "kind": "link",
+        "recordedSupport": "{\"function\": \"a declined share runs wild down the lowest Lowfen terrace\", \"id\": \"l_declined_goes_wild\", \"source\": \"str_declined_share\", \"target\": \"str_lowfen_channel\"}",
+        "sourceRef": "links/24"
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "th_maintenance",
+        "kind": "node",
+        "recordedSupport": "{\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\", \"title\": \"Keeping the channels\"}",
+        "sourceRef": "nodes/3"
+      }
+    ],
+    "author_text": "Investigate the integrate alternative as it now stands after the reconsideration of the maintenance reading. The recovered record of the maintenance thread says that from Book 20 lineage crews carry channel repair under a Special Draw Right, and that households able to meet the rota carry the rest. Compare answering the refusal's first loss with the rota's labour against answering it with the lineage crews' labour, and say what each would make possible for the reader and what each would cost. Do not decide the finale, and do not treat the proposal as established.",
+    "between": {
+      "relations": [],
+      "status": "no_recorded_relation"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "compare",
+    "recorded_relations": [
+      {
+        "authority": "recorded",
+        "function": "return labour keeps the spring balanced",
+        "id": "l_maintenance_balances_source",
+        "kind": "link",
+        "source": "th_maintenance",
+        "sourceRef": "links/9",
+        "target": "eng_source"
+      },
+      {
+        "authority": "recorded",
+        "function": "lineage crews carry channel repair from Book 20",
+        "id": "l_lineage_carries_repair",
+        "kind": "link",
+        "source": "inst_lineage_crews",
+        "sourceRef": "links/19",
+        "target": "th_maintenance"
+      },
+      {
+        "authority": "recorded",
+        "function": "the Lowfen breaks in Book 19 and needs a rota's labour",
+        "id": "l_lowfen_needs_hands",
+        "kind": "link",
+        "source": "str_lowfen_channel",
+        "sourceRef": "links/20",
+        "target": "th_maintenance"
+      },
+      {
+        "authority": "recorded",
+        "function": "a declined share runs wild down the lowest Lowfen terrace",
+        "id": "l_declined_goes_wild",
+        "kind": "link",
+        "source": "str_declined_share",
+        "sourceRef": "links/24",
+        "target": "str_lowfen_channel"
+      },
+      {
+        "authority": "recorded",
+        "function": "the pulse needs channel labour before its date",
+        "id": "l_longreturn_needs_hands",
+        "kind": "link",
+        "source": "str_long_return",
+        "sourceRef": "links/25",
+        "target": "th_maintenance"
+      },
+      {
+        "authority": "recorded",
+        "function": "under B, purchased draw owes grain-labour to the rebuild",
+        "id": "l_compact_hands_in_kind",
+        "kind": "link",
+        "source": "inst_mill_compact",
+        "sourceRef": "links/27",
+        "target": "th_maintenance"
+      }
+    ],
+    "target": "current",
+    "version": 1
+  },
+  "from_consequence": {
+    "alternative_id": "a4",
+    "alternative_sha256": "289b61a48d3e02e4a814723ba658e0db23f78ca181df4152979284cf606026a9",
+    "approach": "integrate",
+    "keeps": [
+      {
+        "changed_fields": [
+          "function"
+        ],
+        "provenance": "transformed",
+        "record_id": "l_declined_goes_wild",
+        "record_kind": "link",
+        "routes": [
+          "changed_by_proposal"
+        ]
+      },
+      {
+        "changed_fields": [],
+        "provenance": "preserved",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ]
+      }
+    ],
+    "mechanisms": [
+      {
+        "changed_fields": [
+          "function"
+        ],
+        "provenance": "transformed",
+        "record_id": "l_declined_goes_wild",
+        "record_kind": "link",
+        "routes": [
+          "changed_by_proposal"
+        ]
+      },
+      {
+        "changed_fields": [],
+        "provenance": "preserved",
+        "record_id": "th_maintenance",
+        "record_kind": "node",
+        "routes": [
+          "referenced_by_working_book:24,25"
+        ]
+      }
+    ],
+    "questions": [],
+    "request_sha256": "1c821d4a435199d1b0b0e1804fac0c95ae1b51d537b14bb53e34aef3b72a1f83",
+    "title": "Answer the refusal's first loss with the rota's labour"
+  }
+}

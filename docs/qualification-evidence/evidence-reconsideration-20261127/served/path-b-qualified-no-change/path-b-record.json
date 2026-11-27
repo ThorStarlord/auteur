@@ -1,0 +1,23 @@
+{
+  "label": "path-b",
+  "claim_key": "connection:2",
+  "expected_request_sha256": "e7b78910d8289578b6e346a162ff47a262ae197d22dfa7d0d98c640ce4ab9d50",
+  "page_request_sha256": "e7b78910d8289578b6e346a162ff47a262ae197d22dfa7d0d98c640ce4ab9d50",
+  "page_request_equals_recorded": true,
+  "desktop-1440": {
+    "disposition": "qualified",
+    "card_text_has_judgment": true,
+    "card_text_has_advisory": true,
+    "recovered_evidence_listed": true,
+    "page_overflow_px": 0,
+    "console_page_errors": []
+  },
+  "phone-390": {
+    "disposition": "qualified",
+    "card_text_has_judgment": true,
+    "card_text_has_advisory": true,
+    "recovered_evidence_listed": true,
+    "page_overflow_px": 0,
+    "console_page_errors": []
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-reconsideration-175cf4815731d202a0182576:b08948d7782e6ab8",
+  "candidate_id": "studio-reconsideration-175cf4815731d202a0182576",
+  "role": "studio_architecture_consequence_reconsideration",
+  "created_at": "2026-11-27T19:43:01.385470+00:00",
+  "system": "You are the active Auteur reconsideration agent. An earlier consequence analysis of a proposed working revision was accepted by the owner. The author asks you to reconsider ONE claim of that analysis. Your reading is advisory: it is not an applied revision, it is not canon, and it changes no record.\n\nThe request gives you the claim, with its original text held by the owner. Do not restate that original text. It gives the original evidence the analysis cited, and the recovered records: exact full source wording read from the version the analysis read, and, where the claim concerns Working Book coverage, a coverage record with exact counts. Recovered records are the only source of exact wording. A clipped packet line is not exact wording.\n\nDecide what the claim now warrants, and say why. Use exactly one disposition: retained (the claim stands as it was), qualified (it stands with a stated limit), narrowed (its scope is reduced), corrected (its reading was wrong on the source), expanded (it omits a consequence the source supports), reframed (the same source supports a different reading), withdrawn (it is not supported and should not be relied on), or unresolved (the source does not decide it).\n\nRules. Cite only the identifiers the request gives. A correction must cite at least one recovered record, because a correction rests on exact source. A coverage statement must use the counts the coverage record gives, and must not say that an element was read unless the coverage record lists it. Keep apart what the record states, what it relates, what you interpret, what is a hypothesis and what remains unestablished. Do not present an inference as recorded.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, and give a reason for each. A criticism that overstates what the source shows may be rejected. A criticism that correctly finds a misreading must be accepted. Preserve legitimate creative speculation that the record labels as speculation: qualify it, and do not withdraw it merely because the record does not state it.\n\nDo not claim that this reconsideration is accepted, applied or canonical, and do not describe a narrative change as if it were made.\n\nReturn ONLY one JSON object with these keys: schema_version (1), disposition, new_consideration (what prompted the reconsideration), reconsidered_judgment (what is now retained, corrected, qualified, expanded or withdrawn), evidence (1 to 6 identifiers), criticism_assessments (0 to 4 objects with criticism, verdict and reason), creative_significance (optional), remaining_uncertainty (0 to 4 strings), and downstream (0 to 3 objects with text and evidence, for consequences of a correction that matter later). Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\", \"E15\", \"E16\", \"E17\", \"E18\", \"E19\", \"E20\", \"E21\", \"E22\", \"E23\", \"E24\", \"E25\", \"E26\", \"E27\", \"E28\", \"E29\", \"E30\", \"E31\", \"E32\", \"E33\", \"E34\", \"E35\", \"E36\", \"E37\", \"E38\", \"E39\", \"E40\", \"E41\", \"E42\", \"E43\", \"E44\", \"E45\", \"E46\", \"E47\", \"E48\", \"E49\", \"E50\", \"E51\", \"E52\", \"E53\", \"E54\", \"E55\", \"E56\", \"E57\", \"E58\", \"E59\", \"E60\", \"E61\", \"E62\", \"E63\", \"E64\", \"E65\", \"E66\", \"E67\", \"E68\", \"E69\", \"E70\", \"E71\", \"E72\", \"E73\", \"E74\", \"E75\", \"E76\", \"E77\", \"E78\", \"E79\", \"E80\", \"E81\", \"E82\", \"E83\", \"E84\", \"E85\", \"E86\", \"E87\", \"E88\", \"E89\", \"E90\", \"E91\", \"E92\"], \"analysis\": {\"analysis_request_sha256\": \"1c821d4a435199d1b0b0e1804fac0c95ae1b51d537b14bb53e34aef3b72a1f83\", \"analysis_result_sha256\": \"9b7f28eb801bfd718192b04b617f7de350bd86a5ac38d9b0275abcf9bb14c49a\", \"baseline_request_sha256\": \"7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0\", \"evidence_sha256\": \"cc245380e441d99d423f6482a6110b87e0682f67d978d5d1af226eaad4f95f23\", \"proposal_sha256\": \"3e96905c06e26b4682733db32fde4ffb4690e377c9b2a95f5f5998b122358ba2\", \"revision_request_sha256\": \"214aa190874f2f2b19792d3507875e35921205f906b68afc1cd325ba8fa226e9\"}, \"claim\": {\"claim_sha256\": \"a92be3577edde81e1cf26dd5d962704f111d5183d15f7ee77f9de6d836ef2a49\", \"evidence\": [\"E32\", \"E2\"], \"kind\": \"mechanism\", \"original_text\": {\"conditional_consequence\": \"If a flood on a holding reduces a household's labour, the rota's remaining households would carry more; the record does not make that link.\", \"counterevidence\": [{\"evidence\": [\"E2\"], \"text\": \"E2 says only the channel the share is cut into changes, so the selected alternative states no change to the household's hands.\"}], \"evidence\": \"E32\", \"reading\": \"Unchanged record: the rota carries channel repair and return labour, and households that can meet it carry the rest. The proposal leaves this text as it is, so it states no change to who performs the labour.\", \"record\": {\"changed_fields\": [], \"provenance\": \"preserved\", \"record_id\": \"th_maintenance\", \"record_kind\": \"node\", \"routes\": [\"referenced_by_working_book:24,25\"]}, \"transformation\": null, \"unresolved\": [\"Whether a flood on a refusing household's holding affects its ability to meet the rota is not recorded.\"], \"view\": {\"id\": \"E32\", \"kind\": \"mechanism\", \"label\": \"node th_maintenance (preserved)\"}}, \"ref\": \"E32\"}, \"criticism\": [], \"instruction\": \"Reconsider the interpretation of maintenance responsibility in this analysis, and its relevance to the proposed change to the declined-share link. Where the summary given is incomplete, read the exact source that the material recovered for this reconsideration provides. Say what the record supports about who performs the maintenance and channel work, what the proposed change alters, and whether any dependent claim should change. Preserve any uncertainty the record leaves open.\", \"operation\": \"consequence_reconsideration\", \"original_evidence\": [{\"baseline_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\", \"baseline_text\": \"Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…\", \"book_references\": [24, 25], \"changed_fields\": [], \"endpoints\": [\"th_maintenance\"], \"historical_sha256\": null, \"historical_text\": null, \"id\": \"E32\", \"kind\": \"mechanism\", \"proposed_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\", \"proposed_text\": \"Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…\", \"provenance\": \"preserved\", \"record_id\": \"th_maintenance\", \"record_kind\": \"node\", \"routes\": [\"referenced_by_working_book:24,25\"], \"text\": \"preserved · Keeping the channels: Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, a…\", \"version_request_sha256\": null}, {\"considered_questions\": [], \"hypothesis_id\": \"h1\", \"id\": \"E2\", \"inquiry_request_sha256\": \"e4e7da124a587c5c81a9f041bc287d59f643098a0fb1ac5c26f875e45aa061d2\", \"kind\": \"selected_alternative\", \"text\": \"Refusal drains to the refuser's own ground. What changes: the declined share's unkept water is routed into the refusing household's own holding, its plot and well branch on the ground above the Lowfen, instead of down the lowest Lowfen terrace. Nothing in the spring targets the refuser. The share still spills to the lowest point of whatever channel carries it, and the Source still answers to balance. Only the channel the share is cut into changes. How it operates: when the household stops tending its branch, its own fields and well flood and the lowest terrace is spared. Who faces the decisiv…\"}], \"recovered_evidence\": [\"E91\", \"E92\"], \"recovery\": {\"coverage\": null, \"records\": [{\"freshness\": \"as_analysed\", \"id\": \"E91\", \"owner\": \"Architecture candidate the analysis read\", \"record_id\": \"th_maintenance\", \"record_kind\": \"node\", \"side\": \"baseline\", \"source\": \"recovered\", \"text\": \"{\\\"category\\\": \\\"thread\\\", \\\"id\\\": \\\"th_maintenance\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\\\", \\\"title\\\": \\\"Keeping the channels\\\"}\", \"truncated\": false, \"version_sha256\": \"37634b27dd47e8092e74d2bc86122ca963040d4bc4fec2518568067db03e0f0b\"}, {\"freshness\": \"as_analysed\", \"id\": \"E92\", \"owner\": \"Architecture candidate the analysis read\", \"record_id\": \"th_maintenance\", \"record_kind\": \"node\", \"side\": \"proposed\", \"source\": \"recovered\", \"text\": \"{\\\"category\\\": \\\"thread\\\", \\\"id\\\": \\\"th_maintenance\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\\\", \\\"title\\\": \\\"Keeping the channels\\\"}\", \"truncated\": false, \"version_sha256\": \"3e96905c06e26b4682733db32fde4ffb4690e377c9b2a95f5f5998b122358ba2\"}]}}",
+  "settings": {
+    "operation": "reconsider_consequence",
+    "analysis_request_sha256": "1c821d4a435199d1b0b0e1804fac0c95ae1b51d537b14bb53e34aef3b72a1f83",
+    "analysis_result_sha256": "9b7f28eb801bfd718192b04b617f7de350bd86a5ac38d9b0275abcf9bb14c49a",
+    "claim_kind": "mechanism",
+    "claim_ref": "E32",
+    "claim_sha256": "a92be3577edde81e1cf26dd5d962704f111d5183d15f7ee77f9de6d836ef2a49",
+    "instruction_sha256": "03ae04d83c56e4fa3d683320affb6715d22a6a39f84621dd91c9061b613abfc4",
+    "criticism_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "recovery_sha256": "fdb74fe7be2e28ce8fb3e21004159dab110d3c52b43b29b1b8ebc0ae51494b3b",
+    "evidence_sha256": "cc245380e441d99d423f6482a6110b87e0682f67d978d5d1af226eaad4f95f23",
+    "reconsideration_schema_version": 1
+  },
+  "request_sha256": "b08948d7782e6ab8a38b50c749e1a204449375f63506737622b3eb1cbb5356a4",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ReconsiderationAnswer",
+    "json_schema": {
+      "$defs": {
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "DownstreamItem": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "DownstreamItem",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A focused reconsideration of one claim. The owner holds the original claim; the agent gives the judgement.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "disposition": {
+          "enum": [
+            "retained",
+            "qualified",
+            "narrowed",
+            "corrected",
+            "expanded",
+            "reframed",
+            "withdrawn",
+            "unresolved"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "new_consideration": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "New Consideration",
+          "type": "string"
+        },
+        "reconsidered_judgment": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Reconsidered Judgment",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "pattern": "^E[1-9][0-9]{0,2}$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "creative_significance": {
+          "anyOf": [
+            {
+              "maxLength": 600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Creative Significance"
+        },
+        "remaining_uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Remaining Uncertainty",
+          "type": "array"
+        },
+        "downstream": {
+          "items": {
+            "$ref": "#/$defs/DownstreamItem"
+          },
+          "maxItems": 3,
+          "title": "Downstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "disposition",
+        "new_consideration",
+        "reconsidered_judgment",
+        "evidence"
+      ],
+      "title": "ReconsiderationAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "cd5065e9250cffc1172ceb104f911b4b7f725a9936d768f3363dc8c893073c5c"
+  }
+}

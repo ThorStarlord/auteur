@@ -1,0 +1,23 @@
+{
+  "label": "path-a",
+  "claim_key": "reach:null",
+  "expected_request_sha256": "0d14a92dd77dd4a8d3e9d536c3e9888d3fe1c34ae9f218dc3a3dd4854b57ce66",
+  "page_request_sha256": "0d14a92dd77dd4a8d3e9d536c3e9888d3fe1c34ae9f218dc3a3dd4854b57ce66",
+  "page_request_equals_recorded": true,
+  "desktop-1440": {
+    "disposition": "corrected",
+    "card_text_has_judgment": true,
+    "card_text_has_advisory": true,
+    "recovered_evidence_listed": true,
+    "page_overflow_px": 0,
+    "console_page_errors": []
+  },
+  "phone-390": {
+    "disposition": "corrected",
+    "card_text_has_judgment": true,
+    "card_text_has_advisory": true,
+    "recovered_evidence_listed": true,
+    "page_overflow_px": 0,
+    "console_page_errors": []
+  }
+}

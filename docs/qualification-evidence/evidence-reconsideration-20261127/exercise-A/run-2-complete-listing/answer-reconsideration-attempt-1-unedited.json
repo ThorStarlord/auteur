@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "disposition": "corrected",
+  "new_consideration": "The author asks for reconsideration of the claims about later Books and the Compact's mechanisms. E92 is a current coverage read of Books 24 and 25 stating 182 elements read, 124 considered by the packet and 24 supplied to the analysis. E90 and E91 are the wording the analysis itself read.",
+  "reconsidered_judgment": "Retained: the reading of the E11 link. E90 states the baseline condition as under B and E91 states the proposed text as in every season, so the recorded change replaces that condition with every season. Corrected: the claim's account of Books 24 and 25 as not citing the Compact. E92, a current read, lists 19 elements in those books that cite claim nodes, 8 citing inst_mill_compact and 11 citing th_maintenance, so they are reach candidates. Unresolved: the Books 27 to 29 bid, the Book 30 choice and the touches on E5, E13, E19, E30, E31 and E63, which no recovered record covers. Qualified: the later reach stands only as a candidate, since E92 relates cites and does not state what those elements assert.",
+  "evidence": ["E11", "E90", "E91", "E92"],
+  "criticism_assessments": [],
+  "creative_significance": "The identifiers agent-mill-compact, res-custody-declined, later-oona-offer and alt-early-compact suggest the Compact is staged in Books 24 and 25 as an agent, a declined custody, a later offer and an early alternative. The record gives these names and cite links only, not their text, so this reading is interpretation.",
+  "remaining_uncertainty": [
+    "Books 27 to 29, the Book 30 finale choice and E8, which the claim cites for them, are outside books_read and no recovered record covers them, so the later reach is unverified here.",
+    "E1, E5, E13, E19, E30, E31 and E63 are not in the recovered material, so the instruction and touches the claim cites are unchecked; reading B in E90 as Alternative B rests on the claim's citation of E13.",
+    "The coverage record relates cites only; what the 19 citing elements assert about the Compact's duty is not recovered, so whether the change alters them is not established.",
+    "The record does not show whether the analysis's 24 supplied elements included the citing elements, so why the earlier reading missed them is not established."
+  ],
+  "downstream": [
+    {
+      "text": "Check the 19 Books 24 and 25 citing elements against the changed link before claiming any consequence for them; they are reach candidates, not established effects.",
+      "evidence": ["E92", "E11"]
+    },
+    {
+      "text": "Do not rely on the earlier statement that Books 24 and 25 lie outside the change's reach, since E92 contradicts it.",
+      "evidence": ["E92"]
+    },
+    {
+      "text": "Books 27 to 30 need coverage before any later-Book reach of the E11 change is relied on, because E92 lists no elements from them.",
+      "evidence": ["E92"]
+    }
+  ]
+}
