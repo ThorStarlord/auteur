@@ -992,7 +992,9 @@ When you must invent something the author did not establish in order to make thi
 architecture work - a world rule, the meaning of one of the author's commitments,
 or a proposed resolution of a question the author reserved - record it in
 interpretations. State the reading you are using, which nodes it determines, its
-major consequences, and any credible alternative. Set author_decision_required
+major consequences, and any credible alternative. Its affects field takes node
+identifiers only: each one must be the id of a node you list in nodes, so a phase,
+link or question identifier is refused. Set author_decision_required
 when the choice would materially redirect the series. Make the recommendation
 confidently; just do not report your reading as something the author already
 established.

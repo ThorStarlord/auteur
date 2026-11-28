@@ -1144,7 +1144,10 @@ checked on top of it, and each one is stated for the field it governs:
 {reach}
   Concern bounds: at most {MAX_CONCERNS} concerns; each reading at most {CONCERN_READING_LIMIT} characters; each evidence list 1 to
   {MAX_EVIDENCE_PER_CONCERN} identifiers. Mechanism readings: 0 to {MAX_MECHANISM_READINGS}, one per mechanism; each reading at most
-  {READING_ITEM_LIMIT} characters; a transformed, removed or introduced mechanism states its transformation. Inheritance kinds:
+  {READING_ITEM_LIMIT} characters; a transformed, removed or introduced mechanism states its transformation. Mechanism counterevidence
+  is 0 to {MAX_MECHANISM_COUNTEREVIDENCE} objects, each {{text, evidence}} with text of at most {COUNTER_LIMIT} characters, and its
+  evidence (1 to 3 identifiers) must include at least one recorded item other than this mechanism itself, because counterevidence
+  limits the reading; an object whose evidence names only this mechanism is refused. Inheritance kinds:
 {kinds}
 - alternatives: 0 to {MAX_ALTERNATIVES} objects. Each names at least one anchor and at most three anchors in all: questions (0 to 3 continuing
   baseline question identifiers) and mechanisms (0 to 3 mechanism identifiers). A mechanism-only alternative is legitimate. Do not

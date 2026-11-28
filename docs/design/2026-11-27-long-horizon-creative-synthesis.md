@@ -335,3 +335,41 @@ total criticism bound of four still applies.
   problems were in relations and alternatives, which the rule does not select (evaluation record, sections 4 and 6).
 - No author disagreement is recorded as a structured judgement. An author's disagreement enters as criticism of a follow-up, and that is
   the only route by which it changes a later judgement.
+
+## 13. Increment 3: parallel configurations and reflection on a portfolio (2026-11-28)
+
+Status: decision recorded on `feat/creative-portfolio-culmination` from `main@8b707652` (after PR #655). Advisory, as sections 1 to 12.
+The increment's evidence is `docs/qualification-evidence/creative-portfolio-20261128/`.
+
+### 13.1 Standing is per configuration, not per developments
+
+A named culmination makes its own configuration of the same developments (`configuration_sha256`, present only when a culmination is named).
+A synthesis is the latest judgement of its configuration. Without a culmination, the configuration is the developments alone, as before.
+
+Consequence: two culminations of the same developments are parallel investigations; neither supersedes the other, and an unanswered
+alternative stays answerable on the page. A follow-up supersedes what it follows only within the same configuration.
+
+Considered and rejected: keeping standing per developments (it hid an unanswered sibling alternative and labelled it superseded);
+keying standing by question (rewording a question would then escape the supersession of its own follow-up).
+
+Requests prepared before this change keep their standing, because their pointer is the developments key and that is what they used.
+
+### 13.2 Two instruction repairs at the owners that enforce the rules
+
+- The consequence analysis's current instruction (version 3) now states the mechanism counterevidence rule the owner enforces. Version 2
+  already stated it; version 2 is unchanged.
+- The architecture instruction now states that an interpretation's `affects` takes node identifiers only. The rule was enforced and
+  not stated; a fresh agent's answer naming phase identifiers was refused whole.
+
+Both repairs change the identity of new requests and leave every stored request, response and result as it was. Consequence: a
+replay of the earlier Spring Ledger seed no longer reproduces the PR #655 request identities, so the served reconsideration handoff is
+exercised by a fresh chain rather than by replay.
+
+### 13.3 Reflection on a portfolio
+
+A follow-up carries criticism and carried verifications (section 12.7). In this increment the criticism of a portfolio changed the
+judgement it had reached: a category confusion (an author's design question treated as an in-world motive), an overstated causal
+relation, and an internal contradiction about whether two developments are coupled were each withdrawn or restated, and a proposal
+that the record does not state was added as a proposal. The owner derived the comparison from the stored answers; the agent's own
+`changes_from_prior` was checked against it by a fresh grounding critic, which found residual overreaches in labelling (recorded in
+the evidence record, section 10).

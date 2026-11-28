@@ -427,3 +427,16 @@ def test_the_version_three_instruction_lists_the_exact_key_names_and_cites_mecha
     flat = " ".join(_SYSTEM_V3.split())
     assert "A mechanism is cited by its EVIDENCE identifier" in flat
     assert "A record identifier such as l_compact_hands_in_kind is the record's own name" in flat
+
+
+def test_the_version_three_instruction_states_the_mechanism_counterevidence_rule_the_owner_enforces():
+    """The owner refuses mechanism counterevidence whose evidence names only its own mechanism (attempt 1 of the grounded-synthesis
+    chain, kept in its evidence folder). That rule was stated in version 2 only; version 3 defers to it, so it stated nothing. The
+    instruction must state the rule with the bounds the owner enforces."""
+    from auteur.beginner.studio_architecture_consequence import COUNTER_LIMIT, MAX_MECHANISM_COUNTEREVIDENCE
+
+    flat = " ".join(_SYSTEM_V3.split())
+    assert (f"Mechanism counterevidence is 0 to {MAX_MECHANISM_COUNTEREVIDENCE} objects, each {{text, evidence}} with text of at most "
+            f"{COUNTER_LIMIT} characters") in flat
+    assert "must include at least one recorded item other than this mechanism itself" in flat
+    assert "an object whose evidence names only this mechanism is refused" in flat
