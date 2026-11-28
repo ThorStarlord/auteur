@@ -1,0 +1,272 @@
+{
+  "request_sha256": "c57cfe5147378f5a13423512c419d5e40d1c7c905af137d67ed00d3028189b84",
+  "created_at": "2026-11-28T04:09:43.418061+00:00",
+  "author_goal": "What promising creative opportunities am I overlooking?",
+  "baseline": "current",
+  "coverage_note": "Surveyed all sixteen continuing questions, the six Book 24 decisions, the links among Ledger, Source, Hollow Gate, lineage crews and Alternatives A-C, and the revised Ledger engine summary. No book_element_associations are recorded. Set aside q-other-1, q-other-10, q-other-11, q-reform-stance and q-compact-settlement: no recorded mechanism tied them to another question beyond wording. q-hesper-motive should stay independent; its own wording asks that it be tested apart from the author's preference.",
+  "no_possibility_reason": null,
+  "uncertainties": [
+    "No book_element_associations are recorded, so no element-level evidence was available.",
+    "Where the Long Return enters the channel system is not stated.",
+    "Whether the hours-beside-the-mark Ledger revision was author-made or agent-proposed is not recorded.",
+    "Set-aside questions may hold links not visible in this compact packet."
+  ],
+  "possibilities": [
+    {
+      "id": "p1",
+      "title": "Hours beside the mark make the care tally readable as debt",
+      "kind": "overlooked_consequence",
+      "possibility": "The revised Ledger engine records the hours each hand worked beside the mark, so a count of draw can be read straight from it. The stewardship tally was built to record care, not debt, and Alternative A names surveillance of the tally as a failure mode. Interpretation: once hours sit beside shares in one record, any reader can turn care into an owed balance. Whether shared accounting binds (q-other-3) may then be settled by the record's form before any body rules, and a Book 30 terrace keeping a measured ledger (q-plurality) would only need to read what is already written.",
+      "significance": "The revision is small but changes what the record can say. Left unexamined, it tilts the finale toward counted giving and blurs the gift reading, on which the central question of whether giving must be counted depends.",
+      "questions": [
+        "q-other-3",
+        "q-plurality"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "node",
+          "ref_id": "eng_ledger",
+          "book_number": null,
+          "note": "Revised summary: the ledger records the hours each hand worked beside the mark, so a count of the draw can be read straight from it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "alt_a_reciprocal",
+          "book_number": null,
+          "note": "Lists surveillance of the tally as a failure mode of Alternative A.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_measured_turn",
+          "book_number": null,
+          "note": "The stewardship tally records labour as a record of care for this practice; it does not hold the water.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-plurality",
+          "book_number": 24,
+          "note": "Leaves open whether any terrace keeps a measured ledger in Book 30.",
+          "present_now": null
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The hours column and the stewardship tally are, or could be joined into, one readable record; the packet does not say so."
+      ],
+      "counterevidence": [
+        "The revision may apply only to the counted Turn in the high terraces, not to the gift practice.",
+        "The Reading Hall keeps the record without schedule authority, so readability alone need not make care binding."
+      ],
+      "gains": "Gives q-other-3 a concrete object and a scene: someone reads a debt out of a record of care.",
+      "costs": "Risks making the Ledger the surveillance device Alternative A was designed to avoid, and may force a decision on the revision itself.",
+      "next_investigation": "Check whether the hours-beside-the-mark revision covers the whole valley or only the counted Turn, and whether it is the same record as the stewardship tally.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p2",
+      "title": "Cistern storage as one hinge for the threshold and the surge",
+      "kind": "shared_mechanism",
+      "possibility": "The high cistern's capacity above tolerance (q-other-15) is recorded as a dependency of Alternatives B and C. The Long Return must be routed through the Hollow Gate, and release draws the cistern down but cannot raise it. Interpretation: the same unknown quantity may decide whether a Balance Stones threshold means anything (q-other-8) and how much of the pulse the Gate can hold back rather than send down a channel (q-surge-route). Fixing one value would constrain three questions at once, and the flood's cost could follow from storage the valley never measured.",
+      "significance": "Gives the finale one physical hinge instead of three separate author choices, consistent with the Source as the physical deadline, and lets the threshold be about something the reader can see.",
+      "questions": [
+        "q-other-15",
+        "q-other-8",
+        "q-surge-route"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "question",
+          "ref_id": "q-other-15",
+          "book_number": null,
+          "note": "Storage above tolerance is not established; Alternatives B and C depend on it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_hollow_gate",
+          "book_number": null,
+          "note": "Release draws the cistern down and cannot raise it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_longreturn_needs_gate",
+          "book_number": null,
+          "note": "The pulse must be routed through the Gate.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "alt_c_ratified_trigger",
+          "book_number": null,
+          "note": "A published Balance Stones threshold activates B's rota; a disputed gauge is a listed failure mode.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-surge-route",
+          "book_number": 24,
+          "note": "Book 24 neither designates nor excludes the Lowfen.",
+          "present_now": null
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The pulse passes through or near the high cistern; the packet says it is routed through the Gate but not where it enters."
+      ],
+      "counterevidence": [
+        "The surge route is recorded as an author choice; tying it to storage could remove a freedom the author wants.",
+        "Release cannot raise the cistern, so the Gate's ability to buffer may be limited."
+      ],
+      "gains": "One established number would let three open questions be worked together.",
+      "costs": "Committing a storage value is a physical canon fact the summary says no value yet holds.",
+      "next_investigation": "Establish where the Long Return enters relative to the high cistern, and whether the Balance Stones would read cistern level or deep store.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p3",
+      "title": "Alternative A would remove what the Special Draw Right attaches to",
+      "kind": "overlooked_consequence",
+      "possibility": "The lineage Special Draw Right gives skill a claim on draw, and the Book 20 conversion makes hands owed set part of draw. Alternative A decouples draw from hands. Interpretation: under A, a right expressed as draw has nothing to attach to, so choosing A may revoke or transform the Right without anyone revoking it, and makes the conversion a stage rather than a settlement. Under B, hands are owed by draw, so both persist inside the window. The finale choice may therefore answer parts of q-right-revocable and q-conversion-settlement by implication.",
+      "significance": "Three questions the packet treats separately may be one decision. Seeing it lets the author decide the Right's fate deliberately rather than as a side effect of the finale.",
+      "questions": [
+        "q-finale-mechanism",
+        "q-right-revocable",
+        "q-conversion-settlement"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "link",
+          "ref_id": "l_lineage_right_on_draw",
+          "book_number": null,
+          "note": "The Special Draw Right gives skill a claim on draw.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_alt_a_decouples",
+          "book_number": null,
+          "note": "Alternative A decouples draw from hands; care counted, nothing owed.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_conversion_sets_draw",
+          "book_number": null,
+          "note": "Hands a household cannot return reduce its draw (Book 20).",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_alt_b_bounds",
+          "book_number": null,
+          "note": "Under B, hands are owed by draw; a shortfall is a deficit, not a cut, in the window.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-finale-mechanism",
+          "book_number": 24,
+          "note": "Book 24 selects none and records a capability record usable by all three.",
+          "present_now": null
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The Right is defined only as a claim on draw and has no other form of standing."
+      ],
+      "counterevidence": [
+        "Under A the Right could be re-expressed as standing or a care-floor priority rather than draw.",
+        "Alternative C runs A in normal seasons and B at threshold, so the Right may become intermittent rather than dissolve."
+      ],
+      "gains": "Gives the lineage crews a concrete stake in the finale choice, and a reason to argue for or against A.",
+      "costs": "Couples questions the author may want to keep separate, and constrains A's design.",
+      "next_investigation": "Write out what the lineage crews hold under A, B and C in one ordinary season and in the Long Return season.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p4",
+      "title": "The Book 15 surfeit as the spring registering uncounted giving",
+      "kind": "thematic_resonance",
+      "possibility": "The construction assumes the Book 15 trial's uncounted return exceeded the draw the Turn counted, so the surplus showed in the high cistern; the Source responds to balance, not intention. Imaginative step: treating that surfeit as the series' clearest on-page partial answer to q-other-0, that the spring registers gift labour the record does not, echoing whether giving must be counted. Because the mechanism sits in the Hollow Gate's description and is a construction addition, accepting the Gate (q-gate-table) and accepting this answer may turn out to be linked decisions.",
+      "significance": "Could give the central question a physical voice: the spring keeps a count no institution keeps. It also shows what the author gives up if the surfeit mechanism is rejected.",
+      "questions": [
+        "q-other-0",
+        "q-gate-table"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "node",
+          "ref_id": "str_hollow_gate",
+          "book_number": null,
+          "note": "Construction assumes uncounted return exceeded the counted draw; the original does not name this mechanism and the author may reject it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "eng_source",
+          "book_number": null,
+          "note": "The spring responds to balance rather than to any character's intention.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "th_core_question",
+          "book_number": null,
+          "note": "Who gives back the water, and must giving be counted?",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-gate-table",
+          "book_number": 24,
+          "note": "Whether the Hollow Gate and Gate Table are accepted parts of the world; Book 24 holds either way.",
+          "present_now": null
+        }
+      ],
+      "basis": "speculative",
+      "assumptions": [
+        "The author would read the surfeit as bearing on intent versus balance at all."
+      ],
+      "counterevidence": [
+        "The summary lists the surfeit mechanism separately from the Gate, so rejecting one need not reject the other.",
+        "q-other-0 says the full ontology is deliberately not promised; too clean an answer could over-promise."
+      ],
+      "gains": "A thematic payoff from material already built.",
+      "costs": "Leans on an unaccepted construction addition.",
+      "next_investigation": "Ask whether the author accepts the Book 15 surfeit mechanism apart from the Gate, and what it would then say about intent.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    }
+  ]
+}

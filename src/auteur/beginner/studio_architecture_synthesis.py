@@ -443,6 +443,10 @@ def prepare_architecture_synthesis(store: CanvasStore, *, question: str, develop
             "evidence_sha256": packet.evidence_sha256,
             "synthesis_schema_version": SYNTHESIS_SCHEMA_VERSION,
         }
+        if culmination_text:
+            # Only present with a culmination, so that requests without one keep their identities.
+            settings["configuration_sha256"] = _digest({"developments_sha256": settings["developments_sha256"],
+                                                        "culmination_sha256": settings["culmination_sha256"]})
         request = build_host_agent_request(
             candidate_id="studio-synthesis-" + _digest({"settings": settings, "user": user_text})[:24],
             role=ROLE, system=_SYSTEM_SYNTHESIS, user=user_text, settings=settings,
@@ -452,7 +456,7 @@ def prepare_architecture_synthesis(store: CanvasStore, *, question: str, develop
         if not (folder / "request.json").exists():
             write_host_agent_request(folder / "request.json", request)
         _atomic_json_write(_root(store) / "latest_request.json", {"request_sha256": request.request_sha256})
-        pointer = _developments_pointer(store, settings["developments_sha256"])
+        pointer = _developments_pointer(store, _standing_key(settings))
         pointer.parent.mkdir(parents=True, exist_ok=True)
         _atomic_json_write(pointer, {"request_sha256": request.request_sha256})
         row = _row(store, folder, load_host_agent_request(folder / "request.json"))
@@ -551,9 +555,16 @@ def _developments_pointer(store: CanvasStore, developments_sha256: str):
     return _root(store) / "latest_by_developments" / f"{developments_sha256}.json"
 
 
+def _standing_key(settings: dict[str, Any]) -> str:
+    """The judgement a synthesis is the latest of. A named culmination makes a separate configuration of the same developments, so
+    two culminations are parallel investigations and neither supersedes the other. Without a culmination the key is the developments
+    alone, as it always was, so requests prepared before the configuration key keep their standing."""
+    return settings.get("configuration_sha256") or settings["developments_sha256"]
+
+
 def _standing(store: CanvasStore, request_sha256: str, request) -> str:
-    """``current`` while this is the latest synthesis of these developments and the material it read is unchanged; ``superseded`` when
-    a later synthesis of the same developments exists (a synthesis of other developments does not supersede it); ``stale`` when the
+    """``current`` while this is the latest synthesis of its configuration (the developments, and the culmination when one is named) and the material it read is unchanged; ``superseded`` when
+    a later synthesis of the same configuration exists (a synthesis of other developments, or of another culmination, does not supersede it); ``stale`` when the
     Architecture, the Working Book, the vision or a handoff it read has changed, or a development is gone."""
     try:
         recomputed = _packet_for(store, json.loads(request.user)["inputs"]).evidence_sha256
@@ -561,7 +572,7 @@ def _standing(store: CanvasStore, request_sha256: str, request) -> str:
         return "stale"
     if recomputed != request.settings["evidence_sha256"]:
         return "stale"
-    pointer = arch._read(_developments_pointer(store, request.settings["developments_sha256"]))
+    pointer = arch._read(_developments_pointer(store, _standing_key(request.settings)))
     latest_here = pointer.get("request_sha256") if pointer else None
     return "current" if request_sha256 == latest_here else "superseded"
 

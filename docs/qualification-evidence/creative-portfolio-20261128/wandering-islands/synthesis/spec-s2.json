@@ -1,0 +1,18 @@
+{
+  "question": "Treat these three developments as one portfolio across the twelve Books. What does each contribute on its own, how do they reinforce, complicate or transform one another, and where does their interaction open something none of them gives alone? Compare two developmental sequences that could carry them: one in which the migrations' explicability is developed early and the bonds are tested afterward, and one in which the bonds are established first, so that the loss is felt before its explanation is sought. For each sequence, say what it makes easier, what it makes harder, which reader experience it emphasises, and which later possibilities it opens or closes. Keep the developments independent where they should be independent.",
+  "developments": [
+    {
+      "kind": "mechanism",
+      "ref": "en-unreturned-island"
+    },
+    {
+      "kind": "mechanism",
+      "ref": "en-bond-maintenance"
+    },
+    {
+      "kind": "question",
+      "ref": "q-migration-explicability"
+    }
+  ],
+  "culmination": "Working configuration A for this exercise (not the author's words): the missing island returns at the close of the series, altered. Its people arrive carrying what they learned, and the communities must decide how to share a map they had believed fixed."
+}

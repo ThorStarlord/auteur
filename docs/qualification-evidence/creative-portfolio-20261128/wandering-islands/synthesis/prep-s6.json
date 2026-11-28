@@ -1,0 +1,537 @@
+{
+  "request": {
+    "schema": "auteur_host_agent_request_v1",
+    "request_id": "studio-synthesis-a1d92585f6bc8a4910559706:8cb56f08dd0eab97",
+    "candidate_id": "studio-synthesis-a1d92585f6bc8a4910559706",
+    "role": "studio_architecture_synthesis",
+    "created_at": "2026-11-28T04:21:28.221412+00:00",
+    "system": "You are the active Auteur creative synthesis agent. The author has selected one to three creative developments of a working narrative architecture and asks what they could become across the Series. Your reading is advisory: it is not canon, not an applied revision, not a commitment, and it changes no record.\n\nThe request holds the developments' own wording, the Working Book elements that cite them, the links among them, any accepted reconsiderations offered as handoffs, and, when the author gave one, the culmination the author named. Cite only the identifiers the request gives (E-numbers). Excerpts are shown as excerpts; never present an excerpt as the whole record.\n\nReason about a trajectory, not a list of events. For each stage say what becomes available (the earlier condition that makes it possible, cited), and what it changes in what the earlier developments mean or make possible. Label each stage's basis: recorded (the cited record states it), inferred (it follows from the record, and you say how), or proposed (a new development that the record does not contain; state it conditionally and do not name new people, places or factions the author has not given). A book number is a placement in an existing Book, not a claim of chronology, and a stage beyond the existing Books is a proposed_book with no book number.\n\nRelations: use prerequisite only for what the later development cannot occur without; preparation for what makes it richer or easier. Say whether the dependence is causal, thematic, sequential_only or none. Use interference and incompatibility only where the record shows one development constraining another. Give alternative paths that change the order or the condition of the developments, and say whether each stays viable.\n\nIf the author named a culmination, reason about it backward (what it needs) and forward (what the earlier developments already make possible), separate necessary conditions from enrichment, and state what the earlier Books keep as their own experience if the culmination never arrives. Earlier Books must remain meaningful in their own right.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, with a reason. A follow-up request may give an earlier judgement as text: it is not evidence, so cite nothing from it, and state in changes_from_prior what changed and why.\n\nQuote the basis. Every claim that cites evidence (a stage, a relation, an alternative path, an opportunity or a culmination condition) must carry `quote`: the exact words, copied without change, from one of the items it cites, up to 240 characters, that carry the claim's premise. Do not quote words the cited items do not contain. If no words carry a premise, cite what does, or label the claim proposed and state what it assumes. State an absence as 'not stated in the cited items', never as a fact about the story. Read tense and attribution exactly as the words give them.\n\nKeep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.\n\nReturn ONLY one JSON object with these keys: schema_version (1), trajectory, relations, culmination (an object, or null when the author named none and you offer none), alternative_paths, opportunities, reader_experience, open_decisions, uncertainty, criticism_assessments, changes_from_prior. Field names and literal values are exact, as the output_contract gives them.\n\nLimits, enforced by the owner (an answer that exceeds one is refused whole). Each line names a field and its bound:\n- schema_version: exactly 2\n- trajectory: at most 6 items; at least 2 items\n- trajectory[].book: at least 1; at most 60\n- trajectory[].horizon: one of 'existing_book', 'proposed_book'\n- trajectory[].development: at most 600 characters; at least 1 character\n- trajectory[].becomes_available: at most 400 characters; at least 1 character\n- trajectory[].changes: at most 400 characters; at least 1 character\n- trajectory[].basis: one of 'recorded', 'inferred', 'proposed'\n- trajectory[].evidence: at most 4 items\n- trajectory[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- trajectory[].quote: at most 240 characters\n- relations: at most 8 items\n- relations[].kind: one of 'prerequisite', 'preparation', 'enables', 'complicates', 'reinforces', 'independent', 'incompatible'\n- relations[].between: at most 3 items; at least 2 items\n- relations[].between[]: matching ^[ds][1-6]$\n- relations[].dependence: one of 'causal', 'thematic', 'sequential_only', 'none'\n- relations[].reason: at most 400 characters; at least 1 character\n- relations[].evidence: at most 3 items\n- relations[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- relations[].quote: at most 240 characters\n- culmination.statement: at most 400 characters; at least 1 character\n- culmination.necessary: at most 4 items\n- culmination.necessary[].text: at most 300 characters; at least 1 character\n- culmination.necessary[].evidence: at most 3 items; at least 1 item\n- culmination.necessary[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- culmination.necessary[].quote: at most 240 characters\n- culmination.enrichment: at most 4 items\n- culmination.enrichment[].text: at most 300 characters; at least 1 character\n- culmination.enrichment[].evidence: at most 3 items; at least 1 item\n- culmination.enrichment[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- culmination.enrichment[].quote: at most 240 characters\n- culmination.standalone_value: at most 400 characters; at least 1 character\n- alternative_paths: at most 3 items; at least 1 item\n- alternative_paths[].ordering: at most 400 characters; at least 1 character\n- alternative_paths[].effect: at most 400 characters; at least 1 character\n- alternative_paths[].viability: one of 'viable', 'weakened', 'closed', 'unresolved'\n- alternative_paths[].evidence: at most 3 items\n- alternative_paths[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- alternative_paths[].quote: at most 240 characters\n- opportunities: at most 3 items\n- opportunities[].text: at most 400 characters; at least 1 character\n- opportunities[].between: at most 3 items; at least 2 items\n- opportunities[].between[]: matching ^[ds][1-6]$\n- opportunities[].evidence: at most 3 items; at least 1 item\n- opportunities[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- opportunities[].quote: at most 240 characters\n- reader_experience: at most 600 characters; at least 1 character\n- open_decisions: at most 4 items\n- open_decisions[]: at most 240 characters; at least 1 character\n- uncertainty: at most 4 items\n- uncertainty[]: at most 240 characters; at least 1 character\n- criticism_assessments: at most 4 items\n- criticism_assessments[].criticism: matching ^c[1-9]$\n- criticism_assessments[].verdict: one of 'accepted', 'partly_accepted', 'rejected', 'unresolved'\n- criticism_assessments[].reason: at most 400 characters; at least 1 character\n- changes_from_prior: at most 4 items\n- changes_from_prior[]: at most 240 characters; at least 1 character",
+    "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\"], \"criticism\": [{\"id\": \"c1\", \"text\": \"Independent grounding critic on the reflected synthesis (a fresh agent that checked every claim against the evidence; full report beside this exercise). The reflection repaired most earlier misreadings, and the answer's own labels now say that the author's Story Vision is the source of several claims. Four residual overreaches remain, and they are overreaches of labelling and inference, not misreadings of recorded text. (1) The explicability-first path (its effect) says that early disclosure leaves fewer partial answers to reopen assumptions. That treats the author's disclosure to the reader as if it used up the characters' in-world partial answers, which is the confusion the reflection set out to remove; its ordering also maps early timing onto the three end-state answers to the disclosure question, which the answer's own acceptance of the criticism about end states contradicts. (2) The relation between the first and sixth stages is labelled a causal prerequisite, while its own reason calls it a craft condition of the proposal, not a recorded dependence; the quoted evidence carries no planting obligation. The relation between the disclosure question and the first explanatory attempts is labelled 'complicates' while its reason says no item records a constraint; either the kind or the reason should change. (3) The opportunity that the bonds become 'the field where rival readings of the absence meet' reads the repeated action families as rival stances, which the evidence does not say. (4) The clue proposal rests on the Story Vision's line that generations have learned to live with the migrations, and it does not weigh the same Vision's word 'unpredictable', which cuts against practices that encode the migrations' order. The changes_from_prior list also omits that the earlier sixth stage was removed rather than replaced.\"}, {\"id\": \"c2\", \"text\": \"Independent creative-substance critic on the reflected synthesis, compared blind with the plain one (a fresh editor; full report beside this exercise). The reflected version is the more valuable portfolio, and its clue reading is the most alive interaction, conditionally earned if the clues are planted without winking. Its single suggested change: tie the inherited code to the missing island. Make the non-return the place where the inherited code goes silent, for example a homecoming festival, timed by generations of practice, that is now held for an absence. The critic's reasons: this keeps the rereading painful as well as clever, so what the communities knew and what they could not know become one discovery; it keeps the bonds and the explanation from fully merging, because the practices' wisdom is shown to have a limit; and it keeps all three endings to the disclosure question open, because a failed code could mean the order is deeper than they thought, broken, or never fully knowable. It also gives the series a human face: the people whose tradition was built to welcome an island home must now decide what that tradition is for. Please weigh whether the record supports this, treat it as a proposal, and say what it changes in the portfolio.\"}], \"culmination_requested\": false, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"mechanism\", \"ref\": \"en-unreturned-island\", \"text_sha256\": \"29aad38917cd2b443f27123d0bbe76763812f042beab8dbf906e1d1f5b39dceb\", \"title\": \"Primary engine: the broken pattern\"}, {\"evidence\": \"E2\", \"id\": \"d2\", \"kind\": \"mechanism\", \"ref\": \"en-bond-maintenance\", \"text_sha256\": \"81c3355997177980907453e3c55dfbac51a8f4b78b85070a6413f0446009bc76\", \"title\": \"Layer: sustaining bonds across distance\"}, {\"evidence\": \"E3\", \"id\": \"d3\", \"kind\": \"question\", \"ref\": \"q-migration-explicability\", \"text_sha256\": \"01e5c2007bc04e9ef455eb32a12631451ff3c68d701bb93a0d69ad6a0f96f7a6\", \"title\": \"How far should the migrations be explained by the end: fully explicable, partial\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"2d265b9d94feca99cd43311a7292bbcc7f78e9031e2ae895d234979e474ac4c0\", \"text\": \"{\\\"category\\\": \\\"engine\\\", \\\"id\\\": \\\"en-unreturned-island\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"series\\\", \\\"summary\\\": \\\"Causal owner of the series question. The one trusted regularity fails, and every attempt to explain, exploit, mourn or reverse that failure generates pressure, action and revelation. Renewable because each partial answer reopens what else communities assumed was stable.\\\", \\\"title\\\": \\\"Primary engine: the broken pattern\\\"}\", \"truncated\": false, \"version_sha256\": \"29aad38917cd2b443f27123d0bbe76763812f042beab8dbf906e1d1f5b39dceb\"}, {\"development\": \"d2\", \"freshness\": \"current_read\", \"id\": \"E2\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"e53d086866f25ad78e5d081846c7baccf93c34ad92f0c0b7b2fb6313b66a23b1\", \"text\": \"{\\\"category\\\": \\\"engine\\\", \\\"id\\\": \\\"en-bond-maintenance\\\", \\\"parent_id\\\": \\\"en-unreturned-island\\\", \\\"scope\\\": \\\"series\\\", \\\"summary\\\": \\\"Communities act through practices (traveling markets, celebrations, shared craft, generosity) to keep relationships alive. The disappearance tests whether those practices can adapt, producing repeated action families of reaching out, keeping faith and repairing.\\\", \\\"title\\\": \\\"Layer: sustaining bonds across distance\\\"}\", \"truncated\": false, \"version_sha256\": \"81c3355997177980907453e3c55dfbac51a8f4b78b85070a6413f0446009bc76\"}, {\"development\": \"d3\", \"freshness\": \"current_read\", \"id\": \"E3\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_question\", \"source_sha256\": \"01e5c2007bc04e9ef455eb32a12631451ff3c68d701bb93a0d69ad6a0f96f7a6\", \"text\": \"How far should the migrations be explained by the end: fully explicable, partially understood, or enduringly mysterious?\", \"truncated\": false, \"version_sha256\": \"01e5c2007bc04e9ef455eb32a12631451ff3c68d701bb93a0d69ad6a0f96f7a6\"}, {\"freshness\": \"author_current\", \"id\": \"E4\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"1917939633b3164d142f330f1fd8ea812d4e531183c3a1e30ece30e9601c4391\", \"text\": \"### Working title: The Wandering Islands\\n\\nIn a beautiful fantasy archipelago, entire inhabited islands sometimes change their positions overnight.\\n\\nTheir migrations are unpredictable, but generations of communities have learned to live with them. Families maintain friendships across changing seas. Traveling markets, seasonal celebrations, shared craftsmanship, and acts of generosity help people sustain relationships even when familiar places become distant.\\n\\nEvery inhabited island known to the communities has eventually reappeared within its expected migration cycle.\\n\\nThis year, one inhabited island does not return when expected.\\n\\nThe disappearance creates uncertainty, opportunities, competing interpretations, and consequences for people whose lives depend on the shifting geography.\\n\\nThe i\", \"truncated\": true, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [], \"citing_elements_by_development\": {\"d1\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}, \"d2\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}, \"d3\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}}, \"elements_read\": 0, \"same_text_elsewhere\": {\"count\": 0, \"listed\": [], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E5\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"69ea0caa645fe1d4454bfca5f53e66b2d883b9f17d8f119ce2e3c683eb835bce\", \"text\": \"{\\\"books_read\\\": [], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}, \\\"d2\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}, \\\"d3\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 0, \\\"same_text_elsewhere\\\": {\\\"count\\\": 0, \\\"listed\\\": [], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}, {\"freshness\": \"current_read\", \"id\": \"E6\", \"kind\": \"link\", \"link_id\": \"l-engine-bonds\", \"owner\": \"the Architecture, current\", \"source\": \"architecture\", \"source_sha256\": \"e1cc2d7095cdca8278b75cb5444da6bc774c9dfca6fd6c85e2f0d0eaa135aab6\", \"text\": \"{\\\"function\\\": \\\"tests whether bond-keeping practices can survive a broken pattern\\\", \\\"id\\\": \\\"l-engine-bonds\\\", \\\"source\\\": \\\"en-unreturned-island\\\", \\\"target\\\": \\\"en-bond-maintenance\\\"}\", \"truncated\": false, \"version_sha256\": null}], \"existing_books\": [], \"handoffs\": [], \"inputs\": {\"criticism\": [\"Independent grounding critic on the reflected synthesis (a fresh agent that checked every claim against the evidence; full report beside this exercise). The reflection repaired most earlier misreadings, and the answer's own labels now say that the author's Story Vision is the source of several claims. Four residual overreaches remain, and they are overreaches of labelling and inference, not misreadings of recorded text. (1) The explicability-first path (its effect) says that early disclosure leaves fewer partial answers to reopen assumptions. That treats the author's disclosure to the reader as if it used up the characters' in-world partial answers, which is the confusion the reflection set out to remove; its ordering also maps early timing onto the three end-state answers to the disclosure question, which the answer's own acceptance of the criticism about end states contradicts. (2) The relation between the first and sixth stages is labelled a causal prerequisite, while its own reason calls it a craft condition of the proposal, not a recorded dependence; the quoted evidence carries no planting obligation. The relation between the disclosure question and the first explanatory attempts is labelled 'complicates' while its reason says no item records a constraint; either the kind or the reason should change. (3) The opportunity that the bonds become 'the field where rival readings of the absence meet' reads the repeated action families as rival stances, which the evidence does not say. (4) The clue proposal rests on the Story Vision's line that generations have learned to live with the migrations, and it does not weigh the same Vision's word 'unpredictable', which cuts against practices that encode the migrations' order. The changes_from_prior list also omits that the earlier sixth stage was removed rather than replaced.\", \"Independent creative-substance critic on the reflected synthesis, compared blind with the plain one (a fresh editor; full report beside this exercise). The reflected version is the more valuable portfolio, and its clue reading is the most alive interaction, conditionally earned if the clues are planted without winking. Its single suggested change: tie the inherited code to the missing island. Make the non-return the place where the inherited code goes silent, for example a homecoming festival, timed by generations of practice, that is now held for an absence. The critic's reasons: this keeps the rereading painful as well as clever, so what the communities knew and what they could not know become one discovery; it keeps the bonds and the explanation from fully merging, because the practices' wisdom is shown to have a limit; and it keeps all three endings to the disclosure question open, because a failed code could mean the order is deeper than they thought, broken, or never fully knowable. It also gives the series a human face: the people whose tradition was built to welcome an island home must now decide what that tradition is for. Please weigh whether the record supports this, treat it as a proposal, and say what it changes in the portfolio.\"], \"culmination\": null, \"developments\": [{\"kind\": \"mechanism\", \"ref\": \"en-unreturned-island\"}, {\"kind\": \"mechanism\", \"ref\": \"en-bond-maintenance\"}, {\"kind\": \"question\", \"ref\": \"q-migration-explicability\"}], \"handoffs\": [], \"prior_request_sha256\": \"a7d9d69a1c8fd96f572ee0b73b173c840f4d6ffcd9efd10a76cc53a355ff8639\", \"question\": \"Treat these three developments as one portfolio across the twelve Books. What does each contribute on its own, how do they reinforce, complicate or transform one another, and where does their interaction open something none of them gives alone? Compare two developmental sequences that could carry them: one in which the migrations' explicability is developed early and the bonds are tested afterward, and one in which the bonds are established first, so that the loss is felt before its explanation is sought. For each sequence, say what it makes easier, what it makes harder, which reader experience it emphasises, and which later possibilities it opens or closes. Keep the developments independent where they should be independent.\"}, \"operation\": \"synthesize_development\", \"prior_judgement\": {\"note\": \"Earlier judgement, not evidence: cite no identifier from it.\", \"request_sha256\": \"a7d9d69a1c8fd96f572ee0b73b173c840f4d6ffcd9efd10a76cc53a355ff8639\", \"trajectory\": [{\"book\": null, \"development\": \"The bond-keeping practices at work while the regularity still holds: markets, celebrations, craft and generosity keep friendships alive across moving seas. The author's Story Vision (E4) records this condition; E2 records the practices as d2. No existing Book is read, so this is a placement in a proposed Book, not a claim about one.\", \"ref\": \"s1\"}, {\"book\": null, \"development\": \"The one trusted regularity fails: an inhabited island does not return when expected (d1). The author's Story Vision states that every known island had eventually reappeared within its cycle, so this is a break in the pattern, not one more migration.\", \"ref\": \"s2\"}, {\"book\": null, \"development\": \"The disappearance tests whether the practices can adapt, producing repeated action families of reaching out, keeping faith and repairing (d2 under d1's pressure, the link E6 records).\", \"ref\": \"s3\"}, {\"book\": null, \"development\": \"In-world attempts to explain, exploit, mourn or reverse the failure, and the competing interpretations the author's Story Vision records. These are the characters' inquiries. They are distinct from d3, which is the author's design question about how much the Series discloses by the end.\", \"ref\": \"s4\"}, {\"book\": null, \"development\": \"Partial answers reached in-world reopen what else communities assumed was stable (E1 records this as the source of renewal). Inferred: what is reopened may include relationships and practices that had seemed safe, so the test of the bonds widens beyond the missing island. E1 says 'what else communities assumed was stable', not relationships specifically.\", \"ref\": \"s5\"}, {\"book\": null, \"development\": \"Proposed: the author's d3 choice is realised through the practices themselves. If the practices that generations developed to live with the migrations carry traces of the migrations' order (in market routes, festival timing, craft), then whatever the Series finally discloses can be read back into domestic texture planted from the first stage. The record does not state that the practices carry such clues; this assumes it.\", \"ref\": \"s6\"}]}, \"question\": \"Treat these three developments as one portfolio across the twelve Books. What does each contribute on its own, how do they reinforce, complicate or transform one another, and where does their interaction open something none of them gives alone? Compare two developmental sequences that could carry them: one in which the migrations' explicability is developed early and the bonds are tested afterward, and one in which the bonds are established first, so that the loss is felt before its explanation is sought. For each sequence, say what it makes easier, what it makes harder, which reader experience it emphasises, and which later possibilities it opens or closes. Keep the developments independent where they should be independent.\"}",
+    "settings": {
+      "operation": "synthesize_architecture_development",
+      "inputs_sha256": "ac9eb55d1b98f0e81d650f38e11d58f0b5faabd5d1a4b9733cbf9428d99d51dc",
+      "developments_sha256": "28336877f376b7827381124f8f2a47346a17a4145830a293dbf946eeffec96a4",
+      "question_sha256": "b4d7249f736e46a221829e06ccc43c2d6b029b1678690a3f9ae88d3ddb25d330",
+      "culmination_sha256": null,
+      "handoffs_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "criticism_sha256": "8fb5aac8f0e1528af58460c86c20886ef306e892c3ba3688762961337192ed25",
+      "prior_request_sha256": "a7d9d69a1c8fd96f572ee0b73b173c840f4d6ffcd9efd10a76cc53a355ff8639",
+      "evidence_sha256": "e4b0b56fbd97f0fcd921ca30fe190d842ad40cc5d98f7ed9dc4d7f2716c14913",
+      "synthesis_schema_version": 2
+    },
+    "request_sha256": "8cb56f08dd0eab97287c6b4f1194ba040aa353b79d718d5d953382e7f4542a98",
+    "output_contract": {
+      "schema": "auteur_host_agent_output_contract_v1",
+      "version": 1,
+      "model": "SynthesisAnswer",
+      "json_schema": {
+        "$defs": {
+          "AlternativePath": {
+            "additionalProperties": false,
+            "properties": {
+              "ordering": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Ordering",
+                "type": "string"
+              },
+              "effect": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Effect",
+                "type": "string"
+              },
+              "viability": {
+                "enum": [
+                  "viable",
+                  "weakened",
+                  "closed",
+                  "unresolved"
+                ],
+                "title": "Viability",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "pattern": "^E[1-9][0-9]{0,2}$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "title": "Evidence",
+                "type": "array"
+              },
+              "quote": {
+                "anyOf": [
+                  {
+                    "maxLength": 240,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Quote"
+              }
+            },
+            "required": [
+              "ordering",
+              "effect",
+              "viability"
+            ],
+            "title": "AlternativePath",
+            "type": "object"
+          },
+          "CriticismAssessment": {
+            "additionalProperties": false,
+            "properties": {
+              "criticism": {
+                "pattern": "^c[1-9]$",
+                "title": "Criticism",
+                "type": "string"
+              },
+              "verdict": {
+                "enum": [
+                  "accepted",
+                  "partly_accepted",
+                  "rejected",
+                  "unresolved"
+                ],
+                "title": "Verdict",
+                "type": "string"
+              },
+              "reason": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "criticism",
+              "verdict",
+              "reason"
+            ],
+            "title": "CriticismAssessment",
+            "type": "object"
+          },
+          "Culmination": {
+            "additionalProperties": false,
+            "description": "The culmination the author named (or the answer reads), with what it needs and what earlier Books keep for themselves.",
+            "properties": {
+              "statement": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Statement",
+                "type": "string"
+              },
+              "necessary": {
+                "items": {
+                  "$ref": "#/$defs/CulminationCondition"
+                },
+                "maxItems": 4,
+                "title": "Necessary",
+                "type": "array"
+              },
+              "enrichment": {
+                "items": {
+                  "$ref": "#/$defs/CulminationCondition"
+                },
+                "maxItems": 4,
+                "title": "Enrichment",
+                "type": "array"
+              },
+              "standalone_value": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Standalone Value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "statement",
+              "standalone_value"
+            ],
+            "title": "Culmination",
+            "type": "object"
+          },
+          "CulminationCondition": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "maxLength": 300,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "pattern": "^E[1-9][0-9]{0,2}$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "minItems": 1,
+                "title": "Evidence",
+                "type": "array"
+              },
+              "quote": {
+                "anyOf": [
+                  {
+                    "maxLength": 240,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Quote"
+              }
+            },
+            "required": [
+              "text",
+              "evidence"
+            ],
+            "title": "CulminationCondition",
+            "type": "object"
+          },
+          "Opportunity": {
+            "additionalProperties": false,
+            "description": "Something the interaction of two or three developments makes possible that none makes possible alone.",
+            "properties": {
+              "text": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Text",
+                "type": "string"
+              },
+              "between": {
+                "items": {
+                  "pattern": "^[ds][1-6]$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "minItems": 2,
+                "title": "Between",
+                "type": "array"
+              },
+              "evidence": {
+                "items": {
+                  "pattern": "^E[1-9][0-9]{0,2}$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "minItems": 1,
+                "title": "Evidence",
+                "type": "array"
+              },
+              "quote": {
+                "anyOf": [
+                  {
+                    "maxLength": 240,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Quote"
+              }
+            },
+            "required": [
+              "text",
+              "between",
+              "evidence"
+            ],
+            "title": "Opportunity",
+            "type": "object"
+          },
+          "SynthesisRelation": {
+            "additionalProperties": false,
+            "description": "How two developments or stages bear on each other. ``prerequisite`` is necessary; ``preparation`` is helpful only.",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "prerequisite",
+                  "preparation",
+                  "enables",
+                  "complicates",
+                  "reinforces",
+                  "independent",
+                  "incompatible"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "between": {
+                "items": {
+                  "pattern": "^[ds][1-6]$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "minItems": 2,
+                "title": "Between",
+                "type": "array"
+              },
+              "dependence": {
+                "enum": [
+                  "causal",
+                  "thematic",
+                  "sequential_only",
+                  "none"
+                ],
+                "title": "Dependence",
+                "type": "string"
+              },
+              "reason": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Reason",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "pattern": "^E[1-9][0-9]{0,2}$",
+                  "type": "string"
+                },
+                "maxItems": 3,
+                "title": "Evidence",
+                "type": "array"
+              },
+              "quote": {
+                "anyOf": [
+                  {
+                    "maxLength": 240,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Quote"
+              }
+            },
+            "required": [
+              "kind",
+              "between",
+              "dependence",
+              "reason"
+            ],
+            "title": "SynthesisRelation",
+            "type": "object"
+          },
+          "SynthesisStage": {
+            "additionalProperties": false,
+            "description": "One stage of the trajectory. Stages are ordered by developmental dependency, not by book number.",
+            "properties": {
+              "book": {
+                "anyOf": [
+                  {
+                    "maximum": 60,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Book"
+              },
+              "horizon": {
+                "enum": [
+                  "existing_book",
+                  "proposed_book"
+                ],
+                "title": "Horizon",
+                "type": "string"
+              },
+              "development": {
+                "maxLength": 600,
+                "minLength": 1,
+                "title": "Development",
+                "type": "string"
+              },
+              "becomes_available": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Becomes Available",
+                "type": "string"
+              },
+              "changes": {
+                "maxLength": 400,
+                "minLength": 1,
+                "title": "Changes",
+                "type": "string"
+              },
+              "basis": {
+                "enum": [
+                  "recorded",
+                  "inferred",
+                  "proposed"
+                ],
+                "title": "Basis",
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "pattern": "^E[1-9][0-9]{0,2}$",
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "title": "Evidence",
+                "type": "array"
+              },
+              "quote": {
+                "anyOf": [
+                  {
+                    "maxLength": 240,
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Quote"
+              }
+            },
+            "required": [
+              "horizon",
+              "development",
+              "becomes_available",
+              "changes",
+              "basis"
+            ],
+            "title": "SynthesisStage",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "description": "A structured synthesis of selected developments. The owner holds the developments and the question; the agent gives the reading.",
+        "properties": {
+          "schema_version": {
+            "const": 2,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "trajectory": {
+            "items": {
+              "$ref": "#/$defs/SynthesisStage"
+            },
+            "maxItems": 6,
+            "minItems": 2,
+            "title": "Trajectory",
+            "type": "array"
+          },
+          "relations": {
+            "items": {
+              "$ref": "#/$defs/SynthesisRelation"
+            },
+            "maxItems": 8,
+            "title": "Relations",
+            "type": "array"
+          },
+          "culmination": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Culmination"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "alternative_paths": {
+            "items": {
+              "$ref": "#/$defs/AlternativePath"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Alternative Paths",
+            "type": "array"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/$defs/Opportunity"
+            },
+            "maxItems": 3,
+            "title": "Opportunities",
+            "type": "array"
+          },
+          "reader_experience": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Reader Experience",
+            "type": "string"
+          },
+          "open_decisions": {
+            "items": {
+              "maxLength": 240,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Open Decisions",
+            "type": "array"
+          },
+          "uncertainty": {
+            "items": {
+              "maxLength": 240,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Uncertainty",
+            "type": "array"
+          },
+          "criticism_assessments": {
+            "items": {
+              "$ref": "#/$defs/CriticismAssessment"
+            },
+            "maxItems": 4,
+            "title": "Criticism Assessments",
+            "type": "array"
+          },
+          "changes_from_prior": {
+            "items": {
+              "maxLength": 240,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Changes From Prior",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schema_version",
+          "trajectory",
+          "alternative_paths",
+          "reader_experience"
+        ],
+        "title": "SynthesisAnswer",
+        "type": "object"
+      },
+      "json_schema_sha256": "25b45abcff3cc312a754e5a6818d595c549abad368939321beb514e4223a180e"
+    }
+  },
+  "developments": [
+    {
+      "kind": "mechanism",
+      "ref": "en-unreturned-island"
+    },
+    {
+      "kind": "mechanism",
+      "ref": "en-bond-maintenance"
+    },
+    {
+      "kind": "question",
+      "ref": "q-migration-explicability"
+    }
+  ],
+  "question": "Treat these three developments as one portfolio across the twelve Books. What does each contribute on its own, how do they reinforce, complicate or transform one another, and where does their interaction open something none of them gives alone? Compare two developmental sequences that could carry them: one in which the migrations' explicability is developed early and the bonds are tested afterward, and one in which the bonds are established first, so that the loss is felt before its explanation is sought. For each sequence, say what it makes easier, what it makes harder, which reader experience it emphasises, and which later possibilities it opens or closes. Keep the developments independent where they should be independent."
+}

@@ -356,3 +356,26 @@ def test_a_quote_is_matched_through_whitespace_and_not_through_meaning(project):
     quote = text_of(user, user["developments"][0]["evidence"])[:40]
     answer["trajectory"][0]["quote"] = "   " + quote.replace(" ", "   ") + "  "
     assert complete(store, request, answer)["result"]["trajectory"][0]["quote"].strip()
+
+
+# --- Parallel configurations: a named culmination is a separate investigation of the same developments ----------------------
+
+def test_a_named_culmination_is_a_parallel_investigation_that_does_not_supersede_the_same_developments_without_it(project):
+    store = store_for(project)
+    plain = prepared(store)["request"]
+    complete(store, plain, valid_answer(json.loads(plain["user"])))
+    with_culmination = prepared(store, culmination="The missing island returns at the close, altered.")
+    assert with_culmination["synthesis"]["standing"] == "current"
+    history = {row["request_sha256"]: row for row in project_architecture_synthesis(store)["history"]}
+    assert history[plain["request_sha256"]]["standing"] == "current", "a different culmination is a parallel configuration"
+
+
+def test_two_culminations_on_the_same_developments_are_both_current_and_an_unanswered_one_stays_answerable(project):
+    store = store_for(project)
+    first = prepared(store, culmination="The missing island returns at the close, altered.")
+    second = prepared(store, culmination="The missing island is not restored; the bonds become the return.")
+    assert second["synthesis"]["standing"] == "current"
+    history = {row["request_sha256"]: row for row in project_architecture_synthesis(store)["history"]}
+    assert history[first["request"]["request_sha256"]]["standing"] == "current"
+    assert history[first["request"]["request_sha256"]]["status"] == "awaiting_host_agent"
+    assert history[first["request"]["request_sha256"]]["request"] is not None
