@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "trajectory": [
+    {
+      "book": 24,
+      "horizon": "existing_book",
+      "development": "The reconsideration asks whether Book 24's review carries the training condition, and Book 24 is one of the existing Books read. The reconsideration leaves that unresolved.",
+      "becomes_available": "A checked answer on whether Book 24's review carries the training condition, which would show whether the reconsidered route reaches later development.",
+      "changes": "If the review carries the condition, a training thread already exists before the finale; if not, the reconsidered route to later development is not supported by that review.",
+      "basis": "recorded",
+      "evidence": ["E5", "E4"],
+      "quote": "Unresolved: whether Book 24's review"
+    },
+    {
+      "book": null,
+      "horizon": "proposed_book",
+      "development": "The author settles whether the Special Draw Right is revocable or permanent, and whether training is a condition the Right carries or a count the finale produces.",
+      "becomes_available": "Once the Right's status is fixed, the later finale choice works from a settled Right, and the training condition has a stated role to take up.",
+      "changes": "The open question about revocability becomes a stated property, against which the training condition can then be read.",
+      "basis": "proposed",
+      "evidence": ["E1"],
+      "quote": "Is the lineage Special Draw Right revocable or permanent"
+    },
+    {
+      "book": null,
+      "horizon": "proposed_book",
+      "development": "The author chooses the finale mechanism for who gives return labour and who is counted for it: A, B, C or a third.",
+      "becomes_available": "With the Right settled, the choice can decide who is counted. If the reading the reconsideration reports holds, alternative A drops or recasts the training condition.",
+      "changes": "The training condition and the return labour question could be answered by one decision, so the two developments may stop being separate threads.",
+      "basis": "proposed",
+      "evidence": ["E2", "E5"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "book": null,
+      "horizon": "proposed_book",
+      "development": "The finale runs on the chosen mechanism. If it is a major victory, the Right and the count change rather than return to the opening state; whether it is one is not stated in the cited items.",
+      "becomes_available": "A finale that counts labour by a settled mechanism lets the Right and the training condition read differently at the end than at the start.",
+      "changes": "Books 24 and 25 keep their own text; any change reaches the reader only in later Books.",
+      "basis": "proposed",
+      "evidence": ["E3"],
+      "quote": "Major victories change the world rather than restore the initial situation."
+    }
+  ],
+  "relations": [
+    {
+      "kind": "complicates",
+      "between": ["d1", "d2"],
+      "dependence": "thematic",
+      "reason": "The only link between the two developments among the supplied items is an interpretive reading that alternative A would drop or recast the training condition. Whether that tie is causal is not established.",
+      "evidence": ["E5"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "kind": "preparation",
+      "between": ["s1", "s2"],
+      "dependence": "sequential_only",
+      "reason": "Checking Book 24's review would inform whether the training condition is already carried, which helps the author settle the Right. The cited items do not make the Right's status depend on that check.",
+      "evidence": ["E5"],
+      "quote": "Unresolved: whether Book 24's review"
+    },
+    {
+      "kind": "preparation",
+      "between": ["s2", "s3"],
+      "dependence": "sequential_only",
+      "reason": "The reconsideration retains in part a sequence in which the Right is settled before the finale mechanism is chosen, but says the qualifier behind it is not in the item it cites.",
+      "evidence": ["E5"],
+      "quote": "the reworded question asks whether outside apprentices are trained under the Right before the finale mechanism is chosen"
+    },
+    {
+      "kind": "prerequisite",
+      "between": ["s3", "s4"],
+      "dependence": "causal",
+      "reason": "A finale needs a chosen mechanism, and the cited question leaves that choice open.",
+      "evidence": ["E2"],
+      "quote": "Which finale mechanism, A, B, C or a third, does the author choose"
+    }
+  ],
+  "culmination": null,
+  "alternative_paths": [
+    {
+      "ordering": "Settle the Right's status (d1) before choosing the finale mechanism (d2).",
+      "effect": "The finale then works with a settled Right instead of settling it, so who is counted is decided within a fixed Right.",
+      "viability": "viable",
+      "evidence": ["E1", "E2"],
+      "quote": "Not decided."
+    },
+    {
+      "ordering": "Choose finale alternative A first (d2), then settle the Right (d1).",
+      "effect": "If the interpretive reading holds, the choice itself recasts the training condition, so the Right may need only its revocability settled. The record does not say which alternative the author intends.",
+      "viability": "unresolved",
+      "evidence": ["E2", "E5"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "ordering": "Defer the Right's status into later Books and let the finale carry the hinge the reconsideration reports.",
+      "effect": "Both questions stay open into later Books, but E3 asks for an ultimately hopeful possibility of flourishing, and the cited items do not show how a deferred Right reaches it.",
+      "viability": "weakened",
+      "evidence": ["E3"],
+      "quote": "an ultimately hopeful possibility of flourishing"
+    }
+  ],
+  "opportunities": [
+    {
+      "text": "Revocability could make the count itself withdrawable, so who is counted stays a live question rather than one the finale settles once. Proposed: the cited items leave revocability undecided.",
+      "between": ["d1", "d2"],
+      "evidence": ["E1", "E2"],
+      "quote": "Is the lineage Special Draw Right revocable or permanent"
+    },
+    {
+      "text": "If the training condition is recast as counted care, one decision could answer both who gives return labour and who carries the Turn, so the two questions could become one thread. This follows only from the interpretive reading the reconsideration reports.",
+      "between": ["d1", "d2"],
+      "evidence": ["E1", "E2", "E5"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "text": "Read as an obligation, the training condition could give the count the meaning of belonging. Proposed only: the cited items name obligation and belonging as themes, not as the Right's condition.",
+      "between": ["d1", "d2"],
+      "evidence": ["E3"],
+      "quote": "the meanings attached to obligation"
+    }
+  ],
+  "reader_experience": "Proposed, not recorded: the Right may first feel like a gift and later like a condition, and the finale may make counting visible. No element read in Books 24 and 25 cites either question (E4), so those Books do not yet carry this experience. E3 asks for everyday belonging and warns against a generic escalating-villain epic.",
+  "open_decisions": [
+    "Whether the Special Draw Right is revocable or permanent, and what training condition it carries.",
+    "Whether training is a condition the Right carries or a count the finale produces.",
+    "Which finale mechanism, A, B, C or a third, decides who gives return labour and who is counted.",
+    "Whether Book 24's review carries the training condition, which the reconsideration leaves unresolved."
+  ],
+  "uncertainty": [
+    "The hinge and the alternative-A reading are interpretive, as the reconsideration reports them; the record does not say which the author intends.",
+    "The inheritance route through Book 24's review is a hypothesis, not a recorded consequence; the counts give no element identifiers.",
+    "The reconsidered question's sequence rests on a qualifier the cited item does not contain; treat that reading as unestablished.",
+    "E3 is cut off after 'Some confli', so later terms of the author's vision are not seen here."
+  ],
+  "criticism_assessments": [],
+  "changes_from_prior": []
+}

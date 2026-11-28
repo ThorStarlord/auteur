@@ -49,11 +49,20 @@ def completed_synthesis(store, **overrides):
     return result["request"]["request_sha256"], user
 
 
+# The synthesis's own wording for each claim the tests judge (valid_answer's stages), so a clause is copied from words the claim contains.
+CLAIM_PARTS = {
+    "s1": "The compact's grain-labour duty is first met by a named household.",
+    "s2": "A later Book tests whether the settlement holds under a poor harvest.",
+}
+
+
 def verdict(user: dict, claim: str = "s1", **overrides) -> dict:
     """A well-formed judgement: the first development's own wording carries the premise, and the verifier says so."""
     cited = user["developments"][0]["evidence"]
+    part = CLAIM_PARTS.get(claim, CLAIM_PARTS["s1"])
     base = {
         "schema_version": 2, "claim": claim, "evidence_register": "established", "judgment": "supported",
+        "clauses": [{"text": part, "status": "supported", "note": "The cited development states it."}],
         "affects": "asserted_condition", "reasoning": "The cited development states the condition in its own words.",
         "evidence": [cited], "quote": text_of(user, cited)[:40], "alternative_reading": None, "would_settle": None,
         "creative_room": "The household may still refuse the duty; the refusal would be a proposal, not a record.",
@@ -250,6 +259,54 @@ def test_a_clause_judgement_that_names_the_unsupported_part_and_its_possibility_
     row = complete_claim_verification(store, replay_verification(request, payload))
     assert row["result"]["clauses"][0]["status"] == "unsupported"
     assert row["result"]["relation_survives_correction"] == "yes"
+
+
+def test_a_judgement_must_name_the_parts_of_the_claim_it_judges(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    with pytest.raises(ValueError, match="must name the parts of the claim it judges"):
+        complete_claim_verification(store, replay_verification(request, verdict(user, "s1", clauses=[])))
+
+
+def test_a_part_must_name_a_whole_part_of_the_claim_not_a_fragment(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    payload = verdict(user, "s1", clauses=[{"text": "grain", "status": "supported", "note": "x"}])
+    with pytest.raises(ValueError, match="too short to judge"):
+        complete_claim_verification(store, replay_verification(request, payload))
+
+
+def test_a_supported_judgement_cannot_carry_a_clause_the_verifier_marks_proposed(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    payload = verdict(user, "s1", clauses=[{"text": CLAIM_PARTS["s1"], "status": "proposed", "note": "The record does not state it."}])
+    with pytest.raises(ValueError, match="cannot carry a clause the verifier marks proposed"):
+        complete_claim_verification(store, replay_verification(request, payload))
+
+
+def test_a_request_prepared_under_contract_version_one_completes_under_that_contract(project, monkeypatch):
+    """A request prepared under version 1 is completed with the version-1 judgement it asked for; it is not rebound to version 2."""
+    import auteur.beginner.studio_architecture_verification as verification
+    monkeypatch.setattr(verification, "VERIFICATION_SCHEMA_VERSION", 1)
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    assert request["settings"]["verification_schema_version"] == 1
+    legacy = {key: value for key, value in verdict(user, "s1").items() if key not in ("clauses",)}
+    legacy["schema_version"] = 1
+    row = complete_claim_verification(store, replay_verification(request, legacy))
+    assert row["status"] == "ready" and row["result"]["judgment"] == "supported"
+
+
+def test_the_tense_rule_reaches_proposed_claims_only_and_the_bounds_include_their_minimum():
+    from auteur.host_agent import contract_limit_lines
+    assert "labelled proposed states its proposed event" in _SYSTEM_VERIFY
+    assert "labelled proposed or inferred" not in _SYSTEM_VERIFY
+    lines = contract_limit_lines(ClaimVerification)
+    assert "reasoning: at most 600 characters; at least 1 character" in lines
 
 
 def test_an_unknown_field_is_refused_by_the_schema():

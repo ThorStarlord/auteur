@@ -61,6 +61,10 @@ def _atomic_json_write(path: Path, payload: dict[str, Any]) -> None:
                 pass
 
 
+def _count(number: int, noun: str) -> str:
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
 def contract_limit_lines(model: type) -> list[str]:
     """The owner-enforced bounds of a contract, read from the same JSON Schema that the output contract carries.
 
@@ -89,14 +93,14 @@ def contract_limit_lines(model: type) -> list[str]:
         for option in branches(node):
             parts: list[str] = []
             if "maxLength" in option:
-                parts.append(f"at most {option['maxLength']} characters")
-            if option.get("minLength", 0) > 1:
-                parts.append(f"at least {option['minLength']} characters")
+                parts.append(f"at most {_count(option['maxLength'], 'character')}")
+            if option.get("minLength", 0) >= 1:
+                parts.append(f"at least {_count(option['minLength'], 'character')}")
             if option.get("type") == "array":
                 if "maxItems" in option:
-                    parts.append(f"at most {option['maxItems']} items")
-                if option.get("minItems", 0) > 1:
-                    parts.append(f"at least {option['minItems']} items")
+                    parts.append(f"at most {_count(option['maxItems'], 'item')}")
+                if option.get("minItems", 0) >= 1:
+                    parts.append(f"at least {_count(option['minItems'], 'item')}")
             if "enum" in option:
                 parts.append("one of " + ", ".join(repr(value) for value in option["enum"]))
             if "const" in option:

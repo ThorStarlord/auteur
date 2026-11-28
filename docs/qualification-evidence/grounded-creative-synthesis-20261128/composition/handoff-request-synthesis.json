@@ -1,0 +1,520 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-synthesis-e4b7c34fb9cbcc44f507ed6c:84bb1aeda53d2ae6",
+  "candidate_id": "studio-synthesis-e4b7c34fb9cbcc44f507ed6c",
+  "role": "studio_architecture_synthesis",
+  "created_at": "2026-11-28T02:09:02.617439+00:00",
+  "system": "You are the active Auteur creative synthesis agent. The author has selected one to three creative developments of a working narrative architecture and asks what they could become across the Series. Your reading is advisory: it is not canon, not an applied revision, not a commitment, and it changes no record.\n\nThe request holds the developments' own wording, the Working Book elements that cite them, the links among them, any accepted reconsiderations offered as handoffs, and, when the author gave one, the culmination the author named. Cite only the identifiers the request gives (E-numbers). Excerpts are shown as excerpts; never present an excerpt as the whole record.\n\nReason about a trajectory, not a list of events. For each stage say what becomes available (the earlier condition that makes it possible, cited), and what it changes in what the earlier developments mean or make possible. Label each stage's basis: recorded (the cited record states it), inferred (it follows from the record, and you say how), or proposed (a new development that the record does not contain; state it conditionally and do not name new people, places or factions the author has not given). A book number is a placement in an existing Book, not a claim of chronology, and a stage beyond the existing Books is a proposed_book with no book number.\n\nRelations: use prerequisite only for what the later development cannot occur without; preparation for what makes it richer or easier. Say whether the dependence is causal, thematic, sequential_only or none. Use interference and incompatibility only where the record shows one development constraining another. Give alternative paths that change the order or the condition of the developments, and say whether each stays viable.\n\nIf the author named a culmination, reason about it backward (what it needs) and forward (what the earlier developments already make possible), separate necessary conditions from enrichment, and state what the earlier Books keep as their own experience if the culmination never arrives. Earlier Books must remain meaningful in their own right.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, with a reason. A follow-up request may give an earlier judgement as text: it is not evidence, so cite nothing from it, and state in changes_from_prior what changed and why.\n\nQuote the basis. Every claim that cites evidence (a stage, a relation, an alternative path, an opportunity or a culmination condition) must carry `quote`: the exact words, copied without change, from one of the items it cites, up to 240 characters, that carry the claim's premise. Do not quote words the cited items do not contain. If no words carry a premise, cite what does, or label the claim proposed and state what it assumes. State an absence as 'not stated in the cited items', never as a fact about the story. Read tense and attribution exactly as the words give them.\n\nKeep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.\n\nReturn ONLY one JSON object with these keys: schema_version (1), trajectory, relations, culmination (an object, or null when the author named none and you offer none), alternative_paths, opportunities, reader_experience, open_decisions, uncertainty, criticism_assessments, changes_from_prior. Field names and literal values are exact, as the output_contract gives them.\n\nLimits, enforced by the owner (an answer that exceeds one is refused whole). Each line names a field and its bound:\n- schema_version: exactly 2\n- trajectory: at most 6 items; at least 2 items\n- trajectory[].book: at least 1; at most 60\n- trajectory[].horizon: one of 'existing_book', 'proposed_book'\n- trajectory[].development: at most 600 characters\n- trajectory[].becomes_available: at most 400 characters\n- trajectory[].changes: at most 400 characters\n- trajectory[].basis: one of 'recorded', 'inferred', 'proposed'\n- trajectory[].evidence: at most 4 items\n- trajectory[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- trajectory[].quote: at most 240 characters\n- relations: at most 8 items\n- relations[].kind: one of 'prerequisite', 'preparation', 'enables', 'complicates', 'reinforces', 'independent', 'incompatible'\n- relations[].between: at most 3 items; at least 2 items\n- relations[].between[]: matching ^[ds][1-6]$\n- relations[].dependence: one of 'causal', 'thematic', 'sequential_only', 'none'\n- relations[].reason: at most 400 characters\n- relations[].evidence: at most 3 items\n- relations[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- relations[].quote: at most 240 characters\n- culmination.statement: at most 400 characters\n- culmination.necessary: at most 4 items\n- culmination.necessary[].text: at most 300 characters\n- culmination.necessary[].evidence: at most 3 items\n- culmination.necessary[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- culmination.necessary[].quote: at most 240 characters\n- culmination.enrichment: at most 4 items\n- culmination.enrichment[].text: at most 300 characters\n- culmination.enrichment[].evidence: at most 3 items\n- culmination.enrichment[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- culmination.enrichment[].quote: at most 240 characters\n- culmination.standalone_value: at most 400 characters\n- alternative_paths: at most 3 items\n- alternative_paths[].ordering: at most 400 characters\n- alternative_paths[].effect: at most 400 characters\n- alternative_paths[].viability: one of 'viable', 'weakened', 'closed', 'unresolved'\n- alternative_paths[].evidence: at most 3 items\n- alternative_paths[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- alternative_paths[].quote: at most 240 characters\n- opportunities: at most 3 items\n- opportunities[].text: at most 400 characters\n- opportunities[].between: at most 3 items; at least 2 items\n- opportunities[].between[]: matching ^[ds][1-6]$\n- opportunities[].evidence: at most 3 items\n- opportunities[].evidence[]: matching ^E[1-9][0-9]{0,2}$\n- opportunities[].quote: at most 240 characters\n- reader_experience: at most 600 characters\n- open_decisions: at most 4 items\n- open_decisions[]: at most 240 characters\n- uncertainty: at most 4 items\n- uncertainty[]: at most 240 characters\n- criticism_assessments: at most 4 items\n- criticism_assessments[].criticism: matching ^c[1-9]$\n- criticism_assessments[].verdict: one of 'accepted', 'partly_accepted', 'rejected', 'unresolved'\n- criticism_assessments[].reason: at most 400 characters\n- changes_from_prior: at most 4 items\n- changes_from_prior[]: at most 240 characters",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\"], \"criticism\": [], \"culmination_requested\": false, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"question\", \"ref\": \"q-right-revocable\", \"text_sha256\": \"e46e8859ef83a02c16d732d1b26bdbab32772096c293be5ff217b55d14165f88\", \"title\": \"Is the lineage Special Draw Right revocable or permanent, what training conditio\"}, {\"evidence\": \"E2\", \"id\": \"d2\", \"kind\": \"question\", \"ref\": \"q-finale-mechanism\", \"text_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"title\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_question\", \"source_sha256\": \"e46e8859ef83a02c16d732d1b26bdbab32772096c293be5ff217b55d14165f88\", \"text\": \"Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.\", \"truncated\": false, \"version_sha256\": \"e46e8859ef83a02c16d732d1b26bdbab32772096c293be5ff217b55d14165f88\"}, {\"development\": \"d2\", \"freshness\": \"current_read\", \"id\": \"E2\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_question\", \"source_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"text\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\", \"truncated\": false, \"version_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\"}, {\"freshness\": \"author_current\", \"id\": \"E3\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e\", \"text\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli\", \"truncated\": true, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}, \"d2\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 0, \"listed\": [], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E4\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"693eb7cc9c7b70ed80befb71f54a5ede3b64a2d7ab270ba7c3992414445501cf\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}, \\\"d2\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 182, \\\"same_text_elsewhere\\\": {\\\"count\\\": 0, \\\"listed\\\": [], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}, {\"analysis_request_sha256\": \"f4fa5bce9a3c008117e9c1cd7e08f3dd9b88ccd920ef141d05171d2d1db0fee1\", \"claim\": {\"claim_sha256\": \"fe93ba14e8a10df25ffa6c1211211857fa6305cece43c387b34ba0c0340a8416\", \"kind\": \"reach\", \"ref\": null}, \"freshness\": \"current\", \"id\": \"E5\", \"kind\": \"handoff\", \"owner\": \"reconsideration owner: accepted judgement, advisory\", \"reconsideration_request_sha256\": \"36832a482eb6c8e4a88e82920d0ea5a4feb9741dea52beed9bd5e578eff7d655\", \"source\": \"reconsideration\", \"source_sha256\": \"95dd1f4c62a2ac445f7f9fb74c97957311a1e67701d9cd3dc56a1d376a732771\", \"text\": \"unresolved: Retained in part: E107 states that the reworded question asks whether outside apprentices are trained under the Right before the finale mechanism is chosen. The added qualifier in the claim does not appear in E107. Unresolved: whether Book 24's review (E8, E84) carries the training condition, and so whether the change reaches later development by that route. E106 calls the training condition the hinge and labels this Interpretive; the record does not say which reading the author intends. The inheritance route therefore remains a hypothesis, not a recorded consequence. Remaining uncertainty: E108 gives counts for Books 24 and 25 (182 elements read) but lists no element identifiers, so whether E8 or E84 was among them is not recorded; whether E8 or only E84 states the training condition is unchecked.; Whether Book 24's review of the Right is the route by which the change reaches later development is not established.; E106 (interpretive) reads that under alternative A the training condition must be dropped or recast as counted care; the record does not say which alternative the author intends.\", \"truncated\": false, \"version_sha256\": \"36832a482eb6c8e4a88e82920d0ea5a4feb9741dea52beed9bd5e578eff7d655\"}], \"existing_books\": [24, 25], \"handoffs\": [{\"evidence\": \"E5\", \"reconsideration_request_sha256\": \"36832a482eb6c8e4a88e82920d0ea5a4feb9741dea52beed9bd5e578eff7d655\", \"standing\": \"current\"}], \"inputs\": {\"criticism\": [], \"culmination\": null, \"developments\": [{\"kind\": \"question\", \"ref\": \"q-right-revocable\"}, {\"kind\": \"question\", \"ref\": \"q-finale-mechanism\"}], \"handoffs\": [\"36832a482eb6c8e4a88e82920d0ea5a4feb9741dea52beed9bd5e578eff7d655\"], \"prior_request_sha256\": null, \"question\": \"How could the Special Draw Right's training condition develop with the finale mechanism across the next Books, given the reconsidered reach claim? Keep what the record establishes, what the reconsideration leaves unresolved, and what remains creatively open.\"}, \"operation\": \"synthesize_development\", \"prior_judgement\": null, \"question\": \"How could the Special Draw Right's training condition develop with the finale mechanism across the next Books, given the reconsidered reach claim? Keep what the record establishes, what the reconsideration leaves unresolved, and what remains creatively open.\"}",
+  "settings": {
+    "operation": "synthesize_architecture_development",
+    "inputs_sha256": "fb0a608832a4f6a3ac5b7ffb7eacdb889fad4cfb4743ef3876b5a7363d6f61f2",
+    "developments_sha256": "3ce3ac52b9affe9c42c974acaae49e3cdb321840d1d6843ecf01b8b9c4889d50",
+    "question_sha256": "b13cfc946a1ab9fe7306388f75767b1bd27bc3e1052be492d08e21472f851333",
+    "culmination_sha256": null,
+    "handoffs_sha256": "29274e5b49e1d4c934496d79b6ea2b641ebc28d1c0b58e1bf3095002ff8a71bf",
+    "criticism_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "prior_request_sha256": null,
+    "evidence_sha256": "14b9ac78bc6a1ed6a78ff163448f7144e41d4008540b454b4ca20972b2fff1c1",
+    "synthesis_schema_version": 2
+  },
+  "request_sha256": "84bb1aeda53d2ae6b13b16f4a7a3c4365d1f324569ef6b6ddb75d46cedb6c0a6",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "SynthesisAnswer",
+    "json_schema": {
+      "$defs": {
+        "AlternativePath": {
+          "additionalProperties": false,
+          "properties": {
+            "ordering": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Ordering",
+              "type": "string"
+            },
+            "effect": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Effect",
+              "type": "string"
+            },
+            "viability": {
+              "enum": [
+                "viable",
+                "weakened",
+                "closed",
+                "unresolved"
+              ],
+              "title": "Viability",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "ordering",
+            "effect",
+            "viability"
+          ],
+          "title": "AlternativePath",
+          "type": "object"
+        },
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "Culmination": {
+          "additionalProperties": false,
+          "description": "The culmination the author named (or the answer reads), with what it needs and what earlier Books keep for themselves.",
+          "properties": {
+            "statement": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Statement",
+              "type": "string"
+            },
+            "necessary": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Necessary",
+              "type": "array"
+            },
+            "enrichment": {
+              "items": {
+                "$ref": "#/$defs/CulminationCondition"
+              },
+              "maxItems": 4,
+              "title": "Enrichment",
+              "type": "array"
+            },
+            "standalone_value": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Standalone Value",
+              "type": "string"
+            }
+          },
+          "required": [
+            "statement",
+            "standalone_value"
+          ],
+          "title": "Culmination",
+          "type": "object"
+        },
+        "CulminationCondition": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "CulminationCondition",
+          "type": "object"
+        },
+        "Opportunity": {
+          "additionalProperties": false,
+          "description": "Something the interaction of two or three developments makes possible that none makes possible alone.",
+          "properties": {
+            "text": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "text",
+            "between",
+            "evidence"
+          ],
+          "title": "Opportunity",
+          "type": "object"
+        },
+        "SynthesisRelation": {
+          "additionalProperties": false,
+          "description": "How two developments or stages bear on each other. ``prerequisite`` is necessary; ``preparation`` is helpful only.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "prerequisite",
+                "preparation",
+                "enables",
+                "complicates",
+                "reinforces",
+                "independent",
+                "incompatible"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "between": {
+              "items": {
+                "pattern": "^[ds][1-6]$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "title": "Between",
+              "type": "array"
+            },
+            "dependence": {
+              "enum": [
+                "causal",
+                "thematic",
+                "sequential_only",
+                "none"
+              ],
+              "title": "Dependence",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "kind",
+            "between",
+            "dependence",
+            "reason"
+          ],
+          "title": "SynthesisRelation",
+          "type": "object"
+        },
+        "SynthesisStage": {
+          "additionalProperties": false,
+          "description": "One stage of the trajectory. Stages are ordered by developmental dependency, not by book number.",
+          "properties": {
+            "book": {
+              "anyOf": [
+                {
+                  "maximum": 60,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Book"
+            },
+            "horizon": {
+              "enum": [
+                "existing_book",
+                "proposed_book"
+              ],
+              "title": "Horizon",
+              "type": "string"
+            },
+            "development": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Development",
+              "type": "string"
+            },
+            "becomes_available": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Becomes Available",
+              "type": "string"
+            },
+            "changes": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Changes",
+              "type": "string"
+            },
+            "basis": {
+              "enum": [
+                "recorded",
+                "inferred",
+                "proposed"
+              ],
+              "title": "Basis",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 4,
+              "title": "Evidence",
+              "type": "array"
+            },
+            "quote": {
+              "anyOf": [
+                {
+                  "maxLength": 240,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Quote"
+            }
+          },
+          "required": [
+            "horizon",
+            "development",
+            "becomes_available",
+            "changes",
+            "basis"
+          ],
+          "title": "SynthesisStage",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A structured synthesis of selected developments. The owner holds the developments and the question; the agent gives the reading.",
+      "properties": {
+        "schema_version": {
+          "const": 2,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "trajectory": {
+          "items": {
+            "$ref": "#/$defs/SynthesisStage"
+          },
+          "maxItems": 6,
+          "minItems": 2,
+          "title": "Trajectory",
+          "type": "array"
+        },
+        "relations": {
+          "items": {
+            "$ref": "#/$defs/SynthesisRelation"
+          },
+          "maxItems": 8,
+          "title": "Relations",
+          "type": "array"
+        },
+        "culmination": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Culmination"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "alternative_paths": {
+          "items": {
+            "$ref": "#/$defs/AlternativePath"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Alternative Paths",
+          "type": "array"
+        },
+        "opportunities": {
+          "items": {
+            "$ref": "#/$defs/Opportunity"
+          },
+          "maxItems": 3,
+          "title": "Opportunities",
+          "type": "array"
+        },
+        "reader_experience": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reader Experience",
+          "type": "string"
+        },
+        "open_decisions": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Open Decisions",
+          "type": "array"
+        },
+        "uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Uncertainty",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "changes_from_prior": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Changes From Prior",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "trajectory",
+        "alternative_paths",
+        "reader_experience"
+      ],
+      "title": "SynthesisAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "25b45abcff3cc312a754e5a6818d595c549abad368939321beb514e4223a180e"
+  }
+}
