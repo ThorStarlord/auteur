@@ -19,7 +19,8 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from auteur.host_agent import (
-    _atomic_json_write, build_host_agent_request, load_host_agent_request, model_output_contract, validate_host_agent_response,
+    _atomic_json_write, build_host_agent_request, limits_instruction, load_host_agent_request, model_output_contract,
+    validate_host_agent_response,
     write_host_agent_request, write_host_agent_response,
 )
 
@@ -31,7 +32,7 @@ from .studio_store import CanvasStore
 ROLE = "studio_architecture_claim_verification"
 SCHEMA = "studio-claim-verification/1"
 AUTHORITY = "advisory_verification_not_applied"
-VERIFICATION_SCHEMA_VERSION = 1
+VERIFICATION_SCHEMA_VERSION = 2
 CLAIM_PATTERN = r"^(s[1-6]|r[1-8]|a[1-3]|o[1-3]|n[1-4]|e[1-4])$"
 CLAIM_KINDS = {"s": "stage", "r": "relation", "a": "alternative_path", "o": "opportunity", "n": "necessary_condition",
                "e": "enrichment_condition"}
@@ -54,9 +55,18 @@ SETTLE_CHARS = 240
 ROOM_CHARS = 400
 
 
-class ClaimVerification(BaseModel):
-    """The verifier's judgement of one claim. ``creative_room`` is required: a verification that narrows possibility without saying so
-    is a defect of the verifier."""
+class Clause(BaseModel):
+    """One part of the claim, judged on its own. ``text`` is copied verbatim from the claim's own wording, so the owner can check that
+    the judgement is about words the synthesis actually wrote."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    text: str = Field(min_length=1, max_length=200)
+    status: Literal["supported", "inferential", "conditional", "proposed", "unsupported", "contradicted"]
+    note: str = Field(min_length=1, max_length=240)
+
+
+class ClaimVerificationV1(BaseModel):
+    """Contract version 1: a judgement with no clauses. Kept so that a request prepared under version 1 can still be completed under the
+    contract it was prepared with (its identity is its inputs; it is not rebound to a newer contract)."""
     model_config = ConfigDict(extra="forbid", strict=True)
     schema_version: Literal[1]
     claim: Annotated[str, StringConstraints(pattern=CLAIM_PATTERN)]
@@ -73,21 +83,46 @@ class ClaimVerification(BaseModel):
     creative_room: str = Field(min_length=1, max_length=ROOM_CHARS)
 
 
+class ClaimVerification(BaseModel):
+    """The verifier's judgement of one claim. ``creative_room`` is required: a verification that narrows possibility without saying so
+    is a defect of the verifier."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    schema_version: Literal[2]
+    claim: Annotated[str, StringConstraints(pattern=CLAIM_PATTERN)]
+    evidence_register: Literal["established", "inferred_from_established", "agent_proposed", "author_stated", "not_established", "mixed"]
+    judgment: Literal["supported", "defensible_inference", "creative_speculation", "overreaching", "temporal_misreading",
+                      "modal_misreading", "attribution_error", "standing_confusion", "unsupported_relation", "contradicted",
+                      "insufficient_evidence"]
+    affects: Literal["creative_possibility", "asserted_condition", "load_bearing_premise"]
+    reasoning: str = Field(min_length=1, max_length=REASONING_CHARS)
+    evidence: list[EvidenceId] = Field(default_factory=list, max_length=EVIDENCE_MAX)
+    quote: str | None = Field(default=None, max_length=QUOTE_CHARS)
+    alternative_reading: str | None = Field(default=None, max_length=ALTERNATIVE_CHARS)
+    would_settle: str | None = Field(default=None, max_length=SETTLE_CHARS)
+    creative_room: str = Field(min_length=1, max_length=ROOM_CHARS)
+    clauses: list[Clause] = Field(default_factory=list, max_length=4)
+    defensible_possibility: str | None = Field(default=None, max_length=400)
+    relation_survives_correction: Literal["yes", "no", "unclear", "not_applicable"] = "not_applicable"
+
+
 _SYSTEM_VERIFY = """You are the Auteur claim-basis verifier. You judge one claim of a completed creative synthesis against the exact evidence that synthesis was given. Your judgement is advisory: it is not canon, it changes no record, and the author may disagree with it.
 
 You do not judge whether the idea is artistically good, whether the story should go this way, or the quality of the prose. Judge only whether the claim is warranted by the evidence, and say what the evidence actually establishes.
 
 Keep these apart. What the evidence establishes (its own words state it as fact, and its epistemic status or attribution does not mark it as proposed). What the evidence supports by inference (say how). What is agent-proposed (an agent_proposed element, or wording that proposes or conditions). What the author has stated. What remains creatively possible. A creative proposal that the evidence does not entail is not an error when it is presented as a proposal; the error is a claim whose premise the evidence does not carry. Typical errors: present tense read as an achieved event; a conditional or hypothetical read as an event; agent-proposed text presented as record; a repeated element read as a new development; a dependency the evidence does not state; an attribution to the wrong source; a standing or authority the evidence does not grant.
 
+A proposal is stated conditionally. If a claim labelled proposed states its proposed event in the indicative, as though it occurs (for example 'are trained', 'is demonstrated', 'is tested'), that wording is a modal misreading: the label does not license the tense. Judge the tense, and give the conditional reading the evidence supports in alternative_reading. A hypothetical that asserts no necessary dependency, written as an 'if' or 'could', is not a misreading of tense; judge its premises clause by clause.
+
 Use only the identifiers in allowed_evidence. Quote only words copied exactly from a cited item, up to 240 characters, that carry the premise of your judgement. If the claim's offered quote does not carry its premise, say so in alternative_reading. State an absence as 'not stated in the cited items', never as a fact about the story.
+
+Judge clause by clause. Split the claim into its parts (a claim may state an established condition, a proposed development and a causal relation between them). For each part that matters, give it in clauses, copied verbatim from the claim, with its status: supported (the cited words carry it), inferential (it follows from the cited words, and you say how), conditional (it holds only if something else does), proposed (it is a proposal the record does not contain), unsupported (the cited words do not carry it), or contradicted (the cited words say otherwise). Do not classify the whole claim as creative speculation while one of its parts is unsupported: name that part as unsupported. Where the creative possibility is defensible even though a premise needs correction, say which possibility remains defensible in defensible_possibility, and say in relation_survives_correction whether a corrected premise would still support the proposed relation between the parts (yes, no, unclear, or not_applicable).
 
 Always fill creative_room: what remains creatively possible with this claim, and which parts of it would have to be treated as proposals rather than record. Never narrow the space of creative possibilities without saying what it is.
 
-Return ONLY one JSON object with these keys: schema_version (1), claim, evidence_register, judgment, affects, reasoning, evidence, quote, alternative_reading, would_settle, creative_room. Field names and literal values are exact, as the output_contract gives them.
+Return ONLY one JSON object with these keys: schema_version (2), claim, evidence_register, judgment, affects, reasoning, evidence, quote, alternative_reading, would_settle, creative_room, clauses, defensible_possibility, relation_survives_correction. Field names and literal values are exact, as the output_contract gives them.
 
-Limits, enforced by the owner (an answer that exceeds one is refused whole): reasoning at most {reasoning} characters; evidence at most {evidence} identifiers; quote at most {quote} characters; alternative_reading at most {alternative} characters, and required for every judgment other than supported, defensible_inference, creative_speculation and insufficient_evidence; would_settle at most {settle} characters, and required for insufficient_evidence; creative_room at most {room} characters and always required.""".format(
-    reasoning=REASONING_CHARS, evidence=EVIDENCE_MAX, quote=QUOTE_CHARS, alternative=ALTERNATIVE_CHARS, settle=SETTLE_CHARS,
-    room=ROOM_CHARS)
+Required, enforced by the owner: clauses (at least one) for every judgement other than insufficient_evidence; evidence for every judgement other than creative_speculation and insufficient_evidence; alternative_reading for every judgement other than supported, defensible_inference, creative_speculation and insufficient_evidence; would_settle for insufficient_evidence; creative_room always."""
+_SYSTEM_VERIFY = _SYSTEM_VERIFY + chr(10) + chr(10) + limits_instruction(ClaimVerification)
 
 
 def claims_of(answer: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -159,6 +194,53 @@ def claim_text(wording: dict[str, Any]) -> str:
     return json.dumps(wording, ensure_ascii=False, sort_keys=True)
 
 
+def wording_text(wording: dict[str, Any]) -> str:
+    """Every word the synthesis wrote for the claim, flattened, for the clause check."""
+    parts: list[str] = []
+
+    def walk(node: Any) -> None:
+        if isinstance(node, str):
+            parts.append(node)
+        elif isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    walk(wording)
+    return " ".join(parts)
+
+
+UNSUPPORTED_CLAUSE = ("unsupported", "contradicted")
+
+
+def _check_clauses(verdict: ClaimVerification, user: dict[str, Any]) -> list[str]:
+    """Clauses are checked for identity and consistency, never for meaning. A judgement names the parts it judges; a part names whole
+    words of the claim; a supported judgement cannot carry a part the verifier itself marks as proposed, unsupported or contradicted; and
+    a claim with an unsupported part cannot be judged supported, a defensible inference or creative speculation. These rules cannot detect
+    a part the verifier leaves out: that is an instruction, not a check."""
+    problems: list[str] = []
+    if verdict.judgment != "insufficient_evidence" and not verdict.clauses:
+        problems.append(f"a {verdict.judgment} judgement must name the parts of the claim it judges (clauses)")
+    wording = " ".join(wording_text(user["claim"]["wording"]).split())
+    for index, clause in enumerate(verdict.clauses, start=1):
+        words = " ".join(clause.text.split())
+        if len(words) < 12:
+            problems.append(f"clause {index} is too short to judge; name a whole part of the claim")
+        if words not in wording:
+            problems.append(f"clause {index} is not words the claim contains; copy the clause verbatim from the claim")
+    if verdict.judgment == "supported" and any(clause.status in ("proposed", "unsupported", "contradicted") for clause in verdict.clauses):
+        problems.append("a supported judgement cannot carry a clause the verifier marks proposed, unsupported or contradicted")
+    unsupported = [clause for clause in verdict.clauses if clause.status in UNSUPPORTED_CLAUSE]
+    if unsupported and verdict.judgment in ("supported", "defensible_inference", "creative_speculation"):
+        problems.append("a claim with an unsupported or contradicted clause cannot be judged supported, a defensible inference or "
+                        "creative speculation; name the judgement that the unsupported clause warrants")
+    if unsupported and not verdict.defensible_possibility:
+        problems.append("a claim with an unsupported clause must say which creative possibility remains defensible")
+    return problems
+
+
 def _check_verification(verdict: ClaimVerification, user: dict[str, Any]) -> None:
     """Refuse what the owner can check: citations inside the packet, a verbatim quote, a reason where the judgement needs one, and
     consistency between the judgement and the register the verifier gives the evidence. Meaning is not checked here."""
@@ -175,6 +257,8 @@ def _check_verification(verdict: ClaimVerification, user: dict[str, Any]) -> Non
     problems += _grounded("the verification", verdict.quote, verdict.evidence, texts)
     if verdict.judgment in MISREADINGS and not verdict.alternative_reading:
         problems.append(f"a {verdict.judgment} judgement must say what the evidence does support (alternative_reading)")
+    if hasattr(verdict, "clauses"):  # contract version 2; a version-1 judgement has no clauses and is checked as it was
+        problems += _check_clauses(verdict, user)
     if verdict.judgment == "insufficient_evidence" and not verdict.would_settle:
         problems.append("an insufficient_evidence judgement must name what would settle it (would_settle)")
     if verdict.judgment == "supported" and verdict.evidence_register not in ("established", "inferred_from_established", "author_stated"):
@@ -283,7 +367,8 @@ def complete_claim_verification(store: CanvasStore, payload: dict) -> dict[str, 
             raise arch.BeginnerConcurrencyError("the synthesis changed since this verification was prepared; it is not stored")
         user = json.loads(request.user)
         try:
-            verdict = ClaimVerification.model_validate_json(response.text)
+            model = ClaimVerificationV1 if request.settings.get("verification_schema_version") == 1 else ClaimVerification
+            verdict = model.model_validate_json(response.text)
             if verdict.claim != request.settings["claim"]:
                 raise ValueError(f"the verification judges {verdict.claim}, but this request asks about {request.settings['claim']}")
             _check_verification(verdict, user)
@@ -350,6 +435,7 @@ def project_claim_verifications(store: CanvasStore, synthesis_request_sha256: st
 
 
 __all__ = [
-    "AUTHORITY", "ClaimVerification", "ROLE", "SCHEMA", "claim_inventory", "claim_text", "claims_of", "complete_claim_verification",
+    "AUTHORITY", "ClaimVerification", "ClaimVerificationV1", "ROLE", "SCHEMA", "claim_inventory", "claim_text", "claims_of",
+    "complete_claim_verification",
     "dependents_of", "prepare_claim_verification", "project_claim_verifications",
 ]

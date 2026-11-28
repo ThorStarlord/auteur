@@ -1,0 +1,1 @@
+interpretation 'open-question-cap-fold' affects unknown nodes: q-right-revocable, q-finale-mechanism. The owner refused the candidate: each interpretation may name only nodes and questions that the current candidate holds.

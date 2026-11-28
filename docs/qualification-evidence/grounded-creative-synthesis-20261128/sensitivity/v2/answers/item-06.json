@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "creative_speculation",
+  "affects": "creative_possibility",
+  "reasoning": "s1 is a proposed later-Book stage (basis proposed, book null, horizon proposed_book); its cited item E5 is agent_proposed. The labour premise is carried by E1: from Book 20 lineage crews carry channel repair. The stage's asks-wording is the synthesis's reading of E5, which states no question for the lineage. The steward's refusal and its test of commitment are not stated in the cited items; could and would mark them as proposals. E8 says Book 24 creates no standing body, leaving a later Book free to introduce one. Presented as proposal, it is not an error.",
+  "evidence": ["E1", "E5", "E7", "E8"],
+  "quote": "lineage crews carry channel repair under a Special Draw Right",
+  "alternative_reading": "No quote was offered (quote_offered is null). Read as record, the steward refusal is unsupported: the cited items name no Council steward or outside crew. Read as proposal, as its could, would and proposed_book horizon mark it, it is defensible.",
+  "would_settle": "A cited item naming a Council steward and an outside crew, or an adopted later-Book revision that records the steward's refusal as record.",
+  "creative_room": "Open: a later Book where a steward refuses outside help to test whether the labour is truly held, with the test shown in conduct, dialogue or cost. Also open: a partial refusal, or a crew refused only for some work. Treat the steward, the outside crew and the refusal as proposals, not record, until the record names them.",
+  "clauses": [
+    {
+      "text": "The stage asks what the lineage would then have to carry.",
+      "status": "inferential",
+      "note": "Follows from E1 (lineage crews carry channel repair from Book 20) and E5 (labour gap first met by people). The asking itself is not stated in the cited items."
+    },
+    {
+      "text": "The stage asks what it would mean for the labour.",
+      "status": "inferential",
+      "note": "Follows from E5's framing that the labour gap is first met by people; the question is the synthesis's reading, not stated in the cited items."
+    },
+    {
+      "text": "A later Book could have the Council steward refuse the outside crew",
+      "status": "proposed",
+      "note": "Council steward and outside crew are not stated in the cited items. E7 gives apprentices from outside the lineage only as an agent-proposed SDR condition."
+    },
+    {
+      "text": "which would test her commitment to the labour.",
+      "status": "conditional",
+      "note": "Holds only if the proposed refusal occurs. 'Her' appears to mean the steward; the steward's commitment is not stated in the cited items."
+    }
+  ],
+  "defensible_possibility": "A later Book in which a Council steward refuses outside crew to test commitment to the labour stays defensible as a proposal; the labour premise is carried by E1.",
+  "relation_survives_correction": "yes"
+}

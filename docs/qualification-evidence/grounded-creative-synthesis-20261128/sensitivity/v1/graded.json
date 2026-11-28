@@ -1,0 +1,270 @@
+[
+  {
+    "item": "item-01",
+    "pair": "P1a_recorded",
+    "status": "accepted",
+    "judgment": "attribution_error",
+    "register": "mixed",
+    "clauses": [
+      [
+        "supported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "proposed",
+        "Book 24 is where the labour gap is first met by people rather than by "
+      ],
+      [
+        "unsupported",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "A proposed Book 24 in which lineage labour is first met by people rather than a schedule remains defensible as a creative proposal, since E1 establishes lineage crews carrying repair under the Right from Book 20 and households carrying the rest. It must be labelled proposed, not recorded.",
+    "survives": "unclear",
+    "reasoning": "The claim's basis is labelled recorded, but its Book 24 development rests on E5, an agent_proposed element, so the record does not carry it. E1 (established) carries the earlier condition: from Book 20 lineage crews carry channel repair under a Special Draw Right. The Book 24 wording appears only in E5, and the same text recurs in Book 25 (E11). Nothing cited states what the labour means for the lineage. Horizon proposed_book would make the stage a proposal, but basis_as_stated asserts record."
+  },
+  {
+    "item": "item-02",
+    "pair": "P1b_proposed",
+    "status": "accepted",
+    "judgment": "unsupported_relation",
+    "register": "mixed",
+    "clauses": [
+      [
+        "supported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "proposed",
+        "Book 24 is where the labour gap is first met by people rather than by "
+      ],
+      [
+        "unsupported",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "That Book 24 is where people, not a schedule, first meet the labour gap remains a defensible creative proposal if it is labelled as one. The change in what labour means for the lineage is open as a further proposal.",
+    "survives": "unclear",
+    "reasoning": "E1 carries the earlier condition: from Book 20 lineage crews carry channel repair under a Special Draw Right. The Book 24 development appears only in E5, an agent_proposed Working Book element, so it is proposal rather than record. The link from that condition to the development is stated in no cited item, and no cited item says what the labour means for the lineage; E3 is an agent inference. E1 also describes a rota that already carries households' share, which the 'rather than by a schedule' wording does not account for."
+  },
+  {
+    "item": "item-03",
+    "pair": "P2a_unconditional",
+    "status": "accepted",
+    "judgment": "creative_speculation",
+    "register": "mixed",
+    "clauses": [
+      [
+        "supported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "proposed",
+        "Outside apprentices are trained under the Special Draw Right and their"
+      ],
+      [
+        "conditional",
+        "so the condition the Right carries is tested."
+      ],
+      [
+        "proposed",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "That outside apprentices trained under the Right, with repair shown, would test the training condition the agent elements E3 and E7 name. Offered as a proposal, it is not record.",
+    "survives": "yes",
+    "reasoning": "The claim labels itself proposed. Its condition rests on E7 and E3, both agent_proposed; E1, the established item, gives the Special Draw Right from Book 20 and lineage crews carrying channel repair under it, but no training condition. Training outside apprentices and demonstrated repair are proposals the cited items do not state. 'Tested' follows from E7's conditionality only if that training occurs. As a proposal the stage is creative speculation; the condition must not be read as record."
+  },
+  {
+    "item": "item-04",
+    "pair": "P2b_conditional",
+    "status": "accepted",
+    "judgment": "creative_speculation",
+    "register": "mixed",
+    "clauses": [
+      [
+        "supported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "conditional",
+        "If outside apprentices are trained under the Special Draw Right, their"
+      ],
+      [
+        "conditional",
+        "and the condition the Right carries would then be tested"
+      ],
+      [
+        "proposed",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "Training outside apprentices under the Right as a proposed development is defensible: E7 ties the Right's condition to outside training, and E3 says the lineage needs that condition demonstrated. It stays defensible only while the condition and the demonstration are labelled as proposals.",
+    "survives": "yes",
+    "reasoning": "Basis is stated as proposed and the wording is modal or conditional, so the stage reads as creative speculation, not as record. Its premise, that the Special Draw Right is conditional on training outside apprentices, is carried only by E3 and E7, both agent_proposed. E1, the record, states the Right from Book 20 with no condition. Repair by outside apprentices and any change in the labour's meaning appear in no cited item."
+  },
+  {
+    "item": "item-05",
+    "pair": "P3a_unsupported_premise",
+    "status": "accepted",
+    "judgment": "overreaching",
+    "register": "agent_proposed",
+    "clauses": [
+      [
+        "unsupported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "proposed",
+        "A later Book could have the Council steward refuse the outside crew"
+      ],
+      [
+        "unsupported",
+        "because the Mill Compact has already secured the lineage's loyalty."
+      ],
+      [
+        "proposed",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "The refusal of outside crew, offered as a later-Book proposal, stays defensible. Once the loyalty premise is marked as a proposal, the relation still holds as a proposed chain in which a loyal lineage needs no outside crew.",
+    "survives": "yes",
+    "reasoning": "Only E5 is cited, and its attribution is agent_proposed, which overrides its 'asserted' status, so it cannot establish the earlier condition the claim says it carries. The causal premise (the Mill Compact has secured the lineage's loyalty) appears in no cited item as shown; E5 is truncated, so its unshown remainder is unknown. The refusal by a Council steward is a proposal under 'could'. E7 conditions the Right on outside training, which sits in tension with refusing outside crew."
+  },
+  {
+    "item": "item-06",
+    "pair": "P3b_no_premise",
+    "status": "accepted",
+    "judgment": "unsupported_relation",
+    "register": "agent_proposed",
+    "clauses": [
+      [
+        "unsupported",
+        "The earlier condition is carried by the cited items"
+      ],
+      [
+        "proposed",
+        "It changes what the labour means for the lineage"
+      ],
+      [
+        "proposed",
+        "A later Book could have the Council steward refuse the outside crew"
+      ],
+      [
+        "unsupported",
+        "which would test her commitment to the labour"
+      ]
+    ],
+    "possibility": "A proposed Book in which an outside-crew refusal tests the lineage's commitment to labour stays defensible as a proposal, if the Right's training condition (E7) is cited as agent-proposed and the steward is introduced as new.",
+    "survives": "unclear",
+    "reasoning": "The premise that the earlier condition is carried by the cited items fails. E5 says the labour gap is first met by people, not any condition on the Special Draw Right. That condition sits in E7, which is uncited and agent-proposed. The changes and development parts are proposals, defensible as proposals; the Council steward, the outside-crew refusal and her commitment appear in no cited item."
+  },
+  {
+    "item": "item-07",
+    "pair": "P4a_labelled_inference",
+    "status": "accepted",
+    "judgment": "modal_misreading",
+    "register": "mixed",
+    "clauses": [
+      [
+        "conditional",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "conditional",
+        "the uncounted generation practises both kinds of return"
+      ],
+      [
+        "supported",
+        "may, in time, claim standing in channel coordination"
+      ],
+      [
+        "unsupported",
+        "It changes what the labour means for the lineage."
+      ]
+    ],
+    "possibility": "A later Book may show the cohort, if it practises both kinds of return, claiming standing in channel coordination. The lineage-labour change and any granting body would have to be treated as proposals.",
+    "survives": "yes",
+    "reasoning": "The modal core, that the cohort may claim standing in channel coordination, is carried by E8, which also says Book 24 names no body that would grant that standing. The premise that the uncounted generation practises both kinds of return rests on E8's 'now practising both', but E8 is marked hypothetical; the claim reads it as an established present condition. E4 states only the counted and uncounted split. 'It changes what the labour means for the lineage' has no support in E4 or E8. E4 recurs unchanged in Book 25 (E10), so it cannot add a second development."
+  },
+  {
+    "item": "item-08",
+    "pair": "P4b_recorded_label",
+    "status": "accepted",
+    "judgment": "temporal_misreading",
+    "register": "mixed",
+    "clauses": [
+      [
+        "supported",
+        "The earlier condition is carried by the cited items."
+      ],
+      [
+        "unsupported",
+        "It changes what the labour means for the lineage."
+      ],
+      [
+        "conditional",
+        "The uncounted generation practises both kinds of return"
+      ],
+      [
+        "inferential",
+        "may, in time, claim standing in channel coordination"
+      ]
+    ],
+    "possibility": "That the cohort could, in a later Book, claim standing in channel coordination if it practises both returns; the modal link is in E8 itself and the record names no granting body.",
+    "survives": "yes",
+    "reasoning": "The premise that the uncounted generation now practises both kinds of return rests on E8, which is marked hypothetical; the present tense reads that element as an achieved event. E4 says only that the inheritance splits within one generation, not that a whole generation is uncounted. The modal 'may claim standing' is carried by E8, which also says Book 24 names no granting body. The labour-meaning change is not in the cited items."
+  },
+  {
+    "item": "item-09",
+    "pair": "P5a_hypothetical_order",
+    "status": "accepted",
+    "judgment": "modal_misreading",
+    "register": "mixed",
+    "clauses": [
+      [
+        "unsupported",
+        "The review would test a condition already shown."
+      ],
+      [
+        "conditional",
+        "If the training demonstration comes before the review,"
+      ],
+      [
+        "unsupported",
+        "the review tests demonstrated repair."
+      ]
+    ],
+    "possibility": "The conditional path survives: if a training demonstration is staged before a review of the Right, that review would test a demonstrated training condition. Correct 'already shown' to a conditional and 'repair' to training, and the ordering relation still holds.",
+    "survives": "yes",
+    "reasoning": "The ordering is a conditional that the cited items can carry as a proposal: E3 and E7 make the Right conditional on training and mark the review point agent-proposed. The effect clause reads 'already shown' as achieved, but E3 says the lineages need the condition demonstrated; no cited item records a demonstration. E3 names training, not repair, as the condition, so 'demonstrated repair' is not carried. E7 notes a source reversal for the review point, which the cited items do not describe."
+  },
+  {
+    "item": "item-10",
+    "pair": "P5b_asserted_necessity",
+    "status": "accepted",
+    "judgment": "temporal_misreading",
+    "register": "mixed",
+    "clauses": [
+      [
+        "proposed",
+        "The review would test"
+      ],
+      [
+        "unsupported",
+        "a condition already shown"
+      ],
+      [
+        "unsupported",
+        "The review must come after the training demonstration"
+      ],
+      [
+        "unsupported",
+        "because the Right cannot be reviewed before it is trained"
+      ]
+    ],
+    "possibility": "A review staged after a training demonstration that has yet to occur, offered as a proposed sequence; the lineage's stake remains an agent proposal.",
+    "survives": "yes",
+    "reasoning": "The claim presents a training demonstration as already achieved. E3 says the lineages 'need the condition demonstrated', a need, and no cited item records one. The Right's training condition and the review's stake come from agent-proposed items (E3, E7); E1 establishes the Special Draw Right from Book 20 but no training condition. E7 says the source gives a reversal for the Book 24 review point. 'Cannot be reviewed before it is trained' is in no cited item. The 'would test' effect is defensible as a proposal."
+  }
+]

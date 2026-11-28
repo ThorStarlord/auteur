@@ -1,0 +1,109 @@
+{
+  "schema": "studio-consequence-reconsideration/1",
+  "authority": "advisory_reconsideration_not_working_architecture",
+  "request_sha256": "36832a482eb6c8e4a88e82920d0ea5a4feb9741dea52beed9bd5e578eff7d655",
+  "analysis_request_sha256": "f4fa5bce9a3c008117e9c1cd7e08f3dd9b88ccd920ef141d05171d2d1db0fee1",
+  "status": "ready",
+  "claim": {
+    "kind": "reach",
+    "ref": null,
+    "original_text": {
+      "reach": "conditional_inheritance",
+      "reading": "The revision rewords one open question, q-right-revocable (E5 to E9), and keeps its identity. The reworded question adds whether outside apprentices are trained under the lineage Special Draw Right before the finale mechanism is chosen. No examined mechanism changes content: every current mechanism is preserved (E27-E46 and E50-E81; E47-E49 are historical), so the effect runs through the question's wording and its order against the finale question. Through Book 24's recorded review of the Right (E8, E84) the change may reach later development by inheritance, and that inheritance is conditional on the author's decision. Whether the change binds later Books is not established."
+    },
+    "evidence": [],
+    "claim_sha256": "fe93ba14e8a10df25ffa6c1211211857fa6305cece43c387b34ba0c0340a8416"
+  },
+  "instruction": "Reconsider only the reach claim (conditional_inheritance). Test whether the reworded question really reaches later development through Book 24's recorded review of the Right (E8, E84): does the cited text state the training condition that the reach depends on, or does the analysis assume it? Revise, qualify or keep the claim, and say which of its premises the cited items carry.",
+  "criticism": [
+    {
+      "id": "c1",
+      "text": "The reach claim assumes E8 states the training condition. Check whether E8 or only E84 carries it, and say so."
+    }
+  ],
+  "recovery": {
+    "coverage": {
+      "books_read": [
+        24,
+        25
+      ],
+      "books_unreadable": [],
+      "citing_claim_nodes": [],
+      "citing_count": 0,
+      "claim_nodes": [],
+      "elements_considered_by_packet": 124,
+      "elements_read": 182,
+      "elements_supplied_to_analysis": 24,
+      "freshness": "current_read",
+      "listing_truncated": false,
+      "owner": "Working Book owner, read now"
+    },
+    "records": [
+      {
+        "freshness": "as_analysed",
+        "id": "E106",
+        "owner": "Architecture revision request the analysis read",
+        "record_id": "h2",
+        "record_kind": "selected_alternative",
+        "side": null,
+        "source": "recovered",
+        "text": "The training condition is the hinge. On this reading the skill claim is less contentious than the training condition, because the condition is the only element that ties draw to an act of return. Under A it must be dropped or recast as counted care, which would leave the skill claim standing on its own. Under B the condition could serve as the repayment that squares a claim with the owed-hands rule. If so, the choice of condition, not revocability, may decide which alternative the right can carry. Interpretive; the record does not say which reading the author intends.",
+        "truncated": false,
+        "version_sha256": "20e2c1c3e9674d21bfe14cc51666f925b33a9e5e012efcb8ac797e6c4086efad"
+      },
+      {
+        "freshness": "as_analysed",
+        "id": "E107",
+        "owner": "Architecture revision request the analysis read",
+        "record_id": null,
+        "record_kind": "revision_instruction",
+        "side": null,
+        "source": "recovered",
+        "text": "Make the training condition the hinge of the Special Draw Right: reword the open question q-right-revocable so that it also asks whether outside apprentices are trained under the Right before the finale mechanism is chosen. Keep the question's identity (q-right-revocable). Add no question and retire none. Change nothing else.",
+        "truncated": false,
+        "version_sha256": "20e2c1c3e9674d21bfe14cc51666f925b33a9e5e012efcb8ac797e6c4086efad"
+      },
+      {
+        "freshness": "current_read",
+        "id": "E108",
+        "owner": "Working Book owner, read now",
+        "record_id": null,
+        "record_kind": "coverage",
+        "side": null,
+        "source": "recovered",
+        "text": "{\"books_read\": [24, 25], \"books_unreadable\": [], \"citing_claim_nodes\": [], \"citing_count\": 0, \"claim_nodes\": [], \"elements_considered_by_packet\": 124, \"elements_read\": 182, \"elements_supplied_to_analysis\": 24, \"freshness\": \"current_read\", \"listing_truncated\": false, \"owner\": \"Working Book owner, read now\"}",
+        "truncated": false,
+        "version_sha256": null
+      }
+    ]
+  },
+  "answer": {
+    "schema_version": 1,
+    "disposition": "unresolved",
+    "new_consideration": "The reach claim routes the reworded question to later development through Book 24's recorded review of the Right, citing E8 and E84. Criticism c1 asks whether E8 or only E84 states the training condition. Only E106 to E108 are supplied for this reading. E8 and E84 are not among them, so their text cannot be checked here.",
+    "reconsidered_judgment": "Retained in part: E107 states that the reworded question asks whether outside apprentices are trained under the Right before the finale mechanism is chosen. The added qualifier in the claim does not appear in E107. Unresolved: whether Book 24's review (E8, E84) carries the training condition, and so whether the change reaches later development by that route. E106 calls the training condition the hinge and labels this Interpretive; the record does not say which reading the author intends. The inheritance route therefore remains a hypothesis, not a recorded consequence.",
+    "evidence": [
+      "E106",
+      "E107",
+      "E108"
+    ],
+    "criticism_assessments": [
+      {
+        "criticism": "c1",
+        "verdict": "partly_accepted",
+        "reason": "The claim does not say E8 states the training condition; it cites E8 and E84 together as the review. It leaves unstated which item carries the condition, which is a real gap. The check cannot be made here because E8 and E84 are not among the supplied items E106 to E108."
+      }
+    ],
+    "creative_significance": "Interpretive, not recorded: E106 treats the training condition as the element that ties draw to an act of return, and suggests the choice of condition, not revocability, may decide which alternative the right can carry. The record does not say which reading the author intends.",
+    "remaining_uncertainty": [
+      "E108 gives counts for Books 24 and 25 (182 elements read) but lists no element identifiers, so whether E8 or E84 was among them is not recorded; whether E8 or only E84 states the training condition is unchecked.",
+      "Whether Book 24's review of the Right is the route by which the change reaches later development is not established.",
+      "E106 (interpretive) reads that under alternative A the training condition must be dropped or recast as counted care; the record does not say which alternative the author intends."
+    ],
+    "downstream": []
+  },
+  "request": null,
+  "refused_attempts": 0,
+  "analysis_standing": "current",
+  "standing": "current"
+}

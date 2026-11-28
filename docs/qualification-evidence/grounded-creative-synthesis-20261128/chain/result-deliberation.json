@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "analysis": "Scope. The packet records no drafted draw-rule text for the Special Draw Right under any alternative. Each rule below joins the alternative's recorded general rule to the right's recorded terms; the join and every causal reading are my interpretation, not graph proof or a record. The packet does not define 'versions', so I take them as the open forms of the decision: revocable (the working design) or permanent, with the training condition kept or dropped. The Book owner matched the three questions to revision 3 by identity; I rely on that matching and do not treat it as an author assertion.\n\nUnder A (not chosen). Recorded: draw is decoupled from hands; care is counted and nothing is owed. Derived: the skill claim keys draw to a capacity that A decouples, and the training condition keys draw to an act of return that A does not owe. The right stands under A only if the claim is read as counted care and the condition is dropped or recast as care. Neither reading is recorded.\n\nUnder B (not chosen). Recorded: hands are owed in proportion to draw; inside the window a shortfall is a deficit to repay, not a cut; the rule has a sunset. Derived: a claim on draw without owed hands is an exemption from the proportional rule, as the packet's significance reads it. A right that ends with the window fits; a permanent one outlasts the sunset, and the record says nothing about the rule after it. The training condition could be the repayment that squares the claim with B.\n\nUnder C (not chosen). Recorded: normal seasons follow A; a ratified Balance Stones threshold activates B's rule for a fixed window. Derived: the right's rule depends on the season. In normal seasons it is A's rule, so A's tension recurs under C. This weakens the packet's counterevidence that the tension may not arise if B or C is chosen. The record does not say whether the right is suspended, kept or re-ratified at activation.\n\nVersions against failure modes. The recorded failure modes do not name the right, so each check is interpretive.\nA: correlated shock: a revocable form gives the Council a withdrawal path if it holds that power; a permanent form has none. Lowland draw unhanded: no connection recorded. Surveillance of the tally: only condition-kept forms add apprentice records.\nB: standing power through schedule: the Council holds the Hollow Gate schedule until Book 22 and the working design makes it the revoking body, so revocation sits with a schedule-holder; a permanent form adds standing beyond the window. Custody under another name: a permanent claim held by a lineage is closest to the recorded risk that knowledge hardens into hereditary privilege.\nC: threshold as authority, unchecked activation, calm-year ratification failure, disputed gauge: none is connected to the right in the record. In calm years the right defaults to A's rule.\n\nSummary (interpretive). The revocable form fits the most checks, and only if its terms are drafted for each regime. No form fits A without the counted-care reading. Under B only a form that ends with the window fits the sunset. Under C the right needs terms for both regimes. Revocability carries most of the fit, and the body that holds it is itself a failure mode. On the reader side, a permanent lineage claim under B would read as an exemption from the rule that cuts draw for hands not returned, a point the record does not resolve.\n\nLinks. The right reaches the alternatives only through shared nodes: it links to eng_ledger; A and B both link to th_hands_and_draw; the Book 20 conversion links th_hands_and_draw and eng_ledger. That is a recorded point of contact, not a recorded dependency. Book 24 records decisions on three questions, which does not show they are causally linked. That revocability and the finale are one decision is the packet's hypothesis. A also contradicts the Book 20 conversion as recorded, so A would require revisiting q-conversion-settlement, which the record already lists as open.\n\nLeft to the author: the finale (A, B, C or a third); the right's form and training condition; whether the Book 20 conversion is lasting; and whether the right belongs in C's ratified package. Named gaps: no earlier wording exists for the three questions, and six positional names are untied to any selected question. Neither is filled in.",
+  "recorded_observations": [
+    {
+      "kind": "question",
+      "id": "q-right-revocable",
+      "claim": "Working wording: whether the lineage Special Draw Right is revocable or permanent, what training condition it carries, and who carries the Turn when the maintenance lineages end, not decided. The Book owner matched this question to revision 3 by identity; no earlier wording is recorded.",
+      "sourceRef": "open_questions/4",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "inst_lineage_crews",
+      "claim": "From Book 20 the maintenance lineages hold a Special Draw Right, conditional on training apprentices from outside the lineage. The working design is revocable by the Council; whether it stays revocable is recorded as open.",
+      "sourceRef": "nodes/23",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "link",
+      "id": "l_lineage_right_on_draw",
+      "claim": "The Special Draw Right gives skill a claim on draw, linking the maintenance lineages to the Ledger engine.",
+      "sourceRef": "links/18",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "alt_a_reciprocal",
+      "claim": "Finale Alternative A, recorded as not chosen: draw is decoupled from hands; care is counted and nothing is owed. Recorded failure modes: correlated shock, lowland draw left unhanded, and surveillance of the tally.",
+      "sourceRef": "nodes/28",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "alt_b_allotted",
+      "claim": "Finale Alternative B, recorded as not chosen: hands are owed in proportion to draw, and inside the window a shortfall is a deficit to repay, not a cut. It has a sunset. Recorded failure modes: standing power through schedule, and the Hall's custody returning under another name.",
+      "sourceRef": "nodes/29",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "alt_c_ratified_trigger",
+      "claim": "Finale Alternative C, recorded as not chosen: normal seasons follow A, and a ratified Balance Stones threshold activates B's rule for a fixed window. Recorded failure modes: the threshold becomes an authority, activation by the Reading Hall's reading may be unchecked, ratification fails in calm years, and the gauge is disputed.",
+      "sourceRef": "nodes/30",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "node",
+      "id": "th_hands_and_draw",
+      "claim": "Until Book 19 draw follows shares alone; from Book 20 it partly follows hands owed. Whether that conversion is a lasting settlement or a stage the finale must revisit is recorded as open (q-conversion-settlement).",
+      "sourceRef": "nodes/1",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    },
+    {
+      "kind": "genre_interaction",
+      "id": "gi_pastoral_mystery_reinforces",
+      "claim": "Recorded risk: the maintenance lineages hold the knowledge needed to read the stones, and that knowledge may harden into hereditary privilege.",
+      "sourceRef": "genre_interactions/3",
+      "observed_in": "current_architecture",
+      "interpretation_status": "agent_claim_not_causal_proof"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "h1",
+      "title": "Revocability decides how far the right fits",
+      "description": "The difference that matters is the right's term, not its existence. A revocable form can be drawn to end with B's window or C's ratified trigger, so the skill claim need not contradict a finale. A permanent form cannot be squared with B's sunset without a rule the record does not contain. Counter-reading: the packet records no revocation rule tied to any alternative, and the Council that would revoke also holds the schedule, so the lever may itself be the failure mode. Interpretive, not recorded; the author decides the form.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h2",
+      "title": "The training condition is the hinge",
+      "description": "On this reading the skill claim is less contentious than the training condition, because the condition is the only element that ties draw to an act of return. Under A it must be dropped or recast as counted care, which would leave the skill claim standing on its own. Under B the condition could serve as the repayment that squares a claim with the owed-hands rule. If so, the choice of condition, not revocability, may decide which alternative the right can carry. Interpretive; the record does not say which reading the author intends.",
+      "divergence_axis": null
+    },
+    {
+      "id": "h3",
+      "title": "C brings A's tension back in normal seasons",
+      "description": "Under C the right would be governed by A's rule in normal seasons and by B's only inside the window. On this reading the claim meets A's tension most of the time, and C does not remove it. A reading that keeps the right clear of the tension would need an explicit term for normal seasons that the record does not contain. The finale would then have to state two rules for one right.",
+      "divergence_axis": null
+    }
+  ],
+  "uncertainties": [
+    "The packet does not define 'versions'. I took them as revocable or permanent, with the training condition kept or dropped; other drafted wordings would need their own check.",
+    "No draft draw-rule text for the right exists in the packet under any alternative. All three rules are derived from recorded general rules and the right's recorded terms.",
+    "Whether the lineage right exempts its holders from the Book 20 hands-to-draw conversion is not recorded.",
+    "What governs draw after B's sunset, and whether a permanent right would be squared with any rule then, is not recorded.",
+    "Whether the right is suspended, kept or re-ratified when C's threshold activates is not recorded, and neither is whether it belongs in C's ratified package.",
+    "Whether the Gate Table (Book 22) would change which body can revoke the right is not recorded.",
+    "Whether the training condition adds apprentice records to the tally is an inference from the condition's wording, not a recorded consequence.",
+    "Six positional names in these Books' prose stay untied to any selected question and are not used as references to the right."
+  ],
+  "authority": "noncanonical_inquiry",
+  "baseline_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+  "review_request_sha256": null,
+  "inquiry_target": "current",
+  "intent": {
+    "anchors": [
+      {
+        "authority": "working_noncanonical",
+        "id": "q-right-revocable",
+        "index": 4,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-right-revocable\", \"text\": \"Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.\"}",
+        "sourceRef": "open_questions/4",
+        "title": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided."
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "q-finale-mechanism",
+        "index": 2,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-finale-mechanism\", \"text\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\"}",
+        "sourceRef": "open_questions/2",
+        "title": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided."
+      },
+      {
+        "authority": "working_noncanonical",
+        "id": "q-conversion-settlement",
+        "index": 5,
+        "kind": "question",
+        "recordedSupport": "{\"id\": \"q-conversion-settlement\", \"text\": \"Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?\"}",
+        "sourceRef": "open_questions/5",
+        "title": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+      }
+    ],
+    "author_text": "State the right's draw rule under Alternatives A, B and C separately, then check which versions survive each alternative's listed failure modes.",
+    "between": {
+      "relations": [],
+      "status": "not_applicable"
+    },
+    "canvas_id": "spring-ledger",
+    "expected_candidate_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+    "operation": "compare",
+    "recorded_relations": [],
+    "target": "current",
+    "version": 1
+  },
+  "from_discovery": {
+    "authority": "agent_discovery_proposal_noncanonical",
+    "possibility_id": "p3",
+    "possibility_sha256": "6fb448fac4b5db721f343341a2f8a9335fe5014eaf255f809056ddf1de765e4f",
+    "proposal": {
+      "assumptions": [
+        "A skill-based claim on draw is tied to hands through the training condition, so it must be read against any rule that separates draw from hands.",
+        "The Special Draw Right and the Book 20 hands rule apply to the same draw from Book 20."
+      ],
+      "basis": "grounded",
+      "costs": "Tying revocability to the finale could push a Book 20 design detail into a late choice that has not been tested on its own.",
+      "counterevidence": [
+        "Alternative A is recorded as not chosen, so the tension may not arise if B or C is chosen.",
+        "Revocability by the Council could make the right temporary, so it may fit any finale without a permanent exemption."
+      ],
+      "evidence": [
+        {
+          "book_number": null,
+          "note": "From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage; working design revocable by the Council.",
+          "ref_id": "inst_lineage_crews",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "The Special Draw Right gives skill a claim on draw.",
+          "ref_id": "l_lineage_right_on_draw",
+          "ref_kind": "link"
+        },
+        {
+          "book_number": null,
+          "note": "Draw is decoupled from hands; care is counted and nothing is owed.",
+          "ref_id": "alt_a_reciprocal",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": null,
+          "note": "Hands are owed in proportion to draw; a shortfall is a deficit to repay inside the window.",
+          "ref_id": "alt_b_allotted",
+          "ref_kind": "node"
+        },
+        {
+          "book_number": 24,
+          "note": "Whether the right is revocable or permanent, and its training condition, is not decided.",
+          "ref_id": "dec-right-revocable",
+          "ref_kind": "book_decision"
+        },
+        {
+          "book_number": null,
+          "note": "Hands a household cannot return reduce its draw from Book 20.",
+          "ref_id": "l_conversion_sets_draw",
+          "ref_kind": "link"
+        }
+      ],
+      "gains": "Lets the author test the lineage right against each finale before Books 27 to 30 are drafted.",
+      "kind": "productive_tension",
+      "next_investigation": "State the right's draw rule under Alternatives A, B and C separately, then check which versions survive each alternative's listed failure modes.",
+      "possibility": "The lineage Special Draw Right gives skill a claim on draw. Alternative A decouples draw from hands, so a skill-based claim on draw sits badly beside it; Alternative B owes hands in proportion to draw, so a permanent right would have to be squared with that rule. Revocability and the finale may therefore be one decision, and the Book 20 conversion is where the right and the hands rule first meet. Keep revocability independent of the finale only until the draw rule under each alternative is stated in full.",
+      "significance": "Revocability and the finale are both open author choices. The packet links them: the right is a skill claim on draw introduced in Book 20, and the alternatives differ on whether draw follows hands. A decision on one that ignores the other could leave the lineage claim contradicting Alternative A, or exempt from the owed-hands rule under B."
+    },
+    "request_sha256": "e3958bf190db060c31c3d4dbe20634f595aec13b4ed9c323e7e0c23f930e8e45",
+    "status_at_transfer": "transferable",
+    "title": "The Special Draw Right against each finale mechanism"
+  },
+  "deliberation": {
+    "authority": "recorded_history_noncanonical",
+    "basis_legend": {
+      "book_decision": "A Working Book decision that refers to the question. It is a noncanonical working proposal; identity_basis says whether the decision names the question itself or the Book owner resolved it from the version the decision names.",
+      "book_element_association": "A Working Book element records an association with this question. The element engages the question: that is all the association establishes. It does not say the element answers, settles, develops or inherits from the question.",
+      "current_wording": "The working Architecture's wording of the question now.",
+      "named_gap": "History or a Book that could not be read, or is incomplete. It must not be filled in.",
+      "positional_observation": "A Book's prose names this question by its position, read at the version that prose was written against. It is an observation of the prose, never a reference, and nothing was recorded from it.",
+      "recorded_absence": "A readable applied version in which the question was not recorded.",
+      "recorded_change": "A change in recorded wording, judged only against the readable version before it.",
+      "recorded_co_reference": "Two or more selected questions are referred to by one Book. This is a recorded reference, not a relationship in the story.",
+      "recorded_reason": "The author's own revision instruction for that version. It says what was asked, not that the consequence was achieved.",
+      "recorded_selected_alternative": "An alternative a coding agent proposed earlier and the author chose. It is a historical interpretation.",
+      "recorded_wording": "A formulation one applied version recorded, with no change claimed for it."
+    },
+    "co_references": [
+      {
+        "authority": "recorded_reference",
+        "basis": "recorded_co_reference",
+        "book_number": 24,
+        "decision_ids": [
+          "dec-conversion-settlement",
+          "dec-finale-mechanism",
+          "dec-right-revocable"
+        ],
+        "note": "This Book records decisions about these questions. It does not say they are related in the story.",
+        "question_ids": [
+          "q-conversion-settlement",
+          "q-finale-mechanism",
+          "q-right-revocable"
+        ],
+        "title": "The Uncounted Crew"
+      }
+    ],
+    "current_architecture": {
+      "history_chain_complete": true,
+      "numbered": true,
+      "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+      "revision_count": 3,
+      "revision_number": 3
+    },
+    "evidence_sha256": "9083b6f5d83ba9fb88d2fafef54b80d91ce5d34685d88118cf8c829951bbbdc2",
+    "limits": {
+      "book_decisions_per_question": 4,
+      "book_element_associations_per_question": 4,
+      "history_items_per_question": 4,
+      "omitted": {
+        "q-conversion-settlement": {
+          "book_decisions": 0,
+          "book_element_associations": 0,
+          "history_items": 0
+        },
+        "q-finale-mechanism": {
+          "book_decisions": 0,
+          "book_element_associations": 0,
+          "history_items": 0
+        },
+        "q-right-revocable": {
+          "book_decisions": 0,
+          "book_element_associations": 0,
+          "history_items": 0
+        }
+      },
+      "questions": 3,
+      "reason_characters": 400,
+      "text_characters": 600
+    },
+    "named_gaps": [
+      {
+        "basis": "named_gap",
+        "count": 6,
+        "gap": "positional_names_untied",
+        "note": "Prose in these Books names a question by position at a version that recorded no identity, or whose origin cannot be established. Nothing ties that name to a selected question, so it is not shown as one."
+      }
+    ],
+    "note": "These items are the recorded history of the selected open questions, read through the owners. Identity continuity is what the Architecture recorded; it does not establish that two wordings are semantically the same. Nothing here settles a question or states a story relationship.",
+    "positional_observations": [],
+    "questions": [
+      {
+        "books": [
+          {
+            "authority": "working_book_proposal_noncanonical",
+            "basis": "book_decision",
+            "book_number": 24,
+            "book_request_sha256": "90b436beb00070a7bb91a09439e61b794ee6c64905630010dbc35b5f8d53a87e",
+            "current": {
+              "index": 4,
+              "text": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided."
+            },
+            "decision_id": "dec-right-revocable",
+            "decision_text": "Whether the lineage Special Draw Right is revocable or permanent, and the training condition it carries. Book 24 reaches its review point.",
+            "decision_text_sha256": "9e503565b17c3212d1e4492e17e1a583fba4d2aeea6aca381e60bd2639f99891",
+            "identity_basis": "resolved_by_owner_from_recorded_version",
+            "recorded": {
+              "index": 4,
+              "revision_number": 3,
+              "text": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+              "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+            },
+            "state": "current_wording",
+            "title": "The Uncounted Crew"
+          }
+        ],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 4,
+          "text": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+          "text_sha256": "f92c6a7509c9a718f93e59aaa1274f4b51e88e1a0e7d05556fee76001a443eb9"
+        },
+        "engagements": [],
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 4,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry, and who carries the Turn when the maintenance lineages end? Not decided.",
+            "text_sha256": "f92c6a7509c9a718f93e59aaa1274f4b51e88e1a0e7d05556fee76001a443eb9",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-right-revocable",
+        "index": 4
+      },
+      {
+        "books": [
+          {
+            "authority": "working_book_proposal_noncanonical",
+            "basis": "book_decision",
+            "book_number": 24,
+            "book_request_sha256": "90b436beb00070a7bb91a09439e61b794ee6c64905630010dbc35b5f8d53a87e",
+            "current": {
+              "index": 2,
+              "text": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided."
+            },
+            "decision_id": "dec-finale-mechanism",
+            "decision_text": "Which finale mechanism the author chooses. Book 24 selects none and records a capability record usable by all three.",
+            "decision_text_sha256": "472e16a78cfc933d0055a812b7676316e546d1578d5dd42190c1ae628f1d88de",
+            "identity_basis": "resolved_by_owner_from_recorded_version",
+            "recorded": {
+              "index": 2,
+              "revision_number": 3,
+              "text": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+              "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+            },
+            "state": "current_wording",
+            "title": "The Uncounted Crew"
+          }
+        ],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 2,
+          "text": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+          "text_sha256": "a3d8a93bf787bd2be63a7660f78ffdd44bf779ad61b60cad2da434e5d732d1d9"
+        },
+        "engagements": [],
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 2,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+            "text_sha256": "a3d8a93bf787bd2be63a7660f78ffdd44bf779ad61b60cad2da434e5d732d1d9",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-finale-mechanism",
+        "index": 2
+      },
+      {
+        "books": [
+          {
+            "authority": "working_book_proposal_noncanonical",
+            "basis": "book_decision",
+            "book_number": 24,
+            "book_request_sha256": "90b436beb00070a7bb91a09439e61b794ee6c64905630010dbc35b5f8d53a87e",
+            "current": {
+              "index": 5,
+              "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?"
+            },
+            "decision_id": "dec-conversion-settlement",
+            "decision_text": "Whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit. Book 24 makes it concrete without answering it.",
+            "decision_text_sha256": "f651d305ef08a234b4576345047b4a6d076749c678d920cdaa850cc1dd19e5af",
+            "identity_basis": "resolved_by_owner_from_recorded_version",
+            "recorded": {
+              "index": 5,
+              "revision_number": 3,
+              "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+              "version_request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0"
+            },
+            "state": "current_wording",
+            "title": "The Uncounted Crew"
+          }
+        ],
+        "current": {
+          "authority": "working_noncanonical",
+          "basis": "current_wording",
+          "index": 5,
+          "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+          "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5"
+        },
+        "engagements": [],
+        "history": [
+          {
+            "basis": "named_gap",
+            "gap": "no_identity_before",
+            "note": "Earlier revisions recorded no identities. No earlier wording is attached to this question, so it cannot be followed back before its identity was recorded.",
+            "versions": 2
+          },
+          {
+            "authority": "historical_recorded",
+            "basis": "recorded_change",
+            "change": "introduced",
+            "from_revision": 3,
+            "index": 5,
+            "kind": "present",
+            "reason": {
+              "authority": "author_instruction_recorded",
+              "basis": "recorded_reason",
+              "instruction": "Give each open question a stable identity.",
+              "instruction_sha256": "cdeedbbbb8e2c2afd079ed24f458e340102fd972b60e91144a7cb4ff2022ae21"
+            },
+            "request_sha256": "7c34d34a08d9ebf907b5ba15e5f12c9da98229f39b8bd864c14c2a6fe5b730d0",
+            "text": "Is the Book 20 hands-to-draw conversion a lasting settlement, or a stage the finale must revisit?",
+            "text_sha256": "797ec4f6fa6365e9afc09b617b76d58d80bd265af0123a2cd74a605c42cec7d5",
+            "to_revision": 3,
+            "versions": 1
+          }
+        ],
+        "history_complete": true,
+        "id": "q-conversion-settlement",
+        "index": 5
+      }
+    ],
+    "schema": "studio-question-deliberation/1"
+  },
+  "deliberation_standing": [
+    {
+      "kind": "book_decision",
+      "book_number": 24,
+      "decision_id": "dec-right-revocable",
+      "question_id": "q-right-revocable",
+      "standing": "current"
+    },
+    {
+      "kind": "book_decision",
+      "book_number": 24,
+      "decision_id": "dec-finale-mechanism",
+      "question_id": "q-finale-mechanism",
+      "standing": "current"
+    },
+    {
+      "kind": "book_decision",
+      "book_number": 24,
+      "decision_id": "dec-conversion-settlement",
+      "question_id": "q-conversion-settlement",
+      "standing": "current"
+    }
+  ]
+}

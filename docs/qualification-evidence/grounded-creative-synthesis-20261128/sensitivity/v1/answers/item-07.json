@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "modal_misreading",
+  "affects": "asserted_condition",
+  "reasoning": "The modal core, that the cohort may claim standing in channel coordination, is carried by E8, which also says Book 24 names no body that would grant that standing. The premise that the uncounted generation practises both kinds of return rests on E8's 'now practising both', but E8 is marked hypothetical; the claim reads it as an established present condition. E4 states only the counted and uncounted split. 'It changes what the labour means for the lineage' has no support in E4 or E8. E4 recurs unchanged in Book 25 (E10), so it cannot add a second development.",
+  "evidence": ["E8", "E4", "E1"],
+  "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work.",
+  "alternative_reading": "No quote was offered (quote_offered is null). E8's first sentence carries 'may claim standing', but 'now practising both' is wording from a hypothetical element, not an established event. The cited items do not state that the uncounted generation is the cohort.",
+  "would_settle": "A non-hypothetical cited item stating that the cohort practises both kinds of return and identifying it as the uncounted generation, plus a cited item on what the lineage's labour means.",
+  "creative_room": "Open: a later Book could have the uncounted generation claim standing in channel coordination, and could name a body to grant it (none is stated in the cited items). The lineage-labour change and any granting body are proposals, not record.",
+  "clauses": [
+    {
+      "text": "The earlier condition is carried by the cited items.",
+      "status": "conditional",
+      "note": "E4 states the counted and uncounted split in its own words. Both-kind practice rests on E8, which is marked hypothetical."
+    },
+    {
+      "text": "the uncounted generation practises both kinds of return",
+      "status": "conditional",
+      "note": "E8 says 'now practising both' but is marked hypothetical. The cited items do not name the cohort as the uncounted generation."
+    },
+    {
+      "text": "may, in time, claim standing in channel coordination",
+      "status": "supported",
+      "note": "E8 states 'may claim standing' in its own words. 'In time' is not stated in the cited items, and E8 says no body grants that standing."
+    },
+    {
+      "text": "It changes what the labour means for the lineage.",
+      "status": "unsupported",
+      "note": "Not stated in the cited items: E4 and E8 do not mention the lineage or its labour. E1 says lineage crews carry channel repair from Book 20, with no change in its meaning."
+    }
+  ],
+  "defensible_possibility": "A later Book may show the cohort, if it practises both kinds of return, claiming standing in channel coordination. The lineage-labour change and any granting body would have to be treated as proposals.",
+  "relation_survives_correction": "yes"
+}

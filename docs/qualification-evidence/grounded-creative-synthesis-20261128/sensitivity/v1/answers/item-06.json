@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "agent_proposed",
+  "judgment": "unsupported_relation",
+  "affects": "asserted_condition",
+  "reasoning": "The premise that the earlier condition is carried by the cited items fails. E5 says the labour gap is first met by people, not any condition on the Special Draw Right. That condition sits in E7, which is uncited and agent-proposed. The changes and development parts are proposals, defensible as proposals; the Council steward, the outside-crew refusal and her commitment appear in no cited item.",
+  "evidence": ["E5", "E7", "E1", "E8"],
+  "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage.",
+  "alternative_reading": "The claim offers no quote (quote_offered is null). Keeping the premise would require citing E7, whose condition is agent-proposed. Even then the steward, the refusal and her commitment are not stated in the cited items.",
+  "would_settle": "A cited item stating the Special Draw Right condition as record, plus one naming a Council steward or an outside-crew refusal. Without them, keep the development marked as proposal.",
+  "creative_room": "Later Books can still test the lineage's labour through a refusal of outside crews, or give a Council steward new standing. Treat the steward, the refusal, her commitment and the changed meaning of labour as proposals, not record, and keep the Right condition agent-proposed.",
+  "clauses": [
+    {
+      "text": "The earlier condition is carried by the cited items",
+      "status": "unsupported",
+      "note": "Cited E5 states the labour gap meeting people, not any condition on the Right. The condition is in E7, which is uncited and agent-proposed."
+    },
+    {
+      "text": "It changes what the labour means for the lineage",
+      "status": "proposed",
+      "note": "Proposal in the changes field. No cited item states what the labour means for the lineage; E1 gives only the Right's current use from Book 20."
+    },
+    {
+      "text": "A later Book could have the Council steward refuse the outside crew",
+      "status": "proposed",
+      "note": "Modal 'could' with proposed_book horizon. The Council steward and the outside-crew refusal are not stated in the cited items; E8 says Book 24 names no standing body."
+    },
+    {
+      "text": "which would test her commitment to the labour",
+      "status": "unsupported",
+      "note": "No cited item states the steward's commitment or any test of it. This is a creative consequence only if the refusal is proposed."
+    }
+  ],
+  "defensible_possibility": "A proposed Book in which an outside-crew refusal tests the lineage's commitment to labour stays defensible as a proposal, if the Right's training condition (E7) is cited as agent-proposed and the steward is introduced as new.",
+  "relation_survives_correction": "unclear"
+}

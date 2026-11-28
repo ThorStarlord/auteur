@@ -61,6 +61,74 @@ def _atomic_json_write(path: Path, payload: dict[str, Any]) -> None:
                 pass
 
 
+def _count(number: int, noun: str) -> str:
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
+def contract_limit_lines(model: type) -> list[str]:
+    """The owner-enforced bounds of a contract, read from the same JSON Schema that the output contract carries.
+
+    Lengths, item counts, values, enumerations and patterns that JSON Schema can state are generated here, one line per bounded field, so
+    an instruction cannot omit a bound that the validator enforces. A bound that JSON Schema cannot express is enforced separately and is
+    not listed here.
+    """
+    schema = model.model_json_schema()
+    definitions = schema.get("$defs", {})
+    lines: list[str] = []
+
+    def resolve(node: dict[str, Any]) -> dict[str, Any]:
+        if "$ref" in node:
+            return definitions.get(node["$ref"].rsplit("/", 1)[-1], {})
+        return node
+
+    def branches(node: dict[str, Any]) -> list[dict[str, Any]]:
+        node = resolve(node)
+        if "anyOf" in node:
+            return [resolve(option) for option in node["anyOf"] if option.get("type") != "null"]
+        return [node]
+
+    def describe(path: str, node: dict[str, Any], depth: int) -> None:
+        if depth > 8:
+            return
+        for option in branches(node):
+            parts: list[str] = []
+            if "maxLength" in option:
+                parts.append(f"at most {_count(option['maxLength'], 'character')}")
+            if option.get("minLength", 0) >= 1:
+                parts.append(f"at least {_count(option['minLength'], 'character')}")
+            if option.get("type") == "array":
+                if "maxItems" in option:
+                    parts.append(f"at most {_count(option['maxItems'], 'item')}")
+                if option.get("minItems", 0) >= 1:
+                    parts.append(f"at least {_count(option['minItems'], 'item')}")
+            if "enum" in option:
+                parts.append("one of " + ", ".join(repr(value) for value in option["enum"]))
+            if "const" in option:
+                parts.append(f"exactly {option['const']!r}")
+            if "pattern" in option:
+                parts.append(f"matching {option['pattern']}")
+            if "minimum" in option:
+                parts.append(f"at least {option['minimum']}")
+            if "maximum" in option:
+                parts.append(f"at most {option['maximum']}")
+            if parts and path:
+                lines.append(f"{path}: {'; '.join(parts)}")
+            if option.get("type") == "array" and "items" in option:
+                describe(f"{path}[]", option["items"], depth + 1)
+            for name, child in option.get("properties", {}).items():
+                describe(f"{path}.{name}" if path else name, child, depth + 1)
+
+    describe("", schema, 0)
+    return lines
+
+
+def limits_instruction(model: type) -> str:
+    """The instruction text that states a contract's owner-enforced bounds. An answer that exceeds one is refused whole."""
+    lines = contract_limit_lines(model)
+    header = "Limits, enforced by the owner (an answer that exceeds one is refused whole). Each line names a field and its bound:"
+    return header + chr(10) + chr(10).join(f"- {line}" for line in lines)
+
+
 def model_output_contract(model: type, *, title: str | None = None) -> dict[str, Any]:
     """Machine-readable output contract generated from the authoritative model.
 

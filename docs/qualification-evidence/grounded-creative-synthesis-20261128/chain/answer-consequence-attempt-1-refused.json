@@ -1,0 +1,222 @@
+{
+  "schema_version": 3,
+  "reading": "The revision rewords one open question, q-right-revocable, and keeps its identity (E1, E5, E9). It adds a sequencing clause: whether outside apprentices are trained under the lineage Special Draw Right before the finale mechanism is chosen. The baseline and proposed open-question lists differ only at that question (E14 and E19 are unchanged), and no current mechanism record changes (E27-E46 and E50-E81 are preserved). The touched area is the lineage node and its links to the Ledger and maintenance (E33, E64, E65), the finale alternatives the clause sequences against (E27-E29), and the Book 24 decision and inherited element on the Right (E8, E84). Book 24 already records the Right as conditional on outside training, so a later Book may receive the sequencing through that inheritance, conditional on the author's decision.",
+  "reach": "long_horizon",
+  "concerns": [
+    {
+      "title": "Training condition of the Special Draw Right",
+      "status": "transformed",
+      "earlier": "Asked inside one question with revocability and the succession of the Turn: what training condition the Right carries (E5).",
+      "proposed": "Asked before the finale choice: whether outside apprentices are trained under the Right before the finale mechanism is chosen (E9).",
+      "reading": "On this reading the wording turns an unordered condition into one asked before the finale choice. The record shows the question's text changed (E5, E9). It does not show that the condition itself changed, because the lineage node still records the training condition (E33).",
+      "evidence": ["E1", "E5", "E9", "E33"],
+      "intent": "instruction_names_it",
+      "counterevidence": ["The lineage node text is unchanged and still states the training condition (E33), so the condition may be the same and only its order differs."],
+      "competing_reading": "The added clause may be a timing note rather than a hard precondition; the record does not say which the author means."
+    },
+    {
+      "title": "Revocability and succession of the Turn",
+      "status": "preserved",
+      "earlier": "Whether the Right is revocable or permanent, and who carries the Turn when the maintenance lineages end (E5).",
+      "proposed": "Both questions stay in the reworded question: revocability in its first sentence, succession in its second (E9).",
+      "reading": "Revocability and the succession question both remain open in the reworded question. The concern is kept in substance; only its order and sentence structure change. Keeping it in substance is an interpretation of the wording, since the record shows the text changed.",
+      "evidence": ["E5", "E9"],
+      "counterevidence": ["The question text changed from E5 to E9, so continuity of meaning is an interpretation, not a record."]
+    },
+    {
+      "title": "Finale choice read after the training question",
+      "status": "possibly_displaced",
+      "earlier": "Which finale mechanism the author chooses, with no ordering condition in its own wording (E10).",
+      "proposed": "The finale wording is unchanged (E14), but the reworded Right question asks about apprentice training before the finale choice (E9).",
+      "reading": "The finale question is recorded as unchanged, yet the clause in the Right question places apprentice training ahead of it. Whether this displaces the finale's independence is an interpretation. Under the reworded question, the finale choice would be read after the training question.",
+      "evidence": ["E1", "E9", "E10", "E14"],
+      "intent": "instruction_names_it",
+      "counterevidence": ["The finale question's wording is recorded as unchanged (E14).", "The clause is a question, not a recorded decision (E9)."],
+      "competing_reading": "The clause may be a timing check the finale choice can ignore; the record does not show that it binds."
+    },
+    {
+      "title": "Book 24 decision text for the Right",
+      "status": "possibly_displaced",
+      "earlier": "The Book 24 decision on the Right carries the baseline question text and reaches its review point (E5, E8).",
+      "proposed": "After the rewording, the question text differs from the Book 24 decision text (E9).",
+      "reading": "Book 24's decision on the question still carries the baseline text (E8, E5), and the inherited element puts the Right's review point in Book 24 (E84). After rewording, that decision text no longer matches the question. Whether Book 24 must reconcile them, or can keep its own form, is not recorded.",
+      "evidence": ["E5", "E8", "E9", "E84"],
+      "intent": "not_established",
+      "counterevidence": ["Book 24's element states the Right is conditional on outside training, which the reworded question also asks about (E84, E9)."]
+    }
+  ],
+  "mechanisms": [
+    {
+      "evidence": "E33",
+      "reading": "Preserved. The lineage node still records the Right as conditional on outside apprenticeship training and revocable by the Council as a working design. It still points to open question 5, which the reworded question keeps at the same position (E33, E9). The node record is unchanged, so its relation to the new sequence is an interpretation.",
+      "conditional_consequence": "If the author holds training before the finale, the node's condition would govern the finale choice rather than only the Right's terms.",
+      "counterevidence": [
+        {"text": "The node text is identical on both sides, so the record does not show a change in the Right's function.", "evidence": ["E33"]}
+      ],
+      "unresolved": ["Whether revocability by the Council remains a working design once training precedes the finale."]
+    },
+    {
+      "evidence": "E65",
+      "reading": "Preserved. The record links the Special Draw Right to a claim on draw (E65). The reworded question places the training step before the finale choice, so the timing of that claim is what the wording touches. The link itself is unchanged.",
+      "conditional_consequence": "If training is answered before the finale, the claim on draw would be read before any finale mechanism is chosen.",
+      "counterevidence": [
+        {"text": "A claim on draw is recorded as a link, not a decision, and no timing is recorded on it (E65).", "evidence": ["E65"]}
+      ],
+      "unresolved": ["Whether a permanent claim on draw can sit beside the owed-hands rule under Alternative B (E51)."]
+    },
+    {
+      "evidence": "E46",
+      "reading": "Preserved. Keeping the channels is recorded as carried by lineage crews from Book 20 under the Right (E46). The reworded question keeps the succession clause about who carries the Turn (E9), so the maintenance thread still carries that succession question.",
+      "counterevidence": [
+        {"text": "The thread record is unchanged; only the question that asks about it is reworded (E46, E9).", "evidence": ["E46", "E9"]}
+      ],
+      "unresolved": ["Who carries channel repair if the lineages end before outside apprentices are trained (E46, E9)."]
+    },
+    {
+      "evidence": "E45",
+      "reading": "Preserved. The governing variable, who gives return labour and who is counted for draw, is recorded unchanged (E45). The training step sequences the Right against the finale alternatives, which answer this variable in different ways. That sequencing is an interpretation, not a change in the variable.",
+      "counterevidence": [
+        {"text": "Each finale mechanism is recorded as answering the variable differently, and the finale question is unchanged (E45, E14), so no choice is shown.", "evidence": ["E45", "E14"]}
+      ]
+    },
+    {
+      "evidence": "E28",
+      "reading": "Preserved as an unchosen alternative. Its record says hands are owed in proportion to draw, and a shortfall is a deficit inside the window (E28, E51). Under the reading in E3, a permanent Right would have to be squared with that rule; the record does not show how.",
+      "counterevidence": [
+        {"text": "E3 is a discovery origin, a reading from the inquiry, not a decision recorded on the Right.", "evidence": ["E3"]}
+      ],
+      "unresolved": ["Whether the training condition can serve as the repayment that squares the Right with B, as E2 reads it, is not established."]
+    }
+  ],
+  "inheritance": [
+    {
+      "kind": "recorded_inheritance",
+      "from": "E33",
+      "to": "E84",
+      "text": "Book 24's inherited element cites the lineage node and records the Right as conditional on outside apprentice training, with its review point in Book 24. Its attribution is agent_proposed (E84).",
+      "evidence": ["E84", "E33"]
+    },
+    {
+      "kind": "plausible_inheritance",
+      "from": "E5",
+      "to": "E8",
+      "text": "Book 24's decision on the question carries the baseline wording (E5 and E8 match). Whether Book 24 carries the training-before-finale order of the reworded question is an interpretation, not recorded.",
+      "evidence": ["E5", "E8", "E9"]
+    },
+    {
+      "kind": "unknown_inheritance",
+      "from": "E33",
+      "to": "E26",
+      "text": "Book 25 is listed by title only, and its decisions on these questions were not read (E26). Its inherited element repeats the training condition (E85), but the record does not establish whether Book 25 carries it.",
+      "evidence": ["E26", "E85"]
+    },
+    {
+      "kind": "proposed_inheritance",
+      "from": "E33",
+      "to": "E98",
+      "text": "Not recorded. The author could tie the training precondition to the Book 24 cohort's refusal to be entered for recorded apprentices (E98), so the sequence has a later use in the record.",
+      "evidence": ["E98", "E33"]
+    }
+  ],
+  "trajectories": [
+    {
+      "title": "Training order carried into the Book 24 review",
+      "steps": [
+        {"stage": "local_decision", "text": "The author adopts the reworded question, so apprentice training is asked before the finale choice. This is a proposal, not a decision.", "evidence": ["E9"], "basis": "interpreted"},
+        {"stage": "inheritance", "text": "Book 24 already records the Right as conditional on outside training, with its review point in Book 24, and records its decision on the question (E8).", "evidence": ["E84", "E8"], "basis": "recorded"},
+        {"stage": "long_horizon", "text": "If the sequence is kept, the Book 24 review could have to settle training before the finale mechanism is chosen. Whether Book 24 carries that order is not established.", "evidence": ["E9", "E84"], "basis": "speculative"}
+      ],
+      "assumptions": ["The author keeps the reworded sequence rather than the baseline wording.", "The Book 24 review point is still reached as recorded (E8)."],
+      "comparison": {
+        "creative_gain": "Training becomes a stated order that the Book 24 review can test before the finale.",
+        "narrative_cost": "The finale choice is read after a training question that the baseline left unordered.",
+        "contrivance_risk": "A training precondition could read as an artificial gate if no outside apprentices are shown.",
+        "future_commitment": "Later Books would have to treat training as prior to the finale if the sequence stands.",
+        "flexibility": "The wording can still change before the Book 24 review, so the order is not yet fixed."
+      }
+    }
+  ],
+  "alternatives": [
+    {
+      "approach": "keep_baseline",
+      "title": "Keep the baseline wording of the Right question",
+      "summary": "Keep q-right-revocable as recorded: revocability, the training condition and the succession of the Turn stay one open question, unordered against the finale. The sequencing clause is not adopted, and the question keeps the wording the Book 24 decision (E8) matches.",
+      "questions": ["q-right-revocable"],
+      "mechanisms": [],
+      "keeps": ["E5"],
+      "gains": "No new order is set between the Right and the finale, and the Book 24 decision text (E8) and the question keep the same wording.",
+      "costs": "The sequencing the instruction asks for (E1) is not adopted, so the training condition stays unordered against the finale choice.",
+      "next_investigation": "State the draw rule under Alternatives A and B in full, which E3 names as the condition for keeping revocability independent of the finale."
+    },
+    {
+      "approach": "accept_proposal",
+      "title": "Accept the training-before-finale wording",
+      "summary": "Accept the reworded q-right-revocable as written: apprentice training under the Right is asked before the finale mechanism is chosen. The displacement this causes, that the finale is read after the training question, is recorded as accepted, not resolved.",
+      "questions": ["q-right-revocable"],
+      "mechanisms": [],
+      "keeps": ["E9"],
+      "gains": "States the training condition as the order the instruction asks for (E1), so the Book 24 review has a stated sequence to test.",
+      "costs": "The finale question stays unchanged (E14) while a sequencing clause now sits in the Right question, and the Book 24 decision text (E8) no longer matches the reworded question until reconciled.",
+      "next_investigation": "Check the Book 24 decision and element against the reworded question, and decide whether training before the finale is a hard precondition or a timing check."
+    },
+    {
+      "approach": "defer",
+      "title": "Defer the sequence to the Book 24 review point",
+      "summary": "Postpone reconsidering q-right-revocable until the review point the record places in Book 24 (E8, E84). The evidence that would settle it is the draw rule under Alternatives A and B stated in full, and what Book 24 does with the training condition it already records.",
+      "questions": ["q-right-revocable"],
+      "mechanisms": [],
+      "keeps": ["E5"],
+      "gains": "The recorded Book 24 review is the place to test the order, so no precondition is set before it.",
+      "costs": "The finale choice stays beside an unordered training question, and the proposal's order is not adopted in the meantime.",
+      "next_investigation": "Name in the Book 24 review which decision would settle the training order, and whether that decision must precede the Book 30 finale."
+    },
+    {
+      "approach": "retire",
+      "title": "Retire the skill claim on draw",
+      "summary": "Give up, as a deliberate part of the story, the recorded claim that the Special Draw Right gives skill a claim on draw (E65). Lineage repair (E64) would continue without a draw claim, and the training question would lose its object. What is lost is the skill claim and the link between skill and draw; nothing in the record takes its place.",
+      "questions": [],
+      "mechanisms": ["E65"],
+      "keeps": ["E65"],
+      "gains": "Removes the conflict between a permanent claim on draw and the owed-hands rule under B (E3, E51).",
+      "costs": "The Right question and the Book 24 review (E8, E84) would lose their subject, and the Book 20 settlement would lose one of its recorded terms (E33, E65).",
+      "next_investigation": "Test whether lineage repair (E64, E46) can be carried without any claim on draw, and what the Special Draw Right would then record."
+    }
+  ],
+  "connections": [
+    {
+      "between": ["E33", "E30"],
+      "standing": "recorded",
+      "text": "The lineage's claim on draw is recorded as a link from the lineage to the Ledger engine (E65), so the two are joined in the Architecture.",
+      "evidence": ["E65"]
+    },
+    {
+      "between": ["E33", "E46"],
+      "standing": "recorded",
+      "text": "Lineage crews are recorded as carrying channel repair from Book 20 (E64), joining the lineage to the maintenance thread.",
+      "evidence": ["E64"]
+    },
+    {
+      "between": ["E33", "E27"],
+      "standing": "inferred",
+      "text": "A skill-based claim on draw may sit badly beside Alternative A, which decouples draw from hands.",
+      "reasoning": "E3 reads the Right's claim on draw as sitting badly beside A's decoupling of draw from hands (E50). The graph records no link between the lineage and Alternative A, so this rests on the packet's reading, not on a recorded joining.",
+      "assumptions": ["The Right's claim on draw is the skill claim that E3 describes.", "Alternative A keeps draw decoupled from hands, as recorded in E50."],
+      "evidence": ["E3", "E50", "E27"]
+    },
+    {
+      "between": ["E33", "E28"],
+      "standing": "hypothetical",
+      "text": "The training condition could serve as the repayment that squares a permanent Right with Alternative B's owed-hands rule.",
+      "worth_developing": "A permanent right and the owed-hands rule are in tension in the record (E3, E51). A repayment reading could let the lineage's claim survive under B without an exemption; the record does not settle it.",
+      "assumptions": ["Alternative B is kept as a candidate finale.", "The training condition is read as repayment rather than as membership."],
+      "evidence": ["E2", "E51"]
+    }
+  ],
+  "not_established": [
+    "Whether the clause is meant as a hard precondition for the finale choice or as a timing question; the record does not say which.",
+    "Whether Book 24 reconciles its decision text (E8) with the reworded question; that decision still carries the baseline wording.",
+    "Whether Book 25 carries the Right's training condition: its decisions on these questions were not read (E26).",
+    "The attribution of the inherited elements on the Right: E84 and E85 are both recorded as agent_proposed, so they are not author-recorded decisions.",
+    "Whether E2 and E3, which are inquiry readings, reflect the author's intent on the Right and the finale; the record does not say which reading the author intends."
+  ]
+}

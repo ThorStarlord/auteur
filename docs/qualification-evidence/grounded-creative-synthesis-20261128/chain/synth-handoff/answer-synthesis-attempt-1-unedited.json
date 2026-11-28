@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "trajectory": [
+    {
+      "book": 24,
+      "horizon": "existing_book",
+      "development": "Book 24's review carries the Right's training condition, so a reader meets the condition before the finale mechanism is decided. This is conditional: the handoff leaves the route unresolved, and no element in Books 24 or 25 is recorded as citing either development.",
+      "becomes_available": "A reader-facing record of the training condition before the finale choice, but only if that route holds. If it does not, the condition reaches later development by a route the record does not name.",
+      "changes": "The training condition would already be known when the finale's who-is-counted question arrives, so that question would meet an earlier term rather than a new one.",
+      "basis": "proposed",
+      "evidence": ["E5", "E4"],
+      "quote": "The inheritance route therefore remains a hypothesis, not a recorded consequence."
+    },
+    {
+      "book": null,
+      "horizon": "proposed_book",
+      "development": "Inferred from the retained order: the author settles what training condition the Right carries, including whether outside apprentices are trained under the Right, before the finale mechanism is chosen.",
+      "becomes_available": "The finale choice can be made with the training condition already defined, in the order the handoff retains from the reworded question.",
+      "changes": "If the condition is kept as a term of the Right, the finale's who-is-counted question inherits it; if it is dropped, that question starts from return labour alone.",
+      "basis": "inferred",
+      "evidence": ["E5", "E1"],
+      "quote": "asks whether outside apprentices are trained under the Right before the finale mechanism is chosen"
+    },
+    {
+      "book": null,
+      "horizon": "proposed_book",
+      "development": "The author chooses a finale mechanism (A, B, C or a third) for who gives return labour and who is counted for it, after the training condition is settled.",
+      "becomes_available": "A finale that either keeps the training condition as a term of the Right, or under alternative A recasts it as counted care, as the handoff reads it.",
+      "changes": "The choice decides what the training condition finally means, a term of the Right or a form of counted care. Until it is chosen, that meaning stays open.",
+      "basis": "proposed",
+      "evidence": ["E2", "E5"],
+      "quote": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it?"
+    }
+  ],
+  "relations": [
+    {
+      "kind": "preparation",
+      "between": ["d1", "d2"],
+      "dependence": "sequential_only",
+      "reason": "The handoff retains that the training question is asked before the finale mechanism is chosen. That shows sequence only: under the interpretive reading of alternative A the condition is dropped or recast, so the finale need not carry it as a term, and the link is not a prerequisite.",
+      "evidence": ["E5", "E1", "E2"],
+      "quote": "asks whether outside apprentices are trained under the Right before the finale mechanism is chosen"
+    },
+    {
+      "kind": "reinforces",
+      "between": ["d1", "d2"],
+      "dependence": "thematic",
+      "reason": "Both questions ask who carries or is counted for a duty: d1 asks who carries the Turn when the maintenance lineages end, and d2 asks who gives return labour and who is counted for it. The link comes from the wording, not from a recorded consequence.",
+      "evidence": ["E1", "E2"],
+      "quote": "who gives return labour and who is counted for it"
+    }
+  ],
+  "culmination": null,
+  "alternative_paths": [
+    {
+      "ordering": "The finale mechanism is chosen before the training condition is settled, reversing the order the handoff retains.",
+      "effect": "The finale would be chosen without the training condition defined. The record does not say what the finale would then inherit.",
+      "viability": "unresolved",
+      "evidence": ["E5"],
+      "quote": "asks whether outside apprentices are trained under the Right before the finale mechanism is chosen"
+    },
+    {
+      "ordering": "Alternative A: the training condition is dropped or recast as counted care within the finale mechanism.",
+      "effect": "The condition stops being a separate term and is absorbed into who is counted for return labour. The record does not say which alternative the author intends.",
+      "viability": "unresolved",
+      "evidence": ["E5", "E2"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "ordering": "The training condition is kept, and Book 24's review does not carry it.",
+      "effect": "The condition would reach later development by a route the record does not name, so the reconsidered reach claim gives it no recorded carrier.",
+      "viability": "weakened",
+      "evidence": ["E5", "E4"],
+      "quote": "The inheritance route therefore remains a hypothesis, not a recorded consequence."
+    }
+  ],
+  "opportunities": [
+    {
+      "text": "Recasting the training condition as counted care would let one finale mechanism settle both who is trained under the Right and who is counted for return labour, which neither question settles alone.",
+      "between": ["d1", "d2"],
+      "evidence": ["E5", "E2"],
+      "quote": "under alternative A the training condition must be dropped or recast as counted care"
+    },
+    {
+      "text": "The revocability question could be settled inside the finale: whether the Right is revocable or permanent and who carries the Turn may be one choice about who bears return labour.",
+      "between": ["d1", "d2"],
+      "evidence": ["E1", "E2"],
+      "quote": "revocable or permanent"
+    }
+  ],
+  "reader_experience": "Neither development is cited by any element the record reads in Books 24 or 25, so no reader-facing text on the training condition or the finale is recorded. On the handoff's account the condition reaches a reader through Book 24's review only if that review carries it, which is unresolved. Books 24 and 25 are not shown to depend on either development.",
+  "open_decisions": [
+    "What training condition the lineage Special Draw Right carries, and whether it is revocable or permanent.",
+    "Whether Book 24's review carries the training condition.",
+    "Which finale mechanism (A, B, C or a third) the author chooses for return labour and who is counted for it.",
+    "Under alternative A, whether the training condition is dropped or recast as counted care."
+  ],
+  "uncertainty": [
+    "Whether the training condition reaches later development through Book 24's review is not established.",
+    "The coverage count of 182 elements in Books 24 and 25 lists no element identifiers, so whether any element states the training condition is not recorded.",
+    "The handoff reports that the added qualifier in the claim does not appear in the question text it cites.",
+    "An interpretive reading of alternative A is labelled interpretive, and the record does not say which reading the author intends."
+  ],
+  "criticism_assessments": [],
+  "changes_from_prior": []
+}
