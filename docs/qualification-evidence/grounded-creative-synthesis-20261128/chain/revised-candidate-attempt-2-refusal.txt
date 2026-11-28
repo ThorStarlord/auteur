@@ -1,0 +1,1 @@
+interpretation 'balance-stones-question-merge' affects unknown nodes: q-other-8, q-right-apprentice-training. An interpretation's affects may name only node identifiers from the candidate's nodes list; question identifiers are not nodes.

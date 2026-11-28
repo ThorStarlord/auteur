@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "attribution_error",
+  "affects": "asserted_condition",
+  "reasoning": "Basis says 'recorded', but the development (Book 24 first meets the labour gap by people) is carried only by E5, an agent_proposed Working Book element. E1, the one established item, names no Book 24 and no first-met moment, and mentions a rota, a schedule. The premise is an agent proposal presented as record. The labour question follows by inference from E1's question about who performs the return labour and at what cost; the lineage question holds only if the stage is taken up. Book 24 timing and 'rather than by a schedule' are not stated in the cited items.",
+  "evidence": ["E5", "E1"],
+  "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule.",
+  "alternative_reading": "No quote was offered, so none carries the premise. The sentence that does carry it is in E5, which is agent_proposed, not record. E1 gives labour and rota context but no Book 24 timing.",
+  "would_settle": "A recorded source, such as Architecture or an adopted revision, stating that Book 24 first meets the labour gap by people, or the owner adopting E5 as record.",
+  "creative_room": "Open: a proposed Book 24 where people first meet the labour gap; a public capability record; the Ledger and Source exercised; other Books could host the first human-met gap. Proposals, not record: the Book 24 timing, 'rather than by a schedule', the new record, and the stage's lineage question unless the stage is taken up.",
+  "clauses": [
+    {
+      "text": "Book 24 is where the labour gap is first met by people rather than by a schedule.",
+      "status": "proposed",
+      "note": "Carried only by E5, attributed agent_proposed; E1 names no Book 24 and no first-met moment. The claim's basis says recorded."
+    },
+    {
+      "text": "The stage asks what the lineage would then have to carry.",
+      "status": "conditional",
+      "note": "A question from a proposed stage; it holds only if the stage is taken up. E1 supports lineage crews already carrying channel repair from Book 20."
+    },
+    {
+      "text": "The stage asks what it would mean for the labour.",
+      "status": "inferential",
+      "note": "Follows from E1's question of who performs the return labour and at what cost; the stage's framing itself is a proposal."
+    }
+  ],
+  "defensible_possibility": "A proposed Book 24 in which people first meet the labour gap, offered as a creative proposal; the stage's question about what lineages must carry stays defensible as a proposed stage.",
+  "relation_survives_correction": "yes"
+}

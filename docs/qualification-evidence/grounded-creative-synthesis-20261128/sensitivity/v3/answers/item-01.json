@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "modal_misreading",
+  "affects": "load_bearing_premise",
+  "reasoning": "s1's development states a proposed event in the indicative ('Book 24 is where the labour gap is first met by people'), under horizon proposed_book; its only source is E5, agent_proposed, so basis 'recorded' misstates its standing. E1 (established) puts lineage crews on channel repair from Book 20 and households on a rota, so 'first' and 'rather than by a schedule' are not carried by the cited words. The two 'would' clauses are conditional creative questions and are not errors.",
+  "evidence": ["E5", "E1"],
+  "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule.",
+  "alternative_reading": "The claim offers no quote. Conditional reading: if s1 is written, Book 24 would be the proposed point where the labour gap is first met by people rather than by a schedule. E5's sentence carries that premise, but E5 is agent_proposed, so the basis should read proposed, not recorded.",
+  "would_settle": "A record element, not agent_proposed E5, stating that Book 24 is the first point the labour gap is met by people, reconciled with E1's lineage crews carrying channel repair from Book 20.",
+  "creative_room": "Book 24 can be proposed as the book where people first take up the labour gap, with the stage asking what the lineage would then have to carry and what the labour would mean. The timing, the first-met contrast and any move from schedule to people must be treated as proposals, not record.",
+  "clauses": [
+    {
+      "text": "The stage asks what the lineage would then have to carry.",
+      "status": "conditional",
+      "note": "Hypothetical framed by 'would' and 'then'; it holds only if s1 is written. E1 supplies the lineage's repair role from Book 20."
+    },
+    {
+      "text": "The stage asks what it would mean for the labour.",
+      "status": "conditional",
+      "note": "Question framed by 'would'; it asserts no event and needs no record beyond the proposed stage itself."
+    },
+    {
+      "text": "Book 24 is where the labour gap is first met by people",
+      "status": "proposed",
+      "note": "Indicative 'is' states a proposed event as occurring; the premise rests on E5, agent_proposed, though the basis reads recorded."
+    },
+    {
+      "text": "rather than by a schedule.",
+      "status": "unsupported",
+      "note": "No cited words set Book 24 against a schedule; E1 has households meeting a rota and lineage crews on channel repair from Book 20."
+    }
+  ],
+  "defensible_possibility": "The stage's two conditional questions stay open as creative possibilities if Book 24 is proposed as the point where people take up the labour gap; only the timing and the first-met contrast need correcting.",
+  "relation_survives_correction": "yes"
+}

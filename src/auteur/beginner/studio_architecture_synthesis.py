@@ -19,7 +19,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from auteur.host_agent import (
-    _atomic_json_write, build_host_agent_request, load_host_agent_request, model_output_contract,
+    _atomic_json_write, build_host_agent_request, limits_instruction, load_host_agent_request, model_output_contract,
     validate_host_agent_response, write_host_agent_request, write_host_agent_response,
 )
 from auteur.series.working_book_architecture import book_elements, book_numbers
@@ -148,6 +148,7 @@ Quote the basis. Every claim that cites evidence (a stage, a relation, an altern
 Keep what the record establishes, what you infer, what you propose and what remains open distinct. Leave decisions the author should make as open_decisions. Do not claim the synthesis is accepted, applied or canonical.
 
 Return ONLY one JSON object with these keys: schema_version (1), trajectory, relations, culmination (an object, or null when the author named none and you offer none), alternative_paths, opportunities, reader_experience, open_decisions, uncertainty, criticism_assessments, changes_from_prior. Field names and literal values are exact, as the output_contract gives them."""
+_SYSTEM_SYNTHESIS = _SYSTEM_SYNTHESIS + "\n\n" + limits_instruction(SynthesisAnswer)
 
 
 class _Packet:

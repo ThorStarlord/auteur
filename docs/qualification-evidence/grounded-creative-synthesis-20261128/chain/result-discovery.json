@@ -1,0 +1,313 @@
+{
+  "request_sha256": "e3958bf190db060c31c3d4dbe20634f595aec13b4ed9c323e7e0c23f930e8e45",
+  "created_at": "2026-11-28T01:31:49.562253+00:00",
+  "author_goal": "What promising creative opportunities am I overlooking?",
+  "baseline": "current",
+  "coverage_note": "Surveyed all 16 continuing open questions (wording, last-change records and Book 24 decision references), the working Architecture's nodes, links, finale Alternatives A to C, genre interactions and phases. Book element associations are empty for every question, so no possibility rests on them. Set aside: pairings joined only by the shared Book 24 decision reference, which all carry one title; pairings joined only by similar wording; and Hesper's motive and reform stance, for which the packet records no mechanism.",
+  "no_possibility_reason": null,
+  "uncertainties": [
+    "Book element associations are empty for every question, so no possibility rests on element-level evidence.",
+    "The packet does not state that the lowland draw runs through the lower channel that the Gate releases to.",
+    "The hours revision is recorded without a stated purpose, so its binding consequence is inferred.",
+    "Hesper's motive and reform stance were set aside because the packet records no mechanism linking them to the Gate Table.",
+    "Every Book 24 decision carries the same title, so shared Book 24 references were not treated as grounding.",
+    "The high cistern's storage is not established, so no share count or threshold can be estimated from the packet."
+  ],
+  "possibilities": [
+    {
+      "id": "p1",
+      "title": "Gate schedule as one lever for the surge and the lowland draw",
+      "kind": "shared_mechanism",
+      "possibility": "The Hollow Gate divides the high cistern's release between the upper and lower channels, and the Long Return must be routed through it. Which channel takes the surge (q-surge-route) and whether the Gate Table's schedule reaches the lowland draw (q-compact-settlement) may be one release decision seen from two sides, so a route chosen first could fix the lowland draw by default. Keep them independent until the routing is written as a schedule rule that names the channel and the lowland release; until then the link is a tension to test, not a recorded fact.",
+      "significance": "Both questions are open author choices. The schedule is already the object of the Book 21 conflict, the genre interaction gi_pastoral_political_gate records the risk that the Gate Table becomes a seat of power, and dec-surge-route neither designates nor excludes the Lowfen. Joining the two shows the Compact's settlement as a consequence of routing rather than a separate clause.",
+      "questions": [
+        "q-surge-route",
+        "q-compact-settlement"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "node",
+          "ref_id": "str_hollow_gate",
+          "book_number": null,
+          "note": "Divides high cistern release between upper and lower channels; its schedule is the object of the Book 21 conflict.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_gate_sets_outflow",
+          "book_number": null,
+          "note": "The Gate's schedule sets the release from the high cistern.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_long_return",
+          "book_number": null,
+          "note": "The pulse must be routed through the Gate, and the routing decides which channel takes the surge.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "question",
+          "ref_id": "q-compact-settlement",
+          "book_number": null,
+          "note": "Asks whether the Gate Table's schedule reaches the lowland draw; open.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-surge-route",
+          "book_number": 24,
+          "note": "Book 24 neither designates nor excludes the Lowfen as the surge channel.",
+          "present_now": null
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The lowland draw named in q-compact-settlement runs through the lower channel the Gate releases to; the packet does not state this.",
+        "A surge routed to a lower channel is set by the same Gate schedule rather than by a separate channel rule."
+      ],
+      "counterevidence": [
+        "dec-gate-table holds Book 24 either way, which may leave the lowland draw independent of the Table.",
+        "The Gate Table takes the schedule in Book 22 under the working design, so the schedule's holder may change before the surge route is decided."
+      ],
+      "gains": "Turns two open author choices into one schedule rule that the finale can test.",
+      "costs": "A joined reading may make the Compact's settlement look like a by-product of the routing, which the author may not want.",
+      "next_investigation": "Write the Book 30 routing as a schedule rule that names the channel and its lowland release, then test whether the Compact's settlement can be stated without it.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p2",
+      "title": "The hours record as a possible form of shared accounting",
+      "kind": "overlooked_consequence",
+      "possibility": "The ledger now records each hand's hours beside its mark, and from Book 20 draw partly follows hands owed. If shared accounting binds, the hours that show care could be the same record that sets draw, while the stewardship tally, which records care, does not hold the water. The form question may then be answered by where the hours are kept rather than by a new tally. Keep it independent of the conversion question only until the inputs the Book 20 conversion reads are named; if they are the same hours, the two questions are one.",
+      "significance": "The ledger revision says a count of draw can be read straight from the ledger but does not say what the hours feed. The stewardship tally is framed as a record of care that does not hold the water. If one record both shows care and sets draw, a household's cut for hands it cannot return would be computed from hours it recorded as its own care, which changes what the cut means.",
+      "questions": [
+        "q-other-3",
+        "q-conversion-settlement"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "node",
+          "ref_id": "eng_ledger",
+          "book_number": null,
+          "note": "Revised so the ledger records each hand's hours beside its mark, so a count of draw can be read from it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_measured_turn",
+          "book_number": null,
+          "note": "The stewardship tally records labour as care; it does not hold the water.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_tally_counts_hands",
+          "book_number": null,
+          "note": "From Book 20 draw is partly set by hands owed, read from the ledger.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_conversion_sets_draw",
+          "book_number": null,
+          "note": "Hands a household cannot return reduce its draw from Book 20.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "question",
+          "ref_id": "q-other-3",
+          "book_number": null,
+          "note": "Asks whether the shared accounting of care binds, and in what form.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "question",
+          "ref_id": "q-conversion-settlement",
+          "book_number": null,
+          "note": "Asks whether the Book 20 conversion is a lasting settlement or a stage the finale must revisit.",
+          "present_now": true
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "The hours recorded beside each mark are the input the Book 20 conversion would read; the revision implies this but does not state it.",
+        "Accounting that binds would bind through the ledger, not through the stewardship tally."
+      ],
+      "counterevidence": [
+        "The Architecture records the stewardship tally as not holding the water, so a binding form may stay separate from the ledger.",
+        "The revision's purpose is not recorded; it may have been made only so that a draw count can be read, with no binding intent."
+      ],
+      "gains": "Shows that the form question may be answered by an existing record rather than a new institution.",
+      "costs": "A countable care record may turn belonging into a labour rota, which genre interaction gi_political_pastoral_constrains already names as a risk.",
+      "next_investigation": "Trace which ledger fields the Book 20 conversion reads, then test whether one household's cut can be stated from hours recorded only as care.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p3",
+      "title": "The Special Draw Right against each finale mechanism",
+      "kind": "productive_tension",
+      "possibility": "The lineage Special Draw Right gives skill a claim on draw. Alternative A decouples draw from hands, so a skill-based claim on draw sits badly beside it; Alternative B owes hands in proportion to draw, so a permanent right would have to be squared with that rule. Revocability and the finale may therefore be one decision, and the Book 20 conversion is where the right and the hands rule first meet. Keep revocability independent of the finale only until the draw rule under each alternative is stated in full.",
+      "significance": "Revocability and the finale are both open author choices. The packet links them: the right is a skill claim on draw introduced in Book 20, and the alternatives differ on whether draw follows hands. A decision on one that ignores the other could leave the lineage claim contradicting Alternative A, or exempt from the owed-hands rule under B.",
+      "questions": [
+        "q-right-revocable",
+        "q-finale-mechanism",
+        "q-conversion-settlement"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "node",
+          "ref_id": "inst_lineage_crews",
+          "book_number": null,
+          "note": "From Book 20 they hold a Special Draw Right, conditional on training apprentices from outside the lineage; working design revocable by the Council.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_lineage_right_on_draw",
+          "book_number": null,
+          "note": "The Special Draw Right gives skill a claim on draw.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "alt_a_reciprocal",
+          "book_number": null,
+          "note": "Draw is decoupled from hands; care is counted and nothing is owed.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "alt_b_allotted",
+          "book_number": null,
+          "note": "Hands are owed in proportion to draw; a shortfall is a deficit to repay inside the window.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "book_decision",
+          "ref_id": "dec-right-revocable",
+          "book_number": 24,
+          "note": "Whether the right is revocable or permanent, and its training condition, is not decided.",
+          "present_now": null
+        },
+        {
+          "ref_kind": "link",
+          "ref_id": "l_conversion_sets_draw",
+          "book_number": null,
+          "note": "Hands a household cannot return reduce its draw from Book 20.",
+          "present_now": true
+        }
+      ],
+      "basis": "grounded",
+      "assumptions": [
+        "A skill-based claim on draw is tied to hands through the training condition, so it must be read against any rule that separates draw from hands.",
+        "The Special Draw Right and the Book 20 hands rule apply to the same draw from Book 20."
+      ],
+      "counterevidence": [
+        "Alternative A is recorded as not chosen, so the tension may not arise if B or C is chosen.",
+        "Revocability by the Council could make the right temporary, so it may fit any finale without a permanent exemption."
+      ],
+      "gains": "Lets the author test the lineage right against each finale before Books 27 to 30 are drafted.",
+      "costs": "Tying revocability to the finale could push a Book 20 design detail into a late choice that has not been tested on its own.",
+      "next_investigation": "State the right's draw rule under Alternatives A, B and C separately, then check which versions survive each alternative's listed failure modes.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    },
+    {
+      "id": "p4",
+      "title": "Cistern storage, the threshold and the Brightwater count",
+      "kind": "thematic_resonance",
+      "possibility": "The number of Brightwater shares drawn before the Balance Stones restrain them may depend on what the high cistern can store above tolerance. Imaginative step, not recorded: that the restraint is read from the cistern's level, so the count is a function of storage. If so, the threshold, the storage figure and the count are one measurement, and the inherited belief that abundance needs no work would meet the cistern at the point of restraint. Keep them apart if the threshold is set from the pulse prediction alone.",
+      "significance": "The packet records storage as not established and says Alternatives B and C depend on it, so a threshold cannot be placed against a known tolerance. The Book 23 Balance Stones also predict the Long Return, and Alternative C names a disputed gauge as a failure mode. A count of draws before restraint would give the inherited belief of abundance a measurable edge.",
+      "questions": [
+        "q-other-15",
+        "q-other-8",
+        "q-other-11"
+      ],
+      "evidence": [
+        {
+          "ref_kind": "question",
+          "ref_id": "q-other-15",
+          "book_number": null,
+          "note": "Asks what the high cistern can store above tolerance; not established, and Alternatives B and C depend on it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "question",
+          "ref_id": "q-other-11",
+          "book_number": null,
+          "note": "Asks how many Brightwater shares may be drawn before the Balance Stones restrain them.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "question",
+          "ref_id": "q-other-8",
+          "book_number": null,
+          "note": "Asks whether a Balance Stones threshold exists, who reads it and which body ratifies it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_hollow_gate",
+          "book_number": null,
+          "note": "Surfeit is too much return, or stored water with no draw; release draws the cistern down and cannot raise it.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "alt_c_ratified_trigger",
+          "book_number": null,
+          "note": "A published Balance Stones threshold activates Alternative B's rota; failure modes include a disputed gauge.",
+          "present_now": true
+        },
+        {
+          "ref_kind": "node",
+          "ref_id": "str_long_return",
+          "book_number": null,
+          "note": "Deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23.",
+          "present_now": true
+        }
+      ],
+      "basis": "speculative",
+      "assumptions": [
+        "The Balance Stones restraint named in q-other-11 is the threshold Alternative C would ratify; the packet implies but does not state this.",
+        "The restraint is read from the cistern's level, so the share count depends on storage. This is the imaginative step and is not recorded."
+      ],
+      "counterevidence": [
+        "The packet does not record how any share count maps to cistern level, so the link may not exist in the design.",
+        "Alternative C is not chosen, so the threshold may not matter to the Brightwater count under any finale."
+      ],
+      "gains": "Gives the storage question a consumer, so Books 23 to 26 could test it against the Brightwater draw.",
+      "costs": "Treating the three as one measurement could make a belief look measured before any figure supports it.",
+      "next_investigation": "Write the cistern tolerance as an unknown with a test in Books 23 to 26, then check whether one figure can state both the threshold and the share count.",
+      "status": {
+        "transferable": true,
+        "state": "transferable",
+        "note": null
+      },
+      "decision": null,
+      "investigations": [],
+      "applied": false
+    }
+  ]
+}

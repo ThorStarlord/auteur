@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "creative_speculation",
+  "affects": "asserted_condition",
+  "reasoning": "Basis is stated as proposed and the wording is modal or conditional, so the stage reads as creative speculation, not as record. Its premise, that the Special Draw Right is conditional on training outside apprentices, is carried only by E3 and E7, both agent_proposed. E1, the record, states the Right from Book 20 with no condition. Repair by outside apprentices and any change in the labour's meaning appear in no cited item.",
+  "evidence": ["E1", "E3", "E7"],
+  "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage.",
+  "alternative_reading": "No quote was offered (quote_offered is null). Read narrowly, the claim's first clause asserts only that a condition exists in the cited items, which is true as text but not as record: E7 writes the condition as fact while its attribution is agent_proposed, and E7 notes a source reversal its text does not explain.",
+  "would_settle": "A record item, not an agent_proposed element, stating that the Special Draw Right is conditional on training outside apprentices, or a record of such training and any outside repair.",
+  "creative_room": "Still creatively open: a proposed Book in which outside apprentices are trained under the Right, with the lineage's fear of dilution as the test of its condition. Treat as proposals, not record: the Right's conditionality, any outside repair, and the change in what the labour means for the lineage.",
+  "clauses": [
+    {
+      "text": "The earlier condition is carried by the cited items.",
+      "status": "supported",
+      "note": "E3 and E7 state the condition, but both are agent_proposed; E1 states the Right with no condition."
+    },
+    {
+      "text": "If outside apprentices are trained under the Special Draw Right, their repair could be demonstrated",
+      "status": "conditional",
+      "note": "Holds only if outside training happens, which no cited item records; none says outside apprentices repair."
+    },
+    {
+      "text": "and the condition the Right carries would then be tested",
+      "status": "conditional",
+      "note": "E3 says the lineage needs the condition demonstrated, so a test is inferable as a need; no test is recorded."
+    },
+    {
+      "text": "It changes what the labour means for the lineage.",
+      "status": "proposed",
+      "note": "No cited item says the meaning of the labour changes; E3 gives only a fear of dilution, marked an agent inference."
+    }
+  ],
+  "defensible_possibility": "Training outside apprentices under the Right as a proposed development is defensible: E7 ties the Right's condition to outside training, and E3 says the lineage needs that condition demonstrated. It stays defensible only while the condition and the demonstration are labelled as proposals.",
+  "relation_survives_correction": "yes"
+}

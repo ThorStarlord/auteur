@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "a1",
+  "evidence_register": "mixed",
+  "judgment": "temporal_misreading",
+  "affects": "asserted_condition",
+  "reasoning": "The claim presents a training demonstration as already achieved. E3 says the lineages 'need the condition demonstrated', a need, and no cited item records one. The Right's training condition and the review's stake come from agent-proposed items (E3, E7); E1 establishes the Special Draw Right from Book 20 but no training condition. E7 says the source gives a reversal for the Book 24 review point. 'Cannot be reviewed before it is trained' is in no cited item. The 'would test' effect is defensible as a proposal.",
+  "evidence": ["E3", "E1", "E7"],
+  "quote": "they need the condition demonstrated or the Right is exposed",
+  "alternative_reading": "No quote was offered (quote_offered is null), so no quoted line carries the premise. A charitable reading takes 'already shown' as shorthand for a known requirement, but E3 states only a need for the condition to be demonstrated. On that reading the review is a proposed sequence, not a test of a shown condition.",
+  "would_settle": "A cited record item stating that a training demonstration has occurred, or that the Right cannot be reviewed before training, rather than agent-proposed text.",
+  "creative_room": "Remains possible: a review staged after an apprentice training demonstration that tests whether the condition is met, with the lineage's guarding stake as motive. Treat the demonstration as a future or proposed event, the Book 24 review point as a proposal, and the training condition as agent-proposed unless the record states it.",
+  "clauses": [
+    {
+      "text": "The review would test",
+      "status": "proposed",
+      "note": "Modal effect framed as a creative proposal; the record does not contain this review, and E3 calls the review stake an agent inference."
+    },
+    {
+      "text": "a condition already shown",
+      "status": "unsupported",
+      "note": "Presented as achieved. E3 says they 'need the condition demonstrated'; no cited item records a demonstration having occurred."
+    },
+    {
+      "text": "The review must come after the training demonstration",
+      "status": "unsupported",
+      "note": "Necessity stated as fact. The review point is agent-proposed (E7), and E7 says the source gives a reversal for it."
+    },
+    {
+      "text": "because the Right cannot be reviewed before it is trained",
+      "status": "unsupported",
+      "note": "Not stated in the cited items. E3 gives a training condition and an exposure risk, from agent-proposed text, not an impossibility of review."
+    }
+  ],
+  "defensible_possibility": "A review staged after a training demonstration that has yet to occur, offered as a proposed sequence; the lineage's stake remains an agent proposal.",
+  "relation_survives_correction": "yes"
+}

@@ -1,0 +1,12 @@
+{
+  "item-01": "P1a_recorded",
+  "item-02": "P1b_proposed",
+  "item-03": "P2a_unconditional",
+  "item-04": "P2b_conditional",
+  "item-05": "P3a_unsupported_premise",
+  "item-06": "P3b_no_premise",
+  "item-07": "P4a_labelled_inference",
+  "item-08": "P4b_recorded_label",
+  "item-09": "P5a_hypothetical_order",
+  "item-10": "P5b_asserted_necessity"
+}

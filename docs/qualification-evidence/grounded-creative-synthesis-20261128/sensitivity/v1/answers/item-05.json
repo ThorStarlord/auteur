@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "agent_proposed",
+  "judgment": "overreaching",
+  "affects": "asserted_condition",
+  "reasoning": "Only E5 is cited, and its attribution is agent_proposed, which overrides its 'asserted' status, so it cannot establish the earlier condition the claim says it carries. The causal premise (the Mill Compact has secured the lineage's loyalty) appears in no cited item as shown; E5 is truncated, so its unshown remainder is unknown. The refusal by a Council steward is a proposal under 'could'. E7 conditions the Right on outside training, which sits in tension with refusing outside crew.",
+  "evidence": ["E5", "E1", "E7", "E8"],
+  "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule.",
+  "alternative_reading": "No quote was offered (quote_offered is null). The cited sentence says a labour gap is first met by people, not that loyalty was secured. Read charitably, 'the earlier condition' might mean E1's 'Old lineages hold the repair skill'; that is skill, not loyalty, so it carries no causal premise. The claim's basis_as_stated is 'proposed', which conflicts with 'is carried'.",
+  "would_settle": "A cited item of record, not agent-proposed, stating that the Mill Compact has already secured the lineage's loyalty; first check whether E5's truncated remainder states it.",
+  "creative_room": "Still possible as a proposal: a later Book in which a Council steward refuses outside crew. Treat the Mill Compact, the lineage's loyalty, the Council steward and the refusal as proposals, not record. E7's outside-apprentice condition gives the refusal dramatic tension to explore.",
+  "clauses": [
+    {
+      "text": "The earlier condition is carried by the cited items.",
+      "status": "unsupported",
+      "note": "The only cited item, E5, is agent_proposed and names no earlier condition of loyalty; the claim does not name the condition either."
+    },
+    {
+      "text": "A later Book could have the Council steward refuse the outside crew",
+      "status": "proposed",
+      "note": "Modal 'could' marks a creative proposal. No Council steward or refusal appears in the cited text, and E8 says Book 24 names no body that grants standing."
+    },
+    {
+      "text": "because the Mill Compact has already secured the lineage's loyalty.",
+      "status": "unsupported",
+      "note": "Mill Compact and loyalty are not stated in the cited items as shown; E5 is truncated. The present-perfect 'has already secured' reads an achieved event the record does not contain."
+    },
+    {
+      "text": "It changes what the labour means for the lineage.",
+      "status": "proposed",
+      "note": "E1 says who performs the labour, not what it means to the lineage; the change in meaning is a creative proposal, not record."
+    }
+  ],
+  "defensible_possibility": "The refusal of outside crew, offered as a later-Book proposal, stays defensible. Once the loyalty premise is marked as a proposal, the relation still holds as a proposed chain in which a loyal lineage needs no outside crew.",
+  "relation_survives_correction": "yes"
+}

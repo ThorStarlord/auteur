@@ -17,7 +17,7 @@ from auteur.beginner.studio_architecture_synthesis import (
     complete_architecture_synthesis, derived_changes, prepare_architecture_synthesis, project_architecture_synthesis,
 )
 from auteur.beginner.studio_architecture_verification import (
-    ALTERNATIVE_CHARS, EVIDENCE_MAX, QUOTE_CHARS, REASONING_CHARS, ROOM_CHARS, SETTLE_CHARS, ClaimVerification, _SYSTEM_VERIFY,
+    ROOM_CHARS, ClaimVerification, _SYSTEM_VERIFY,
     claims_of, complete_claim_verification, dependents_of, prepare_claim_verification, project_claim_verifications,
 )
 
@@ -53,7 +53,7 @@ def verdict(user: dict, claim: str = "s1", **overrides) -> dict:
     """A well-formed judgement: the first development's own wording carries the premise, and the verifier says so."""
     cited = user["developments"][0]["evidence"]
     base = {
-        "schema_version": 1, "claim": claim, "evidence_register": "established", "judgment": "supported",
+        "schema_version": 2, "claim": claim, "evidence_register": "established", "judgment": "supported",
         "affects": "asserted_condition", "reasoning": "The cited development states the condition in its own words.",
         "evidence": [cited], "quote": text_of(user, cited)[:40], "alternative_reading": None, "would_settle": None,
         "creative_room": "The household may still refuse the duty; the refusal would be a proposal, not a record.",
@@ -193,11 +193,63 @@ def test_a_judgement_about_another_claim_than_the_one_asked_is_refused(project):
 
 
 def test_the_verifier_instruction_states_every_limit_the_owner_enforces():
-    """An unstated limit refused a whole authentic answer in the first run (creative_room at 401 characters). The instruction is
-    generated from the same constants as the schema, so each limit is stated and cannot drift."""
-    for limit in (REASONING_CHARS, EVIDENCE_MAX, QUOTE_CHARS, ALTERNATIVE_CHARS, SETTLE_CHARS, ROOM_CHARS):
-        assert f"{limit} " in _SYSTEM_VERIFY or f"{limit} identifiers" in _SYSTEM_VERIFY, limit
-    assert f"creative_room at most {ROOM_CHARS} characters and always required" in _SYSTEM_VERIFY
+    """The instruction is generated from the output contract, so every bound the owner enforces is stated, and cannot drift."""
+    from auteur.host_agent import contract_limit_lines
+    lines = contract_limit_lines(ClaimVerification)
+    for line in lines:
+        assert line in _SYSTEM_VERIFY, line
+    assert "creative_room: at most " + str(ROOM_CHARS) + " characters" in _SYSTEM_VERIFY
+
+
+def _stage_wording(user):
+    return user["claim"]["wording"]["development"]
+
+
+def test_a_clause_must_be_words_the_claim_contains(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    payload = verdict(user, "s1", clauses=[{"text": "words the claim never wrote", "status": "supported", "note": "x"}])
+    with pytest.raises(ValueError, match="is not words the claim contains"):
+        complete_claim_verification(store, replay_verification(request, payload))
+
+
+def test_a_claim_with_an_unsupported_clause_cannot_be_judged_creative_speculation(project):
+    """The owner cannot judge the meaning, but it can refuse the classification that would conceal an unsupported premise."""
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    clause = _stage_wording(json.loads(request["user"])).split(".")[0][:60].strip()
+    payload = verdict(user, "s1", judgment="creative_speculation", evidence_register="agent_proposed",
+                      defensible_possibility="A later Book could test the claim.",
+                      clauses=[{"text": clause, "status": "unsupported", "note": "The cited items do not state it."}])
+    with pytest.raises(ValueError, match="cannot be judged supported, a defensible inference or creative speculation"):
+        complete_claim_verification(store, replay_verification(request, payload))
+
+
+def test_an_unsupported_clause_must_leave_a_defensible_possibility_stated(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    clause = _stage_wording(json.loads(request["user"])).split(".")[0][:60].strip()
+    payload = verdict(user, "s1", judgment="overreaching", alternative_reading="The record states less than the claim.",
+                      clauses=[{"text": clause, "status": "unsupported", "note": "The cited items do not state it."}])
+    with pytest.raises(ValueError, match="must say which creative possibility remains defensible"):
+        complete_claim_verification(store, replay_verification(request, payload))
+
+
+def test_a_clause_judgement_that_names_the_unsupported_part_and_its_possibility_is_stored(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    clause = _stage_wording(json.loads(request["user"])).split(".")[0][:60].strip()
+    payload = verdict(user, "s1", judgment="overreaching", alternative_reading="The record states less than the claim.",
+                      defensible_possibility="The labour gap can still be met by people, as a proposal.",
+                      relation_survives_correction="yes",
+                      clauses=[{"text": clause, "status": "unsupported", "note": "The cited items do not state it."}])
+    row = complete_claim_verification(store, replay_verification(request, payload))
+    assert row["result"]["clauses"][0]["status"] == "unsupported"
+    assert row["result"]["relation_survives_correction"] == "yes"
 
 
 def test_an_unknown_field_is_refused_by_the_schema():

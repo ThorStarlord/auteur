@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "creative_speculation",
+  "affects": "load_bearing_premise",
+  "reasoning": "E1 (established) says lineage crews carry channel repair under the Right from Book 20. The Right's condition of training outside apprentices, and the need to demonstrate it, appear only in E7 and E3, both agent_proposed. E14 shows those same texts repeated in Book 25, so repetition adds no corroboration. The development is conditional (If, could, would then), so no tense misreading. The Book 24 review timing is agent_proposed and no cited words record a test.",
+  "evidence": ["E1", "E3", "E7", "E14"],
+  "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage.",
+  "alternative_reading": "Read the development as a proposal: if outside apprentices were trained under the Right, their repair could be demonstrated and the condition could then be tested. The cited record states those conditions only as agent_proposed (E7, E3). Read 'The stage asks' as 'the proposed stage would ask'. E7's source reversal for the review point is not explained in the cited words.",
+  "would_settle": "A source-attributed element, not agent_proposed, stating the Right's training condition and a test or review point; or an author statement confirming them.",
+  "creative_room": "The stage can still ask what the lineage carries once outside apprentices train, as a proposal: the repair skill passing outward, the cost to households with few hands, and whether a demonstrated condition could reopen the Right. Those parts must stay labelled proposed, not record.",
+  "clauses": [
+    {"text": "The stage asks what the lineage would then have to carry.", "status": "inferential", "note": "E1 establishes that lineage crews carry channel repair under the Right; what they would then carry is inferred from E3, an agent_proposed need, so 'would' marks a proposal."},
+    {"text": "If outside apprentices are trained under the Special Draw Right", "status": "conditional", "note": "E7 makes the Right conditional on training outside apprentices, as agent_proposed text; no cited words say training under the Right occurs."},
+    {"text": "their repair could be demonstrated", "status": "proposed", "note": "No cited text places outside apprentices in repair work; E3 says only that lineages need the condition demonstrated, as an agent inference."},
+    {"text": "the condition the Right carries would then be tested", "status": "unsupported", "note": "E7 names a review point in Book 24 but labels it agent-proposed; no cited words record that the condition is tested."}
+  ],
+  "defensible_possibility": "A proposed stage in which training outside apprentices under the Right becomes the test of its condition, with the Book 24 review timing and the training condition both kept as proposals rather than record.",
+  "relation_survives_correction": "yes"
+}
