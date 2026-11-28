@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "00eceff2234061d772fc46d15366e8e6a36016d0615ea7d69947f3fff43a16ca",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r4",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "d2"
+    ],
+    "dependence": "causal",
+    "reason": "The record gives the routing of the surge to the valley, while the question asks the author to choose who gives labour; the author's mechanism may collide with a choice the record assigns to the valley.",
+    "relation": "complicates"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r4",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "creative_possibility",
+    "reasoning": "E1 states as fact that the routing decides which channel takes the surge and that this choice belongs to the valley. E2 states that the finale choice of who gives return labour is the author's and is 'Not decided.' The claim's complicates relation, with causal dependence, needs a link between the valley's routing choice and the author's labour choice. Neither cited item states that link, so the collision is a possibility the record leaves open, not an established relation.",
+    "evidence": [
+      "E1",
+      "E2"
+    ],
+    "quote": "The routing decides which channel takes the surge, and that choice belongs to the valley.",
+    "alternative_reading": "The offered quote carries the valley's routing choice, not the author's choice of who gives labour, so it does not carry a collision between them. A linking reading runs through 'It needs channel labour before its date' in E1, but the cited items do not say that who gives labour fixes which channel takes the surge.",
+    "would_settle": "Architecture or Book text stating whether the finale labour choice constrains the Gate routing, or the author's choice of finale mechanism in E2 with its routing consequence.",
+    "creative_room": "The author may still choose any finale mechanism for who gives labour, and the valley keeps the routing choice E1 assigns it. Presenting a labour-routing collision as a possibility stays open. Treat any claim that the author's labour choice constrains routing as an agent proposal, not record; the routing sentence itself stays record."
+  },
+  "refused_attempts": 0
+}

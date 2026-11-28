@@ -1,0 +1,36 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "282988d7f891f1513041cd63c58d6852641edc837baa9dd33488f167c161d27b",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "a3",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "The split of practice (s1, E4) remains a fact of the valley's plural practice with no coordination claim. The standing possibility is simply not taken up.",
+    "ordering": "The cohort practises both counted and uncounted return and never claims standing in channel coordination.",
+    "viability": "viable"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a3",
+    "evidence_register": "mixed",
+    "judgment": "overreaching",
+    "affects": "creative_possibility",
+    "reasoning": "E8 states a hypothetical: the cohort 'may claim standing' in channel coordination, and Book 24 names no body to grant it. E4 states the split of practice as fact. Neither cited item says the cohort never claims standing or that the possibility is not taken up, so the claim's ordering and effect wording states an absence the evidence does not carry. The possibility itself is a viable creative path presented as an alternative.",
+    "evidence": [
+      "E8",
+      "E4"
+    ],
+    "quote": "may claim standing in how the valley coordinates its channel work",
+    "alternative_reading": "The quoted words carry only a hypothetical possibility ('may claim'), and E8's epistemic status is hypothetical. 'Never claims standing' and 'not taken up' are not stated in the cited items. Read as a proposed path, the possibility stands; read as record, the absence does not.",
+    "would_settle": "A cited Book text stating whether the cohort claims or declines standing in channel coordination.",
+    "creative_room": "Still open: the cohort claiming standing in valley channel coordination, and a granting body that Book 24 does not name. Treat as proposals, not record: any claim event, any body that grants the standing, and any refusal or statement that the cohort never claims it. The author may pursue this path or leave it untaken."
+  },
+  "refused_attempts": 0
+}

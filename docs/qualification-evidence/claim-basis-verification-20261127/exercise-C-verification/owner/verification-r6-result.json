@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "bc412eb1fdb3d8e01b8c585ba7b3b4b477313623c820e2717f35ca6ca36c8928",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r6",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s3",
+      "s4"
+    ],
+    "dependence": "causal",
+    "reason": "Inferred: the finale mechanism decides who gives the return labour the pulse needs, so it governs who meets the pulse. Whether the pulse can occur without that decision is not stated in the cited items.",
+    "relation": "enables"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r6",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "asserted_condition",
+    "reasoning": "E3 is the author's culmination and states who meets the Long Return; it states no enabling or causal dependence on a finale mechanism. E2 asks which mechanism the author chooses for who gives return labour and who is counted, and marks it 'Not decided.' E1 establishes that the pulse needs channel labour before its date. Whether that channel labour is the return labour of E2, and whether the pulse can occur without the decision, are not stated in the cited items. The enables relation is an inference no cited item states.",
+    "evidence": [
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "quote": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+    "alternative_reading": "The offered quote, from E3, carries the culmination but not the enabling premise. Read as a creative proposal, the finale mechanism could be the author's eventual answer to E2; that reading is not stated in the cited items and would be a proposal, not record.",
+    "would_settle": "A cited item stating that the author has chosen the finale mechanism and that the choice governs or enables who meets the Long Return.",
+    "creative_room": "Still possible: the culmination in E3 can stand as the author's vision, with A, B, C or a third mechanism left open, and E1's labour need can be developed. Treated as proposals, not record: that the mechanism enables the meeting, that channel labour is the return labour, and whether the pulse depends on the decision at all."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "synthesis-replay-equivalence/1",
+  "purpose": "Recorded authentic synthesis requests were re-prepared from their own recorded inputs on a freshly seeded Spring Ledger study (scripts/consequence_exercise.py seed), and the recorded authentic answers were completed through the owner. Equality of request_sha256 shows that the replayed request is the request the recorded answer was given.",
+  "seed": "fresh seed of the Spring Ledger study on feat/claim-basis-verification at main 752817c9",
+  "rows": [
+    {"exercise": "A (run 3)", "preserved_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354", "replayed_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354", "equal": true, "owner_outcome": "accepted on attempt 1"},
+    {"exercise": "B (v2)", "preserved_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238", "replayed_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238", "equal": true, "owner_outcome": "accepted on attempt 1"},
+    {"exercise": "C (v2)", "preserved_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581", "replayed_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581", "equal": true, "owner_outcome": "accepted on attempt 1"},
+    {"exercise": "D (v2, follow-up of A run 3)", "preserved_request_sha256": "ba4471e9e457c63da27cf61967e8067a66c00343a81efd1ded753a8875850a5b", "replayed_request_sha256": "ba4471e9e457c63da27cf61967e8067a66c00343a81efd1ded753a8875850a5b", "equal": true, "owner_outcome": "attempt 1 refused by the owner (extra field book_check); attempt 2 accepted, as recorded"}
+  ],
+  "note": "The replayed refusal reproduces the recorded one: the owner refused the same unknown field name. The follow-up was prepared after the A run 3 synthesis was completed in the replay, so its prior is the same request."
+}

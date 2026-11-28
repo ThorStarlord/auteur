@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ebabb3638dbe52aa8ea28813632cbc134a3f77b887d439d84a528acb794fdbc9",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "r2",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "s3"
+    ],
+    "dependence": "thematic",
+    "reason": "The lineage fears dilution by untrained hands, which works against the outside apprentices the test needs; the record calls its stake in the review an agent inference.",
+    "relation": "complicates"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r2",
+    "evidence_register": "agent_proposed",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E3 is agent_proposed and says the lineages fear dilution by untrained gift-hands. E7, also agent_proposed, says the Special Draw Right is conditional on training outside apprentices. E1 (established) says lineage crews carry channel repair under the Right from Book 20. Read together, the tension is a defensible inference, but both premises are proposals, not record. s3 has no evidence item in the packet; the relation to it is not stated in the cited items.",
+    "evidence": [
+      "E1",
+      "E3",
+      "E7"
+    ],
+    "quote": "They guard craft standards and fear dilution by untrained gift-hands.",
+    "alternative_reading": "The offered quote carries only the fear half, and that fear is agent_proposed; the record does not present it as established. The link to outside apprentices rests on E7, which the claim does not cite. The reason's acknowledgement covers only the lineage's stake in the review, not the fear sentence. The cited items do not use the word 'test'; E3 says the condition needs demonstrating.",
+    "would_settle": "Whether the record, not only an agent element, states the lineages' fear of dilution, and what s3 says about outside apprentices or the review.",
+    "creative_room": "The tension stays open: craft-guarding lineages could refuse outside apprentices, accept them on conditions, or bargain over how the Right is reviewed. Treat the fear of dilution, the lineage's stake in the review and the outside-apprentice condition as proposals, not record, until the record adopts them. Nothing else is narrowed."
+  },
+  "refused_attempts": 0
+}

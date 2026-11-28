@@ -1,0 +1,44 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "fda5611da775b520c8da7aa13e8c512a480c7394f50347b97bc121c9636a41bc",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "s1",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "Lineage crews carry channel repair from Book 20 under a Special Draw Right (E1), the arrangement that E6 gives as the reason this generation has not seen the labour.",
+    "book": 24,
+    "changes": "Makes plural practice a matter across generations as well as communities, as E4 states. E4 is attributed unknown_legacy, so the provenance of the split is not established.",
+    "development": "Book 24 has a generation that came of age after Book 20 and has never seen the labour, because lineage crews perform it under the Right. The Brightwater inheritance splits into counted and uncounted practice within that one generation.",
+    "horizon": "existing_book"
+  },
+  "claimed_basis": "inferred",
+  "used_by": [
+    "r1",
+    "r2",
+    "o2"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s1",
+    "evidence_register": "mixed",
+    "judgment": "overreaching",
+    "affects": "load_bearing_premise",
+    "reasoning": "E1 (architecture record) establishes that from Book 20 lineage crews carry channel repair under the Special Draw Right. E6 (Working Book, asserted, derived) supplies the causal link and the absolute 'never seen'. E1 also says households that meet the rota carry the rest, which the cited items do not reconcile with 'never seen'. E6 recurs verbatim in Book 25 (E12), so it is not shown as Book 24-specific. The split rests on E4, marked unknown_legacy.",
+    "evidence": [
+      "E1",
+      "E6",
+      "E4",
+      "E12"
+    ],
+    "quote": "households that can meet the rota carry the rest",
+    "alternative_reading": "The offered quote (E6) asserts the causal premise as a Working Book element, not established record. The cited items do not state that the generation is shielded from household rota work, or that 'the labour' means only channel repair. The split is carried by E4, whose provenance the claim says is not established.",
+    "would_settle": "A cited item stating the post-Book-20 generation is excluded from household rota work and defining 'the labour' as channel repair, or a claim narrowed to that.",
+    "creative_room": "Still open as creative possibility: a generation after Book 20 with little direct contact with channel repair, and a counted/uncounted split within it. Treat the 'never seen' absolute, the household share, and the E4 split as proposals, not record, unless the author confirms them. The Book 20 lineage arrangement (E1) stays record."
+  },
+  "refused_attempts": 0
+}

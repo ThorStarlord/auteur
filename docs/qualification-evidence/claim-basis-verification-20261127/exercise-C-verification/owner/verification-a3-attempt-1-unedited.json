@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "a3",
+  "evidence_register": "mixed",
+  "judgment": "unsupported_relation",
+  "affects": "load_bearing_premise",
+  "reasoning": "E1 states the ownership premise: the routing decides which channel takes the surge, and that choice belongs to the valley. The ordering premise, that the Gate routing is settled before the finale mechanism, is not stated in the cited items; E1 gives no settled status for the routing, and E2 records the finale mechanism as not decided. Labour following the routing is therefore an unstated dependency. Because the claim presents this as an unresolved alternative path, it may stand as a creative option, not as record.",
+  "evidence": ["E1", "E2"],
+  "quote": "The routing decides which channel takes the surge, and that choice belongs to the valley.",
+  "alternative_reading": "The offered quote carries only the ownership premise and the routing-to-channel relation. It does not carry the ordering (routing settled before the finale) or the effect (finale labour follows routing). E2 leaves the finale mechanism to the author.",
+  "would_settle": "A record stating that the Gate routing is settled before the finale mechanism, and which channel holds trained hands.",
+  "creative_room": "Labour could follow the valley's Gate routing as a real option, so the finale answer would come from the routing rather than from an authorial rule. Treat as proposals, not record: the ordering (routing settled before the finale), the claim that finale labour follows the routing, and which channel holds trained hands. The finale mechanisms A, B, C or a third remain open."
+}

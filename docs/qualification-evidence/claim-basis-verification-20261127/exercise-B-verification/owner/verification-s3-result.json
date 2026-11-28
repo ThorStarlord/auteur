@@ -1,0 +1,38 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "aaeb01f7e684f908b34886d772d0a3fde5187abcff2a37c356c84f2c707e8ff4",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "s3",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "The cohort now practises both counted and uncounted return (E11, E7), so a standing claim becomes possible once a body grants it (inferred).",
+    "book": null,
+    "changes": "Would bring uncounted practice into how the valley coordinates channel work, which no recorded body does (proposed).",
+    "development": "A body that would grant the cohort standing in channel coordination (proposed; no such body is recorded).",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s3",
+    "evidence_register": "mixed",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E7 states as fact that the Brightwater inheritance splits into counted and uncounted practice; the step to the cohort practising both is an inference, since E7 speaks of the cohort's belief and the inheritance. E11 says the same in its first sentence but is marked hypothetical, so its 'may claim standing' is modal. A standing claim is therefore possible only once a body grants it, and the cited items name none: E11 says only that Book 24 names no such body. The grant and the coordination change are labelled proposed in the claim.",
+    "evidence": [
+      "E7",
+      "E11"
+    ],
+    "quote": "The Brightwater inheritance splits into counted and uncounted practice within one generation",
+    "alternative_reading": "The offered quote carries only the absence of a granting body from E11, not the premise that the cohort practises both forms. That premise rests on E7's split of the inheritance, while E11's version is marked hypothetical. The claim's 'which no recorded body does' extends E11's absence from standing to channel coordination; that is not stated in the cited items.",
+    "would_settle": "A Book or Architecture item naming a body that would grant the cohort standing, and a statement that the cohort's practice is current, not hypothetical.",
+    "creative_room": "Standing could be granted later by a body a future Book introduces, refused, or contested, and uncounted practice could enter channel coordination. Treat as proposals, not record: the granting body, the coordination change, and any claim that the cohort already holds standing."
+  },
+  "refused_attempts": 0
+}

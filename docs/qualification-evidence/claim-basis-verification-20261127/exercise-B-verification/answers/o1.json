@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "o1",
+  "evidence_register": "mixed",
+  "judgment": "creative_speculation",
+  "affects": "creative_possibility",
+  "reasoning": "Route one rests on E1, which states that lineage crews carry channel repair under a Special Draw Right and that households on the rota carry the rest. The training condition is not stated in the cited items. Route two rests only on E5, an agent_proposed offer that is neither accepted nor refused. E24 and E2 support the inferred dependency on condition B. E24 names grain-labour, not hired labour, so crediting hired labour against the draw is an inference.",
+  "evidence": ["E1", "E2", "E5", "E24"],
+  "quote": "The offer is neither accepted nor refused, because the Compact's settlement is author-reserved.",
+  "alternative_reading": "The offered quote carries the offer and its conditional terms but not its status: E5 is agent_proposed and says the offer is neither accepted nor refused. The training condition the wording names is not stated in the cited items.",
+  "would_settle": "The author's ruling on the Compact's settlement, and a cited record stating the training condition and what condition B requires.",
+  "creative_room": "Possible: hired lowland labour credited against the Compact's draw could take part of the repair off the households' rota alongside the lineage Right, under condition B. Interference points: the Compact's author-reserved settlement and the Book 27 to 29 bid. Proposals, not record: the Oona Brisk offer and its terms, the training condition, and the content of condition B."
+}

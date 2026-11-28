@@ -123,3 +123,45 @@ def test_the_synthesis_fits_a_narrow_screen_without_horizontal_overflow(browser,
         overflow = page.evaluate("() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
         assert overflow == 0, overflow
         assert not [error for error in errors if error.strip()]
+
+
+# --- Claim-basis checks, served ----------------------------------------------------------------------------------------------------------
+
+def test_a_claim_is_checked_its_judgement_is_stored_beside_its_request_and_offered_as_criticism_for_a_follow_up(
+        browser, identified, tmp_path):
+    from test_architecture_verification import replay_verification, verdict  # noqa: E402 - the verifier's fixture helpers
+    project = copy_of(identified, tmp_path)
+    with served_studio(browser, project) as (_server, page, errors):
+        open_panel(page)
+        page.locator(f'input[data-development="question:{COMPACT_QUESTION}"]').check()
+        request = prepare(page)
+        synthesis_user = json.loads(request["user"])
+        page.locator("textarea.synthesis-response").fill(replay(request, valid_answer(synthesis_user)))
+        page.locator('button[data-synthesis="submit"]').click()
+        page.wait_for_selector(".synthesis-stage", timeout=20000)
+
+        page.locator('button[data-claim-check="s1"]').click()
+        page.wait_for_selector('textarea[aria-label="Verification request for claim s1"]', timeout=20000)
+        check = json.loads(page.locator('textarea[aria-label="Verification request for claim s1"]').input_value())
+        assert check["settings"]["operation"] == "verify_synthesis_claim"
+        assert check["settings"]["synthesis_request_sha256"] == request["request_sha256"], "bound to the synthesis it checks"
+        assert "Awaiting your coding agent for s1" in page.locator('[data-claim="s1"]').inner_text()
+
+        page.locator("textarea.synthesis-claim-response").fill(json.dumps(replay_verification(check, verdict(synthesis_user, "s1"))))
+        page.locator('button[data-claim-submit="s1"]').click()
+        page.wait_for_selector(".synthesis-verdict-box", timeout=20000)
+        verdict_text = page.locator('[data-claim="s1"]').inner_text()
+        assert "Supported by the evidence" in verdict_text
+        assert "Established by the record" in verdict_text
+        assert "What stays creatively open" in verdict_text, "the verdict always says what remains open"
+        assert "Nothing is applied" in page.locator("#architecture-synthesis-status").inner_text()
+
+        page.locator('input[data-carry="s1"]').check()
+        page.locator('button[data-synthesis="continue"]').click()
+        follow = prepare(page, question="Weigh the verifier's judgement of the first stage.")
+        follow_user = json.loads(follow["user"])
+        assert follow["settings"]["prior_request_sha256"] == request["request_sha256"]
+        assert follow_user["criticism"][0]["verification_request_sha256"] == check["request_sha256"], \
+            "the criticism keeps the identity of the check it came from"
+        assert "judged claim s1 of the earlier synthesis as supported" in follow_user["criticism"][0]["text"]
+    assert not [error for error in errors if error.strip()]

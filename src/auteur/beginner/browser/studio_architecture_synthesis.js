@@ -21,6 +21,17 @@
   var VERDICT={accepted:'Accepted',partly_accepted:'Partly accepted',rejected:'Rejected',unresolved:'Unresolved'};
   var EVIDENCE_KIND={development:'Developing material',author_vision:'Story Vision',author_culmination:'Named culmination',
     book_element:'Working Book element',coverage:'Coverage of the Working Book',link:'Recorded link',handoff:'Accepted reconsideration'};
+  var JUDGMENT={supported:'Supported by the evidence',defensible_inference:'Defensible inference',
+    creative_speculation:'Creative proposal, not a record',overreaching:'Goes beyond the evidence',
+    temporal_misreading:'Reads a time the evidence does not give',modal_misreading:'Reads a condition or possibility as achieved',
+    attribution_error:'Attributes the claim to the wrong source',standing_confusion:'Confuses the standing of the source',
+    unsupported_relation:'The relation is not stated in the evidence',contradicted:'Contradicted by the evidence',
+    insufficient_evidence:'The evidence does not settle it'};
+  var REGISTER={established:'Established by the record',inferred_from_established:'Inferred from the record',
+    agent_proposed:'Agent-proposed in the record',author_stated:'Stated by the author',not_established:'Not established by the record',
+    mixed:'Mixed in the record'};
+  var CLAIM_KIND={stage:'Stage',relation:'Relation',alternative_path:'Alternative path',opportunity:'Opportunity',
+    necessary_condition:'Necessary condition',enrichment_condition:'Optional enrichment'};
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -40,7 +51,8 @@
     var root = options.root;
     var live = options.live || {};
     var view = {projection: null, selected: [], question: '', culmination: '', handoffs: [], criticism: '',
-      followUp: false, busy: false, error: null, handoffChoices: [], responseText: ''};
+      followUp: false, busy: false, error: null, handoffChoices: [], responseText: '',
+      verification: null, carried: [], carriedLabel: {}, claimDrafts: {}};
     var loadToken = 0;
 
     function say(text, alert) {
@@ -81,7 +93,7 @@
     function reset() {
       view.projection = null; view.selected = []; view.question = ''; view.culmination = ''; view.handoffs = [];
       view.criticism = ''; view.followUp = false; view.busy = false; view.error = null; view.handoffChoices = [];
-      view.responseText = '';
+      view.responseText = ''; view.verification = null; view.carried = []; view.carriedLabel = {}; view.claimDrafts = {};
       loadToken += 1;
       if (root) root.textContent = '';
     }
@@ -93,6 +105,8 @@
         if (token !== loadToken) return null;
         view.projection = projection;
         return loadHandoffChoices(token).then(function () {
+          return loadVerifications(token, projection);
+        }).then(function () {
           if (token === loadToken) render();
           return projection;
         });
@@ -208,6 +222,13 @@
         criticism.addEventListener('input', function () { view.criticism = criticism.value; });
         section.appendChild(labelled('label', 'Criticism to weigh (optional, one per line)', criticism.id));
         section.appendChild(criticism);
+        if (view.carried.length) {
+          var carried = el('ul', 'synthesis-list synthesis-carried');
+          view.carried.forEach(function (sha) {
+            carried.appendChild(el('li', 'synthesis-carried-item', 'Verifier judgement carried in as criticism: ' + view.carriedLabel[sha]));
+          });
+          section.appendChild(carried);
+        }
       }
       var actions = el('div', 'synthesis-actions');
       var submit = el('button', 'synthesis-prepare', view.followUp ? 'Prepare follow-up' : 'Prepare synthesis');
@@ -239,11 +260,12 @@
       var body = {question: question, developments: developments, culmination: view.followUp ? null : (view.culmination || null),
         handoffs: view.followUp ? [] : view.handoffs.slice(),
         criticism: view.followUp ? view.criticism.split('\n').map(function (line) { return line.trim(); }).filter(Boolean) : [],
-        prior_request_sha256: view.followUp ? projection.request_sha256 : null};
+        prior_request_sha256: view.followUp ? projection.request_sha256 : null,
+        verifications: view.followUp ? view.carried.slice() : []};
       view.busy = true; view.error = null; render();
       say('Preparing the synthesis for your coding agent…');
       request(canvasPath('synthesis/prepare'), 'POST', body).then(function (prepared) {
-        view.busy = false; view.followUp = false; view.error = null;
+        view.busy = false; view.followUp = false; view.error = null; view.carried = []; view.carriedLabel = {};
         view.projection = {schema: prepared.synthesis.schema, authority: prepared.synthesis.authority, status: 'awaiting_host_agent',
           standing: prepared.synthesis.standing, request_sha256: prepared.request.request_sha256, request: prepared.request,
           result: null, history: (view.projection && view.projection.history) || [], developments: prepared.synthesis.developments,
@@ -274,6 +296,9 @@
       section.appendChild(renderAlternatives(result));
       if (result.opportunities && result.opportunities.length) section.appendChild(renderOpportunities(result));
       section.appendChild(renderOpenWork(result));
+      var derived = renderDerivedChanges(projection);
+      if (derived) section.appendChild(derived);
+      section.appendChild(renderBasisChecks(projection));
       section.appendChild(renderEvidence(projection));
       section.appendChild(renderFollowUp(projection));
       return section;
@@ -491,6 +516,184 @@
       });
       details.appendChild(list);
       return details;
+    }
+
+    // Derived changes: what the owner finds different between this answer and the one it follows (a follow-up only).
+    function renderDerivedChanges(projection) {
+      var derived = projection.changes_derived;
+      if (!derived) return null;
+      var details = el('details', 'synthesis-derived');
+      details.appendChild(el('summary', 'synthesis-summary', 'What changed between the two answers, derived by the owner (' +
+        derived.changes.length + ' items)'));
+      details.appendChild(el('p', 'synthesis-note', derived.note));
+      var list = el('ul', 'synthesis-list');
+      derived.changes.forEach(function (change) {
+        var kind = change.kind.replace(/_/g, ' ');
+        var text = kind.charAt(0).toUpperCase() + kind.slice(1) + (change.ref ? ' · ' + change.ref : '') +
+          (change.detail ? ' — ' + change.detail : '');
+        list.appendChild(el('li', 'synthesis-derived-item', text));
+      });
+      details.appendChild(list);
+      return details;
+    }
+
+    // Claim-basis checks: a fresh agent judges one claim of this synthesis against the evidence it read. Advisory; nothing is applied.
+    function claimText(item) {
+      var w = item.wording || {};
+      return w.development || w.text || w.reason || w.ordering || w.statement || '';
+    }
+    function loadVerifications(token, projection) {
+      if (!projection || !projection.request_sha256) { view.verification = null; return Promise.resolve(null); }
+      return request(canvasPath('synthesis/' + projection.request_sha256 + '/verifications')).then(function (reply) {
+        if (token !== loadToken) return null;
+        view.verification = reply;
+        // A carried judgement is offered only while its check is current; a check that has gone stale is dropped here.
+        view.carried = view.carried.filter(function (sha) {
+          return Object.keys(reply.claims || {}).some(function (claim) {
+            var latest = reply.claims[claim].latest;
+            return latest && latest.request_sha256 === sha && latest.standing === 'current';
+          });
+        });
+        return null;
+      }).catch(function () { if (token === loadToken) view.verification = null; });
+    }
+    function latestCheck(claim) {
+      var entry = view.verification && view.verification.claims ? view.verification.claims[claim] : null;
+      return entry ? entry.latest : null;
+    }
+    function renderBasisChecks(projection) {
+      var block = el('section', 'synthesis-basis');
+      block.appendChild(el('h4', 'synthesis-heading', 'Check a claim’s basis'));
+      block.appendChild(el('p', 'synthesis-note', 'A fresh agent judges one claim against the exact evidence this synthesis read. ' +
+        'The judgement is advisory: nothing is applied, and you may disagree with it.'));
+      var inventory = view.verification && view.verification.inventory ? view.verification.inventory : [];
+      if (!inventory.length) { block.appendChild(el('p', 'synthesis-note', 'No claims to check.')); return block; }
+      var list = el('ol', 'synthesis-basis-list');
+      inventory.forEach(function (claim) { list.appendChild(renderClaimCheck(projection, claim)); });
+      block.appendChild(list);
+      return block;
+    }
+    function renderClaimCheck(projection, claim) {
+      var item = el('li', 'synthesis-claim-check');
+      item.setAttribute('data-claim', claim.claim);
+      var head = el('p', 'synthesis-claim-head');
+      head.appendChild(el('span', 'synthesis-stage-ref', claim.claim));
+      head.appendChild(document.createTextNode(' '));
+      head.appendChild(el('span', 'synthesis-claim-kind', CLAIM_KIND[claim.kind] || claim.kind));
+      if (claim.basis) {
+        head.appendChild(document.createTextNode(' · '));
+        head.appendChild(chip(BASIS[claim.basis] || claim.basis, claim.basis === 'recorded' ? 'ok' : 'note'));
+      }
+      if (claim.load_bearing) {
+        head.appendChild(document.createTextNode(' '));
+        head.appendChild(chip('Others depend on it', 'warn'));
+      }
+      item.appendChild(head);
+      item.appendChild(el('p', 'synthesis-claim-text', claimText(claim)));
+      var latest = latestCheck(claim.claim);
+      if (latest && latest.status === 'ready' && latest.result) item.appendChild(renderVerdict(claim, latest));
+      else if (latest && latest.status === 'awaiting_host_agent' && latest.request) item.appendChild(renderClaimAwaiting(claim, latest));
+      else {
+        var button = el('button', 'synthesis-check', latest ? 'Check this claim again' : 'Check this claim');
+        button.type = 'button';
+        button.setAttribute('data-claim-check', claim.claim);
+        button.addEventListener('click', function () { prepareClaim(projection, claim.claim); });
+        item.appendChild(button);
+      }
+      return item;
+    }
+    function prepareClaim(projection, claim) {
+      if (view.busy) return;
+      view.busy = true; view.error = null; render();
+      say('Preparing the claim check for your coding agent…');
+      request(canvasPath('synthesis/' + projection.request_sha256 + '/verifications/prepare'), 'POST', {claim: claim})
+        .then(function (prepared) {
+          view.busy = false;
+          view.verification = view.verification || {claims: {}, inventory: []};
+          view.verification.claims = view.verification.claims || {};
+          view.verification.claims[claim] = {latest: prepared.verification, earlier: 0};
+          say('Claim ' + claim + ' is prepared. Your coding agent answers the request below; nothing is applied.');
+          render();
+        }).catch(function (error) {
+          view.busy = false; view.error = error.message; say('The claim was not prepared: ' + error.message, true); render();
+        });
+    }
+    function renderClaimAwaiting(claim, latest) {
+      var key = claim.claim;
+      // Drafts belong to the request they answer, so a pasted response cannot land under another synthesis's claim of the same name.
+      var draftKey = latest.request_sha256;
+      var box = el('div', 'synthesis-claim-awaiting');
+      box.appendChild(el('p', 'synthesis-note', 'Awaiting your coding agent for ' + key + '. Request fingerprint ' +
+        latest.request_sha256.slice(0, 16) + '…'));
+      var text = el('textarea', 'synthesis-request');
+      text.readOnly = true; text.rows = 4; text.value = JSON.stringify(latest.request, null, 2);
+      text.setAttribute('aria-label', 'Verification request for claim ' + key);
+      box.appendChild(text);
+      var response = el('textarea', 'synthesis-response synthesis-claim-response');
+      response.rows = 3;
+      // Kept in the panel's state, so a refusal leaves the pasted response in place to correct.
+      response.value = view.claimDrafts[draftKey] || '';
+      response.addEventListener('input', function () { view.claimDrafts[draftKey] = response.value; });
+      response.setAttribute('aria-label', 'Response for claim ' + key);
+      response.placeholder = 'Paste the verifier response object here';
+      box.appendChild(response);
+      var submit = el('button', 'synthesis-submit', 'Check agent response');
+      submit.type = 'button';
+      submit.setAttribute('data-claim-submit', key);
+      submit.addEventListener('click', function () {
+        if (!response.value.trim()) { view.error = 'Paste the agent response first.'; render(); return; }
+        var payload;
+        try { payload = JSON.parse(response.value); } catch (error) { view.error = 'The response is not valid JSON.'; render(); return; }
+        view.busy = true; render();
+        request(canvasPath('verification/host-agent-response'), 'POST', payload).then(function () {
+          view.busy = false; view.error = null; delete view.claimDrafts[draftKey];
+          say('The check of claim ' + key + ' is stored beside its request. Nothing is applied.');
+          return load();
+        }).catch(function (error) {
+          view.busy = false; view.error = error.message; say('The owner refused this response: ' + error.message, true); render();
+        });
+      });
+      box.appendChild(submit);
+      return box;
+    }
+    function renderVerdict(claim, latest) {
+      var v = latest.result;
+      var box = el('div', 'synthesis-verdict-box');
+      var tone = v.judgment === 'supported' || v.judgment === 'defensible_inference' ? 'ok'
+        : (v.judgment === 'creative_speculation' ? 'note' : 'warn');
+      box.appendChild(chip(words(JUDGMENT, v.judgment), tone));
+      box.appendChild(document.createTextNode(' '));
+      box.appendChild(chip(words(REGISTER, v.evidence_register), 'note'));
+      if (latest.standing !== 'current') {
+        box.appendChild(document.createTextNode(' '));
+        box.appendChild(chip('Stale: the evidence has changed since this check', 'warn'));
+      }
+      box.appendChild(el('p', 'synthesis-verdict-reasoning', v.reasoning));
+      if (v.alternative_reading) box.appendChild(labelledLine('What the evidence does support', v.alternative_reading));
+      if (v.would_settle) box.appendChild(labelledLine('What would settle it', v.would_settle));
+      box.appendChild(labelledLine('What stays creatively open', v.creative_room));
+      if (v.quote) box.appendChild(el('p', 'synthesis-quote', '“' + v.quote + '”'));
+      if (v.evidence && v.evidence.length) box.appendChild(el('p', 'synthesis-note', 'Evidence the check cites: ' + v.evidence.join(', ') + '.'));
+      var carry = el('label', 'synthesis-carry');
+      var choose = el('input');
+      choose.type = 'checkbox';
+      choose.checked = view.carried.indexOf(latest.request_sha256) >= 0;
+      choose.disabled = latest.standing !== 'current';
+      choose.setAttribute('data-carry', claim.claim);
+      choose.addEventListener('change', function () {
+        var sha = latest.request_sha256;
+        if (choose.checked) {
+          if (view.carried.indexOf(sha) < 0) view.carried.push(sha);
+          view.carriedLabel[sha] = claim.claim + ': ' + words(JUDGMENT, v.judgment);
+        } else {
+          view.carried = view.carried.filter(function (item) { return item !== sha; });
+        }
+        say(choose.checked ? 'The check is offered as criticism for a follow-up.' : 'The check is no longer offered for a follow-up.');
+      });
+      carry.appendChild(choose);
+      carry.appendChild(document.createTextNode(' Offer this judgement as criticism for a follow-up'));
+      box.appendChild(carry);
+      return box;
     }
 
     return {load: load, reset: reset, render: render};

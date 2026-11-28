@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "o1",
+  "evidence_register": "mixed",
+  "judgment": "creative_speculation",
+  "affects": "load_bearing_premise",
+  "reasoning": "E1 establishes that from Book 20 lineage crews carry channel repair under a Special Draw Right, and that households meeting the rota carry the rest. E1 states no training condition. That condition appears only in E7, an agent_proposed element, and E3, also agent_proposed, restates it as an agent inference. The offered quote comes from E7, so the premise is agent-proposed, not record. The 'could' keeps the transferable-labour relation a creative possibility. The clause that neither part does that alone is not stated in any cited item.",
+  "evidence": ["E1", "E7", "E3"],
+  "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage.",
+  "alternative_reading": "The offered quote does carry the training premise, but it comes from E7, an agent_proposed element; its text reads as fact, yet its attribution marks it as proposed. Read as record, the premise fails; read as a proposal, the could-relation stands, though 'neither does that alone' is not stated in the cited items.",
+  "would_settle": "An established item, not agent_proposed, stating that the Special Draw Right is conditional on training apprentices from outside the lineage.",
+  "creative_room": "The transferable-labour possibility stays open: a training condition could be offered as a proposal in a Book, and the Right and that condition could be explored together. Treat the training condition, and any claim about what each does alone, as agent proposals rather than record, unless an established item states them or the author adopts them."
+}

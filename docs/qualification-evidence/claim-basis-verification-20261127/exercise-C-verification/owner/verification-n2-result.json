@@ -1,0 +1,33 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "1dad58c36eb478ad80968d3b4230b48a7781730c605175bf56ab385244629965",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "n2",
+  "claim_kind": "necessary_condition",
+  "claim_wording": {
+    "text": "The author has chosen who gives return labour and who is counted for it; the record says this is not decided."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "n2",
+    "evidence_register": "established",
+    "judgment": "contradicted",
+    "affects": "asserted_condition",
+    "reasoning": "E2 poses the finale question, and its own text ends 'Not decided.' The claim says the author has already chosen who gives return labour and who is counted for it. E2 does not state any choice, and its 'Not decided.' contradicts one. The offered quote is only the question, so it does not carry the premise of a choice.",
+    "evidence": [
+      "E2"
+    ],
+    "quote": "Not decided.",
+    "alternative_reading": "The offered quote is E2's question, which asks what the author 'does choose' and states no choice. Only E2's 'Not decided.' speaks to status, and it contradicts the claim's first clause that the author has chosen. The second clause, that the record says this is not decided, matches E2; the first does not.",
+    "would_settle": "An author-stated or recorded choice of the finale mechanism (A, B, C or a third) that assigns who gives return labour and who is counted for it.",
+    "creative_room": "The finale can still answer the question. The author may pick A, B, C or a third mechanism, or keep it open. Any specific mechanism, or any claim that the author has chosen one, would have to be treated as a proposal rather than record until the author states it."
+  },
+  "refused_attempts": 0
+}

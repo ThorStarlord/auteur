@@ -1,0 +1,36 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "a7e5c6fd52459804e96c01d97b8e694876d3825ec67a214d6a17f3ece1075185",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "a3",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "The finale's answer to who gives labour would follow from a choice the record assigns to the valley. Which channel holds trained hands is not stated in the cited items, so the effect cannot be checked against the record.",
+    "ordering": "Routing first: the valley's Gate routing is settled before the finale mechanism, so labour falls where the routing sends the surge rather than where an authorial rule assigns it.",
+    "viability": "unresolved"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a3",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "load_bearing_premise",
+    "reasoning": "E1 states the ownership premise: the routing decides which channel takes the surge, and that choice belongs to the valley. The ordering premise, that the Gate routing is settled before the finale mechanism, is not stated in the cited items; E1 gives no settled status for the routing, and E2 records the finale mechanism as not decided. Labour following the routing is therefore an unstated dependency. Because the claim presents this as an unresolved alternative path, it may stand as a creative option, not as record.",
+    "evidence": [
+      "E1",
+      "E2"
+    ],
+    "quote": "The routing decides which channel takes the surge, and that choice belongs to the valley.",
+    "alternative_reading": "The offered quote carries only the ownership premise and the routing-to-channel relation. It does not carry the ordering (routing settled before the finale) or the effect (finale labour follows routing). E2 leaves the finale mechanism to the author.",
+    "would_settle": "A record stating that the Gate routing is settled before the finale mechanism, and which channel holds trained hands.",
+    "creative_room": "Labour could follow the valley's Gate routing as a real option, so the finale answer would come from the routing rather than from an authorial rule. Treat as proposals, not record: the ordering (routing settled before the finale), the claim that finale labour follows the routing, and which channel holds trained hands. The finale mechanisms A, B, C or a third remain open."
+  },
+  "refused_attempts": 0
+}

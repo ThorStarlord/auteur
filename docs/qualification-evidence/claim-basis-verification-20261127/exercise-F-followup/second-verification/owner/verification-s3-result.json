@@ -1,0 +1,42 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "3bce5b2ebbc499e6b75a96c188305ce0ea2078f363ab7dcda148e90082f207c7",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "s3",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "The Right's stated condition, training apprentices from outside the lineage (E7), becomes something that can be shown rather than only stated.",
+    "book": null,
+    "changes": "Without that demonstration the Right is exposed, as E3 states. E3 is agent-proposed.",
+    "development": "Outside apprentices are trained under the Special Draw Right and their repair is demonstrated, so the condition the Right carries is tested (proposed).",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [
+    "r3",
+    "o3"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s3",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "asserted_condition",
+    "reasoning": "Only E7 and E3 carry the condition, and both are attributed agent_proposed; E3 says its stake in the review is an agent inference. E1 establishes that from Book 20 lineage crews carry channel repair under a Special Draw Right, but not the training condition. The claim is labelled proposed, so as a proposal it is not an error, but its premise is not record. The exposure premise rests on E3 alone.",
+    "evidence": [
+      "E7",
+      "E3",
+      "E1"
+    ],
+    "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage.",
+    "alternative_reading": "The offered quote carries the condition but not its status: E7 is written as fact, yet its attribution is agent_proposed. Not stated in the cited items: any author statement of the condition, or what the source's reversal of the review point (E7) changes.",
+    "would_settle": "An author-stated or established item that states the condition; until then it stays a proposal.",
+    "creative_room": "Still open: the condition can be tested in a later Book, with outside apprentices trained and their repair shown, or the Right can stay untested and exposed as E3 proposes. Treat as proposals, not record: the condition itself, the exposure premise, and the demonstration step."
+  },
+  "refused_attempts": 0
+}

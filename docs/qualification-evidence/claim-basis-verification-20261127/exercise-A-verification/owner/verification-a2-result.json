@@ -1,0 +1,38 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "a474f89676675cfeec2929e8513a4e2366c69f9233d1491422f56401ce126fb1",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "a2",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "The standing claim arrives before any demonstrated repair, and the Right stays exposed until the condition is shown, as the record states.",
+    "ordering": "Put the cohort's standing claim (s5) before the condition under test (s3).",
+    "viability": "weakened"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a2",
+    "evidence_register": "mixed",
+    "judgment": "modal_misreading",
+    "affects": "creative_possibility",
+    "reasoning": "The ordering (s5 before s3) is not stated in the cited items, and s3 and s5 are not identified there. The wording says 'as the record states', but the exposure premise comes from E3 and the training condition from E7, and both are agent_proposed. E8 is hypothetical: the cohort 'may claim' standing, and Book 24 names no body that would grant it. The claim reads that modal as an event that 'arrives'. E1 establishes only the Right from Book 20, not the training condition.",
+    "evidence": [
+      "E8",
+      "E3",
+      "E7",
+      "E1"
+    ],
+    "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work. Book 24 names no body that would grant that standing and creates none.",
+    "alternative_reading": "The offered quote is verbatim from E3, but it carries only the exposure premise, which E3 marks as agent_proposed. It does not carry the standing arrival the wording asserts, and E3's own text says its stake is 'an agent inference'.",
+    "would_settle": "A record stating the cohort's standing as an event with a granting body, and the training condition stated as record rather than agent_proposed.",
+    "creative_room": "Open: the cohort may press a standing claim before repair is shown, and the Right may stay exposed for a stretch of the story. Treat as proposals, not record: the s5-before-s3 ordering, the training condition, and the exposure, since E3 and E7 are agent_proposed. Any grantor of standing needs its own proposal, as Book 24 names none."
+  },
+  "refused_attempts": 0
+}

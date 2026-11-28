@@ -1,0 +1,37 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "e2b7abd0cba47d340547d5c48b94f03b2106060e274db684b5bb613d2a8bc832",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "a2",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "Standing would rest on the split of practice alone (s1, E4, E8). The record names no grantor, so how standing would be recognised stays open.",
+    "ordering": "Standing is claimed without any public capability record (s4) being adopted.",
+    "viability": "unresolved"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a2",
+    "evidence_register": "mixed",
+    "judgment": "modal_misreading",
+    "affects": "asserted_condition",
+    "reasoning": "E8 marks the standing as hypothetical: the cohort 'may claim standing'. The ordering turns that into an achieved event, 'Standing is claimed'. E8's second sentence does carry the no-grantor premise. E4 establishes the split of practice. 'Alone' is not stated in the cited items. The public capability record appears only as agent_proposed in E5.",
+    "evidence": [
+      "E8",
+      "E4",
+      "E5"
+    ],
+    "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work.",
+    "alternative_reading": "The offered quote carries only the no-grantor premise, from E8's second sentence. It does not carry the hypothetical 'may claim' that the ordering's 'Standing is claimed' turns into an event, nor the word 'alone', which no cited item states.",
+    "would_settle": null,
+    "creative_room": "Open: the cohort may claim standing, and no grantor is named in the cited Book 24 text, so how that standing would be recognised stays unsettled. Keep as proposals: the 'is claimed' ordering, any adopted public capability record (s4), and the 'alone' basis, none of which the cited items state. A named grantor, if later proposed, is also a proposal."
+  },
+  "refused_attempts": 0
+}

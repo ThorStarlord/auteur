@@ -1,0 +1,150 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "claim-verification-b70475d468547f11d7d83198:516add49fee162c1",
+  "candidate_id": "claim-verification-b70475d468547f11d7d83198",
+  "role": "studio_architecture_claim_verification",
+  "created_at": "2026-11-28T00:13:55.495130+00:00",
+  "system": "You are the Auteur claim-basis verifier. You judge one claim of a completed creative synthesis against the exact evidence that synthesis was given. Your judgement is advisory: it is not canon, it changes no record, and the author may disagree with it.\n\nYou do not judge whether the idea is artistically good, whether the story should go this way, or the quality of the prose. Judge only whether the claim is warranted by the evidence, and say what the evidence actually establishes.\n\nKeep these apart. What the evidence establishes (its own words state it as fact, and its epistemic status or attribution does not mark it as proposed). What the evidence supports by inference (say how). What is agent-proposed (an agent_proposed element, or wording that proposes or conditions). What the author has stated. What remains creatively possible. A creative proposal that the evidence does not entail is not an error when it is presented as a proposal; the error is a claim whose premise the evidence does not carry. Typical errors: present tense read as an achieved event; a conditional or hypothetical read as an event; agent-proposed text presented as record; a repeated element read as a new development; a dependency the evidence does not state; an attribution to the wrong source; a standing or authority the evidence does not grant.\n\nUse only the identifiers in allowed_evidence. Quote only words copied exactly from a cited item, up to 240 characters, that carry the premise of your judgement. If the claim's offered quote does not carry its premise, say so in alternative_reading. State an absence as 'not stated in the cited items', never as a fact about the story.\n\nAlways fill creative_room: what remains creatively possible with this claim, and which parts of it would have to be treated as proposals rather than record. Never narrow the space of creative possibilities without saying what it is.\n\nReturn ONLY one JSON object with these keys: schema_version (1), claim, evidence_register, judgment, affects, reasoning, evidence, quote, alternative_reading, would_settle, creative_room. Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\"], \"claim\": {\"basis_as_stated\": null, \"cited_evidence\": [\"E5\"], \"kind\": \"alternative_path\", \"quote_offered\": \"exports one new kind of record\", \"ref\": \"a3\", \"wording\": {\"effect\": \"Who can repair is shown before any outside apprentice has been tested, so the record could show capability the Right has not yet certified; whether that is permitted is not stated in the cited items.\", \"ordering\": \"Introduce the public capability record (s4) before the condition is tested (s3).\", \"viability\": \"unresolved\"}}, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"mechanism\", \"ref\": \"th_maintenance\", \"text_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\", \"title\": \"Keeping the channels\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"7712ef53c92787b3dcebc33b59d35a2c6878a94913d718842829ea44a0004922\", \"text\": \"{\\\"category\\\": \\\"thread\\\", \\\"id\\\": \\\"th_maintenance\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\\\", \\\"title\\\": \\\"Keeping the channels\\\"}\", \"truncated\": false, \"version_sha256\": \"f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380\"}, {\"freshness\": \"author_current\", \"id\": \"E2\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e\", \"text\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"agent-lineages\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E3\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46\", \"text\": \"Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"cons-belief-plural\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E4\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf\", \"text\": \"The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E5\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-cohort-belief\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E6\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204\", \"text\": \"A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-right-condition\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E7\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b\", \"text\": \"The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"later-cohort-seat\", \"epistemic_status\": \"hypothetical\", \"freshness\": \"current_read\", \"id\": \"E8\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4fdad0ce477d0370c085d7898b25b55dc8527285881a3cf730b5b4b4c06fde7d\", \"text\": \"The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work. Book 24 names no body that would grant that standing and creates none.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"agent-lineages\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E9\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46\", \"text\": \"Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"cons-belief-plural\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E10\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf\", \"text\": \"The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E11\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"inh-cohort-belief\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E12\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204\", \"text\": \"A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"inh-right-condition\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E13\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b\", \"text\": \"The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).\", \"truncated\": false, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 11, \"excerpted\": 11, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 10, \"listed\": [{\"book\": 24, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"fn-question\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [25]}, {\"book\": 25, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"fn-question\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [24]}], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E14\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"5378b06b572a9d291a8dbbc30982fdf3ea0c6c629e91b64d675ef3a9c4195741\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 11, \\\"excerpted\\\": 11, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 182, \\\"same_text_elsewhere\\\": {\\\"count\\\": 10, \\\"listed\\\": [{\\\"book\\\": 24, \\\"element_id\\\": \\\"agent-lineages\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"cons-belief-plural\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-cohort-belief\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-right-condition\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"agent-lineages\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"cons-belief-plural\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-cohort-belief\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-right-condition\\\", \\\"same_text_in_books\\\": [24]}], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}], \"load_bearing\": false, \"operation\": \"verify_claim_basis\", \"synthesis_question\": \"How could the maintenance mechanism develop across the next ten Books without becoming repetitive?\", \"used_by\": []}",
+  "settings": {
+    "operation": "verify_synthesis_claim",
+    "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+    "synthesis_result_sha256": "25e2b5260f90adc305e149a9781881f88ab865f76cbe60fe894969e363533e89",
+    "claim": "a3",
+    "claim_sha256": "83fde6f5ccce5a2e217789374a552ad76afb75c661a9b583317f4ec7fc880ce4",
+    "evidence_sha256": "c2604268e3d205951734376d08e071a517c31b3432482b7e753e51a2f7f1a405",
+    "verification_schema_version": 1
+  },
+  "request_sha256": "516add49fee162c140ca8e1f499fbfbf91c964c80bfa5c2369d51a636ed5f54f",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ClaimVerification",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The verifier's judgement of one claim. ``creative_room`` is required: a verification that narrows possibility without saying so\nis a defect of the verifier.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "claim": {
+          "pattern": "^(s[1-6]|r[1-8]|a[1-3]|o[1-3]|n[1-4]|e[1-4])$",
+          "title": "Claim",
+          "type": "string"
+        },
+        "evidence_register": {
+          "enum": [
+            "established",
+            "inferred_from_established",
+            "agent_proposed",
+            "author_stated",
+            "not_established",
+            "mixed"
+          ],
+          "title": "Evidence Register",
+          "type": "string"
+        },
+        "judgment": {
+          "enum": [
+            "supported",
+            "defensible_inference",
+            "creative_speculation",
+            "overreaching",
+            "temporal_misreading",
+            "modal_misreading",
+            "attribution_error",
+            "standing_confusion",
+            "unsupported_relation",
+            "contradicted",
+            "insufficient_evidence"
+          ],
+          "title": "Judgment",
+          "type": "string"
+        },
+        "affects": {
+          "enum": [
+            "creative_possibility",
+            "asserted_condition",
+            "load_bearing_premise"
+          ],
+          "title": "Affects",
+          "type": "string"
+        },
+        "reasoning": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "pattern": "^E[1-9][0-9]{0,2}$",
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "alternative_reading": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alternative Reading"
+        },
+        "would_settle": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Would Settle"
+        },
+        "creative_room": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Creative Room",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "claim",
+        "evidence_register",
+        "judgment",
+        "affects",
+        "reasoning",
+        "creative_room"
+      ],
+      "title": "ClaimVerification",
+      "type": "object"
+    },
+    "json_schema_sha256": "5e34a718dc703212b06405db3a070afe99f12edddfb2a1e52d098c4be8dcc8b5"
+  }
+}

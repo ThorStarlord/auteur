@@ -1,0 +1,45 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "4d666b793b15b329171f91f29dc9b552c8ac845fd89f5f6998e0e5d31f88db93",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "s2",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "The generation described in s1, which refuses to be counted, is asked to give back water before it is owed (agent-proposed in E5).",
+    "book": 24,
+    "changes": "Turns repair from a lineage performance into a request made of people. The record does not date the Special Draw Right's review against the training condition (E3, E7).",
+    "development": "Book 24 is where the labour gap is first met by people rather than by a schedule, and the Special Draw Right's review point falls in Book 24. Both placements are agent-proposed (E5, E7).",
+    "horizon": "existing_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [
+    "r2",
+    "r3",
+    "o2",
+    "o3"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s2",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "The quote is verbatim from E5, an agent_proposed Book 24 element, and basis_as_stated is proposed, so the stage is a proposal rather than record. E1 establishes only that lineage crews carry channel repair under a Special Draw Right from Book 20; it does not state where the labour gap is first met. E7 marks the Book 24 review point as agent-proposed and says the source gives a reversal for it. E3 marks the stake as an agent inference.",
+    "evidence": [
+      "E5",
+      "E7",
+      "E3",
+      "E1"
+    ],
+    "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule.",
+    "alternative_reading": "The stage is labelled proposed, so it claims no record. The development field states the review placement without E7's reversal note. The clause 'The record does not date' is an absence: not stated in the cited items whether the review is dated against the training condition. E14 shows E5's text repeated in Book 25.",
+    "would_settle": null,
+    "creative_room": "Open as proposals: Book 24 as the first people-led meeting of the labour gap, and the request to a generation that refuses to be counted. Treat as proposals, not record: the Book 24 review placement with its reversal, and any review-to-training link. Not narrowed: the form of that first meeting and how Book 25 might develop it."
+  },
+  "refused_attempts": 0
+}

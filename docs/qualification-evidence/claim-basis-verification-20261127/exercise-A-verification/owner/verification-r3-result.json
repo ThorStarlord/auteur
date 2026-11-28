@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "e373ce99fe7794518f36d214f97b2f7cfb2b0c54a33c3d46650dd8220abc44d4",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "r3",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s2",
+      "s5"
+    ],
+    "dependence": "causal",
+    "reason": "The record links the cohort's possible claim to its practising both kinds of return, which helps the claim; it is not stated as necessary.",
+    "relation": "preparation"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r3",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "creative_possibility",
+    "reasoning": "E8 (derived, hypothetical) states that the cohort, now practising both counted and uncounted return, may claim standing in channel coordination, and that Book 24 names no body that would grant it. E4 (unknown_legacy) states the split of practice across one generation and says nothing about standing or coordination. The link the wording gives, that practising both kinds helps the claim as preparation, is not stated in the cited items: they place the two facts side by side. The quote carries the modal 'may', so it does not read the possibility as achieved.",
+    "evidence": [
+      "E8",
+      "E4"
+    ],
+    "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work.",
+    "alternative_reading": "The offered quote is the first sentence of E8. It carries the modal 'may' and the co-presence of practice and possible standing, but not the causal or preparatory link the wording asserts. Read as a juxtaposition, the sentence leaves the reason practice would bear on standing not stated in the cited items.",
+    "would_settle": "Text in the cited items, or in the Book 24 or 25 record, stating that practising both kinds of return is what the cohort's standing would rest on.",
+    "creative_room": "Stays open: the cohort may claim standing in channel coordination as a hypothetical, and its practice of both kinds of return can be offered as a ground for that claim. Treat as proposal rather than record: the causal link from practice to standing (not stated in the cited items), and any body or process that would grant the standing (Book 24 names none)."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,4 @@
+1 validation error for ClaimVerification
+creative_room
+  String should have at most 400 characters [type=string_too_long, input_value="Book 24 can meet the lab...estion (E2) stays open.", input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/string_too_long

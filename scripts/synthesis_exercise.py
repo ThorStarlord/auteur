@@ -27,10 +27,11 @@ RUNTIME = "fresh-subagent-synthesis-exercise"
 
 
 def prepare(study: Path, question: str, developments: list[dict], culmination: str | None, handoffs: list[str],
-            criticism: list[str], prior: str | None, out: Path) -> None:
+            criticism: list[str], prior: str | None, out: Path, verifications: list[str] | None = None) -> None:
     store = ce.store_at(study)
     prepared = prepare_architecture_synthesis(store, question=question, developments=developments, culmination=culmination,
-                                              handoffs=handoffs, criticism=criticism, prior_request_sha256=prior)
+                                              handoffs=handoffs, criticism=criticism, prior_request_sha256=prior,
+                                              verifications=verifications or [])
     ce.write(out, "request-synthesis.json", prepared["request"])
     user = json.loads(prepared["request"]["user"])
     print(json.dumps({
@@ -72,6 +73,8 @@ def main() -> None:
     sub.add_argument("--handoff", action="append", default=[], help="a completed reconsideration request sha256")
     sub.add_argument("--criticism-file", type=Path, default=None, help="one criticism per non-empty line")
     sub.add_argument("--prior", default=None, help="a completed synthesis request sha256 to follow")
+    sub.add_argument("--verification", action="append", default=[],
+                     help="a completed claim-basis verification request sha256 of the prior synthesis, carried in as criticism")
     sub.add_argument("--out", required=True, type=Path)
     sub = commands.add_parser("complete")
     sub.add_argument("--study", required=True, type=Path)
@@ -86,7 +89,7 @@ def main() -> None:
         if args.criticism_file:
             criticism = [line.strip() for line in args.criticism_file.read_text(encoding="utf-8").splitlines() if line.strip()]
         prepare(args.study, args.question_file.read_text(encoding="utf-8").strip(), json.loads(args.developments),
-                culmination or None, args.handoff, criticism, args.prior, args.out)
+                culmination or None, args.handoff, criticism, args.prior, args.out, args.verification)
     else:
         complete(args.study, args.request, args.answer, args.out, args.attempt)
 

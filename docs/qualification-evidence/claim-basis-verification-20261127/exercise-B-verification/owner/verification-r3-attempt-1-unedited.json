@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "r3",
+  "evidence_register": "mixed",
+  "judgment": "defensible_inference",
+  "affects": "creative_possibility",
+  "reasoning": "E7 states the split as fact in its own words, but its attribution and epistemic status are unknown_legacy, so its origin is not traceable. No cited item links the split to the Compact. E5 is agent_proposed and conditional on crediting. That crediting implies a count is not stated in the cited items. The d1-d2 connection is carried by E24, an architecture link conditional on B; E2 gives the draw's current state as carrying no return labour. The complication is a defensible thematic inference, not an established relation.",
+  "evidence": ["E24", "E5", "E7", "E2"],
+  "quote": "offer hired lowland labour if it is credited against the Compact's draw",
+  "alternative_reading": "The offered quote (E7) carries only the split. It does not mention the Mill Compact, the offer, or crediting, so it does not carry the relation premise. Not stated in the cited items: that crediting requires a count, and how uncounted practice would be credited.",
+  "would_settle": "A cited record stating how uncounted return would be credited against the Compact's draw, or the author's settlement of that offer.",
+  "creative_room": "Open: the split could turn crediting into a contest over what counts, let uncounted return absorb hired labour, or leave the offer refused. Proposals only: that crediting requires a count, how uncounted practice is credited, the agent-proposed Compact offer, and any settlement, which stays author-reserved."
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "b66c23cdb7d717cefa912f39244137a5f3c95265a0224159e5a157f552923650",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "s4",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "Repair becomes visible per person, kept apart from debt, tally and aggregate balance, which the record says Book 24 exports.",
+    "book": null,
+    "changes": "Inferred from E5 and E3: tested apprentices and the record can be read together, so the mechanism is no longer carried by the lineage's word alone.",
+    "development": "The public capability record that Book 24 exports is used to show who can repair, so that repair is seen per person and not only counted.",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [
+    "r4",
+    "r5",
+    "o2"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s4",
+    "evidence_register": "agent_proposed",
+    "judgment": "defensible_inference",
+    "affects": "load_bearing_premise",
+    "reasoning": "E1, not marked proposed, says lineage crews carry channel repair under the Special Draw Right, with households that can meet the rota carrying the rest. E5 (agent_proposed, truncated) names a Book 24 export: a public capability record separate from debt, tally and aggregate balance. E3 (agent_proposed) says the lineages need the training condition demonstrated. Joining these to say the record can show tested apprentices is a defensible inference, labelled as one; the cited items state no testing and no shift away from the lineage's word.",
+    "evidence": [
+      "E5",
+      "E3",
+      "E1",
+      "E11"
+    ],
+    "quote": "exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who",
+    "alternative_reading": "The offered quote is a noun phrase: it omits the verb 'exports', the Book 24 link and the agent_proposed attribution, so it does not carry the export premise. 'Tested' is not in E3, which says 'demonstrated'. 'Lineage's word alone' is not stated in the cited items. E11 repeats E5's text in Book 25, so the export is not shown as unique to Book 24.",
+    "would_settle": "An author decision adopting the capability record, or a Book 24 element not marked agent_proposed that states the export and what it tests.",
+    "creative_room": "Open: a public capability record that shows repair per person, and its use to tell who can repair; other forms of the record, or its placement in another Book, remain possible. Treat as proposals: the Book 24 export, the tested-apprentice reading, the 'lineage's word alone' change, and the Book 24 placement."
+  },
+  "refused_attempts": 0
+}

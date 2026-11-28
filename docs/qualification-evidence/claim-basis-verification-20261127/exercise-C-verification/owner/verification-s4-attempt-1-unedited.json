@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "s4",
+  "evidence_register": "mixed",
+  "judgment": "unsupported_relation",
+  "affects": "load_bearing_premise",
+  "reasoning": "E1 states as fact that the Book 30 pulse needs channel labour before its date and a Gate schedule that routes it, so the stage's core condition is established. The 'changes' clause does not follow: E1 says the routing decides which channel takes the surge, not where labour falls, and E2 leaves who gives return labour 'Not decided'. The readiness cited from Books 24 and 25 is one repeated element (E17), unknown_legacy, not two sources. E11 supports only that labour cannot wait for Books 27 to 29.",
+  "evidence": ["E1", "E2", "E11", "E17"],
+  "quote": "The routing decides which channel takes the surge, and that choice belongs to the valley.",
+  "alternative_reading": "The offered quote carries the stage premise (the pulse needs channel labour and a Gate schedule), so the core is carried. It does not carry the 'changes' premise that the valley's routing decides where labour falls. A reading where the surge channel and the channel labour are the same is possible, but the cited items do not state that link.",
+  "would_settle": "A recorded statement that the surge channel's routing also places channel labour, or the author's decision on who gives return labour (E2).",
+  "creative_room": "Still possible: the valley's routing could bear on who labours if the author proposes that link and settles the E2 finale mechanism. The stage's core can stay record. Treat the 'routing decides where labour falls' link and the labour readiness as proposals until the record states them."
+}

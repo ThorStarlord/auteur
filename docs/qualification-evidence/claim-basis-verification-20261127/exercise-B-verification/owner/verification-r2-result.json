@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "db6825b87d169a5f3475527cdbeed2db76d923e6789e9c5a874a67cca0dff68f",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "r2",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d2",
+      "d1"
+    ],
+    "dependence": "causal",
+    "reason": "The architecture link states that under condition B the purchased draw owes grain-labour to the rebuild, which would let the Compact's draw carry labour that lineage crews now carry under the Right (E1). B is not defined in the cited items, so the enabling is conditional (inferred).",
+    "relation": "enables"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r2",
+    "evidence_register": "inferred_from_established",
+    "judgment": "defensible_inference",
+    "affects": "asserted_condition",
+    "reasoning": "E24 links inst_mill_compact to th_maintenance: under B the purchased draw owes grain-labour to the rebuild. E2 states the baseline that the purchased draw carries no return labour, so the link is a condition-dependent departure from it. B is not defined in the cited items. E1 says lineage crews carry channel repair under the Right, but no cited item says the rebuild is that repair or that the draw relieves them. The enabling is a defensible inference from the shared target thread.",
+    "evidence": [
+      "E24",
+      "E2",
+      "E1"
+    ],
+    "quote": "under B, purchased draw owes grain-labour to the rebuild",
+    "alternative_reading": "The offered quote carries only the conditional obligation, not the enabling: it does not say the draw takes over lineage labour. Not stated in the cited items: what B is, and that 'the rebuild' is the channel repair E1 assigns to lineage crews.",
+    "would_settle": "A definition of B in the Architecture, and a statement that the rebuild is the channel repair lineage crews carry under the Right.",
+    "creative_room": "Open: the purchased draw could be written as contributing labour to channel repair under B, and the lineage Right and the Compact's draw could be made to interfere. Treat as proposals, not record: that the draw relieves lineage crews, what B is, and that the rebuild is the channel repair."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "3fe7ccc2f6dad0cf4d0af9c34a1f7f776ed686dfca47889f98a9017e50d574d6",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r1",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s1",
+      "s4"
+    ],
+    "dependence": "causal",
+    "reason": "E1 says the pulse needs channel labour before its date. Book 24 trains the hands for that need; that E1's channel labour and these trained hands are the same is inferred, not stated in the cited items.",
+    "relation": "prerequisite"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r1",
+    "evidence_register": "mixed",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E1 is a current architecture node that states as fact that the pulse needs channel labour before its date and a Gate schedule that routes it, so the quoted premise is established. The link to Book 24 is not stated. E8 says trained outside-lineage hands set up the Long Return's labour, but E10, which the claim cites, is agent_proposed, and that these hands are the channel labour is not stated in the cited items. The Gate schedule half of the quote is not addressed by the cited Book 24 items. The prerequisite is a defensible inference that depends on that identity.",
+    "evidence": [
+      "E1",
+      "E8",
+      "E10"
+    ],
+    "quote": "It needs channel labour before its date and a Gate schedule that routes it.",
+    "alternative_reading": "The quote carries only E1's premise that the pulse needs channel labour before its date and a Gate schedule. It does not carry the identity of that labour with Book 24's trained hands, which is inferred, and E10, which the claim cites, is agent_proposed. Which steps s1 and s4 are is not stated in the cited items.",
+    "would_settle": "A cited Book 24 element stating that its trained hands are the channel labour E1 requires before the date, and one stating the Gate schedule.",
+    "creative_room": "Book 24 can train hands that the pulse needs, so the finale may make outside-lineage labour a cost of the Long Return, while the routing choice stays with the valley as E1 states. Treat trained hands as channel labour, the Gate schedule, and who is counted for the labour as proposals until a cited item states them."
+  },
+  "refused_attempts": 0
+}

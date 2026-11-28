@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "s4",
+  "evidence_register": "mixed",
+  "judgment": "attribution_error",
+  "affects": "asserted_condition",
+  "reasoning": "The bid premise is established: E2 is an architecture record that states the Compact has its own Book 27-29 bid. The labour premise in changes is supported by E1. The becomes_available wording is not recorded: its 'met the offer' condition rests on E12, an unknown_legacy Book 24 element, and its 'author-reserved' settlement rests on E5, an agent_proposed element. The recorded basis covers only the bid; the other conditions are attributed to sources that do not establish them.",
+  "evidence": ["E2", "E1", "E5", "E12"],
+  "quote": "The offer is neither accepted nor refused, because the Compact's settlement is author-reserved.",
+  "alternative_reading": "The offered quote is verbatim in E2 and carries the established bid premise, not the becomes_available condition. E12 says the offer 'meets' a valley with 'some hands of its own', in present tense, dated only 'before the Book 27 to 29 bid'. The claim turns that into an achieved meeting ('have met'). Not stated in the cited items: an author statement that the settlement is reserved.",
+  "would_settle": "A recorded statement, from the architecture or the author, that the valley's own hands have met the offer, and a recorded author status for the Compact's settlement.",
+  "creative_room": "Open for creative use: the Compact's own Book 27-29 bid as a later stage, and its pressure on a valley already carrying return labour, which the architecture makes conditional. Treat as proposal, not record: that a valley has met the offer, when it did, and that the settlement stays reserved, unless the author records them."
+}

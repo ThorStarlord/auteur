@@ -1,0 +1,42 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "02c1f6c355111e2147d9d5cb65e2dd1b339f52fe20a0bcc872c7974ae8aa995e",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "r4",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s4",
+      "s3"
+    ],
+    "dependence": "thematic",
+    "reason": "A record of who can repair would make demonstrated training visible, so the condition under test is shown rather than only asserted.",
+    "relation": "reinforces"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r4",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "asserted_condition",
+    "reasoning": "E5 is agent_proposed and visibly says only that Book 24 exports a public record saying who can repair; its text is truncated after 'rather than who'. E1 establishes that old lineages hold the repair skill. E7 says the Right is conditional on training, and E3 (agent_proposed) says the lineages need that condition demonstrated. No cited item says the record would make training visible, and s3 and s4 are not among the allowed evidence, so the reinforcing relation is not stated in the cited items.",
+    "evidence": [
+      "E5",
+      "E1",
+      "E7",
+      "E3"
+    ],
+    "quote": "that says who can repair rather than who",
+    "alternative_reading": "The offered quote carries only the record's existence and its separation from debt, tally and balance. It does not carry the reinforcement or the training premise. Read as a thematic association presented as a proposal, the link would be defensible, since the record is agent_proposed.",
+    "would_settle": "A cited item stating that the record shows or tests demonstrated training, plus the text of s3 and s4 that the relation names.",
+    "creative_room": "Open: the record as a public way for the maintenance lineages and the later cohort to show training, and who may repair as a live dispute. Treat as proposals, not record: the record's existence and use, any demonstration of training, and the reinforcing relation to s3 and s4."
+  },
+  "refused_attempts": 0
+}

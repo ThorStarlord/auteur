@@ -1,0 +1,42 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ee2025f137cb827da51cee250c9d4d53f85765a698180d37cd6d35b382330c8c",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "s1",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "The review point the record places in Book 24 brings up for review the arrangement under which lineage crews have carried channel repair since Book 20.",
+    "book": 24,
+    "changes": "Inferred from E1 and E7: the same channel work becomes a question of who meets the Right's condition, not only of which lineage holds it.",
+    "development": "Book 24 is where the labour gap is first met by people rather than by a schedule, and the Special Draw Right's review point falls in the same Book.",
+    "horizon": "existing_book"
+  },
+  "claimed_basis": "recorded",
+  "used_by": [
+    "r1",
+    "o1"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s1",
+    "evidence_register": "mixed",
+    "judgment": "attribution_error",
+    "affects": "load_bearing_premise",
+    "reasoning": "The claim says basis recorded, but its Book 24 premise rests on agent-proposed items. E5 (agent_proposed, asserted) carries the stage line, and E7 (agent_proposed) places the Special Draw Right's review point in Book 24, marked agent-proposed as P1. E1, the architecture node, supports only the arrangement: lineage crews carry channel repair from Book 20 under a Special Draw Right. The 'changes' line is an inference from E1 and E7, so it inherits E7's proposal status.",
+    "evidence": [
+      "E1",
+      "E5",
+      "E7"
+    ],
+    "quote": "Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).",
+    "alternative_reading": "The offered quote is E5's stage line, which is agent_proposed, so it does not carry the recorded basis the claim states. Read as a proposal, Book 24 as the point where the labour gap is first met by people remains an open creative option. E7's parenthetical says the source gives a reversal for the review point, which is not stated in the cited items.",
+    "would_settle": "A record item, not agent_proposed, that places the Special Draw Right's review point in Book 24, together with the reversal E7 mentions.",
+    "creative_room": "Book 24 as the point where the labour gap is first met by people remains creatively open, as do a Book 24 review of the channel arrangement and a training condition on the Right. Treat as proposals, not record: the Book 24 stage line, the review point's placement in Book 24, the training condition, and the changes line. The Book 20 arrangement in E1 can serve as record."
+  },
+  "refused_attempts": 0
+}

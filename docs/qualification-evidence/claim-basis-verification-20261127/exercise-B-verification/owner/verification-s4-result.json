@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ea2c54df246f1e450e09f0833cf0a1076505e51736763c54bcbcb31fd54cde18",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "s4",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "A valley whose own hands have met the Compact's standing offer before the bid (E12), with the settlement still author-reserved (E5).",
+    "book": null,
+    "changes": "The bid would press the Compact's draw on a valley whose return labour is already carried by lineage crews and households (inferred from E1 and E12).",
+    "development": "The Mill Compact's own bid, placed in Books 27 to 29, which lies beyond the existing Books 24 and 25.",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "recorded",
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s4",
+    "evidence_register": "mixed",
+    "judgment": "attribution_error",
+    "affects": "asserted_condition",
+    "reasoning": "The bid premise is established: E2 is an architecture record that states the Compact has its own Book 27-29 bid. The labour premise in changes is supported by E1. The becomes_available wording is not recorded: its 'met the offer' condition rests on E12, an unknown_legacy Book 24 element, and its 'author-reserved' settlement rests on E5, an agent_proposed element. The recorded basis covers only the bid; the other conditions are attributed to sources that do not establish them.",
+    "evidence": [
+      "E2",
+      "E1",
+      "E5",
+      "E12"
+    ],
+    "quote": "The offer is neither accepted nor refused, because the Compact's settlement is author-reserved.",
+    "alternative_reading": "The offered quote is verbatim in E2 and carries the established bid premise, not the becomes_available condition. E12 says the offer 'meets' a valley with 'some hands of its own', in present tense, dated only 'before the Book 27 to 29 bid'. The claim turns that into an achieved meeting ('have met'). Not stated in the cited items: an author statement that the settlement is reserved.",
+    "would_settle": "A recorded statement, from the architecture or the author, that the valley's own hands have met the offer, and a recorded author status for the Compact's settlement.",
+    "creative_room": "Open for creative use: the Compact's own Book 27-29 bid as a later stage, and its pressure on a valley already carrying return labour, which the architecture makes conditional. Treat as proposal, not record: that a valley has met the offer, when it did, and that the settlement stays reserved, unless the author records them."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "c2f9452bf6b221ea79084dd555c1a0040c2a2c15c314a74b08eb8afea85001bf",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "r4",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "d2"
+    ],
+    "dependence": "sequential_only",
+    "reason": "The record has the Compact's standing offer meet the valley's own hands before the Book 27 to 29 bid, so the valley's work comes first in sequence (E12, unknown legacy status). No causal reason for the order is stated.",
+    "relation": "preparation"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r4",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "creative_possibility",
+    "reasoning": "E12 states in its own words that Oona's standing offer meets the valley's hands before the Book 27 to 29 bid. Its attribution and status are unknown_legacy. The cited items state only that order: no cited item states a preparatory or causal link between the valley's work and the bid. E2 says only that the Mill Compact has its own Book 27-29 bid. The claim's own wording records that no causal reason for the order is stated, so 'preparation' carries a premise the evidence does not state.",
+    "evidence": [
+      "E12",
+      "E2"
+    ],
+    "quote": "Oona's standing offer meets a valley with some hands of its own before the Book 27 to 29 bid.",
+    "alternative_reading": "The offered quote carries the order ('before the Book 27 to 29 bid') but not the relation word 'preparation', so the relation is the claim's reading, not the record's. Read plainly, the valley's hands come first in sequence and the reason for that order is not stated in the cited items.",
+    "would_settle": "An item in the record stating why the valley's hands come before the Book 27 to 29 bid, or that they feed the bid, would settle the relation. Order alone would not.",
+    "creative_room": "Creatively open: the valley's hands can come before the Book 27 to 29 bid as a sequence, and the author can give that order a purpose. Any preparatory, enabling or causal link between the valley's work and the bid would have to be treated as a proposal, not record, until a cited item states it."
+  },
+  "refused_attempts": 0
+}

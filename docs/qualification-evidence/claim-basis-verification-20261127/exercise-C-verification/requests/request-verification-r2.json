@@ -1,0 +1,150 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "claim-verification-395ed86fb9d3cc4095ad8ff1:7c2874fb66783457",
+  "candidate_id": "claim-verification-395ed86fb9d3cc4095ad8ff1",
+  "role": "studio_architecture_claim_verification",
+  "created_at": "2026-11-28T00:16:48.425206+00:00",
+  "system": "You are the Auteur claim-basis verifier. You judge one claim of a completed creative synthesis against the exact evidence that synthesis was given. Your judgement is advisory: it is not canon, it changes no record, and the author may disagree with it.\n\nYou do not judge whether the idea is artistically good, whether the story should go this way, or the quality of the prose. Judge only whether the claim is warranted by the evidence, and say what the evidence actually establishes.\n\nKeep these apart. What the evidence establishes (its own words state it as fact, and its epistemic status or attribution does not mark it as proposed). What the evidence supports by inference (say how). What is agent-proposed (an agent_proposed element, or wording that proposes or conditions). What the author has stated. What remains creatively possible. A creative proposal that the evidence does not entail is not an error when it is presented as a proposal; the error is a claim whose premise the evidence does not carry. Typical errors: present tense read as an achieved event; a conditional or hypothetical read as an event; agent-proposed text presented as record; a repeated element read as a new development; a dependency the evidence does not state; an attribution to the wrong source; a standing or authority the evidence does not grant.\n\nUse only the identifiers in allowed_evidence. Quote only words copied exactly from a cited item, up to 240 characters, that carry the premise of your judgement. If the claim's offered quote does not carry its premise, say so in alternative_reading. State an absence as 'not stated in the cited items', never as a fact about the story.\n\nAlways fill creative_room: what remains creatively possible with this claim, and which parts of it would have to be treated as proposals rather than record. Never narrow the space of creative possibilities without saying what it is.\n\nReturn ONLY one JSON object with these keys: schema_version (1), claim, evidence_register, judgment, affects, reasoning, evidence, quote, alternative_reading, would_settle, creative_room. Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\", \"E15\", \"E16\", \"E17\"], \"claim\": {\"basis_as_stated\": null, \"cited_evidence\": [\"E7\", \"E16\", \"E17\"], \"kind\": \"relation\", \"quote_offered\": \"Labour readiness has begun.\", \"ref\": \"r2\", \"wording\": {\"between\": [\"s1\", \"s2\"], \"dependence\": \"sequential_only\", \"reason\": \"Book 25 builds on the training Book 24 begins: its readiness element repeats Book 24's text, so the record shows the state carried forward rather than new development.\", \"relation\": \"enables\"}}, \"developments\": [{\"evidence\": \"E1\", \"id\": \"d1\", \"kind\": \"mechanism\", \"ref\": \"str_long_return\", \"text_sha256\": \"d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d\", \"title\": \"The Long Return (pulse)\"}, {\"evidence\": \"E2\", \"id\": \"d2\", \"kind\": \"question\", \"ref\": \"q-finale-mechanism\", \"text_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"title\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives\"}], \"evidence\": [{\"development\": \"d1\", \"freshness\": \"current_read\", \"id\": \"E1\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_node\", \"source_sha256\": \"745b0b3763e352efe3a0fce2f0061580e6c109235937365b96426ec92283aed6\", \"text\": \"{\\\"category\\\": \\\"structure\\\", \\\"id\\\": \\\"str_long_return\\\", \\\"parent_id\\\": null, \\\"scope\\\": \\\"whole_story\\\", \\\"summary\\\": \\\"A deep-store pulse in Book 30, predicted by the Balance Stones cut in Book 23. It needs channel labour before its date and a Gate schedule that routes it. The routing decides which channel takes the surge, and that choice belongs to the valley.\\\", \\\"title\\\": \\\"The Long Return (pulse)\\\"}\", \"truncated\": false, \"version_sha256\": \"d60e1919b808354b05df5d22f3ea806a0041ccf471234cbc656af2c916c60d2d\"}, {\"development\": \"d2\", \"freshness\": \"current_read\", \"id\": \"E2\", \"kind\": \"development\", \"owner\": \"the Architecture or the revision that adopted it\", \"source\": \"architecture_question\", \"source_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\", \"text\": \"Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.\", \"truncated\": false, \"version_sha256\": \"77e3d50c315375720f97ebc3b96a16ed31cda02d3fd8d1d98073a446afd0268c\"}, {\"freshness\": \"author_current\", \"id\": \"E3\", \"kind\": \"author_culmination\", \"owner\": \"the author, on the canvas\", \"source\": \"author\", \"source_sha256\": \"504a772dc7296f3c97ebec21d2ef896ba5ae244b6cab0968226f9cb04685d89a\", \"text\": \"The Long Return is met by the generation that refused to be counted, who give back the water before it is owed.\", \"truncated\": false, \"version_sha256\": null}, {\"freshness\": \"author_current\", \"id\": \"E4\", \"kind\": \"author_vision\", \"owner\": \"the author, Story Vision\", \"source\": \"author\", \"source_sha256\": \"946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e\", \"text\": \"The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\\n\\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\\n\\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"agent-steward\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E5\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"d2249463e6181993310bf1f7cf0bcef7edf0dc4d84f6464d6d1c9ee0cb50cfb7\", \"text\": \"The Council steward (Idrun in the source) wants the Turn humane. She needs trained hands before the date, fears gift without return, and knows what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"closed-book30-surprise\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E6\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cf47c38b5cab254b7e5f3d1b93c627d9fc01267b064fd20891143858ec33a010\", \"text\": \"The labour gap as a Book 30 surprise is closed: it is named and partly worked from Book 24.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"cons-labour-readiness\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E7\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"26a9cf730df11234fde451d118e3fce2df9f4835f4289ede170f9d24d5f376c2\", \"text\": \"Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": null, \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"edge-crew-setup\", \"epistemic_status\": null, \"freshness\": \"current_read\", \"id\": \"E8\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"a8fc0c33afa7e2640e7488078d340c12fead606d9ee671315fa3f11002e0f28e\", \"text\": \"Trained outside-lineage hands set up the Long Return's labour.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": null, \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"edge-function-long-return\", \"epistemic_status\": null, \"freshness\": \"current_read\", \"id\": \"E9\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"6a20d56d66ecd3cd1817d8af0133840bf21f5f5e9a7865fe658d5c1a1bb08333\", \"text\": \"The Long Return's labour need is the pressure this Book develops.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"fn-question\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E10\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1\", \"text\": \"Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who\", \"truncated\": true, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"inh-date\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E11\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"1bc5dd6a951540b41e2dbc49e3d2f5974c90142e6ad2183fac57d38dc1137e6c\", \"text\": \"The Long Return's date is public: the Balance Stones publish it and limit Brightwater's draw. Book 24 is the first Book in which the valley knows how long it has, and training takes years, so the labour question cannot wait for Books 27 to 29.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"agent_proposed\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"res-first-group\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E12\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cd1de0fc06d1d2403afc3a2ee1366f80187acb08d023a862f4df75d9566f6ebc\", \"text\": \"A first group of outside-lineage hands is trained. The size is unstated, and the group does not close the Long Return's labour gap; it shows that the gap can be narrowed.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 24, \"cites\": [\"d1\"], \"element_id\": \"unk-years\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E13\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"f74f194ab65122aedbd09fc44a7b3346c13f76a3db2b3e7d79a89a206f5da81a\", \"text\": \"The years between Book 24 and the Long Return, and how long a channel hand takes to train.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"derived\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"agent-steward\", \"epistemic_status\": \"asserted\", \"freshness\": \"current_read\", \"id\": \"E14\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"d2249463e6181993310bf1f7cf0bcef7edf0dc4d84f6464d6d1c9ee0cb50cfb7\", \"text\": \"The Council steward (Idrun in the source) wants the Turn humane. She needs trained hands before the date, fears gift without return, and knows what an incomplete record costs the powerless. Accepting her granddaughter's crew means accepting a gap in the tally she keeps.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"closed-book30-surprise\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E15\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"cf47c38b5cab254b7e5f3d1b93c627d9fc01267b064fd20891143858ec33a010\", \"text\": \"The labour gap as a Book 30 surprise is closed: it is named and partly worked from Book 24.\", \"truncated\": false, \"version_sha256\": null}, {\"attribution\": \"unknown_legacy\", \"book\": 25, \"cites\": [\"d1\"], \"element_id\": \"cons-labour-readiness\", \"epistemic_status\": \"unknown_legacy\", \"freshness\": \"current_read\", \"id\": \"E16\", \"kind\": \"book_element\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"26a9cf730df11234fde451d118e3fce2df9f4835f4289ede170f9d24d5f376c2\", \"text\": \"Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.\", \"truncated\": false, \"version_sha256\": null}, {\"coverage\": {\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 18, \"excerpted\": 12, \"listing_truncated\": true}, \"d2\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 18, \"listed\": [{\"book\": 24, \"element_id\": \"agent-steward\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"closed-book30-surprise\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"cons-labour-readiness\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"edge-crew-setup\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"edge-function-long-return\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"fn-question\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-date\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"res-first-group\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"unk-years\", \"same_text_in_books\": [25]}, {\"book\": 25, \"element_id\": \"agent-steward\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"closed-book30-surprise\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"cons-labour-readiness\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"edge-crew-setup\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"edge-function-long-return\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"fn-question\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-date\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"res-first-group\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"unk-years\", \"same_text_in_books\": [24]}], \"listing_truncated\": false}}, \"freshness\": \"current_read\", \"id\": \"E17\", \"kind\": \"coverage\", \"owner\": \"Working Book owner, read now\", \"source\": \"working_book\", \"source_sha256\": \"8ef3b488ccedf56f207a68a9ff3a0a2a74940a070e2e5f7aa72f30c1948922ff\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"citing_elements_by_development\\\": {\\\"d1\\\": {\\\"citing\\\": 18, \\\"excerpted\\\": 12, \\\"listing_truncated\\\": true}, \\\"d2\\\": {\\\"citing\\\": 0, \\\"excerpted\\\": 0, \\\"listing_truncated\\\": false}}, \\\"elements_read\\\": 182, \\\"same_text_elsewhere\\\": {\\\"count\\\": 18, \\\"listed\\\": [{\\\"book\\\": 24, \\\"element_id\\\": \\\"agent-steward\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"closed-book30-surprise\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"cons-labour-readiness\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"edge-crew-setup\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"edge-function-long-return\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"inh-date\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"res-first-group\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 24, \\\"element_id\\\": \\\"unk-years\\\", \\\"same_text_in_books\\\": [25]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"agent-steward\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"closed-book30-surprise\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"cons-labour-readiness\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"edge-crew-setup\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"edge-function-long-return\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"fn-question\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"inh-date\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"res-first-group\\\", \\\"same_text_in_books\\\": [24]}, {\\\"book\\\": 25, \\\"element_id\\\": \\\"unk-years\\\", \\\"same_text_in_books\\\": [24]}], \\\"listing_truncated\\\": false}}\", \"truncated\": false, \"version_sha256\": null}], \"load_bearing\": false, \"operation\": \"verify_claim_basis\", \"synthesis_question\": \"What could make the finale's answer to who gives return labour feel earned rather than imposed?\", \"used_by\": []}",
+  "settings": {
+    "operation": "verify_synthesis_claim",
+    "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+    "synthesis_result_sha256": "aa63ec38032ed2cb06880149581f63242094b4dd30c2273cf11bd93a16d2cc17",
+    "claim": "r2",
+    "claim_sha256": "bc4c3ebd3b90de4756e3e82d55a4232a1990c098c16bb31a16280e8baf1d5a45",
+    "evidence_sha256": "101fe5e94e289d8a3ff6f7c3f4466f397d8152bd5c4eb5a54a63351f11f52426",
+    "verification_schema_version": 1
+  },
+  "request_sha256": "7c2874fb66783457c64bbcb20aa466e117121c3b72f933452c75668c750df400",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ClaimVerification",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The verifier's judgement of one claim. ``creative_room`` is required: a verification that narrows possibility without saying so\nis a defect of the verifier.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "claim": {
+          "pattern": "^(s[1-6]|r[1-8]|a[1-3]|o[1-3]|n[1-4]|e[1-4])$",
+          "title": "Claim",
+          "type": "string"
+        },
+        "evidence_register": {
+          "enum": [
+            "established",
+            "inferred_from_established",
+            "agent_proposed",
+            "author_stated",
+            "not_established",
+            "mixed"
+          ],
+          "title": "Evidence Register",
+          "type": "string"
+        },
+        "judgment": {
+          "enum": [
+            "supported",
+            "defensible_inference",
+            "creative_speculation",
+            "overreaching",
+            "temporal_misreading",
+            "modal_misreading",
+            "attribution_error",
+            "standing_confusion",
+            "unsupported_relation",
+            "contradicted",
+            "insufficient_evidence"
+          ],
+          "title": "Judgment",
+          "type": "string"
+        },
+        "affects": {
+          "enum": [
+            "creative_possibility",
+            "asserted_condition",
+            "load_bearing_premise"
+          ],
+          "title": "Affects",
+          "type": "string"
+        },
+        "reasoning": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "pattern": "^E[1-9][0-9]{0,2}$",
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "alternative_reading": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alternative Reading"
+        },
+        "would_settle": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Would Settle"
+        },
+        "creative_room": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Creative Room",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "claim",
+        "evidence_register",
+        "judgment",
+        "affects",
+        "reasoning",
+        "creative_room"
+      ],
+      "title": "ClaimVerification",
+      "type": "object"
+    },
+    "json_schema_sha256": "5e34a718dc703212b06405db3a070afe99f12edddfb2a1e52d098c4be8dcc8b5"
+  }
+}

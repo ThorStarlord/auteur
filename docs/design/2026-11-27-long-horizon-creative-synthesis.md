@@ -195,3 +195,143 @@ evaluate creative substance, not contract compliance. The evaluation records ori
   invent Book content.
 - One synthesis judgement type; no persistent trajectory graph; no applied or accepted trajectory.
 - Human author evaluation is not claimed. Agent answers are a small sample; their quality is evaluated, not generalised.
+
+## 12. Increment 2: claim-basis verification and reflective follow-through (2026-11-27)
+
+Status: decision recorded before the contracts in this section are implemented on `feat/claim-basis-verification` from `main@752817c9` (after PR #653). Advisory, as sections 1 to 11.
+
+### 12.1 The problem it addresses
+
+The v2 quotation contract established textual grounding: a quote is verbatim in the cited item. The v2 critics still found, in about a third of
+the Exercise B and C claims, that the quoted words did not carry the interpretation attached to them: present tense read as
+achieved, a conditional read as an event, agent-proposed text labelled as record, and a relation that outran its premise. Textual
+grounding is therefore necessary and insufficient. The responsibilities are distinguished as follows.
+
+| Responsibility | Governing question | Owner after this increment |
+|---|---|---|
+| Referential grounding | Does the referenced evidence exist, and was it supplied? | Synthesis and reconsideration admission (sections 4 and 6.2). Unchanged. |
+| Textual grounding | Do the quoted words appear in the cited evidence? | `_grounded` in the synthesis owner. Unchanged. |
+| Semantic grounding | Does the cited evidence support the interpretation? | **New: claim-basis verification** (this section). |
+| Relational grounding | Does the evidence warrant the relation between two claims? | The same verification, for a relation claim. |
+| Developmental grounding | Does the evidence warrant a dependency between stages? | The same verification, for a stage or a necessary condition. Dependents are derived by the owner (12.5). |
+| Creative judgment | Is the possibility worthwhile? | Not verified. The verifier reports what remains creatively open (`creative_room`) and never ranks creative value. |
+
+These are intellectual distinctions. Only semantic grounding earns a new owner; the others are already served by an existing owner or
+are deliberately left to the author and to creative critics.
+
+### 12.2 Approaches considered
+
+- **A. Independent verification after synthesis.** Selected as the core. A fresh agent judges one claim against the exact evidence the
+  original agent was given. It is a judgement about a judgement, so it is a new owner, `studio_architecture_verification.py`.
+- **B. Evidence interpretation before synthesis.** Investigated, not built. It would store an interpretation of each source before the
+  synthesis reads it. That is a new persistence subsystem and it would fix a reading before the author's question is in view. The
+  measured failures did not come from missing interpretations: quotes were present and the misreadings were in what the quotes were
+  attached to. Revisit only if Exercise A shows the verifier cannot judge meaning from the packet alone.
+- **C. Reflective correction after criticism.** Selected as follow-through, with no new correction owner. A verification judgement may
+  enter a follow-up synthesis as one criticism, carrying the verification's identity. The follow-up's existing criticism assessment and
+  `changes_from_prior` perform the correction, and the prior synthesis is kept.
+- **D. Selective or adaptive composition.** Partly adopted. Verification is requested per claim, and the owner names the claims others
+  depend on (12.5), by a rule over the record's own references. No importance score, no adaptive engine, no ranking of claims.
+
+### 12.3 Ownership and storage
+
+`studio_architecture_verification.py` (new) owns the claim verification lifecycle: prepare, complete, project. It reads one completed
+synthesis by its request identity and its stored result. It writes only under `architecture/synthesis/verifications/`. It never writes
+the synthesis request, response, result or pointer, and it never applies anything.
+
+Request, response, result and refused records follow the consequence lineage (`requests/<sha>/`, `refused/`, a latest pointer per
+claim). Standing is computed, not stored: `current` when the evidence
+fingerprint recomputed now equals the one at preparation; `stale` when the evidence the synthesis read has changed. A claim has one
+request for a given synthesis: its identity is its inputs, with no sequence, so a claim is checked once for that synthesis. A changed
+synthesis is re-synthesized, and its checks are read as stale. (An earlier draft of this section named a `superseded` standing for
+verifications; it was unreachable and is removed.) A verification's standing is therefore `current` or `stale`: `stale` applies
+when the evidence the synthesis read has changed.
+
+### 12.4 The verification contract (`ClaimVerification`, schema version 1)
+
+The claim is named by reference: `s1` to `s6` (a stage), `r1` to `r8` (a relation), `a1` to `a3` (an alternative path), `o1` to `o3`
+(an opportunity), `n1` to `n4` (a necessary culmination condition), `e1` to `e4` (an enrichment condition).
+
+The verifier receives the complete evidence the original synthesis was given, with the exact stored text of each item, its owner,
+freshness and epistemic status or attribution where the record has one. It receives the claim's wording and the basis the synthesis
+gave it. It returns:
+
+- `evidence_register`: what the cited evidence actually establishes about the premise: `established`, `inferred_from_established`,
+  `agent_proposed`, `author_stated`, `not_established` or `mixed`.
+- `judgment`, one of eleven values: `supported`, `defensible_inference`, `creative_speculation`, `overreaching`,
+  `temporal_misreading`, `modal_misreading`, `attribution_error`, `standing_confusion`, `unsupported_relation`, `contradicted`,
+  `insufficient_evidence`. The set is bounded for this increment; exercises decide whether it needs another value.
+- `affects`: `creative_possibility`, `asserted_condition` or `load_bearing_premise`.
+- `reasoning` (at most 600 characters), `evidence` (identifiers from the packet), and `quote` (verbatim words from a cited item).
+- `alternative_reading` (what the evidence does support, when the judgement is not `supported`) and `would_settle` (what evidence would
+  settle an `insufficient_evidence` judgement).
+- `creative_room`: what remains creatively possible and which parts must be treated as proposals rather than record. It is always
+  required. A verification that narrows possibility without saying so is a defect of the verifier.
+
+The verifier does not receive the synthesis's reasoning, reader experience or other judgements: only the question, the claim's wording,
+the claims that use it, the developments, and the evidence the synthesis read. This keeps the verifier from defending the synthesis.
+
+The instruction states every owner-enforced limit, generated from the same constants as the schema. The first authentic run showed why:
+one answer (Exercise C, claim s1) was refused because `creative_room` ran to 401 characters against a 400-character bound that the
+instruction did not state. The refusal is kept; the instruction was corrected; the same claim was re-prepared under the corrected
+instruction and accepted on its first attempt. Every other verification in this increment was prepared under the earlier instruction,
+which stated no limits and produced no other length refusal. This is recorded as a difference between requests, not hidden.
+
+Owner checks: the claim exists in the synthesis; every cited identifier was in the packet; a quote comes from a cited item and is
+verbatim in it; an
+interpretive judgement cites evidence; a misreading, overreach, contradiction, unsupported relation or standing confusion gives an
+alternative reading; `insufficient_evidence` names what would settle it; a stage the synthesis labelled `recorded` cannot be judged
+`supported` on evidence the verifier itself marks `agent_proposed` or `not_established`. The last rule checks the verifier's
+consistency, not its meaning. A refused verification is kept beside its refusal and does not become the verification.
+
+### 12.5 Load-bearing claims, derived from the record's own references
+
+A claim is load-bearing when another claim uses it: it is the `between` reference of a relation of kind `prerequisite`, `enables` or
+`complicates`, or of an opportunity. The owner lists those dependents by reference. It reports a count of dependents, not a score, and
+it does not rank claims by importance. The served page offers "Check this claim" on every claim and marks the load-bearing ones
+"others depend on it". The exercises test whether selective checking of these claims finds more problems per verification than checking
+an arbitrary subset.
+
+### 12.6 Owner-derived changes from prior
+
+A follow-up's `changes_from_prior` is the agent's account and is not the sole account. The owner derives a comparison between the
+prior and the follow-up answers, at read time, from the stored results:
+
+- Stages are matched one to one by the similarity of their development text. A pair with identical text is unchanged; a pair with
+  similar but different text is `reworded`. An item in the same slot of the other answer that keeps at least 30 percent of its words
+  is matched as `revised`: the owner reports the slot, and does not decide whether it is the same judgement. Without this rule, a
+  corrected stage (Exercise F: two stages) was reported as an unrelated removal and an addition, which overstated the change. An
+  unmatched prior stage is `removed` and an unmatched new stage is `added`. Matched pairs
+  are compared for placement (book, horizon), basis, the evidence set, `becomes_available` and `changes`.
+- Relations are compared after mapping each stage reference to the matched stage, by kind, dependence and the mapped pair. A relation
+  whose stage was removed is reported as withdrawn with that stage.
+- Alternative paths are matched by ordering text and compared for viability. Opportunities are matched by text. The culmination is
+  compared by statement and its conditions. Open decisions and uncertainty are compared as exact strings.
+
+What the comparison cannot establish is stated, not hidden: a `reworded` stage may be the same judgement in different words or a
+changed judgement; the owner reports the similarity pair, and the author decides. The agent's list is shown beside the derived list,
+with both counts. Immaterial wording changes are listed as `reworded` without an explanation being required of the agent.
+
+### 12.7 Follow-through into a synthesis
+
+A follow-up synthesis may name completed verifications of claims in the prior synthesis (`verifications`). Each becomes one criticism.
+The text names the claim by its own wording, states the verifier's judgement and reasoning, and is labelled as a verifier's judgement,
+not as evidence. It does not carry the verifier's evidence identifiers: a follow-up numbers its evidence afresh (a culmination absent
+from the follow-up shifts every later identifier), so an earlier identifier could point at a different item. A verification is carried
+only while the evidence it judged is unchanged; a stale check is refused by the owner and dropped from the page's carried list. The
+owner records the verification identity beside the criticism, so the follow-up's criticism assessment can be traced to its source. The
+total criticism bound of four still applies.
+
+### 12.8 Limits accepted for this increment
+
+- The verifier is a fresh agent; it is not an independent human judgement, and agreement with critics is not proof of correctness.
+- The verification vocabulary is bounded and was chosen before exercises. Its adequacy is tested, not assumed.
+- Natural-language development selection is not built. It is deferred. The findings are: the author's developments are selectable from
+  the current questions and mechanisms, but a sentence such as "how might the revocable-rights conflict interact with the Mill Compact"
+  needs a retrieval step that maps words to developments and reports its ambiguity. That step would be an agent judgement, and a
+  reversible author selection would be needed before anything is prepared. It is a separate responsibility and is recorded for later.
+- The load-bearing rule is a record-derived rule, not a score. On the three exercised syntheses it did not concentrate problems:
+  Exercise B had no load-bearing claim at all, because its relations reference developments rather than stages; in Exercises A and C most
+  problems were in relations and alternatives, which the rule does not select (evaluation record, sections 4 and 6).
+- No author disagreement is recorded as a structured judgement. An author's disagreement enters as criticism of a follow-up, and that is
+  the only route by which it changes a later judgement.
