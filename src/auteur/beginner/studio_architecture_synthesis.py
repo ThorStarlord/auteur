@@ -563,8 +563,8 @@ def _standing_key(settings: dict[str, Any]) -> str:
 
 
 def _standing(store: CanvasStore, request_sha256: str, request) -> str:
-    """``current`` while this is the latest synthesis of these developments and the material it read is unchanged; ``superseded`` when
-    a later synthesis of the same developments exists (a synthesis of other developments does not supersede it); ``stale`` when the
+    """``current`` while this is the latest synthesis of its configuration (the developments, and the culmination when one is named) and the material it read is unchanged; ``superseded`` when
+    a later synthesis of the same configuration exists (a synthesis of other developments, or of another culmination, does not supersede it); ``stale`` when the
     Architecture, the Working Book, the vision or a handoff it read has changed, or a development is gone."""
     try:
         recomputed = _packet_for(store, json.loads(request.user)["inputs"]).evidence_sha256

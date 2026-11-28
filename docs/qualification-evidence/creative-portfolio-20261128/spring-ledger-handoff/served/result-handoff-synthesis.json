@@ -1,0 +1,198 @@
+{
+  "schema": "studio-architecture-synthesis/1",
+  "authority": "advisory_synthesis_not_working_architecture",
+  "request_sha256": "bb0ec2a4436cdb96e782881929b7f759f84dd239dbc53a149d4300f3d505a6f8",
+  "evidence_sha256": "01c292ff721bc698290184f9edec50010320778ba9affeefcb513d0633941099",
+  "answer": {
+    "schema_version": 2,
+    "trajectory": [
+      {
+        "book": 24,
+        "horizon": "existing_book",
+        "development": "Across the existing Books (24, 25) both questions stand open: the record says of each 'Not decided.' The coverage read of Books 24 and 25 (182 elements) finds no Working Book element citing either question, so neither the Right's revocability nor the Compact's settlement is yet carried by a Book element in the cited items.",
+        "becomes_available": "An open field: because nothing in Books 24-25 cites either question (E4), the author can still fix the training condition and the settlement terms without revising existing Book elements in the cited items.",
+        "changes": "Nothing in earlier developments changes; this stage establishes that the dependence the question asks about is not yet written into any cited Book element.",
+        "basis": "recorded",
+        "evidence": [
+          "E1",
+          "E2",
+          "E4"
+        ],
+        "quote": "\"d1\": {\"citing\": 0, \"excerpted\": 0, \"listing_truncated\": false}"
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "Proposed: the author decides and states the training condition of the lineage Special Draw Right, and whether it is revocable or permanent, before the finale mechanism is chosen. The accepted reconsideration treats the training condition as the question's hinge, while noting that its presence in Book 24 is not established by any recovered record.",
+        "becomes_available": "Made possible by the open question in E1 and the handoff in E5, which ties the reworded question's hinge to the timing 'before the finale mechanism is chosen'.",
+        "changes": "Once stated, the training condition turns the Right from an inheritance into an obligation that can be met or failed, which gives the 'who carries the Turn' clause of E1 a concrete test.",
+        "basis": "proposed",
+        "evidence": [
+          "E1",
+          "E5"
+        ],
+        "quote": "the rewording makes the training condition the hinge and ties it to 'before the finale mechanism is chosen'"
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "Proposed: the Compact's claim is settled, or refused, on the question of grain-labour, and the reach of the Gate Table's schedule to the Compact's lowland draw is decided. If the Compact accepts grain-labour, the settlement becomes a change in collective practice rather than a restored arrangement.",
+        "becomes_available": "Made possible by the open question in E2; the Series vision (E3) favours outcomes that change the world rather than restore the initial situation.",
+        "changes": "A settlement in labour rather than in water alone would reframe the Compact's claim as an obligation relationship, which bears on what a training condition (stage s2) could ask of people.",
+        "basis": "proposed",
+        "evidence": [
+          "E2",
+          "E3"
+        ],
+        "quote": "Does the Compact accept grain-labour in exchange for settling its claim, and does the Gate Table's schedule reach its lowland draw? Not decided."
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "Proposed: the two decisions meet on the question of who carries the Turn when the maintenance lineages end. If the Right is revocable on a training condition, and if grain-labour settles the Compact's claim, the people trained under that condition could include those who give the labour, so carrying the Turn would no longer depend on lineage alone. This is conditional on both earlier decisions and is not stated in the cited items.",
+        "becomes_available": "Requires stage s2 (a stated training condition) and gains from stage s3 (a labour settlement); the 'who carries the Turn' clause is recorded as open in E1.",
+        "changes": "It changes what the Right meant earlier: a lineage privilege becomes, in retrospect, a trained office that others can enter, which reframes the lineages' ending as a transition rather than only a loss.",
+        "basis": "proposed",
+        "evidence": [
+          "E1",
+          "E2"
+        ],
+        "quote": "who carries the Turn when the maintenance lineages end"
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "Proposed: the finale mechanism is chosen only after the training condition is stated, so that it resolves the commons by a changed practice of obligation rather than by defeating an opponent. Which mechanism that is remains the author's decision.",
+        "becomes_available": "Made possible by stages s2 and s4, and constrained by the vision's direction against a generic escalating-villain epic (E3) and the handoff's timing (E5).",
+        "changes": "It gives the earlier revocability and settlement decisions their final weight: they become the conditions the finale draws on rather than background facts.",
+        "basis": "proposed",
+        "evidence": [
+          "E3",
+          "E5"
+        ],
+        "quote": "Major victories change the world rather than restore the initial situation."
+      }
+    ],
+    "relations": [
+      {
+        "kind": "prerequisite",
+        "between": [
+          "s2",
+          "s5"
+        ],
+        "dependence": "causal",
+        "reason": "The accepted reconsideration ties the reworded question's hinge, the training condition, to the moment before the finale mechanism is chosen, so a finale that draws on the Right cannot be fixed coherently until the training condition is stated. The handoff is advisory, not canon.",
+        "evidence": [
+          "E5"
+        ],
+        "quote": "the rewording makes the training condition the hinge and ties it to 'before the finale mechanism is chosen'"
+      },
+      {
+        "kind": "preparation",
+        "between": [
+          "d1",
+          "d2"
+        ],
+        "dependence": "thematic",
+        "reason": "No cited item states that either question's answer depends on the other; the link is thematic. Both concern obligation within the commons, so deciding the Right's training condition would make a grain-labour settlement richer, but the settlement can occur without it.",
+        "evidence": [
+          "E3"
+        ],
+        "quote": "the meanings attached to obligation, and the consequences of changing collective practices"
+      },
+      {
+        "kind": "preparation",
+        "between": [
+          "s3",
+          "s4"
+        ],
+        "dependence": "causal",
+        "reason": "Proposed: a grain-labour settlement would supply people already bound by labour obligation who could meet a training condition, making a non-lineage carrier of the Turn easier to stage; s4 could still occur through other trainees, so this is preparation, not a prerequisite.",
+        "evidence": [
+          "E2"
+        ],
+        "quote": "Does the Compact accept grain-labour in exchange for settling its claim"
+      },
+      {
+        "kind": "prerequisite",
+        "between": [
+          "s2",
+          "s4"
+        ],
+        "dependence": "causal",
+        "reason": "A non-lineage carrier of the Turn through training cannot occur unless the Right carries a training condition that others can meet; E1 records the training condition as undecided.",
+        "evidence": [
+          "E1"
+        ],
+        "quote": "what training condition does it carry, and who carries the Turn when the maintenance lineages end"
+      }
+    ],
+    "culmination": null,
+    "alternative_paths": [
+      {
+        "ordering": "Settle the Compact's claim first (d2), then decide the Right's training condition (d1) in light of the settlement.",
+        "effect": "The training condition can be written to answer the settlement, for example by recognising labour already given; the finale timing in E5 still holds because d1 is decided before the finale mechanism.",
+        "viability": "viable",
+        "evidence": [
+          "E2",
+          "E5"
+        ],
+        "quote": "Does the Compact accept grain-labour in exchange for settling its claim"
+      },
+      {
+        "ordering": "Decide the Right as permanent, with no revocation, and leave the training condition minimal.",
+        "effect": "The hinge the handoff identifies loses force; the 'who carries the Turn' question must then be answered by something other than training, and the lineages' ending becomes harder to resolve without restoration.",
+        "viability": "weakened",
+        "evidence": [
+          "E1",
+          "E5"
+        ],
+        "quote": "Is the lineage Special Draw Right revocable or permanent, what training condition does it carry"
+      },
+      {
+        "ordering": "The Compact refuses grain-labour, or the Gate Table's schedule does not reach its lowland draw, and the claim stays unsettled into the finale.",
+        "effect": "The settlement becomes a continuing pressure rather than a resolved obligation; whether this suits a hopeful, non-escalating Series depends on how the finale treats it, which the cited items do not state.",
+        "viability": "unresolved",
+        "evidence": [
+          "E2",
+          "E3"
+        ],
+        "quote": "does the Gate Table's schedule reach its lowland draw? Not decided."
+      }
+    ],
+    "opportunities": [
+      {
+        "text": "Proposed: grain-labour given to settle the Compact's claim could itself count toward, or become, the training condition of the Right, so that settling a claim and opening the Turn to new carriers are one act of changed practice. Not stated in the cited items.",
+        "between": [
+          "d1",
+          "d2"
+        ],
+        "evidence": [
+          "E1",
+          "E2"
+        ],
+        "quote": "what training condition does it carry"
+      }
+    ],
+    "reader_experience": "Readers of Books 24-25 meet both questions as open matters of obligation in a shared commons. If the training condition is stated before the finale, later Books can let readers discover that a lineage privilege was always a learnable office, and that a labour settlement opened it, giving a hopeful, world-changing resolution rather than a restored order or a villain's defeat. If the culmination never arrives, the earlier Books still hold their own weight as the negotiation of who owes what to the water.",
+    "open_decisions": [
+      "Whether the lineage Special Draw Right is revocable or permanent.",
+      "What training condition the Right carries, and whether it is stated before the finale mechanism is chosen.",
+      "Whether the Compact accepts grain-labour for its claim, and whether the Gate Table's schedule reaches its lowland draw.",
+      "Whether the people who give grain-labour can meet the training condition and so carry the Turn when the maintenance lineages end."
+    ],
+    "uncertainty": [
+      "Whether any Book 24 element states the training condition or a review point on it: no recovered record gives its exact wording (E5).",
+      "No Working Book element in Books 24-25 cites either question (E4), so their placement in existing Books is not established.",
+      "The Series vision (E3) is an excerpt and truncated; constraints beyond the shown text are not known here.",
+      "Any dependence between d1 and d2 is inferred or proposed; no cited item states one."
+    ],
+    "criticism_assessments": [],
+    "changes_from_prior": []
+  },
+  "completion": {
+    "attempt": 1,
+    "refused_attempts": 0,
+    "first_pass": true
+  }
+}

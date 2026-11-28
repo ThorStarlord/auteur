@@ -373,3 +373,8 @@ relation, and an internal contradiction about whether two developments are coupl
 that the record does not state was added as a proposal. The owner derived the comparison from the stored answers; the agent's own
 `changes_from_prior` was checked against it by a fresh grounding critic, which found residual overreaches in labelling (recorded in
 the evidence record, section 10).
+
+Identity note (from the independent review of this increment): a culmination request prepared before this change keeps its stored
+identity and standing; an identical culmination request prepared after the change has a new identity, because it now carries
+`configuration_sha256`. Requests without a culmination are unaffected. A follow-up that adds or changes a culmination is a new
+configuration and does not supersede the synthesis it follows; a follow-up that keeps the same culmination does.

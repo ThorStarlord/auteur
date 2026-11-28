@@ -1,0 +1,186 @@
+{
+  "schema": "auteur_host_agent_request_v1",
+  "request_id": "studio-reconsideration-f2a97c322db1715e1187fba3:fb46abf697578d4c",
+  "candidate_id": "studio-reconsideration-f2a97c322db1715e1187fba3",
+  "role": "studio_architecture_consequence_reconsideration",
+  "created_at": "2026-11-28T04:32:32.496636+00:00",
+  "system": "You are the active Auteur reconsideration agent. An earlier consequence analysis of a proposed working revision was accepted by the owner. The author asks you to reconsider ONE claim of that analysis. Your reading is advisory: it is not an applied revision, it is not canon, and it changes no record.\n\nThe request gives you the claim, with its original text held by the owner. Do not restate that original text. It gives the original evidence the analysis cited, and the recovered records: exact full source wording read from the version the analysis read, and, where the claim concerns Working Book coverage, a coverage record with exact counts. Recovered records are the only source of exact wording. A clipped packet line is not exact wording.\n\nDecide what the claim now warrants, and say why. Use exactly one disposition: retained (the claim stands as it was), qualified (it stands with a stated limit), narrowed (its scope is reduced), corrected (its reading was wrong on the source), expanded (it omits a consequence the source supports), reframed (the same source supports a different reading), withdrawn (it is not supported and should not be relied on), or unresolved (the source does not decide it).\n\nRules. Cite only the identifiers the request gives. A correction must cite at least one recovered record, because a correction rests on exact source. A coverage statement must use the counts the coverage record gives, and must not say that an element was read unless the coverage record lists it. Keep apart what the record states, what it relates, what you interpret, what is a hypothesis and what remains unestablished. Do not present an inference as recorded.\n\nCriticism is evidence to weigh, not a verdict. Assess each criticism the request supplies, by its identifier, as accepted, partly_accepted, rejected or unresolved, and give a reason for each. A criticism that overstates what the source shows may be rejected. A criticism that correctly finds a misreading must be accepted. Preserve legitimate creative speculation that the record labels as speculation: qualify it, and do not withdraw it merely because the record does not state it.\n\nDo not claim that this reconsideration is accepted, applied or canonical, and do not describe a narrative change as if it were made.\n\nReturn ONLY one JSON object with these keys: schema_version (1), disposition, new_consideration (what prompted the reconsideration), reconsidered_judgment (what is now retained, corrected, qualified, expanded or withdrawn), evidence (1 to 6 identifiers), criticism_assessments (0 to 4 objects with criticism, verdict and reason), creative_significance (optional), remaining_uncertainty (0 to 4 strings), and downstream (0 to 3 objects with text and evidence, for consequences of a correction that matter later). Field names and literal values are exact, as the output_contract gives them.",
+  "user": "{\"allowed_evidence\": [\"E106\", \"E107\", \"E108\"], \"analysis\": {\"analysis_request_sha256\": \"768064141c076f864ebb0b602f5041ff16b732f2fa654c26e41a138e1e4a4bce\", \"analysis_result_sha256\": \"ad5931949771022db3f6d762f169b00199f176a0a1a5d285a58ef2aa0b83f9b0\", \"baseline_request_sha256\": \"c0457ca6e7b3972f2fd3e9036c3cd8f3614896b680dcb76b05d58ae8dd5b5938\", \"evidence_sha256\": \"d5ed5089f5c68777644ac377618a9df0e693c74ff1b970dd28b07a554ff52b19\", \"proposal_sha256\": \"0fae267881ee33f1ebbf72e5868c74678113ac05cdde5adf1c54b7755bec580b\", \"revision_request_sha256\": \"fc31a48ca551e77866dc73c22112c230aebd1e67c5aae0c66dd953b2c631b9dd\"}, \"claim\": {\"claim_sha256\": \"ff6e567da765554ed299533cc09540aa17148a8d7212b37b82301498e7d4356f\", \"evidence\": [], \"kind\": \"reach\", \"original_text\": {\"reach\": \"conditional_inheritance\", \"reading\": \"The proposal (E9), not applied, rewords only q-right-revocable (E1): the training condition, already one clause of the baseline question (E5), becomes its hinge and is tied in time to the finale choice ('before the finale mechanism is chosen'). Revocability and who carries the Turn when the lineages end stay in the wording. Every mechanism the packet lists is preserved with identical content, so the change is a change of emphasis and sequencing in one question, not of any recorded mechanism. Interpretation: by asking about training before the finale, the question now leans on the Long Return's timetable (E82) and on the crews' leverage in Books 27-29 (E2). Book 24 already records a decision on this question (E8) and an inherited training condition with a review point (E84); whether Book 24 carries the new hinge is not established.\"}, \"ref\": null}, \"criticism\": [{\"id\": \"c1\", \"text\": \"The reach claim assumes E8 states the training condition. Check whether E8 or only E84 carries it, and say so.\"}], \"historically_available\": [\"E1\", \"E2\", \"E3\", \"E4\", \"E5\", \"E6\", \"E7\", \"E8\", \"E9\", \"E10\", \"E11\", \"E12\", \"E13\", \"E14\", \"E15\", \"E16\", \"E17\", \"E18\", \"E19\", \"E20\", \"E21\", \"E22\", \"E23\", \"E24\", \"E25\", \"E26\", \"E27\", \"E28\", \"E29\", \"E30\", \"E31\", \"E32\", \"E33\", \"E34\", \"E35\", \"E36\", \"E37\", \"E38\", \"E39\", \"E40\", \"E41\", \"E42\", \"E43\", \"E44\", \"E45\", \"E46\", \"E47\", \"E48\", \"E49\", \"E50\", \"E51\", \"E52\", \"E53\", \"E54\", \"E55\", \"E56\", \"E57\", \"E58\", \"E59\", \"E60\", \"E61\", \"E62\", \"E63\", \"E64\", \"E65\", \"E66\", \"E67\", \"E68\", \"E69\", \"E70\", \"E71\", \"E72\", \"E73\", \"E74\", \"E75\", \"E76\", \"E77\", \"E78\", \"E79\", \"E80\", \"E81\", \"E82\", \"E83\", \"E84\", \"E85\", \"E86\", \"E87\", \"E88\", \"E89\", \"E90\", \"E91\", \"E92\", \"E93\", \"E94\", \"E95\", \"E96\", \"E97\", \"E98\", \"E99\", \"E100\", \"E101\", \"E102\", \"E103\", \"E104\", \"E105\"], \"instruction\": \"Reconsider only the reach claim (conditional_inheritance). Test whether the reworded question really reaches later development through Book 24's recorded review of the Right (E8, E84): does the cited text state the training condition that the reach depends on, or does the analysis assume it? Revise, qualify or keep the claim, and say which of its premises the cited items carry.\", \"operation\": \"consequence_reconsideration\", \"original_evidence\": [], \"recovered_evidence\": [\"E106\", \"E107\", \"E108\"], \"recovery\": {\"coverage\": {\"books_read\": [24, 25], \"books_unreadable\": [], \"citing_claim_nodes\": [], \"citing_count\": 0, \"claim_nodes\": [], \"elements_considered_by_packet\": 124, \"elements_read\": 182, \"elements_supplied_to_analysis\": 24, \"freshness\": \"current_read\", \"listing_truncated\": false, \"owner\": \"Working Book owner, read now\"}, \"records\": [{\"freshness\": \"as_analysed\", \"id\": \"E106\", \"owner\": \"Architecture revision request the analysis read\", \"record_id\": \"h2\", \"record_kind\": \"selected_alternative\", \"side\": null, \"source\": \"recovered\", \"text\": \"The crews are B's natural advocates and A's hardest test. Because the Right only keeps its recorded form where hands are tied to draw, the crews have a coherent reason to argue for B or a low C threshold in Books 27-29, while A asks them to give the Long Return labour as gift at the moment of greatest leverage. Their choice becomes a character-agency payoff for the finale.\", \"truncated\": false, \"version_sha256\": \"fc31a48ca551e77866dc73c22112c230aebd1e67c5aae0c66dd953b2c631b9dd\"}, {\"freshness\": \"as_analysed\", \"id\": \"E107\", \"owner\": \"Architecture revision request the analysis read\", \"record_id\": null, \"record_kind\": \"revision_instruction\", \"side\": null, \"source\": \"recovered\", \"text\": \"Make the training condition the hinge of the Special Draw Right: reword the open question q-right-revocable so that it also asks whether outside apprentices are trained under the Right before the finale mechanism is chosen. Keep the question's identity (q-right-revocable). Add no question and retire none. Change nothing else.\", \"truncated\": false, \"version_sha256\": \"fc31a48ca551e77866dc73c22112c230aebd1e67c5aae0c66dd953b2c631b9dd\"}, {\"freshness\": \"current_read\", \"id\": \"E108\", \"owner\": \"Working Book owner, read now\", \"record_id\": null, \"record_kind\": \"coverage\", \"side\": null, \"source\": \"recovered\", \"text\": \"{\\\"books_read\\\": [24, 25], \\\"books_unreadable\\\": [], \\\"citing_claim_nodes\\\": [], \\\"citing_count\\\": 0, \\\"claim_nodes\\\": [], \\\"elements_considered_by_packet\\\": 124, \\\"elements_read\\\": 182, \\\"elements_supplied_to_analysis\\\": 24, \\\"freshness\\\": \\\"current_read\\\", \\\"listing_truncated\\\": false, \\\"owner\\\": \\\"Working Book owner, read now\\\"}\", \"truncated\": false, \"version_sha256\": null}]}, \"supplied_evidence\": []}",
+  "settings": {
+    "operation": "reconsider_consequence",
+    "analysis_request_sha256": "768064141c076f864ebb0b602f5041ff16b732f2fa654c26e41a138e1e4a4bce",
+    "analysis_result_sha256": "ad5931949771022db3f6d762f169b00199f176a0a1a5d285a58ef2aa0b83f9b0",
+    "claim_kind": "reach",
+    "claim_ref": null,
+    "claim_sha256": "ff6e567da765554ed299533cc09540aa17148a8d7212b37b82301498e7d4356f",
+    "instruction_sha256": "bd0bbb17140661481574be46235ccc4428f897877c7658c77d6c509d4d16454a",
+    "criticism_sha256": "30077a9a0dde85241648796827b4f44d80de7ae5d2a7b9038b8a723f57813194",
+    "recovery_sha256": "c8657563cc7e5ffad5e04793aec305083e7ba31095daec15c20ade81414eb453",
+    "evidence_sha256": "d5ed5089f5c68777644ac377618a9df0e693c74ff1b970dd28b07a554ff52b19",
+    "reconsideration_schema_version": 1
+  },
+  "request_sha256": "fb46abf697578d4c0505d685e4b876a8a32dc92d9c18223de5b88b574f564da0",
+  "output_contract": {
+    "schema": "auteur_host_agent_output_contract_v1",
+    "version": 1,
+    "model": "ReconsiderationAnswer",
+    "json_schema": {
+      "$defs": {
+        "CriticismAssessment": {
+          "additionalProperties": false,
+          "properties": {
+            "criticism": {
+              "pattern": "^c[1-9]$",
+              "title": "Criticism",
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "accepted",
+                "partly_accepted",
+                "rejected",
+                "unresolved"
+              ],
+              "title": "Verdict",
+              "type": "string"
+            },
+            "reason": {
+              "maxLength": 400,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "criticism",
+            "verdict",
+            "reason"
+          ],
+          "title": "CriticismAssessment",
+          "type": "object"
+        },
+        "DownstreamItem": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Text",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "pattern": "^E[1-9][0-9]{0,2}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Evidence",
+              "type": "array"
+            }
+          },
+          "required": [
+            "text",
+            "evidence"
+          ],
+          "title": "DownstreamItem",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A focused reconsideration of one claim. The owner holds the original claim; the agent gives the judgement.",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "disposition": {
+          "enum": [
+            "retained",
+            "qualified",
+            "narrowed",
+            "corrected",
+            "expanded",
+            "reframed",
+            "withdrawn",
+            "unresolved"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "new_consideration": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "New Consideration",
+          "type": "string"
+        },
+        "reconsidered_judgment": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Reconsidered Judgment",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "pattern": "^E[1-9][0-9]{0,2}$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "criticism_assessments": {
+          "items": {
+            "$ref": "#/$defs/CriticismAssessment"
+          },
+          "maxItems": 4,
+          "title": "Criticism Assessments",
+          "type": "array"
+        },
+        "creative_significance": {
+          "anyOf": [
+            {
+              "maxLength": 600,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Creative Significance"
+        },
+        "remaining_uncertainty": {
+          "items": {
+            "maxLength": 240,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Remaining Uncertainty",
+          "type": "array"
+        },
+        "downstream": {
+          "items": {
+            "$ref": "#/$defs/DownstreamItem"
+          },
+          "maxItems": 3,
+          "title": "Downstream",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "disposition",
+        "new_consideration",
+        "reconsidered_judgment",
+        "evidence"
+      ],
+      "title": "ReconsiderationAnswer",
+      "type": "object"
+    },
+    "json_schema_sha256": "cd5065e9250cffc1172ceb104f911b4b7f725a9936d768f3363dc8c893073c5c"
+  }
+}
