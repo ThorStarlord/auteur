@@ -13,6 +13,7 @@ from a recomputed evidence fingerprint: it is stale once the material it read ha
 from __future__ import annotations
 
 import json
+from difflib import SequenceMatcher
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
@@ -161,6 +162,11 @@ class _Packet:
 
 def _root(store: CanvasStore):
     return arch._root(store) / "synthesis"
+
+
+def verification_root(store: CanvasStore):
+    """Where claim-basis verifications of these syntheses are kept (owned by the verification owner, located here)."""
+    return _root(store) / "verifications"
 
 
 def _evidence(identifier_number: int, kind: str, source: str, owner: str, freshness: str, text: str, limit: int = RECORD_TEXT_LIMIT,
@@ -324,7 +330,15 @@ def _packet_for(store: CanvasStore, inputs: dict[str, Any]) -> _Packet:
                          reconsideration_request_sha256=handoff["reconsideration_request_sha256"])
         handoffs.append({"evidence": identifier, "reconsideration_request_sha256": sha, "standing": handoff["standing"]})
 
-    criticism = [{"id": f"c{number}", "text": text} for number, text in enumerate(inputs.get("criticism") or [], start=1)]
+    carried = inputs.get("verifications") or []
+    texts = inputs.get("criticism") or []
+    criticism = []
+    for number, text in enumerate(texts, start=1):
+        row = {"id": f"c{number}", "text": text}
+        # The trailing criticism entries may be carried verifications; each keeps the verification it came from.
+        if carried and number > len(texts) - len(carried):
+            row["verification_request_sha256"] = carried[number - (len(texts) - len(carried)) - 1]
+        criticism.append(row)
     prior = None
     if inputs.get("prior_request_sha256"):
         prior_result = arch._read(_root(store) / "requests" / inputs["prior_request_sha256"] / "result.json")
@@ -354,9 +368,23 @@ def _normalized_selections(developments: list[dict[str, Any]]) -> list[dict[str,
     return [{"kind": str(item.get("kind")), "ref": str(item.get("ref"))} for item in developments]
 
 
+def _verification_criticism(store: CanvasStore, request_sha256: str, prior_request_sha256: str) -> str:
+    """A completed claim-basis verification of the synthesis a follow-up continues, as one criticism. It is a verifier's judgement."""
+    result = arch._read(verification_root(store) / "requests" / request_sha256 / "result.json")
+    if result is None:
+        raise ValueError("a verification carried into a follow-up must be completed")
+    if result.get("synthesis_request_sha256") != prior_request_sha256:
+        raise ValueError("a verification carried into a follow-up must check the synthesis that follow-up continues")
+    verdict = result["verification"]
+    cited = ", ".join(verdict["evidence"]) or "none"
+    return (f"A claim-basis verifier judged {result['claim']} as {verdict['judgment']}: {verdict['reasoning']} "
+            f"(The verifier cited: {cited}.) This is the verifier's judgement, not evidence; weigh it against the record.")
+
+
 def prepare_architecture_synthesis(store: CanvasStore, *, question: str, developments: list[dict[str, Any]],
                                    culmination: str | None = None, handoffs: list[str] | None = None,
-                                   criticism: list[str] | None = None, prior_request_sha256: str | None = None) -> dict[str, Any]:
+                                   criticism: list[str] | None = None, prior_request_sha256: str | None = None,
+                                   verifications: list[str] | None = None) -> dict[str, Any]:
     """Prepare one synthesis of selected developments. Explicit only; nothing is executed, applied or accepted."""
     text = (question or "").strip()
     if not text:
@@ -372,6 +400,10 @@ def prepare_architecture_synthesis(store: CanvasStore, *, question: str, develop
     if len(handoff_list) > MAX_HANDOFFS:
         raise ValueError(f"a synthesis takes at most {MAX_HANDOFFS} reconsiderations as handoffs")
     criticism_texts = [item.strip() for item in (criticism or []) if item and item.strip()]
+    verification_list = list(dict.fromkeys(verifications or []))
+    if verification_list and not prior_request_sha256:
+        raise ValueError("a verification is carried into a follow-up of the synthesis it checked; name that synthesis")
+    criticism_texts += [_verification_criticism(store, sha, prior_request_sha256) for sha in verification_list]
     if len(criticism_texts) > MAX_CRITICISM:
         raise ValueError(f"a synthesis weighs at most {MAX_CRITICISM} criticisms")
     selections = _normalized_selections(developments)
@@ -386,6 +418,9 @@ def prepare_architecture_synthesis(store: CanvasStore, *, question: str, develop
             raise ValueError("a follow-up continues the same developments as the synthesis it follows")
     inputs = {"question": text, "developments": selections, "culmination": culmination_text, "handoffs": handoff_list,
               "criticism": criticism_texts, "prior_request_sha256": prior_request_sha256}
+    if verification_list:
+        # Only present when used, so that requests without verifications keep their identities.
+        inputs["verifications"] = verification_list
     with arch._FilesystemLock(store._path(".canvas.lock")):
         packet = _packet_for(store, inputs)
         user_payload = {**packet.user, "inputs": inputs}
@@ -530,6 +565,12 @@ def _row(store: CanvasStore, folder, request) -> dict[str, Any]:
     standing = _standing(store, request.request_sha256, request)
     payload = json.loads(request.user)
     refused = folder / "refused"
+    prior_judgement = payload["prior_judgement"]
+    changes_derived = None
+    if result is not None and prior_judgement:
+        prior_result = arch._read(_root(store) / "requests" / prior_judgement["request_sha256"] / "result.json")
+        if prior_result is not None:
+            changes_derived = derived_changes(prior_result["answer"], result["answer"])
     return {
         "schema": SCHEMA,
         "authority": AUTHORITY,
@@ -541,12 +582,172 @@ def _row(store: CanvasStore, folder, request) -> dict[str, Any]:
         "evidence": payload["evidence"],
         "coverage": next((item["coverage"] for item in payload["evidence"] if item["kind"] == "coverage"), None),
         "handoffs": payload["handoffs"],
-        "prior_judgement": payload["prior_judgement"],
+        "prior_judgement": prior_judgement,
         "criticism": payload["criticism"],
         "request": request.model_dump() if result is None and standing == "current" else None,
         "result": result["answer"] if result is not None else None,
+        "changes_stated": result["answer"]["changes_from_prior"] if result is not None and prior_judgement else None,
+        "changes_derived": changes_derived,
         "refused_attempts": len(list(refused.glob("*.json"))) if refused.exists() else 0,
     }
+
+
+def synthesis_record(store: CanvasStore, request_sha256: str) -> dict[str, Any]:
+    """A completed synthesis read for verification: its answer, the evidence its request supplied, and whether that evidence is
+    unchanged now. Raises ValueError when no completed synthesis stands under that request."""
+    folder = _root(store) / "requests" / request_sha256
+    if not (folder / "request.json").exists():
+        raise ValueError("no synthesis is recorded under that request")
+    request = load_host_agent_request(folder / "request.json")
+    if request.role != ROLE:
+        raise ValueError("that request is not a synthesis")
+    result = arch._read(folder / "result.json")
+    if result is None:
+        raise ValueError("that synthesis is not completed")
+    user = json.loads(request.user)
+    try:
+        now = _packet_for(store, user["inputs"]).evidence_sha256
+    except ValueError:
+        now = None
+    return {"request_sha256": request_sha256, "question": user["inputs"]["question"], "answer": result["answer"],
+            "result_sha256": _digest(result["answer"]), "developments": user["developments"], "evidence": user["evidence"],
+            "evidence_sha256": request.settings["evidence_sha256"], "evidence_sha256_now": now,
+            "standing": _standing(store, request_sha256, request)}
+
+
+# --- Owner-derived changes from the prior judgement ---------------------------------------------------------------------------------
+
+MATCH_THRESHOLD = 0.6  # a pair of items is one item in two wordings at or above this similarity; below it they are unrelated
+POSITION_OVERLAP = 0.3  # an item in the same slot of the other answer is the same item revised, when this share of its words remains
+
+
+def _norm(text: str) -> str:
+    return " ".join(str(text).split()).lower()
+
+
+def _overlap(a: str, b: str) -> float:
+    words_a, words_b = set(_norm(a).split()), set(_norm(b).split())
+    return len(words_a & words_b) / max(1, len(words_a | words_b))
+
+
+def _match(prior: list[dict[str, Any]], current: list[dict[str, Any]], key) -> tuple[list[tuple[int, int]], list[int], list[int], set[int]]:
+    """One-to-one, best pairs first: which prior items are the same as which current items, which are unmatched on each side, and
+    which current items were matched only by their slot (a revision that kept part of its wording)."""
+    scored = sorted(((SequenceMatcher(None, _norm(key(p)), _norm(key(c))).ratio(), i, j)
+                     for i, p in enumerate(prior) for j, c in enumerate(current)), reverse=True)
+    used_prior: set[int] = set()
+    used_current: set[int] = set()
+    pairs: list[tuple[int, int]] = []
+    for ratio, i, j in scored:
+        if ratio < MATCH_THRESHOLD:
+            break
+        if i in used_prior or j in used_current:
+            continue
+        used_prior.add(i)
+        used_current.add(j)
+        pairs.append((i, j))
+    revised: set[int] = set()
+    for index in range(min(len(prior), len(current))):
+        if index not in used_prior and index not in used_current and _overlap(key(prior[index]), key(current[index])) >= POSITION_OVERLAP:
+            used_prior.add(index)
+            used_current.add(index)
+            pairs.append((index, index))
+            revised.add(index)
+    return (sorted(pairs), [i for i in range(len(prior)) if i not in used_prior],
+            [j for j in range(len(current)) if j not in used_current], revised)
+
+
+def derived_changes(prior: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+    """What changed between two syntheses, derived mechanically from their stored answers. Items are matched by similar wording; a
+    matched pair with different wording is ``reworded`` and is not judged as the same or changed judgement. The owner does not decide
+    semantic equivalence: a reworded item may be the same judgement or a changed one, and the list says so instead of deciding."""
+    changes: list[dict[str, Any]] = []
+    pairs, gone, new, revised = _match(prior["trajectory"], current["trajectory"], lambda stage: stage["development"])
+    stage_map = {f"s{i + 1}": f"s{j + 1}" for i, j in pairs}
+    for i, j in pairs:
+        before, after = prior["trajectory"][i], current["trajectory"][j]
+        ref = f"s{j + 1}"
+        if j in revised:
+            changes.append({"kind": "stage_revised", "ref": ref, "prior_ref": f"s{i + 1}",
+                            "detail": "matched by its slot and part of its wording; the owner does not decide it is the same judgement"})
+        elif _norm(before["development"]) != _norm(after["development"]):
+            changes.append({"kind": "stage_reworded", "ref": ref, "prior_ref": f"s{i + 1}"})
+        if (before["book"], before["horizon"]) != (after["book"], after["horizon"]):
+            changes.append({"kind": "stage_placement_changed", "ref": ref, "detail": f"{before['book']} {before['horizon']} -> "
+                            f"{after['book']} {after['horizon']}"})
+        if before["basis"] != after["basis"]:
+            changes.append({"kind": "stage_basis_changed", "ref": ref, "detail": f"{before['basis']} -> {after['basis']}"})
+        if set(before["evidence"]) != set(after["evidence"]):
+            changes.append({"kind": "stage_evidence_changed", "ref": ref, "detail": f"{sorted(before['evidence'])} -> "
+                            f"{sorted(after['evidence'])}"})
+        if _norm(before["changes"]) != _norm(after["changes"]):
+            changes.append({"kind": "stage_judgement_changed", "ref": ref, "detail": "what the stage changes in earlier developments"})
+        if _norm(before["becomes_available"]) != _norm(after["becomes_available"]):
+            changes.append({"kind": "stage_condition_changed", "ref": ref, "detail": "the earlier condition that makes it possible"})
+    changes += [{"kind": "stage_removed", "ref": f"s{i + 1}", "detail": prior["trajectory"][i]["development"][:120]} for i in gone]
+    changes += [{"kind": "stage_added", "ref": f"s{j + 1}", "detail": current["trajectory"][j]["development"][:120]} for j in new]
+
+    def mapped(refs: list[str]) -> frozenset[str]:
+        return frozenset(stage_map.get(ref, ref if ref.startswith("d") else f"withdrawn:{ref}") for ref in refs)
+
+    prior_relations = {mapped(rel["between"]): rel for rel in prior["relations"]}
+    current_relations = {frozenset(rel["between"]): rel for rel in current["relations"]}
+    for pair, before in prior_relations.items():
+        after = current_relations.get(pair)
+        if after is None:
+            changes.append({"kind": "relation_removed", "ref": "+".join(sorted(pair)), "detail": before["kind"]})
+        elif (before["kind"], before["dependence"]) != (after["kind"], after["dependence"]):
+            changes.append({"kind": "relation_changed", "ref": "+".join(sorted(pair)),
+                            "detail": f"{before['kind']}/{before['dependence']} -> {after['kind']}/{after['dependence']}"})
+    for pair, after in current_relations.items():
+        if pair not in prior_relations:
+            changes.append({"kind": "relation_added", "ref": "+".join(sorted(pair)), "detail": after["kind"]})
+
+    pairs, gone, new, _revised = _match(prior["alternative_paths"], current["alternative_paths"], lambda path: path["ordering"])
+    for i, j in pairs:
+        before, after = prior["alternative_paths"][i], current["alternative_paths"][j]
+        if before["viability"] != after["viability"]:
+            changes.append({"kind": "alternative_viability_changed", "ref": f"a{j + 1}",
+                            "detail": f"{before['viability']} -> {after['viability']}"})
+        if _norm(before["ordering"]) != _norm(after["ordering"]):
+            changes.append({"kind": "alternative_reworded", "ref": f"a{j + 1}", "prior_ref": f"a{i + 1}"})
+    changes += [{"kind": "alternative_removed", "ref": f"a{i + 1}"} for i in gone]
+    changes += [{"kind": "alternative_added", "ref": f"a{j + 1}"} for j in new]
+
+    pairs, gone, new, _revised = _match(prior["opportunities"], current["opportunities"], lambda item: item["text"])
+    for i, j in pairs:
+        if _norm(prior["opportunities"][i]["text"]) != _norm(current["opportunities"][j]["text"]):
+            changes.append({"kind": "opportunity_reworded", "ref": f"o{j + 1}", "prior_ref": f"o{i + 1}"})
+    changes += [{"kind": "opportunity_withdrawn", "ref": f"o{i + 1}"} for i in gone]
+    changes += [{"kind": "opportunity_added", "ref": f"o{j + 1}"} for j in new]
+
+    before_culmination, after_culmination = prior.get("culmination"), current.get("culmination")
+    if before_culmination is None and after_culmination is not None:
+        changes.append({"kind": "culmination_added", "ref": "culmination"})
+    elif before_culmination is not None and after_culmination is None:
+        changes.append({"kind": "culmination_removed", "ref": "culmination"})
+    elif before_culmination is not None and after_culmination is not None:
+        if _norm(before_culmination["statement"]) != _norm(after_culmination["statement"]) or \
+                _norm(before_culmination["standalone_value"]) != _norm(after_culmination["standalone_value"]):
+            changes.append({"kind": "culmination_changed", "ref": "culmination"})
+        for field, prefix in (("necessary", "n"), ("enrichment", "e")):
+            before_texts = {_norm(item["text"]) for item in before_culmination[field]}
+            after_texts = {_norm(item["text"]) for item in after_culmination[field]}
+            changes += [{"kind": "condition_removed", "ref": f"{field}:{text[:80]}"} for text in sorted(before_texts - after_texts)]
+            changes += [{"kind": "condition_added", "ref": f"{field}:{text[:80]}"} for text in sorted(after_texts - before_texts)]
+
+    for field, kind in (("open_decisions", "open_decision"), ("uncertainty", "uncertainty")):
+        before_set = {_norm(item) for item in prior[field]}
+        after_set = {_norm(item) for item in current[field]}
+        changes += [{"kind": f"{kind}_removed", "ref": text[:120]} for text in sorted(before_set - after_set)]
+        changes += [{"kind": f"{kind}_added", "ref": text[:120]} for text in sorted(after_set - before_set)]
+
+    counts: dict[str, int] = {}
+    for change in changes:
+        counts[change["kind"]] = counts.get(change["kind"], 0) + 1
+    return {"changes": changes, "counts": dict(sorted(counts.items())),
+            "note": "Derived mechanically from the stored answers. A reworded item may be the same judgement or a changed one; "
+                    "the owner does not decide which."}
 
 
 def complete_architecture_synthesis(store: CanvasStore, payload: dict) -> dict[str, Any]:
@@ -627,10 +828,12 @@ def project_architecture_synthesis(store: CanvasStore) -> dict[str, Any]:
     return {"schema": SCHEMA, "authority": AUTHORITY, "status": current["status"], "standing": current["standing"],
             "request_sha256": latest, "request": current["request"], "result": current["result"], "history": history,
             "developments": current["developments"], "inputs": current["inputs"], "evidence": current["evidence"],
-            "coverage": current["coverage"], "handoffs": current["handoffs"], "criticism": current["criticism"]}
+            "coverage": current["coverage"], "handoffs": current["handoffs"], "criticism": current["criticism"],
+            "changes_stated": current["changes_stated"], "changes_derived": current["changes_derived"],
+            "prior_judgement": current["prior_judgement"]}
 
 
 __all__ = [
-    "AUTHORITY", "ROLE", "SCHEMA", "SynthesisAnswer", "complete_architecture_synthesis", "prepare_architecture_synthesis",
-    "project_architecture_synthesis",
+    "AUTHORITY", "ROLE", "SCHEMA", "SynthesisAnswer", "complete_architecture_synthesis", "derived_changes",
+    "prepare_architecture_synthesis", "project_architecture_synthesis", "synthesis_record", "verification_root",
 ]

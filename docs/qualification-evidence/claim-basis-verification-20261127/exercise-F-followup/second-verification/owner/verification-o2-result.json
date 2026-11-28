@@ -1,0 +1,39 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "da29e421040c4d3420561b3b23d7489ff786d866cd6dd8403986f4c0e7ee09fc",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "o2",
+  "claim_kind": "opportunity",
+  "claim_wording": {
+    "between": [
+      "s1",
+      "s2"
+    ],
+    "text": "Proposed: if the generation that has never seen the labour (s1) is asked to give back water before it is owed (s2), its first contact with the labour would be a demand, not an inherited practice."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "o2",
+    "evidence_register": "mixed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "The 'Proposed:' label and the conditional 'if ... would be' keep o2 a creative proposal rather than record. Its s1 premise, that the generation has never seen the labour, is stated as fact in E6 (derived, not proposed). Its s2 premise, that the generation is asked to give back water, appears only in E5, an agent_proposed element. The cited items do not state that the generation of E6 is the 'generation that refuses to be counted' quoted from E5. The conclusion, a demand rather than an inherited practice, is interpretive and not stated.",
+    "evidence": [
+      "E6",
+      "E5",
+      "E4"
+    ],
+    "quote": "A generation that refuses to be counted is asked to give back the water before it is owed.",
+    "alternative_reading": "The offered quote is verbatim from E5 (agent_proposed), so it carries the give-back premise only as proposal. It does not carry the never-seen premise: E6 names a generation that came of age after Book 20, while E5 names one that refuses to be counted. Its present tense is not read as an achieved event, because the element is proposed and the claim is conditional.",
+    "would_settle": null,
+    "creative_room": "Still open: a generation that has not seen the labour meeting it first as a demand, with the counted and uncounted split (E4) as setting. Treat as proposals, not record: that anyone is asked to give back water (E5 is agent_proposed), that the refusing generation is the one that never saw the labour, and that first contact is a demand rather than inherited practice."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "r1",
+  "evidence_register": "agent_proposed",
+  "judgment": "attribution_error",
+  "affects": "asserted_condition",
+  "reasoning": "E7 states the condition as a flat sentence, but its attribution is agent_proposed and it marks its Book 24 review point as agent-proposed. E3 gives the same condition as an agent inference. E1, the record on the Special Draw Right, states that from Book 20 lineage crews carry channel repair under it; a condition on the Right is not stated in E1. The premise is therefore agent-proposed text presented as record. A causal dependence is not stated in the cited items, and the Book 24 review point is marked agent-proposed in E7.",
+  "evidence": ["E1", "E3", "E7"],
+  "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).",
+  "alternative_reading": "The offered quote is verbatim from E7 and carries the condition's words, but E7 is an agent_proposed element, so the quote cannot show the condition as record. Read with its attribution, the cited items support the condition only as a proposal for Book 24 or later.",
+  "would_settle": "A source element, not agent_proposed, that states the condition on the Special Draw Right and its Book 24 review point.",
+  "creative_room": "Creatively open: the condition can be proposed for Book 24 or later, tested by the lineages, or left unnamed. Treat as proposals, not record: the condition itself, the Book 24 review point, and any causal link between training and the Right, until a source element states them."
+}

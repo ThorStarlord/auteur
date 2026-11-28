@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "d5b8f8033a8ea4fa0685bd58eea8ee57e43babe453617b83d78f8bda3bdec4f6",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "s5",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "A standing claim that must be argued for rather than assumed, because Book 24 names no body that would grant standing and creates none.",
+    "book": null,
+    "changes": "The mechanism moves from who carries the labour to who coordinates it, a question the Book 24 and Book 25 labour elements do not ask.",
+    "development": "The cohort that now practises counted and uncounted return claims standing in how the valley coordinates channel work, and no body is named to grant it.",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [
+    "r3",
+    "r5"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s5",
+    "evidence_register": "mixed",
+    "judgment": "modal_misreading",
+    "affects": "load_bearing_premise",
+    "reasoning": "The development text says the cohort 'claims standing' in the present indicative. E8 says only that the cohort 'may claim standing', and its epistemic status is hypothetical. E4 states as fact that the inheritance splits into counted and uncounted practice, and E8 says the cohort now practises both, so split practice is carried. The absence of a granting body is carried by E8. The stage is marked proposed, but its development wording turns the hypothetical into an achieved event.",
+    "evidence": [
+      "E8",
+      "E4"
+    ],
+    "quote": "may claim standing in how the valley coordinates its channel work.",
+    "alternative_reading": "The offered quote keeps the modal 'may', which the development text drops. Read as a proposal, the stage is not an error; the error is the indicative wording. Whether the Book 24 and Book 25 labour elements fail to ask a coordination question is not stated in the cited items, since E5 and E11 are truncated.",
+    "would_settle": "A cited item that states the cohort has claimed standing as an event, or a development wording restated with 'may claim' and marked as proposal.",
+    "creative_room": "Still possible: the cohort's split practice (E4) can ground a later bid for standing, and a later Book could name or create a granting body. Any such bid, the named body, and the shift from who carries labour to who coordinates it must be written as proposal, not record, until a cited item shows them."
+  },
+  "refused_attempts": 0
+}

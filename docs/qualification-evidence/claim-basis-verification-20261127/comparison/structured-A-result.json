@@ -1,0 +1,661 @@
+{
+  "schema": "studio-architecture-synthesis/1",
+  "authority": "advisory_synthesis_not_working_architecture",
+  "request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "standing": "current",
+  "status": "ready",
+  "inputs": {
+    "criticism": [],
+    "culmination": null,
+    "developments": [
+      {
+        "kind": "mechanism",
+        "ref": "th_maintenance"
+      }
+    ],
+    "handoffs": [],
+    "prior_request_sha256": null,
+    "question": "How could the maintenance mechanism develop across the next ten Books without becoming repetitive?"
+  },
+  "developments": [
+    {
+      "evidence": "E1",
+      "id": "d1",
+      "kind": "mechanism",
+      "ref": "th_maintenance",
+      "text_sha256": "f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380",
+      "title": "Keeping the channels"
+    }
+  ],
+  "evidence": [
+    {
+      "development": "d1",
+      "freshness": "current_read",
+      "id": "E1",
+      "kind": "development",
+      "owner": "the Architecture or the revision that adopted it",
+      "source": "architecture_node",
+      "source_sha256": "7712ef53c92787b3dcebc33b59d35a2c6878a94913d718842829ea44a0004922",
+      "text": "{\"category\": \"thread\", \"id\": \"th_maintenance\", \"parent_id\": null, \"scope\": \"whole_story\", \"summary\": \"Who performs the return labour that keeps the spring balanced, and at what cost to families with few hands. Old lineages hold the repair skill from Books 9-11. From Book 20 lineage crews carry channel repair under a Special Draw Right, and households that can meet the rota carry the rest.\", \"title\": \"Keeping the channels\"}",
+      "truncated": false,
+      "version_sha256": "f88c6fe8e04a633e609014de7d9a13f5f3d02621af8e3f5d29745a43edfa0380"
+    },
+    {
+      "freshness": "author_current",
+      "id": "E2",
+      "kind": "author_vision",
+      "owner": "the author, Story Vision",
+      "source": "author",
+      "source_sha256": "946a5ad4f424bcbe02e73382eff7cc71c7cbde9b049efb4db95d32903717750e",
+      "text": "The Spring Ledger is a long-form fantasy Series exploring a shared water commons, the institutions that govern it, the meanings attached to obligation, and the consequences of changing collective practices. Its identity should preserve wonder, discovery, everyday belonging, meaningful relationships, institutional transformation, material consequences, and the possibility of hopeful flourishing. Do not turn it into a generic escalating-villain epic.\n\nExperience brief: Wonder, discovery, meaningful adventure, everyday belonging, emotionally consequential relationships and an ultimately hopeful possibility of flourishing. Author-fixed experience brief; working and noncanonical.\n\nVictories change the world: Major victories change the world rather than restore the initial situation. Some confli",
+      "truncated": true,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "agent-lineages",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E3",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46",
+      "text": "Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "unknown_legacy",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "cons-belief-plural",
+      "epistemic_status": "unknown_legacy",
+      "freshness": "current_read",
+      "id": "E4",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf",
+      "text": "The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "fn-question",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E5",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1",
+      "text": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who",
+      "truncated": true,
+      "version_sha256": null
+    },
+    {
+      "attribution": "derived",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "inh-cohort-belief",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E6",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204",
+      "text": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "inh-right-condition",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E7",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b",
+      "text": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "derived",
+      "book": 24,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "later-cohort-seat",
+      "epistemic_status": "hypothetical",
+      "freshness": "current_read",
+      "id": "E8",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "4fdad0ce477d0370c085d7898b25b55dc8527285881a3cf730b5b4b4c06fde7d",
+      "text": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work. Book 24 names no body that would grant that standing and creates none.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 25,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "agent-lineages",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E9",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "4e9cc396b7d08141288cabded6bbdb0cb0a99ba6ff83c1a190abdeb3d294fb46",
+      "text": "Ysa Trant and the maintenance lineages: the Right is conditional on training, so they need the condition demonstrated or the Right is exposed. They guard craft standards and fear dilution by untrained gift-hands. Their stake in the review is an agent inference.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "unknown_legacy",
+      "book": 25,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "cons-belief-plural",
+      "epistemic_status": "unknown_legacy",
+      "freshness": "current_read",
+      "id": "E10",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "1500f7b4ee3999f57270c844027cd2fd4dbc5b77aac3a4e8b8c7ed5c4db89dbf",
+      "text": "The cohort's belief is no longer uniform. The Brightwater inheritance splits into counted and uncounted practice within one generation, so plurality of practice now crosses generations as well as communities.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 25,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "fn-question",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E11",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "8854e7775cafa42e7065586594712d8a9c14eab42c5ce02b28d00a34079a8ca1",
+      "text": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule. A generation that refuses to be counted is asked to give back the water before it is owed. The Book exercises the Old Hand, the Ledger and the Source, and exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who",
+      "truncated": true,
+      "version_sha256": null
+    },
+    {
+      "attribution": "derived",
+      "book": 25,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "inh-cohort-belief",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E12",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "cb01b7bc79bce1b851ced6c37fed43162fd03e71c28871391c40bb9455801204",
+      "text": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right.",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "attribution": "agent_proposed",
+      "book": 25,
+      "cites": [
+        "d1"
+      ],
+      "element_id": "inh-right-condition",
+      "epistemic_status": "asserted",
+      "freshness": "current_read",
+      "id": "E13",
+      "kind": "book_element",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "92167788e69b2896933bbfb0d779234d04b16e51f685323e102b67a41d6bb81b",
+      "text": "The Special Draw Right is conditional on training apprentices from outside the lineage. Its review point falls in Book 24 (agent-proposed as P1; the source gives a reversal for it).",
+      "truncated": false,
+      "version_sha256": null
+    },
+    {
+      "coverage": {
+        "books_read": [
+          24,
+          25
+        ],
+        "citing_elements_by_development": {
+          "d1": {
+            "citing": 11,
+            "excerpted": 11,
+            "listing_truncated": false
+          }
+        },
+        "elements_read": 182,
+        "same_text_elsewhere": {
+          "count": 10,
+          "listed": [
+            {
+              "book": 24,
+              "element_id": "agent-lineages",
+              "same_text_in_books": [
+                25
+              ]
+            },
+            {
+              "book": 24,
+              "element_id": "cons-belief-plural",
+              "same_text_in_books": [
+                25
+              ]
+            },
+            {
+              "book": 24,
+              "element_id": "fn-question",
+              "same_text_in_books": [
+                25
+              ]
+            },
+            {
+              "book": 24,
+              "element_id": "inh-cohort-belief",
+              "same_text_in_books": [
+                25
+              ]
+            },
+            {
+              "book": 24,
+              "element_id": "inh-right-condition",
+              "same_text_in_books": [
+                25
+              ]
+            },
+            {
+              "book": 25,
+              "element_id": "agent-lineages",
+              "same_text_in_books": [
+                24
+              ]
+            },
+            {
+              "book": 25,
+              "element_id": "cons-belief-plural",
+              "same_text_in_books": [
+                24
+              ]
+            },
+            {
+              "book": 25,
+              "element_id": "fn-question",
+              "same_text_in_books": [
+                24
+              ]
+            },
+            {
+              "book": 25,
+              "element_id": "inh-cohort-belief",
+              "same_text_in_books": [
+                24
+              ]
+            },
+            {
+              "book": 25,
+              "element_id": "inh-right-condition",
+              "same_text_in_books": [
+                24
+              ]
+            }
+          ],
+          "listing_truncated": false
+        }
+      },
+      "freshness": "current_read",
+      "id": "E14",
+      "kind": "coverage",
+      "owner": "Working Book owner, read now",
+      "source": "working_book",
+      "source_sha256": "5378b06b572a9d291a8dbbc30982fdf3ea0c6c629e91b64d675ef3a9c4195741",
+      "text": "{\"books_read\": [24, 25], \"citing_elements_by_development\": {\"d1\": {\"citing\": 11, \"excerpted\": 11, \"listing_truncated\": false}}, \"elements_read\": 182, \"same_text_elsewhere\": {\"count\": 10, \"listed\": [{\"book\": 24, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"fn-question\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [25]}, {\"book\": 24, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [25]}, {\"book\": 25, \"element_id\": \"agent-lineages\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"cons-belief-plural\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"fn-question\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-cohort-belief\", \"same_text_in_books\": [24]}, {\"book\": 25, \"element_id\": \"inh-right-condition\", \"same_text_in_books\": [24]}], \"listing_truncated\": false}}",
+      "truncated": false,
+      "version_sha256": null
+    }
+  ],
+  "coverage": {
+    "books_read": [
+      24,
+      25
+    ],
+    "citing_elements_by_development": {
+      "d1": {
+        "citing": 11,
+        "excerpted": 11,
+        "listing_truncated": false
+      }
+    },
+    "elements_read": 182,
+    "same_text_elsewhere": {
+      "count": 10,
+      "listed": [
+        {
+          "book": 24,
+          "element_id": "agent-lineages",
+          "same_text_in_books": [
+            25
+          ]
+        },
+        {
+          "book": 24,
+          "element_id": "cons-belief-plural",
+          "same_text_in_books": [
+            25
+          ]
+        },
+        {
+          "book": 24,
+          "element_id": "fn-question",
+          "same_text_in_books": [
+            25
+          ]
+        },
+        {
+          "book": 24,
+          "element_id": "inh-cohort-belief",
+          "same_text_in_books": [
+            25
+          ]
+        },
+        {
+          "book": 24,
+          "element_id": "inh-right-condition",
+          "same_text_in_books": [
+            25
+          ]
+        },
+        {
+          "book": 25,
+          "element_id": "agent-lineages",
+          "same_text_in_books": [
+            24
+          ]
+        },
+        {
+          "book": 25,
+          "element_id": "cons-belief-plural",
+          "same_text_in_books": [
+            24
+          ]
+        },
+        {
+          "book": 25,
+          "element_id": "fn-question",
+          "same_text_in_books": [
+            24
+          ]
+        },
+        {
+          "book": 25,
+          "element_id": "inh-cohort-belief",
+          "same_text_in_books": [
+            24
+          ]
+        },
+        {
+          "book": 25,
+          "element_id": "inh-right-condition",
+          "same_text_in_books": [
+            24
+          ]
+        }
+      ],
+      "listing_truncated": false
+    }
+  },
+  "handoffs": [],
+  "prior_judgement": null,
+  "criticism": [],
+  "request": null,
+  "result": {
+    "schema_version": 2,
+    "trajectory": [
+      {
+        "book": 24,
+        "horizon": "existing_book",
+        "development": "Book 24 is where the labour gap is first met by people rather than by a schedule, and the Special Draw Right's review point falls in the same Book.",
+        "becomes_available": "The review point the record places in Book 24 brings up for review the arrangement under which lineage crews have carried channel repair since Book 20.",
+        "changes": "Inferred from E1 and E7: the same channel work becomes a question of who meets the Right's condition, not only of which lineage holds it.",
+        "basis": "recorded",
+        "evidence": [
+          "E5",
+          "E7",
+          "E1"
+        ],
+        "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule."
+      },
+      {
+        "book": 24,
+        "horizon": "existing_book",
+        "development": "A generation that came of age after Book 20 has never seen the labour, and the Brightwater inheritance splits into counted and uncounted practice within one generation.",
+        "becomes_available": "A cohort that has never seen the labour and holds two practices of return, which the record ties to lineage crews performing it under the Right.",
+        "changes": "Inferred from E6: the generation that inherits the labour was never shown what it takes, so the mechanism rests on people who have not seen its cost.",
+        "basis": "recorded",
+        "evidence": [
+          "E6",
+          "E4"
+        ],
+        "quote": "A generation that came of age after Book 20 has never seen the labour, because lineage crews perform it under the Right."
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "Outside apprentices are trained under the Special Draw Right and their repair is demonstrated, so the condition the Right carries is tested.",
+        "becomes_available": "If the condition is demonstrated the Right can continue; if it is not, the record states that the Right is exposed.",
+        "changes": "The mechanism becomes a test of who may carry the labour, so a later Book need not repeat the lineage crew performance of Book 20.",
+        "basis": "proposed",
+        "evidence": [
+          "E3",
+          "E7"
+        ],
+        "quote": "so they need the condition demonstrated or the Right is exposed."
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "The public capability record that Book 24 exports is used to show who can repair, so that repair is seen per person and not only counted.",
+        "becomes_available": "Repair becomes visible per person, kept apart from debt, tally and aggregate balance, which the record says Book 24 exports.",
+        "changes": "Inferred from E5 and E3: tested apprentices and the record can be read together, so the mechanism is no longer carried by the lineage's word alone.",
+        "basis": "proposed",
+        "evidence": [
+          "E5",
+          "E3"
+        ],
+        "quote": "a public capability record, separate from debt, tally and aggregate balance"
+      },
+      {
+        "book": null,
+        "horizon": "proposed_book",
+        "development": "The cohort that now practises counted and uncounted return claims standing in how the valley coordinates channel work, and no body is named to grant it.",
+        "becomes_available": "A standing claim that must be argued for rather than assumed, because Book 24 names no body that would grant standing and creates none.",
+        "changes": "The mechanism moves from who carries the labour to who coordinates it, a question the Book 24 and Book 25 labour elements do not ask.",
+        "basis": "proposed",
+        "evidence": [
+          "E8",
+          "E4"
+        ],
+        "quote": "may claim standing in how the valley coordinates its channel work."
+      }
+    ],
+    "relations": [
+      {
+        "kind": "prerequisite",
+        "between": [
+          "s1",
+          "s3"
+        ],
+        "dependence": "causal",
+        "reason": "The condition the trained apprentices would meet is the one the Special Draw Right carries, and the record places its review point in Book 24; the test presupposes those terms.",
+        "evidence": [
+          "E7"
+        ],
+        "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage."
+      },
+      {
+        "kind": "complicates",
+        "between": [
+          "d1",
+          "s3"
+        ],
+        "dependence": "thematic",
+        "reason": "The lineage fears dilution by untrained hands, which works against the outside apprentices the test needs; the record calls its stake in the review an agent inference.",
+        "evidence": [
+          "E3"
+        ],
+        "quote": "They guard craft standards and fear dilution by untrained gift-hands."
+      },
+      {
+        "kind": "preparation",
+        "between": [
+          "s2",
+          "s5"
+        ],
+        "dependence": "causal",
+        "reason": "The record links the cohort's possible claim to its practising both kinds of return, which helps the claim; it is not stated as necessary.",
+        "evidence": [
+          "E8",
+          "E4"
+        ],
+        "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work."
+      },
+      {
+        "kind": "reinforces",
+        "between": [
+          "s4",
+          "s3"
+        ],
+        "dependence": "thematic",
+        "reason": "A record of who can repair would make demonstrated training visible, so the condition under test is shown rather than only asserted.",
+        "evidence": [
+          "E5"
+        ],
+        "quote": "a public capability record, separate from debt, tally and aggregate balance"
+      },
+      {
+        "kind": "enables",
+        "between": [
+          "s4",
+          "s5"
+        ],
+        "dependence": "thematic",
+        "reason": "A record that shows repair gives a standing claim something to rest on, where the record names no body to grant standing.",
+        "evidence": [
+          "E8"
+        ],
+        "quote": "Book 24 names no body that would grant that standing and creates none."
+      }
+    ],
+    "culmination": null,
+    "alternative_paths": [
+      {
+        "ordering": "Keep lineage crews carrying channel repair under the Right across the proposed Books, with the uncounted cohort left outside the mechanism.",
+        "effect": "The labour stays with the same crews under the same condition, so the repetition the question names continues, and the cohort's practice never enters a record of who repairs.",
+        "viability": "viable",
+        "evidence": [
+          "E6",
+          "E1"
+        ],
+        "quote": "because lineage crews perform it under the Right."
+      },
+      {
+        "ordering": "Put the cohort's standing claim (s5) before the condition under test (s3).",
+        "effect": "The standing claim arrives before any demonstrated repair, and the Right stays exposed until the condition is shown, as the record states.",
+        "viability": "weakened",
+        "evidence": [
+          "E8",
+          "E3"
+        ],
+        "quote": "so they need the condition demonstrated or the Right is exposed."
+      },
+      {
+        "ordering": "Introduce the public capability record (s4) before the condition is tested (s3).",
+        "effect": "Who can repair is shown before any outside apprentice has been tested, so the record could show capability the Right has not yet certified; whether that is permitted is not stated in the cited items.",
+        "viability": "unresolved",
+        "evidence": [
+          "E5"
+        ],
+        "quote": "exports one new kind of record"
+      }
+    ],
+    "opportunities": [
+      {
+        "text": "Lineage crews carrying channel repair under the Right, together with a condition to train outside apprentices, could make the labour transferable; neither the Right nor the training condition does that alone.",
+        "between": [
+          "d1",
+          "s1"
+        ],
+        "evidence": [
+          "E1",
+          "E7"
+        ],
+        "quote": "The Special Draw Right is conditional on training apprentices from outside the lineage."
+      },
+      {
+        "text": "A record of who can repair, kept apart from tally, could let the uncounted practice become visible without being counted; the split and the record together could do this, neither alone.",
+        "between": [
+          "s2",
+          "s4"
+        ],
+        "evidence": [
+          "E4",
+          "E5"
+        ],
+        "quote": "a public capability record, separate from debt, tally and aggregate balance"
+      }
+    ],
+    "reader_experience": "Book 24 turns the labour from a lineage duty into a question of who meets the Right's condition, but Book 25 as recorded repeats Book 24's five elements word for word, so a reader meets the same labour and Right twice. The stages would keep the labour's cost in view for households with few hands (E1) and change the question each Book asks: who is trained, who is recorded as able to repair, who holds standing. The brief's everyday belonging (E2) needs that labour seen, not repeated.",
+    "open_decisions": [
+      "Whether Book 25's five elements, which repeat Book 24's text word for word, are rewritten before any development of the mechanism is set.",
+      "How the Special Draw Right's condition is decided, including the review point in Book 24 and the reversal the source gives for it, which the cited items do not describe.",
+      "Whether the public capability record may evidence standing, and which body, if any, would hold that standing; the record names none.",
+      "Whether stages beyond Book 25 are numbered in a later Book plan or left unplaced, since the record does not number them."
+    ],
+    "uncertainty": [
+      "Repetition is already in the record: E9 to E13 repeat E3 to E7 word for word for five elements, and E14 lists the same-text pairs.",
+      "E3, E5 and E7 are agent-proposed working elements; 'recorded' here means the cited record states it, not that the author has accepted it.",
+      "E5 is truncated before the capability record says who can repair, and E2 is an excerpt, so the full author brief and the record's rules for the capability record are not stated in the cited items.",
+      "No culmination was named or offered, and the next ten Books are not numbered in the request, so no book numbers are assigned to proposed stages."
+    ],
+    "criticism_assessments": [],
+    "changes_from_prior": []
+  },
+  "refused_attempts": 0
+}

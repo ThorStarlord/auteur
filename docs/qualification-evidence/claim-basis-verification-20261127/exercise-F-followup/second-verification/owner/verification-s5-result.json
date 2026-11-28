@@ -1,0 +1,38 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "2dfea76fa81dc088edc6b9508b6454355379fbb329d35cec62c60afc6b4d67bf",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "s5",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "The cohort, which now practises both counted and uncounted return (E8), is the party that may claim standing in coordination. The record does not say how such a claim would be made.",
+    "book": 24,
+    "changes": "Opens a question of who recognises a claim to coordinate channel work. Book 24 leaves that question unanswered, since it names and creates no grantor (E8).",
+    "development": "Possibility, not event: the cohort may claim standing in how the valley coordinates its channel work, and Book 24 names no body that would grant that standing (E8, hypothetical).",
+    "horizon": "existing_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s5",
+    "evidence_register": "mixed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "E8 states the possibility in modal form and marks its element hypothetical: the cohort may claim standing in how the valley coordinates its channel work, and Book 24 names no body to grant it. The claim keeps that modal, so it reads as a possibility, not an event. Two additions go beyond E8: making the cohort the party implies it is the only one that may claim, and general coordination drops the limit to channel work. E4 supports only the split of practice within one generation, not standing. Who the cohort is: not stated in the cited items.",
+    "evidence": [
+      "E8",
+      "E4"
+    ],
+    "quote": "The cohort, now practising both counted and uncounted return, may claim standing in how the valley coordinates its channel work. Book 24 names no body that would grant that standing and creates none.",
+    "alternative_reading": "Read narrowly, the cited item says only that the cohort may claim standing in how the valley coordinates its channel work. It does not say the cohort is the only party that may claim it, nor that the standing covers coordination in general. It also does not say how such a claim would be made or who would recognise it.",
+    "would_settle": null,
+    "creative_room": "Still open: the cohort's possible claim to standing in channel coordination, and whether that claim is recognised, contested or refused. Proposals, not record: any grantor, any procedure for making the claim, standing beyond channel work, or the cohort as sole claimant."
+  },
+  "refused_attempts": 0
+}

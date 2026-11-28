@@ -1,0 +1,36 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "516add49fee162c140ca8e1f499fbfbf91c964c80bfa5c2369d51a636ed5f54f",
+  "synthesis_request_sha256": "b9bf9fdbb4835462f0e3df4c67ecf83cb9f9b0c19349cddfa7445fafb8fc5354",
+  "claim": "a3",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "Who can repair is shown before any outside apprentice has been tested, so the record could show capability the Right has not yet certified; whether that is permitted is not stated in the cited items.",
+    "ordering": "Introduce the public capability record (s4) before the condition is tested (s3).",
+    "viability": "unresolved"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a3",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "The claim is an alternative path, its viability is marked unresolved, and its wording says permission is not stated. The premise that the record is exported in Book 24 rests on E5, which is agent_proposed and asserted. The Book 24 review point in E7 is also agent_proposed, and its source gives a reversal. No cited item orders the record before the condition test, and none states whether the Right has been certified. The modal wording could keeps this a proposal rather than an error, but the ordering and certification premises are not carried by the cited items.",
+    "evidence": [
+      "E5",
+      "E7"
+    ],
+    "quote": "exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair",
+    "alternative_reading": "The offered quote carries only that the Book exports a new record, and E5 marks that element agent_proposed. It does not carry the ordering before the condition test or the certification premise, which are not stated in the cited items.",
+    "would_settle": "A cited item stating the order in which Book 24 tests the Special Draw Right condition relative to exporting the record, or an author decision adopting that ordering.",
+    "creative_room": "Remains possible: the public capability record can show who can repair before any outside apprentice is tested, so it could outrun the Right's certification. Treat as proposal, not record: the record's existence and content (E5), the Book 24 review point (E7), and any ordering of record before condition test. The author's stance on permission is open."
+  },
+  "refused_attempts": 0
+}

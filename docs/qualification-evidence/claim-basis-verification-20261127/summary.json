@@ -1,0 +1,566 @@
+{
+  "schema": "claim-basis-verification-summary/1",
+  "exercises": {
+    "A3": {
+      "claims": 15,
+      "verifier_flags": 8,
+      "critic_flags": 11,
+      "compared": 15,
+      "agree": 12,
+      "critic_source": "critics-v2/grounding-critic-exercise-A.md",
+      "rows": [
+        {
+          "claim": "a1",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "a2",
+          "verifier": "modal_misreading",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "a3",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "o1",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "o2",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "r1",
+          "verifier": "attribution_error",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r2",
+          "verifier": "defensible_inference",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r3",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r4",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r5",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s1",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s2",
+          "verifier": "overreaching",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s3",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "s4",
+          "verifier": "defensible_inference",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "s5",
+          "verifier": "modal_misreading",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        }
+      ]
+    },
+    "B3": {
+      "claims": 14,
+      "verifier_flags": 6,
+      "critic_flags": 8,
+      "compared": 14,
+      "agree": 12,
+      "critic_source": "critics-v2/grounding-critic-exercises-B-and-C.md",
+      "rows": [
+        {
+          "claim": "a1",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "a2",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "a3",
+          "verifier": "modal_misreading",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "o1",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "o2",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "o3",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r1",
+          "verifier": "defensible_inference",
+          "verifier_register": "inferred_from_established",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r2",
+          "verifier": "defensible_inference",
+          "verifier_register": "inferred_from_established",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r3",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r4",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s1",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s2",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s3",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "s4",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        }
+      ]
+    },
+    "C3": {
+      "claims": 22,
+      "verifier_flags": 13,
+      "critic_flags": 9,
+      "compared": 22,
+      "agree": 12,
+      "critic_source": "critics-v2/grounding-critic-exercises-B-and-C.md",
+      "rows": [
+        {
+          "claim": "a1",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "a2",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "a3",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "e1",
+          "verifier": "attribution_error",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "e2",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "e3",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "n1",
+          "verifier": "modal_misreading",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "n2",
+          "verifier": "contradicted",
+          "verifier_register": "established",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "n3",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "o1",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "o2",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "o3",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r1",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "r2",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r3",
+          "verifier": "defensible_inference",
+          "verifier_register": "inferred_from_established",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r4",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r5",
+          "verifier": "defensible_inference",
+          "verifier_register": "inferred_from_established",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r6",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s1",
+          "verifier": "attribution_error",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "s2",
+          "verifier": "defensible_inference",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "s3",
+          "verifier": "modal_misreading",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "s4",
+          "verifier": "unsupported_relation",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        }
+      ]
+    },
+    "F3v": {
+      "claims": 14,
+      "verifier_flags": 5,
+      "critic_flags": 3,
+      "compared": 14,
+      "agree": 10,
+      "critic_source": "exercise-F-followup/critic/critic-F3.md",
+      "rows": [
+        {
+          "claim": "a1",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "a2",
+          "verifier": "modal_misreading",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "a3",
+          "verifier": "overreaching",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "o1",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "o2",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "o3",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r1",
+          "verifier": "supported",
+          "verifier_register": "established",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "r2",
+          "verifier": "unsupported_relation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": true,
+          "critic_flag": true,
+          "agree": true
+        },
+        {
+          "claim": "r3",
+          "verifier": "unsupported_relation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "s1",
+          "verifier": "overreaching",
+          "verifier_register": "mixed",
+          "verifier_flag": true,
+          "critic_flag": false,
+          "agree": false
+        },
+        {
+          "claim": "s2",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": true,
+          "agree": false
+        },
+        {
+          "claim": "s3",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "s4",
+          "verifier": "creative_speculation",
+          "verifier_register": "agent_proposed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        },
+        {
+          "claim": "s5",
+          "verifier": "creative_speculation",
+          "verifier_register": "mixed",
+          "verifier_flag": false,
+          "critic_flag": false,
+          "agree": true
+        }
+      ]
+    }
+  },
+  "disagreements_adjudicated_by_hand": "see EVALUATION.md section 4"
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "c32a3868bc3ce0d527457be173555c105ffcb885c81339deb900203d10faca0b",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r3",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s2",
+      "s3"
+    ],
+    "dependence": "thematic",
+    "reason": "Inferred: a finale rule that puts the refusing generation's labour on the tally would bear on the steward's gap, and one that keeps them off it would leave the gap open. Which the author chooses is not stated in the cited items.",
+    "relation": "complicates"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r3",
+    "evidence_register": "inferred_from_established",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E2 establishes that the finale choice of who gives return labour and who is counted is not decided. E14 states that accepting her granddaughter's crew means accepting a gap in the tally she keeps. The shared ledger vocabulary of counting and tally makes a thematic link defensible, and the claim labels it thematic and inferred. The cited items do not say the granddaughter's crew is the refusing generation of E3. E14 repeats the text of E5 from Book 24, so it is one statement, not two.",
+    "evidence": [
+      "E2",
+      "E3",
+      "E14"
+    ],
+    "quote": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+    "alternative_reading": "The offered quote, from E14, carries only the steward's gap and does not mention the finale, so the finale premise rests on E2. Nothing cited states that a finale rule governs the steward's crew or that the crew is the refusing generation of E3.",
+    "would_settle": "An author-stated finale rule for who gives return labour and who is counted, or a Book text linking the granddaughter's crew to the refusing generation.",
+    "creative_room": "Open: a finale that counts the refusing generation on the tally bears on the steward's gap, and one that keeps them off leaves it open; E2 also allows a third mechanism. Treating the granddaughter's crew as the refusing generation, or the finale as the steward's resolution, would have to be a proposal, not record, unless the author states it."
+  },
+  "refused_attempts": 0
+}

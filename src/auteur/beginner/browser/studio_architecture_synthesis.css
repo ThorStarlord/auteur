@@ -62,3 +62,21 @@
   .synthesis-choice { min-height: 44px; align-items: center; }
 }
 .synthesis-quote { margin: .15rem 0 0 .2rem; color: #433d30; font-style: italic; overflow-wrap: anywhere; }
+
+/* Claim-basis checks and derived changes. A check is a judgement a fresh agent gave; it is shown as one, beside the claim it judges. */
+.synthesis-basis, .synthesis-derived { margin-top: .9rem; }
+.synthesis-basis-list { margin: .3rem 0 0 1.2rem; padding: 0; }
+.synthesis-claim-check { margin-bottom: .75rem; padding-bottom: .5rem; border-bottom: 1px dotted #c9bfa9; }
+.synthesis-claim-head { margin: 0 0 .15rem; font-size: .9rem; }
+.synthesis-claim-kind { color: #5b5340; }
+.synthesis-claim-text { margin: .1rem 0 .35rem; font-size: .93rem; line-height: 1.45; overflow-wrap: anywhere; }
+.synthesis-check { font: inherit; font-size: .85rem; padding: .2rem .6rem; border-radius: 6px; border: 1px solid #8e8572; background: #fbf8f0; cursor: pointer; }
+.synthesis-verdict-box, .synthesis-claim-awaiting { margin-top: .25rem; padding: .4rem .6rem; border-left: 3px solid #b9b09c; background: #fbf8f0; }
+.synthesis-verdict-reasoning { margin: .35rem 0 .2rem; font-size: .93rem; line-height: 1.45; overflow-wrap: anywhere; }
+.synthesis-carry { display: block; margin-top: .35rem; font-size: .85rem; }
+.synthesis-claim-response { width: 100%; box-sizing: border-box; margin-top: .3rem; }
+.synthesis-derived-item, .synthesis-carried-item { font-size: .9rem; line-height: 1.4; overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .synthesis-basis-list { margin-left: .6rem; }
+  .synthesis-verdict-box, .synthesis-claim-awaiting { padding: .35rem .45rem; }
+}

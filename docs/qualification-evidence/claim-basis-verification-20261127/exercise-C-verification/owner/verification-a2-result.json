@@ -1,0 +1,37 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "128e062c9c85cf8c0987fc6c89311066902463d4b066b351ecbc29ce62c27549",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "a2",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "Trained hands from Books 24 and 25 would wait without a date that uses them, and the steward's gap in her tally would stand unresolved in the Books that show it.",
+    "ordering": "Labour deferred: the mechanism for who gives labour is set after Books 27 to 29 instead of in Books 24 and 25.",
+    "viability": "weakened"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a2",
+    "evidence_register": "mixed",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E11 states as fact, under derived attribution, that the labour question cannot wait for Books 27 to 29 because the date is public and training takes years; that carries the weakened viability. E13 lists how long a channel hand takes to train as unknown, so the training premise is contested in the record. E5 ties the tally gap to accepting the crew, not to deferral, and no cited item says Books 24 and 25 set the labour mechanism.",
+    "evidence": [
+      "E11",
+      "E13",
+      "E5"
+    ],
+    "quote": "so the labour question cannot wait for Books 27 to 29.",
+    "alternative_reading": "The offered quote carries the conclusion, but the premise that makes waiting costly ('training takes years') sits in the same sentence, and E13 marks the training duration unknown. Read alone, the quote shows the date is public, not that deferral is non-viable. The gap-unresolved effect is not stated for deferral in the cited items.",
+    "would_settle": "A stated training duration for channel hands (the unknown in E13), and a statement whether Books 24 and 25 set the labour mechanism.",
+    "creative_room": "Deferring labour to Books 27 to 29 stays open as an authored alternative: the trained hands could sit idle as a visible cost, and the steward's tally gap could be carried forward rather than resolved. Treat as proposals, not record: the wait without a date, the gap standing unresolved, and any claim that Books 24 and 25 set the mechanism."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "113711502d786574c3387f8c1c472e6865f1be7547b3167e97e99713a92163ec",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "a1",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "The record makes channel labour a condition of the date, so the return labour the finale question asks about would be missing when the pulse arrives.",
+    "ordering": "Pulse before the labour: the Long Return's date arrives before channel labour is in place, with the Gate schedule set first.",
+    "viability": "closed"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a1",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "creative_possibility",
+    "reasoning": "E1 states as record that the pulse needs channel labour before its date, so a date arriving before that labour lies outside the stated dependency; this supports closing that ordering within the record. E2 asks who gives return labour and E9 ties labour to the Long Return, but no cited item says channel labour is the return labour. E1 also gives no order between the Gate schedule and the date, so the Gate-first part of the wording is not carried.",
+    "evidence": [
+      "E1",
+      "E2",
+      "E9"
+    ],
+    "quote": "It needs channel labour before its date and a Gate schedule that routes it.",
+    "alternative_reading": "The quote carries only the dependency: channel labour before the date, and a Gate schedule that routes the pulse. It does not carry that this labour is the return labour E2 asks about, nor any order between the Gate schedule and the date.",
+    "would_settle": "A cited item stating that channel labour is the return labour the finale question asks about, or ordering the Gate schedule before the date.",
+    "creative_room": "Closed as record: a pulse arriving before channel labour. Still open: a shortfall pulse offered as a proposal; the routing choice E1 leaves to the valley; who gives return labour, which E2 leaves undecided. Treat the labour-equals-return-labour link and the Gate-first order as proposals until the record states them."
+  },
+  "refused_attempts": 0
+}

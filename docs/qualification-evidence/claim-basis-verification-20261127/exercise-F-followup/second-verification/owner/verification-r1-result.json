@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "2264c29fa79b06131f523845140b721863c808b64dd9c3a93aa7ed747a56743c",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "r1",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "s1"
+    ],
+    "dependence": "causal",
+    "reason": "E6 gives lineage crews' performance of the labour under the Right as the reason the later generation has not seen it. E1 records that arrangement from Book 20.",
+    "relation": "enables"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r1",
+    "evidence_register": "established",
+    "judgment": "supported",
+    "affects": "load_bearing_premise",
+    "reasoning": "E6, a Working Book element marked asserted, not agent_proposed, states the causal reason in its own words. E1 records the arrangement: from Book 20 lineage crews carry channel repair under a Special Draw Right. The offered quote carries the causal premise. Gaps: s1 is not identified in the cited items, and 'the Right' is matched to the Special Draw Right by shared term, not by name. E6 repeats in Book 25 (E12), so it is no independent corroboration.",
+    "evidence": [
+      "E6",
+      "E1"
+    ],
+    "quote": "because lineage crews perform it under the Right",
+    "alternative_reading": "Read narrowly, E1 records only the arrangement and says nothing about what later generations have seen; the link to that unseen state rests on E6 alone, a Working Book assertion, not a story event.",
+    "would_settle": null,
+    "creative_room": "Still open: how a later generation comes to see the labour, what it does then, and whether the arrangement is contested in the story. Must stay proposal, not record: any named later event the unseen labour produces, any reading of 'the Right' as the Special Draw Right unless the source names it, and any causal reason treated as author-stated rather than Working Book-asserted."
+  },
+  "refused_attempts": 0
+}

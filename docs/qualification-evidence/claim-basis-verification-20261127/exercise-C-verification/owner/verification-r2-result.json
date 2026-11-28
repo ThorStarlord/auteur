@@ -1,0 +1,42 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "7c2874fb66783457c64bbcb20aa466e117121c3b72f933452c75668c750df400",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r2",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s1",
+      "s2"
+    ],
+    "dependence": "sequential_only",
+    "reason": "Book 25 builds on the training Book 24 begins: its readiness element repeats Book 24's text, so the record shows the state carried forward rather than new development.",
+    "relation": "enables"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r2",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "asserted_condition",
+    "reasoning": "The offered quote is verbatim in E7 and E16 and is worded as record fact, though attribution and epistemic status are unknown_legacy, not agent_proposed. E17 shows the same text in Book 24 and Book 25. Identical text does not state a dependence: the cited items do not say Book 25 builds on Book 24's training, so 'enables' and 'sequential_only' are not stated. 'Carried forward rather than new development' is an inference from repetition. E11 gives a timing reason but names Books 27 to 29, not Book 25.",
+    "evidence": [
+      "E7",
+      "E16",
+      "E17",
+      "E11"
+    ],
+    "quote": "Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.",
+    "alternative_reading": "The offered quote 'Labour readiness has begun.' does not carry the claim's premise: it states the readiness state but names no Book 24 to Book 25 relation. Not stated in the cited items: that Book 25 builds on Book 24's training. The identical text could be a copy, restatement or carry-forward, and the cited items do not settle which.",
+    "would_settle": "A cited element or record stating that Book 25's readiness depends on Book 24's training, or the origin of the repeated text (copy, restatement or carry-forward).",
+    "creative_room": "Still possible: Book 24 starts training and Book 25 continues it, a carry-forward the author can adopt. If the enabling dependence or the carry-forward reading is used, treat it as a proposal, not record, unless the author states it. Readiness could also be new development in Book 25, which the cited items do not exclude."
+  },
+  "refused_attempts": 0
+}

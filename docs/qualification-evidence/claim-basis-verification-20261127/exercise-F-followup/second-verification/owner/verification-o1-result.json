@@ -1,0 +1,38 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "e4fc51f20b39454ecd129baecdc4fc6e60a6033f5ac646fe322e13f05a5ca80d",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "o1",
+  "claim_kind": "opportunity",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "s4"
+    ],
+    "text": "Proposed: if the capability record (s4) is adopted, the households that meet the rota could be seen for who they are, rather than only as the remainder that carries the work (E1)."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "o1",
+    "evidence_register": "mixed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "E1 states as fact that households that can meet the rota carry the rest, so the remainder role is established. The capability record appears only in E5, an agent_proposed Book element, and its text is truncated before the contrast it draws. The claim labels the sentence 'Proposed' and conditions it on adoption, so the change in how households are seen is a creative proposal the evidence does not entail. Not stated in the cited items: how households are currently seen, and whether the record is adopted.",
+    "evidence": [
+      "E1",
+      "E5"
+    ],
+    "quote": "exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance, that says who can repair rather than who",
+    "alternative_reading": "The offered quote from E1 carries only the remainder premise, not the adoption-conditioned capability record, and does not show that households are currently seen only as the remainder.",
+    "would_settle": "Adoption of the capability record in a later Book or revision; none is among the cited items.",
+    "creative_room": "Open: households that meet the rota could be seen as bearers of repair capability, and a public capability record could sit beside debt and tally. Treat as proposals, not record: the capability record (agent-proposed in E5), its adoption, and any reading of how households are seen now. The carry-the-rest role (E1) stays record."
+  },
+  "refused_attempts": 0
+}

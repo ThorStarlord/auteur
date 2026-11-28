@@ -1,0 +1,36 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "29324034af3f1278048e96da52dda61230729b4dfc5e6c6b6fade463b9b4d381",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "n1",
+  "claim_kind": "necessary_condition",
+  "claim_wording": {
+    "text": "Channel labour is in place before the date, because the pulse needs it along with a Gate schedule that routes it."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "n1",
+    "evidence_register": "mixed",
+    "judgment": "modal_misreading",
+    "affects": "asserted_condition",
+    "reasoning": "E1 states as fact that the pulse needs channel labour before its date and a Gate schedule that routes it, so the necessity part is established. The claim turns that need into a present state, 'is in place', and the cited items do not state that labour is in place before the date. E7 says 'a visible shortfall remains'. E8 says trained hands set up the labour, but its attribution and status are null. E12 is agent_proposed and says the group 'does not close the Long Return's labour gap'. The 'because' clause treats need as proof of presence, which does not follow.",
+    "evidence": [
+      "E1",
+      "E7",
+      "E8",
+      "E12"
+    ],
+    "quote": "It needs channel labour before its date and a Gate schedule that routes it.",
+    "alternative_reading": "The offered quote carries only the requirement, not the premise that labour is in place. Read as a necessary condition (labour required before the date), the claim is supported. Read as a present state, presence is not stated in the cited items.",
+    "would_settle": "An established, attributed item stating that channel labour is complete before the Book 30 date and that the shortfall noted in E7 is closed.",
+    "creative_room": "Still open: labour may be partial, short or contested at the date, so the pulse can arrive under strain, and the finale can turn on the gap. The Gate routing stays the valley's choice (E1). Treat as proposal, not record: that labour is in place or complete before the date, and any count of trained hands."
+  },
+  "refused_attempts": 0
+}

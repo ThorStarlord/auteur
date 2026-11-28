@@ -1,0 +1,45 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "fae06bcd0ffa9b026e3e8833010685627da0181fc18e238d8c024514b079415b",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "s2",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "A visible labour shortfall once training has begun, since Book 24 starts the training and the date is public (E11, E16).",
+    "book": 25,
+    "changes": "The steward's trade of trained hands for a gap in her tally becomes a cost that any finale rule for who is counted must be measured against.",
+    "development": "Book 25 carries the Book 24 labour state forward in the same words: the preparation has trained people, a visible shortfall remains, and the steward's crew would leave a gap in her tally. The record shows identical text in both Books (E17).",
+    "horizon": "existing_book"
+  },
+  "claimed_basis": "recorded",
+  "used_by": [
+    "r2",
+    "r3",
+    "r5",
+    "o3"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s2",
+    "evidence_register": "mixed",
+    "judgment": "defensible_inference",
+    "affects": "load_bearing_premise",
+    "reasoning": "E16 states its own text as fact, and E17 lists identical text in Books 24 and 25, so the Book 25 stage is a carry-forward, as the development says. E14 says accepting the crew means accepting a gap in the steward's tally. E2 records the finale mechanism as not decided. That any finale rule must be measured against the gap is a defensible inference from E14 and E2, not record. The 'since Book 24 starts the training' dependency is not stated in the cited items.",
+    "evidence": [
+      "E16",
+      "E17",
+      "E14",
+      "E2"
+    ],
+    "quote": "The Long Return preparation has trained people, and a visible shortfall remains.",
+    "alternative_reading": "The offered quote carries the stage premise, not the 'since Book 24 starts the training' dependency. E8 (Book 24: trained hands set up the labour) would support that dependency but is not among the cited items. E16's epistemic status is unknown_legacy, so its wording is read as stated text, not as sourced fact.",
+    "would_settle": "A cited Book 24 element stating that training began there, and a Book 25 element showing the gap changed rather than repeated.",
+    "creative_room": "Open: how the finale counts return labour (E2 is undecided), and whether the steward's gap is honoured, narrowed or kept as a cost. Treat as proposals: that any finale rule must be measured against the gap, and that Book 25 changes the gap rather than repeating it."
+  },
+  "refused_attempts": 0
+}

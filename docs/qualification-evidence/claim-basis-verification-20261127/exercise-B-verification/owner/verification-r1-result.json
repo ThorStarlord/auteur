@@ -1,0 +1,41 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "6043e2b56bfbfbb6b119b6adcc9b8d75045608bb2274728b0f6f9dacd4909c2e",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "r1",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "d2"
+    ],
+    "dependence": "thematic",
+    "reason": "Both developments bear on the same return labour: the lineage Right and the households' rota carry repair (E1), while the Compact's purchased draw carries none (E2). The record does not say how the two would be reconciled (inferred).",
+    "relation": "complicates"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r1",
+    "evidence_register": "inferred_from_established",
+    "judgment": "defensible_inference",
+    "affects": "load_bearing_premise",
+    "reasoning": "E1 and E2 are established architecture summaries that both concern return labour: E1 says lineage crews carry channel repair under the Special Draw Right, and E2 says the purchased draw carries no return labour. A thematic complication is a defensible inference from that shared subject. The claim omits E24, an established link stating that under B the draw owes grain-labour to the rebuild, so its premise holds only for the unconditioned E2 summary.",
+    "evidence": [
+      "E1",
+      "E2",
+      "E24"
+    ],
+    "quote": "Their purchased draw carries no return labour.",
+    "alternative_reading": "The offered quote is copied from E2 and carries its unconditioned premise. E24 may make the two converge on the same labour under B rather than only complicate each other. Condition B is not defined in the cited items. The claim also drops E1's qualifier that the households carrying the rest are those that can meet the rota.",
+    "would_settle": "What condition B is and whether it holds, and whether the purchased draw's grain-labour under B is the same return labour that E1 describes.",
+    "creative_room": "Possible: the Compact's draw could owe grain-labour under B and so meet the lineage and rota work, or stay outside it and keep complicating it. Oona's hired-labour offer (agent_proposed, E5) and the Right's training condition (agent_proposed, E10) would need to be presented as proposals, not record, and so would any reconciliation mechanism between the two."
+  },
+  "refused_attempts": 0
+}

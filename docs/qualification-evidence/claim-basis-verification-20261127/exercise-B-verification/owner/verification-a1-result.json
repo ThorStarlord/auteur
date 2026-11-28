@@ -1,0 +1,36 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "b5022e9f5edaeba56acacc5fd35581378fa33e7fcbe8757c1e4d1527df30882a",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "a1",
+  "claim_kind": "alternative_path",
+  "claim_wording": {
+    "effect": "It would displace Books 27 to 29 and press on the author-reserved settlement (hypothetical, from E6).",
+    "ordering": "Oona's bid is brought forward, ahead of the Book 27 to 29 bid.",
+    "viability": "unresolved"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "a1",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "E6 and E16 are the same Working Book element: agent_proposed, with epistemic_status hypothetical. The offered quote carries the premise through 'It would displace Books 27 to 29', which is conditional. The claim's ordering wording, 'is brought forward, ahead of the Book 27 to 29 bid', is present indicative and carries no hypothetical marker, although its effect does. Read as a proposal the claim is warranted; read as record it would be a hypothetical stated as an event. No standing, dependency or settlement outcome is stated in the cited items.",
+    "evidence": [
+      "E6",
+      "E16"
+    ],
+    "quote": "Oona's bid brought forward. It would displace Books 27 to 29 and press on the author-reserved settlement.",
+    "alternative_reading": "The offered quote does carry the hypothetical premise through 'It would displace'. The ordering wording 'is brought forward' is not marked hypothetical, while E6 gives only the fragment 'Oona's bid brought forward.' under hypothetical status; keep the ordering as the proposed alternative, not an event.",
+    "would_settle": "Whether Oona's bid is brought forward is not stated in the cited items; an author decision on the Compact's settlement would settle it.",
+    "creative_room": "Remains possible: Oona's bid as an early alternative that displaces Books 27 to 29 and presses on the author-reserved settlement, explored as a proposal. Parts to treat as proposals rather than record: the ordering 'brought forward', the displacement of Books 27 to 29, and any settlement outcome, which the cited items leave to the author."
+  },
+  "refused_attempts": 0
+}

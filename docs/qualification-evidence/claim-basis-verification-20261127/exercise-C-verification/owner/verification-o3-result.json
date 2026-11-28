@@ -1,0 +1,39 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "18cd773cfabe2625dab4c5e1c0cbde5f755fdebff02ad3b474e2d27e9a24eaee",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "o3",
+  "claim_kind": "opportunity",
+  "claim_wording": {
+    "between": [
+      "s2",
+      "d1"
+    ],
+    "text": "The visible shortfall in Book 25 and the culmination together give the finale a gap the earlier Books already show, so the giving back answers a gap already visible on the page rather than one added at the end. This is proposed."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "o3",
+    "evidence_register": "mixed",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E16 and E7 state the same sentence as fact in Books 25 and 24, so the shortfall predates the finale. E3, author-stated, says the Long Return is met by the generation that gives back, supporting the answering relation. Not stated in the cited items: that Book 30 is the finale, that this shortfall is the labour need, or that the give-back was absent earlier. E16 and E7 have unknown_legacy attribution and status, so their standing as record is unconfirmed. The claim is marked proposed.",
+    "evidence": [
+      "E16",
+      "E7",
+      "E3"
+    ],
+    "quote": "Labour readiness has begun. The Long Return preparation has trained people, and a visible shortfall remains.",
+    "alternative_reading": "The offered fragment does not carry the labour premise; the preceding sentence in E16 does. Book 25 repeats Book 24's sentence (E7), so it adds no new development. The phrase 'rather than one added at the end' rests on E3's author-stated culmination, not on Book text.",
+    "would_settle": "Record text stating that Book 30 is the finale and that the give-back answers the labour shortfall, read with the labour-need element E9 (not cited).",
+    "creative_room": "The give-back can still be staged as answering the labour shortfall shown in Books 24 and 25, or as a cost the finale reveals. Who gives and who is counted stays open (E2: Not decided), so the mechanism is free. Treat as proposal: that the give-back was absent from earlier Books, and that Book 30 is the finale."
+  },
+  "refused_attempts": 0
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ca8eda3ade56acd072132c3e12df3c9916480ce4bb6b6d5ddbd01e2e1748c406",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "n3",
+  "claim_kind": "necessary_condition",
+  "claim_wording": {
+    "text": "The refusing generation's giving is recorded in a way that fits its refusal to be counted. This is inferred from the culmination's own words; how it is recorded is not stated in the cited items."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "n3",
+    "evidence_register": "mixed",
+    "judgment": "unsupported_relation",
+    "affects": "asserted_condition",
+    "reasoning": "E3 is author-stated and names who meets the Long Return: the generation that refused to be counted, giving back water before it is owed. How that giving is recorded is not stated in the cited items, so the claim's premise, that the giving is recorded in a way fitting that refusal, is not carried by E3. E2 records the finale mechanism for who gives return labour and who is counted for it as not decided, so a recording fit would fill an open author choice. E10 proposes a capability record of who can repair and is agent_proposed, not record.",
+    "evidence": [
+      "E3",
+      "E2",
+      "E10"
+    ],
+    "quote": "Which finale mechanism, A, B, C or a third, does the author choose for who gives return labour and who is counted for it? Not decided.",
+    "alternative_reading": "The offered quote is E3's sentence. It supports that the refusing generation gives back the water, but it carries no premise about recording: how the giving is recorded is not stated in the cited items. Read strictly, the recording fit is a creative proposal for the author to make, not record.",
+    "would_settle": "The author's choice at E2 of who gives return labour and who is counted for it, and any author statement of how that giving is recorded.",
+    "creative_room": "The recording of the refusing generation's giving remains open. It could fit the refusal to be counted or not, and the E2 choice of who is counted decides which. A recording fit offered in a synthesis must be treated as a proposal, not record, until the author settles E2. The giving itself, as E3 states it, can stand as author record."
+  },
+  "refused_attempts": 0
+}

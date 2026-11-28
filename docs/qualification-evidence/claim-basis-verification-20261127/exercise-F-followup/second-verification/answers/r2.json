@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "r2",
+  "evidence_register": "agent_proposed",
+  "judgment": "unsupported_relation",
+  "affects": "load_bearing_premise",
+  "reasoning": "The claim asserts a causal 'enables' relation the cited items do not state. E5 is agent_proposed and sets two sentences side by side (labour gap met by people; a generation that refuses to be counted is asked to give back water) with no connective of cause. E4, stated as fact, establishes only counted and uncounted practice within one generation; equating that with refusing to be counted is an inference. E1 establishes the labour arrangement, not the link. The relation rests on an agent-proposed element.",
+  "evidence": ["E5", "E4", "E1"],
+  "quote": "A generation that refuses to be counted is asked to give back the water before it is owed.",
+  "alternative_reading": "The offered quote is verbatim from E5 but carries no causal connective: it says the generation is asked to give back water, not that refusal enables the request. The link appears only in the claim's own wording and reason. Read as a proposal, the link is creative; read as record, it is not stated in the cited items.",
+  "would_settle": "A cited item stating that the refusal leads to the request for labour, or the author stating that link as a condition.",
+  "creative_room": "The refusal-to-labour pressure stays open as a creative possibility for Book 24: a generation that declines the count may be asked to return water first. Treat the causal 'enables' link and the request itself as proposals, not record. The counted/uncounted split (E4) can remain the recorded base; other ties between refusal and labour are also open."
+}

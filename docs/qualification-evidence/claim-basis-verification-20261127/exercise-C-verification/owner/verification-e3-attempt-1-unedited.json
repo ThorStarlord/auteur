@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "e3",
+  "evidence_register": "mixed",
+  "judgment": "attribution_error",
+  "affects": "asserted_condition",
+  "reasoning": "The claim states as existing that Book 24 already asks the generation to give back the water before it is owed. The only Book 24 text with that wording is E10, attributed agent_proposed, so it is an agent proposal, not record. E3 is the author's own culmination wording and only shows the culmination's words. The ordering is correctly left open. E17 shows E10's text also sits in Book 25, a repeated element rather than a distinct Book 24 event.",
+  "evidence": ["E10", "E3", "E17"],
+  "quote": "A generation that refuses to be counted is asked to give back the water before it is owed.",
+  "alternative_reading": "The offered quote is verbatim from E10 and carries the wording, but E10 is agent_proposed, so the quote does not carry the record status that 'already' asserts. Read as an agent proposal, the sentence is a candidate Book 24 move that the finale could echo, not an existing Book 24 feature.",
+  "would_settle": "Whether the author adopts the Book 24 sentence as record (its attribution changing from agent_proposed), and which Book first carries the wording.",
+  "creative_room": "Possible: Book 24 can carry the water-return gesture as a deliberate setup that the culmination pays off, or the culmination can state it first and Book 24 can echo it; the order is open. Proposals until adopted: the Book 24 sentence and any claim that it sets up the finale. Record: the author's culmination wording (E3)."
+}

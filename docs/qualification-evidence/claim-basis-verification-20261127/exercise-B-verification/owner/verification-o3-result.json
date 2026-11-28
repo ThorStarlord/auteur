@@ -1,0 +1,38 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ccad115e10f2f0026fe5af51b061c0c8be1a2a50c75c84833f67f1be3026f3d4",
+  "synthesis_request_sha256": "443009d80db06fe1834a96630abbc54f9161af01f6956c9d31f24e647f2ae238",
+  "claim": "o3",
+  "claim_kind": "opportunity",
+  "claim_wording": {
+    "between": [
+      "d1",
+      "d2"
+    ],
+    "text": "A public capability record, which Book 24 exports, could show who can repair; hired labour and the lineage Right could then be judged on one record of capability rather than on the Compact's draw (proposed; the cited items do not link the record to the Compact)."
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "o3",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "The claim marks itself as proposed. Its premise that Book 24 exports a capability record rests on E8, which is agent_proposed and states a design, not an achieved record. E5, also agent_proposed, describes hired labour offered if credited against the draw, neither accepted nor refused. No cited item links the record to the draw or to the lineage Right, which appears only in uncited E1, E4 and E10. As a presented proposal it is creative speculation, not an error.",
+    "evidence": [
+      "E8",
+      "E5"
+    ],
+    "quote": "exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance",
+    "alternative_reading": "The offered quote omits the exports premise and the agent_proposed attribution, which sit in the same E8 sentence. Read whole, E8 is a proposed design statement, so the premise that Book 24 exports the record is proposed, not established.",
+    "would_settle": "A cited item that is not agent_proposed, stating that Book 24 exports a capability record and linking that record to the Compact's draw or the lineage Right.",
+    "creative_room": "Open: judging hired lowland labour and the lineage Right on one record of repair capability, not on the Compact's draw; Oona's offer could be tested against it. Proposals, not record: that Book 24 exports the record, that it links to the draw, and that the lineage Right would be judged on it. The Compact's settlement stays author-reserved."
+  },
+  "refused_attempts": 0
+}

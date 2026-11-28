@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "5d070a5feabe1ed2012eba3fbdf1e945e959adf1bc13801e1d6c3c97bb290e2d",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "r3",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s2",
+      "s3"
+    ],
+    "dependence": "causal",
+    "reason": "E3 (agent-proposed) says the Right is exposed unless the training condition is demonstrated. E7 places the review point in Book 24. The cited items do not state whether the demonstration comes before that review.",
+    "relation": "complicates"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r3",
+    "evidence_register": "agent_proposed",
+    "judgment": "unsupported_relation",
+    "affects": "load_bearing_premise",
+    "reasoning": "Both cited items are agent-proposed. E3 says the maintenance lineages need the training condition demonstrated or the Right is exposed, and that their stake in the review is an agent inference. E7 places the Right's review point in Book 24. The claim relates the demonstration to that review as a causal complication. The cited items do not state whether the demonstration comes before the review, or that the review tests it.",
+    "evidence": [
+      "E3",
+      "E7"
+    ],
+    "quote": "the Right is conditional on training, so they need the condition demonstrated or the Right is exposed",
+    "alternative_reading": "Read as separate facts, the two cited items do not join: E3 gives an exposure condition and E7 gives a review point, and no cited item links them in time or in judgement. The offered quote carries only the exposure condition, not its relation to the Book 24 review. The timing is not stated in the cited items.",
+    "would_settle": "A cited item stating whether the training demonstration comes before the Book 24 review, or that the review tests it.",
+    "creative_room": "Still open: the lineages may demand the condition be shown before the Book 24 review, or the review may be where a shortfall is first faced. Any ordering of demonstration and review, and the lineages' stake in the review (an agent inference), would have to be treated as proposals rather than record until an author-stated or source item fixes them."
+  },
+  "refused_attempts": 0
+}

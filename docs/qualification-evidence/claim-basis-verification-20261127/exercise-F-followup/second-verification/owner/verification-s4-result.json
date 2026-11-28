@@ -1,0 +1,42 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "ed79d1fd52b986c593cb5a9a627b655c42853ab8686522c2ae56e03f8848517b",
+  "synthesis_request_sha256": "4b93a98769756820fe0b589cfc95f6df54bba97de1a059ad72b6b6e6df3270ff",
+  "claim": "s4",
+  "claim_kind": "stage",
+  "claim_wording": {
+    "becomes_available": "A record kept separate from debt, tally and aggregate balance, which says who can repair (E5).",
+    "book": null,
+    "changes": "If adopted, repair becomes visible per person. The cited items do not state that the record bears on any standing or coordination claim.",
+    "development": "A public capability record, which E5 (agent-proposed) has Book 24 export as a new kind of record, is used to show who can repair, so repair is seen per person and not only counted (proposed).",
+    "horizon": "proposed_book"
+  },
+  "claimed_basis": "proposed",
+  "used_by": [
+    "o1"
+  ],
+  "load_bearing": true,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "s4",
+    "evidence_register": "agent_proposed",
+    "judgment": "creative_speculation",
+    "affects": "creative_possibility",
+    "reasoning": "Basis is proposed. The only cited premise, the record export, comes from E5, an agent_proposed element; the claim labels it proposed, so it is a proposal rather than a record error. E1, an architecture-node development, says lineage crews carry channel repair under a Special Draw Right from Book 20; the record is not stated in E1. E8, hypothetical in status, says Book 24 names no body that would grant standing and creates none. E11 repeats E5's text in Book 25 and adds no independent source.",
+    "evidence": [
+      "E5",
+      "E1",
+      "E8",
+      "E11"
+    ],
+    "quote": "exports one new kind of record: a public capability record, separate from debt, tally and aggregate balance",
+    "alternative_reading": "The offered quote does carry the export premise. But E5 is cut off after 'rather than who', so the contrast that repair is seen per person and not only counted is only partly carried by the quoted words. The becomes_available wording is declarative and reads as record unless the proposed basis is kept.",
+    "would_settle": "The untruncated E5 text after 'rather than who', and an owner decision adopting the export.",
+    "creative_room": "Open as creative possibility: a public capability record, separate from debt, tally and aggregate balance, showing who can repair, and possibly demonstrating the Special Draw Right's training condition. Treat as proposals, not record: that Book 24 exports it, that repair becomes visible per person, and any not-only-counted contrast."
+  },
+  "refused_attempts": 0
+}

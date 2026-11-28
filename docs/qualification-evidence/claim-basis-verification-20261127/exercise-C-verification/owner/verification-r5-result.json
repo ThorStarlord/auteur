@@ -1,0 +1,40 @@
+{
+  "schema": "studio-claim-verification/1",
+  "authority": "advisory_verification_not_applied",
+  "request_sha256": "c1eb3ede90062a8f227398ef18172646ce54f5b8a400ecc61ad99de4d2945cbc",
+  "synthesis_request_sha256": "e82c2232c6acf90316d23199d1865e82340a7fa282f30cc9119c561a15b66581",
+  "claim": "r5",
+  "claim_kind": "relation",
+  "claim_wording": {
+    "between": [
+      "s2",
+      "s4"
+    ],
+    "dependence": "causal",
+    "reason": "Helpful, not necessary: the visible shortfall in Book 25 shows how far labour is from what the pulse needs before its date. The size of the shortfall is not stated in the cited items.",
+    "relation": "preparation"
+  },
+  "claimed_basis": null,
+  "used_by": [],
+  "load_bearing": false,
+  "standing": "current",
+  "status": "ready",
+  "request": null,
+  "result": {
+    "schema_version": 1,
+    "claim": "r5",
+    "evidence_register": "inferred_from_established",
+    "judgment": "defensible_inference",
+    "affects": "creative_possibility",
+    "reasoning": "E16 states, as a declarative Book 25 element, that a visible shortfall remains in Long Return labour readiness, though its epistemic status and attribution are unknown_legacy. E1 states that the pulse needs channel labour before its date. Linking the shortfall to that need is an inference the two items support. Neither item states the size of the shortfall or measures it against the need, and the causal preparation relation between s2 and s4 is not stated in the cited items.",
+    "evidence": [
+      "E16",
+      "E1"
+    ],
+    "quote": "The Long Return preparation has trained people, and a visible shortfall remains.",
+    "alternative_reading": "The offered quote carries the shortfall premise but not the link to the pulse, which the reader must infer from E1. E16 is marked unknown_legacy for epistemic status and attribution, so its standing as record is unclear. The size of the shortfall is not stated in the cited items.",
+    "would_settle": "A stated size of the shortfall against the labour the pulse needs, and a non-legacy attribution for the Book 25 element.",
+    "creative_room": "The shortfall can stay visible and unmeasured, so the finale can carry pressure without a fixed size. Who gives labour and the causal link between s2 and s4 remain open to the author. Any stated size, measure, or claimed causal link would have to be treated as a proposal, not record."
+  },
+  "refused_attempts": 0
+}

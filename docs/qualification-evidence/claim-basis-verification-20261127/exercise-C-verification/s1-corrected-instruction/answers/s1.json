@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "claim": "s1",
+  "evidence_register": "mixed",
+  "judgment": "attribution_error",
+  "affects": "load_bearing_premise",
+  "reasoning": "Stated basis is recorded, but the premise sentence is verbatim from E10, an agent_proposed element. Recorded E8 (no proposal marking) says only that trained outside-lineage hands set up the labour in Book 24. No cited non-proposed item states 'first' or 'rather than by a schedule'. E11 (derived) gives a timing reason: Book 24 is the first Book that knows the date and training takes years. That supports a defensible inference about when labour work starts, not a recorded first meeting. E12 is agent_proposed and says the gap is narrowed, not closed.",
+  "evidence": ["E8", "E10", "E11", "E12"],
+  "quote": "Book 24 is where the Long Return's labour gap is first met by people rather than by a schedule.",
+  "alternative_reading": "The offered quote does not carry the premise as record: it is verbatim E10, which is agent_proposed. The non-proposed E8 records only that trained outside-lineage hands set up the labour in Book 24. Read as a proposal, the sentence is an open creative choice.",
+  "would_settle": "A non-proposed Book 24 element, or an author statement, that the labour gap is first met by people rather than by a schedule.",
+  "creative_room": "Book 24 can stay the first people-based answer to the labour gap, but as a proposal unless the author adopts it. E8 records trained hands, not 'first' or 'rather than by a schedule'; treat those words and the first group's size and narrowing (E12) as proposals. A mix of schedule and people, or a different first Book, also stays open."
+}
