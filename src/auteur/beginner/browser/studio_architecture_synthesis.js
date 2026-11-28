@@ -545,9 +545,17 @@
     function loadVerifications(token, projection) {
       if (!projection || !projection.request_sha256) { view.verification = null; return Promise.resolve(null); }
       return request(canvasPath('synthesis/' + projection.request_sha256 + '/verifications')).then(function (reply) {
-        if (token === loadToken) view.verification = reply;
+        if (token !== loadToken) return null;
+        view.verification = reply;
+        // A carried judgement is offered only while its check is current; a check that has gone stale is dropped here.
+        view.carried = view.carried.filter(function (sha) {
+          return Object.keys(reply.claims || {}).some(function (claim) {
+            var latest = reply.claims[claim].latest;
+            return latest && latest.request_sha256 === sha && latest.standing === 'current';
+          });
+        });
         return null;
-      }).catch(function () { view.verification = null; });
+      }).catch(function () { if (token === loadToken) view.verification = null; });
     }
     function latestCheck(claim) {
       var entry = view.verification && view.verification.claims ? view.verification.claims[claim] : null;
@@ -612,6 +620,8 @@
     }
     function renderClaimAwaiting(claim, latest) {
       var key = claim.claim;
+      // Drafts belong to the request they answer, so a pasted response cannot land under another synthesis's claim of the same name.
+      var draftKey = latest.request_sha256;
       var box = el('div', 'synthesis-claim-awaiting');
       box.appendChild(el('p', 'synthesis-note', 'Awaiting your coding agent for ' + key + '. Request fingerprint ' +
         latest.request_sha256.slice(0, 16) + '…'));
@@ -622,8 +632,8 @@
       var response = el('textarea', 'synthesis-response synthesis-claim-response');
       response.rows = 3;
       // Kept in the panel's state, so a refusal leaves the pasted response in place to correct.
-      response.value = view.claimDrafts[key] || '';
-      response.addEventListener('input', function () { view.claimDrafts[key] = response.value; });
+      response.value = view.claimDrafts[draftKey] || '';
+      response.addEventListener('input', function () { view.claimDrafts[draftKey] = response.value; });
       response.setAttribute('aria-label', 'Response for claim ' + key);
       response.placeholder = 'Paste the verifier response object here';
       box.appendChild(response);
@@ -636,7 +646,7 @@
         try { payload = JSON.parse(response.value); } catch (error) { view.error = 'The response is not valid JSON.'; render(); return; }
         view.busy = true; render();
         request(canvasPath('verification/host-agent-response'), 'POST', payload).then(function () {
-          view.busy = false; view.error = null; view.claimDrafts[key] = '';
+          view.busy = false; view.error = null; delete view.claimDrafts[draftKey];
           say('The check of claim ' + key + ' is stored beside its request. Nothing is applied.');
           return load();
         }).catch(function (error) {
@@ -656,7 +666,7 @@
       box.appendChild(chip(words(REGISTER, v.evidence_register), 'note'));
       if (latest.standing !== 'current') {
         box.appendChild(document.createTextNode(' '));
-        box.appendChild(chip(latest.standing === 'stale' ? 'Stale: the evidence has changed' : 'Superseded by a later check', 'warn'));
+        box.appendChild(chip('Stale: the evidence has changed since this check', 'warn'));
       }
       box.appendChild(el('p', 'synthesis-verdict-reasoning', v.reasoning));
       if (v.alternative_reading) box.appendChild(labelledLine('What the evidence does support', v.alternative_reading));

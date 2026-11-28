@@ -151,6 +151,14 @@ def _packet(record: dict[str, Any], claim_ref: str, claims: dict[str, dict[str, 
     }
 
 
+def claim_text(wording: dict[str, Any]) -> str:
+    """The claim's own words, as the synthesis wrote them (a stage's development, a relation's reason, and so on)."""
+    for key in ("development", "text", "reason", "ordering", "statement"):
+        if wording.get(key):
+            return str(wording[key])
+    return json.dumps(wording, ensure_ascii=False, sort_keys=True)
+
+
 def _check_verification(verdict: ClaimVerification, user: dict[str, Any]) -> None:
     """Refuse what the owner can check: citations inside the packet, a verbatim quote, a reason where the judgement needs one, and
     consistency between the judgement and the register the verifier gives the evidence. Meaning is not checked here."""
@@ -161,6 +169,8 @@ def _check_verification(verdict: ClaimVerification, user: dict[str, Any]) -> Non
             problems.append(f"the verification cites {identifier}, which is not in this request")
     if verdict.judgment not in NO_EVIDENCE_NEEDED and not verdict.evidence:
         problems.append(f"a {verdict.judgment} judgement cites no evidence")
+    if verdict.quote and not verdict.evidence:
+        problems.append("a quote must come from an item the judgement cites")
     texts = {row["id"]: row.get("text") or "" for row in user["evidence"]}
     problems += _grounded("the verification", verdict.quote, verdict.evidence, texts)
     if verdict.judgment in MISREADINGS and not verdict.alternative_reading:
@@ -177,23 +187,15 @@ def _check_verification(verdict: ClaimVerification, user: dict[str, Any]) -> Non
     _refuse(problems)
 
 
-def _claim_pointer(store: CanvasStore, synthesis_request_sha256: str, claim: str):
-    return verification_root(store) / "latest_by_claim" / f"{_digest([synthesis_request_sha256, claim])}.json"
-
-
 def _standing(store: CanvasStore, request_sha256: str, request) -> str:
-    """``stale`` once the evidence the synthesis read has changed or the synthesis is gone; ``superseded`` when a later verification of
-    the same claim exists; ``current`` otherwise."""
-    synthesis_sha = request.settings["synthesis_request_sha256"]
+    """``stale`` once the evidence the synthesis read has changed or the synthesis is gone; otherwise ``current``. A claim has one
+    request for a given synthesis (its identity is its inputs, with no sequence), so a claim is checked once; a changed synthesis is
+    re-synthesized, and its checks are read as stale."""
     try:
-        record = synthesis_record(store, synthesis_sha)
+        record = synthesis_record(store, request.settings["synthesis_request_sha256"])
     except ValueError:
         return "stale"
-    if record["evidence_sha256_now"] != request.settings["evidence_sha256"]:
-        return "stale"
-    pointer = arch._read(_claim_pointer(store, synthesis_sha, request.settings["claim"]))
-    latest = pointer.get("request_sha256") if pointer else None
-    return "current" if request_sha256 == latest else "superseded"
+    return "stale" if record["evidence_sha256_now"] != request.settings["evidence_sha256"] else "current"
 
 
 def _row(store: CanvasStore, folder, request) -> dict[str, Any]:
@@ -246,7 +248,6 @@ def prepare_claim_verification(store: CanvasStore, *, synthesis_request_sha256: 
         folder = verification_root(store) / "requests" / request.request_sha256
         if not (folder / "request.json").exists():
             write_host_agent_request(folder / "request.json", request)
-        _atomic_json_write(_claim_pointer(store, synthesis_request_sha256, claim), {"request_sha256": request.request_sha256})
         row = _row(store, folder, load_host_agent_request(folder / "request.json"))
     return {"request": request.model_dump(), "verification": row}
 
@@ -296,7 +297,6 @@ def complete_claim_verification(store: CanvasStore, payload: dict) -> dict[str, 
             (directory / f"{name}.refusal.txt").write_text(str(refusal).strip() + "\n", encoding="utf-8")
             raise
         refused_before = len(list((folder / "refused").glob("*.json"))) if (folder / "refused").exists() else 0
-        write_host_agent_response(folder / "response.json", response)
         _atomic_json_write(folder / "result.json", {
             "schema": SCHEMA,
             "authority": AUTHORITY,
@@ -304,12 +304,14 @@ def complete_claim_verification(store: CanvasStore, payload: dict) -> dict[str, 
             "synthesis_request_sha256": synthesis_sha,
             "synthesis_result_sha256": record["result_sha256"],
             "claim": request.settings["claim"],
+            "claim_text": claim_text(user["claim"]["wording"]),
             "claim_sha256": request.settings["claim_sha256"],
             "evidence_sha256": request.settings["evidence_sha256"],
             "verification": verdict.model_dump(mode="json"),
             "completion": {"attempt": refused_before + 1, "refused_attempts": refused_before,
                            "first_pass": refused_before == 0},
         })
+        write_host_agent_response(folder / "response.json", response)
         return _row(store, folder, request)
 
 
@@ -348,6 +350,6 @@ def project_claim_verifications(store: CanvasStore, synthesis_request_sha256: st
 
 
 __all__ = [
-    "AUTHORITY", "ClaimVerification", "ROLE", "SCHEMA", "claim_inventory", "claims_of", "complete_claim_verification",
+    "AUTHORITY", "ClaimVerification", "ROLE", "SCHEMA", "claim_inventory", "claim_text", "claims_of", "complete_claim_verification",
     "dependents_of", "prepare_claim_verification", "project_claim_verifications",
 ]

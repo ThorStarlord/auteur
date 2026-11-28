@@ -163,5 +163,5 @@ def test_a_claim_is_checked_its_judgement_is_stored_beside_its_request_and_offer
         assert follow["settings"]["prior_request_sha256"] == request["request_sha256"]
         assert follow_user["criticism"][0]["verification_request_sha256"] == check["request_sha256"], \
             "the criticism keeps the identity of the check it came from"
-        assert "verifier judged s1" in follow_user["criticism"][0]["text"]
+        assert "judged claim s1 of the earlier synthesis as supported" in follow_user["criticism"][0]["text"]
     assert not [error for error in errors if error.strip()]

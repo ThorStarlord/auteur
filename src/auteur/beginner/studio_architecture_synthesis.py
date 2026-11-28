@@ -369,16 +369,21 @@ def _normalized_selections(developments: list[dict[str, Any]]) -> list[dict[str,
 
 
 def _verification_criticism(store: CanvasStore, request_sha256: str, prior_request_sha256: str) -> str:
-    """A completed claim-basis verification of the synthesis a follow-up continues, as one criticism. It is a verifier's judgement."""
+    """A completed claim-basis verification of the synthesis a follow-up continues, as one criticism. It is a verifier's judgement.
+    It names the claim by its wording, not by the earlier synthesis's evidence identifiers, which a follow-up numbers differently. It is
+    carried only while the evidence the verifier judged is unchanged."""
     result = arch._read(verification_root(store) / "requests" / request_sha256 / "result.json")
     if result is None:
         raise ValueError("a verification carried into a follow-up must be completed")
     if result.get("synthesis_request_sha256") != prior_request_sha256:
         raise ValueError("a verification carried into a follow-up must check the synthesis that follow-up continues")
+    if synthesis_record(store, prior_request_sha256)["evidence_sha256_now"] != result["evidence_sha256"]:
+        raise ValueError("the evidence this verification judged has changed; it cannot be carried into a follow-up")
     verdict = result["verification"]
-    cited = ", ".join(verdict["evidence"]) or "none"
-    return (f"A claim-basis verifier judged {result['claim']} as {verdict['judgment']}: {verdict['reasoning']} "
-            f"(The verifier cited: {cited}.) This is the verifier's judgement, not evidence; weigh it against the record.")
+    return (f"A claim-basis verifier judged claim {result['claim']} of the earlier synthesis as {verdict['judgment']}. "
+            f"The claim reads: {result.get('claim_text') or result['claim']} The verifier's reasoning: {verdict['reasoning']} "
+            "The verifier's evidence identifiers belong to the earlier synthesis and are not carried here. "
+            "This is the verifier's judgement, not evidence; weigh it against the record.")
 
 
 def prepare_architecture_synthesis(store: CanvasStore, *, question: str, developments: list[dict[str, Any]],
@@ -626,8 +631,10 @@ def _norm(text: str) -> str:
 
 
 def _overlap(a: str, b: str) -> float:
+    """The share of the prior item's words that remain in the current item (containment, not similarity: a correction that lengthens an
+    item keeps its words, and must still match)."""
     words_a, words_b = set(_norm(a).split()), set(_norm(b).split())
-    return len(words_a & words_b) / max(1, len(words_a | words_b))
+    return len(words_a & words_b) / max(1, len(words_a))
 
 
 def _match(prior: list[dict[str, Any]], current: list[dict[str, Any]], key) -> tuple[list[tuple[int, int]], list[int], list[int], set[int]]:
@@ -791,7 +798,7 @@ def complete_architecture_synthesis(store: CanvasStore, payload: dict) -> dict[s
             (directory / f"{name}.refusal.txt").write_text(str(refusal).strip() + "\n", encoding="utf-8")
             raise
         refused_before = len(list((folder / "refused").glob("*.json"))) if (folder / "refused").exists() else 0
-        write_host_agent_response(folder / "response.json", response)
+        # The result is written first: a crash between the two writes leaves no response that would block a retry.
         _atomic_json_write(folder / "result.json", {
             "schema": SCHEMA,
             "authority": AUTHORITY,
@@ -801,6 +808,7 @@ def complete_architecture_synthesis(store: CanvasStore, payload: dict) -> dict[s
             "completion": {"attempt": refused_before + 1, "refused_attempts": refused_before,
                            "first_pass": refused_before == 0},
         })
+        write_host_agent_response(folder / "response.json", response)
         return _row(store, folder, request)
 
 

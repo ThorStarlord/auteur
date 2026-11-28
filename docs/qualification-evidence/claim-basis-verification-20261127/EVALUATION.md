@@ -124,8 +124,23 @@ Not run. The ordinary-inquiry comparison from the previous increment was confoun
 - Human author evaluation is not claimed.
 - The synthesis contract's own prompt still states no field limits. It was not changed in this increment (it would change every future synthesis request identity). The first verification run showed this class of failure; the synthesis prompt is the next candidate for the same correction.
 
-## 13. Validation
+## 13. Implementation review and fixes
 
-- Focused (L1): `tests/test_architecture_verification.py`, `tests/test_architecture_synthesis.py`, `tests/test_architecture_reconsideration_repairs.py`, `tests/test_architecture_reconsideration.py`: 76 passed on the final code.
-- Named boundary (L2): the served consequence and synthesis browser suites, `tests/test_beginner_studio_consequence_browser.py` and `tests/test_beginner_studio_synthesis_browser.py`: 12 passed. These cover the consequence and reconsideration owners' served page, since the synthesis panel mounts beside them.
+An independent implementation reviewer (a fresh agent with the commit's source diff, no earlier context) reported seven findings on commit `8f90cde8`; the report is kept as `review-8f90cde8.md`. Each was checked against the code and fixed in a follow-up commit:
+
+1. Carried criticism used identifiers from the earlier synthesis's packet in a follow-up that numbers its evidence afresh (a culmination absent from the follow-up shifts later identifiers). Fixed: the criticism names the claim by its wording and says the identifiers are not carried.
+2. Stale verifications could be carried: the panel disabled the box, but the carried list and the owner did not check standing. Fixed: the owner refuses a carry whose evidence has changed, and the page drops a stale check from its carried list when it reloads.
+3. A quote with no cited evidence was not checked against anything. Fixed: a verification's quote must come from an item it cites.
+4. The `superseded` standing could not occur: a claim has one request for a given synthesis, since the request identity is its inputs. Fixed: the standing is `current` or `stale`, the pointer is removed, and the design no longer names a superseded verification.
+5. The positional revision rule measured Jaccard, not the documented share of the prior item's words that remain, so a lengthened correction was reported as removed and added. Fixed: containment, as documented. The Exercise F comparison is unchanged under the new rule (55 items).
+6. Response and result were written in an order where a crash could leave a response that blocked a retry. Fixed: result first, then response, in both the verification and the synthesis owners.
+7. The served panel's drafts were keyed by claim name, so a pasted response could appear under another synthesis's claim of the same name, and a late failed load could blank a newer panel. Fixed: drafts are keyed by request identity; a load only clears the state it owns.
+
+Checked and clear by the reviewer: no narrative or Architecture write; refused judgements never reach `result.json`; no null dereference on an absent projection.
+
+## 14. Validation
+
+- Focused (L1) on the final code: `tests/test_architecture_verification.py` (33), `tests/test_architecture_synthesis.py` (24), `tests/test_architecture_reconsideration_repairs.py` (8), `tests/test_architecture_reconsideration.py` (13): 78 passed.
+- Named boundary (L2), served: `tests/test_beginner_studio_consequence_browser.py` and `tests/test_beginner_studio_synthesis_browser.py`: 12 passed. These cover the consequence and reconsideration owners' served page, since the synthesis panel mounts beside them.
+- Lint: ruff is clean on the changed source and scripts and on the new test module. The served test module keeps the fixture-import pattern that `main`'s synthesis tests already use.
 - Not run: L3 full regression (no checkpoint trigger). No release qualification.

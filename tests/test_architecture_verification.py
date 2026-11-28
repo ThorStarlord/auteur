@@ -249,8 +249,30 @@ def test_a_verification_carried_into_a_follow_up_is_one_criticism_with_its_ident
     criticism = json.loads(follow["request"]["user"])["criticism"]
     assert len(criticism) == 1
     assert criticism[0]["verification_request_sha256"] == request["request_sha256"]
-    assert "verifier judged s1 as supported" in criticism[0]["text"]
+    assert "judged claim s1 of the earlier synthesis as supported" in criticism[0]["text"]
+    assert "The verifier's evidence identifiers belong to the earlier synthesis" in criticism[0]["text"]
+    assert "The verifier cited" not in criticism[0]["text"], "earlier identifiers are not carried into a renumbered follow-up"
     assert "not evidence" in criticism[0]["text"]
+
+
+def test_a_stale_verification_cannot_be_carried_into_a_follow_up(project):
+    store = store_for(project)
+    synthesis_sha, _user = completed_synthesis(store)
+    request, _row = verify(store, synthesis_sha, "s1")
+    edit_vision(store)
+    with pytest.raises(ValueError, match="has changed; it cannot be carried"):
+        prepare_architecture_synthesis(store, question="Follow.", developments=[question_selection()],
+                                       prior_request_sha256=synthesis_sha, verifications=[request["request_sha256"]])
+
+
+def test_a_quote_must_come_from_an_item_the_judgement_cites(project):
+    store = store_for(project)
+    synthesis_sha, user = completed_synthesis(store)
+    request = prepare_claim_verification(store, synthesis_request_sha256=synthesis_sha, claim="s1")["request"]
+    payload = verdict(user, "s1", judgment="insufficient_evidence", evidence=[], would_settle="A recorded element.",
+                      alternative_reading=None, quote=text_of(user, user["developments"][0]["evidence"])[:40])
+    with pytest.raises(ValueError, match="must come from an item the judgement cites"):
+        complete_claim_verification(store, replay_verification(request, payload))
 
 
 def test_a_verification_of_another_synthesis_cannot_be_carried_into_this_follow_up(project):

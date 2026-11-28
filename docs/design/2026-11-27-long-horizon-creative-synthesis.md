@@ -240,9 +240,12 @@ synthesis by its request identity and its stored result. It writes only under `a
 the synthesis request, response, result or pointer, and it never applies anything.
 
 Request, response, result and refused records follow the consequence lineage (`requests/<sha>/`, `refused/`, a latest pointer per
-claim). Standing is computed, not stored: `current` when the verification is the latest for its synthesis and claim and the evidence
-fingerprint recomputed now equals the one at preparation; `superseded` when a later verification of the same claim exists; `stale` when
-the evidence the synthesis read has changed.
+claim). Standing is computed, not stored: `current` when the evidence
+fingerprint recomputed now equals the one at preparation; `stale` when the evidence the synthesis read has changed. A claim has one
+request for a given synthesis: its identity is its inputs, with no sequence, so a claim is checked once for that synthesis. A changed
+synthesis is re-synthesized, and its checks are read as stale. (An earlier draft of this section named a `superseded` standing for
+verifications; it was unreachable and is removed.) A verification's standing is therefore `current` or `stale`: `stale` applies
+when the evidence the synthesis read has changed.
 
 ### 12.4 The verification contract (`ClaimVerification`, schema version 1)
 
@@ -274,7 +277,8 @@ instruction did not state. The refusal is kept; the instruction was corrected; t
 instruction and accepted on its first attempt. Every other verification in this increment was prepared under the earlier instruction,
 which stated no limits and produced no other length refusal. This is recorded as a difference between requests, not hidden.
 
-Owner checks: the claim exists in the synthesis; every cited identifier was in the packet; the quote is verbatim in a cited item; an
+Owner checks: the claim exists in the synthesis; every cited identifier was in the packet; a quote comes from a cited item and is
+verbatim in it; an
 interpretive judgement cites evidence; a misreading, overreach, contradiction, unsupported relation or standing confusion gives an
 alternative reading; `insufficient_evidence` names what would settle it; a stage the synthesis labelled `recorded` cannot be judged
 `supported` on evidence the verifier itself marks `agent_proposed` or `not_established`. The last rule checks the verifier's
@@ -310,10 +314,13 @@ with both counts. Immaterial wording changes are listed as `reworded` without an
 
 ### 12.7 Follow-through into a synthesis
 
-A follow-up synthesis may name completed verifications of claims in the prior synthesis (`verifications`). Each becomes one criticism,
-whose text states the verifier's judgement, its reasoning and its evidence identifiers, labelled as a verifier's judgement, not as
-evidence. The owner records the verification identity beside the criticism, so the follow-up's criticism assessment can be traced to
-its source. The total criticism bound of four still applies.
+A follow-up synthesis may name completed verifications of claims in the prior synthesis (`verifications`). Each becomes one criticism.
+The text names the claim by its own wording, states the verifier's judgement and reasoning, and is labelled as a verifier's judgement,
+not as evidence. It does not carry the verifier's evidence identifiers: a follow-up numbers its evidence afresh (a culmination absent
+from the follow-up shifts every later identifier), so an earlier identifier could point at a different item. A verification is carried
+only while the evidence it judged is unchanged; a stale check is refused by the owner and dropped from the page's carried list. The
+owner records the verification identity beside the criticism, so the follow-up's criticism assessment can be traced to its source. The
+total criticism bound of four still applies.
 
 ### 12.8 Limits accepted for this increment
 
